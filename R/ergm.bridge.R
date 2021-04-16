@@ -40,6 +40,7 @@
 #'
 #' @templateVar mycontrol control.ergm.bridge
 #' @template control
+#' @template verbose
 #'
 #' @param coef A vector of coefficients for the configuration of
 #'   interest.
@@ -68,6 +69,8 @@ ergm.bridge.llr<-function(object, response=NULL, reference=~Bernoulli, constrain
   handle.control.toplevel("ergm.bridge", ...)
 
   if(!is.null(control$seed)) {set.seed(as.integer(control$seed))}
+
+  message("Setting up bridge sampling...")
   
   ergm_preprocess_response(basis, response)
 
@@ -101,13 +104,17 @@ ergm.bridge.llr<-function(object, response=NULL, reference=~Bernoulli, constrain
   }
   
   ## Obtain simulation setting arguments in terms of ergm_state.
+  if(verbose) message("Initializing model and proposals...")
   sim_settings <- do.call(stats::simulate, c(simulate(object, coef=from, nsim=1, reference=reference, constraints=list(constraints, obs.constraints), observational=FALSE, output="ergm_state", verbose=max(verbose-1,0), basis = basis, control=gen_control(FALSE, "first"), ..., do.sim=FALSE), do.sim=FALSE))
+  if(verbose) message("Model and proposals initialized.")
   nw.state <- sim_settings$object
   stats <- matrix(NA, control$nsteps, nparam(nw.state,canonical=TRUE))
 
   obs <- !is.null(.handle.auto.constraints(basis, constraints, obs.constraints, target.stats)$constraints.obs)
   if(obs){
+    if(verbose) message("Initializing constrained model and proposals...")
     sim_settings.obs <- do.call(stats::simulate, c(simulate(object, coef=from, nsim=1, reference=reference, constraints=list(constraints, obs.constraints), observational=TRUE, output="ergm_state", verbose=max(verbose-1,0), basis = basis, control=gen_control(TRUE, "first"), ..., do.sim=FALSE), do.sim=FALSE))
+    if(verbose) message("Constrained model and proposals initialized.")
     nw.state.obs <- sim_settings.obs$object
     stats.obs <- matrix(NA, control$nsteps, nparam(nw.state.obs,canonical=TRUE))
   }else
@@ -166,7 +173,9 @@ ergm.bridge.llr<-function(object, response=NULL, reference=~Bernoulli, constrain
     }
   }
   message(".")
-    
+
+  if(verbose) message("Bridge sampling finished. Collating...")
+
   Dtheta.Du<-(to-from)/control$nsteps
 
   esteq  <- rbind(sapply(seq_len(control$nsteps), function(i) ergm.etagradmult(path[i,],stats[i,]-stats.obs[i,],nw.state$model$etamap)))
@@ -222,10 +231,11 @@ ergm.bridge.0.llk<-function(object, response=NULL, reference=~Bernoulli, coef, .
 #'   dyad-independent model.
 #' 
 #' @export
-ergm.bridge.dindstart.llk<-function(object, response=NULL, constraints=~., coef, obs.constraints=~.-observed, target.stats=NULL, dind=NULL, coef.dind=NULL,  basis=eval_lhs.formula(object), ..., llkonly=TRUE, control=control.ergm.bridge()){
+ergm.bridge.dindstart.llk<-function(object, response=NULL, constraints=~., coef, obs.constraints=~.-observed, target.stats=NULL, dind=NULL, coef.dind=NULL,  basis=eval_lhs.formula(object), ..., llkonly=TRUE, control=control.ergm.bridge(), verbose=FALSE){
   check.control.class("ergm.bridge", "ergm.bridge.dindstart.llk")
   handle.control.toplevel("ergm.bridge", ...)
 
+  if(verbose) message("Initializing model to obtain the list of dyad-independent terms...")
   ## Here, we need to get the model object to get the list of
   ## dyad-independent terms.
   nw <- basis
@@ -279,6 +289,7 @@ ergm.bridge.dindstart.llk<-function(object, response=NULL, constraints=~., coef,
     if(length(object)==3) dind[[2]] <- object[[2]] else dind <- dind[-2]
   }
 
+  message("Fitting the dyad-independent submodel...")
   ergm.dind<-suppressMessages(suppressWarnings(ergm(dind,estimate="MPLE",constraints=constraints,obs.constraints=obs.constraints,eval.loglik=FALSE,control=control.ergm(drop=FALSE, term.options=control$term.options, MPLE.max.dyad.types=control$MPLE.max.dyad.types), offset.coef = offset.dind)))
   
   if(is.null(coef.dind)){
@@ -313,7 +324,14 @@ ergm.bridge.dindstart.llk<-function(object, response=NULL, constraints=~., coef,
     target.stats[m$etamap$offsetmap] <- summary(m, nw)[m$etamap$offsetmap]
   }
 
-  br<-ergm.bridge.llr(form.aug, constraints=constraints, obs.constraints=obs.constraints, from=from, to=to, basis=basis, target.stats=target.stats, control=control)
+  if(verbose){
+    message("Dyad-independent submodel MLE has likelihood ", format(llk.dind), " at:")
+    message_print(from)
+  }
+  
+  message("Bridging from dyad-independent submodel to full model...")
+  br<-ergm.bridge.llr(form.aug, constraints=constraints, obs.constraints=obs.constraints, from=from, to=to, basis=basis, target.stats=target.stats, control=control, verbose=verbose)
+  message("Bridging finished.")
   
   if(llkonly) llk.dind + br$llr
   else c(br,llk.dind=llk.dind, llk=llk.dind + br$llr)

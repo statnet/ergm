@@ -225,11 +225,7 @@
 #'
 #' @templateVar mycontrol control.ergm
 #' @template control
-#'
-#' @param verbose A `logical` or an integer: if this is
-#'   \code{TRUE}/\code{1}, the program will print out additional
-#'   information about the progress of estimation and
-#'   simulation. Higher values produce more verbosity.
+#' @template verbose
 #'
 #' @param \dots Additional
 #' arguments, to be passed to lower-level functions.

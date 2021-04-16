@@ -45,7 +45,8 @@ ergm.bridge.dindstart.llk(
   basis = eval_lhs.formula(object),
   ...,
   llkonly = TRUE,
-  control = control.ergm.bridge()
+  control = control.ergm.bridge(),
+  verbose = FALSE
 )
 }
 \arguments{
@@ -80,7 +81,11 @@ in place of those of the network in the formula.}}
 start the Markov chain.  If omitted, the default is the
 left-hand-side of the \code{object}.}
 
-\item{verbose}{Logical: If TRUE, print detailed information.}
+\item{verbose}{A logical or an integer to control the amount of
+progress and diagnostic information to be printed. \code{FALSE}/\code{0}
+produces minimal output, wit higher values producing more
+detail. Note that very high values (5+) may significantly slow
+down processing.}
 
 \item{\dots}{Further arguments to \code{ergm.bridge.llr} and
 \code{\link{simulate.formula.ergm}}.}
