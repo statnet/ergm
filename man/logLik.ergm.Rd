@@ -2,6 +2,7 @@
 % Please edit documentation in R/logLik.ergm.R
 \name{logLik.ergm}
 \alias{logLik.ergm}
+\alias{deviance.ergm}
 \title{A \code{\link{logLik}} method for \code{\link{ergm}} fits.}
 \usage{
 \method{logLik}{ergm}(
@@ -12,6 +13,8 @@
   control = control.logLik.ergm(),
   ...
 )
+
+\method{deviance}{ergm}(object, ...)
 }
 \arguments{
 \item{object}{An \code{\link[=ergm.object]{ergm}} fit, returned by
@@ -55,6 +58,11 @@ A function to return the log-likelihood associated with an
 necessary. If the log-likelihood was not computed for
 \code{object}, produces an error unless \code{eval.loglik=TRUE}.
 }
+\section{Functions}{
+\itemize{
+\item \code{deviance.ergm}: Deviance (negative twice the log-likelihood).
+}}
+
 \examples{
 
 # See help(ergm) for a description of this model. The likelihood will

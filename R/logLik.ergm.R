@@ -207,3 +207,7 @@ nobs.ergm <- function(object, ...){
 }
 
 NO_NULL_IMPLICATION <- "This means that all likelihood-based inference (LRT, Analysis of Deviance, AIC, BIC, etc.) is only valid between models with the same reference distribution and constraints."
+
+#' @describeIn logLik.ergm Deviance (negative twice the log-likelihood).
+#' @export
+deviance.ergm <- function(object, ...) -2 * logLik(object, ...)
