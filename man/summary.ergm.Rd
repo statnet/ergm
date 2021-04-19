@@ -96,9 +96,11 @@ see documentation of the object returned by \code{\link[=ergm]{ergm()}}
 \code{\link[=summary.ergm]{summary.ergm()}} tries to be smart about formatting the
 coefficients, standard errors, etc.
 
-The default printout of the summary object contains the call, number
-of iterations used, null and residual deviances, and the values of AIC and
-BIC. The coeficient table contains the following columns:
+The default printout of the summary object contains the
+call, number of iterations used, null and residual deviances, and
+the values of AIC and BIC (and their MCMC standard errors, if
+applicable). The coefficient table contains the following
+columns:
 \itemize{
 \item \code{Estimate}, \verb{Std. Error} - parameter estimates and their standard errors
 \item \verb{MCMC \%} - if \code{total.variation=TRUE} (default) the percentage of standard

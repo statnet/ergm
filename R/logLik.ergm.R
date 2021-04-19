@@ -26,6 +26,7 @@
 #'   log-likelihood even if \code{object} already has an estiamte.
 #' @param eval.loglik Logical: If `TRUE`, evaluate the log-likelihood
 #'   if not set on \code{object}.
+#' @param k see help for [AIC()].
 #'
 #' @templateVar mycontrol control.logLik.ergm
 #' @template control
@@ -122,6 +123,7 @@ logLik.ergm<-function(object, add=FALSE, force.reeval=FALSE, eval.loglik=add || 
     llk<-out
   }else{
     llk<-out$llk
+    attr(llk,"vcov") <- out$vcov.llr
     attr(llk,"br")<-out
   }
   if(!inherits(llk,"logLik")){
@@ -208,6 +210,27 @@ nobs.ergm <- function(object, ...){
 
 NO_NULL_IMPLICATION <- "This means that all likelihood-based inference (LRT, Analysis of Deviance, AIC, BIC, etc.) is only valid between models with the same reference distribution and constraints."
 
-#' @describeIn logLik.ergm Deviance (negative twice the log-likelihood).
+#' @describeIn logLik.ergm A [deviance()] method.
 #' @export
-deviance.ergm <- function(object, ...) -2 * logLik(object, ...)
+deviance.ergm <- function(object, ...){
+  llk <- logLik(object, ...)
+  structure(-2*as.vector(llk), vcov = 4*attr(llk,"vcov"))
+}
+
+#' @describeIn logLik.ergm An [AIC()] method.
+#' @export
+AIC.ergm <- function(object, ..., k = 2){
+  if(...length()==0){
+    llk <- logLik(object)
+    structure(AIC(llk, k=k), vcov = 4*attr(llk,"vcov"))
+  }else NextMethod()
+}
+
+#' @describeIn logLik.ergm A [BIC()] method.
+#' @export
+BIC.ergm <- function(object, ...){
+  if(...length()==0){
+    llk <- logLik(object)
+    structure(BIC(llk), vcov = 4*attr(llk,"vcov"))
+  }else NextMethod()
+}

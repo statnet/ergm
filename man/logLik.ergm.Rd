@@ -3,6 +3,8 @@
 \name{logLik.ergm}
 \alias{logLik.ergm}
 \alias{deviance.ergm}
+\alias{AIC.ergm}
+\alias{BIC.ergm}
 \title{A \code{\link{logLik}} method for \code{\link{ergm}} fits.}
 \usage{
 \method{logLik}{ergm}(
@@ -15,6 +17,10 @@
 )
 
 \method{deviance}{ergm}(object, ...)
+
+\method{AIC}{ergm}(object, ..., k = 2)
+
+\method{BIC}{ergm}(object, ...)
 }
 \arguments{
 \item{object}{An \code{\link[=ergm.object]{ergm}} fit, returned by
@@ -38,6 +44,8 @@ also provides argument completion for the available control
 functions and limited argument name checking.}
 
 \item{\dots}{Other arguments to the likelihood functions.}
+
+\item{k}{see help for \code{\link[=AIC]{AIC()}}.}
 }
 \value{
 The form of the output of \code{logLik.ergm} depends on
@@ -60,7 +68,11 @@ necessary. If the log-likelihood was not computed for
 }
 \section{Functions}{
 \itemize{
-\item \code{deviance.ergm}: Deviance (negative twice the log-likelihood).
+\item \code{deviance.ergm}: A \code{\link[=deviance]{deviance()}} method.
+
+\item \code{AIC.ergm}: An \code{\link[=AIC]{AIC()}} method.
+
+\item \code{BIC.ergm}: A \code{\link[=BIC]{BIC()}} method.
 }}
 
 \examples{

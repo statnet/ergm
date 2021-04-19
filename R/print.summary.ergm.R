@@ -21,9 +21,11 @@
 #'   print.formula,print.fitinfo,print.coefmat,print.message,print.deviances,print.drop,print.offset,print.call
 #'   which components of the fit summary to print.
 #'   
-#' @details The default printout of the summary object contains the call, number
-#'   of iterations used, null and residual deviances, and the values of AIC and
-#'   BIC. The coeficient table contains the following columns:
+#' @details The default printout of the summary object contains the
+#'   call, number of iterations used, null and residual deviances, and
+#'   the values of AIC and BIC (and their MCMC standard errors, if
+#'   applicable). The coefficient table contains the following
+#'   columns:
 #'   
 #'   - `Estimate`, `Std. Error` - parameter estimates and their standard errors
 #'   - `MCMC %` - if `total.variation=TRUE` (default) the percentage of standard
@@ -76,9 +78,9 @@ print.summary.ergm <- function (x,
 
       if(x$null.lik.0) writeLines(c(strwrap(paste("Note that the null model likelihood and deviance are defined to be 0.", NO_NULL_IMPLICATION)),''))
       
-      cat(paste("AIC:", format(x$aic, digits = digits), "  ", 
-                "BIC:", format(x$bic, digits = digits), "  ",
-                "(Smaller is better.)", "\n", sep=" "))
+      cat(paste0("AIC: ", format(x$aic, digits = digits), "  ",
+                 "BIC: ", format(x$bic, digits = digits), "  ",
+                 "(Smaller is better. MC Std. Err. = ", format(sqrt(NVL(attr(x$aic,"vcov"),0)), digits=digits), ")", "\n"))
     }
   }
 

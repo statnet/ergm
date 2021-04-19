@@ -77,6 +77,9 @@ ergm.bridge.llr<-function(object, response=NULL, reference=~Bernoulli, constrain
   ## Generate the path.
   path<-t(rbind(sapply(seq(from=0+1/2/(control$nsteps+1),to=1-1/2/(control$nsteps+1),length.out=control$nsteps),function(u) cbind(to*u + from*(1-u)))))
 
+  # Determine whether an observation process is in effect.
+  obs <- !is.null(.handle.auto.constraints(basis, constraints, obs.constraints, target.stats)$constraints.obs)
+
   ## Control list constructor.
   gen_control <- function(obs, burnin){
     control.simulate.formula(
@@ -108,17 +111,17 @@ ergm.bridge.llr<-function(object, response=NULL, reference=~Bernoulli, constrain
   sim_settings <- do.call(stats::simulate, c(simulate(object, coef=from, nsim=1, reference=reference, constraints=list(constraints, obs.constraints), observational=FALSE, output="ergm_state", verbose=max(verbose-1,0), basis = basis, control=gen_control(FALSE, "first"), ..., do.sim=FALSE), do.sim=FALSE))
   if(verbose) message("Model and proposals initialized.")
   nw.state <- sim_settings$object
-  stats <- matrix(NA, control$nsteps, nparam(nw.state,canonical=TRUE))
+  p <- nparam(nw.state,canonical=FALSE,offset=FALSE)
+  esteq <- matrix(NA, control$nsteps, p)
+  vcov.esteq <- list()
+  target.stats <- NVL(target.stats, summary(nw.state))
 
-  obs <- !is.null(.handle.auto.constraints(basis, constraints, obs.constraints, target.stats)$constraints.obs)
   if(obs){
     if(verbose) message("Initializing constrained model and proposals...")
     sim_settings.obs <- do.call(stats::simulate, c(simulate(object, coef=from, nsim=1, reference=reference, constraints=list(constraints, obs.constraints), observational=TRUE, output="ergm_state", verbose=max(verbose-1,0), basis = basis, control=gen_control(TRUE, "first"), ..., do.sim=FALSE), do.sim=FALSE))
     if(verbose) message("Constrained model and proposals initialized.")
     nw.state.obs <- sim_settings.obs$object
-    stats.obs <- matrix(NA, control$nsteps, nparam(nw.state.obs,canonical=TRUE))
-  }else
-    stats.obs <- matrix(NVL(target.stats, summary(nw.state)), control$nsteps, nparam(nw.state,canonical=TRUE), byrow=TRUE)
+  }
 
   message("Using ", control$nsteps, " bridges: ", appendLF=FALSE)
   
@@ -129,61 +132,70 @@ ergm.bridge.llr<-function(object, response=NULL, reference=~Bernoulli, constrain
     if(verbose>1) message("Burning in...")
 
     ## First burn-in has to be longer, but those thereafter should be shorter if the bridges are closer together.
-    sim_settings[c("nsim", "coef", "object", "output", "control")] <-
+    sim_settings[c("nsim", "coef", "object", "output", "simplify", "control")] <-
       list(
         nsim = 1,
         coef = theta,
         object = nw.state,
         output = "ergm_state",
+        simplify = TRUE,
         control = gen_control(FALSE, if(i==1)"first"else"between")
       )
     nw.state <- do.call(stats::simulate, sim_settings)
 
     if(obs){
-      sim_settings.obs[c("nsim", "coef", "object", "output", "control")] <-
+      sim_settings.obs[c("nsim", "coef", "object", "output", "simplify", "control")] <-
         list(
           nsim = 1,
           coef = theta,
           object = nw.state.obs,
           output = "ergm_state",
+          simplify = TRUE,
           control = gen_control(TRUE, if(i==1)"first"else"between")
         )
       nw.state.obs <- do.call(stats::simulate, sim_settings.obs)
     }
 
     if(verbose>1) message("Simulating...")
-    sim_settings[c("nsim", "object", "output", "control")] <-
+    sim_settings[c("nsim", "object", "output", "simplify", "control")] <-
       list(
         nsim = ceiling(control$MCMC.samplesize/control$nsteps),
         object = nw.state,
         output = "stats",
+        simplify = FALSE,
         control = gen_control(FALSE,"no")
       )
-    stats[i,] <- colMeans(as.matrix(do.call(stats::simulate, sim_settings)))
+    samp <- ergm.estfun(do.call(stats::simulate, sim_settings), theta, nw.state$model$etamap)
+    vcov.esteq[[i]] <- ERRVL(try(spectrum0.mvar(samp)/(niter(samp)*nchain(samp)), silent=TRUE), matrix(0,p,p))
+    esteq[i,] <- colMeans(as.matrix(samp))
 
     if(obs){
-      sim_settings.obs[c("nsim", "object", "output", "control")] <-
+      sim_settings.obs[c("nsim", "object", "output", "simplify", "control")] <-
         list(
           nsim = ceiling(control$obs.MCMC.samplesize/control$nsteps),
           object = nw.state.obs,
           output = "stats",
+          simplify = FALSE,
           control = gen_control(TRUE,"no")
         )
-      stats.obs[i,] <- colMeans(as.matrix(do.call(stats::simulate, sim_settings.obs)))
-    }
+      samp <- ergm.estfun(do.call(stats::simulate, sim_settings.obs), theta, nw.state$model$etamap)
+      vcov.esteq[[i]] <- vcov.esteq[[i]] + ERRVL(try(spectrum0.mvar(samp)/(niter(samp)*nchain(samp)), silent=TRUE), matrix(0,p,p))
+      esteq[i,] <- esteq[i,] - colMeans(as.matrix(samp))
+    }else esteq[i,] <- esteq[i,] - ergm.estfun(target.stats, theta, nw.state$model$etamap)
   }
   message(".")
 
   if(verbose) message("Bridge sampling finished. Collating...")
 
-  Dtheta.Du<-(to-from)/control$nsteps
+  Dtheta.Du <- (to-from)[!nw.state$model$etamap$offsettheta]/control$nsteps
 
-  esteq  <- rbind(sapply(seq_len(control$nsteps), function(i) ergm.etagradmult(path[i,],stats[i,]-stats.obs[i,],nw.state$model$etamap)))
-  nochg <- Dtheta.Du==0 | apply(esteq==0, 1, all)
-  llrs <- -as.vector(crossprod(Dtheta.Du[!nochg],esteq[!nochg,,drop=FALSE]))
+  nochg <- Dtheta.Du==0 | apply(esteq==0, 2, all)
+  llrs <- as.vector(esteq[,!nochg,drop=FALSE] %*% Dtheta.Du[!nochg])
+  vcov.llrs <- map_dbl(vcov.esteq, ~Dtheta.Du[!nochg] %*% .[!nochg,!nochg] %*% Dtheta.Du[!nochg])
   llr <- sum(llrs)
-  if(llronly) llr
-  else list(llr=llr,from=from,to=to,llrs=llrs,path=path,stats=stats,stats.obs=stats.obs,Dtheta.Du=Dtheta.Du)
+  vcov.llr <- sum(vcov.llrs)
+  if(llronly) structure(llr, vcov=vcov.llr)
+  else list(llr=llr,vcov.llr=vcov.llr,from=from,to=to,llrs=llrs,vcov.llrs=vcov.llrs,path=path,esteq=esteq,Dtheta.Du=Dtheta.Du)
 }
 
 #' @rdname ergm.bridge.llr
