@@ -132,11 +132,11 @@ InitErgmConstraint.odegreedist<-function(nw, arglist, ...){
 InitErgmConstraint.bd<-function(nw, arglist, ...){
   a <- check.ErgmTerm(nw, arglist,
                       varnames = c("attribs", "maxout", "maxin", "minout", "minin"),
-                      vartypes = c("matrix", "numeric", "numeric", "numeric", "numeric"),
+                      vartypes = c("matrix", "numeric,matrix", "numeric,matrix", "numeric,matrix", "numeric,matrix"),
                       defaultvalues = list(NULL, NA_integer_, NA_integer_, NA_integer_, NA_integer_),
                       required = c(FALSE, FALSE, FALSE, FALSE, FALSE))
 
-   if(is.null(a$attribs) && length(a$maxout) == 1 && length(a$maxin) == 1 && is.na(a$minout) && is.na(a$minin)) {
+   if(is.na(a$minout) && is.na(a$minin)) {
      constrain <- c("bd","bdmax")
    } else {
      constrain <- "bd"
