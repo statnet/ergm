@@ -108,7 +108,7 @@ ergm.MCMLE <- function(init, nw, model,
   if(control$MCMLE.density.guard>1){
     # Calculate the density guard threshold.
     ec <- network.edgecount(s)
-    control$MCMC.maxedges <- round(min(control$MCMC.max.maxedges,
+    control$MCMC.maxedges <- round(min(control$MCMC.maxedges,
                                        max(control$MCMLE.density.guard*ec,
                                            control$MCMLE.density.guard.min)))
     if(verbose) message("Density guard set to ",control$MCMC.maxedges," from an initial count of ",ec," edges.")

@@ -367,7 +367,7 @@ convergence.}
 \item{MCMC.runtime.traceplot}{Logical: If \code{TRUE}, plot traceplots of the MCMC
 sample after every MCMC MLE iteration.}
 
-\item{MCMC.maxedges}{The maximum number of edges that may occur during the MCMC sampling.}
+\item{MCMC.maxedges}{The maximum number of edges that may occur during the MCMC sampling. If this number is exceeded at any time, sampling is stopped immediately.}
 
 \item{MCMC.addto.se}{Whether to add the standard errors induced by the MCMC
 algorithm to the estimates' standard errors.}

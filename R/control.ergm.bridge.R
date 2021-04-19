@@ -33,7 +33,7 @@
 #' algorithm.
 #' @template control_MCMC_prop
 #' @param obs.MCMC.prop,obs.MCMC.prop.weights,obs.MCMC.prop.args The `obs` versions of these arguments are for the unobserved data simulation algorithm.
-#' @param MCMC.init.maxedges Maximum number of edges expected in network.
+#' @template control_MCMC_maxedges
 #' @template term_options
 #' @template control_MCMC_parallel
 #' @template seed
@@ -61,7 +61,7 @@ control.ergm.bridge<-function(nsteps=16, # Number of geometric bridges to use
                               obs.MCMC.prop.weights=MCMC.prop.weights,
                               obs.MCMC.prop.args=MCMC.prop.args,
 
-                              MCMC.init.maxedges=20000,
+                              MCMC.maxedges=Inf,
                               MCMC.packagenames=c(),
                               
                               term.options=list(),

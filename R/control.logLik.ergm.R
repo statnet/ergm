@@ -32,7 +32,7 @@
 #' @template control_MCMC_prop
 #' @param warn.dyads Whether or not a warning should be issued when sample
 #' space constraints render the observed number of dyads ill-defined. Now defunct: use `options(ergm.logLik.warn_dyads=...)` instead.
-#' @param MCMC.init.maxedges Maximum number of edges expected in network.
+#' @template control_MCMC_maxedges
 #' @template term_options
 #' @template control_MCMC_parallel
 #' @template seed
@@ -55,7 +55,7 @@ control.logLik.ergm<-function(nsteps=20,
 
                               warn.dyads=NULL,
 
-                              MCMC.init.maxedges=NULL,
+                              MCMC.maxedges=NULL,
                               MCMC.packagenames=NULL,
                               
                               term.options=NULL,

@@ -170,7 +170,7 @@
 #' convergence.
 #' @param MCMC.runtime.traceplot Logical: If `TRUE`, plot traceplots of the MCMC
 #' sample after every MCMC MLE iteration.
-#' @param MCMC.maxedges The maximum number of edges that may occur during the MCMC sampling.
+#' @template control_MCMC_maxedges
 #' @param MCMC.addto.se Whether to add the standard errors induced by the MCMC
 #' algorithm to the estimates' standard errors.
 #' @param SAN.maxit When \code{target.stats} argument is passed to

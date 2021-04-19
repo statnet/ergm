@@ -76,6 +76,5 @@ ergm.phase12 <- function(s, theta0,
   
   colnames(statsmatrix) <- param_names(s,canonical=TRUE)
   list(statsmatrix=statsmatrix, newnetwork=newnetwork, target.stats=as.ergm_model(s)$target.stats, nw.stats=as.ergm_model(s)$nw.stats,
-       maxedges=control$MCMC.init.maxedges,
        theta=theta, state=z$state)
 }

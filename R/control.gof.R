@@ -65,7 +65,7 @@
 #' typically is set to a fairly large number.
 #' @param MCMC.interval Number of proposals between sampled statistics.
 #' @template control_MCMC_prop
-#' @param MCMC.init.maxedges Maximum number of edges expected in network.
+#' @template control_MCMC_maxedges
 #' @param MCMC.runtime.traceplot Logical: If `TRUE`, plot traceplots of the MCMC
 #' sample.
 #' @param network.output R class with which to output networks. The options are
@@ -88,7 +88,7 @@ control.gof.formula<-function(nsim=100,
                               MCMC.prop.weights="default",
                               MCMC.prop.args=list(),
                               
-                              MCMC.init.maxedges=20000,
+                              MCMC.maxedges=Inf,
                               MCMC.packagenames=c(),
                               
                               MCMC.runtime.traceplot=FALSE,          
@@ -120,7 +120,7 @@ control.gof.ergm<-function(nsim=100,
                            MCMC.prop.weights=NULL,
                            MCMC.prop.args=NULL,
                            
-                           MCMC.init.maxedges=NULL,
+                           MCMC.maxedges=NULL,
                            MCMC.packagenames=NULL,
 
                            MCMC.runtime.traceplot=FALSE,

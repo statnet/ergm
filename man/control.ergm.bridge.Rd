@@ -21,7 +21,7 @@ control.ergm.bridge(
   obs.MCMC.prop = MCMC.prop,
   obs.MCMC.prop.weights = MCMC.prop.weights,
   obs.MCMC.prop.args = MCMC.prop.args,
-  MCMC.init.maxedges = 20000,
+  MCMC.maxedges = Inf,
   MCMC.packagenames = c(),
   term.options = list(),
   seed = NULL,
@@ -72,7 +72,7 @@ specifying additional arguments to proposal.}
 
 \item{obs.MCMC.prop, obs.MCMC.prop.weights, obs.MCMC.prop.args}{The \code{obs} versions of these arguments are for the unobserved data simulation algorithm.}
 
-\item{MCMC.init.maxedges}{Maximum number of edges expected in network.}
+\item{MCMC.maxedges}{The maximum number of edges that may occur during the MCMC sampling. If this number is exceeded at any time, sampling is stopped immediately.}
 
 \item{MCMC.packagenames}{Names of packages in which to look for change
 statistic functions in addition to those autodetected. This argument should

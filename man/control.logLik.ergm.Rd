@@ -16,7 +16,7 @@ control.logLik.ergm(
   MCMC.prop.weights = NULL,
   MCMC.prop.args = NULL,
   warn.dyads = NULL,
-  MCMC.init.maxedges = NULL,
+  MCMC.maxedges = NULL,
   MCMC.packagenames = NULL,
   term.options = NULL,
   seed = NULL,
@@ -66,7 +66,7 @@ specifying additional arguments to proposal.}
 \item{warn.dyads}{Whether or not a warning should be issued when sample
 space constraints render the observed number of dyads ill-defined. Now defunct: use \code{options(ergm.logLik.warn_dyads=...)} instead.}
 
-\item{MCMC.init.maxedges}{Maximum number of edges expected in network.}
+\item{MCMC.maxedges}{The maximum number of edges that may occur during the MCMC sampling. If this number is exceeded at any time, sampling is stopped immediately.}
 
 \item{MCMC.packagenames}{Names of packages in which to look for change
 statistic functions in addition to those autodetected. This argument should

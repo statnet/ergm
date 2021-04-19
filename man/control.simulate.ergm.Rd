@@ -150,7 +150,7 @@ falls below that, while doubling
 set the order of the AR model used to estimate the effective
 sample size and the variance for the Geweke diagnostic.}
 
-\item{MCMC.maxedges}{The maximum number of edges that may occur during the MCMC sampling.}
+\item{MCMC.maxedges}{The maximum number of edges that may occur during the MCMC sampling. If this number is exceeded at any time, sampling is stopped immediately.}
 
 \item{MCMC.packagenames}{Names of packages in which to look for change
 statistic functions in addition to those autodetected. This argument should
