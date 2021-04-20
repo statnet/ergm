@@ -427,7 +427,7 @@ symmetrize.network <- function(x, rule=c("weak","strong","upper","lower"), ...){
   nvattr.copy.network(o, x)
 }
 
-InitErgmTerm.Undir <- function(nw, arglist, ...){
+InitErgmTerm.Symmetrize <- function(nw, arglist, ...){
   a <- check.ErgmTerm(nw, arglist, directed = TRUE,
                       varnames = c("formula", "rule"),
                       vartypes = c("formula", "character"),
@@ -444,7 +444,7 @@ InitErgmTerm.Undir <- function(nw, arglist, ...){
   c(list(name="on_undir_net",
          submodel = m,
          auxiliaries=auxiliaries),
-    modifyList(wrap.ergm_model(m, nw, ergm_mk_std_op_namewrap('Undir', rule)),
+    modifyList(wrap.ergm_model(m, nw, ergm_mk_std_op_namewrap('Symmetrize', rule)),
                list(dependence=!is.dyad.independent(m) || rule%in%c("weak","strong"))))
 }
 

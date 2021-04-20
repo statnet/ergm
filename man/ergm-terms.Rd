@@ -22,7 +22,7 @@
 \alias{Offset}
 \alias{S}
 \alias{Sum}
-\alias{Undir}
+\alias{Symmetrize}
 \alias{absdiff}
 \alias{absdiffcat}
 \alias{altkstar}
@@ -532,7 +532,7 @@
     }
 
 
-    \item{\code{Undir(formula, rule="weak")} (binary) (directed) (operator)}{\emph{Evaluation on symmetrized (undirected) network}:
+    \item{\code{Symmetrize(formula, rule="weak")} (binary) (directed) (operator)}{\emph{Evaluation on symmetrized (undirected) network}:
       Evaluates the terms in \code{formula} on an undirected network
       constructed by symmetrizing the LHS network using one of four rules:
       \describe{
