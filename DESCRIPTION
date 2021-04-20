@@ -105,6 +105,7 @@ Collate:
     'ergm-internal.R'
     'ergm-options.R'
     'ergm-package.R'
+	'ergm-terms-index.R'
     'ergm.CD.fixed.R'
     'ergm.Cprepare.R'
     'ergm.MCMCse.R'
