@@ -21,28 +21,6 @@
 #
 ###############################################################################
 
-########
-# The n-vector p is in the convex hull of the n-vectors in the
-# Rxn matrix M iff the maximum value of z_0 + z'p equals zero for all vectors z
-# satisfying z_0 + z'M \le 0.  Thus, the value returned by is.inCH depends on the
-# solution of a linear program, for which the lpSolve package and its function
-# lp is needed.  Letting q=(1 p')' and L = (1 M), the program is:
-#
-#  maximize z'q  
-#  subject to z'L <= 0 
-#
-#  Notice that, if there exists a z that makes z'q positive, then there is
-#  no maximizer since in that case Kz gives a larger value whenever K>1.  
-#  For this reason, we add one additional constraint, namely, z'q <= 1.
-#
-#  To put this all in "standard form", we let z=a-b, where a, b, are nonnegative.
-#  If we then write x=(a' b')', we obtain a new linear program:  
-#
-#  Minimize x'(-q' q')'
-#  subject to x'(q' -q')' <= 1 and x'(L -L) <= 0 and x >= 0
-#  ...and if the minimum is strictly negative, return FALSE because the point
-#  is not in the CH in that case.
-
 #' Determine whether a vector is in the closure of the convex hull of some
 #' sample of vectors
 #' 
@@ -110,21 +88,46 @@ is.inCH <- function(p, M, verbose=FALSE, ...) { # Pass extra arguments directly 
   #' @importFrom lpSolveAPI make.lp set.column set.objfn set.constr.type set.rhs set.bounds get.objective
 
   # Set up the optimisation problem: the following are common for all rows of p.
-  L <- cbind(1, M)
-  lprec <- make.lp(n, d+1)
-  for(k in seq_len(d+1)) set.column(lprec, k, L[,k])
-  set.constr.type(lprec, rep.int(2L, n)) # 2 = ">="
-  set.rhs(lprec,  numeric(n))
-  set.bounds(lprec, lower = rep.int(-1, d+1L), upper = rep.int(1, d+1L))
+
+  timeout <- 1
+
+  setup.lp <- function(){
+    L <- cbind(1, M)
+    lprec <- make.lp(n, d+1)
+    for(k in seq_len(d+1)) set.column(lprec, k, L[,k])
+    set.constr.type(lprec, rep.int(2L, n)) # 2 = ">="
+    set.rhs(lprec,  numeric(n))
+    set.bounds(lprec, lower = rep.int(-1, d+1L), upper = rep.int(1, d+1L))
+    lp.control(lprec, break.at.value = -.Machine$double.eps, verbose=c("important","normal","detailed")[max(verbose+1,0)], timeout=timeout)
+    lprec
+  }
+  lprec <- setup.lp()
 
   for(i in seq_len(nrow(p))){ # Iterate over test points.
 
-    # Set the objective function in terms of p and solve the problem.
-    set.objfn(lprec, c(1, p[i,]))
-    solve(lprec)
+    # Keep trying until results are satisfactory.
+    #
+    # flag meanings:
+    # -1      : dummy value, just starting out
+    #  0 or 11: Good (either 0 or some negative value)
+    #  1 or  7: Timeout
+    #   others: probably nothing good, but don't know how to handle
+    flag <- -1
+    while(flag%in%c(-1,1,7)){
+      # Set the objective function in terms of p and solve the problem.
+      set.objfn(lprec, c(1, p[i,]))
+      flag <- solve(lprec)
+      if(flag%in%c(1,7)){ # Timeout
+        timeout <- timeout * 2 # Increase timeout, in case it's just a big problem.
+        z <- rnorm(1) # Shift target and test set by the same constant.
+        p <- p + z
+        M <- M + z
+        lprec <- setup.lp() # Reinitialize
+      }
+    }
 
     # If the objective function (min) is not zero, the point p[i,] is not in the CH of M.
-    if(get.objective(lprec)){
+    if(get.objective(lprec) < 0){
       if(verbose>1) message(sprintf("is.inCH: iter= %d, outside hull.",i))
       return(FALSE)
     }
