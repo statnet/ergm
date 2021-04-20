@@ -8,6 +8,10 @@ vignette: >
   %\VignetteIndexEntry{API for ergm Terms}
 ---
 
+```{r, cache=FALSE}
+options(rmarkdown.html_vignette.check_title = FALSE)
+```
+
 # Summary
 
 This document seeks to be the most up-to-date API documentation for `ergm` terms. Note that it is not intended to be a tutorial as much as a description of what inputs and outputs different parts of the system expect.
