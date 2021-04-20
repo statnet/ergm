@@ -420,68 +420,68 @@ plot(magnolia, vertex.cex=.5)
 ```
 
 
-<!-- ```{r error=TRUE} -->
-<!-- fit <- ergm(magnolia~edges+triangle, control=control.ergm(seed=1)) -->
-<!-- ``` -->
+```{r error=TRUE}
+fit <- ergm(magnolia~edges+triangle, control=control.ergm(seed=1))
+```
 
-<!-- Very interesting. This model produced degenerate networks. -->
-<!-- You could have gotten some more feedback about this -->
-<!-- during the fitting, by using: -->
+Very interesting. This model produced degenerate networks.
+You could have gotten some more feedback about this
+during the fitting, by using:
 
-<!-- ```{r eval=FALSE} -->
-<!-- fit <- ergm(magnolia~edges+triangle, control=control.ergm(seed=1), verbose=T) -->
-<!-- ``` -->
+```{r eval=FALSE}
+fit <- ergm(magnolia~edges+triangle, control=control.ergm(seed=1), verbose=T)
+```
 
-<!-- You might try to increase the MCMC sample size: -->
+You might try to increase the MCMC sample size:
 
-<!-- ```{r eval=FALSE} -->
-<!-- fit <- ergm(magnolia~edges+triangle,seed=1, -->
-<!--  control = control.ergm(seed=1, MCMC.samplesize=20000), -->
-<!--  verbose=T) -->
-<!-- mcmc.diagnostics(fit, center=F) -->
-<!-- ``` -->
+```{r eval=FALSE}
+fit <- ergm(magnolia~edges+triangle,seed=1,
+ control = control.ergm(seed=1, MCMC.samplesize=20000),
+ verbose=T)
+mcmc.diagnostics(fit, center=F)
+```
 
-<!-- How about trying the more robust version of modeling triangles: -->
-<!-- GWESP? (For a technical introduction to GWESP see Hunter and Handcock; -->
-<!-- for a more intuitive description and empirical application see Goodreau -->
-<!-- Kitts and Morris 2009) -->
+How about trying the more robust version of modeling triangles:
+GWESP? (For a technical introduction to GWESP see Hunter and Handcock;
+for a more intuitive description and empirical application see Goodreau
+Kitts and Morris 2009)
 
-<!-- ```{r eval=FALSE} -->
-<!-- fit <- ergm(magnolia~edges+gwesp(0.5,fixed=T), -->
-<!--  control =  control.ergm(seed=1, MCMLE.MCMC.precision=0.5)) -->
-<!-- mcmc.diagnostics(fit) -->
-<!-- ``` -->
+```{r eval=FALSE}
+fit <- ergm(magnolia~edges+gwesp(0.5,fixed=T),
+ control =  control.ergm(seed=1, MCMLE.MCMC.precision=0.5))
+mcmc.diagnostics(fit)
+```
 
-<!-- Still degenerate, but maybe getting closer? -->
+Still degenerate, but maybe getting closer?
 
-<!-- ```{r eval=FALSE} -->
-<!-- fit <- ergm(magnolia~edges+gwesp(0.5,fixed=T)+nodematch('Grade')+nodematch('Race')+ -->
-<!--   nodematch('Sex'), -->
-<!--  control = control.ergm(seed=1, MCMLE.MCMC.precision=0.5), -->
-<!--  verbose=T) -->
+```{r eval=FALSE}
+fit <- ergm(magnolia~edges+gwesp(0.5,fixed=T)+nodematch('Grade')+nodematch('Race')+
+  nodematch('Sex'),
+ control = control.ergm(seed=1, MCMLE.MCMC.precision=0.5),
+ verbose=T)
 
-<!-- pdf('diagnostics1.pdf')	#Use the recording function if possible, otherwise send to pdf -->
-<!-- mcmc.diagnostics(fit) -->
-<!-- dev.off()			#If you saved to pdf, look at the file -->
+pdf('diagnostics1.pdf')	#Use the recording function if possible, otherwise send to pdf
+mcmc.diagnostics(fit)
+dev.off()			#If you saved to pdf, look at the file
 
-<!-- fit <- ergm(magnolia~edges+gwesp(0.25,fixed=T)+nodematch('Grade')+nodematch('Race')+ -->
-<!-- 	nodematch('Sex'), -->
-<!--  control = control.ergm(seed=1, MCMLE.MCMC.precision=0.5)) -->
-<!-- mcmc.diagnostics(fit) -->
+fit <- ergm(magnolia~edges+gwesp(0.25,fixed=T)+nodematch('Grade')+nodematch('Race')+
+	nodematch('Sex'),
+ control = control.ergm(seed=1, MCMLE.MCMC.precision=0.5))
+mcmc.diagnostics(fit)
 
-<!-- ``` -->
+```
 
-<!-- One more try... -->
-<!-- ```{r results='hide'} -->
-<!-- fit <- ergm(magnolia~edges+gwesp(0.25,fixed=T)+nodematch('Grade')+nodematch('Race')+ -->
-<!--   nodematch('Sex'), -->
-<!--  control = control.ergm(seed=1, MCMLE.MCMC.precision=0.5), -->
-<!--  verbose=T) -->
-<!-- ``` -->
+One more try...
+```{r results='hide'}
+fit <- ergm(magnolia~edges+gwesp(0.25,fixed=T)+nodematch('Grade')+nodematch('Race')+
+  nodematch('Sex'),
+ control = control.ergm(seed=1, MCMLE.MCMC.precision=0.5),
+ verbose=T)
+```
 
-<!-- ```{r fig1} -->
-<!-- mcmc.diagnostics(fit) -->
-<!-- ``` -->
+```{r fig1}
+mcmc.diagnostics(fit)
+```
 
 Success! Of course, in real life one might have a lot more trial and
 error.
