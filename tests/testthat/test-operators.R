@@ -163,3 +163,17 @@ test_that("Valued Label() summary", {
     c("edges","absdiff!faction!id")
   )
 })
+
+test_that("Interaction terms", {
+  # TODO: Need better tests.
+  local_edition(3)
+  expect_equal(summary(flomarriage~edges:absdiff("wealth") + absdiff("wealth"):edges), summary(flomarriage~absdiff("wealth") + absdiff("wealth")), ignore_attr = TRUE)
+  expect_equal(summary(flomarriage~edges*absdiff("wealth") + absdiff("wealth")*edges), summary(flomarriage~edges + absdiff("wealth")+ absdiff("wealth") + absdiff("wealth") + edges + absdiff("wealth")), ignore_attr = TRUE)
+})
+
+test_that("Interaction terms handling of interact.dependent", {
+  local_edition(3)
+  expect_error(summary(flomarriage~triangles:absdiff("wealth")), ".*poorly defined.*")
+  expect_warning(summary(flomarriage~triangles:absdiff("wealth"), interact.dependent = "warning"), ".*poorly defined.*")
+  expect_message(summary(flomarriage~triangles:absdiff("wealth"), interact.dependent = "message"), ".*poorly defined.*")
+})

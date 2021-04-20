@@ -45,6 +45,8 @@ The following options are in use by terms in the \code{ergm} package:
 
 \item{\code{cache.sp}}{Whether the \code{\link{gwesp}}, \code{\link{dgwesp}}, and similar terms need should use a cache for the dyadwise number of shared partners. This usually improves performance significantly and therefore defaults to \code{TRUE}, but it can be disabled.}
 
+\item{\code{interact.dependent}}{Whether to allow and how to handle the user attempting to interact dyad-dependent terms (e.g., \code{absdiff("age"):triangles} or \code{absdiff("age")*triangles} as opposed to \code{absdiff("age"):nodefactor("sex")}). Possible values are \code{"error"} (the default), \code{"message"}, and \code{"warning"}, for their respective actions, and \code{"silent"} for simply processing the term.}
+
 }
 }
 

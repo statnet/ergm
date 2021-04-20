@@ -35,6 +35,8 @@
 #'
 #' \item{`cache.sp`}{Whether the [`gwesp`], [`dgwesp`], and similar terms need should use a cache for the dyadwise number of shared partners. This usually improves performance significantly and therefore defaults to `TRUE`, but it can be disabled.}
 #'
+#' \item{`interact.dependent`}{Whether to allow and how to handle the user attempting to interact dyad-dependent terms (e.g., `absdiff("age"):triangles` or `absdiff("age")*triangles` as opposed to `absdiff("age"):nodefactor("sex")`). Possible values are `"error"` (the default), `"message"`, and `"warning"`, for their respective actions, and `"silent"` for simply processing the term.}
+#'
 #' }
 #'
 #' @name ergm-options
