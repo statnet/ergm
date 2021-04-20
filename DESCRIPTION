@@ -56,7 +56,7 @@ License: GPL-3 + file LICENSE
 License_is_FOSS: yes
 License_restricts_use: no
 URL: https://statnet.org
-VignetteBuilder: rmarkdown, knitr
+VignetteBuilder: knitr
 RoxygenNote: 7.1.1
 Roxygen: list(markdown = TRUE)
 Encoding: UTF-8
