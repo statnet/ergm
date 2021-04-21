@@ -8,56 +8,68 @@
 #  Copyright 2003-2021 Statnet Commons
 #######################################################################
 
-# Cleans up the usage clause in the Roxygen documentation and return a list of length 3 vectors (full string, binary|valued, usage)
-.parseUsage <- function(raw_usage) {
-    usage <- raw_usage %>% 
+# Return the index entry for a single term in the new format
+.parseTerm <- function(name, pkg, pkg_name) {
+    doc <- pkg[[name]]
+    tags <- sapply(doc, attr, 'Rd_tag')
+
+	raw_usage <- doc[tags == '\\usage'] %>% 
         unlist %>% 
         paste(collapse="") %>%
         gsub("\n *# *"," ", .) %>%
         strsplit("\n") %>%
         .[[1]] %>%
         trimws()
-    return(regmatches(usage, regexec("^(binary|valued): *(.+)$", usage)))
-}
+	usages <- list()
+	for (usage_line in regmatches(raw_usage, regexec("^(binary|valued): *(.+)$", raw_usage))) {
+		usages[[length(usages) + 1]] <- list(type=usage_line[2], value=usage_line[3])
+	}
 
-# Return the index entry for a single term in the new format
-.indexTerm <- function(name, pkg, pkg_name) {
-    doc <- pkg[[name]]
-    tags <- sapply(doc, attr, 'Rd_tag')
-    name <- .parseUsage(doc[tags == '\\usage'])[[1]][[3]]
-    ret <- sprintf('%s (%s)\n    %s\n\n    Keywords: %s\n    %s\n\n',
-                   name,
-                   pkg_name,
-                   doc[tags == (if ('\\description' %in% tags) '\\description' else '\\title')] %>% unlist %>% paste(collapse='') %>% trimws(),
-                   doc[tags == '\\concept'] %>% unlist %>% paste(collapse=' '),
-                   'link')
+    ret <- list(
+		name=substr(name, 1, nchar(name) - 3),
+		alias=doc[tags == '\\alias'] %>% unlist,
+		package=pkg_name,
+		usages=usages,
+		title=doc[tags == '\\title'] %>% unlist,
+		description=doc[tags == '\\description'] %>% unlist %>% paste(collapse='') %>% trimws(),
+		concepts=doc[tags == '\\concept'] %>% unlist)
     return(ret)
 }
 
-# Generate a list of the unconverted terms. This will be deprecated once ergm-terms.Rd is converted to the ergm format
-.indexUnconvertedTerms <- function(name, pkg, pkg_name) {
-    doc <- pkg[[name]]
-    tags <- sapply(doc, attr, 'Rd_tag')
-    aliases <- doc[tags == '\\alias']
-    ret <- aliases[5:length(aliases)] %>% unlist %>% paste(collapse='\n')
+.ergmTermIndexStore <- list()
+.ergmTermIndexParsedPackages <- c()
+# Crawl all loaded packages for terms, parse them once and store in the singleton store
+.crawlLoadedLibraries <- function() {
+	loaded_libraries <- .packages(TRUE)
+	for (pkg_name in loaded_libraries[!loaded_libraries %in% .ergmTermIndexParsedPackages]) {
+        pkg <- tools::Rd_db(pkg_name)
+        all_doco <- attributes(pkg)$names
+        converted <- all_doco[which(endsWith(all_doco, '-ergmTerm.Rd'))]
+		if (length(converted) > 0) {
+			assign('.ergmTermIndexStore', c(.ergmTermIndexStore, lapply(converted, .parseTerm, pkg, pkg_name)), envir=.GlobalEnv)
+		}
+	}
+
+	assign('.ergmTermIndexParsedPackages', loaded_libraries, envir=.GlobalEnv) 
+}
+
+# Generate the index entry for a single term
+.genTermEntry <- function(term) {
+    ret <- sprintf('%s (%s)\n    %s\n\n    Keywords: %s\n    %s\n\n',
+                   term$name,
+                   term$package,
+				   if (!is.null(term$description)) term$description else term$title,
+				   paste(term$concept, collapse=' '),
+                   'link')
     return(ret)
 }
 
 # Generate the dynamic index text
 .generateDynamicIndex <- function() {
-    entries <- c()
-    for (pkg_name in .packages(TRUE)) {
-        pkg <- tools::Rd_db(pkg_name)
-        all_doco <- attributes(pkg)$names
-        converted <- all_doco[which(endsWith(all_doco, '-ergmTerm.Rd'))]
-        entries <- c(entries, sapply(converted, .indexTerm, pkg, pkg_name))
-    }
-                       
-    entries <- c(entries,
-             rep('=', 80), '\nOther Terms:\n\n',
-             .indexUnconvertedTerms('ergm-terms.Rd', tools::Rd_db('ergm'), 'ergm'))
-                       
-    return(paste(entries, collapse=''))
+	# TODO: Better to add this to the hooks so that this runs once when the package is loaded, then as new packages are loaded
+	.crawlLoadedLibraries()
+
+    return(paste(sapply(.ergmTermIndexStore, .genTermEntry), collapse=''))
 }
 
 #' An index of Ergm terms
