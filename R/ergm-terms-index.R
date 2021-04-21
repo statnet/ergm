@@ -62,8 +62,9 @@
 
 #' An index of Ergm terms
 #'
-#' @name ergm-terms-index
+#' @name ergmTerm
 #' @docType package
+#' @section Term index:
 #'
-#' \Sexpr[results=rd,stage=render]{.generateDynamicIndex()}
+#' \Sexpr[results=rd,stage=render]{ergm:::.generateDynamicIndex()}
 NULL
