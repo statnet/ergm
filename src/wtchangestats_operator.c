@@ -364,3 +364,75 @@ WtF_CHANGESTAT_FN(f_wtSum){
     WtModelDestroy(nwp, ms[i]);
   }
 }
+
+
+// Log: Take a natural logarithm of the model's statistics.
+
+WtI_CHANGESTAT_FN(i_wtLog){
+  GET_AUX_STORAGE(StoreWtModelAndStats, modstats);
+  DELETE_IF_UNUSED_IN_SUBMODEL(z_func, modstats->m);
+}
+
+WtC_CHANGESTAT_FN(c_wtLog){
+  GET_AUX_STORAGE(StoreWtModelAndStats, modstats);
+  double *log0 = INPUT_PARAM;
+
+  WtChangeStats1(tail, head, weight, nwp, modstats->m, edgestate);
+  for(unsigned int i=0; i<N_CHANGE_STATS; i++){
+    if(modstats->m->workspace[i] == 0) CHANGE_STAT[i] = 0;
+    else{
+      double old = modstats->stats[i];
+      old = old == 0 ? log0[i] : log(old);
+      double new = modstats->stats[i]+modstats->m->workspace[i];
+      new = new == 0 ? log0[i] : log(new);
+      CHANGE_STAT[i] = new - old;
+    }
+  }
+}
+
+WtZ_CHANGESTAT_FN(z_wtLog){
+  GET_AUX_STORAGE(StoreWtModelAndStats, modstats);
+  double* log0 = INPUT_PARAM;
+
+  WtEmptyNetworkStats(modstats->m, FALSE);
+  memcpy(CHANGE_STAT, modstats->m->workspace, N_CHANGE_STATS*sizeof(double));
+  WtZStats(nwp, modstats->m, FALSE);
+  for(unsigned int i=0; i<N_CHANGE_STATS; i++){
+    if(modstats->m->workspace[i] == 0) CHANGE_STAT[i] = 0;
+    else{
+      double old = CHANGE_STAT[i];
+      old = old == 0 ? log0[i] : log(old);
+      double new = CHANGE_STAT[i]+modstats->m->workspace[i];
+      new = new == 0 ? log0[i] : log(new);
+      CHANGE_STAT[i] = new - old;
+    }
+  }
+}
+
+// Exp: Exponentiate the model's statistics.
+
+WtI_CHANGESTAT_FN(i_wtExp){
+  GET_AUX_STORAGE(StoreWtModelAndStats, modstats);
+  DELETE_IF_UNUSED_IN_SUBMODEL(z_func, modstats->m);
+}
+
+WtC_CHANGESTAT_FN(c_wtExp){
+  GET_AUX_STORAGE(StoreWtModelAndStats, modstats);
+
+  WtChangeStats1(tail, head, weight, nwp, modstats->m, edgestate);
+  for(unsigned int i=0; i<N_CHANGE_STATS; i++){
+    if(modstats->m->workspace[i] == 0) CHANGE_STAT[i] = 0;
+    else CHANGE_STAT[i] = exp(modstats->stats[i]+modstats->m->workspace[i]) - exp(modstats->stats[i]);
+  }
+}
+
+WtZ_CHANGESTAT_FN(z_wtExp){
+  GET_AUX_STORAGE(StoreWtModelAndStats, modstats);
+  WtEmptyNetworkStats(modstats->m, FALSE);
+  memcpy(CHANGE_STAT, modstats->m->workspace, N_CHANGE_STATS*sizeof(double));
+  WtZStats(nwp, modstats->m, FALSE);
+  for(unsigned int i=0; i<N_CHANGE_STATS; i++){
+    if(modstats->m->workspace[i] == 0) CHANGE_STAT[i] = 0;
+    else CHANGE_STAT[i] = exp(CHANGE_STAT[i]+modstats->m->workspace[i]) - exp(CHANGE_STAT[i]);
+  }
+}

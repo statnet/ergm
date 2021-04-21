@@ -188,16 +188,16 @@ InitErgmTerm.summary.test <- function(nw, arglist, ...){
 
 ## An auxiliary that exports a model and a double vector that contains
 ## the current summary statistics of the network for the terms given
-## in the formula.
+## in the formula (or an already initialized model).
 
 InitErgmTerm..submodel_and_summary <- function(nw, arglist, ...){
   a <- check.ErgmTerm(nw, arglist,
                       varnames = c("formula"),
-                      vartypes = c("formula"),
+                      vartypes = c("formula,ergm_model"),
                       defaultvalues = list(NULL),
                       required = c(TRUE))
 
-  m <- ergm_model(a$formula, nw,...)
+  m <- if(is(a$formula, "formula")) ergm_model(a$formula, nw,...) else a$formula
 
   list(name="_submodel_and_summary_term", coef.names = c(), submodel=m, dependence=!is.dyad.independent(m))
 }
@@ -666,4 +666,56 @@ InitErgmTerm.Curve <- function(nw, arglist,...){
   wm$offset <- logical(q)
 
   c(list(name="passthrough_term", submodel=m), wm)
+}
+
+InitErgmTerm.Log <- function(nw, arglist, ...){
+  a <- check.ErgmTerm(nw, arglist,
+                      varnames = c("formula", "log0"),
+                      vartypes = c("formula", "numeric"),
+                      defaultvalues = list(NULL, -1/sqrt(.Machine$double.eps)),
+                      required = c(TRUE, FALSE))
+
+  m <- ergm_model(a$formula, nw,...)
+  log0 <- rep_len(a$log0, nparam(m, canonical=TRUE))
+
+  wm <- wrap.ergm_model(m, nw, ergm_mk_std_op_namewrap('Log'))
+  NVL(wm$emptynwstats) <- numeric(nparam(m, canonical=TRUE))
+  wm$emptynwstats <- ifelse(wm$emptynwstats==0, log0, log(wm$emptynwstats))
+
+  c(list(name="Log", inputs=log0, auxiliaries=~.submodel_and_summary(m)), wm)
+}
+
+InitErgmTerm.Exp <- function(nw, arglist, ...){
+  a <- check.ErgmTerm(nw, arglist,
+                      varnames = c("formula"),
+                      vartypes = c("formula"),
+                      defaultvalues = list(NULL),
+                      required = c(TRUE))
+
+  m <- ergm_model(a$formula, nw,...)
+
+  wm <- wrap.ergm_model(m, nw, ergm_mk_std_op_namewrap('Exp'))
+  wm$emptynwstats <- wm$emptynwstats %>% NVL(numeric(nparam(m, canonical=TRUE))) %>% exp()
+
+  c(list(name="Exp", auxiliaries=~.submodel_and_summary(m)), wm)
+}
+
+InitErgmTerm.Prod <- function(nw, arglist, ..., env=baseenv()){
+  a <- check.ErgmTerm(nw, arglist,
+                      varnames = c("formulas", "label"),
+                      vartypes = c("list,formula", "character"),
+                      defaultvalues = list(NULL, NULL),
+                      required = c(TRUE, TRUE))
+  formulas <- if(is(a$formulas, "formula")) list(a$formulas) else a$formulas
+  formulas <- lapply(formulas, function(f) nonsimp_update.formula(f, .~Log(~.)))
+  formulas <- lapply(formulas, function(f) {
+    if(length(f)==3 && is.character(f[[2]]))
+      f[[2]] <- switch(match.arg(f[[2]], c("prod","geomean")),
+                       prod = "sum",
+                       geomean = "mean")
+    f
+  })
+  a$formulas <- if(length(formulas)==1) formulas[[1]] else formulas
+  cl <- call("Exp", as.formula(call("~",call("Sum", a$formulas, a$label)),env=env))
+  call.ErgmTerm(cl, env, nw, ...)
 }

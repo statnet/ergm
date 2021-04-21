@@ -94,3 +94,18 @@ InitWtErgmTerm..submodel_and_summary <- function(nw, arglist, ...){
   out$name <- "_wtsubmodel_and_summary_term"
   out
 }
+
+
+InitWtErgmTerm.Exp <- function(nw, arglist, ...){
+  out <- InitErgmTerm.Exp(nw, arglist, ...)
+  out$name <- "wtExp"
+  out
+}
+
+InitWtErgmTerm.Log <- function(nw, arglist, ...){
+  out <- InitErgmTerm.Log(nw, arglist, ...)
+  out$name <- "wtLog"
+  out
+}
+
+InitWtErgmTerm.Prod <- InitErgmTerm.Prod
