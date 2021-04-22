@@ -312,7 +312,7 @@ ergm.stepping = function(init, nw, model, initialfit, constraints,
           1, function(x) c(which.min(x), which.max(x)))))
     x1crse <- x1crs[unique(c(e1,e2)),,drop=FALSE]
     # Drop all points that are in the convex hull of those.
-    x1crs <- rbind(x1crse, x1crs[!apply(x1crs, MARGIN=1, is.inCH, M=x1crse),])
+    x1crs <- rbind(x1crse, x1crs[!apply(x1crs, MARGIN=1, is.inCH, M=x1crse, verbose=verbose),])
     if(verbose>1) message("Prefiltered target set: ", sum(!d1)-nrow(x1crs), "/", sum(!d1), " eliminated.")
   }
 
@@ -324,7 +324,7 @@ ergm.stepping = function(init, nw, model, initialfit, constraints,
           1, function(x) c(which.min(x), which.max(x)))))
     x2crse <- x2crs[unique(c(e1,e2)),,drop=FALSE]
     # Drop all points that are in the convex hull of those.
-    x2crs <- rbind(x2crse, x2crs[!apply(x2crs, MARGIN=1, is.inCH, M=x2crse),])
+    x2crs <- rbind(x2crse, x2crs[!apply(x2crs, MARGIN=1, is.inCH, M=x2crse, verbose=verbose),])
     if(verbose>1) message("Prefiltered test set: ", sum(!d2)-nrow(x2crs), "/", sum(!d2), " eliminated.")
   }
   

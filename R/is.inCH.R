@@ -69,6 +69,7 @@
 #' Graphical Statistics, 21: 920-939. }
 #' @export is.inCH
 is.inCH <- function(p, M, verbose=FALSE, ...) { # Pass extra arguments directly to LP solver
+  verbose <- max(0, min(verbose, 4))
 
   if(is.null(dim(p))) p <- rbind(p)
 
@@ -98,7 +99,7 @@ is.inCH <- function(p, M, verbose=FALSE, ...) { # Pass extra arguments directly 
     set.constr.type(lprec, rep.int(2L, n)) # 2 = ">="
     set.rhs(lprec,  numeric(n))
     set.bounds(lprec, lower = rep.int(-1, d+1L), upper = rep.int(1, d+1L))
-    lp.control(lprec, break.at.value = -.Machine$double.eps, verbose=c("important","normal","detailed")[max(verbose+1,0)], timeout=timeout)
+    lp.control(lprec, break.at.value = -.Machine$double.eps, verbose=c("important","important","important","normal","detailed")[min(max(verbose+1,0),5)], timeout=timeout)
     lprec
   }
   lprec <- setup.lp()
