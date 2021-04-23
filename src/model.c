@@ -17,6 +17,32 @@
   A helper's helper function to initialize storage for functions that use it.
 */
 static inline void InitStats(Network *nwp, Model *m){
+
+  /* This function must do things in very specific order:
+
+   1. Since dependent terms go before the dependency, the
+      initialization must be performed in reverse order.
+
+   2. Since a dependt term relies on the pre-toggle state of the
+      dependency, the updating must be performed in forward order.
+
+   3. Since an i_function can choose to delete its own u_function, we
+      can't add callbacks until after the i_functions have been
+      called.
+
+   4. Some terms may have subterms that add callbacks to the same
+      network, and the subterms' u_functions must be called *after*
+      the u_functions of the terms that depend on them (per rule 2).
+
+   Therefore, this code first stores the current position in the
+   callback list, then initializes the terms, then adds callbacks in
+   front of the new callbacks, i.e., at the then-current
+   position. Repeatedly adding the terms at that position in reverse
+   order is slightly inefficient, but it has to be done infrequently.
+
+   */
+  unsigned int on_edge_change_pos = nwp->n_on_edge_change; // Save the current position.
+
   // Iterate in reverse, so that auxliary terms get initialized first.
   EXEC_THROUGH_TERMS_INREVERSE(m, {
       if(!m->noinit_s || !mtp->s_func){ // Skip if noinit_s is set and s_func is present.
@@ -28,12 +54,9 @@ static inline void InitStats(Network *nwp, Model *m){
           (*(mtp->u_func))(0, 0, mtp, nwp, 0);  /* Call u_??? function */
         mtp->dstats = dstats;
       }
-    });
-
-  // Now, bind the terms to the network through the callback API.
-  EXEC_THROUGH_TERMS(m, {
+      // Now, bind the term to the network through the callback API.
       if(mtp->u_func && (!m->noinit_s || !mtp->s_func)) // Skip if noinit_s is set and s_func is present.
-        AddOnNetworkEdgeChange(nwp, (OnNetworkEdgeChange) mtp->u_func, mtp, INT_MAX);
+        AddOnNetworkEdgeChange(nwp, (OnNetworkEdgeChange) mtp->u_func, mtp, on_edge_change_pos);
     });
 }
 
