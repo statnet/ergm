@@ -115,7 +115,6 @@ Collate:
     'ergm.auxstorage.R'
     'ergm.bounddeg.R'
     'ergm.bridge.R'
-    'ergm.curved.statsmatrix.R'
     'ergm.design.R'
     'ergm.errors.R'
     'ergm.estimate.R'

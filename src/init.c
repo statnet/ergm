@@ -23,9 +23,7 @@
 
 /* .C calls */
 extern void full_geodesic_distribution(void *, void *, void *, void *, void *, void *, void *, void *);
-extern void geodesic_matrix(void *, void *, void *, void *, void *, void *, void *);
 extern void node_geodesics(void *, void *, void *, void *, void *, void *, void *, void *);
-extern void pair_geodesic(void *, void *, void *, void *, void *, void *, void *, void *, void *);
 
 /* .Call calls */
 extern SEXP AllStatistics(SEXP, SEXP);
@@ -52,9 +50,7 @@ extern SEXP WtSAN_wrapper(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
 
 static const R_CMethodDef CEntries[] = {
     {"full_geodesic_distribution", (DL_FUNC) &full_geodesic_distribution, 8},
-    {"geodesic_matrix",            (DL_FUNC) &geodesic_matrix,            7},
     {"node_geodesics",             (DL_FUNC) &node_geodesics,             8},
-    {"pair_geodesic",              (DL_FUNC) &pair_geodesic,              9},
     {NULL, NULL, 0}
 };
 

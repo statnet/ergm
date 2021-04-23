@@ -2,11 +2,7 @@
 % Please edit documentation in R/ergm.geodistn.R
 \name{ergm.geodistdist}
 \alias{ergm.geodistdist}
-\alias{ergm.geodesicmatrix}
-\alias{ergm.geodesicmatrix.edgelist}
 \alias{ergm.geodistn}
-\alias{ergm.nodegeodesics}
-\alias{ergm.pairgeodesic}
 \title{Calculate geodesic distance distribution for a network or edgelist}
 \usage{
 ergm.geodistdist(nw, directed = is.directed(nw))
