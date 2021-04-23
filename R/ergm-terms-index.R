@@ -8,6 +8,8 @@
 #  Copyright 2003-2021 Statnet Commons
 #######################################################################
 
+library(magrittr)
+
 # Return the index entry for a single term in the new format
 .parseTerm <- function(name, pkg, pkg_name) {
     doc <- pkg[[name]]
@@ -33,6 +35,7 @@
 		title=doc[tags == '\\title'] %>% unlist,
 		description=doc[tags == '\\description'] %>% unlist %>% paste(collapse='') %>% trimws(),
 		concepts=doc[tags == '\\concept'] %>% unlist)
+
     return(ret)
 }
 
@@ -41,16 +44,22 @@
 # Crawl all loaded packages for terms, parse them once and store in the singleton store
 .crawlLoadedLibraries <- function() {
 	loaded_libraries <- .packages(TRUE)
+
+	new_store <- .ergmTermIndexStore
+
 	for (pkg_name in loaded_libraries[!loaded_libraries %in% .ergmTermIndexParsedPackages]) {
         pkg <- tools::Rd_db(pkg_name)
         all_doco <- attributes(pkg)$names
         converted <- all_doco[which(endsWith(all_doco, '-ergmTerm.Rd'))]
-		if (length(converted) > 0) {
-			assign('.ergmTermIndexStore', c(.ergmTermIndexStore, lapply(converted, .parseTerm, pkg, pkg_name)), envir=.GlobalEnv)
-		}
+		new_store <- c(new_store, lapply(converted, .parseTerm, pkg, pkg_name))
 	}
 
-	assign('.ergmTermIndexParsedPackages', loaded_libraries, envir=.GlobalEnv) 
+	unlockBinding('.ergmTermIndexStore', environment(.crawlLoadedLibraries))
+	unlockBinding('.ergmTermIndexParsedPackages', environment(.crawlLoadedLibraries))
+	.ergmTermIndexStore <<- new_store
+	.ergmTermIndexParsedPackages <<- loaded_libraries
+	lockBinding('.ergmTermIndexStore', environment(.crawlLoadedLibraries))
+	lockBinding('.ergmTermIndexParsedPackages', environment(.crawlLoadedLibraries))
 }
 
 # Generate the index entry for a single term
