@@ -30,6 +30,7 @@
 #' @param \dots additional parameters for model formulation
 #' @template term_options
 #' @param extra.aux a list of auxiliary request formulas required elsewhere; if named, the resulting `slots.extra.aux` will also be named.
+#' @param env a throwaway argument needed to prevent conflicts with some usages of `ergm_model`. The initialization environment is *always* taken from the `formula`.
 #' @param object An `ergm_model` object.
 #' @return `ergm_model` returns an  `ergm_model` object as a list
 #' containing:
@@ -41,7 +42,7 @@
 #' @seealso [summary.ergm_model()]
 #' @keywords internal
 #' @export
-ergm_model <- function(formula, nw=NULL, silent=FALSE, ..., term.options=list(), extra.aux=list()){
+ergm_model <- function(formula, nw=NULL, silent=FALSE, ..., term.options=list(), extra.aux=list(), env=globalenv()){
   if (!is(formula, "formula"))
     stop("Invalid model formula of class ",sQuote(class(formula)),".", call.=FALSE)
   
@@ -128,11 +129,11 @@ call.ErgmTerm <- function(term, env, nw, ..., term.options=list()){
   }else args <- list()
   
   termFun <- locate_prefixed_function(term, paste0(termroot,"Term"), "ERGM term", env=env)
-  termCall <- termCall(termFun, term, nw, term.options, ...)
+  termCall <- termCall(termFun, term, nw, term.options, ..., env=env)
 
   #Call the InitErgm function in the environment where the formula was created
   # so that it will have access to any parameters of the ergm terms
-  out <- eval(termCall,env)
+  out <- eval(termCall, env)
   if(is.null(out)) return(NULL)
   # If SO package name not specified explicitly, autodetect.
   if(is.null(out$pkgname)) out$pkgname <- environmentName(environment(eval(termFun)))

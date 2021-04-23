@@ -242,7 +242,7 @@ ergm_conlist <- function(object, ...) UseMethod("ergm_conlist")
 ergm_conlist.NULL <- function(object, ...) NULL
 
 ergm_conlist.formula <- function(object, nw, ..., term.options=list()){
-  ## Construct a list of constraints and arguments from the formula.
+  env <- environment(object)
   conlist<-list()
   constraints<-list_rhs.formula(object)
   consigns <- c(attr(constraints, "sign"), +1)
@@ -268,10 +268,10 @@ ergm_conlist.formula <- function(object, nw, ..., term.options=list()){
       }
     }else{
       conname <- as.character(if(is.name(constraint)) constraint else constraint[[1]])
-      init.call <- termCall(f, constraint, nw, term.options, ...)
+      init.call <- termCall(f, constraint, nw, term.options, ..., env=env)
     }
 
-    con <- eval(as.call(init.call), environment(object))
+    con <- eval(as.call(init.call), env)
     NVL(con$dependence) <- TRUE
     if(con$dependence && consign < 0) stop("Only dyad-independent costraints can have negative signs.")
     con$sign <- consign
@@ -378,6 +378,8 @@ ergm_proposal.formula <- function(object, arguments, nw, hints=trim_env(~sparse)
   NVL(hints) <- trim_env(~sparse)
 
   if(is(reference, "formula")){
+    env <- environment(reference)
+
     f <- locate_prefixed_function(reference[[2]], "InitErgmReference", "Reference distribution")
 
     if(names(formals(eval(f)))[1]=="lhs.nw"){
@@ -388,10 +390,10 @@ ergm_proposal.formula <- function(object, arguments, nw, hints=trim_env(~sparse)
         ref.call <- list(f, lhs.nw=nw)
       }
     }else{
-      ref.call <- termCall(f, reference[[2]], nw, term.options, ...)
+      ref.call <- termCall(f, reference[[2]], nw, term.options, ..., env=env)
     }
 
-    ref <- eval(as.call(ref.call),environment(reference))
+    ref <- eval(as.call(ref.call), env)
     class(ref) <- "ergm_reference"
   }else if(is(reference, "ergm_reference")){
     ref <- reference
