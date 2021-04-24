@@ -80,7 +80,7 @@ ergm.bridge.llr<-function(object, response=NULL, reference=~Bernoulli, constrain
   # Determine whether an observation process is in effect.
   obs <- !is.null(.handle.auto.constraints(basis, constraints, obs.constraints, target.stats)$constraints.obs)
 
-  ## Control list constructor.
+  ## Control list constructor
   gen_control <- function(obs, burnin){
     control.simulate.formula(
       MCMC.burnin = if(burnin=="first"){
@@ -111,10 +111,18 @@ ergm.bridge.llr<-function(object, response=NULL, reference=~Bernoulli, constrain
   sim_settings <- do.call(stats::simulate, c(simulate(object, coef=from, nsim=1, reference=reference, constraints=list(constraints, obs.constraints), observational=FALSE, output="ergm_state", verbose=max(verbose-1,0), basis = basis, control=gen_control(FALSE, "first"), ..., do.sim=FALSE), do.sim=FALSE))
   if(verbose) message("Model and proposals initialized.")
   nw.state <- sim_settings$object
-  p <- nparam(nw.state,canonical=FALSE,offset=FALSE)
-  esteq <- matrix(NA, control$nsteps, p)
-  vcov.esteq <- list()
+
+  ## Miscellaneous settings
+  Dtheta.Du <- (to-from)[!nw.state$model$etamap$offsettheta] / control$nsteps
   target.stats <- NVL(target.stats, summary(nw.state))
+  llrs <- numeric(control$nsteps)
+  vcov.llrs <- numeric(control$nsteps)
+
+  ## Helper function to calculate Dtheta.Du %*% Deta.Dtheta %*% g(y)
+  llrsamp <- function(samp, theta){
+    if(is.mcmc.list(samp)) lapply.mcmc.list(ergm.estfun(samp, theta, nw.state$model$etamap), `%*%`, Dtheta.Du)
+    else sum(ergm.estfun(samp, theta, nw.state$model$etamap) * Dtheta.Du)
+  }
 
   if(obs){
     if(verbose) message("Initializing constrained model and proposals...")
@@ -165,9 +173,9 @@ ergm.bridge.llr<-function(object, response=NULL, reference=~Bernoulli, constrain
         simplify = FALSE,
         control = gen_control(FALSE,"no")
       )
-    samp <- ergm.estfun(do.call(stats::simulate, sim_settings), theta, nw.state$model$etamap)
-    vcov.esteq[[i]] <- ERRVL(try(spectrum0.mvar(samp)/(niter(samp)*nchain(samp)), silent=TRUE), matrix(0,p,p))
-    esteq[i,] <- colMeans(as.matrix(samp))
+    samp <- llrsamp(do.call(stats::simulate, sim_settings), theta)
+    vcov.llrs[i] <- c(ERRVL(try(spectrum0.mvar(samp)/(niter(samp)*nchain(samp)), silent=TRUE), 0))
+    llrs[i] <- mean(as.matrix(samp))
 
     if(obs){
       sim_settings.obs[c("nsim", "object", "output", "simplify", "control")] <-
@@ -178,24 +186,20 @@ ergm.bridge.llr<-function(object, response=NULL, reference=~Bernoulli, constrain
           simplify = FALSE,
           control = gen_control(TRUE,"no")
         )
-      samp <- ergm.estfun(do.call(stats::simulate, sim_settings.obs), theta, nw.state$model$etamap)
-      vcov.esteq[[i]] <- vcov.esteq[[i]] + ERRVL(try(spectrum0.mvar(samp)/(niter(samp)*nchain(samp)), silent=TRUE), matrix(0,p,p))
-      esteq[i,] <- esteq[i,] - colMeans(as.matrix(samp))
-    }else esteq[i,] <- esteq[i,] - ergm.estfun(target.stats, theta, nw.state$model$etamap)
+      samp <- llrsamp(do.call(stats::simulate, sim_settings.obs), theta)
+      vcov.llrs[i] <- vcov.llrs[i] + c(ERRVL(try(spectrum0.mvar(samp)/(niter(samp)*nchain(samp)), silent=TRUE), 0))
+      llrs[i] <- llrs[i] - mean(as.matrix(samp))
+    }else llrs[i] <- llrs[i] - llrsamp(target.stats, theta)
   }
   message(".")
 
   if(verbose) message("Bridge sampling finished. Collating...")
 
-  Dtheta.Du <- (to-from)[!nw.state$model$etamap$offsettheta]/control$nsteps
 
-  nochg <- Dtheta.Du==0 | apply(esteq==0, 2, all)
-  llrs <- as.vector(esteq[,!nochg,drop=FALSE] %*% Dtheta.Du[!nochg])
-  vcov.llrs <- map_dbl(vcov.esteq, ~Dtheta.Du[!nochg] %*% .[!nochg,!nochg] %*% Dtheta.Du[!nochg])
   llr <- sum(llrs)
   vcov.llr <- sum(vcov.llrs)
   if(llronly) structure(llr, vcov=vcov.llr)
-  else list(llr=llr,vcov.llr=vcov.llr,from=from,to=to,llrs=llrs,vcov.llrs=vcov.llrs,path=path,esteq=esteq,Dtheta.Du=Dtheta.Du)
+  else list(llr=llr,vcov.llr=vcov.llr,from=from,to=to,llrs=llrs,vcov.llrs=vcov.llrs,path=path,Dtheta.Du=Dtheta.Du)
 }
 
 #' @rdname ergm.bridge.llr
