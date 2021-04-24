@@ -105,7 +105,7 @@ logLik.ergm<-function(object, add=FALSE, force.reeval=FALSE, eval.loglik=add || 
        || (is.dyad.independent(object, term.options=control$term.options)
          && is.null(object$sample)
          && !is.valued(object)))
-      -glm$deviance/2 - -glm.null$deviance/2
+      structure(-glm$deviance/2 - -glm.null$deviance/2, vcov = 0)
     ## If dyad-dependent but not valued and has a dyad-independent constraint, bridge from a dyad-independent model.
     else if(is.dyad.independent(object$constrained, object$constrained.obs)
                    && !is.valued(object))
@@ -214,7 +214,7 @@ NO_NULL_IMPLICATION <- "This means that all likelihood-based inference (LRT, Ana
 #' @export
 deviance.ergm <- function(object, ...){
   llk <- logLik(object, ...)
-  structure(-2*as.vector(llk), vcov = 4*attr(llk,"vcov"))
+  structure(-2*as.vector(llk), vcov = EVL(4*attr(llk,"vcov"), NA))
 }
 
 #' @describeIn logLik.ergm An [AIC()] method.
@@ -222,7 +222,7 @@ deviance.ergm <- function(object, ...){
 AIC.ergm <- function(object, ..., k = 2){
   if(...length()==0){
     llk <- logLik(object)
-    structure(AIC(llk, k=k), vcov = 4*attr(llk,"vcov"))
+    structure(AIC(llk, k=k), vcov = EVL(4*attr(llk,"vcov"), NA))
   }else NextMethod()
 }
 
@@ -231,6 +231,6 @@ AIC.ergm <- function(object, ..., k = 2){
 BIC.ergm <- function(object, ...){
   if(...length()==0){
     llk <- logLik(object)
-    structure(BIC(llk), vcov = 4*attr(llk,"vcov"))
+    structure(BIC(llk), vcov = EVL(4*attr(llk,"vcov"), NA))
   }else NextMethod()
 }
