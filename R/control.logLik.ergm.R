@@ -41,7 +41,8 @@
 #' @seealso \code{\link{logLik.ergm}}
 #' @keywords models
 #' @export control.logLik.ergm
-control.logLik.ergm<-function(nsteps=20,
+control.logLik.ergm<-function(nsteps=16,
+
                               MCMC.burnin=NULL,
                               MCMC.interval=NULL,
                               MCMC.samplesize=NULL,
