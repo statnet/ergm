@@ -695,7 +695,7 @@ InitErgmTerm.Exp <- function(nw, arglist, ...){
   m <- ergm_model(a$formula, nw,...)
 
   wm <- wrap.ergm_model(m, nw, ergm_mk_std_op_namewrap('Exp'))
-  wm$emptynwstats <- wm$emptynwstats %>% NVL(numeric(nparam(m, canonical=TRUE))) %>% exp()
+  wm$emptynwstats <- wm$emptynwstats %>% NVL(numeric(nparam(m, canonical=TRUE))) %>% exp
 
   c(list(name="Exp", auxiliaries=~.submodel_and_summary(m)), wm)
 }
