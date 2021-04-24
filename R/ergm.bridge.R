@@ -96,8 +96,9 @@ ergm.bridge.llr<-function(object, response=NULL, reference=~Bernoulli, constrain
       MCMC.interval = if(burnin!="no"){
                        1
                      }else{
-                       if(obs) control$obs.MCMC.interval
-                       else control$MCMC.interval
+                       ceiling(
+                       (if(obs) control$obs.MCMC.interval else control$MCMC.interval) / control$nsteps
+                       )
                      },
       MCMC.packagenames=control$MCMC.packagenames,
       parallel=control$parallel,
@@ -167,7 +168,7 @@ ergm.bridge.llr<-function(object, response=NULL, reference=~Bernoulli, constrain
     if(verbose>1) message("Simulating...")
     sim_settings[c("nsim", "object", "output", "simplify", "control")] <-
       list(
-        nsim = ceiling(control$MCMC.samplesize/control$nsteps),
+        nsim = control$MCMC.samplesize,
         object = nw.state,
         output = "stats",
         simplify = FALSE,
@@ -180,7 +181,7 @@ ergm.bridge.llr<-function(object, response=NULL, reference=~Bernoulli, constrain
     if(obs){
       sim_settings.obs[c("nsim", "object", "output", "simplify", "control")] <-
         list(
-          nsim = ceiling(control$obs.MCMC.samplesize/control$nsteps),
+          nsim = control$obs.MCMC.samplesize,
           object = nw.state.obs,
           output = "stats",
           simplify = FALSE,
