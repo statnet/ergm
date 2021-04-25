@@ -113,18 +113,6 @@ ergm.bridge.llr<-function(object, response=NULL, reference=~Bernoulli, constrain
   if(verbose) message("Model and proposals initialized.")
   nw.state <- sim_settings$object
 
-  ## Miscellaneous settings
-  Dtheta.Du <- (to-from)[!nw.state$model$etamap$offsettheta] / control$bridge.nsteps
-  target.stats <- NVL(target.stats, summary(nw.state))
-  llrs <- numeric(control$bridge.nsteps)
-  vcov.llrs <- numeric(control$bridge.nsteps)
-
-  ## Helper function to calculate Dtheta.Du %*% Deta.Dtheta %*% g(y)
-  llrsamp <- function(samp, theta){
-    if(is.mcmc.list(samp)) lapply.mcmc.list(ergm.estfun(samp, theta, nw.state$model$etamap), `%*%`, Dtheta.Du)
-    else sum(ergm.estfun(samp, theta, nw.state$model$etamap) * Dtheta.Du)
-  }
-
   if(obs){
     if(verbose) message("Initializing constrained model and proposals...")
     sim_settings.obs <- do.call(stats::simulate, c(simulate(object, coef=from, nsim=1, reference=reference, constraints=list(constraints, obs.constraints), observational=TRUE, output="ergm_state", verbose=max(verbose-1,0), basis = basis, control=gen_control(TRUE, "first"), ..., do.sim=FALSE), do.sim=FALSE))
@@ -132,75 +120,100 @@ ergm.bridge.llr<-function(object, response=NULL, reference=~Bernoulli, constrain
     nw.state.obs <- sim_settings.obs$object
   }
 
+  ## Miscellaneous settings
+  Dtheta.Du <- (to-from)[!nw.state$model$etamap$offsettheta] / control$bridge.nsteps
+  target.stats <- NVL(target.stats, summary(nw.state))
+
+  ## Helper function to calculate Dtheta.Du %*% Deta.Dtheta %*% g(y)
+  llrsamp <- function(samp, theta){
+    if(is.mcmc.list(samp)) lapply.mcmc.list(ergm.estfun(samp, theta, nw.state$model$etamap), `%*%`, Dtheta.Du)
+    else sum(ergm.estfun(samp, theta, nw.state$model$etamap) * Dtheta.Du)
+  }
+
+
   message("Using ", control$bridge.nsteps, " bridges: ", appendLF=FALSE)
+
+  llr.hist <- list()
+  vcov.llr.hist <- list()
+
+  repeat{
+    llrs <- numeric(control$bridge.nsteps)
+    vcov.llrs <- numeric(control$bridge.nsteps)
   
-  for(i in seq_len(control$bridge.nsteps)){
-    theta<-path[i,]
-    if(verbose==0) message(i," ",appendLF=FALSE)
-    if(verbose>0) message("Running theta=[",paste(format(theta),collapse=","),"].")
-    if(verbose>1) message("Burning in...")
+    for(i in seq_len(control$bridge.nsteps)){
+      theta<-path[i,]
+      if(verbose==0) message(i," ",appendLF=FALSE)
+      if(verbose>0) message("Running theta=[",paste(format(theta),collapse=","),"].")
+      if(verbose>1) message("Burning in...")
 
-    ## First burn-in has to be longer, but those thereafter should be shorter if the bridges are closer together.
-    sim_settings[c("nsim", "coef", "object", "output", "simplify", "control")] <-
-      list(
-        nsim = 1,
-        coef = theta,
-        object = nw.state,
-        output = "ergm_state",
-        simplify = TRUE,
-        control = gen_control(FALSE, if(i==1)"first"else"between")
-      )
-    nw.state <- do.call(stats::simulate, sim_settings)
-
-    if(obs){
-      sim_settings.obs[c("nsim", "coef", "object", "output", "simplify", "control")] <-
+      ## First burn-in has to be longer, but those thereafter should be shorter if the bridges are closer together.
+      sim_settings[c("nsim", "coef", "object", "output", "simplify", "control")] <-
         list(
           nsim = 1,
           coef = theta,
-          object = nw.state.obs,
+          object = nw.state,
           output = "ergm_state",
           simplify = TRUE,
-          control = gen_control(TRUE, if(i==1)"first"else"between")
+          control = gen_control(FALSE, if(i==1)"first"else"between")
         )
-      nw.state.obs <- do.call(stats::simulate, sim_settings.obs)
-    }
+      nw.state <- do.call(stats::simulate, sim_settings)
 
-    if(verbose>1) message("Simulating...")
-    sim_settings[c("nsim", "object", "output", "simplify", "control")] <-
-      list(
-        nsim = control$MCMC.samplesize,
-        object = nw.state,
-        output = "stats",
-        simplify = FALSE,
-        control = gen_control(FALSE,"no")
-      )
-    samp <- llrsamp(do.call(stats::simulate, sim_settings), theta)
-    vcov.llrs[i] <- c(ERRVL(try(spectrum0.mvar(samp)/(niter(samp)*nchain(samp)), silent=TRUE), 0))
-    llrs[i] <- mean(as.matrix(samp))
+      if(obs){
+        sim_settings.obs[c("nsim", "coef", "object", "output", "simplify", "control")] <-
+          list(
+            nsim = 1,
+            coef = theta,
+            object = nw.state.obs,
+            output = "ergm_state",
+            simplify = TRUE,
+            control = gen_control(TRUE, if(i==1)"first"else"between")
+          )
+        nw.state.obs <- do.call(stats::simulate, sim_settings.obs)
+      }
 
-    if(obs){
-      sim_settings.obs[c("nsim", "object", "output", "simplify", "control")] <-
+      if(verbose>1) message("Simulating...")
+      sim_settings[c("nsim", "object", "output", "simplify", "control")] <-
         list(
-          nsim = control$obs.MCMC.samplesize,
-          object = nw.state.obs,
+          nsim = control$MCMC.samplesize,
+          object = nw.state,
           output = "stats",
           simplify = FALSE,
-          control = gen_control(TRUE,"no")
+          control = gen_control(FALSE,"no")
         )
-      samp <- llrsamp(do.call(stats::simulate, sim_settings.obs), theta)
-      vcov.llrs[i] <- vcov.llrs[i] + c(ERRVL(try(spectrum0.mvar(samp)/(niter(samp)*nchain(samp)), silent=TRUE), 0))
-      llrs[i] <- llrs[i] - mean(as.matrix(samp))
-    }else llrs[i] <- llrs[i] - llrsamp(target.stats, theta)
+      samp <- llrsamp(do.call(stats::simulate, sim_settings), theta)
+      vcov.llrs[i] <- c(ERRVL(try(spectrum0.mvar(samp)/(niter(samp)*nchain(samp)), silent=TRUE), 0))
+      llrs[i] <- mean(as.matrix(samp))
+
+      if(obs){
+        sim_settings.obs[c("nsim", "object", "output", "simplify", "control")] <-
+          list(
+            nsim = control$obs.MCMC.samplesize,
+            object = nw.state.obs,
+            output = "stats",
+            simplify = FALSE,
+            control = gen_control(TRUE,"no")
+          )
+        samp <- llrsamp(do.call(stats::simulate, sim_settings.obs), theta)
+        vcov.llrs[i] <- vcov.llrs[i] + c(ERRVL(try(spectrum0.mvar(samp)/(niter(samp)*nchain(samp)), silent=TRUE), 0))
+        llrs[i] <- llrs[i] - mean(as.matrix(samp))
+      }else llrs[i] <- llrs[i] - llrsamp(target.stats, theta)
+    }
+    message(".")
+
+    if(verbose) message("Bridge sampling finished. Collating...")
+
+    llr.hist[[length(llr.hist)+1]] <- llrs
+    vcov.llr.hist[[length(vcov.llr.hist)+1]] <- vcov.llrs
+
+    llr <- sum(unlist(llr.hist)) / length(llr.hist)
+    vcov.llr <- sum(unlist(vcov.llr.hist)) / length(vcov.llr.hist)^2
+
+    if(is.null(control$bridge.target.se) || vcov.llr <= control$bridge.target.se^2) break
+    else message("Estimated standard error (", format(sqrt(vcov.llr)), ") above target (", format(control$bridge.target.se), "). Drawing additional samples.")
   }
-  message(".")
 
-  if(verbose) message("Bridge sampling finished. Collating...")
-
-
-  llr <- sum(llrs)
-  vcov.llr <- sum(vcov.llrs)
   if(llronly) structure(llr, vcov=vcov.llr)
-  else list(llr=llr,vcov.llr=vcov.llr,from=from,to=to,llrs=llrs,vcov.llrs=vcov.llrs,path=path,Dtheta.Du=Dtheta.Du)
+  else list(llr=llr,vcov.llr=vcov.llr,from=from,to=to,llrs=llr.hist,vcov.llrs=vcov.llr.hist,path=path,Dtheta.Du=Dtheta.Du)
 }
 
 #' @rdname ergm.bridge.llr

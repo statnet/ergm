@@ -22,6 +22,7 @@
 #' @templateVar MCMCType MCMC
 #'
 #' @param bridge.nsteps Number of geometric bridges to use.
+#' @param bridge.target.se If not `NULL`, if the estimated MCMC standard error of the likelihood estimate exceeds this, repeat the bridge sampling, accumulating samples.
 #' @param MCMC.burnin Number of proposals before any MCMC sampling is done. It
 #' typically is set to a fairly large number.
 #' @param MCMC.burnin.between Number of proposals between the bridges; typically, less and less is needed as the number of steps decreases.
@@ -45,6 +46,7 @@
 #' @keywords models
 #' @export control.ergm.bridge
 control.ergm.bridge<-function(bridge.nsteps=16, # Number of geometric bridges to use
+                              bridge.target.se=NULL,
 
                               MCMC.burnin=MCMC.interval*128,
                               MCMC.burnin.between=max(ceiling(MCMC.burnin/sqrt(bridge.nsteps)), MCMC.interval*16),

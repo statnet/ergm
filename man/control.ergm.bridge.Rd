@@ -7,6 +7,7 @@
 \usage{
 control.ergm.bridge(
   bridge.nsteps = 16,
+  bridge.target.se = NULL,
   MCMC.burnin = MCMC.interval * 128,
   MCMC.burnin.between = max(ceiling(MCMC.burnin/sqrt(bridge.nsteps)), MCMC.interval *
     16),
@@ -36,6 +37,7 @@ control.ergm.bridge(
 
 control.logLik.ergm(
   bridge.nsteps = 16,
+  bridge.target.se = NULL,
   MCMC.burnin = NULL,
   MCMC.interval = NULL,
   MCMC.samplesize = NULL,
@@ -62,6 +64,8 @@ control.logLik.ergm(
 }
 \arguments{
 \item{bridge.nsteps}{Number of geometric bridges to use.}
+
+\item{bridge.target.se}{If not \code{NULL}, if the estimated MCMC standard error of the likelihood estimate exceeds this, repeat the bridge sampling, accumulating samples.}
 
 \item{MCMC.burnin}{Number of proposals before any MCMC sampling is done. It
 typically is set to a fairly large number.}

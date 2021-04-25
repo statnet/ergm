@@ -21,6 +21,7 @@
 #' @seealso \code{\link{logLik.ergm}}
 #' @export control.logLik.ergm
 control.logLik.ergm<-function(bridge.nsteps=16,
+                              bridge.target.se=NULL,
 
                               MCMC.burnin=NULL,
                               MCMC.interval=NULL,
