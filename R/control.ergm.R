@@ -678,17 +678,8 @@ control.ergm<-function(drop=TRUE,
                        )
 
   match.arg.pars <- c("MPLE.type","MCMLE.metric","MCMLE.method","main.method",'MCMLE.termination',"CD.metric","CD.method","MCMLE.steplength.parallel","CD.steplength.parallel","MPLE.nonident","MPLE.nonvar","MCMLE.nonvar","MCMLE.nonident")
-  
-  control<-list()
-  formal.args<-formals(sys.function())
-  formal.args[["..."]]<-NULL
-  for(arg in names(formal.args))
-    control[arg]<-list(get(arg))
 
-  handle.old.controls("control.ergm", ...)
-
-  for(arg in match.arg.pars)
-    control[arg]<-list(match.arg(control[[arg]][1],eval(formal.args[[arg]])))
+  control <- control <- handle.controls("control.ergm", ...)
 
   if((MCMLE.steplength!=1 || is.null(MCMLE.steplength.margin)) && MCMLE.termination %in% c("Hummel", "precision"))
     stop("Hummel and precision-based termination require non-null MCMLE.steplength.margin and MCMLE.steplength = 1.")
@@ -699,20 +690,32 @@ control.ergm<-function(drop=TRUE,
 }
 
 
-handle.old.controls <- function(myname, ...){
-  control <- get("control", parent.frame())
-  old.controls <- get("old.controls", parent.frame())
+handle.controls <- function(myname, ...){
+  formal.args <- formals(sys.function(-1))
+  if(has.dots <- "..." %in% names(formal.args)) formal.args[["..."]] <- NULL
 
-  for(arg in names(list(...))){
-    if(!is.null(old.controls[[arg]])){
-      warning("Passing ",sQuote(paste0(arg,"=..."))," to ", sQuote(paste0(myname, "()")), " is deprecated and may be removed in a future version. Specify it as ", sQuote(paste0(myname, "(", old.controls[[arg]], "=...)")), " instead.")
-      control[old.controls[[arg]]]<-list(list(...)[[arg]])
-    }else{
-      stop("Unrecognized control parameter for ", sQuote(paste0(myname, "()")), ": ", sQuote(arg), ".", call.=FALSE)
+  control <- list()
+  for(arg in names(formal.args))
+    control[arg] <- list(get(arg, parent.frame()))
+
+  if(has.dots && exists("old.controls", parent.frame())){
+    old.controls <- get("old.controls", parent.frame())
+
+    for(arg in names(list(...))){
+      if(!is.null(old.controls[[arg]])){
+        warning("Passing ",sQuote(paste0(arg,"=..."))," to ", sQuote(paste0(myname, "()")), " is deprecated and may be removed in a future version. Specify it as ", sQuote(paste0(myname, "(", old.controls[[arg]], "=...)")), " instead.")
+        control[old.controls[[arg]]]<-list(list(...)[[arg]])
+      }else{
+        stop("Unrecognized control parameter for ", sQuote(paste0(myname, "()")), ": ", sQuote(arg), ".", call.=FALSE)
+      }
     }
   }
 
-  assign("control", control, parent.frame())
+  if(exists("match.arg.pars", parent.frame()))
+    for(arg in get("match.arg.pars", parent.frame()))
+      control[arg] <- list(match.arg(control[[arg]][1], eval(formal.args[[arg]])))
+
+  control
 }
 
 

@@ -145,9 +145,6 @@ ergm.godfather <- function(formula, changes=NULL, response=NULL,
 #' 
 #' @export control.ergm.godfather
 control.ergm.godfather<-function(term.options=NULL){
-    control<-list()
-    for(arg in names(formals(sys.function())))
-      control[arg]<-list(get(arg))
-
-    set.control.class("control.ergm.godfather")
+  control <- handle.controls("control.ergm.godfather")
+  set.control.class("control.ergm.godfather")
 }

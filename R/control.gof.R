@@ -99,10 +99,7 @@ control.gof.formula<-function(nsim=100,
                               parallel.type=NULL,
                               parallel.version.check=TRUE,
                               parallel.inherit.MT=FALSE){
-  control<-list()
-  for(arg in names(formals(sys.function())))
-    control[arg]<-list(get(arg))
-  
+  control <- handle.controls("control.gof.formula")
   set.control.class("control.gof.formula")
 }
 
@@ -131,9 +128,6 @@ control.gof.ergm<-function(nsim=100,
                            parallel.type=NULL,
                            parallel.version.check=TRUE,
                            parallel.inherit.MT=FALSE){
-  control<-list()
-  for(arg in names(formals(sys.function())))
-    control[arg]<-list(get(arg))
-
+  control <- handle.controls("control.gof.ergm")
   set.control.class("control.gof.ergm")
 }

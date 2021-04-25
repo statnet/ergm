@@ -79,6 +79,7 @@ control.simulate.formula.ergm<-function(MCMC.burnin=MCMC.interval*16,
                                         parallel.type=NULL,
                                         parallel.version.check=TRUE,
                                         parallel.inherit.MT=FALSE,
+
                                         ...){
   old.controls <- list(
                        maxedges="MCMC.maxedges",
@@ -87,13 +88,7 @@ control.simulate.formula.ergm<-function(MCMC.burnin=MCMC.interval*16,
                        packagenames="MCMC.packagenames"
                        )
 
-  control<-list()
-  formal.args<-formals(sys.function())
-  formal.args[["..."]]<-NULL
-  for(arg in names(formal.args))
-    control[arg]<-list(get(arg))
-
-  handle.old.controls("control.simulate.formula.ergm", ...)
+  control <- handle.controls("control.simulate.formula", ...)
   set.control.class("control.simulate.formula")
 }
 
@@ -136,6 +131,7 @@ control.simulate.ergm<-function(MCMC.burnin=NULL,
                                 parallel.type=NULL,
                                 parallel.version.check=TRUE,
                                 parallel.inherit.MT=FALSE,
+
                                 ...){
   old.controls <- list(
                        maxedges="MCMC.maxedges",
@@ -144,13 +140,6 @@ control.simulate.ergm<-function(MCMC.burnin=NULL,
                        packagenames="MCMC.packagenames"
                        )
 
-  control<-list()
-  formal.args<-formals(sys.function())
-  formal.args[["..."]]<-NULL
-  for(arg in names(formal.args))
-    control[arg]<-list(get(arg))
-
-  handle.old.controls("control.simulate.ergm", ...)
+  control <- handle.controls("control.simulate.ergm", ...)
   set.control.class("control.simulate.ergm")
 }
-

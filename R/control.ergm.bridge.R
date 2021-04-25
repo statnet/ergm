@@ -77,13 +77,7 @@ control.ergm.bridge<-function(bridge.nsteps=16, # Number of geometric bridges to
 
   old.controls <- list(nsteps = bridge.nsteps)
 
-  control<-list()
-  formal.args<-formals(sys.function())
-  formal.args[["..."]]<-NULL
-  for(arg in names(formal.args))
-    control[arg]<-list(get(arg))
-
-  handle.old.controls("control.ergm.bridge", ...)
+  control <- handle.controls("control.ergm.bridge", ...)
   set.control.class("control.ergm.bridge")
 }
 
