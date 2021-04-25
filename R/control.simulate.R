@@ -45,9 +45,7 @@
 #' @template term_options
 #' @template control_MCMC_parallel
 #' @template control_MCMC_packagenames
-#' @param \dots Additional arguments, passed to other functions This argument
-#' is helpful because it collects any control parameters that have been
-#' deprecated; a warning message is printed in case of deprecated arguments.
+#' @template control_dots
 #' @return A list with arguments as components.
 #' @seealso \code{\link{simulate.ergm}}, \code{\link{simulate.formula}}.
 #' \code{\link{control.ergm}} performs a similar function for
@@ -95,15 +93,7 @@ control.simulate.formula.ergm<-function(MCMC.burnin=MCMC.interval*16,
   for(arg in names(formal.args))
     control[arg]<-list(get(arg))
 
-  for(arg in names(list(...))){
-    if(!is.null(old.controls[[arg]])){
-      warning("Passing ",arg," to control.simulate.formula(...) is deprecated and may be removed in a future version. Specify it as control.simulate.formula(",old.controls[[arg]],"=...) instead.")
-      control[old.controls[[arg]]]<-list(list(...)[[arg]])
-    }else{
-      stop("Unrecognized control parameter: ",arg,".")
-    }
-  }
-
+  handle.old.controls("control.simulate.formula.ergm", ...)
   set.control.class("control.simulate.formula")
 }
 
@@ -160,12 +150,7 @@ control.simulate.ergm<-function(MCMC.burnin=NULL,
   for(arg in names(formal.args))
     control[arg]<-list(get(arg))
 
-  for(arg in names(list(...)))
-    if(!is.null(old.controls[[arg]])){
-      warning("Passing ",arg," to control.simulate.ergm(...) is deprecated and may be removed in a future version. Specify it as control.simulate.ergm(",old.controls[[arg]],"=...) instead.")
-      control[old.controls[[arg]]]<-list(list(...)[[arg]])
-    }
- 
+  handle.old.controls("control.simulate.ergm", ...)
   set.control.class("control.simulate.ergm")
 }
 

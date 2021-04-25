@@ -5,7 +5,7 @@
 \title{Auxiliary for Controlling logLik.ergm}
 \usage{
 control.logLik.ergm(
-  nsteps = 20,
+  bridge.nsteps = 16,
   MCMC.burnin = NULL,
   MCMC.interval = NULL,
   MCMC.samplesize = NULL,
@@ -23,11 +23,12 @@ control.logLik.ergm(
   parallel = NULL,
   parallel.type = NULL,
   parallel.version.check = TRUE,
-  parallel.inherit.MT = FALSE
+  parallel.inherit.MT = FALSE,
+  ...
 )
 }
 \arguments{
-\item{nsteps}{Number of geometric bridges to use.}
+\item{bridge.nsteps}{Number of geometric bridges to use.}
 
 \item{MCMC.burnin}{Number of proposals before any MCMC sampling is done. It
 typically is set to a fairly large number.}
@@ -91,6 +92,8 @@ that running on the master node.}
 
 \item{parallel.inherit.MT}{Logical: If TRUE, slave nodes and
 processes inherit the \code{\link[=set.MT_terms]{set.MT_terms()}} setting.}
+
+\item{\dots}{A dummy argument to catch deprecated or mistyped control parameters.}
 }
 \value{
 A list with arguments as components.

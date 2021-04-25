@@ -20,7 +20,7 @@
 #'
 #' @templateVar MCMCType MCMC
 #'
-#' @param nsteps Number of geometric bridges to use.
+#' @param bridge.nsteps Number of geometric bridges to use.
 #' @param MCMC.burnin Number of proposals before any MCMC sampling is done. It
 #' typically is set to a fairly large number.
 #' @param MCMC.burnin.between Number of proposals between the bridges; typically, less and less is needed as the number of steps decreases.
@@ -38,19 +38,20 @@
 #' @template control_MCMC_parallel
 #' @template seed
 #' @template control_MCMC_packagenames
+#' @template control_dots
 #' @return A list with arguments as components.
 #' @seealso \code{\link{ergm.bridge.llr}},
 #' \code{\link{ergm.bridge.dindstart.llk}}
 #' @keywords models
 #' @export control.ergm.bridge
-control.ergm.bridge<-function(nsteps=16, # Number of geometric bridges to use
+control.ergm.bridge<-function(bridge.nsteps=16, # Number of geometric bridges to use
                               MCMC.burnin=MCMC.interval*128,
-                              MCMC.burnin.between=max(ceiling(MCMC.burnin/sqrt(nsteps)), MCMC.interval*16),
+                              MCMC.burnin.between=max(ceiling(MCMC.burnin/sqrt(bridge.nsteps)), MCMC.interval*16),
                               MCMC.interval=128,
-                              MCMC.samplesize=16384, # Total number of MCMC draws to use (to be divided up among the bridges, so each bridge gets \code{sample.size/nsteps} draws.
+                              MCMC.samplesize=16384, # Total number of MCMC draws to use (to be divided up among the bridges, so each bridge gets \code{sample.size/bridge.nsteps} draws.
 
                               obs.MCMC.burnin=obs.MCMC.interval*128,
-                              obs.MCMC.burnin.between=max(ceiling(obs.MCMC.burnin/sqrt(nsteps)), obs.MCMC.interval*16),
+                              obs.MCMC.burnin.between=max(ceiling(obs.MCMC.burnin/sqrt(bridge.nsteps)), obs.MCMC.interval*16),
                               obs.MCMC.interval=MCMC.interval,
                               obs.MCMC.samplesize=MCMC.samplesize,
 
@@ -69,14 +70,20 @@ control.ergm.bridge<-function(nsteps=16, # Number of geometric bridges to use
                               parallel=0,
                               parallel.type=NULL,
                               parallel.version.check=TRUE,
-                              parallel.inherit.MT=FALSE
+                              parallel.inherit.MT=FALSE,
+
+                              ...
 ){
+
+  old.controls <- list(nsteps = bridge.nsteps)
 
   control<-list()
   formal.args<-formals(sys.function())
+  formal.args[["..."]]<-NULL
   for(arg in names(formal.args))
     control[arg]<-list(get(arg))
 
+  handle.old.controls("control.ergm.bridge", ...)
   set.control.class("control.ergm.bridge")
 }
 

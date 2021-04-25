@@ -5,13 +5,14 @@
 \title{Auxiliary for Controlling ergm.bridge}
 \usage{
 control.ergm.bridge(
-  nsteps = 16,
+  bridge.nsteps = 16,
   MCMC.burnin = MCMC.interval * 128,
-  MCMC.burnin.between = max(ceiling(MCMC.burnin/sqrt(nsteps)), MCMC.interval * 16),
+  MCMC.burnin.between = max(ceiling(MCMC.burnin/sqrt(bridge.nsteps)), MCMC.interval *
+    16),
   MCMC.interval = 128,
   MCMC.samplesize = 16384,
   obs.MCMC.burnin = obs.MCMC.interval * 128,
-  obs.MCMC.burnin.between = max(ceiling(obs.MCMC.burnin/sqrt(nsteps)),
+  obs.MCMC.burnin.between = max(ceiling(obs.MCMC.burnin/sqrt(bridge.nsteps)),
     obs.MCMC.interval * 16),
   obs.MCMC.interval = MCMC.interval,
   obs.MCMC.samplesize = MCMC.samplesize,
@@ -28,11 +29,12 @@ control.ergm.bridge(
   parallel = 0,
   parallel.type = NULL,
   parallel.version.check = TRUE,
-  parallel.inherit.MT = FALSE
+  parallel.inherit.MT = FALSE,
+  ...
 )
 }
 \arguments{
-\item{nsteps}{Number of geometric bridges to use.}
+\item{bridge.nsteps}{Number of geometric bridges to use.}
 
 \item{MCMC.burnin}{Number of proposals before any MCMC sampling is done. It
 typically is set to a fairly large number.}
@@ -97,6 +99,8 @@ that running on the master node.}
 
 \item{parallel.inherit.MT}{Logical: If TRUE, slave nodes and
 processes inherit the \code{\link[=set.MT_terms]{set.MT_terms()}} setting.}
+
+\item{\dots}{A dummy argument to catch deprecated or mistyped control parameters.}
 }
 \value{
 A list with arguments as components.

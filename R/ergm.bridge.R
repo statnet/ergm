@@ -51,10 +51,10 @@
 #'   the scalar log-likelihood-ratio or the log-likelihood.
 #'   Otherwise, they return a list with the following components:
 #'   \item{llr}{The estimated log-ratio.}  \item{llrs}{The estimated
-#'   log-ratios for each of the \code{nsteps} bridges.}  \item{path}{A
-#'   numeric matrix with nsteps rows, with each row being the
+#'   log-ratios for each of the \code{bridge.nsteps} bridges.}  \item{path}{A
+#'   numeric matrix with `bridge.nsteps` rows, with each row being the
 #'   respective bridge's parameter configuration.}  \item{stats}{A
-#'   numeric matrix with nsteps rows, with each row being the
+#'   numeric matrix with `bridge.nsteps` rows, with each row being the
 #'   respective bridge's vector of simulated statistics.}
 #'   \item{Dtheta.Du}{The gradient vector of the parameter values with
 #'   respect to position of the bridge.}
@@ -75,7 +75,7 @@ ergm.bridge.llr<-function(object, response=NULL, reference=~Bernoulli, constrain
   ergm_preprocess_response(basis, response)
 
   ## Generate the path.
-  path<-t(rbind(sapply(seq(from=0+1/2/(control$nsteps+1),to=1-1/2/(control$nsteps+1),length.out=control$nsteps),function(u) cbind(to*u + from*(1-u)))))
+  path<-t(rbind(sapply(seq(from=0+1/2/(control$bridge.nsteps+1),to=1-1/2/(control$bridge.nsteps+1),length.out=control$bridge.nsteps),function(u) cbind(to*u + from*(1-u)))))
 
   # Determine whether an observation process is in effect.
   obs <- !is.null(.handle.auto.constraints(basis, constraints, obs.constraints, target.stats)$constraints.obs)
@@ -97,7 +97,7 @@ ergm.bridge.llr<-function(object, response=NULL, reference=~Bernoulli, constrain
                        1
                      }else{
                        ceiling(
-                       (if(obs) control$obs.MCMC.interval else control$MCMC.interval) / control$nsteps
+                       (if(obs) control$obs.MCMC.interval else control$MCMC.interval) / control$bridge.nsteps
                        )
                      },
       MCMC.packagenames=control$MCMC.packagenames,
@@ -114,10 +114,10 @@ ergm.bridge.llr<-function(object, response=NULL, reference=~Bernoulli, constrain
   nw.state <- sim_settings$object
 
   ## Miscellaneous settings
-  Dtheta.Du <- (to-from)[!nw.state$model$etamap$offsettheta] / control$nsteps
+  Dtheta.Du <- (to-from)[!nw.state$model$etamap$offsettheta] / control$bridge.nsteps
   target.stats <- NVL(target.stats, summary(nw.state))
-  llrs <- numeric(control$nsteps)
-  vcov.llrs <- numeric(control$nsteps)
+  llrs <- numeric(control$bridge.nsteps)
+  vcov.llrs <- numeric(control$bridge.nsteps)
 
   ## Helper function to calculate Dtheta.Du %*% Deta.Dtheta %*% g(y)
   llrsamp <- function(samp, theta){
@@ -132,9 +132,9 @@ ergm.bridge.llr<-function(object, response=NULL, reference=~Bernoulli, constrain
     nw.state.obs <- sim_settings.obs$object
   }
 
-  message("Using ", control$nsteps, " bridges: ", appendLF=FALSE)
+  message("Using ", control$bridge.nsteps, " bridges: ", appendLF=FALSE)
   
-  for(i in seq_len(control$nsteps)){
+  for(i in seq_len(control$bridge.nsteps)){
     theta<-path[i,]
     if(verbose==0) message(i," ",appendLF=FALSE)
     if(verbose>0) message("Running theta=[",paste(format(theta),collapse=","),"].")

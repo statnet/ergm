@@ -120,10 +120,10 @@ If \code{llronly=TRUE} or \code{llkonly=TRUE}, these functions return
 the scalar log-likelihood-ratio or the log-likelihood.
 Otherwise, they return a list with the following components:
 \item{llr}{The estimated log-ratio.}  \item{llrs}{The estimated
-log-ratios for each of the \code{nsteps} bridges.}  \item{path}{A
-numeric matrix with nsteps rows, with each row being the
+log-ratios for each of the \code{bridge.nsteps} bridges.}  \item{path}{A
+numeric matrix with \code{bridge.nsteps} rows, with each row being the
 respective bridge's parameter configuration.}  \item{stats}{A
-numeric matrix with nsteps rows, with each row being the
+numeric matrix with \code{bridge.nsteps} rows, with each row being the
 respective bridge's vector of simulated statistics.}
 \item{Dtheta.Du}{The gradient vector of the parameter values with
 respect to position of the bridge.}

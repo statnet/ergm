@@ -695,9 +695,7 @@ that running on the master node.}
 \item{parallel.inherit.MT}{Logical: If TRUE, slave nodes and
 processes inherit the \code{\link[=set.MT_terms]{set.MT_terms()}} setting.}
 
-\item{\dots}{Additional arguments, passed to other functions This argument
-is helpful because it collects any control parameters that have been
-deprecated; a warning message is printed in case of deprecated arguments.}
+\item{\dots}{A dummy argument to catch deprecated or mistyped control parameters.}
 }
 \value{
 A list with arguments as components.

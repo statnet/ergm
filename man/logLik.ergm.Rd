@@ -95,7 +95,7 @@ summary(gest)
 # for speed's sake.
 gest.logLik <- logLik(gest, add=TRUE)
 
-gest.logLik <- logLik(gest, add=TRUE, control=control.logLik.ergm(nsteps=3))
+gest.logLik <- logLik(gest, add=TRUE, control=control.logLik.ergm(bridge.nsteps=3))
 # Deviances, AIC, and BIC are now shown:
 summary(gest.logLik)
 # Null model likelihood can also be evaluated, but not for all constraints:

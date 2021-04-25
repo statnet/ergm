@@ -99,7 +99,7 @@ test_that("SAN works with curved terms", {
     expect_true(z["edges"] >= 29 && z["edges"] <= 31)
     expect_true(z["gwesp.fixed.0"] >= 8 && z["gwesp.fixed.0"] <= 10)
     
-    e <- ergm(x ~ edges + offset(degree(3)) + gwesp(cutoff=2), offset.coef=c(-Inf), control=control.ergm(MCMLE.maxit=1, loglik.control=control.logLik.ergm(nsteps=1)))
+    e <- ergm(x ~ edges + offset(degree(3)) + gwesp(cutoff=2), offset.coef=c(-Inf), control=control.ergm(MCMLE.maxit=1, loglik.control=control.logLik.ergm(bridge.nsteps=1)))
     y <- san(e, target.stats=c(30,9,0), offset.coef=c(-Inf))
     z <- summary(y ~ edges + gwesp(cutoff=2))
     expect_true(z["edges"] >= 29 && z["edges"] <= 31)

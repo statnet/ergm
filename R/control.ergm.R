@@ -442,9 +442,7 @@
 #' @template control_MCMC_parallel
 #' @template seed
 #' @template control_MCMC_packagenames
-#' @param \dots Additional arguments, passed to other functions This argument
-#' is helpful because it collects any control parameters that have been
-#' deprecated; a warning message is printed in case of deprecated arguments.
+#' @template control_dots
 #' @return A list with arguments as components.
 #' @seealso [ergm()]. The \code{\link{control.simulate}} function
 #' performs a similar function for \code{\link{simulate.ergm}};
@@ -687,14 +685,7 @@ control.ergm<-function(drop=TRUE,
   for(arg in names(formal.args))
     control[arg]<-list(get(arg))
 
-  for(arg in names(list(...))){
-    if(!is.null(old.controls[[arg]])){
-      warning("Passing ",arg," to control.ergm(...) is deprecated and may be removed in a future version. Specify it as control.ergm(",old.controls[[arg]],"=...) instead.")
-      control[old.controls[[arg]]]<-list(list(...)[[arg]])
-    }else{
-      stop("Unrecognized control parameter: ",arg,".")
-    }
-  }
+  handle.old.controls("control.ergm", ...)
 
   for(arg in match.arg.pars)
     control[arg]<-list(match.arg(control[[arg]][1],eval(formal.args[[arg]])))
@@ -706,6 +697,24 @@ control.ergm<-function(drop=TRUE,
 
   set.control.class("control.ergm")
 }
+
+
+handle.old.controls <- function(myname, ...){
+  control <- get("control", parent.frame())
+  old.controls <- get("old.controls", parent.frame())
+
+  for(arg in names(list(...))){
+    if(!is.null(old.controls[[arg]])){
+      warning("Passing ",sQuote(paste0(arg,"=..."))," to ", sQuote(paste0(myname, "()")), " is deprecated and may be removed in a future version. Specify it as ", sQuote(paste0(myname, "(", old.controls[[arg]], "=...)")), " instead.")
+      control[old.controls[[arg]]]<-list(list(...)[[arg]])
+    }else{
+      stop("Unrecognized control parameter for ", sQuote(paste0(myname, "()")), ": ", sQuote(arg), ".", call.=FALSE)
+    }
+  }
+
+  assign("control", control, parent.frame())
+}
+
 
 handle.control.toplevel<-function(myname, ...){
   myctrlname <- paste0("control.",myname)

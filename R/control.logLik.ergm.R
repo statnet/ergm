@@ -19,7 +19,7 @@
 #' 
 #' @templateVar MCMCType MCMC
 #'
-#' @param nsteps Number of geometric bridges to use.
+#' @param bridge.nsteps Number of geometric bridges to use.
 #' @param MCMC.burnin Number of proposals before any MCMC sampling is done. It
 #' typically is set to a fairly large number.
 #' @param MCMC.interval Number of proposals between sampled statistics.
@@ -37,11 +37,12 @@
 #' @template control_MCMC_parallel
 #' @template seed
 #' @template control_MCMC_packagenames
+#' @template control_dots
 #' @return A list with arguments as components.
 #' @seealso \code{\link{logLik.ergm}}
 #' @keywords models
 #' @export control.logLik.ergm
-control.logLik.ergm<-function(nsteps=16,
+control.logLik.ergm<-function(bridge.nsteps=16,
 
                               MCMC.burnin=NULL,
                               MCMC.interval=NULL,
@@ -64,16 +65,21 @@ control.logLik.ergm<-function(nsteps=16,
                               parallel=NULL,
                               parallel.type=NULL,
                               parallel.version.check=TRUE,
-                              parallel.inherit.MT=FALSE
+                              parallel.inherit.MT=FALSE,
+
+                              ...
 ){
+  old.controls <- list(nsteps = bridge.nsteps)
 
   # TODO: Remove after 3.10 release.
   if(!is.null(warn.dyads)) .Deprecate_once(msg=paste("Option", sQuote("warn.dyads="), "is no longer used. Use", sQuote("options(ergm.logLik.warn_dyads=...)"), "instead."))
 
   control<-list()
   formal.args<-formals(sys.function())
+  formal.args[["..."]]<-NULL
   for(arg in names(formal.args))
     control[arg]<-list(get(arg))
 
+  handle.old.controls("control.logLik.ergm", ...)
   set.control.class("control.logLik.ergm")
 }
