@@ -9,14 +9,15 @@
 #######################################################################
 
 
-#' Auxiliary for Controlling ergm.bridge
+#' Auxiliaries for Controlling [ergm.bridge.llr()] and [logLik.ergm()]
 #' 
-#' Auxiliary function as user interface for fine-tuning ergm.bridge algorithm,
-#' which approximates log likelihood ratios using bridge sampling.
+#' Auxiliary functions as user interfaces for fine-tuning the
+#' [ergm.bridge.llr()] algorithm, which approximates log likelihood
+#' ratios using bridge sampling.
 #' 
-#' This function is only used within a call to the
-#' \code{\link{ergm.bridge.llr}} or \code{\link{ergm.bridge.dindstart.llk}}
-#' functions.
+#' `control.ergm.bridge()` is only used within a call to the
+#' [ergm.bridge.llr()], [ergm.bridge.dindstart.llk()], or
+#' [ergm.bridge.0.llk()] functions.
 #'
 #' @templateVar MCMCType MCMC
 #'
@@ -40,11 +41,11 @@
 #' @template control_MCMC_packagenames
 #' @template control_dots
 #' @return A list with arguments as components.
-#' @seealso \code{\link{ergm.bridge.llr}},
-#' \code{\link{ergm.bridge.dindstart.llk}}
+#' @seealso [ergm.bridge.llr()]
 #' @keywords models
 #' @export control.ergm.bridge
 control.ergm.bridge<-function(bridge.nsteps=16, # Number of geometric bridges to use
+
                               MCMC.burnin=MCMC.interval*128,
                               MCMC.burnin.between=max(ceiling(MCMC.burnin/sqrt(bridge.nsteps)), MCMC.interval*16),
                               MCMC.interval=128,
@@ -74,11 +75,8 @@ control.ergm.bridge<-function(bridge.nsteps=16, # Number of geometric bridges to
 
                               ...
 ){
-
   old.controls <- list(nsteps = bridge.nsteps)
 
   control <- handle.controls("control.ergm.bridge", ...)
   set.control.class("control.ergm.bridge")
 }
-
-
