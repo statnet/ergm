@@ -7,103 +7,56 @@
 #
 #  Copyright 2003-2020 Statnet Commons
 #######################################################################
-library(statnet.common)
+
+library(ergm)
 
 # fixedas
+net1 <- network.initialize(10,directed=FALSE)
+net1[,] <- 1
+absent <- as.edgelist(net1)[sample.int(network.edgecount(net1), 2), ]
+net1[absent] <- 0
+present <- as.edgelist(net1)[sample.int(network.edgecount(net1), 2), ]
 
-opttest({
-			
-	library(ergm)
-	
-	net1 <- network(10,directed=FALSE,density=0.2)
-	
-	el1 <- as.edgelist(net1)
-	
-# both present and absent
-	present <- as.edgelist(el1[c(1,2),],n=10,directed=FALSE)
-	
-	absent <- as.edgelist(matrix(sample(1:10,4,replace=F),2,2),n=10,directed=FALSE)
-	
-	while (any(as.data.frame(t(absent)) %in% as.data.frame(t(el1)))){
-		{absent <- as.edgelist(matrix(sample(1:10,4,replace=F),2,2),n=10,directed=FALSE)}
-	}
-	
-	t1 <- ergm(net1~edges,constraint=~fixedas(present=present,absent=absent))
-	
-	s1 <-simulate(t1,1000)
-	
-	# check if all the simulated network have 'present' edges
-	stopifnot(all(sapply(s1,function(x)as.data.frame(t(present)) %in% as.data.frame(t(as.edgelist(x))))))
-	
-	# check if all the simulated network do not have 'absent' edges
-	stopifnot(all(!sapply(s1,function(x)as.data.frame(t(absent)) %in% as.data.frame(t(as.edgelist(x))))))
-	
-	
+net1[as.edgelist(net1)[sample.int(network.edgecount(net1), round(network.edgecount(net1)/2)), ]] <- 0
+net1[present] <- 1
+
+t1 <- ergm(net1~edges, constraint = ~fixedas(present = present, absent = absent))
+s1 <- simulate(t1, 100)
+
+# check if all the simulated network have 'present' edges
+stopifnot(all(sapply(s1,function(x)as.data.frame(t(present)) %in% as.data.frame(t(as.edgelist(x))))))
+
+# check if all the simulated network do not have 'absent' edges
+stopifnot(all(!sapply(s1,function(x)as.data.frame(t(absent)) %in% as.data.frame(t(as.edgelist(x))))))
+
 # only present
-			present <- as.edgelist(el1[c(1,2),],n=10,directed=FALSE)
-			
-			t1 <- ergm(net1~edges,constraint=~fixedas(present=present))
-			
-			s1 <-simulate(t1,1000)
-			
-			stopifnot(all(sapply(s1,function(x)as.data.frame(t(present)) %in% as.data.frame(t(as.edgelist(x))))))
+t1 <- ergm(net1~edges, constraint = ~fixedas(present = present))
+s1 <- simulate(t1,100)
+stopifnot(all(sapply(s1,function(x)as.data.frame(t(present)) %in% as.data.frame(t(as.edgelist(x))))))
 
-			
 # only absent
-			
-			absent <- as.edgelist(matrix(sample(1:10,4,replace=F),2,2),n=10,directed=FALSE)
-			
-			while (any(as.data.frame(t(absent)) %in% as.data.frame(t(el1)))){
-				{absent <- as.edgelist(matrix(sample(1:10,4,replace=F),2,2),n=10,directed=FALSE)}
-			}
-			
-			t1 <- ergm(net1~edges,constraint=~fixedas(absent=absent))
-			
-			s1 <-simulate(t1,1000)
-			
-			stopifnot(all(!sapply(s1,function(x)as.data.frame(t(absent)) %in% as.data.frame(t(as.edgelist(x))))))
-			
+t1 <- ergm(net1~edges, constraint = ~fixedas(absent = absent))
+s1 <- simulate(t1, 100)
+stopifnot(all(!sapply(s1,function(x)as.data.frame(t(absent)) %in% as.data.frame(t(as.edgelist(x))))))
+
 # input is network
-			
-			present <- network.initialize(10,directed=FALSE)
-			add.edges(x=present,tail=el1[c(1,2),1],head=el1[c(1,2),2])
-			
-			absent.el <- as.edgelist(matrix(sample(1:10,4,replace=F),2,2),n=10,directed=FALSE)
-			
-			while (any(as.data.frame(t(absent.el)) %in% as.data.frame(t(el1)))){
-				{absent.el <- as.edgelist(matrix(sample(1:10,4,replace=F),2,2),n=10,directed=FALSE)}
-			}
-			
-			absent <- network.initialize(10,directed=FALSE)
-			
-			add.edges(x=absent,tail=absent.el[,1],head=absent.el[,2])
-			
-			
-			t1 <- ergm(net1~edges,constraint=~fixedas(present=present, absent=absent))
-			
-			s1 <-simulate(t1,1000)
-			
-			stopifnot(all(sapply(s1,function(x)as.data.frame(t(as.edgelist(present))) %in% as.data.frame(t(as.edgelist(x))))))
-			
-			stopifnot(all(!sapply(s1,function(x)as.data.frame(t(as.edgelist(absent))) %in% as.data.frame(t(as.edgelist(x))))))
-			
-			
-		
-		
+present <- as.network(present, matrix.type = "edgelist", directed = FALSE)
+absent <- as.network(absent, matrix.type = "edgelist", directed = FALSE)
+
+t1 <- ergm(net1~edges, constraint = ~fixedas(present = present, absent = absent))
+s1 <- simulate(t1, 100)
+
+stopifnot(all(sapply(s1,function(x)as.data.frame(t(as.edgelist(present))) %in% as.data.frame(t(as.edgelist(x))))))
+stopifnot(all(!sapply(s1,function(x)as.data.frame(t(as.edgelist(absent))) %in% as.data.frame(t(as.edgelist(x))))))
+
 # fixallbut
-	
-	net1 <- network(10,directed=FALSE,density=0.5)
+net1 <- network(10,directed=FALSE,density=0.5)
+free.dyads <- as.edgelist(matrix(sample(1:10,8,replace=F),4,2),n=10,directed=FALSE)
 
-	free.dyads <- as.edgelist(matrix(sample(1:10,8,replace=F),4,2),n=10,directed=FALSE)
-	
-	t1 <- ergm(net1~edges,constraint=~fixallbut(free.dyads=free.dyads))
-	
-	s1 <-simulate(t1,1000)
+t1 <- ergm(net1~edges, constraint = ~fixallbut(free.dyads = free.dyads))
+s1 <- simulate(t1, 100)
 
-        fixed.dyads <- as.edgelist(!update(net1,free.dyads,matrix.type="edgelist"))
-	fixed.dyads.state <- net1[fixed.dyads]
-	
-	stopifnot(all(sapply(s1,function(x) all.equal(x[fixed.dyads],fixed.dyads.state))))
-	
-	
-})
+fixed.dyads <- as.edgelist(!update(net1,free.dyads,matrix.type="edgelist"))
+fixed.dyads.state <- net1[fixed.dyads]
+
+stopifnot(all(sapply(s1,function(x) all.equal(x[fixed.dyads],fixed.dyads.state))))
