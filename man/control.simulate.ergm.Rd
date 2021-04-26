@@ -80,6 +80,7 @@ control.simulate.ergm(
   MCMC.burnin = NULL,
   MCMC.interval = NULL,
   MCMC.scale = 1,
+  MCMC.prop = NULL,
   MCMC.prop.weights = NULL,
   MCMC.prop.args = NULL,
   MCMC.effectiveSize = NULL,

@@ -110,6 +110,7 @@ control.simulate.formula<-control.simulate.formula.ergm
 control.simulate.ergm<-function(MCMC.burnin=NULL,
                                 MCMC.interval=NULL,
                                 MCMC.scale=1,
+                                MCMC.prop=NULL,
                                 MCMC.prop.weights=NULL,
                                 MCMC.prop.args=NULL,
                                 
