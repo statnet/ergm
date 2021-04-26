@@ -50,10 +50,6 @@ control.logLik.ergm<-function(bridge.nsteps=16,
                               ...
 ){
   old.controls <- list(nsteps = bridge.nsteps)
-
-  # TODO: Remove after 3.10 release.
-  if(!is.null(list(...)$warn.dyads)) .Deprecate_once(msg=paste("Option", sQuote("warn.dyads="), "is no longer used. Use", sQuote("options(ergm.logLik.warn_dyads=...)"), "instead."))
-
   control <- handle.controls("control.logLik.ergm", ...)
   set.control.class("control.logLik.ergm")
 }
