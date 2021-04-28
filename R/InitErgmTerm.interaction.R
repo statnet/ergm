@@ -13,7 +13,7 @@ check_interact_term <- function(m, dependent_action){
 ## will cause an error if we actually try to evaluate them. So,
 ## there's no check.ErgmTerm() but rather an immediate substitute() to
 ## grab the actual names or calls being passed.
-`InitErgmTerm.:` <- function(nw, arglist, ..., interact.dependent = c("error", "message", "warning", "silent")){
+`InitErgmTerm.:` <- function(nw, arglist, ..., env, interact.dependent = c("error", "message", "warning", "silent")){
   arglist <- substitute(arglist)
   e1 <- arglist[[2]]
   e2 <- arglist[[3]]
@@ -23,11 +23,9 @@ check_interact_term <- function(m, dependent_action){
 
   n1 <- length(e1)
   n2 <- length(e2)
-  
-  f <- ~nw
-  f <- append_rhs.formula(f, c(e1,e2))
-  
-  m <- ergm_model(f, nw,...)
+
+  f <- append_rhs.formula(NULL, c(e1, e2), env = env)
+  m <- ergm_model(f, nw, ...)
 
   check_interact_term(m, match.arg(interact.dependent))
 
@@ -48,7 +46,7 @@ check_interact_term <- function(m, dependent_action){
 ## will cause an error if we actually try to evaluate them. So,
 ## there's no check.ErgmTerm() but rather an immediate substitute() to
 ## grab the actual names or calls being passed.
-`InitErgmTerm.*` <- function(nw, arglist, ..., interact.dependent = c("error", "message", "warning", "silent")){
+`InitErgmTerm.*` <- function(nw, arglist, ..., env, interact.dependent = c("error", "message", "warning", "silent")){
   arglist <- substitute(arglist)
   e1 <- arglist[[2]]
   e2 <- arglist[[3]]
@@ -58,11 +56,9 @@ check_interact_term <- function(m, dependent_action){
 
   n1 <- length(e1)
   n2 <- length(e2)
-  
-  f <- ~nw
-  f <- append_rhs.formula(f, c(e1,e2))
-  
-  m <- ergm_model(f, nw,...)
+
+  f <- append_rhs.formula(NULL, c(e1, e2), env = env)
+  m <- ergm_model(f, nw, ...)
 
   check_interact_term(m, match.arg(interact.dependent))
 
