@@ -181,7 +181,7 @@ ergmMPLE <- function(formula, constraints=~., obs.constraints=~-observed, fitmod
   output <- match.arg(output)
   if (output=="fit") {
     return(
-      ergm(formula, estimate="MPLE", control=control, verbose=verbose, constraints=constraints, obs.constraints, basis=basis, ...)
+      ergm(formula, estimate="MPLE", control=control, verbose=verbose, constraints=constraints, obs.constraints=obs.constraints, basis=basis, ...)
     )
   }
 
