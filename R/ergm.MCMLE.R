@@ -237,7 +237,7 @@ ergm.MCMLE <- function(init, nw, model,
       }
       save(list=intersect(ls(), c("s.reduced", "s.obs.reduced", STATE_VARIABLES, CONTROL_VARIABLES)), file=sprintf(control$checkpoint, iteration))
       rm(s.reduced)
-      rm(s.obs.reduced)
+      suppressWarnings(rm(s.obs.reduced))
     }
 
     # Obtain MCMC sample
