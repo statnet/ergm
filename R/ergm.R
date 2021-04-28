@@ -738,7 +738,7 @@ ergm <- function(formula, response=NULL,
   if(all(model$etamap$offsettheta)){
     # Note that this cannot be overridden with control$force.main.
     message("All terms are either offsets or extreme values. No optimization is performed.")
-    return(structure(list(coef=control$init,
+    return(structure(list(coefficients=control$init,
                           call=ergm_call,
                           iterations=0,
                           loglikelihood=NA,
@@ -782,11 +782,11 @@ ergm <- function(formula, response=NULL,
                                 ...)
 
   switch(control$init.method,
-         MPLE = NVL3(initialfit$xmat.full, check_nonidentifiability(., initialfit$coef, model,
+         MPLE = NVL3(initialfit$xmat.full, check_nonidentifiability(., coef(initialfit), model,
                                                                     tol = control$MPLE.nonident.tol, type="covariates",
                                                                     nonident_action = control$MPLE.nonident,
                                                                     nonvar_action = control$MPLE.nonvar)),
-         CD = NVL3(initialfit$sample, check_nonidentifiability(as.matrix(.), initialfit$coef, model,
+         CD = NVL3(initialfit$sample, check_nonidentifiability(as.matrix(.), coef(initialfit), model,
                                                                tol = control$MPLE.nonident.tol, type="statistics",
                                                                nonident_action = control$MPLE.nonident,
                                                                nonvar_action = control$MPLE.nonvar))
@@ -823,7 +823,7 @@ ergm <- function(formula, response=NULL,
     initialfit$target.stats <- suppressWarnings(na.omit(model$target.stats))
     initialfit$nw.stats <- model$nw.stats
       initialfit$etamap <- model$etamap
-    initialfit$target.esteq <- suppressWarnings(na.omit(if(!is.null(model$target.stats)) ergm.estfun(rbind(model$target.stats), initialfit$coef, model)))
+    initialfit$target.esteq <- suppressWarnings(na.omit(if(!is.null(model$target.stats)) ergm.estfun(rbind(model$target.stats), coef(initialfit), model)))
     initialfit$estimate <- estimate
     initialfit$estimate.desc <- estimate.desc
 
@@ -842,7 +842,7 @@ ergm <- function(formula, response=NULL,
   ergm.getCluster(control, max(verbose-1,0))
   
   # Revise the initial value, if necessary:
-  init <- initialfit$coef
+  init <- coef(initialfit)
   init[is.na(init)] <- 0
   names(init) <- param_names(model, FALSE)
   
@@ -884,7 +884,7 @@ ergm <- function(formula, response=NULL,
   mainfit$formula <- formula
   mainfit$target.stats <- suppressWarnings(na.omit(model$target.stats))
   mainfit$nw.stats <- model$nw.stats
-  mainfit$target.esteq <- suppressWarnings(na.omit(if(!is.null(model$target.stats)) ergm.estfun(rbind(model$target.stats), mainfit$coef, model)))
+  mainfit$target.esteq <- suppressWarnings(na.omit(if(!is.null(model$target.stats)) ergm.estfun(rbind(model$target.stats), coef(mainfit), model)))
   
   mainfit$constrained <- proposal$arguments$constraints
   mainfit$constrained.obs <- proposal.obs$arguments$constraints

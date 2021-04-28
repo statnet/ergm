@@ -551,7 +551,7 @@ simulate.ergm_state_full <- function(object, nsim=1, seed=NULL,
   if(length(nw.list)==1&&simplify){
     nw.list <- nw.list[[1]] # Just one network.
   }else{
-    attributes(nw.list) <- list(coef=coef,
+    attributes(nw.list) <- list(coefficients=coef,
                                 control=control,
                                 response=names(as.edgelist(
                                   if(is.ergm_state(state)) state
@@ -574,7 +574,7 @@ simulate.ergm_state_full <- function(object, nsim=1, seed=NULL,
 #' 
 #' @export
 simulate.ergm <- function(object, nsim=1, seed=NULL, 
-                          coef=object$coef,
+                          coef=coefficients(object),
                           response=object$network%ergmlhs%"response",
                           reference=object$reference,
                           constraints=list(object$constraints, object$obs.constraints),

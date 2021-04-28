@@ -56,7 +56,7 @@ anova.ergmlist <- function (object, ..., eval.loglik=FALSE, scale = 0, test = "F
   for (i in 1:nmodels) {
     nodes<- network.size(objects[[i]]$newnetwork)
     n <- nobs(logLik(objects[[i]]))
-    df[i] <- length(objects[[i]]$coef) 
+    df[i] <- nparam(objects[[i]], offset = FALSE) 
     Rdf[i] <- n - df[i]
     logl[i] <- logLik(objects[[i]])
   }

@@ -43,7 +43,7 @@ print.ergm <- function (x, digits = max(3, getOption("digits") - 3), ...) {
     print.default(format(x$MCMCtheta, digits = digits), print.gap = 2, 
         quote = FALSE)
     cat("\nMonte Carlo MLE Coefficients:\n")
-    print.default(format(x$coef, digits = digits), print.gap = 2, 
+    print.default(format(coef(x), digits = digits), print.gap = 2, 
         quote = FALSE)
    }else{
 #    if (!is.null(x$iterations)) {
@@ -51,7 +51,7 @@ print.ergm <- function (x, digits = max(3, getOption("digits") - 3), ...) {
 #    }
 
      cat("\n",x$estimate," Coefficients:\n",sep="")
-     print.default(format(x$coef, digits = digits), print.gap = 2, 
+     print.default(format(coef(x), digits = digits), print.gap = 2, 
          quote = FALSE)
    }
   invisible(x)

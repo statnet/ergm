@@ -7,8 +7,6 @@
 \alias{ergm.object}
 \alias{nobs.ergm}
 \alias{print.ergm}
-\alias{coef.ergm}
-\alias{coefficients.ergm}
 \alias{vcov.ergm}
 \title{Exponential-Family Random Graph Models}
 \usage{
@@ -33,10 +31,6 @@ is.ergm(object)
 \method{nobs}{ergm}(object, ...)
 
 \method{print}{ergm}(x, digits = max(3, getOption("digits") - 3), ...)
-
-\method{coef}{ergm}(object, ...)
-
-\method{coefficients}{ergm}(object, ...)
 
 \method{vcov}{ergm}(object, sources = c("all", "model", "estimation"), ...)
 }
@@ -286,11 +280,6 @@ on a similar scheme.
 
 \item \code{print}: 
 
-\item \code{coef}: extracts estimated model coefficients.
-
-\item \code{coefficients}: An \emph{alias} for
-\code{ergm}.
-
 \item \code{vcov}: extracts the variance-covariance matrix of
 parameter estimates.
 }}
@@ -406,8 +395,6 @@ summary(gest)
 \donttest{
 # Extract parameter estimates as a numeric vector:
 coef(gest)
-}
-\donttest{
 # Sources of variation in parameter estimates:
 vcov(gest, sources="model")
 vcov(gest, sources="estimation")

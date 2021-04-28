@@ -99,7 +99,7 @@ simulate_formula(object, ..., basis = eval_lhs.formula(object))
   object,
   nsim = 1,
   seed = NULL,
-  coef = object$coef,
+  coef = coefficients(object),
   response = object$network \%ergmlhs\% "response",
   reference = object$reference,
   constraints = list(object$constraints, object$obs.constraints),

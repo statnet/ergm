@@ -94,7 +94,7 @@ anova.ergm <- function (object, ..., eval.loglik=FALSE)
 
   nodes<- network.size(object$newnetwork)
   n<- nobs(logl)
-  df <- length(object$coef)
+  df <- nparam(object, offset = FALSE)
   Rdf <- n - df
   logl.null <- if(is.null(object$null.lik)) 0 else object$null.lik
 

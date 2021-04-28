@@ -27,10 +27,10 @@ s.a <- summary(samplike~transitiveties("group"))
 e.a <- ergm(samplike~transitiveties("group"), estimate="MPLE")                
 s.ad <- summary(samplike~transitiveties("Trinity", diff=TRUE))
 e.ad <- ergm(samplike~transitiveties("Trinity", diff=TRUE), estimate="MPLE")   
-if (s.0 != 62 || round(e.0$coef + .06997, 3) != 0 ||
-    s.a != 18 || round(e.a$coef - .06354, 3) != 0 ||
+if (s.0 != 62 || round(coef(e.0) + .06997, 3) != 0 ||
+    s.a != 18 || round(coef(e.a) - .06354, 3) != 0 ||
     !all(s.ad==c(2,0,0)) ||
-    !all(round(e.ad$coef + c(.70278, .44099), 3) == 0)) { 
+    !all(round(coef(e.ad) + c(.70278, .44099), 3) == 0)) { 
  print(list(s.0=s.0, e.0=e.0, s.a=s.a, e.a=e.a, s.ad=s.ad, e.ad=e.ad))
  stop("Failed transitiveties term test")
 } else {

@@ -152,7 +152,7 @@ ergm.stepping = function(init, nw, model, initialfit, constraints,
                      #calc.mcmc.se=control$MCMC.addto.se, hessianflag=control$main.hessian,
                      # trustregion=control$MCMLE.trustregion, method=control$MCMLE.method, 
                      ...)
-    eta[[iter+1]]<-v$coef
+    eta[[iter+1]]<-coef(v)
   }
   message("Now ending with one large sample for MLE. ")
   flush.console()
@@ -176,7 +176,7 @@ ergm.stepping = function(init, nw, model, initialfit, constraints,
                    calc.mcmc.se=control$MCMC.addto.se, hessianflag=control$main.hessian,
                     trustregion=control$MCMLE.trustregion, method=control$MCMLE.method, 
                    ...)
-  eta[[iter+1]] <- v$coef
+  eta[[iter+1]] <- coef(v)
   
   ############# FINAL PLOT 1 prints if VERBOSE=TRUE #################
   if(verbose){
@@ -206,12 +206,12 @@ ergm.stepping = function(init, nw, model, initialfit, constraints,
   v$allmeanvals <- t(sapply(sampmeans, function(a)a))
   v$allparamvals <- t(sapply(eta, function(a)a))
   
-  if(!v$failure & !any(is.na(v$coef))){
+  if(!v$failure & !any(is.na(coef(v)))){
     asyse <- mc.se
     if(is.null(v$covar)){
-      asyse[names(v$coef)] <- suppressWarnings(sqrt(diag(ginv(-v$hessian))))
+      asyse[names(coef(v))] <- suppressWarnings(sqrt(diag(ginv(-v$hessian))))
     }else{
-      asyse[names(v$coef)] <- suppressWarnings(sqrt(diag(v$covar)))
+      asyse[names(coef(v))] <- suppressWarnings(sqrt(diag(v$covar)))
     }
   }
   

@@ -120,7 +120,7 @@ ergm.mple<-function(nw, fd, m, init=NULL,
       stop(glm.result$error)
     } else if (!is.null(glm.result$warnings)) {
       # if the glm results are crazy, redo it with 0 starting values
-      if (max(abs(glm.result$value$coef), na.rm=T) > 1e6) {
+      if (max(abs(coef(glm.result$value)), na.rm=T) > 1e6) {
         warning("GLM model may be separable; restarting glm with zeros.\n")
         mplefit <- glm(pl$zy ~ .-1 + offset(pl$foffset), 
                        data=data.frame(pl$xmat),
@@ -142,7 +142,7 @@ ergm.mple<-function(nw, fd, m, init=NULL,
 
    }
   }
-  real.coef <- mplefit$coef
+  real.coef <- coef(mplefit)
   real.cov <- mplefit.summary$cov.unscaled
 
   theta <- NVL(init, real.coef)
@@ -184,7 +184,7 @@ ergm.mple<-function(nw, fd, m, init=NULL,
     mplefit.null <- try(glm(pl$zy ~ -1 + offset(pl$foffset), family=family, weights=pl$wend),
                         silent = TRUE)
     if (inherits(mplefit.null, "try-error")) {
-      mplefit.null <- list(coef=0, deviance=0, null.deviance=0,
+      mplefit.null <- list(coefficients=0, deviance=0, null.deviance=0,
                            cov.unscaled=diag(1))
     }
   }
@@ -198,7 +198,7 @@ ergm.mple<-function(nw, fd, m, init=NULL,
   }
   message("Finished MPLE.")
   # Output results as ergm-class object
-  structure(list(coef=theta,
+  structure(list(coefficients=theta,
       iterations=iteration, 
       MCMCtheta=theta, gradient=gradient,
       hessian=NULL, covar=covar, failure=FALSE,

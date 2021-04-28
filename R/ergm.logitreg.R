@@ -135,8 +135,8 @@ ergm.logitreg <- function(x, y, wt = rep(1, length(y)),
                rmax=100, 
                parscale=rep(1,length(init)), iterlim=maxit, minimize=FALSE,
                X = x, y = y, w = wt, offset=offset, etamap=etamap, etagrad=etagrad)
-  fit$coef <- fit$argument
-  names(fit$coef) <- dn[if(!is.null(m)) !m$etamap$offsettheta else TRUE]
+  fit$coefficients <- fit$argument
+  names(fit$coefficients) <- dn[if(!is.null(m)) !m$etamap$offsettheta else TRUE]
   fit$deviance <- -2*fit$value
   fit$iter <- fit$iterations
   asycov <- ginv(-fit$hessian)

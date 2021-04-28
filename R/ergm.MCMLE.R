@@ -336,7 +336,7 @@ ergm.MCMLE <- function(init, nw, model,
     if(!estimate){
       if(verbose){message("Skipping optimization routines...")}
       s.returned <- lapply(s.returned, as.network)
-      l <- list(coef=mcmc.init, mc.se=rep(NA,length=length(mcmc.init)),
+      l <- list(coefficients=mcmc.init, mc.se=rep(NA,length=length(mcmc.init)),
                 sample=statsmatrices, sample.obs=statsmatrices.obs,
                 iterations=1, MCMCtheta=mcmc.init,
                 loglikelihood=NA, #mcmcloglik=NULL, 
@@ -476,7 +476,7 @@ ergm.MCMLE <- function(init, nw, model,
       }
     }
           
-    coef.hist <- rbind(coef.hist, v$coef)
+    coef.hist <- rbind(coef.hist, coef(v))
     stats.obs.hist <- NVL3(statsmatrix.obs, rbind(stats.obs.hist, apply(.[], 2, base::mean)))
     stats.hist <- rbind(stats.hist, apply(statsmatrix, 2, base::mean))
 
@@ -523,7 +523,7 @@ ergm.MCMLE <- function(init, nw, model,
           message("Unable to test for convergence; increasing sample size.")
           .boost_samplesize(control$MCMLE.confidence.boost)
         }else{
-          etadiff <- ergm.eta(v$coef, model$etamap) - ergm.eta(mcmc.init, model$etamap)
+          etadiff <- ergm.eta(coef(v), model$etamap) - ergm.eta(mcmc.init, model$etamap)
           esteq.lw <- IS.lw(statsmatrix, etadiff)
           esteq.w <- lw2w(esteq.lw)
           estdiff <- -lweighted.mean(esteq, esteq.lw)
@@ -643,7 +643,7 @@ ergm.MCMLE <- function(init, nw, model,
       message("MCMLE estimation did not converge after ", control$MCMLE.maxit, " iterations. The estimated coefficients may not be accurate. Estimation may be resumed by passing the coefficients as initial values; see 'init' under ?control.ergm for details.")
     }
     # Update the coefficient for MCMC sampling.
-    mcmc.init <- v$coef
+    mcmc.init <- coef(v)
   } # end of main loop
 
   message("Finished MCMLE.")

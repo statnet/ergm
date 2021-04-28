@@ -8,40 +8,24 @@
 #  Copyright 2003-2020 Statnet Commons
 #######################################################################
 
-#' @describeIn ergm extracts estimated model coefficients.
-#' 
-#' @param object {an `ergm` object.}
-#' @examples
-#' \donttest{
-#' # Extract parameter estimates as a numeric vector:
-#' coef(gest)
-#' }
-#' @import stats
-#' @importFrom stats coef
-#' @export
-coef.ergm <- function(object, ...){object$coef}
-
-#' @describeIn ergm An \emph{alias} for
-#'   \code{ergm}.
-#' @importFrom stats coefficients
-#' @export
-coefficients.ergm <- coef.ergm
-
 #' @describeIn ergm extracts the variance-covariance matrix of
 #'   parameter estimates.
-#' 
+#'
+#' @param object {an `ergm` object.}
 #' @param sources For the `vcov` method, specify whether to return
 #'   the covariance matrix from the ERGM model, the estimation
 #'   process, or both combined.
 #'
 #' @examples
 #' \donttest{
+#' # Extract parameter estimates as a numeric vector:
+#' coef(gest)
 #' # Sources of variation in parameter estimates:
 #' vcov(gest, sources="model")
 #' vcov(gest, sources="estimation")
 #' vcov(gest, sources="all") # the default
 #' }
-#' @importFrom stats vcov
+#' @import stats
 #' @export
 vcov.ergm <- function(object, sources=c("all","model","estimation"), ...){
   sources <- match.arg(sources)
