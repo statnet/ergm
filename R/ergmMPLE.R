@@ -81,6 +81,7 @@
 #' @template control
 #' @template verbose
 #' @template expand.bipartite
+#' @template basis
 #'
 #' @param \dots Additional arguments, to be passed to lower-level functions.
 #' @return
@@ -169,7 +170,7 @@
 #' mplearray$weights[1:5,1:5]
 #' @export ergmMPLE
 ergmMPLE <- function(formula, constraints=~., obs.constraints=~-observed, fitmodel=FALSE, output=c("matrix", "array", "dyadlist", "fit"), expand.bipartite=FALSE, control=control.ergm(),
-                     verbose=FALSE, ...){
+                     verbose=FALSE, ..., basis=ergm.getnetwork(formula)){
   if(!missing(fitmodel)){
       warning("Argument fitmodel= to ergmMPLE() has been deprecated and will be removed in a future version. Use output=\"fit\" instead.")
       if(fitmodel) output <- "fit"
@@ -184,8 +185,7 @@ ergmMPLE <- function(formula, constraints=~., obs.constraints=~-observed, fitmod
   if(output %in% c("array", "dyadlist")) formula <- nonsimp_update.formula(formula, .~indices+.)
 
   # Construct the model
-  nw <- ergm.getnetwork(formula)
-  model <- ergm_model(formula, nw, term.options=control$term.options)
+  model <- ergm_model(formula, basis, ..., term.options=control$term.options)
 
   # Handle the observation process constraints.
   tmp <- .handle.auto.constraints(nw, constraints, obs.constraints)

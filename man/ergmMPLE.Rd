@@ -13,7 +13,8 @@ ergmMPLE(
   expand.bipartite = FALSE,
   control = control.ergm(),
   verbose = FALSE,
-  ...
+  ...,
+  basis = ergm.getnetwork(formula)
 )
 }
 \arguments{
@@ -40,6 +41,8 @@ detail. Note that very high values (5+) may significantly slow
 down processing.}
 
 \item{\dots}{Additional arguments, to be passed to lower-level functions.}
+
+\item{basis}{a value (usually a \code{\link{network}}) to override the LHS of the formula.}
 }
 \value{
 If \code{output=="matrix"} (the default), then only the response, predictor,
