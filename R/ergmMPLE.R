@@ -177,6 +177,7 @@ ergmMPLE <- function(formula, constraints=~., obs.constraints=~-observed, fitmod
   }
   check.control.class("ergm", "ergmMPLE")
   handle.control.toplevel("ergm", ...)
+
   output <- match.arg(output)
   if (output=="fit") {
     return(
@@ -184,10 +185,12 @@ ergmMPLE <- function(formula, constraints=~., obs.constraints=~-observed, fitmod
     )
   }
 
+  nw <- basis
+
   if(output %in% c("array", "dyadlist")) formula <- nonsimp_update.formula(formula, .~indices+.)
 
   # Construct the model
-  model <- ergm_model(formula, basis, ..., term.options=control$term.options)
+  model <- ergm_model(formula, nw, ..., term.options=control$term.options)
 
   # Handle the observation process constraints.
   tmp <- .handle.auto.constraints(nw, constraints, obs.constraints)
