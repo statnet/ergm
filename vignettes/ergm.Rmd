@@ -155,8 +155,8 @@ summary(flomodel.02)
 ```
 
 ```{r results='hide'}
-coef1 = flomodel.02$coef[1]
-coef2 = flomodel.02$coef[2]
+coef1 = coef(flomodel.02)[1]
+coef2 = coef(flomodel.02)[2]
 logodds = coef1 + c(0,1,2) * coef2
 expit = function(x) 1/(1+exp(-x))
 ps = expit(logodds)
@@ -188,9 +188,9 @@ names(flomodel.02) # let's look straight at the ERGM obj.
 ```
 
 ```{r }
-flomodel.02$coef 
+coef(flomodel.02) 
 flomodel.02$formula 
-flomodel.02$mle.lik
+logLik(flomodel.02)
 wealth <- flomarriage %v% 'wealth' # the %v% extracts vertex
 wealth # attributes from a network
 plot(flomarriage, vertex.cex=wealth/25) # network plot with vertex size 
