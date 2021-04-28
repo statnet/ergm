@@ -15,9 +15,9 @@ gof(object, ...)
 \method{gof}{ergm}(
   object,
   ...,
-  coef = NULL,
+  coef = coefficients(object),
   GOF = NULL,
-  constraints = NULL,
+  constraints = object$constraints,
   control = control.gof.ergm(),
   verbose = FALSE
 )
@@ -28,6 +28,7 @@ gof(object, ...)
   coef = NULL,
   GOF = NULL,
   constraints = ~.,
+  basis = eval_lhs.formula(object),
   control = NULL,
   unconditional = TRUE,
   verbose = FALSE
@@ -91,6 +92,8 @@ progress and diagnostic information to be printed. \code{FALSE}/\code{0}
 produces minimal output, wit higher values producing more
 detail. Note that very high values (5+) may significantly slow
 down processing.}
+
+\item{basis}{a value (usually a \code{\link{network}}) to override the LHS of the formula.}
 
 \item{unconditional}{logical; if \code{TRUE}, the simulation is
 unconditional on the observed dyads.  if not \code{TRUE}, the simulation is

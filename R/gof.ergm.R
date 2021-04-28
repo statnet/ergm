@@ -65,6 +65,7 @@
 #' unconditional on the observed dyads.  if not \code{TRUE}, the simulation is
 #' conditional on the observed dyads. This is primarily used internally when
 #' the network has missing data and a conditional GoF is produced.
+#' @template basis
 #' @return \code{\link{gof}}, \code{\link{gof.ergm}}, and
 #' \code{\link{gof.formula}} return an object of class \code{gof.ergm}, which inherits from class `gof`.  This
 #' is a list of the tables of statistics and \eqn{p}-values.  This is typically
@@ -122,26 +123,17 @@ gof.default <- function(object,...) {
 #' and odegree.
 #'
 #' @export
-gof.ergm <- function (object, ..., 
-                      coef=NULL,
-                      GOF=NULL, 
-                      constraints=NULL,
-                      control=control.gof.ergm(),
-                      verbose=FALSE) {
+gof.ergm <- function (object, ...,
+                      coef = coefficients(object),
+                      GOF = NULL,
+                      constraints = object$constraints,
+                      control = control.gof.ergm(),
+                      verbose = FALSE) {
   check.control.class(c("gof.ergm","gof.formula"), "gof.ergm")
   handle.control.toplevel("gof.ergm", ...)
-  .gof.nw <- as.network(object$network)
 
   if(is.valued(object)) stop("GoF for valued ERGMs is not implemented at this time.")
   
-  formula <- nonsimp_update.formula(object$formula, .gof.nw~., from.new=".gof.nw")
-# paste("~",paste(unlist(dimnames(attr(terms(formula),"factors"))[-1]),collapse="+"),sep="")
-  if(!is.network(.gof.nw)){
-    stop("A network must be given as part of the network object.")
-  }
-
-  if(is.null(coef)) coef <- coef(object)
-
   # If both the passed control and the object's control are NULL (such as if MPLE was estimated), overwrite with simulate.formula()'s defaults.
   formula.control <- control.simulate.formula()
   for(arg in STATIC_MCMC_CONTROLS)
@@ -157,13 +149,12 @@ gof.ergm <- function (object, ...,
   if(!MCMC.interval.set) control$MCMC.interval <- max(ceiling(control$MCMC.interval*EVL(object$control$MCMC.samplesize/control$nsim,1)),1)
 
   control <- set.control.class("control.gof.formula")
-  
-  if(is.null(constraints)) constraints <- object$constraints
-  
-  gof.formula(object=formula, coef=coef,
+
+  gof.formula(object=object$formula, coef=coef,
               GOF=GOF,
               constraints=constraints,
               control=control,
+              basis=object$network,
               verbose=verbose, ...)
 }
 
@@ -178,31 +169,29 @@ gof.formula <- function(object, ...,
                         coef=NULL,
                         GOF=NULL,
                         constraints=~.,
+                        basis=eval_lhs.formula(object),
                         control=NULL,
-			unconditional=TRUE,
+                        unconditional=TRUE,
                         verbose=FALSE) {
   if("response" %in% names(list(...))) stop("GoF for valued ERGMs is not implemented at this time.")
 
   if(!is.null(control$seed)){
     set.seed(as.integer(control$seed))
   }
-  if (verbose) 
-    message("Starting GOF for the given ERGM formula.")
+  if (verbose) message("Starting GOF for the given ERGM formula.")
 
-  # get network
-  lhs <- ERRVL(try(eval_lhs.formula(object)),
-               stop("A network object on the RHS of the formula argument must be given"))
-  if(is.ergm(lhs)){
-    if(is.null(GOF)) GOF <- nonsimp_update.formula(object, ~.) # Remove LHS from formula.
-    if(is.null(constraints)) constraints <- NULL
-    if(is.null(control)) control <- control.gof.ergm()
+  if(is.ergm(basis)){ # Kick it back to gof.ergm().
+    NVL(GOF) <- nonsimp_update.formula(object, ~.) # Remove LHS from formula.
+    NVL(control) <- control.gof.ergm()
     
-    return(gof(lhs, GOF=GOF, coef=coef, control=control, unconditional=unconditional, verbose=verbose, ...)) # Kick it back to gof.ergm.
+    return(
+      gof(basis, GOF = GOF, coef = coef, control = control, unconditional = unconditional, verbose = verbose, ...)
+    )
   }
-  
-  nw <- as.network(lhs)
 
-  if(is.null(control)) control <- control.gof.formula()
+  # Otherwise, LHS/basis must be a network.
+  nw <- ensure_network(basis)
+  NVL(control) <- control.gof.formula()
 
   check.control.class(c("gof.formula","gof.ergm"), "ERGM gof.formula")
   handle.control.toplevel("gof.formula", ...)
@@ -251,6 +240,7 @@ gof.formula <- function(object, ...,
                   GOF=GOF, 
                   constraints=constraints.obs,
                   control=control,
+                  basis=basis,
                   unconditional=FALSE,
                   verbose=verbose)
   }
