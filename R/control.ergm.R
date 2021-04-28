@@ -40,9 +40,9 @@
 #' \item Initial values for the elements that are \code{NA} are fit using the
 #' method specified by \code{\link[=control.ergm]{control$init.method}}.
 #' 
-#' } Passing \code{control.ergm(init=coef(prev.fit))} can be used to ``resume''
-#' an uncoverged [ergm()] run, but see
-#' \code{\link{enformulate.curved}}.
+#' } Passing \code{control.ergm(init=coef(prev.fit))} can be used to
+#' ``resume'' an uncoverged [ergm()] run, though `checkpoint` and
+#' `resume` would be better under most circumstances.
 #' 
 #' @param init.method A chatacter vector or \code{NULL}. The default
 #'   method depends on the reference measure used. For the binary

@@ -196,9 +196,9 @@ are used as starting values in the estimation.
 \item Initial values for the elements that are \code{NA} are fit using the
 method specified by \code{\link[=control.ergm]{control$init.method}}.
 
-} Passing \code{control.ergm(init=coef(prev.fit))} can be used to ``resume''
-an uncoverged \code{\link[=ergm]{ergm()}} run, but see
-\code{\link{enformulate.curved}}.}
+} Passing \code{control.ergm(init=coef(prev.fit))} can be used to
+``resume'' an uncoverged \code{\link[=ergm]{ergm()}} run, though \code{checkpoint} and
+`resume` would be better under most circumstances.}
 
 \item{init.method}{A chatacter vector or \code{NULL}. The default
 method depends on the reference measure used. For the binary

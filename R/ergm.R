@@ -684,9 +684,7 @@ ergm <- function(formula, response=NULL,
         message("number of statistics is ",length(model$coef.names), "")
       }
       stop(paste("Invalid starting parameter vector control$init:",
-                 "wrong number of parameters.",
-                 "If you are passing output from another ergm run as control$init,",
-                 "in a model with curved terms, see help(enformulate.curved)."))
+                 "wrong number of parameters."))
     }
   }else control$init <- rep(NA, length(model$etamap$offsettheta)) # Set the default value of control$init.
   
