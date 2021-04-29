@@ -7,15 +7,14 @@
 \title{Absolute difference}
 \usage{
 # binary: absdiff(attr,
-#                 pow=1)
+                  pow=1)
 
 # valued: absdiff(attr,
 #                 pow=1,
 #                 form="sum")
 }
 \arguments{
-\item{attr}{a quantitative attribute (see Specifying Vertex
-attributes and Levels (\code{?nodal_attributes}) for details}
+\item{attr}{quantitative attribute (see Specifying Vertex attributes and Levels (\code{?nodal_attributes}) for details}
 
 \item{pow}{power to which to take the absolute difference}
 
@@ -31,19 +30,9 @@ the network.
 }
 \note{
 \pkg{ergm} versions 3.9.4 and earlier used different arguments for this
-term. See the above section on versioning for invoking the old behavior.
-}
-\seealso{
-Other dyad-independent: 
-\code{\link{edges-ergmTerm}}
-
-Other directed: 
-\code{\link{edges-ergmTerm}}
-
-Other undirected: 
-\code{\link{edges-ergmTerm}}
+term. See \code{\link{ergm-options}} for how to invoke the old behaviour.
 }
 \concept{directed}
 \concept{dyad-independent}
-\concept{nodal-quantitative}
+\concept{quantitative nodal attribute}
 \concept{undirected}

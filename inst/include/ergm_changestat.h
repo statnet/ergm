@@ -152,10 +152,10 @@ typedef struct ModelTermstruct {
 #define CHANGESTAT_FN(a) void a (Edge ntoggles, Vertex *tails, Vertex *heads, ModelTerm *mtp, Network *nwp)
 
 /* NB:  CHANGESTAT_FN is now deprecated (replaced by D_CHANGESTAT_FN) */
-#define C_CHANGESTAT_FN(a) void a (Vertex tail, Vertex head, ModelTerm *mtp, Network *nwp, Rboolean edgeflag)
+#define C_CHANGESTAT_FN(a) void a (Vertex tail, Vertex head, ModelTerm *mtp, Network *nwp, Rboolean edgestate)
 #define D_CHANGESTAT_FN(a) void a (Edge ntoggles, Vertex *tails, Vertex *heads, ModelTerm *mtp, Network *nwp)
 #define I_CHANGESTAT_FN(a) void a (ModelTerm *mtp, Network *nwp)
-#define U_CHANGESTAT_FN(a) void a (Vertex tail, Vertex head, ModelTerm *mtp, Network *nwp, Rboolean edgeflag)
+#define U_CHANGESTAT_FN(a) void a (Vertex tail, Vertex head, ModelTerm *mtp, Network *nwp, Rboolean edgestate)
 #define F_CHANGESTAT_FN(a) void a (ModelTerm *mtp, Network *nwp)
 #define S_CHANGESTAT_FN(a) void a (ModelTerm *mtp, Network *nwp)
 #define W_CHANGESTAT_FN(a) SEXP a (ModelTerm *mtp, Network *nwp)

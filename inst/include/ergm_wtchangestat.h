@@ -174,10 +174,10 @@ typedef struct WtModelTermstruct {
 /****************************************************/
 /* changestat function prototypes, 
    plus a few supporting function prototypes */
-#define WtC_CHANGESTAT_FN(a) void (a) (Vertex tail, Vertex head, double weight, WtModelTerm *mtp, WtNetwork *nwp, double edgeweight)
+#define WtC_CHANGESTAT_FN(a) void (a) (Vertex tail, Vertex head, double weight, WtModelTerm *mtp, WtNetwork *nwp, double edgestate)
 #define WtD_CHANGESTAT_FN(a) void (a) (Edge ntoggles, Vertex *tails, Vertex *heads, double *weights, WtModelTerm *mtp, WtNetwork *nwp)
 #define WtI_CHANGESTAT_FN(a) void (a) (WtModelTerm *mtp, WtNetwork *nwp)
-#define WtU_CHANGESTAT_FN(a) void (a) (Vertex tail, Vertex head, double weight, WtModelTerm *mtp, WtNetwork *nwp, double edgeweight)
+#define WtU_CHANGESTAT_FN(a) void (a) (Vertex tail, Vertex head, double weight, WtModelTerm *mtp, WtNetwork *nwp, double edgestate)
 #define WtF_CHANGESTAT_FN(a) void (a) (WtModelTerm *mtp, WtNetwork *nwp)
 #define WtS_CHANGESTAT_FN(a) void (a) (WtModelTerm *mtp, WtNetwork *nwp)
 #define WtW_CHANGESTAT_FN(a) SEXP (a) (WtModelTerm *mtp, WtNetwork *nwp)

@@ -538,3 +538,73 @@ test_that("BDStratTNT handles atypical levels specifications correctly", {
   ## should fail as we omit all pairings
   expect_error(nws <- simulate(nw ~ edges, coef = c(0), constraints = ~blocks(~bd_attr, levels2=TRUE) + strat(attr = ~strat_attr, pmat = pmat)))
 })
+
+
+test_that("BDStratTNT works with directed networks", {
+  nw <- network.initialize(1000, dir=TRUE)
+
+  nw %v% "race" <- c(rep("A", 20), rep("B", 20), rep("W",960))
+
+  pmat <- matrix(c(100, 350, 0, 10, 100, 0, 100, 0, 840),3,3,byrow=TRUE)
+
+  target.stats <- c(100, 10, 100, 350, 100, 0, 0, 0, 840)
+  nws <- san(nw ~ nodemix("race",levels2=TRUE), target.stats = target.stats, constraints=~bd(maxout=40, maxin=40) + strat(pmat=pmat, attr="race"), control=control.san(SAN.maxit = 1, SAN.nsteps=1e4))
+  sr <- summary(nws ~ nodemix("race",levels2=TRUE))
+  
+  expect_true(all(abs(sr - target.stats) <= 0.05*target.stats))
+
+  # redo with different targets, starting from previous network
+  pmat2 <- matrix(c(50, 50, 350, 50, 50, 100, 50, 400, 400),3,3,byrow=TRUE)
+
+  pmat3 <- (pmat + pmat2)/2
+
+  target.stats <- c(pmat2)
+  nws2 <- san(nws ~ nodemix("race",levels2=TRUE), target.stats = target.stats, constraints=~bd(maxout=40, maxin=40) + strat(pmat=pmat3, attr="race"), control=control.san(SAN.maxit = 1, SAN.nsteps=2e4))
+  sr <- summary(nws2 ~ nodemix("race",levels2=TRUE))
+  
+  expect_true(all(abs(sr - target.stats) <= 0.05*target.stats))
+})
+
+test_that("BDStratTNT simulates directed reasonably", {
+
+  net_size <- 1000L
+
+  nw <- network.initialize(net_size, dir = TRUE)
+
+  vattr <- sample(c("A","B","C"), net_size, TRUE)
+  
+  nw %v% "vattr" <- vattr
+  nw %v% "sex" <- sample(c("X","Y","Z"), net_size, TRUE)
+  
+  pmat <- 1 - matrix(c(1,0,0,1,1,0,0,1,0),3,3)
+      
+  nw_sim <- nw
+  
+  for(i in 1:5) {
+    nw_sim <- simulate(nw_sim ~ edges, 
+                       coef = c(0), 
+                       constraints = ~bd(maxout = i, maxin = i + 1) + blocks(attr = "sex", levels2 = matrix(c(TRUE,FALSE,TRUE,FALSE,FALSE,TRUE,FALSE,TRUE,FALSE),3,3)) + strat(attr = "vattr", pmat = pmat),
+                       output = "network")
+    summ_stats <- summary(nw_sim ~ nodemix("vattr",levels2=TRUE) + nodemix("sex", levels2 = TRUE) + odegrange(i + 1) + idegrange(i + 2))
+    expect_true(summ_stats["mix.vattr.A.A"] == 0)
+    expect_true(summ_stats["mix.vattr.B.B"] == 0)
+    expect_true(summ_stats["mix.vattr.A.B"] == 0)
+    expect_true(summ_stats["mix.vattr.B.C"] == 0)
+    expect_true(summ_stats["mix.vattr.A.C"] > 0)
+    expect_true(summ_stats["mix.vattr.B.A"] > 0)
+    expect_true(summ_stats["mix.vattr.C.A"] > 0)
+    expect_true(summ_stats["mix.vattr.C.B"] > 0)    
+    expect_true(summ_stats["mix.vattr.C.C"] > 0)    
+    expect_true(summ_stats["mix.sex.X.X"] == 0)
+    expect_true(summ_stats["mix.sex.X.Y"] > 0)
+    expect_true(summ_stats["mix.sex.X.Z"] > 0)
+    expect_true(summ_stats["mix.sex.Y.X"] > 0)
+    expect_true(summ_stats["mix.sex.Y.Y"] > 0)
+    expect_true(summ_stats["mix.sex.Y.Z"] == 0)
+    expect_true(summ_stats["mix.sex.Z.X"] == 0)
+    expect_true(summ_stats["mix.sex.Z.Y"] == 0)    
+    expect_true(summ_stats["mix.sex.Z.Z"] > 0)    
+    expect_true(summ_stats[paste0("odeg", i + 1, "+")] == 0)
+    expect_true(summ_stats[paste0("ideg", i + 2, "+")] == 0)    
+  }  
+})

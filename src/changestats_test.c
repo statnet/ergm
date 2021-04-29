@@ -21,12 +21,12 @@ C_CHANGESTAT_FN(c_test_abs_edges_minus_5){
   GET_STORAGE(Edge, stored_edges_ptr);
   long int edges = *stored_edges_ptr;
   CHANGE_STAT[0] = -labs(edges-5);
-  CHANGE_STAT[0] += labs(edges-5 + (edgeflag?-1:1));
+  CHANGE_STAT[0] += labs(edges-5 + (edgestate?-1:1));
 }
 
 U_CHANGESTAT_FN(u_test_abs_edges_minus_5){
   GET_STORAGE(Edge, edges);
-  *edges += edgeflag ? - 1 : 1;
+  *edges += edgestate ? - 1 : 1;
 }
 
 // Finalizer is not needed.
@@ -42,9 +42,9 @@ S_CHANGESTAT_FN(s_test_abs_edges_minus_5){
   }
 }
 
-C_CHANGESTAT_FN(c_test_abs_edges_minus_5_no_s){c_test_abs_edges_minus_5(tail, head, mtp, nwp, edgeflag);}
+C_CHANGESTAT_FN(c_test_abs_edges_minus_5_no_s){c_test_abs_edges_minus_5(tail, head, mtp, nwp, edgestate);}
 I_CHANGESTAT_FN(i_test_abs_edges_minus_5_no_s){i_test_abs_edges_minus_5(mtp, nwp);}
-U_CHANGESTAT_FN(u_test_abs_edges_minus_5_no_s){u_test_abs_edges_minus_5(tail, head, mtp, nwp, edgeflag);}
+U_CHANGESTAT_FN(u_test_abs_edges_minus_5_no_s){u_test_abs_edges_minus_5(tail, head, mtp, nwp, edgestate);}
 
 C_CHANGESTAT_FN(c_isociomatrix){
   GET_AUX_STORAGE(int *, sm);
@@ -100,7 +100,7 @@ C_CHANGESTAT_FN(c_disc_inter_union_net_DyadSet){
  changestat: c__edges_times
 *****************/
 C_CHANGESTAT_FN(c__edges_times) {
-  CHANGE_STAT[0] += edgeflag ? - *INPUT_PARAM : *INPUT_PARAM;
+  CHANGE_STAT[0] += edgestate ? - *INPUT_PARAM : *INPUT_PARAM;
 }
 
 S_CHANGESTAT_FN(s__edges_tests) {

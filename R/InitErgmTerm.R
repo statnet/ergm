@@ -185,19 +185,19 @@ LEVELS_BASE1 <- NULL
 #'
 #' @usage
 #' # binary: absdiff(attr,
-#' #                 pow=1)
+#'                   pow=1)
 #'
-#' @param attr a quantitative attribute (see Specifying Vertex
-#'   attributes and Levels (`?nodal_attributes`) for details
+#' @template ergmTerm-attr
 #' @param pow power to which to take the absolute difference
 #'
-#' @note \pkg{ergm} versions 3.9.4 and earlier used different arguments for this
-#'   term. See the above section on versioning for invoking the old behavior.
+#' @template ergmTerm-args-3.9.4
 #'
-#' @family dyad-independent
-#' @family directed
-#' @family undirected
-#' @family nodal-quantitative
+#' @template ergmTerm-general
+#'
+#' @concept dyad-independent
+#' @concept directed
+#' @concept undirected
+#' @concept quantitative nodal attribute
 InitErgmTerm.absdiff <- function(nw, arglist, ..., version=packageVersion("ergm")) {
   if(version <= as.package_version("3.9.4")){
     ### Check the network and arguments to make sure they are appropriate.
@@ -1942,9 +1942,11 @@ InitErgmTerm.edgecov <- function(nw, arglist, ...) {
 #' @usage
 #' # binary: edges
 #' 
-#' @family dyad-independent
-#' @family directed
-#' @family undirected
+#' @template ergmTerm-general
+#'
+#' @concept dyad-independent
+#' @concept directed
+#' @concept undirected
 InitErgmTerm.edges<-function(nw, arglist, ...) {
   a <- check.ErgmTerm(nw, arglist,
                       varnames = NULL,

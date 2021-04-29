@@ -13,7 +13,7 @@ D_CHANGESTAT_FN(d_homoproportion) {
   double change;
   int i;
   double multfactor;
-  int edgeflag, num01ties, num11ties;
+  int edgestate, num01ties, num11ties;
   Vertex ninputs, tail, head;
   Edge e;
   
@@ -40,11 +40,11 @@ D_CHANGESTAT_FN(d_homoproportion) {
     if(num11ties+num01ties>0){
      change -= num11ties*multfactor/((double)(num11ties+num01ties));
     }
-    edgeflag = IS_OUTEDGE(tail, head);
+    edgestate = IS_OUTEDGE(tail, head);
     if (INPUT_PARAM[tail+ninputs-1] == INPUT_PARAM[head+ninputs-1]) {
-     if(edgeflag){num11ties--;}else{num11ties++;}
+     if(edgestate){num11ties--;}else{num11ties++;}
     }else{
-     if(edgeflag){num01ties--;}else{num01ties++;}
+     if(edgestate){num01ties--;}else{num01ties++;}
     }
     if(num11ties+num01ties>0){
      change += num11ties*multfactor/((double)(num11ties+num01ties));
