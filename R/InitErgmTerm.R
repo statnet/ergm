@@ -185,7 +185,7 @@ LEVELS_BASE1 <- NULL
 #'
 #' @usage
 #' # binary: absdiff(attr,
-#'                   pow=1)
+#' #                 pow=1)
 #'
 #' @template ergmTerm-attr
 #' @param pow power to which to take the absolute difference
