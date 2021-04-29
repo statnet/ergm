@@ -23,7 +23,6 @@
 \alias{S}
 \alias{Sum}
 \alias{Undir}
-\alias{absdiffcat}
 \alias{altkstar}
 \alias{asymmetric}
 \alias{atleast}
@@ -571,25 +570,6 @@
       needed), a numeric vector of indices of parameters to be fixed, or
       the a character vector of parameter names.
     }
-
-    \item{\code{absdiffcat(attr, base=NULL, levels=NULL)}  (binary) (dyad-independent) (directed) (undirected) (categorical nodal attribute),
-      \code{absdiffcat(attr, base=NULL, levels=NULL, form="sum")}  (valued)  (dyad-independent)   (directed)  (undirected) (categorical nodal attribute)}{\emph{Categorical absolute
-	difference:}
-      The \code{attr} argument specifies a quantitative attribute (see \NodalAttr for details). This term
-      adds one statistic for every possible nonzero distinct value of
-      \code{abs(attr[i]-attr[j])} in the network; the value of each such
-      statistic is the number of edges in the network with the corresponding
-      absolute difference. The optional argument \code{levels} specifies which
-      nonzero differences to include in or exclude from the model (see \NodalAttr for details). For example, if the possible values of
-      \code{abs(attr[i]-attr[j])} are 0, 0.5, 3, 3.5, and 10, then to omit
-      0.5 and 10 one could set \code{levels=2:3} (we wish to retain the second and third nonzero difference,
-      when differences are sorted in increasing order). Note that this term should
-      generally be used only when the quantitative attribute has a limited number
-      of possible values; an example is the \code{"Grade"} attribute of the
-      \code{\link{faux.mesa.high}} or \code{\link{faux.magnolia.high}}
-      datasets.
-
-      \BaseDep}
 
     \item{\code{altkstar(lambda, fixed=FALSE)}  (binary) (undirected) (curved) (categorical nodal attribute)
     }{\emph{Alternating k-star:}

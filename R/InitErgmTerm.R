@@ -229,8 +229,33 @@ InitErgmTerm.absdiff <- function(nw, arglist, ..., version=packageVersion("ergm"
 }
 
 
-
 ################################################################################
+
+#' @name absdiffcat-ergmTerm
+#' @title Categorical absolute difference
+#' @description Absolute difference in nodal attribute.
+#' @details This term adds one statistic for every possible nonzero distinct
+#'	 value of `abs(attr[i]-attr[j])` in the network. The value of each such
+#'	 statistic is the number of edges in the network with the corresponding
+#'	 absolute difference. 
+#'
+#' @usage
+#' # binary: absdiffcat(attr,
+#' #                 base=NULL,
+#' #                 levels=NULL)
+#'
+#' @template ergmTerm-attr
+#'
+#' @template ergmTerm-base-dep
+#'
+#' @template ergmTerm-args-3.9.4
+#'
+#' @template ergmTerm-general
+#'
+#' @concept dyad-independent
+#' @concept directed
+#' @concept undirected
+#' @concept categorical nodal attribute
 InitErgmTerm.absdiffcat <- function(nw, arglist, ..., version=packageVersion("ergm")) {
   if(version <= as.package_version("3.9.4")){
     ### Check the network and arguments to make sure they are appropriate.

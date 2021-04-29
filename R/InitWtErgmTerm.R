@@ -52,6 +52,13 @@ InitWtErgmTerm.absdiff <- function(nw, arglist, ..., version=packageVersion("erg
   binary_dind_wrap("absdiff", nw, a, ..., version=version)
 }
 
+#' @rdname absdiffcat-ergmTerm
+#' @usage
+#' # valued: absdiffcat(attr,
+#' #                 base=NULL,
+#' #                 levels=NULL,
+#' #                 form="sum")
+#' @param form character how to aggregate tie values in a valued ERGM
 InitWtErgmTerm.absdiffcat <- function(nw, arglist, ..., version=packageVersion("ergm")) {
   if(version <= as.package_version("3.9.4")){
     ### Check the network and arguments to make sure they are appropriate.
