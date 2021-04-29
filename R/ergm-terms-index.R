@@ -34,33 +34,70 @@ library(magrittr)
 		usages=usages,
 		title=doc[tags == '\\title'] %>% unlist,
 		description=doc[tags == '\\description'] %>% unlist %>% paste(collapse='') %>% trimws(),
-		concepts=doc[tags == '\\concept'] %>% unlist)
+		concepts=doc[tags == '\\concept'] %>% unlist,
+		keywords=c())
 
     return(ret)
 }
 
-.ergmTermIndexStore <- list()
-.ergmTermIndexParsedPackages <- c()
-# Crawl all loaded packages for terms, parse them once and store in the singleton store
-.crawlLoadedLibraries <- function() {
-	loaded_libraries <- .packages(TRUE)
+#' A simple dictionary to cache loaded terms
+#'
+#' @param the name of the term
+#' @param env the environment name for the function; if `NULL`, look
+#'   up in cache, otherwise insert or overwrite.
+#'
+#' @return A character string giving the name of the environment
+#'   containing the function, or `NULL` if not in cache.
+#' @noRd
+ergmTermCache <- local({
+	cache <- list()
+	watchlist <- character(0) # Packages being watched for unloading.
+	pkglist <- character(0) # Current list of packages.
 
-	new_store <- .ergmTermIndexStore
+	# Reset the cache and update the list of watched packages.
+	unload <- function(pkg_name) {
+		pkglist <<-.packages(TRUE)
 
-	for (pkg_name in loaded_libraries[!loaded_libraries %in% .ergmTermIndexParsedPackages]) {
-        pkg <- tools::Rd_db(pkg_name)
-        all_doco <- attributes(pkg)$names
-        converted <- all_doco[which(endsWith(all_doco, '-ergmTerm.Rd'))]
-		new_store <- c(new_store, lapply(converted, .parseTerm, pkg, pkg_name))
+		for (term in names(cache)) {
+			if (cache[[term]]$package == pkg_name) {
+				cache[[term]] <<- NULL
+			}
+		}
 	}
 
-	unlockBinding('.ergmTermIndexStore', environment(.crawlLoadedLibraries))
-	unlockBinding('.ergmTermIndexParsedPackages', environment(.crawlLoadedLibraries))
-	.ergmTermIndexStore <<- new_store
-	.ergmTermIndexParsedPackages <<- loaded_libraries
-	lockBinding('.ergmTermIndexStore', environment(.crawlLoadedLibraries))
-	lockBinding('.ergmTermIndexParsedPackages', environment(.crawlLoadedLibraries))
-}
+	# Crawl all loaded packages for terms, parse them once and store in the singleton store
+	load <- function(pkg_name) {
+		pkg <- tools::Rd_db(pkg_name)
+		all_doco <- attributes(pkg)$names
+		converted <- all_doco[which(endsWith(all_doco, '-ergmTerm.Rd'))]
+
+		for (term in lapply(converted, .parseTerm, pkg, pkg_name)) {
+			cache[[term$name]] <<- term
+		}
+	}
+
+	# Check if new namespaces have been added.
+	checknew <- function() {
+		for (pkg_name in .packages(TRUE)) {
+			if (!pkg_name %in% pkglist) {
+				load(pkg_name)
+
+				setHook(packageEvent(pkg_name, "detach"), unload)
+				setHook(packageEvent(pkg_name, "onUnload"), unload)
+			}
+		}
+	}
+
+	function (name=NULL) {
+		checknew()
+
+		if (is.null(name)) {
+			return (cache)
+		} else {
+			return (cache[[name]])
+		}
+	}
+})
 
 # Generate the index entry for a single term
 .genTermEntry <- function(term) {
@@ -75,10 +112,7 @@ library(magrittr)
 
 # Generate the dynamic index text
 .generateDynamicIndex <- function() {
-	# TODO: Better to add this to the hooks so that this runs once when the package is loaded, then as new packages are loaded
-	.crawlLoadedLibraries()
-
-    return(paste(sapply(.ergmTermIndexStore, .genTermEntry), collapse=''))
+    return(paste(sapply(ergmTermCache(), .genTermEntry), collapse=''))
 }
 
 #' An index of Ergm terms
