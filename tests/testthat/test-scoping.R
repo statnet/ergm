@@ -11,5 +11,5 @@ test_that("passing components of an ergm() formula into a function", {
   fit <- ergm(mynet ~ edges + degree(3), control = control, eval.loglik=TRUE)
 
   ffit$call <- ffit$formula <- fit$call <- fit$formula <- NULL
-  expect_equal(fit, ffit)
+  expect_equal(fit, ffit, ignore_function_env = TRUE, ignore_formula_env = TRUE)
 })
