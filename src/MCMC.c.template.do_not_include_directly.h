@@ -106,8 +106,7 @@ MCMCStatus DISPATCH_MCMCSample(DISPATCH_ErgmState *s,
 			verbose)!=MCMC_OK)
     return MCMC_MH_FAILED;
   if(nmax!=0 && EDGECOUNT(nwp) >= nmax-1){
-    DISPATCH_ErgmStateDestroy(s);  
-    error("Number of edges %u exceeds the upper limit set by the user (%u). This can be a sign of degeneracy, but if not, it can be controlled via MCMC.max.maxedges= and/or MCMLE.density.guard= control parameters.", EDGECOUNT(nwp), nmax);
+    return MCMC_TOO_MANY_EDGES;
   }
 
 /*   if (verbose){
