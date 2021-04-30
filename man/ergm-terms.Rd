@@ -23,7 +23,6 @@
 \alias{S}
 \alias{Sum}
 \alias{Undir}
-\alias{altkstar}
 \alias{asymmetric}
 \alias{atleast}
 \alias{atmost}
@@ -570,23 +569,6 @@
       needed), a numeric vector of indices of parameters to be fixed, or
       the a character vector of parameter names.
     }
-
-    \item{\code{altkstar(lambda, fixed=FALSE)}  (binary) (undirected) (curved) (categorical nodal attribute)
-    }{\emph{Alternating k-star:}
-      This term adds one network statistic to the model equal to a weighted
-      alternating sequence of k-star statistics with weight parameter
-      \code{lambda}. This is the version given in Snijders et al. (2006). The
-      \code{gwdegree} and \code{altkstar} produce mathematically equivalent
-      models, as long as they are used together with the \code{edges} (or
-      \code{kstar(1)}) term, yet the interpretation of the \code{gwdegree}
-      parameters is slightly more straightforward than the interpretation of the
-      \code{altkstar} parameters. For this reason, we recommend the use of the
-      \code{gwdegree} instead of \code{altkstar}. See Section 3 and especially
-      equation (13) of Hunter (2007) for details. The optional argument
-      \code{fixed} indicates whether the \code{decay} parameter is fixed at the given value, or is to be
-      fit as a curved exponential family model (see Hunter and Handcock, 2006).
-      The default is \code{FALSE}, which means the scale parameter is not fixed
-      and thus the model is a CEF model. \Undirected}
 
     \item{\code{asymmetric(attr=NULL, diff=FALSE, keep=NULL, levels=NULL)}  (binary)  (directed)  (dyad-independent) (triad-related)}{\emph{Asymmetric
 	dyads:} This term adds one network statistic to the model equal to the

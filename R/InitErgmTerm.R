@@ -233,7 +233,7 @@ InitErgmTerm.absdiff <- function(nw, arglist, ..., version=packageVersion("ergm"
 
 #' @name absdiffcat-ergmTerm
 #' @title Categorical absolute difference
-#' @description Absolute difference in nodal attribute.
+#' @description Categorical absolute difference in nodal attribute.
 #' @details This term adds one statistic for every possible nonzero distinct
 #'	 value of `abs(attr[i]-attr[j])` in the network. The value of each such
 #'	 statistic is the number of edges in the network with the corresponding
@@ -299,10 +299,37 @@ InitErgmTerm.absdiffcat <- function(nw, arglist, ..., version=packageVersion("er
 }
 
 
-
-
-
 ################################################################################
+
+#' @name altkstar-ergmTerm
+#' @title Alternating k-star
+#' @description Add one network statistic to the model equal to a weighted alternating
+#'   sequence of k-star statistics with weight parameter `lambda`.
+#' @details This is the version given in Snijders et al. (2006). The `gwdegree` and
+#'   `altkstar` produce mathematically equivalent models, as long as they are used
+#'   together with the `edges` (or `kstar(1)`) term, yet the interpretation of the
+#'   `gwdegree` parameters is slightly more straightforward than the interpretation
+#'   of the `altkstar` parameters. For this reason, we recommend the use of the
+#'   `gwdegree` instead of `altkstar`. See Section 3 and especially equation (13)
+#'   of Hunter (2007) for details.
+#'
+#' @usage
+#' # binary: altkstar(lambda,
+#' #                 fixed=FALSE)
+#'
+#' @template ergmTerm-attr
+#' @param fixed This optional argument indicates whether the `decay` parameter is
+#'   fixed at the given value, or is to be fit as a curved exponential family model
+#'   (see Hunter and Handcock, 2006).  The default is `FALSE`, which means the scale
+#'   parameter is not fixed and thus the model is a CEF model.
+#'
+#' @template ergmTerm-general
+#'
+#' @template ergmTerm-undirected
+#'
+#' @concept curved
+#' @concept undirected
+#' @concept categorical nodal attribute
 InitErgmTerm.altkstar <- function(nw, arglist, ...) {
   ### Check the network and arguments to make sure they are appropriate.
   a <- check.ErgmTerm(nw, arglist, directed=FALSE, bipartite=NULL,
