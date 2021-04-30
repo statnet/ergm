@@ -13,6 +13,7 @@ control.simulate.formula.ergm(
   MCMC.prop = trim_env(~sparse),
   MCMC.prop.weights = "default",
   MCMC.prop.args = list(),
+  MCMC.batch = NULL,
   MCMC.effectiveSize = NULL,
   MCMC.effectiveSize.damp = 10,
   MCMC.effectiveSize.maxruns = 1000,
@@ -36,6 +37,7 @@ control.simulate(
   MCMC.prop = trim_env(~sparse),
   MCMC.prop.weights = "default",
   MCMC.prop.args = list(),
+  MCMC.batch = NULL,
   MCMC.effectiveSize = NULL,
   MCMC.effectiveSize.damp = 10,
   MCMC.effectiveSize.maxruns = 1000,
@@ -59,6 +61,7 @@ control.simulate.formula(
   MCMC.prop = trim_env(~sparse),
   MCMC.prop.weights = "default",
   MCMC.prop.args = list(),
+  MCMC.batch = NULL,
   MCMC.effectiveSize = NULL,
   MCMC.effectiveSize.damp = 10,
   MCMC.effectiveSize.maxruns = 1000,
@@ -83,6 +86,7 @@ control.simulate.ergm(
   MCMC.prop = NULL,
   MCMC.prop.weights = NULL,
   MCMC.prop.args = NULL,
+  MCMC.batch = NULL,
   MCMC.effectiveSize = NULL,
   MCMC.effectiveSize.damp = 10,
   MCMC.effectiveSize.maxruns = 1000,
@@ -126,6 +130,11 @@ highest priority available.}
 
 \item{MCMC.prop.args}{An alternative, direct way of
 specifying additional arguments to proposal.}
+
+\item{MCMC.batch}{if not 0 or \code{NULL}, sample about this many
+networks per call to the lower-level code; this can be useful if
+\verb{output=} is a function, where it can be used to limit the number
+of networks held in memory at any given time.}
 
 \item{MCMC.effectiveSize, MCMC.effectiveSize.damp, MCMC.effectiveSize.maxruns, MCMC.effectiveSize.burnin.pval, MCMC.effectiveSize.order.max}{Set \code{MCMC.effectiveSize} to a non-NULL value to adaptively
 determine the burn-in and the MCMC length needed to get the

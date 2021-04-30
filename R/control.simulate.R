@@ -26,6 +26,8 @@
 #' typically is set to a fairly large number.
 #' @param MCMC.interval Number of proposals between sampled statistics.
 #'
+#' @template control_MCMC.batch
+#'
 #' @param MCMC.scale For `control.simulate.ergm()` inheriting
 #'   `MCMC.burnin` and `MCMC.interval` from the [`ergm`] fit, the
 #'   multiplier for the inherited values. This can be useful because
@@ -60,7 +62,9 @@ control.simulate.formula.ergm<-function(MCMC.burnin=MCMC.interval*16,
                                         MCMC.prop=trim_env(~sparse),
                                         MCMC.prop.weights="default",
                                         MCMC.prop.args=list(),
-                                        
+
+                                        MCMC.batch=NULL,
+
                                         MCMC.effectiveSize=NULL,
                                         MCMC.effectiveSize.damp=10,
                                         MCMC.effectiveSize.maxruns=1000,
@@ -113,6 +117,8 @@ control.simulate.ergm<-function(MCMC.burnin=NULL,
                                 MCMC.prop=NULL,
                                 MCMC.prop.weights=NULL,
                                 MCMC.prop.args=NULL,
+
+                                MCMC.batch=NULL,
                                 
                                 MCMC.effectiveSize=NULL,
                                 MCMC.effectiveSize.damp=10,

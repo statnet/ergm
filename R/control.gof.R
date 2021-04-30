@@ -64,6 +64,7 @@
 #' @param MCMC.burnin Number of proposals before any MCMC sampling is done. It
 #' typically is set to a fairly large number.
 #' @param MCMC.interval Number of proposals between sampled statistics.
+#' @template control_MCMC.batch
 #' @template control_MCMC_prop
 #' @template control_MCMC_maxedges
 #' @param MCMC.runtime.traceplot Logical: If `TRUE`, plot traceplots of the MCMC
@@ -84,6 +85,8 @@
 control.gof.formula<-function(nsim=100,
                               MCMC.burnin=10000,
                               MCMC.interval=1000,
+                              MCMC.batch=0,
+
                               MCMC.prop=trim_env(~sparse),
                               MCMC.prop.weights="default",
                               MCMC.prop.args=list(),
@@ -111,8 +114,11 @@ control.gof.formula<-function(nsim=100,
 #'  
 #' @export control.gof.formula
 control.gof.ergm<-function(nsim=100,
+
                            MCMC.burnin=NULL,
                            MCMC.interval=NULL,
+                           MCMC.batch=NULL,
+
                            MCMC.prop=NULL,
                            MCMC.prop.weights=NULL,
                            MCMC.prop.args=NULL,
