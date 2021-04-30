@@ -1780,9 +1780,6 @@ InitErgmTerm.diff <- function(nw, arglist, ..., version=packageVersion("ergm")) 
 
 ################################################################################
 InitErgmTerm.dsp<-function(nw, arglist, cache.sp=TRUE, ...) {
-# the following line was commented out in <InitErgm.dsp>:  
-#   ergm.checkdirected("dsp", is.directed(nw), requirement=FALSE)
-# so, I've not passed 'directed=FALSE' to <check.ErgmTerm>  
   a <- check.ErgmTerm(nw, arglist,
                       varnames = c("d"),
                       vartypes = c("numeric"),
@@ -1921,9 +1918,6 @@ InitErgmTerm.edges<-function(nw, arglist, ...) {
 
 ################################################################################
 InitErgmTerm.esp<-function(nw, arglist, cache.sp=TRUE, ...) {
-# the following line was commented out in <InitErgm.esp>:  
-#    ergm.checkdirected("esp", is.directed(nw), requirement=FALSE)
-# so, I've not passed 'directed=FALSE' to <check.ErgmTerm>  
   a <- check.ErgmTerm(nw, arglist,
                       varnames = c("d"),
                       vartypes = c("numeric"),
@@ -2209,9 +2203,6 @@ InitErgmTerm.gwdegree<-function(nw, arglist, gw.cutoff=30, ..., version=packageV
 
 ################################################################################
 InitErgmTerm.gwdsp<-function(nw, arglist, cache.sp=TRUE, gw.cutoff=30, ...) {
-# the following line was commented out in <InitErgm.gwdsp>:  
-#   ergm.checkdirected("gwdsp", is.directed(nw), requirement=FALSE)
-# so, I've not passed 'directed=FALSE' to <check.ErgmTerm>  
   a <- check.ErgmTerm(nw, arglist,
                       varnames = c("decay","fixed","cutoff","alpha"),
                       vartypes = c("numeric","logical","numeric","numeric"),
@@ -2250,9 +2241,6 @@ InitErgmTerm.gwdsp<-function(nw, arglist, cache.sp=TRUE, gw.cutoff=30, ...) {
 
 ################################################################################
 InitErgmTerm.gwesp<-function(nw, arglist, cache.sp=TRUE, gw.cutoff=30, ...) {
-# the following line was commented out in <InitErgm.gwesp>:
-#   ergm.checkdirected("gwesp", is.directed(nw), requirement=FALSE)
-# so, I've not passed 'directed=FALSE' to <check.ErgmTerm>  
   a <- check.ErgmTerm(nw, arglist,
                       varnames = c("decay","fixed","cutoff", "alpha"),
                       vartypes = c("numeric","logical","numeric", "numeric"),
@@ -2351,9 +2339,6 @@ InitErgmTerm.gwidegree<-function(nw, arglist, gw.cutoff=30, ..., version=package
 
 ################################################################################
 InitErgmTerm.gwnsp<-function(nw, arglist, cache.sp=TRUE, gw.cutoff=30, ...) {
-# the following line was commented out in <InitErgm.gwnsp>:
-#    ergm.checkdirected("gwnsp", is.directed(nw), requirement=FALSE)
-# so, I've not passed 'directed=FALSE' to <check.ErgmTerm>  
   a <- check.ErgmTerm(nw, arglist,
                       varnames = c("decay","fixed","cutoff", "alpha"),
                       vartypes = c("numeric","logical","numeric", "numeric"),
@@ -3625,9 +3610,6 @@ InitErgmTerm.nodeofactor<-function (nw, arglist, ..., version=packageVersion("er
 
 ################################################################################
 InitErgmTerm.nsp<-function(nw, arglist, cache.sp=TRUE, ...) {
-# The following line was commented out in <InitErgm.nsp>
-#   ergm.checkdirected("nsp", is.directed(nw), requirement=FALSE)
-# so I have not included 'directed=TRUE' in the call to <check.ErgmTerm>
   a <- check.ErgmTerm(nw, arglist,
                       varnames = c("d"),
                       vartypes = c("numeric"),
