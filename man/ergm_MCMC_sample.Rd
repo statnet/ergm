@@ -57,11 +57,12 @@ be used to temporarily override those in the \code{control} list.}
 containing:
 \item{stats}{an \code{\link{mcmc.list}} with sampled statistics.}
 \item{networks}{a list of final sampled networks, one for each thread.}
-\item{status}{status code, propagated from \code{ergm.mcmcslave}.}
+\item{status}{status code, propagated from \code{ergm_MCMC_slave()}.}
 \item{final.interval}{adaptively determined MCMC interval.}
 
-If \code{update.nws==FALSE}, rather than returning the updated networks,
-the function will return a \code{\link{ergm_state}}.
+\item{sampnetworks}{If \code{control$MCMC.save_networks} is set and is
+\code{TRUE}, a list of lists of \code{ergm_state}s corresponding to the
+sampled networks.}
 
 \code{ergm_MCMC_slave} returns the MCMC sample as a list of
 the following: \item{s}{the matrix of statistics.}
