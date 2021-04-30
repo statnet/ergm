@@ -22,7 +22,7 @@ NULL
 #'   favour of the default method once the number of `ergm` objects
 #'   with `$coef` elements in the wild is sufficiently low.
 #' @export
-coef.ergm <- function(object, ....) {
+coef.ergm <- function(object, ...) {
   if ("coef" %in% names(object)) unclass(object)$coef
   else NextMethod()
 }

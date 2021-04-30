@@ -12,7 +12,7 @@
 \alias{vcov.ergm}
 \title{Exponential-Family Random Graph Models}
 \usage{
-\method{coef}{ergm}(object, ....)
+\method{coef}{ergm}(object, ...)
 
 \method{$}{ergm}(x, name)
 
@@ -42,6 +42,9 @@ is.ergm(object)
 }
 \arguments{
 \item{object}{{an \code{ergm} object.}}
+
+\item{\dots}{Additional
+arguments, to be passed to lower-level functions.}
 
 \item{x, digits}{See \code{\link[=print]{print()}}.
 
@@ -179,9 +182,6 @@ progress and diagnostic information to be printed. \code{FALSE}/\code{0}
 produces minimal output, wit higher values producing more
 detail. Note that very high values (5+) may significantly slow
 down processing.}
-
-\item{\dots}{Additional
-arguments, to be passed to lower-level functions.}
 
 \item{basis}{a value (usually a \code{\link{network}}) to override the LHS of the formula.}
 
