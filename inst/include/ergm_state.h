@@ -13,6 +13,7 @@ typedef struct{
   Network *nwp;
   Model *m;
   MHProposal *MHp;
+  SEXP save;
 } ErgmState;
 
 ErgmState *ErgmStateInit(// Network settings

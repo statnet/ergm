@@ -13,6 +13,7 @@ typedef struct{
   WtNetwork *nwp;
   WtModel *m;
   WtMHProposal *MHp;
+  SEXP save;
 } WtErgmState;
 
 WtErgmState *WtErgmStateInit(SEXP stateR,
