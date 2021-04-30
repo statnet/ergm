@@ -53,7 +53,7 @@ SEXP DISPATCH_MCMC_wrapper(SEXP stateR,
   /* record new generated network to pass back to R */
   if(asInteger(status) == MCMC_OK && asInteger(maxedges)>0){
     s->stats = REAL(sample) + (asInteger(samplesize)-1)*m->n_stats;
-    SET_VECTOR_ELT(outl, 2, DISPATCH_ErgmStateRSave(stateR, s));
+    SET_VECTOR_ELT(outl, 2, DISPATCH_ErgmStateRSave(s));
   }
 
   DISPATCH_ErgmStateDestroy(s);  
@@ -296,7 +296,7 @@ SEXP DISPATCH_MCMCPhase12 (SEXP stateR,
   /* record new generated network to pass back to R */
   if(asInteger(status) == MCMC_OK && asInteger(maxedges)>0){
     s->stats = REAL(sample) + (asInteger(samplesize)-1)*m->n_stats;
-    SET_VECTOR_ELT(outl, 3, DISPATCH_ErgmStateRSave(stateR, s));
+    SET_VECTOR_ELT(outl, 3, DISPATCH_ErgmStateRSave(s));
   }
 
   DISPATCH_ErgmStateDestroy(s);

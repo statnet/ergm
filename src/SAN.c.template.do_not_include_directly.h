@@ -58,7 +58,7 @@ SEXP DISPATCH_SAN_wrapper(SEXP stateR,
   /* record new generated network to pass back to R */
   if(asInteger(status) == MCMC_OK){
     s->stats = REAL(sample) + (asInteger(samplesize)-1)*nstats;
-    SET_VECTOR_ELT(outl, 3, DISPATCH_ErgmStateRSave(stateR, s));
+    SET_VECTOR_ELT(outl, 3, DISPATCH_ErgmStateRSave(s));
   }
 
   DISPATCH_ErgmStateDestroy(s);

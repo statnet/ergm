@@ -8,6 +8,7 @@
 #include "ergm_wtmodel.h"
 
 typedef struct{
+  SEXP R;
   double *stats;
   WtNetwork *nwp;
   WtModel *m;
@@ -16,7 +17,8 @@ typedef struct{
 
 WtErgmState *WtErgmStateInit(SEXP stateR,
                              unsigned int flags);
-SEXP WtErgmStateRSave(SEXP startR, WtErgmState *s);
+SEXP WtErgmStateRSave(WtErgmState *s);
 void WtErgmStateDestroy(WtErgmState *s);
+SEXP WtErgmStateArrayClear();
 
 #endif
