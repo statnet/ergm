@@ -30,6 +30,7 @@ coef.ergm <- function(object, ...) {
 
 #' @describeIn ergm accesses elements of `ergm` objects; needed for
 #'   backwards compatibility when components get renamed.
+#' @param name See [Extract].
 #' @export
 `$.ergm` <- function(x, name) {
   if (name == "coef") {

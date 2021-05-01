@@ -52,6 +52,8 @@ Automatically called when an object of class \code{\link{ergm}} is printed.
 Currently, summarizes the size of the MCMC sample, the \eqn{\theta}
 vector governing the selection of the sample, and the Monte Carlo MLE. The optional \code{digits} argument specifies the significant digits for coefficients}
 
+\item{name}{See \link{Extract}.}
+
 \item{formula}{An \R \code{\link{formula}} object, of the form
 \code{y ~ <model terms>}, where \code{y} is a
 \code{\link[network]{network}} object or a matrix that can be
