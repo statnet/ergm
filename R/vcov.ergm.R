@@ -33,18 +33,18 @@ vcov.ergm <- function(object, sources=c("all","model","estimation"), ...){
   src.mod <- sources %in% c("all", "model")
   src.est <- sources %in% c("all", "estimation")
 
-  p <- length(object$coef)
+  p <- nparam(object)
   
   if(src.mod){
     if(is.null(object$hessian) && is.null(object$covar)){
       object$covar <- matrix(NA, p, p)
     }
     v.mod <- NVL(object$covar, ginv(-object$hessian))
-    v.mod[is.na(diag(v.mod))|diag(v.mod)<0|is.infinite(object$coef),] <- NA
-    v.mod[,is.na(diag(v.mod))|diag(v.mod)<0|is.infinite(object$coef)] <- NA
+    v.mod[is.na(diag(v.mod))|diag(v.mod)<0|is.infinite(coef(object)),] <- NA
+    v.mod[,is.na(diag(v.mod))|diag(v.mod)<0|is.infinite(coef(object))] <- NA
     v.mod[object$offset,] <- 0
     v.mod[,object$offset] <- 0
-     colnames(v.mod) <- rownames(v.mod) <- names(object$coef)
+     colnames(v.mod) <- rownames(v.mod) <- param_names(object)
   }
 
   if(src.est){
@@ -53,7 +53,7 @@ vcov.ergm <- function(object, sources=c("all","model","estimation"), ...){
     v.est[,diag(v.est)<0] <- NA
     v.est[object$offset,] <- 0
     v.est[,object$offset] <- 0
-    colnames(v.est) <- rownames(v.est) <- names(object$coef)
+    colnames(v.est) <- rownames(v.est) <- param_names(object)
   }
 
   switch(sources,
