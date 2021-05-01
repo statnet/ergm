@@ -306,31 +306,24 @@ gof.formula <- function(object, ...,
   if(verbose)
     message("Starting simulations.")
 
-  calc_sim_stat <- function(gv, calc, i){
+  myenv <- environment()
+
+  calc_sim_stat <- function(nw, gv, calc, i){
     simname <- paste("sim", gv, sep=".")
     sim <- get(simname)
-    sim[i,] <- calc(tempnet)
-    assign(simname, sim, parent.frame())
+    sim[i,] <- calc(nw)
+    assign(simname, sim, myenv)
   }
 
-  tempnet <- nw
-  for (i in 1:control$nsim) {
-    if(verbose){
-      message("Sim ",i," of ",control$nsim,": ",appendLF=FALSE)
-    }
-    if(network.naedgecount(nw) & !unconditional){tempnet <- nw}
-    tempnet <- simulate(m, nsim=1, coef=coef,
-                        constraints=proposal,
-                        control=set.control.class("control.simulate.formula",control),
-                        basis=tempnet,
-                        verbose=verbose)
+  summfun <- function(state, iter, ...)
+    for(gv in GVMAP) calc_sim_stat(as.network(state), gv[[1]], gv[[3]], iter)
 
-    for(gv in GVMAP)
-      calc_sim_stat(gv[[1]], gv[[3]], i)
-  }
-  if(verbose){
-    message("")
-  }
+  simulate(m, nsim=control$nsim, coef=coef,
+           constraints=proposal,
+           control=set.control.class("control.simulate.formula",control),
+           output=summfun,
+           basis=nw,
+           verbose=verbose)
 
   # calculate p-values
   
