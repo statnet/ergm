@@ -43,6 +43,20 @@ test_that("ergm.godfather() with toggles", {
                            ncol=2,byrow=TRUE))
 })
 
+test_that("ergm.godfather() with toggles, relative statistics", {
+  gf <- ergm.godfather(nwd~edges+triangles, changes=list(matrix(c(1,2,
+                                                                 2,3),
+                                                               ncol=2,byrow=TRUE),
+                                                        matrix(c(1,3,
+                                                                 2,3),
+                                                               ncol=2,byrow=TRUE)),
+                       changes.only=TRUE)
+
+  expect_equivalent(as.matrix(gf),
+                    matrix(c(-2,-6,
+                             -2,-5),
+                           ncol=2,byrow=TRUE))
+})
 
 test_that("ergm.godfather() with values", {
   gf <- ergm.godfather(nwd~edges+triangles, changes=list(matrix(c(1,2,1,

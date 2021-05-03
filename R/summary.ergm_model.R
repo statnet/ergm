@@ -15,75 +15,54 @@
 #' used by end-users, but may be useful to developers.
 #'
 #' @param object an [`ergm_model`] object.
-#' @param nw a [`network`] whose statistics are to be evaluated. If
-#'   `NULL`, returns empty network's statistics for that model.
+#' @param nw a [`network`] whose statistics are to be evaluated,
+#'   though an [`ergm_state`] object will also work. If `NULL`,
+#'   returns empty network's statistics for that model.
 #' @template response
 #' @template dotdotdot
 #' 
 #' @seealso [summary_formula()]
 #' @keywords internal
 #' @export
-summary.ergm_model <- function(object, nw=NULL, response=NULL,...){
+summary.ergm_model <- function(object, nw=NULL,...){
   m <- object
+  if((nstats=nparam(m,canonical=TRUE))==0) return(numeric(0)) # Escape if the model has 0 statistics.
 
-  # Adjust to global values. This needs to happen before the C call,
-  # so that an s_function, if exists, could override.
-                                                                
-  # New method:  Use $emptynwstats added to m$terms by the InitErgmTerm function
-  # Read the comments at the top of InitErgm.R or InitErgmTerm.R for 
-  # an explanation of the $emptynwstats mechanism
-  gs <- numeric(nparam(m,canonical=TRUE))
-  if(length(gs)==0) return(gs) # Escape if the model has 0 statistics.
-  
-  i <- 1
-  for (j in 1:length(m$terms)) {
-    tmp <- m$terms[[j]]
-    k <- tmp$inputs[2] # Number of statistics for this model term
-    if (!is.null(tmp$emptynwstats)) {
-      gs[i:(i+k-1)] <- gs[i:(i+k-1)] + tmp$emptynwstats
+  if(is.null(nw)){
+    gs <- numeric(nstats)
+
+    i <- 1L
+    for (trm in m$terms){
+      k <- length(trm$coef.names) # Number of statistics for this model term
+      if(!is.null(trm$emptynwstats))
+        gs[i + seq_len(k) - 1L] <- trm$emptynwstats
+      i <- i + k
     }
-    i <- i + k
+    return(gs)
   }
 
-  # If no actual network, we are done.
-  if(is.null(nw)) return(gs)
+  state <- ergm_state(nw, model=m)
+  summary(state)
+}
+
+#' @describeIn ergm_state a very low-level function that calculates summary statistics associated with an [`ergm_state`] object.
+#' @export
+summary.ergm_state <- function(object, ...){
+  on.exit(ergm_Cstate_clear())
+
+  state <- object
+
+  gs <-
+    if(!is.valued(state))
+      .Call("network_stats_wrapper",
+            state,
+            PACKAGE="ergm")
+    else
+      .Call("wt_network_stats_wrapper",
+            state,
+            PACKAGE="ergm")
   
-  # Note that the empty network statistics are passed to the C
-  # code. The reason is that if an s_??? function exists, it can
-  # overwrite them, since it can compute the whole thing, while if
-  # only the d_??? function exists, it needs to add on to empty
-  # network statistics.
-  
-  Clist <- ergm.Cprepare(nw, m, response=response)
-  
-  # *** don't forget, tails are passes in first now, notheads  
-  gs <- if(is.null(response))
-         .C("network_stats_wrapper",
-            as.integer(Clist$tails), as.integer(Clist$heads), as.integer(!is.null(Clist$time)), as.integer(Clist$time), as.integer(!is.null(Clist$lasttoggle)), as.integer(Clist$lasttoggle),
-            as.integer(Clist$nedges),
-            as.integer(Clist$n),
-            as.integer(Clist$dir), as.integer(Clist$bipartite), 
-            as.integer(Clist$nterms), 
-            as.character(Clist$fnamestring), as.character(Clist$snamestring), 
-            as.double(Clist$inputs),
-            gs = as.double(gs),
-            PACKAGE="ergm"
-            )$gs
-         else
-         .C("wt_network_stats_wrapper",
-            as.integer(Clist$tails), as.integer(Clist$heads), as.double(Clist$weights), as.integer(!is.null(Clist$time)), as.integer(Clist$time), as.integer(!is.null(Clist$lasttoggle)), as.integer(Clist$lasttoggle),
-            as.integer(Clist$nedges),
-            as.integer(Clist$n),
-            as.integer(Clist$dir), as.integer(Clist$bipartite), 
-            as.integer(Clist$nterms), 
-            as.character(Clist$fnamestring), as.character(Clist$snamestring), 
-            as.double(Clist$inputs),
-            gs = as.double(gs),
-            PACKAGE="ergm"
-            )$gs
-  names(gs) <- param_names(m,canonical=TRUE)
+  names(gs) <- param_names(state,canonical=TRUE)
 
   gs
 }
-
-

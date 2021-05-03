@@ -12,15 +12,6 @@
 
 #include "ergm_edgetree_common.do_not_include_directly.h"
 
-/* Ensure that tail < head for undriected networks. */
-#define ENSURE_TH_ORDER							\
-  if(!(nwp->directed_flag) && tail>head){				\
-    Vertex temp;							\
-    temp = tail;							\
-    tail = head;							\
-    head = temp;							\
-  }
-
 /*  TreeNode is a binary tree structure, which is how the edgelists 
     are stored.  The root of the tree for vertex i will be inedges[i]
     or outedges[i].  inedges[0] and outedges[0] are unused, since the
@@ -66,9 +57,14 @@ typedef struct Networkstruct {
   Vertex *indegree;
   Vertex *outdegree;
   double *value;  
-  Dur_Inf duration_info;
   Edge maxedges;
+
+  unsigned int n_on_edge_change;
+  unsigned int max_on_edge_change;
+  void (**on_edge_change)(Vertex, Vertex, void*, struct Networkstruct*, Rboolean);
+  void **on_edge_change_payload;
 } Network;
+typedef void (*OnNetworkEdgeChange)(Vertex, Vertex, void*, Network*, Rboolean);
 
 
 /* *** don't forget,  tails -> heads, so all the functions below using
@@ -85,6 +81,9 @@ Network *NetworkInitializeD(double *tails, double *heads, Edge nedges,
 
 Network *NetworkCopy(Network *src);
 
+SEXP Network2Redgelist(Network *nwp);
+Network *Redgelist2Network(SEXP elR, Rboolean empty);
+
 /* /\* Accessors. *\/ */
 /* static inline Edge EdgetreeSearch (Vertex a, Vertex b, TreeNode *edges); */
 /* static inline Edge EdgetreeSuccessor (TreeNode *edges, Edge x); */
@@ -98,20 +97,19 @@ Network *NetworkCopy(Network *src);
    heads & tails, now list tails before heads */
 
 void SetEdge (Vertex tail, Vertex head, unsigned int weight, Network *nwp);
-void SetEdgeWithTimestamp (Vertex tail, Vertex head, unsigned int weight, Network *nwp);
 int ToggleEdge (Vertex tail, Vertex head, Network *nwp);
-int ToggleEdgeWithTimestamp (Vertex tail, Vertex head, Network *nwp);
-int AddEdgeToTrees(Vertex tail, Vertex head, Network *nwp);
-void AddHalfedgeToTree (Vertex a, Vertex b, TreeNode *edges, Edge *last_edge);
-void CheckEdgetreeFull (Network *nwp);
+void ToggleKnownEdge (Vertex tail, Vertex head, Network *nwp, Rboolean edgestate);
+void AddEdgeToTrees(Vertex tail, Vertex head, Network *nwp);
+/* void AddHalfedgeToTree (Vertex a, Vertex b, TreeNode *edges, Edge *last_edge); */
+/* void CheckEdgetreeFull (Network *nwp); */
 int DeleteEdgeFromTrees(Vertex tail, Vertex head, Network *nwp);
-int DeleteHalfedgeFromTree(Vertex a, Vertex b, TreeNode *edges,
-		     Edge *last_edge);
-void RelocateHalfedge(Edge from, Edge to, TreeNode *edges);
+/* int DeleteHalfedgeFromTree(Vertex a, Vertex b, TreeNode *edges, */
+/* 		     Edge *last_edge); */
+/* void RelocateHalfedge(Edge from, Edge to, TreeNode *edges); */
 
-/* /\* Duration functions. *\/ */
-/* static inline int ElapsedTime(Vertex tail, Vertex head, Network *nwp); */
-void TouchEdge(Vertex tail, Vertex head, Network *nwp);
+/* Callback management. */
+void AddOnNetworkEdgeChange(Network *nwp, OnNetworkEdgeChange callback, void *payload, unsigned int pos);
+void DeleteOnNetworkEdgeChange(Network *nwp, OnNetworkEdgeChange callback, void *payload);
 
 #include "ergm_edgetree_inline.do_not_include_directly.h"
 
@@ -125,6 +123,7 @@ void InOrderTreeWalk(TreeNode *edges, Edge x);
 void NetworkEdgeList(Network *nwp);
 void ShuffleEdges(Vertex *tails, Vertex *heads, Edge nedges);
 void DetShuffleEdges(Vertex *tails, Vertex *heads, Edge nedges);
+void DetUnShuffleEdges(Vertex *tails, Vertex *heads, Edge nedges);
 
 /* Others... */
 Edge DesignMissing (Vertex a, Vertex b, Network *mnwp);

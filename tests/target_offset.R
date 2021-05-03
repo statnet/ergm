@@ -10,29 +10,31 @@
 library(ergm)
 
 data(florentine)
-warnf <- function(w) NULL
-library(statnet.common)
-opttest({
-  warnf <- function(w) stop('unexpected warning in target + offset test', w)
-})
-out <- tryCatch(ergm(flomarriage~offset(edges)+edges+degree(1)+offset(degree(0)),target.stats=summary(flomarriage~edges+degree(1)),
-              offset.coef=c(0,-0.25),control=control.ergm(init=c(0,-1.47,0.462,-0.25))) ,
-         error=function(e) stop('error in target + offset test', e), 
-         warning=warnf)
 
-if(!is.null(out)){
-  summary(out)
-  mcmc.diagnostics(out)
+# Based on http://tolstoy.newcastle.edu.au/R/help/04/06/0217.html by Luke Tierney.
+# TODO: Rewrite to use testthat.
+withWarnings <- function(expr){
+  myWarnings <- NULL
+  wHandler <- function(w) {
+    myWarnings <<- c(myWarnings, list(w))
+    invokeRestart("muffleWarning")
+  }
+  val <- withCallingHandlers(expr, warning = wHandler)
+  list(value = val, warnings = myWarnings)
 }
 
-set.seed(1)
+out <- withWarnings({ergm(flomarriage~offset(edges)+edges+degree(1)+offset(degree(0)),target.stats=summary(flomarriage~edges+degree(1)),
+            offset.coef=c(0,-0.25),control=control.ergm(init=c(0,-1.47,0.462,-0.25),MPLE.nonident.tol=0,MCMLE.nonident.tol=0))})
 
-out <- tryCatch(ergm(flomarriage~offset(edges)+edges+gwdegree(0, fix=FALSE)+degree(0)+offset(degree(1)),target.stats=summary(flomarriage~edges+gwdegree(0, fix=FALSE)+degree(0)),
-              offset.coef=c(0,-0.25)),
-         error=function(e) stop('error in target + offset test', e), 
-         warning=warnf)
+if(length(out$warnings)!=1) stop("Unexpected number of warnings.")
+summary(out$value)
+mcmc.diagnostics(out$value)
 
-if(!is.null(out)){
-  summary(out)
-  mcmc.diagnostics(out)
-}
+set.seed(10)
+
+out <- withWarnings({ergm(flomarriage~offset(edges)+edges+gwdegree(fix=FALSE)+degree(0)+offset(degree(1)),target.stats=summary(flomarriage~edges+gwdegree(fix=FALSE)+degree(0)), offset.coef=c(0,-0.25), control=control.ergm(MCMLE.termination="none",MCMLE.maxit=3,MPLE.nonident.tol=0,MCMLE.nonident.tol=0))})
+
+if(length(out$warnings)>2) stop("Unexpected number of warnings.")
+summary(out$value)
+mcmc.diagnostics(out$value)
+

@@ -232,10 +232,10 @@ nvattr.copy.network <- function(to, from, ignore=c("bipartite","directed","hyper
   to
 }
 
-single.impute.dyads <- function(nw, response=NULL, constraints=NULL, constraints.obs=NULL, min_informative=NULL, default_density=NULL, output=c("network","pending_update_network"), verbose=FALSE){
+single.impute.dyads <- function(nw, constraints=NULL, constraints.obs=NULL, min_informative=NULL, default_density=NULL, output=c("network","ergm_state"), verbose=FALSE){
   output <- match.arg(output)
   stopifnot(!is.null(constraints)||is.null(constraints.obs))
-  
+
   if(!is.null(constraints)){
     imputable <- as.rlebdm(constraints, constraints.obs, "missing")
     nae <- NVL3(imputable, sum(.), 0)
@@ -244,7 +244,10 @@ single.impute.dyads <- function(nw, response=NULL, constraints=NULL, constraints
     nae <- network.naedgecount(nw)
     if(nae) na.el <- as.edgelist(is.na(nw))
   }
-  if(nae==0) return(nw)
+  if(nae==0){
+    if(output=="network") return(nw)
+    else return(ergm_state(nw))
+  }
 
   if(verbose) message("Imputing ", nae, " dyads is required.")
 
@@ -257,7 +260,7 @@ single.impute.dyads <- function(nw, response=NULL, constraints=NULL, constraints
   if(!is.null(constraints)){ # Constraints
     informative <- as.rlebdm(constraints, constraints.obs, "informative")
     nonzeros <- as.rlebdm(nw)
-    if(is.null(response)){
+    if(!is.valued(nw)){
       d <-
         if(sum(informative)<min_informative){
           message("Number of informative dyads is too low. Using default imputation density.")
@@ -269,13 +272,13 @@ single.impute.dyads <- function(nw, response=NULL, constraints=NULL, constraints
         message("Number of informative dyads is too low. Imputing valued relations is not possible.")
         return(nw)
       }
-      x <- as.edgelist(nw,attrname=response)
+      x <- as.edgelist(nw,attrname=nw%ergmlhs%"response")
       x.el <- x[,1:2,drop=FALSE]
       x <- x.el[! el2s(x.el)%in%el2s(na.el),3]
       zeros <- sum(informative) - length(x)
     }
   }else{ # No Constraints
-    if(is.null(response)){
+    if(!is.valued(nw)){
       d <-
         if(network.dyadcount(nw,na.omit=TRUE)<min_informative){
           message("Number of informative dyads is too low. Using default imputation density.")
@@ -287,12 +290,12 @@ single.impute.dyads <- function(nw, response=NULL, constraints=NULL, constraints
         message("Number of informative dyads is too low. Imputing valued relations is not possible.")
         return(nw)
       }
-      x <- as.edgelist(nw,attrname=response)[,3]
+      x <- as.edgelist(nw,attrname=nw%ergmlhs%"response")[,3]
       zeros <- network.dyadcount(nw,na.omit=TRUE)-length(x)
     }
   }
   
-  if(is.null(response)){
+  if(!is.valued(nw)){
     if(verbose) message("Imputing ", nimpute, " edges at random.")
     i.new <- sample.int(nae,nimpute)
     if(output=="network"){
@@ -302,19 +305,21 @@ single.impute.dyads <- function(nw, response=NULL, constraints=NULL, constraints
       todel <- union(setdiff(i.cur, i.new), setdiff(i.na, i.new))
       toadd <- union(setdiff(i.new, i.cur), intersect(i.na, i.new))
       nw[na.el[c(todel,toadd),,drop=FALSE]] <- rep(0:1, c(length(todel),length(toadd)))
-    }else{ # pending_update_network
+    }else{ # edgelist
       el <- s2el(union(setdiff(el2s(as.edgelist(nw)), el2s(na.el)), el2s(na.el[i.new,,drop=FALSE])))
-      nw <- pending_update_network(nw, list(newedgelist = el))
+      colnames(el) <- c(".tail",".head")
+      nw <- ergm_state(el, nw=nw)
     }
   }else{
     if(output=="network"){
-      nw[na.el,names.eval=response,add.edges=TRUE] <- sample(c(0,x),nae,replace=TRUE,prob=c(zeros,rep(1,length(x))))
-    }else{ # pending_update_network
-      el <- as.edgelist(nw, attrname=response)
+      nw[na.el,names.eval=nw%ergmlhs%"response",add.edges=TRUE] <- sample(c(0,x),nae,replace=TRUE,prob=c(zeros,rep(1,length(x))))
+    }else{ # edgelist
+      el <- as.edgelist(nw, attrname=nw%ergmlhs%"response")
       el <- el[!el2s(el[,-3,drop=FALSE])%in%el2s(na.el),,drop=FALSE]
       el <- rbind(el, cbind(na.el, sample(c(0,x),nae,replace=TRUE,prob=c(zeros,rep(1,length(x))))))
       el <- el[el[,3]!=0,,drop=FALSE]
-      nw <- pending_update_network(nw, list(newedgelist = el), response=response)
+      colnames(el) <- c(".tail",".head",nw%ergmlhs%"response")
+      nw <- ergm_state(el, nw=nw)
     }
   }
 
@@ -337,3 +342,45 @@ single.impute.dyads <- function(nw, response=NULL, constraints=NULL, constraints
   val <- tryCatch(withCallingHandlers(expr, warning = wHandler), error = eHandler)
   list(value = val, warnings = myWarnings, error=myError)
 } 
+
+## A is a matrix. V is a column vector that may contain Infs
+## computes A %*% V, counting 0*Inf as 0
+.multiply.with.inf <- function(A,V) {
+  cbind(colSums(t(A)*c(V), na.rm=TRUE))
+}
+
+trim_env_const_formula <- function(x, keep=NULL){
+  terms <- list_rhs.formula(x)
+  needs_env <- FALSE
+  basefn <- ls(baseenv())
+
+  is_simple <- function(x, toplevel=FALSE){
+    if(is.null(x) || is.character(x) || is.numeric(x) || is.logical(x) || is.complex(x) || identical(x, as.name("."))) TRUE
+    else if(is.call(x)){
+      fn <- as.character(x[[1]])
+      if(!toplevel && ! fn%in%basefn) FALSE
+      else all(sapply(as.list(x)[-1], is_simple))
+    } else FALSE
+  }
+
+  for(trm in terms){
+    if(is.call(trm) && !is_simple(trm, TRUE)){
+        needs_env <- TRUE
+        break
+    }
+  }
+
+  if(needs_env) x else trim_env(x, keep)
+}
+
+#' Test if the object is a matrix that is symmetric and positive definite.
+#' @param x the object to be tested.
+#' @param tol the tolerance for the reciprocal condition number.
+#' @noRd
+is.SPD <- function(x, tol = .Machine$double.eps){
+  is.matrix(x) &&
+    nrow(x) == ncol(x) &&
+    all(x == t(x)) &&
+    rcond(x) >= tol &&
+    all(eigen(x, symmetric=TRUE, only.values=TRUE)$values > 0)
+}

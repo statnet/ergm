@@ -17,8 +17,6 @@
 #   init         : the initial theta values
 #   nw             : the network
 #   model          : the model, as returned by <ergm_model>
-#   Clist          : a list of several network and model parameters,
-#                    as returned by <ergm.Cprepare>
 #   initialfit     : an ergm object, as the initial fit
 #   control     : a list of parameters for controlling the MCMC sampling
 #   proposal     : an proposal object for 'nw', as returned by
@@ -39,6 +37,8 @@
 ergm.stepping = function(init, nw, model, initialfit, constraints,
                          control, proposal, proposal.obs, 
                          verbose=FALSE, ...){
+
+  control <- remap_algorithm_MCMC_controls(control, "Step")
 
   #   preliminary, to set up structure. 
   nw.orig <- nw
@@ -63,7 +63,7 @@ ergm.stepping = function(init, nw, model, initialfit, constraints,
   while (!finished) { # Iterate until gamma==1
     iter=iter+1
     ## Generate an mcmc sample from the probability distribution determined by orig.mle
-    samples[[iter]]=simulate(model, nsim=control$Step.MCMC.samplesize, basis=nw,
+    samples[[iter]]=simulate(model, nsim=control$MCMC.samplesize, basis=nw,
                                      coef=eta[[iter]], output="stats",
                                      constraints=constraints, 
                                      control=set.control.class("control.simulate.formula",control), ...)
@@ -140,7 +140,7 @@ ergm.stepping = function(init, nw, model, initialfit, constraints,
     # observed statistics would be exactly zero on the same scale.  In this case, the
     # "observed statistics" equal xi[[iter]].
     v<-ergm.estimate(init=eta[[iter]], model=model, 
-                     statsmatrix=sweep(samples[[iter]], 2, xi[[iter]], '-'), 
+                     statsmatrices=mcmc.list(as.mcmc(sweep(samples[[iter]], 2, xi[[iter]], '-'))), 
                      nr.maxit=control$MCMLE.NR.maxit,
                      metric=control$MCMLE.metric,
                      verbose=verbose,
@@ -151,9 +151,8 @@ ergm.stepping = function(init, nw, model, initialfit, constraints,
                      # nr.reltol=control$MCMLE.NR.reltol,
                      #calc.mcmc.se=control$MCMC.addto.se, hessianflag=control$main.hessian,
                      # trustregion=control$MCMLE.trustregion, method=control$MCMLE.method, 
-                     #compress=control$MCMC.compress, 
                      ...)
-    eta[[iter+1]]<-v$coef
+    eta[[iter+1]]<-coef(v)
   }
   message("Now ending with one large sample for MLE. ")
   flush.console()
@@ -165,7 +164,7 @@ ergm.stepping = function(init, nw, model, initialfit, constraints,
   sampmeans[[iter]] <- colMeans(finalsample)
   xi[[iter]] <- obsstats
   v<-ergm.estimate(init=eta[[iter]], model=model, 
-                   statsmatrix=sweep(finalsample, 2, xi[[iter]], '-'), 
+                   statsmatrices=mcmc.list(as.mcmc(sweep(finalsample, 2, xi[[iter]], '-'))), 
                    nr.maxit=control$MCMLE.NR.maxit,
                    metric=control$MCMLE.metric,
                    verbose=verbose,
@@ -176,9 +175,8 @@ ergm.stepping = function(init, nw, model, initialfit, constraints,
                     nr.reltol=control$MCMLE.NR.reltol,
                    calc.mcmc.se=control$MCMC.addto.se, hessianflag=control$main.hessian,
                     trustregion=control$MCMLE.trustregion, method=control$MCMLE.method, 
-                   compress=control$MCMC.compress, 
                    ...)
-  eta[[iter+1]] <- v$coef
+  eta[[iter+1]] <- coef(v)
   
   ############# FINAL PLOT 1 prints if VERBOSE=TRUE #################
   if(verbose){
@@ -186,7 +184,7 @@ ergm.stepping = function(init, nw, model, initialfit, constraints,
           col=c(rep(1, nrow(finalsample)), 2, 3),# all black used for JCGS article 
           pch=c(rep(46, nrow(finalsample)),3 ,4 ),
           cex=c(rep(1, nrow(finalsample)), 1.4, 1.4),
-          main=paste("Final Stepping Iteration (#", iter, ")", sep=""),# "",
+          main=paste("Final Stepping Iteration (#", iter, ")", sep=""),# "\n",
           cex.main=1.5, cex.axis=1.5, cex.lab=1.5)
   } #ends if(verbose)
   ############## END PLOT #################    
@@ -208,12 +206,12 @@ ergm.stepping = function(init, nw, model, initialfit, constraints,
   v$allmeanvals <- t(sapply(sampmeans, function(a)a))
   v$allparamvals <- t(sapply(eta, function(a)a))
   
-  if(!v$failure & !any(is.na(v$coef))){
+  if(!v$failure & !any(is.na(coef(v)))){
     asyse <- mc.se
     if(is.null(v$covar)){
-      asyse[names(v$coef)] <- suppressWarnings(sqrt(diag(ginv(-v$hessian))))
+      asyse[names(coef(v))] <- suppressWarnings(sqrt(diag(ginv(-v$hessian))))
     }else{
-      asyse[names(v$coef)] <- suppressWarnings(sqrt(diag(v$covar)))
+      asyse[names(coef(v))] <- suppressWarnings(sqrt(diag(v$covar)))
     }
   }
   
@@ -224,27 +222,57 @@ ergm.stepping = function(init, nw, model, initialfit, constraints,
   v
 }  # Ends the whole function
 
+
+#' Transform points represented by rows of `m` such that their
+#' centroid is shifted `1-gamma.tr` of the way toward `x` and their
+#' spread around their centroid is scaled by a factor of
+#' `gamma.scl`. Both `gamma.tr` and `gamma.scl` can be vectors equal
+#' in length to the number of columns of `m`.
+#' @noRd
+.shift_scale_points <- function(m, x, gamma.tr, gamma.scl=gamma.tr){
+  m.c <- colMeans(m)
+  m <- sweep_cols.matrix(m, m.c, disable_checks=TRUE)
+  m.c <- c(m.c*gamma.tr + x*(1-gamma.tr))
+  t(t(m) * gamma.scl + m.c)
+}
+
 ## Given two matrices x1 and x2 with d columns (and any positive
 ## numbers of rows), find the greatest gamma<=steplength.max s.t., the
 ## points of x2 shrunk towards the centroid of x1 a factor of gamma,
 ## are all in the convex hull of x1, as is the centroid of x2 shrunk
 ## by margin*gamma.
+##
+## If -1 <= margin < 0, the algorithm "forgives" some amount of either
+## centroid or x2 being outside of the convex hull of x1.
 
 ## This is a variant of Hummel et al. (2010)'s steplength algorithm
 ## also usable for missing data MLE.
-.Hummel.steplength <- function(x1, x2=NULL, margin=0.05, steplength.max=1, steplength.prev=steplength.max, x2.num.max=100, steplength.maxit=25, parallel=c("observational","always","never"), control=NULL, verbose=FALSE){
+.Hummel.steplength <- function(x1, x2=NULL, margin=0.05, steplength.max=1, x1.prefilter=FALSE, x2.prefilter=FALSE, steplength.prev=steplength.max, point.gamma.exp=1, x2.num.max=ceiling(sqrt(ncol(rbind(x1)))), steplength.maxit=25, parallel=c("observational","always","never"), min=0.0001, precision=0.25, control=NULL, verbose=FALSE){
   parallel <- match.arg(parallel)
   margin <- 1 + margin
-  x1 <- rbind(x1); m1 <- rbind(colMeans(x1)); x1 <- unique(x1)
+  point.margin <- min(1, margin)
+  x1 <- rbind(x1); m1 <- rbind(colMeans(x1)); ; n1 <- nrow(x1)
+  if(is.function(x2.num.max)) x2.num.max <- x2.num.max(x1)
   if(is.null(x2)){
     m2 <- rbind(rep(0,ncol(x1)))
     parallel <- parallel == "always"
   }else{                                      
     x2 <- rbind(x2)
     m2 <- rbind(colMeans(x2))
-    x2 <- unique(x2)
     parallel <- parallel != "never"
   }
+  n2 <- nrow(x2)
+
+  # Drop duplicated elements in x1, *and* those elements in x2 that
+  # duplicate those in x1.
+  d12 <- duplicated(rbind(x1,x2))
+  d1 <- d12[seq_len(n1)]
+  d2 <- d12[-seq_len(n1)]
+  x1 <- x1[!d1,,drop=FALSE]
+  x2 <- x2[!d2,,drop=FALSE]
+  if(length(x2)==0) x2 <- NULL
+
+  if(verbose>1) message("Eliminating repeated points: ", sum(d1),"/",length(d1), " from target set, ", sum(d2),"/",length(d2)," from test set.")
 
   if(parallel && !is.null(control)) ergm.getCluster(control, verbose)
 
@@ -275,6 +303,30 @@ ergm.stepping = function(init, nw, model, initialfit, constraints,
       if(apply(x2, 1, all.equal, m1, check.attributes=FALSE) %>% map_lgl(isTRUE) %>% all) return(1) else return(0)
     }
   }
+
+  if(x1.prefilter){
+    # Find the most extreme point according to each coordinate:
+    e1 <- unique(c(apply(x1crs, 2, function(x) c(which.min(x), which.max(x)))))
+    # Find the most extreme point according to each coordinate*coordinate:
+    e2 <- unique(c(apply(sapply(seq_len(nrow(x1crs)), function(i) c(outer(x1crs[i,],x1crs[i,],"+"), outer(x1crs[i,],x1crs[i,],"-"))),
+          1, function(x) c(which.min(x), which.max(x)))))
+    x1crse <- x1crs[unique(c(e1,e2)),,drop=FALSE]
+    # Drop all points that are in the convex hull of those.
+    x1crs <- rbind(x1crse, x1crs[!apply(x1crs, MARGIN=1, is.inCH, M=x1crse, verbose=verbose),])
+    if(verbose>1) message("Prefiltered target set: ", sum(!d1)-nrow(x1crs), "/", sum(!d1), " eliminated.")
+  }
+
+  if(!is.null(x2) && x2.prefilter){
+    # Find the most extreme point according to each coordinate:
+    e1 <- unique(c(apply(x2crs, 2, function(x) c(which.min(x), which.max(x)))))
+    # Find the most extreme point according to each pair of coordinates equally weighted:
+    e2 <- unique(c(apply(sapply(seq_len(nrow(x2crs)), function(i) c(outer(x2crs[i,],x2crs[i,],"+"), outer(x2crs[i,],x2crs[i,],"-"))),
+          1, function(x) c(which.min(x), which.max(x)))))
+    x2crse <- x2crs[unique(c(e1,e2)),,drop=FALSE]
+    # Drop all points that are in the convex hull of those.
+    x2crs <- rbind(x2crse, x2crs[!apply(x2crs, MARGIN=1, is.inCH, M=x2crse, verbose=verbose),])
+    if(verbose>1) message("Prefiltered test set: ", sum(!d2)-nrow(x2crs), "/", sum(!d2), " eliminated.")
+  }
   
   if(!is.null(x2) && nrow(x2crs) > x2.num.max){
     ## If constrained sample size > x2.num.max
@@ -286,7 +338,7 @@ ergm.stepping = function(init, nw, model, initialfit, constraints,
   ## Here, if x2 is defined, check against every point in it, without
   ## the margin and against its centroid m2 with the
   ## margin. Otherwise, just check against m2 with the margin.
-  passed <- function(gamma){is.inCH(rbind(if(!is.null(x2)) t(gamma * t(x2crs)  + (1-gamma)*c(m1crs)),
+  passed <- function(gamma){is.inCH(rbind(if(!is.null(x2)) .shift_scale_points(x2crs, m1crs, point.margin*gamma, (point.margin*gamma)^point.gamma.exp),
                                           margin*gamma * m2crs  + (1-margin*gamma)*m1crs),
                                     x1crs, verbose=verbose)}
 
@@ -308,11 +360,11 @@ ergm.stepping = function(init, nw, model, initialfit, constraints,
     if(first) q <- c(q, high) # Ensure that the last one is "high".
     q
   }
-  low <- 0
+  low <- min
   high <- steplength.max
   g <- mk.guesses(low, high, first=TRUE)
   i <- 0
-  while(i < steplength.maxit & abs(high-low)>0.001){
+  while(i < steplength.maxit && (high-low)/low>precision){
    if(verbose>1) message(sprintf("iter=%d, low=%f, high=%f, guesses=%s: ",i,low,high,deparse(g, 500L)), appendLF=FALSE)
    z <- NVL3(if(parallel) ergm.getCluster(control), persistEvalQ({unlist(parallel::clusterApply(ergm.getCluster(control), g, passed))}, retries=getOption("ergm.cluster.retries"), beforeRetry={ergm.restartCluster(control,verbose)}), passed(g))
    if(verbose>1 && parallel && !is.null(ergm.getCluster(control))) message("lowest ", sum(z), " passed.")
@@ -324,5 +376,5 @@ ergm.stepping = function(init, nw, model, initialfit, constraints,
 #  names(out) <- c("iters","est","low","high","z")
 #  message_print(out)
   }
-  low
+  if(low==min) 0 else low
 }

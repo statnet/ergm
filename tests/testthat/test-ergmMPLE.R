@@ -1,16 +1,15 @@
+local_edition(3)
 data(faux.mesa.high)
 formula <- faux.mesa.high ~ nodematch("Sex")
 mplesetup <- ergmMPLE(formula)
 
 test_that("output = 'matrix' works for undirected networks", {
-  local_edition(3)
   ord <- order(mplesetup$weights)
   m <- cbind(mplesetup$weights, mplesetup$response, mplesetup$predictor)[ord,]
   expect_equal(m, matrix(c(71, 132, 10284, 10423, 1, 1, 0, 0, 0, 1, 1, 0), 4,3), ignore_attr=TRUE)
 })
 
 test_that("output = 'fit' works for undirected networks", {
-  local_edition(3)
   modelfit <- ergmMPLE(formula, output="fit")
   alt <- glm(mplesetup$response ~ mplesetup$predictor - 1,
              weights = mplesetup$weights, family="binomial")
@@ -20,7 +19,6 @@ test_that("output = 'fit' works for undirected networks", {
 data(florentine)
 
 test_that("output = 'array' works for undirected networks", {
-  local_edition(3)
   mplearray <- ergmMPLE(flomarriage~edges+absdiff("wealth"), output="array")
   ut <- upper.tri(mplearray$response)
   lt <- lower.tri(mplearray$response,diag=TRUE)
@@ -45,7 +43,6 @@ test_that("output = 'array' works for undirected networks", {
 bfl <- get.inducedSubgraph(flomarriage, 1:7, 8:16)
 
 test_that("output = 'array' works for bipartite networks with expand.bipartite = FALSE", {
-  local_edition(3)
   mplearray <- ergmMPLE(bfl~edges+absdiff("wealth"), output="array")
   ones <- rep(1,network.dyadcount(bfl))
 
@@ -61,7 +58,6 @@ test_that("output = 'array' works for bipartite networks with expand.bipartite =
 
 
 test_that("output = 'array' works for bipartite networks with expand.bipartite = TRUE", {
-  local_edition(3)
   mplearray <- ergmMPLE(bfl~edges+absdiff("wealth"), output="array", expand.bipartite=TRUE)
   ut <- upper.tri(mplearray$response)
   lt <- lower.tri(mplearray$response,diag=TRUE)

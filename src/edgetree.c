@@ -8,6 +8,9 @@
  *  Copyright 2003-2020 Statnet Commons
  */
 #include "ergm_edgetree.h"
+#include "ergm_Rutil.h"
+
+#include "edgetree_inline.do_not_include_directly.h"
 
 /* *** don't forget, edges are now given by tails -> heads, and as
        such, the function definitions now require tails to be passed
@@ -20,6 +23,8 @@
  Initialize, construct binary tree version of network.  Note
  that the 0th TreeNode in the array is unused and should 
  have all its values set to zero
+
+Note: passing nedges > 0 and tails == heads == weights == NULL is OK: it creates an empty network with at least nedges of space preallocated.
 *******************/
 /* *** don't forget, tail -> head */
 
@@ -38,20 +43,15 @@ Network *NetworkInitialize(Vertex *tails, Vertex *heads, Edge nedges,
   nwp->inedges = (TreeNode *) Calloc(nwp->maxedges, TreeNode);
   nwp->outedges = (TreeNode *) Calloc(nwp->maxedges, TreeNode);
 
-  if(lasttoggle_flag){
-    nwp->duration_info.time=time;
-    if(lasttoggle){
-        nwp->duration_info.lasttoggle = (int *) Calloc(DYADCOUNT(nnodes, bipartite, directed_flag), int);
-        memcpy(nwp->duration_info.lasttoggle, lasttoggle, DYADCOUNT(nnodes, bipartite, directed_flag) * sizeof(int));
-    } else nwp->duration_info.lasttoggle = NULL;
-  }
-  else nwp->duration_info.lasttoggle = NULL;
+  if(lasttoggle_flag) error("The lasttoggle API has been removed from ergm.");
 
   /*Configure a Network*/
   nwp->nnodes = nnodes;
   EDGECOUNT(nwp) = 0; /* Edges will be added one by one */
   nwp->directed_flag=directed_flag;
   nwp->bipartite=bipartite;
+
+  if(tails==NULL && heads==NULL) return nwp;
 
   DetShuffleEdges(tails,heads,nedges); /* shuffle to avoid worst-case performance */
 
@@ -62,6 +62,9 @@ Network *NetworkInitialize(Vertex *tails, Vertex *heads, Edge nedges,
     else 
       AddEdgeToTrees(tail,head,nwp);
   }
+
+  DetUnShuffleEdges(tails,heads,nedges); /* Unshuffle edges */
+
   return nwp;
 }
 
@@ -96,14 +99,12 @@ Network *NetworkInitializeD(double *tails, double *heads, Edge nedges,
  void NetworkDestroy
 *******************/
 void NetworkDestroy(Network *nwp) {
+  Free(nwp->on_edge_change);
+  Free(nwp->on_edge_change_payload);
   Free(nwp->indegree);
   Free(nwp->outdegree);
   Free(nwp->inedges);
   Free(nwp->outedges);
-  if(nwp->duration_info.lasttoggle){
-    Free(nwp->duration_info.lasttoggle);
-    nwp->duration_info.lasttoggle=NULL;
-  }
   Free(nwp);
 }
 
@@ -129,15 +130,8 @@ Network *NetworkCopy(Network *src){
   dest->outedges = (TreeNode *) Calloc(maxedges, TreeNode);
   memcpy(dest->outedges, src->outedges, maxedges*sizeof(TreeNode));
 
-  int directed_flag = dest->directed_flag = src->directed_flag;
-  Vertex bipartite = dest->bipartite = src->bipartite;
-
-  if(src->duration_info.lasttoggle){
-    dest->duration_info.time=src->duration_info.time;
-    dest->duration_info.lasttoggle = (int *) Calloc(DYADCOUNT(nnodes, bipartite, directed_flag), int);
-    memcpy(dest->duration_info.lasttoggle, src->duration_info.lasttoggle,DYADCOUNT(nnodes, bipartite, directed_flag) * sizeof(int));
-  }
-  else dest->duration_info.lasttoggle = NULL;
+  dest->directed_flag = src->directed_flag;
+  dest->bipartite = src->bipartite;
 
   EDGECOUNT(dest) = EDGECOUNT(src);
 
@@ -163,73 +157,30 @@ int ToggleEdge (Vertex tail, Vertex head, Network *nwp)
 {
   /* don't forget tails < heads now for undirected networks */
   ENSURE_TH_ORDER;
-  if (AddEdgeToTrees(tail,head,nwp))
+  if(DeleteEdgeFromTrees(tail,head,nwp))
+    return 0;
+  else{
+    AddEdgeToTrees(tail,head,nwp);
     return 1;
-  else 
-    return 1 - DeleteEdgeFromTrees(tail,head,nwp);
-}
-
-
-
-/* *** don't forget, edges are now given by tails -> heads, and as
-       such, the function definitions now require tails to be passed
-       in before heads */
-
-/*****************
- Edge ToggleEdgeWithTimestamp
- By MSH 11/26/06
-
- Same as ToggleEdge, but this time with the additional
- step of updating the matrix of 'lasttoggle' times
- *****************/
-
-/* *** don't forget tail->head, so this function now accepts tail before head */
-
-int ToggleEdgeWithTimestamp(Vertex tail, Vertex head, Network *nwp){
-  Edge k;
-
-  /* don't forget, tails < heads in undirected networks now  */
-  ENSURE_TH_ORDER;
-  
-  if(nwp->duration_info.lasttoggle){ /* Skip timestamps if no duration info. */
-    if(nwp->bipartite){
-      k = (head-nwp->bipartite-1)*(nwp->bipartite) + tail - 1;
-    }else{
-      if (nwp->directed_flag) 
-	k = (head-1)*(nwp->nnodes-1) + tail - ((tail>head) ? 1:0) - 1; 
-      else
-	k = (head-1)*(head-2)/2 + tail - 1;    
-    }
-    nwp->duration_info.lasttoggle[k] = nwp->duration_info.time;
   }
-  
-  if (AddEdgeToTrees(tail,head,nwp))
-    return 1;
-  else 
-    return 1 - DeleteEdgeFromTrees(tail,head,nwp);
 }
 
-/*****************
- void TouchEdge
 
- Named after the UNIX "touch" command.
- Set an edge's time-stamp to the current MCMC time.
- *****************/
+/*****************
+ Edge ToggleKnownEdge
+
+ Toggle an edge whose status is known:  Set it to the opposite of its current
+ value.  Return 1 if edge added, 0 if deleted.
+*****************/
 
 /* *** don't forget tail->head, so this function now accepts tail before head */
 
-void TouchEdge(Vertex tail, Vertex head, Network *nwp){
-  unsigned int k;
-  if(nwp->duration_info.lasttoggle){ /* Skip timestamps if no duration info. */
-    if(nwp->bipartite){
-      k = (head-nwp->bipartite-1)*(nwp->bipartite) + tail - 1;
-    }else{
-      if (nwp->directed_flag) 
-	k = (head-1)*(nwp->nnodes-1) + tail - ((tail>head) ? 1:0) - 1; 
-      else
-	k = (head-1)*(head-2)/2 + tail - 1;    
-    }
-    nwp->duration_info.lasttoggle[k] = nwp->duration_info.time;
+void ToggleKnownEdge (Vertex tail, Vertex head, Network *nwp, Rboolean edgestate)
+{
+  if (edgestate){
+    DeleteEdgeFromTrees(tail,head,nwp);
+  }else{
+    AddEdgeToTrees(tail,head,nwp);
   }
 }
 
@@ -238,73 +189,36 @@ void TouchEdge(Vertex tail, Vertex head, Network *nwp){
        such, the function definitions now require tails to be passed
        in before heads */
 
-/*****************
- Edge AddEdgeToTrees
 
- Add an edge from tail to head after checking to see
- if it's legal. Return 1 if edge added, 0 otherwise.  Since each
- "edge" should be added to both the list of outedges and the list of 
+/* *** don't forget, edges are now given by tails -> heads, and as
+       such, the function definitions now require tails to be passed
+       in before heads */
+
+/*****************
+ void AddEdgeToTrees
+
+ Add an edge from tail to head; note that the function assumes that it
+ is legal and therefore does not have a return value. Since each
+ "edge" should be added to both the list of outedges and the list of
  inedges, this actually involves two calls to AddHalfedgeToTree (hence
  "Trees" instead of "Tree" in the name of this function).
 *****************/
 
 /* *** don't forget tail->head, so this function now accepts tail before head */
 
-int AddEdgeToTrees(Vertex tail, Vertex head, Network *nwp){
-  if (EdgetreeSearch(tail, head, nwp->outedges) == 0) {
-    AddHalfedgeToTree(tail, head, nwp->outedges, &(nwp->last_outedge));
-    AddHalfedgeToTree(head, tail, nwp->inedges, &(nwp->last_inedge));
-    ++nwp->outdegree[tail];
-    ++nwp->indegree[head];
-    ++EDGECOUNT(nwp);
-    CheckEdgetreeFull(nwp); 
-    return 1;
-  }
-  return 0;
+void AddEdgeToTrees(Vertex tail, Vertex head, Network *nwp){
+#ifdef DEBUG
+  if(EdgetreeSearch(tail, head, nwp->outedges)||EdgetreeSearch(head, tail, nwp->inedges)) error("AddEdgeToTrees() called for an extant edge. Note that this produces an error only if compiling with DEBUG macro set and silently produces undefined behavior otherwise.");
+#endif // DEBUG
+  for(unsigned int i = 0; i < nwp->n_on_edge_change; i++) nwp->on_edge_change[i](tail, head, nwp->on_edge_change_payload[i], nwp, FALSE);
+
+  AddHalfedgeToTree(tail, head, nwp->outedges, &(nwp->last_outedge));
+  AddHalfedgeToTree(head, tail, nwp->inedges, &(nwp->last_inedge));
+  ++nwp->outdegree[tail];
+  ++nwp->indegree[head];
+  ++EDGECOUNT(nwp);
+  CheckEdgetreeFull(nwp);
 }
-
-/*****************
- void AddHalfedgeToTree:  Only called by AddEdgeToTrees
-*****************/
-void AddHalfedgeToTree (Vertex a, Vertex b, TreeNode *edges, Edge *last_edge){
-  TreeNode *eptr = edges+a, *newnode;
-  Edge e;
-
-  if (eptr->value==0) { /* This is the first edge for vertex a. */
-    eptr->value=b;
-    return;
-  }
-  (newnode = edges + (++*last_edge))->value=b;  
-  newnode->left = newnode->right = 0;
-  /* Now find the parent of this new edge */
-  for (e=a; e!=0; e=(b < (eptr=edges+e)->value) ? eptr->left : eptr->right);
-  newnode->parent=eptr-edges;  /* Point from the new edge to the parent... */
-  if (b < eptr->value)  /* ...and have the parent point back. */
-    eptr->left=*last_edge; 
-  else
-    eptr->right=*last_edge;
-}
-
-/*****************
-void CheckEdgetreeFull
-*****************/
-void CheckEdgetreeFull (Network *nwp) {
-  const unsigned int mult=2;
-  
-  // Note that maximum index in the nwp->*edges is nwp->maxedges-1, and we need to keep one element open for the next insertion.
-  if(nwp->last_outedge==nwp->maxedges-2 || nwp->last_inedge==nwp->maxedges-2){
-    // Only enlarge the non-root part of the array.
-    Edge newmax = nwp->nnodes + 1 + (nwp->maxedges - nwp->nnodes - 1)*mult;
-    nwp->inedges = (TreeNode *) Realloc(nwp->inedges, newmax, TreeNode);
-    memset(nwp->inedges+nwp->maxedges, 0,
-	   sizeof(TreeNode) * (newmax-nwp->maxedges));
-    nwp->outedges = (TreeNode *) Realloc(nwp->outedges, newmax, TreeNode);
-    memset(nwp->outedges+nwp->maxedges, 0,
-	   sizeof(TreeNode) * (newmax-nwp->maxedges));
-    nwp->maxedges = newmax;
-  }
-}
-
 
 /* *** don't forget, edges are now given by tails -> heads, and as
        such, the function definitions now require tails to be passed
@@ -321,91 +235,65 @@ void CheckEdgetreeFull (Network *nwp) {
 /* *** don't forget tail->head, so this function now accepts tail before head */
 
 int DeleteEdgeFromTrees(Vertex tail, Vertex head, Network *nwp){
-  if (DeleteHalfedgeFromTree(tail, head, nwp->outedges,&(nwp->last_outedge))&&
-      DeleteHalfedgeFromTree(head, tail, nwp->inedges, &(nwp->last_inedge))) {
+  Edge zth, zht;
+  if((zth=EdgetreeSearch(tail, head, nwp->outedges))&&(zht=EdgetreeSearch(head, tail, nwp->inedges))){
+    if(nwp->n_on_edge_change){
+      for(unsigned int i = 0; i < nwp->n_on_edge_change; i++) nwp->on_edge_change[i](tail, head, nwp->on_edge_change_payload[i], nwp, TRUE);
+    }
+    DeleteHalfedgeFromTreeAt(tail, head, nwp->outedges,&(nwp->last_outedge), zth);
+    DeleteHalfedgeFromTreeAt(head, tail, nwp->inedges, &(nwp->last_inedge), zht);
     --nwp->outdegree[tail];
     --nwp->indegree[head];
     --EDGECOUNT(nwp);
-    if(nwp->last_outedge < nwp->nnodes) nwp->last_outedge=nwp->nnodes;
-    if(nwp->last_inedge < nwp->nnodes) nwp->last_inedge=nwp->nnodes;
     return 1;
   }
   return 0;
 }
 
+
 /*****************
- int DeleteHalfedgeFromTree
+ void AddOnNetworkEdgeChange
 
- Delete the TreeNode with value b from the tree rooted at edges[a].
- Return 0 if no such TreeNode exists, 1 otherwise.  Also update the
- value of *last_edge appropriately.
+ Insert a specified toggle callback at the specified position.
 *****************/
-int DeleteHalfedgeFromTree(Vertex a, Vertex b, TreeNode *edges,
-		     Edge *last_edge){
-  Edge x, z, root=(Edge)a;
-  TreeNode *xptr, *zptr, *ptr;
+void AddOnNetworkEdgeChange(Network *nwp, OnNetworkEdgeChange callback, void *payload, unsigned int pos){
+  if(nwp->n_on_edge_change+1 > nwp->max_on_edge_change){
+    nwp->max_on_edge_change = MAX(nwp->max_on_edge_change,1)*2;
+    nwp->on_edge_change = Realloc(nwp->on_edge_change, nwp->max_on_edge_change, OnNetworkEdgeChange);
+    nwp->on_edge_change_payload = Realloc(nwp->on_edge_change_payload, nwp->max_on_edge_change, void*);
+  }
 
-  if ((z=EdgetreeSearch(a, b, edges))==0)  /* z is the current TreeNode. */
-    return 0;  /* This edge doesn't exist, so return 0 */
-  /* First, determine which node to splice out; this is z.  If the current
-     z has two children, then we'll actually splice out its successor. */
-  if ((zptr=edges+z)->left != 0 && zptr->right != 0) {
-    /* Select which child to promote based on whether the left child's
-       position is divisible by 2: the position of a node in an edge
-       tree is effectively random, *unless* it's a root node. Using
-       the left child ensures that it is not a root node. */
-    if(zptr->left&1u)
-      z=EdgetreeSuccessor(edges, z);  
-    else
-      z=EdgetreePredecessor(edges, z);  
-    zptr->value = (ptr=edges+z)->value;
-    zptr=ptr;
-  }
-  /* Set x to the child of z (there is at most one). */
-  if ((x=zptr->left) == 0)
-    x = zptr->right;
-  /* Splice out node z */
-  if (z == root) {
-    zptr->value = (xptr=edges+x)->value;
-    if (x != 0) {
-      if ((zptr->left=xptr->left) != 0)
-	(edges+zptr->left)->parent = z;
-      if ((zptr->right=xptr->right) != 0)
-	(edges+zptr->right)->parent = z;
-      zptr=edges+(z=x);
-    }  else 
-      return 1;
-  } else {
-    if (x != 0)
-      (xptr=edges+x)->parent = zptr->parent;
-    if (z==(ptr=(edges+zptr->parent))->left)
-      ptr->left = x;
-    else 
-      ptr->right = x;
-  }  
-  /* Clear z node, update *last_edge if necessary. */
-  zptr->value=0;
-  if(z!=root){
-    RelocateHalfedge(*last_edge,z,edges);
-    (*last_edge)--;
-  }
-  return 1;
+  pos = MIN(pos, nwp->n_on_edge_change); // Last position.
+  // Move everything down the list.
+  memmove(nwp->on_edge_change+pos+1, nwp->on_edge_change+pos, (nwp->n_on_edge_change-pos)*sizeof(OnNetworkEdgeChange));
+  memmove(nwp->on_edge_change_payload+pos+1, nwp->on_edge_change_payload+pos, (nwp->n_on_edge_change-pos)*sizeof(void*));
+
+  nwp->on_edge_change[pos] = callback;
+  nwp->on_edge_change_payload[pos] = payload;
+  
+  nwp->n_on_edge_change++;
 }
 
-void RelocateHalfedge(Edge from, Edge to, TreeNode *edges){
-  if(from==to) return;
-  TreeNode *toptr=edges+to, *fromptr=edges+from;
+/*****************
+ void DeleteOnNetworkEdgeChange
 
-  if(fromptr->left) edges[fromptr->left].parent = to;
-  if(fromptr->right) edges[fromptr->right].parent = to;
-  if(fromptr->parent){
-    TreeNode *parentptr = edges+fromptr->parent;
-    if(parentptr->left==from) parentptr->left = to;
-    else parentptr->right =  to;
-  }
-  memcpy(toptr,fromptr,sizeof(TreeNode));
-  fromptr->value = 0;
+ Delete a specified toggle callback from the list and move the other
+ callbacks up the list. Note that both callback and payload pointers
+ must match.
+*****************/
+void DeleteOnNetworkEdgeChange(Network *nwp, OnNetworkEdgeChange callback, void *payload){
+  unsigned int i;
+  for(i = 0; i < nwp->n_on_edge_change; i++)
+    if(nwp->on_edge_change[i]==callback && nwp->on_edge_change_payload[i]==payload) break;
+
+  if(i==nwp->n_on_edge_change) error("Attempting to delete a nonexistent callback.");
+
+  memmove(nwp->on_edge_change+i, nwp->on_edge_change+i+1, (nwp->n_on_edge_change-i-1)*sizeof(OnNetworkEdgeChange));
+  memmove(nwp->on_edge_change_payload+i, nwp->on_edge_change_payload+i+1, (nwp->n_on_edge_change-i-1)*sizeof(void*));
+
+  nwp->n_on_edge_change--;
 }
+
 
 /*****************
  void printedge
@@ -720,6 +608,24 @@ void DetShuffleEdges(Vertex *tails, Vertex *heads, Edge nedges){
   }
 }
 
+/****************
+ Edge DetUnShuffleEdges
+
+ Reverses DetShuffleEdges().
+****************/
+void DetUnShuffleEdges(Vertex *tails, Vertex *heads, Edge nedges){
+  /* *** don't forget,  tail -> head */
+  for(Edge i = 1; i <= nedges; i++) {
+    Edge j = i/2;
+    Vertex tail = tails[j];
+    Vertex head = heads[j];
+    tails[j] = tails[i-1];
+    heads[j] = heads[i-1];
+    tails[i-1] = tail;
+    heads[i-1] = head;
+  }
+}
+
 /* *** don't forget, edges are now given by tails -> heads, and as
        such, the function definitions now require tails to be passed
        in before heads */
@@ -737,33 +643,47 @@ void SetEdge (Vertex tail, Vertex head, unsigned int weight, Network *nwp)
   if(weight==0){
     DeleteEdgeFromTrees(tail,head,nwp);
   }else{
-    AddEdgeToTrees(tail,head,nwp);
+    if(EdgetreeSearch(tail, head, nwp->outedges)==0) AddEdgeToTrees(tail,head,nwp);
   }
 }
 
-/*****************
- Edge SetEdgeWithTimestamp
+Network *Redgelist2Network(SEXP elR, Rboolean empty){
+  Vertex e = length(VECTOR_ELT(elR, 0));
+  Vertex *tails = empty ? NULL : (Vertex*) INTEGER(VECTOR_ELT(elR, 0));
+  Vertex *heads = empty ? NULL : (Vertex*) INTEGER(VECTOR_ELT(elR, 1));
+  Vertex n = asInteger(getAttrib(elR, install("n")));
+  Rboolean directed = asLogical(getAttrib(elR, install("directed")));
+  Vertex bipartite = asInteger(getAttrib(elR, install("bipartite")));
+  return NetworkInitialize(tails, heads, e, n, directed, bipartite, FALSE, 0, NULL); 
+}
 
- Same as SetEdge, but this time with the additional
- step of updating the matrix of 'lasttoggle' times
- *****************/
-void SetEdgeWithTimestamp (Vertex tail, Vertex head, unsigned int weight, Network *nwp) 
-{
-  Edge k;
 
-  ENSURE_TH_ORDER;
-  
-  if(nwp->duration_info.lasttoggle){ /* Skip timestamps if no duration info. */
-    if(nwp->bipartite){
-      k = (head-nwp->bipartite-1)*(nwp->bipartite) + tail - 1;
-    }else{
-      if (nwp->directed_flag) 
-	k = (head-1)*(nwp->nnodes-1) + tail - ((tail>head) ? 1:0) - 1; 
-      else
-	k = (head-1)*(head-2)/2 + tail - 1;    
-    }
-    nwp->duration_info.lasttoggle[k] = nwp->duration_info.time;
-  }
+SEXP Network2Redgelist(Network *nwp){
+  SEXP outl = PROTECT(mkNamed(VECSXP, (const char *[]){".tail", ".head", ""}));
+  SEXP newnetworktails = PROTECT(allocVector(INTSXP, EDGECOUNT(nwp)));
+  SEXP newnetworkheads = PROTECT(allocVector(INTSXP, EDGECOUNT(nwp)));
+  EdgeTree2EdgeList((Vertex*)INTEGER(newnetworktails),
+                    (Vertex*)INTEGER(newnetworkheads),
+                    nwp,EDGECOUNT(nwp));
+  SET_VECTOR_ELT(outl, 0, newnetworktails);
+  SET_VECTOR_ELT(outl, 1, newnetworkheads);
+  UNPROTECT(2);
 
-  SetEdge(tail,head,weight,nwp);
+  SEXP rownames = PROTECT(allocVector(INTSXP, EDGECOUNT(nwp)));
+  int *r = INTEGER(rownames);
+  for(unsigned int i=1; i<=EDGECOUNT(nwp); i++, r++) *r=i; 
+  setAttrib(outl, install("row.names"), rownames);
+  UNPROTECT(1);
+
+  setAttrib(outl, install("n"), PROTECT(ScalarInteger(nwp->nnodes)));
+  setAttrib(outl, install("directed"), PROTECT(ScalarLogical(nwp->directed_flag)));
+  setAttrib(outl, install("bipartite"), PROTECT(ScalarInteger(nwp->bipartite)));
+  UNPROTECT(3);
+
+  SEXP class = PROTECT(mkRStrVec((const char*[]){"tibble_edgelist", "edgelist", "tbl_df", "tbl", "data.frame", NULL}));
+  classgets(outl, class);
+  UNPROTECT(1);
+
+  UNPROTECT(1);
+  return outl;
 }

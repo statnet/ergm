@@ -114,13 +114,14 @@
 ergm.allstats <- function(formula, zeroobs = TRUE, force = FALSE,
                           maxNumChangeStatVectors = 2^16, ...)
 {
+  on.exit(ergm_Cstate_clear())
+
   # Initialization stuff
   nw <- ergm.getnetwork(formula)
-  model <- ergm_model(formula, nw, initialfit=TRUE, ...)
-  Clist <- ergm.Cprepare(nw, model)
+  m <- ergm_model(formula, nw, initialfit=TRUE, ...)
 
   # Check for networks that are too large.  Pretty unsophisticated check for now.
-  if ((Clist$n > 8 && !Clist$dir) || (Clist$n > 6 && Clist$dir)) {
+  if ((network.size(nw) > 8 && !is.directed(nw)) || (network.size(nw) > 6 && is.directed(nw))) {
     warning("Network may be too large to calculate all possible change statistics",
             immediate.=TRUE)
     if (!force) {
@@ -130,32 +131,22 @@ ergm.allstats <- function(formula, zeroobs = TRUE, force = FALSE,
   }
   
   # Calculate the statistics relative to the current network using recursive C code
-  z <- .C("AllStatistics",
-          as.integer(Clist$tails),
-          as.integer(Clist$heads),
-          as.integer(Clist$nedges),
-          as.integer(Clist$n),
-          as.integer(Clist$dir),
-          as.integer(Clist$bipartite),
-          as.integer(Clist$nterms),
-          as.character(Clist$fnamestring),
-          as.character(Clist$snamestring),
-          as.double(Clist$inputs),
-          statmat = double(Clist$nstats * maxNumChangeStatVectors),
-          weights = integer(maxNumChangeStatVectors),
-          as.integer(maxNumChangeStatVectors),
+  z <- .Call("AllStatistics",
+             ergm_state(nw, model=m),
+             # Allstats settings
+             as.integer(maxNumChangeStatVectors),
           PACKAGE="ergm")
-  nz <- z$weights > 0
-  weights <- z$weights[nz]
-  statmat <- matrix(z$statmat, ncol=Clist$nstats, byrow=TRUE)[nz, , drop=FALSE]
+  nz <- z[[2]] > 0
+  weights <- z[[2]][nz]
+  statmat <- matrix(z[[1]], ncol=nparam(m,canonical=TRUE), byrow=TRUE)[nz, , drop=FALSE]
 
   # Add in observed statistics if they're not supposed to be zero  
   if (!zeroobs) {
-    obsstats <- summary(model, nw)
+    obsstats <- summary(m, nw)
     statmat <- sweep(statmat, 2, obsstats, '+')
   }
 
-  colnames(statmat) <- param_names(model, TRUE)
+  colnames(statmat) <- param_names(m, TRUE)
   list(weights=weights, statmat=statmat)
 }
 

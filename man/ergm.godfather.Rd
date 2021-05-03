@@ -26,9 +26,15 @@ models, the third column may be omitted. In that case, the
 changes are treated as toggles. Note that if a list is passed, it
 must either be all of changes or all of toggles.}
 
-\item{response}{Name of the edge attribute whose value is to be
-modeled in the valued ERGM framework. Defaults to \code{NULL} for
-simple presence or absence, modeled via a binary ERGM.}
+\item{response}{Either a character string, a formula, or \code{NULL} (the default), to specify the response attributes and whether the ERGM is binary or valued. Interpreted as follows: \describe{
+
+\item{\code{NULL}}{Model simple presence or absence, via a binary ERGM.}
+
+\item{character string}{The name of the edge attribute whose value is to be modeled. Type of ERGM will be determined by whether the attribute is \code{\link{logical}} (\code{TRUE}/\code{FALSE}) for binary or \code{\link{numeric}} for valued.}
+
+\item{a formula}{must be of the form \code{NAME~EXPR|TYPE} (with \code{|} being literal). \code{EXPR} is evaluated in the formula's environment with the network's edge attributes accessible as variables. The optional \code{NAME} specifies the name of the edge attribute into which the results should be stored, with the default being a concise version of \code{EXPR}. Normally, the type of ERGM is determined by whether the result of evaluating \code{EXPR} is logical or numeric, but the optional \code{TYPE} can be used to override by specifying a scalar of the type involved (e.g., \code{TRUE} for binary and \code{1} for valued).}
+
+}}
 
 \item{end.network}{Whether to return a network that
 results. Defaults to \code{FALSE}.}
@@ -43,7 +49,11 @@ statistics are not returned.}
 \item{changes.only}{Whether to return network statistics or only
 their changes relative to the initial network.}
 
-\item{verbose}{Whether to print progress messages.}
+\item{verbose}{A logical or an integer to control the amount of
+progress and diagnostic information to be printed. \code{FALSE}/\code{0}
+produces minimal output, wit higher values producing more
+detail. Note that very high values (5+) may significantly slow
+down processing.}
 
 \item{control}{A list of control parameters for algorithm tuning,
 typically constructed with \code{\link[=control.ergm.godfather]{control.ergm.godfather()}}. Its documentation

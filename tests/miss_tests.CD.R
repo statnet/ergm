@@ -13,7 +13,7 @@ library(ergm)
 theta0err<--1 # Perturbation in the initial values
 maxit<-60 # Maximum number of iterations
 tolerance<-0.01 # Result must be within 1% of truth.
-tolerance.CD<-0.1 # Result must be within 10% of truth.
+tolerance.CD<-0.15 # Result must be within 15% of truth.
 
 n<-20 # Number of nodes
 b<-7 # Bipartite split
@@ -90,12 +90,12 @@ y.miss <- simulate(y~edges, coef=logit(0.01))
 y[as.edgelist(y.miss)] <- NA
 
 cat("Network statistics:\n")
-print(summary(y~edges+gwesp(0.5)))
+print(summary(y~edges+gwesp()))
 truth<-correct.edges.theta(y)
 cat("Correct estimate =",truth,"\n")
 
 set.seed(654)
-cdfit<-ergm(y~edges+gwesp(0.5), estimate="CD", control=control.ergm(CD.nsteps=50, MCMC.samplesize=100))
+cdfit<-ergm(y~edges+gwesp(), estimate="CD", control=control.ergm(CD.nsteps=50, MCMC.samplesize=100))
 summary(cdfit)
 stopifnot(abs(coef(cdfit)[1]-truth)/sqrt(cdfit$covar[1])<2)
 }, "CD missing data")

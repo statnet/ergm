@@ -10,8 +10,11 @@
 
 library(ergm)
 
-tst <- function(truth, test){
-  stopifnot(isTRUE(all.equal(truth,test,check.attributes=FALSE)))
+tst <- function(truth, fmla){
+  test <- summary(fmla, response="w")
+  if(!isTRUE(all.equal(truth,test,check.attributes=FALSE))){
+    stop("Test for ",format(fmla), " failed: correct value ",truth,", but evaluated to ",test,".")
+  }
 }
 
 n <- 129
@@ -43,6 +46,10 @@ bipnw %n% "e" <- bipe <- matrix(rnorm(n1*n2), n1,n2)
 bipm <- as.matrix(bipnw, a="w")
 bipvt <- c(0, sort(v)[6], sort(v)[length(v)-6], runif(1, -4, 4))
 
+bippnw <- bipnw
+bippnw %e% "w" <- abs(bippnw %e% "w")
+bippm <- as.matrix(bippnw, a="w")
+
 # a directed nw
 set.seed(143)
 t <- floor(runif(nz, 1, n+1))
@@ -59,6 +66,12 @@ dirnw %n% "e" <- dire <- matrix(rnorm(n*n), n,n)
 dirm <- as.matrix(dirnw, a="w")
 diag(dirm) <- NA
 dirvt <- c(0, sort(v)[6], sort(v)[length(v)-6], runif(1, -4, 4))
+
+dirpnw <- dirnw
+dirpnw %e% "w" <- abs(dirpnw %e% "w")
+dirpm <- as.matrix(dirpnw, a="w")
+diag(dirpm) <- NA
+
 
 # an undirected nw
 set.seed(143)
@@ -78,108 +91,139 @@ undm <- as.matrix(undnw, a="w")
 diag(undm) <- NA
 undvt <- c(0, sort(v)[6], sort(v)[length(v)-6], runif(1, -4, 4))
 
+undpnw <- undnw
+undpnw %e% "w" <- abs(undpnw %e% "w")
+undpm <- as.matrix(undpnw, a="w")
+diag(undpm) <- NA
 
 # absdiff
-tst(sum(abs(outer(q,q,"-"))*dirm,na.rm=TRUE), summary(dirnw ~ absdiff("q"), response="w"))
-tst(sum(abs(outer(q,q,"-")^2)*dirm,na.rm=TRUE), summary(dirnw ~ absdiff(~q,pow=2), response="w"))
-tst(sum(abs(outer(q,q,"-"))*(dirm!=0),na.rm=TRUE), summary(dirnw ~ absdiff(function(x) x %v% "q", form="nonzero"), response="w"))
-tst(sum(abs(outer(q,q,"-")^2)*(dirm!=0),na.rm=TRUE), summary(dirnw ~ absdiff("q",pow=2, form="nonzero"), response="w"))
+tst(sum(abs(outer(q,q,"-"))*dirm,na.rm=TRUE), dirnw ~ absdiff("q"))
+tst(sum(abs(outer(q,q,"-")^2)*dirm,na.rm=TRUE), dirnw ~ absdiff(~q,pow=2))
+tst(sum(abs(outer(q,q,"-"))*(dirm!=0),na.rm=TRUE), dirnw ~ absdiff(function(x) x %v% "q", form="nonzero"))
+tst(sum(abs(outer(q,q,"-")^2)*(dirm!=0),na.rm=TRUE), dirnw ~ absdiff("q",pow=2, form="nonzero"))
 
-tst(sum(abs(outer(q,q,"-"))*undm,na.rm=TRUE)/2, summary(undnw ~ absdiff("q"), response="w"))
-tst(sum(abs(outer(q,q,"-")^2)*undm,na.rm=TRUE)/2, summary(undnw ~ absdiff(~q,pow=2), response="w"))
-tst(sum(abs(outer(q,q,"-"))*(undm!=0),na.rm=TRUE)/2, summary(undnw ~ absdiff(function(x) x %v% "q", form="nonzero"), response="w"))
-tst(sum(abs(outer(q,q,"-")^2)*(undm!=0),na.rm=TRUE)/2, summary(undnw ~ absdiff("q",pow=2, form="nonzero"), response="w"))
+tst(sum(abs(outer(q,q,"-"))*dirm,na.rm=TRUE), dirnw ~ B(~absdiff("q"), form="sum"))
+tst(sum(abs(outer(q,q,"-")^2)*dirm,na.rm=TRUE), dirnw ~ B(~absdiff("q",pow=2), form="sum"))
+tst(sum(abs(outer(q,q,"-"))*(dirm!=0),na.rm=TRUE), dirnw ~ B(~absdiff("q"), form="nonzero"))
+tst(sum(abs(outer(q,q,"-")^2)*(dirm!=0),na.rm=TRUE), dirnw ~ B(~absdiff("q",pow=2), form="nonzero"))
+tst(sum(abs(outer(q,q,"-"))*(dirm>.5 & dirm<1),na.rm=TRUE), dirnw ~ B(~absdiff("q"), form=~ininterval(.5,1)))
+tst(sum(abs(outer(q,q,"-")^2)*(dirm>.5 & dirm<1),na.rm=TRUE), dirnw ~ B(~absdiff("q",pow=2), form=~ininterval(.5,1)))
 
-tst(sum(abs(outer(q1,q2,"-"))*bipm,na.rm=TRUE), summary(bipnw ~ absdiff("q"), response="w"))
-tst(sum(abs(outer(q1,q2,"-")^2)*bipm,na.rm=TRUE), summary(bipnw ~ absdiff(~q,pow=2), response="w"))
-tst(sum(abs(outer(q1,q2,"-"))*(bipm!=0),na.rm=TRUE), summary(bipnw ~ absdiff(function(x) x %v% "q", form="nonzero"), response="w"))
-tst(sum(abs(outer(q1,q2,"-")^2)*(bipm!=0),na.rm=TRUE), summary(bipnw ~ absdiff("q",pow=2, form="nonzero"), response="w"))
+tst(sum(abs(outer(q,q,"-"))*undm,na.rm=TRUE)/2, undnw ~ absdiff("q"))
+tst(sum(abs(outer(q,q,"-")^2)*undm,na.rm=TRUE)/2, undnw ~ absdiff(~q,pow=2))
+tst(sum(abs(outer(q,q,"-"))*(undm!=0),na.rm=TRUE)/2, undnw ~ absdiff(function(x) x %v% "q", form="nonzero"))
+tst(sum(abs(outer(q,q,"-")^2)*(undm!=0),na.rm=TRUE)/2, undnw ~ absdiff("q",pow=2, form="nonzero"))
+
+tst(sum(abs(outer(q,q,"-"))*undm,na.rm=TRUE)/2, undnw ~ B(~absdiff("q"), form="sum"))
+tst(sum(abs(outer(q,q,"-")^2)*undm,na.rm=TRUE)/2, undnw ~ B(~absdiff("q",pow=2), form="sum"))
+tst(sum(abs(outer(q,q,"-"))*(undm!=0),na.rm=TRUE)/2, undnw ~ B(~absdiff("q"), form="nonzero"))
+tst(sum(abs(outer(q,q,"-")^2)*(undm!=0),na.rm=TRUE)/2, undnw ~ B(~absdiff("q",pow=2), form="nonzero"))
+tst(sum(abs(outer(q,q,"-"))*(undm>.5 & undm<1),na.rm=TRUE)/2, undnw ~ B(~absdiff("q"), form=~ininterval(.5,1)))
+tst(sum(abs(outer(q,q,"-")^2)*(undm>.5 & undm<1),na.rm=TRUE)/2, undnw ~ B(~absdiff("q",pow=2), form=~ininterval(.5,1)))
+    
+tst(sum(abs(outer(q1,q2,"-"))*bipm,na.rm=TRUE), bipnw ~ absdiff("q"))
+tst(sum(abs(outer(q1,q2,"-")^2)*bipm,na.rm=TRUE), bipnw ~ absdiff(~q,pow=2))
+tst(sum(abs(outer(q1,q2,"-"))*(bipm!=0),na.rm=TRUE), bipnw ~ absdiff(function(x) x %v% "q", form="nonzero"))
+tst(sum(abs(outer(q1,q2,"-")^2)*(bipm!=0),na.rm=TRUE), bipnw ~ absdiff("q",pow=2, form="nonzero"))
+
+tst(sum(abs(outer(q1,q2,"-"))*bipm,na.rm=TRUE), bipnw ~ B(~absdiff("q"), form="sum"))
+tst(sum(abs(outer(q1,q2,"-")^2)*bipm,na.rm=TRUE), bipnw ~ B(~absdiff("q",pow=2), form="sum"))
+tst(sum(abs(outer(q1,q2,"-"))*(bipm!=0),na.rm=TRUE), bipnw ~ B(~absdiff("q"), form="nonzero"))
+tst(sum(abs(outer(q1,q2,"-")^2)*(bipm!=0),na.rm=TRUE), bipnw ~ B(~absdiff("q",pow=2), form="nonzero"))
+tst(sum(abs(outer(q1,q2,"-"))*(bipm>.5 & bipm<1),na.rm=TRUE), bipnw ~ B(~absdiff("q"), form=~ininterval(.5,1)))
+tst(sum(abs(outer(q1,q2,"-")^2)*(bipm>.5 & bipm<1),na.rm=TRUE), bipnw ~ B(~absdiff("q",pow=2), form=~ininterval(.5,1)))
 
 # absdiffcat
 diffs <- sort(unique(c(abs(outer(q,q,"-")))))
 diffs <- diffs[diffs!=0]
 for(base in c(0, seq_along(diffs))){
   keep <- if(all(base==0)) seq_along(diffs) else seq_along(diffs)[-base]
-  tst(sapply(diffs[keep], function(x) sum((abs(outer(q,q,"-"))==x)*dirm,na.rm=TRUE)), summary(dirnw ~ absdiffcat("q",levels=keep), response="w"))
-  tst(sapply(diffs[keep], function(x) sum((abs(outer(q,q,"-"))==x)*(dirm!=0),na.rm=TRUE)), summary(dirnw ~ absdiffcat(~q,base=base, form="nonzero"), response="w"))
+  tst(sapply(diffs[keep], function(x) sum((abs(outer(q,q,"-"))==x)*dirm,na.rm=TRUE)), dirnw ~ absdiffcat("q",levels=keep))
+  tst(sapply(diffs[keep], function(x) sum((abs(outer(q,q,"-"))==x)*(dirm!=0),na.rm=TRUE)), dirnw ~ absdiffcat(~q,base=base, form="nonzero"))
   
-  tst(sapply(diffs[keep], function(x) sum((abs(outer(q,q,"-"))==x)*undm,na.rm=TRUE))/2, summary(undnw ~ absdiffcat("q",levels=keep), response="w"))
-  tst(sapply(diffs[keep], function(x) sum((abs(outer(q,q,"-"))==x)*(undm!=0),na.rm=TRUE))/2, summary(undnw ~ absdiffcat(function(x) x %v% "q",levels=keep, form="nonzero"), response="w"))
+  tst(sapply(diffs[keep], function(x) sum((abs(outer(q,q,"-"))==x)*undm,na.rm=TRUE))/2, undnw ~ absdiffcat("q",levels=keep))
+  tst(sapply(diffs[keep], function(x) sum((abs(outer(q,q,"-"))==x)*(undm!=0),na.rm=TRUE))/2, undnw ~ absdiffcat(function(x) x %v% "q",levels=keep, form="nonzero"))
   
-  tst(sapply(diffs[keep], function(x) sum((abs(outer(q1,q2,"-"))==x)*bipm,na.rm=TRUE)), summary(bipnw ~ absdiffcat("q", levels=keep), response="w"))
-  tst(sapply(diffs[keep], function(x) sum((abs(outer(q1,q2,"-"))==x)*(bipm!=0),na.rm=TRUE)), summary(bipnw ~ absdiffcat(~q, base=base, form="nonzero"), response="w"))
+  tst(sapply(diffs[keep], function(x) sum((abs(outer(q1,q2,"-"))==x)*bipm,na.rm=TRUE)), bipnw ~ absdiffcat("q", levels=keep))
+  tst(sapply(diffs[keep], function(x) sum((abs(outer(q1,q2,"-"))==x)*(bipm!=0),na.rm=TRUE)), bipnw ~ absdiffcat(~q, base=base, form="nonzero"))
 }
 
 # atleast
-for(v in dirvt) tst(sum(dirm >= v,na.rm=TRUE), summary(dirnw ~ atleast(v), response="w"))
-for(v in undvt) tst(sum(undm >= v,na.rm=TRUE)/2, summary(undnw ~ atleast(v), response="w"))
-for(v in bipvt) tst(sum(bipm >= v,na.rm=TRUE), summary(bipnw ~ atleast(v), response="w"))
+for(v in dirvt) tst(sum(dirm >= v,na.rm=TRUE), dirnw ~ atleast(v))
+tst(sapply(dirvt, function(v) sum(dirm >= v,na.rm=TRUE)), dirnw ~ atleast(dirvt))
+for(v in undvt) tst(sum(undm >= v,na.rm=TRUE)/2, undnw ~ atleast(v))
+tst(sapply(undvt, function(v) sum(undm >= v,na.rm=TRUE)/2), undnw ~ atleast(undvt))
+for(v in bipvt) tst(sum(bipm >= v,na.rm=TRUE), bipnw ~ atleast(v))
+tst(sapply(bipvt, function(v) sum(bipm >= v,na.rm=TRUE)), bipnw ~ atleast(bipvt))
 
 # atmost
-for(v in dirvt) tst(sum(dirm <= v,na.rm=TRUE), summary(dirnw ~ atmost(v), response="w"))
-for(v in undvt) tst(sum(undm <= v,na.rm=TRUE)/2, summary(undnw ~ atmost(v), response="w"))
-for(v in bipvt) tst(sum(bipm <= v,na.rm=TRUE), summary(bipnw ~ atmost(v), response="w"))
+for(v in dirvt) tst(sum(dirm <= v,na.rm=TRUE), dirnw ~ atmost(v))
+tst(sapply(dirvt, function(v) sum(dirm <= v,na.rm=TRUE)), dirnw ~ atmost(dirvt))
+for(v in undvt) tst(sum(undm <= v,na.rm=TRUE)/2, undnw ~ atmost(v))
+tst(sapply(undvt, function(v) sum(undm <= v,na.rm=TRUE)/2), undnw ~ atmost(undvt))
+for(v in bipvt) tst(sum(bipm <= v,na.rm=TRUE), bipnw ~ atmost(v))
+tst(sapply(bipvt, function(v) sum(bipm <= v,na.rm=TRUE)), bipnw ~ atmost(bipvt))
 
 # b1cov
-tst(sum(q1*bipm,na.rm=TRUE), summary(bipnw ~ b1cov("q"), response="w"))
-tst(c(sum(q1*bipm,na.rm=TRUE),sum(q1^2*bipm,na.rm=TRUE)), summary(bipnw ~ b1cov(~poly(q,2,raw=TRUE)), response="w"))
-tst(sum(q1*(bipm!=0),na.rm=TRUE), summary(bipnw ~ b1cov(~q, form="nonzero"), response="w"))
-tst(c(sum(q1*(bipm!=0),na.rm=TRUE),sum(q1^2*(bipm!=0),na.rm=TRUE)), summary(bipnw ~ b1cov(~poly(q,2,raw=TRUE), form="nonzero"), response="w"))
+tst(sum(q1*bipm,na.rm=TRUE), bipnw ~ b1cov("q"))
+tst(c(sum(q1*bipm,na.rm=TRUE),sum(q1^2*bipm,na.rm=TRUE)), bipnw ~ b1cov(~poly(q,2,raw=TRUE)))
+tst(sum(q1*(bipm!=0),na.rm=TRUE), bipnw ~ b1cov(~q, form="nonzero"))
+tst(c(sum(q1*(bipm!=0),na.rm=TRUE),sum(q1^2*(bipm!=0),na.rm=TRUE)), bipnw ~ b1cov(~poly(q,2,raw=TRUE), form="nonzero"))
 
 # b1factor
 for(base in list(0, 1, 2, 1:2, 3)){
   keep <- if(all(base==0)) 1:3 else (1:3)[-base]
-  tst(sapply(sort(unique(f1))[keep], function(x) sum((f1==x)*bipm,na.rm=TRUE)), summary(bipnw ~ b1factor("f", levels=keep), response="w"))
-  tst(sapply(sort(unique(f1))[keep], function(x) sum((f1==x)*(bipm!=0),na.rm=TRUE)), summary(bipnw ~ b1factor(~f, base=base, form="nonzero"), response="w"))
+  tst(sapply(sort(unique(f1))[keep], function(x) sum((f1==x)*bipm,na.rm=TRUE)), bipnw ~ b1factor("f", levels=keep))
+  tst(sapply(sort(unique(f1))[keep], function(x) sum((f1==x)*(bipm!=0),na.rm=TRUE)), bipnw ~ b1factor(~f, base=base, form="nonzero"))
 }
 
 # b1sociality
 for(base in list(0, 1, 2, 1:2, 3)){
   keep <- if(all(base==0)) 1:3 else (1:3)[-base]
-  tst(apply(bipm, 1, sum)[keep], summary(bipnw ~ b1sociality(nodes=keep), response="w"))
-  tst(apply(bipm!=0, 1, sum)[keep], summary(bipnw ~ b1sociality(nodes=keep, form="nonzero"), response="w"))
+  tst(apply(bipm, 1, sum)[keep], bipnw ~ b1sociality(nodes=keep))
+  tst(apply(bipm!=0, 1, sum)[keep], bipnw ~ b1sociality(nodes=keep, form="nonzero"))
 }
 
 
 # b2cov
-tst(sum(q2*t(bipm),na.rm=TRUE), summary(bipnw ~ b2cov("q"), response="w"))
-tst(c(sum(q2*t(bipm),na.rm=TRUE),sum(q2^2*t(bipm),na.rm=TRUE)), summary(bipnw ~ b2cov(~poly(q,2,raw=TRUE)), response="w"))
-tst(sum(q2*t(bipm!=0),na.rm=TRUE), summary(bipnw ~ b2cov(function(x) x %v% "q", form="nonzero"), response="w"))
-tst(c(sum(q2*t(bipm!=0),na.rm=TRUE),sum(q2^2*t(bipm!=0),na.rm=TRUE)), summary(bipnw ~ b2cov(~poly(q,2,raw=TRUE), form="nonzero"), response="w"))
+tst(sum(q2*t(bipm),na.rm=TRUE), bipnw ~ b2cov("q"))
+tst(c(sum(q2*t(bipm),na.rm=TRUE),sum(q2^2*t(bipm),na.rm=TRUE)), bipnw ~ b2cov(~poly(q,2,raw=TRUE)))
+tst(sum(q2*t(bipm!=0),na.rm=TRUE), bipnw ~ b2cov(function(x) x %v% "q", form="nonzero"))
+tst(c(sum(q2*t(bipm!=0),na.rm=TRUE),sum(q2^2*t(bipm!=0),na.rm=TRUE)), bipnw ~ b2cov(~poly(q,2,raw=TRUE), form="nonzero"))
 
 # b2factor
 for(base in list(0, 1, 2, 1:2, 3)){
   keep <- if(all(base==0)) 1:3 else (1:3)[-base]
-  tst(sapply(sort(unique(f2))[keep], function(x) sum((f2==x)*t(bipm),na.rm=TRUE)), summary(bipnw ~ b2factor("f", levels=keep), response="w"))
-  tst(sapply(sort(unique(f2))[keep], function(x) sum((f2==x)*t(bipm!=0),na.rm=TRUE)), summary(bipnw ~ b2factor(~f, base=base, form="nonzero"), response="w"))
+  tst(sapply(sort(unique(f2))[keep], function(x) sum((f2==x)*t(bipm),na.rm=TRUE)), bipnw ~ b2factor("f", levels=keep))
+  tst(sapply(sort(unique(f2))[keep], function(x) sum((f2==x)*t(bipm!=0),na.rm=TRUE)), bipnw ~ b2factor(~f, base=base, form="nonzero"))
 }
 
 # b2sociality
 for(base in list(0, 1, 2, 1:2, 3)){
   keep <- if(all(base==0)) 1:3 else (1:3)[-base]
-  tst(apply(bipm, 2, sum)[keep], summary(bipnw ~ b2sociality(nodes=keep), response="w"))
-  tst(apply(bipm!=0, 2, sum)[keep], summary(bipnw ~ b2sociality(nodes=keep, form="nonzero"), response="w"))
+  tst(apply(bipm, 2, sum)[keep], bipnw ~ b2sociality(nodes=keep))
+  tst(apply(bipm!=0, 2, sum)[keep], bipnw ~ b2sociality(nodes=keep, form="nonzero"))
 }
 
 # edgecov
-tst(sum(dire*dirm,na.rm=TRUE), summary(dirnw ~ edgecov("e"), response="w"))
-tst(sum(dire*(dirm!=0),na.rm=TRUE), summary(dirnw ~ edgecov("e", form="nonzero"), response="w"))
+tst(sum(dire*dirm,na.rm=TRUE), dirnw ~ edgecov("e"))
+tst(sum(dire*(dirm!=0),na.rm=TRUE), dirnw ~ edgecov("e", form="nonzero"))
 
-tst(sum(unde*undm,na.rm=TRUE)/2, summary(undnw ~ edgecov("e"), response="w"))
-tst(sum(unde*(undm!=0),na.rm=TRUE)/2, summary(undnw ~ edgecov("e", form="nonzero"), response="w"))
+tst(sum(unde*undm,na.rm=TRUE)/2, undnw ~ edgecov("e"))
+tst(sum(unde*(undm!=0),na.rm=TRUE)/2, undnw ~ edgecov("e", form="nonzero"))
 
-tst(sum(bipe*bipm,na.rm=TRUE), summary(bipnw ~ edgecov("e"), response="w"))
-tst(sum(bipe*(bipm!=0),na.rm=TRUE), summary(bipnw ~ edgecov("e", form="nonzero"), response="w"))
+tst(sum(bipe*bipm,na.rm=TRUE), bipnw ~ edgecov("e"))
+tst(sum(bipe*(bipm!=0),na.rm=TRUE), bipnw ~ edgecov("e", form="nonzero"))
 
 # edges
-tst(sum((dirm!=0),na.rm=TRUE), summary(dirnw ~ edges, response="w"))
-tst(sum((undm!=0),na.rm=TRUE)/2, summary(undnw ~ edges, response="w"))
-tst(sum((bipm!=0),na.rm=TRUE), summary(bipnw ~ edges, response="w"))
+tst(sum((dirm!=0),na.rm=TRUE), dirnw ~ edges)
+tst(sum((undm!=0),na.rm=TRUE)/2, undnw ~ edges)
+tst(sum((bipm!=0),na.rm=TRUE), bipnw ~ edges)
 
 # nonzero
-tst(sum((dirm!=0),na.rm=TRUE), summary(dirnw ~ nonzero, response="w"))
-tst(sum((undm!=0),na.rm=TRUE)/2, summary(undnw ~ nonzero, response="w"))
-tst(sum((bipm!=0),na.rm=TRUE), summary(bipnw ~ nonzero, response="w"))
+tst(sum((dirm!=0),na.rm=TRUE), dirnw ~ nonzero)
+tst(sum((undm!=0),na.rm=TRUE)/2, undnw ~ nonzero)
+tst(sum((bipm!=0),na.rm=TRUE), bipnw ~ nonzero)
 
 # diff
 
@@ -193,28 +237,37 @@ for(dd in c("t-h", "h-t")){
 
     df <- function(x) saf(ddf(x))
     
-    tst(sum(df(outer(q,q,"-"))*dirm,na.rm=TRUE), summary(dirnw ~ diff("q", dir=dd, sign.action=sa), response="w"))
-    tst(sum(df(outer(q,q,"-"))^2*dirm,na.rm=TRUE), summary(dirnw ~ diff(~q,pow=2, dir=dd, sign.action=sa), response="w"))
-    tst(sum(df(outer(q,q,"-"))*(dirm!=0),na.rm=TRUE), summary(dirnw ~ diff(function(x) x %v% "q", dir=dd, sign.action=sa, form="nonzero"), response="w"))
-    tst(sum(df(outer(q,q,"-"))^2*(dirm!=0),na.rm=TRUE), summary(dirnw ~ diff("q",pow=2, dir=dd, sign.action=sa, form="nonzero"), response="w"))
+    tst(sum(df(outer(q,q,"-"))*dirm,na.rm=TRUE), dirnw ~ diff("q", dir=dd, sign.action=sa))
+    tst(sum(df(outer(q,q,"-"))^2*dirm,na.rm=TRUE), dirnw ~ diff(~q,pow=2, dir=dd, sign.action=sa))
+    tst(sum(df(outer(q,q,"-"))*(dirm!=0),na.rm=TRUE), dirnw ~ diff(function(x) x %v% "q", dir=dd, sign.action=sa, form="nonzero"))
+    tst(sum(df(outer(q,q,"-"))^2*(dirm!=0),na.rm=TRUE), dirnw ~ diff("q",pow=2, dir=dd, sign.action=sa, form="nonzero"))
+
+    tst(sum(df(outer(q,q,"-"))*dirm,na.rm=TRUE), dirnw ~ B(~diff("q", dir=dd, sign.action=sa), form="sum"))
+    tst(sum(df(outer(q,q,"-"))^2*dirm,na.rm=TRUE), dirnw ~ B(~diff("q",pow=2, dir=dd, sign.action=sa), form="sum"))
+    tst(sum(df(outer(q,q,"-"))*(dirm!=0),na.rm=TRUE), dirnw ~ B(~diff("q", dir=dd, sign.action=sa), form="nonzero"))
+    tst(sum(df(outer(q,q,"-"))^2*(dirm!=0),na.rm=TRUE), dirnw ~ B(~diff("q",pow=2, dir=dd, sign.action=sa), form="nonzero"))
+
   }
 }
 
 # greaterthan
-for(v in dirvt) tst(sum(dirm > v,na.rm=TRUE), summary(dirnw ~ greaterthan(v), response="w"))
-for(v in undvt) tst(sum(undm > v,na.rm=TRUE)/2, summary(undnw ~ greaterthan(v), response="w"))
-for(v in bipvt) tst(sum(bipm > v,na.rm=TRUE), summary(bipnw ~ greaterthan(v), response="w"))
+for(v in dirvt) tst(sum(dirm > v,na.rm=TRUE), dirnw ~ greaterthan(v))
+tst(sapply(dirvt, function(v) sum(dirm > v,na.rm=TRUE)), dirnw ~ greaterthan(dirvt))
+for(v in undvt) tst(sum(undm > v,na.rm=TRUE)/2, undnw ~ greaterthan(v))
+tst(sapply(undvt, function(v) sum(undm > v,na.rm=TRUE)/2), undnw ~ greaterthan(undvt))
+for(v in bipvt) tst(sum(bipm > v,na.rm=TRUE), bipnw ~ greaterthan(v))
+tst(sapply(bipvt, function(v) sum(bipm > v,na.rm=TRUE)), bipnw ~ greaterthan(bipvt))
 
 # equalto
-for(v in dirvt) tst(sum(dirm == v,na.rm=TRUE), summary(dirnw ~ equalto(v), response="w"))
-for(v in undvt) tst(sum(undm == v,na.rm=TRUE)/2, summary(undnw ~ equalto(v), response="w"))
-for(v in bipvt) tst(sum(bipm == v,na.rm=TRUE), summary(bipnw ~ equalto(v), response="w"))
+for(v in dirvt) tst(sum(dirm == v,na.rm=TRUE), dirnw ~ equalto(v))
+for(v in undvt) tst(sum(undm == v,na.rm=TRUE)/2, undnw ~ equalto(v))
+for(v in bipvt) tst(sum(bipm == v,na.rm=TRUE), bipnw ~ equalto(v))
 
 set.seed(123)
 for(tol in unique(c(runif(1,0,2), dirvt, undvt, bipvt))){
-  for(v in dirvt) tst(sum(abs(dirm-v)<=tol,na.rm=TRUE), summary(dirnw ~ equalto(v,tol), response="w"))
-  for(v in undvt) tst(sum(abs(undm-v)<=tol,na.rm=TRUE)/2, summary(undnw ~ equalto(v,tol), response="w"))
-  for(v in bipvt) tst(sum(abs(bipm-v)<=tol,na.rm=TRUE), summary(bipnw ~ equalto(v,tol), response="w"))
+  for(v in dirvt) tst(sum(abs(dirm-v)<=tol,na.rm=TRUE), dirnw ~ equalto(v,tol))
+  for(v in undvt) tst(sum(abs(undm-v)<=tol,na.rm=TRUE)/2, undnw ~ equalto(v,tol))
+  for(v in bipvt) tst(sum(abs(bipm-v)<=tol,na.rm=TRUE), bipnw ~ equalto(v,tol))
 }
 
 # ininterval
@@ -224,103 +277,117 @@ for(o1 in c(FALSE, TRUE)){
     for(lv in c(-Inf,dirvt, Inf))
       for(uv in c(-Inf,dirvt, Inf)){
         truth <- sum(((o1 & dirm>lv) | (!o1 & dirm>=lv)) & ((o2 & dirm<uv) | (!o2 & dirm<=uv)), na.rm=TRUE)
-        tst(truth, summary(dirnw ~ ininterval(lv, uv, c(o1,o2)), response="w"))
-        tst(truth, summary(dirnw ~ ininterval(lv, uv, charospec(o1,o2)), response="w"))
+        tst(truth, dirnw ~ ininterval(lv, uv, c(o1,o2)))
+        tst(truth, dirnw ~ ininterval(lv, uv, charospec(o1,o2)))
       }
     
     for(lv in c(-Inf,undvt, Inf))
       for(uv in c(-Inf,undvt, Inf)){
         truth <- sum(((o1 & undm>lv) | (!o1 & undm>=lv)) & ((o2 & undm<uv) | (!o2 & undm<=uv)), na.rm=TRUE)/2
-        tst(truth, summary(undnw ~ ininterval(lv, uv, c(o1,o2)), response="w"))
-        tst(truth, summary(undnw ~ ininterval(lv, uv, charospec(o1,o2)), response="w"))
+        tst(truth, undnw ~ ininterval(lv, uv, c(o1,o2)))
+        tst(truth, undnw ~ ininterval(lv, uv, charospec(o1,o2)))
       }
     
     for(lv in c(-Inf,bipvt, Inf))
       for(uv in c(-Inf,bipvt, Inf)){
         truth <- sum(((o1 & bipm>lv) | (!o1 & bipm>=lv)) & ((o2 & bipm<uv) | (!o2 & bipm<=uv)), na.rm=TRUE)
-        tst(truth, summary(bipnw ~ ininterval(lv, uv, c(o1,o2)), response="w"))
-        tst(truth, summary(bipnw ~ ininterval(lv, uv, charospec(o1,o2)), response="w"))
+        tst(truth, bipnw ~ ininterval(lv, uv, c(o1,o2)))
+        tst(truth, bipnw ~ ininterval(lv, uv, charospec(o1,o2)))
       }
   }
 }
 
-# TODO: nodecovar
+# nodecovar
+tst(sum(apply(undm, 1, function(r) (sum(na.omit(r)%o%na.omit(r))-sum(na.omit(r)^2))/2/(length(na.omit(r))-1))), undnw ~ nodecovar(FALSE))
+tst(sum(apply(sqrt(undpm), 1, function(r) (sum(na.omit(r)%o%na.omit(r))-sum(na.omit(r)^2))/2/(length(na.omit(r))-1))), undpnw ~ nodecovar(FALSE, "sqrt"))
+tst(sum(apply(undm-mean(na.omit(c(undm))), 1, function(r) (sum(na.omit(r)%o%na.omit(r))-sum(na.omit(r)^2))/2/(length(na.omit(r))-1))), undnw ~ nodecovar(TRUE))
+tst(sum(apply(sqrt(undpm)-mean(na.omit(c(sqrt(undpm)))), 1, function(r) (sum(na.omit(r)%o%na.omit(r))-sum(na.omit(r)^2))/2/(length(na.omit(r))-1))), undpnw ~ nodecovar(TRUE, "sqrt"))
 
 # smallerthan
-for(v in dirvt) tst(sum(dirm < v,na.rm=TRUE), summary(dirnw ~ smallerthan(v), response="w"))
-for(v in undvt) tst(sum(undm < v,na.rm=TRUE)/2, summary(undnw ~ smallerthan(v), response="w"))
-for(v in bipvt) tst(sum(bipm < v,na.rm=TRUE), summary(bipnw ~ smallerthan(v), response="w"))
+for(v in dirvt) tst(sum(dirm < v,na.rm=TRUE), dirnw ~ smallerthan(v))
+tst(sapply(dirvt, function(v) sum(dirm < v,na.rm=TRUE)), dirnw ~ smallerthan(dirvt))
+for(v in undvt) tst(sum(undm < v,na.rm=TRUE)/2, undnw ~ smallerthan(v))
+tst(sapply(undvt, function(v) sum(undm < v,na.rm=TRUE)/2), undnw ~ smallerthan(undvt))
+for(v in bipvt) tst(sum(bipm < v,na.rm=TRUE), bipnw ~ smallerthan(v))
+tst(sapply(bipvt, function(v) sum(bipm < v,na.rm=TRUE)), bipnw ~ smallerthan(bipvt))
  
 # nodecov
-tst(sum(q*(dirm+t(dirm)),na.rm=TRUE), summary(dirnw ~ nodecov("q"), response="w"))
-tst(c(sum(q*(dirm+t(dirm)),na.rm=TRUE),sum(q^2*(dirm+t(dirm)),na.rm=TRUE)), summary(dirnw ~ nodecov(~poly(q,2,raw=TRUE)), response="w"))
-tst(sum(q*((dirm!=0)+t(dirm!=0)),na.rm=TRUE), summary(dirnw ~ nodecov(function(x) x %v% "q", form="nonzero"), response="w"))
-tst(c(sum(q*((dirm!=0)+t(dirm!=0)),na.rm=TRUE),sum(q^2*((dirm!=0)+t(dirm!=0)),na.rm=TRUE)), summary(dirnw ~ nodecov(~poly(q,2,raw=TRUE), form="nonzero"), response="w"))
+tst(sum(q*(dirm+t(dirm)),na.rm=TRUE), dirnw ~ nodecov("q"))
+tst(c(sum(q*(dirm+t(dirm)),na.rm=TRUE),sum(q^2*(dirm+t(dirm)),na.rm=TRUE)), dirnw ~ nodecov(~poly(q,2,raw=TRUE)))
+tst(sum(q*((dirm!=0)+t(dirm!=0)),na.rm=TRUE), dirnw ~ nodecov(function(x) x %v% "q", form="nonzero"))
+tst(c(sum(q*((dirm!=0)+t(dirm!=0)),na.rm=TRUE),sum(q^2*((dirm!=0)+t(dirm!=0)),na.rm=TRUE)), dirnw ~ nodecov(~poly(q,2,raw=TRUE), form="nonzero"))
 
-tst(sum(q*undm,na.rm=TRUE), summary(undnw ~ nodecov("q"), response="w"))
-tst(c(sum(q*undm,na.rm=TRUE),sum(q^2*undm,na.rm=TRUE)), summary(undnw ~ nodecov(~poly(q,2,raw=TRUE)), response="w"))
-tst(sum(q*(undm!=0),na.rm=TRUE), summary(undnw ~ nodecov(function(x) x %v% "q", form="nonzero"), response="w"))
-tst(c(sum(q*(undm!=0),na.rm=TRUE),sum(q^2*(undm!=0),na.rm=TRUE)), summary(undnw ~ nodecov(~poly(q,2,raw=TRUE), form="nonzero"), response="w"))
+tst(sum(q*undm,na.rm=TRUE), undnw ~ nodecov("q"))
+tst(c(sum(q*undm,na.rm=TRUE),sum(q^2*undm,na.rm=TRUE)), undnw ~ nodecov(~poly(q,2,raw=TRUE)))
+tst(sum(q*(undm!=0),na.rm=TRUE), undnw ~ nodecov(function(x) x %v% "q", form="nonzero"))
+tst(c(sum(q*(undm!=0),na.rm=TRUE),sum(q^2*(undm!=0),na.rm=TRUE)), undnw ~ nodecov(~poly(q,2,raw=TRUE), form="nonzero"))
 
-tst(sum(q1*bipm+t(q2*t(bipm)),na.rm=TRUE), summary(bipnw ~ nodecov("q"), response="w"))
-tst(c(sum(q1*bipm+t(q2*t(bipm)),na.rm=TRUE),sum(q1^2*bipm+t(q2^2*t(bipm)),na.rm=TRUE)), summary(bipnw ~ nodecov(~poly(q,2,raw=TRUE)), response="w"))
-tst(sum(q1*(bipm!=0)+t(q2*t(bipm!=0)),na.rm=TRUE), summary(bipnw ~ nodecov(~q, form="nonzero"), response="w"))
-tst(c(sum(q1*(bipm!=0)+t(q2*t(bipm!=0)),na.rm=TRUE),sum(q1^2*(bipm!=0)+t(q2^2*t(bipm!=0)),na.rm=TRUE)), summary(bipnw ~ nodecov(~poly(q,2,raw=TRUE), form="nonzero"), response="w"))
+tst(sum(q1*bipm+t(q2*t(bipm)),na.rm=TRUE), bipnw ~ nodecov("q"))
+tst(c(sum(q1*bipm+t(q2*t(bipm)),na.rm=TRUE),sum(q1^2*bipm+t(q2^2*t(bipm)),na.rm=TRUE)), bipnw ~ nodecov(~poly(q,2,raw=TRUE)))
+tst(sum(q1*(bipm!=0)+t(q2*t(bipm!=0)),na.rm=TRUE), bipnw ~ nodecov(~q, form="nonzero"))
+tst(c(sum(q1*(bipm!=0)+t(q2*t(bipm!=0)),na.rm=TRUE),sum(q1^2*(bipm!=0)+t(q2^2*t(bipm!=0)),na.rm=TRUE)), bipnw ~ nodecov(~poly(q,2,raw=TRUE), form="nonzero"))
 
 # nodefactor
 for(base in list(0, 1, 2, 1:2, 3)){
   keep <- if(all(base==0)) 1:3 else (1:3)[-base]
-  tst(sapply(sort(unique(f))[keep], function(x) sum((f==x)*(dirm+t(dirm)),na.rm=TRUE)), summary(dirnw ~ nodefactor("f", levels=keep), response="w"))
-  tst(sapply(sort(unique(f))[keep], function(x) sum((f==x)*((dirm!=0)+t(dirm!=0)),na.rm=TRUE)), summary(dirnw ~ nodefactor(function(x) x %v% "f", base=base, form="nonzero"), response="w"))
+  tst(sapply(sort(unique(f))[keep], function(x) sum((f==x)*(dirm+t(dirm)),na.rm=TRUE)), dirnw ~ nodefactor("f", levels=keep))
+  tst(sapply(sort(unique(f))[keep], function(x) sum((f==x)*((dirm!=0)+t(dirm!=0)),na.rm=TRUE)), dirnw ~ nodefactor(function(x) x %v% "f", base=base, form="nonzero"))
 
-  tst(sapply(sort(unique(f))[keep], function(x) sum((f==x)*undm,na.rm=TRUE)), summary(undnw ~ nodefactor("f", levels=keep), response="w"))
-  tst(sapply(sort(unique(f))[keep], function(x) sum((f==x)*(undm!=0),na.rm=TRUE)), summary(undnw ~ nodefactor(~f, base=base, form="nonzero"), response="w"))
+  tst(sapply(sort(unique(f))[keep], function(x) sum((f==x)*undm,na.rm=TRUE)), undnw ~ nodefactor("f", levels=keep))
+  tst(sapply(sort(unique(f))[keep], function(x) sum((f==x)*(undm!=0),na.rm=TRUE)), undnw ~ nodefactor(~f, base=base, form="nonzero"))
 
-  tst(sapply(sort(unique(f))[keep], function(x) sum((f1==x)*bipm+t((f2==x)*t(bipm)),na.rm=TRUE)), summary(bipnw ~ nodefactor("f", levels=keep), response="w"))
-  tst(sapply(sort(unique(f))[keep], function(x) sum((f1==x)*(bipm!=0)+t((f2==x)*t(bipm!=0)),na.rm=TRUE)), summary(bipnw ~ nodefactor(function(x) x %v% "f", base=base, form="nonzero"), response="w"))
+  tst(sapply(sort(unique(f))[keep], function(x) sum((f1==x)*bipm+t((f2==x)*t(bipm)),na.rm=TRUE)), bipnw ~ nodefactor("f", levels=keep))
+  tst(sapply(sort(unique(f))[keep], function(x) sum((f1==x)*(bipm!=0)+t((f2==x)*t(bipm!=0)),na.rm=TRUE)), bipnw ~ nodefactor(function(x) x %v% "f", base=base, form="nonzero"))
 }
 
 # nodeicov
-tst(sum(q*t(dirm),na.rm=TRUE), summary(dirnw ~ nodeicov("q"), response="w"))
-tst(c(sum(q*t(dirm),na.rm=TRUE),sum(q^2*t(dirm),na.rm=TRUE)), summary(dirnw ~ nodeicov(~poly(q,2,raw=TRUE)), response="w"))
-tst(sum(q*t(dirm!=0),na.rm=TRUE), summary(dirnw ~ nodeicov(~q, form="nonzero"), response="w"))
-tst(c(sum(q*t(dirm!=0),na.rm=TRUE),sum(q^2*t(dirm!=0),na.rm=TRUE)), summary(dirnw ~ nodeicov(~poly(q,2,raw=TRUE), form="nonzero"), response="w"))
+tst(sum(q*t(dirm),na.rm=TRUE), dirnw ~ nodeicov("q"))
+tst(c(sum(q*t(dirm),na.rm=TRUE),sum(q^2*t(dirm),na.rm=TRUE)), dirnw ~ nodeicov(~poly(q,2,raw=TRUE)))
+tst(sum(q*t(dirm!=0),na.rm=TRUE), dirnw ~ nodeicov(~q, form="nonzero"))
+tst(c(sum(q*t(dirm!=0),na.rm=TRUE),sum(q^2*t(dirm!=0),na.rm=TRUE)), dirnw ~ nodeicov(~poly(q,2,raw=TRUE), form="nonzero"))
 
-# TODO: nodeicovar
+# nodeicovar
+tst(sum(apply(dirm, 2, function(r) (sum(na.omit(r)%o%na.omit(r))-sum(na.omit(r)^2))/(length(na.omit(r))-1))), dirnw ~ nodeicovar(FALSE))
+tst(sum(apply(sqrt(dirpm), 2, function(r) (sum(na.omit(r)%o%na.omit(r))-sum(na.omit(r)^2))/(length(na.omit(r))-1))), dirpnw ~ nodeicovar(FALSE, "sqrt"))
+tst(sum(apply(dirm-mean(na.omit(c(dirm))), 2, function(r) (sum(na.omit(r)%o%na.omit(r))-sum(na.omit(r)^2))/(length(na.omit(r))-1))), dirnw ~ nodeicovar(TRUE))
+tst(sum(apply(sqrt(dirpm)-mean(na.omit(c(sqrt(dirpm)))), 2, function(r) (sum(na.omit(r)%o%na.omit(r))-sum(na.omit(r)^2))/(length(na.omit(r))-1))), dirpnw ~ nodeicovar(TRUE, "sqrt"))
+
 
 # nodeifactor
 for(base in list(0, 1, 2, 1:2, 3)){
   keep <- if(all(base==0)) 1:3 else (1:3)[-base]
-  tst(sapply(sort(unique(f))[keep], function(x) sum((f==x)*t(dirm),na.rm=TRUE)), summary(dirnw ~ nodeifactor("f", levels=keep), response="w"))
-  tst(sapply(sort(unique(f))[keep], function(x) sum((f==x)*t(dirm!=0),na.rm=TRUE)), summary(dirnw ~ nodeifactor(~f, base=base, form="nonzero"), response="w"))
+  tst(sapply(sort(unique(f))[keep], function(x) sum((f==x)*t(dirm),na.rm=TRUE)), dirnw ~ nodeifactor("f", levels=keep))
+  tst(sapply(sort(unique(f))[keep], function(x) sum((f==x)*t(dirm!=0),na.rm=TRUE)), dirnw ~ nodeifactor(~f, base=base, form="nonzero"))
 }
 
-# TODO: nodeisqrtcovar
-
 # nodematch
-tst(sum(abs(outer(f,f,"=="))*dirm,na.rm=TRUE), summary(dirnw ~ nodematch("f"), response="w"))
-tst(sum(abs(outer(f,f,"=="))*(dirm!=0),na.rm=TRUE), summary(dirnw ~ nodematch(~f, form="nonzero"), response="w"))
+tst(sum(abs(outer(f,f,"=="))*dirm,na.rm=TRUE), dirnw ~ nodematch("f"))
+tst(sum(abs(outer(f,f,"=="))*(dirm!=0),na.rm=TRUE), dirnw ~ nodematch(~f, form="nonzero"))
 
 for(keep in list(1, 1:2, 1:3)){
-  tst(sapply(sort(unique(f))[keep], function(x) sum(abs(outer(f==x,f==x,"&"))*dirm,na.rm=TRUE)), summary(dirnw ~ nodematch("f",diff=TRUE, levels=keep), response="w"))
-  tst(sapply(sort(unique(f))[keep], function(x) sum(abs(outer(f==x,f==x,"&"))*(dirm!=0),na.rm=TRUE)), summary(dirnw ~ nodematch(~f, diff=TRUE, keep=keep, form="nonzero"), response="w"))
+  tst(sapply(sort(unique(f))[keep], function(x) sum(abs(outer(f==x,f==x,"&"))*dirm,na.rm=TRUE)), dirnw ~ nodematch("f",diff=TRUE, levels=keep))
+  tst(sapply(sort(unique(f))[keep], function(x) sum(abs(outer(f==x,f==x,"&"))*(dirm!=0),na.rm=TRUE)), dirnw ~ nodematch(~f, diff=TRUE, keep=keep, form="nonzero"))
 }
 
 # TODO: nodemix
 
 # nodeocov
-tst(sum(q*dirm,na.rm=TRUE), summary(dirnw ~ nodeocov("q"), response="w"))
-tst(c(sum(q*dirm,na.rm=TRUE),sum(q^2*dirm,na.rm=TRUE)), summary(dirnw ~ nodeocov(~poly(q,2,raw=TRUE)), response="w"))
-tst(sum(q*(dirm!=0),na.rm=TRUE), summary(dirnw ~ nodeocov(~q, form="nonzero"), response="w"))
-tst(c(sum(q*(dirm!=0),na.rm=TRUE),sum(q^2*(dirm!=0),na.rm=TRUE)), summary(dirnw ~ nodeocov(~poly(q,2,raw=TRUE), form="nonzero"), response="w"))
+tst(sum(q*dirm,na.rm=TRUE), dirnw ~ nodeocov("q"))
+tst(c(sum(q*dirm,na.rm=TRUE),sum(q^2*dirm,na.rm=TRUE)), dirnw ~ nodeocov(~poly(q,2,raw=TRUE)))
+tst(sum(q*(dirm!=0),na.rm=TRUE), dirnw ~ nodeocov(~q, form="nonzero"))
+tst(c(sum(q*(dirm!=0),na.rm=TRUE),sum(q^2*(dirm!=0),na.rm=TRUE)), dirnw ~ nodeocov(~poly(q,2,raw=TRUE), form="nonzero"))
 
-# TODO: nodeocovar
+# nodeocovar
+tst(sum(apply(dirm, 1, function(r) (sum(na.omit(r)%o%na.omit(r))-sum(na.omit(r)^2))/(length(na.omit(r))-1))), dirnw ~ nodeocovar(FALSE))
+tst(sum(apply(sqrt(dirpm), 1, function(r) (sum(na.omit(r)%o%na.omit(r))-sum(na.omit(r)^2))/(length(na.omit(r))-1))), dirpnw ~ nodeocovar(FALSE, "sqrt"))
+tst(sum(apply(dirm-mean(na.omit(c(dirm))), 1, function(r) (sum(na.omit(r)%o%na.omit(r))-sum(na.omit(r)^2))/(length(na.omit(r))-1))), dirnw ~ nodeocovar(TRUE))
+tst(sum(apply(sqrt(dirpm)-mean(na.omit(c(sqrt(dirpm)))), 1, function(r) (sum(na.omit(r)%o%na.omit(r))-sum(na.omit(r)^2))/(length(na.omit(r))-1))), dirpnw ~ nodeocovar(TRUE, "sqrt"))
 
 # nodeofactor
 for(base in list(0, 1, 2, 1:2, 3)){
   keep <- if(all(base==0)) 1:3 else (1:3)[-base]
-  tst(sapply(sort(unique(f))[keep], function(x) sum((f==x)*dirm,na.rm=TRUE)), summary(dirnw ~ nodeofactor(~f, levels=keep), response="w"))
-  tst(sapply(sort(unique(f))[keep], function(x) sum((f==x)*(dirm!=0),na.rm=TRUE)), summary(dirnw ~ nodeofactor("f", base=base, form="nonzero"), response="w"))
+  tst(sapply(sort(unique(f))[keep], function(x) sum((f==x)*dirm,na.rm=TRUE)), dirnw ~ nodeofactor(~f, levels=keep))
+  tst(sapply(sort(unique(f))[keep], function(x) sum((f==x)*(dirm!=0),na.rm=TRUE)), dirnw ~ nodeofactor("f", base=base, form="nonzero"))
 }
 
 # TODO: nodeosqrtcovar
@@ -331,28 +398,28 @@ for(base in list(0, 1, 2, 1:2, 3)){
 for(base in list(0, 1, 2, 1:2, 3)){
   i <- seq_len(network.size(dirnw))
   keep <- if(all(base==0)) i else i[-base]
-  tst(sapply(sort(unique(i))[keep], function(x) sum((i==x)*t(dirm),na.rm=TRUE)), summary(dirnw ~ receiver(nodes=keep), response="w"))
-  tst(sapply(sort(unique(i))[keep], function(x) sum((i==x)*t(dirm!=0),na.rm=TRUE)), summary(dirnw ~ receiver(nodes=keep, form="nonzero"), response="w"))
+  tst(sapply(sort(unique(i))[keep], function(x) sum((i==x)*t(dirm),na.rm=TRUE)), dirnw ~ receiver(nodes=keep))
+  tst(sapply(sort(unique(i))[keep], function(x) sum((i==x)*t(dirm!=0),na.rm=TRUE)), dirnw ~ receiver(nodes=keep, form="nonzero"))
 }
 
 # sender
 for(base in list(0, 1, 2, 1:2, 3)){
   i <- seq_len(network.size(dirnw))
   keep <- if(all(base==0)) i else i[-base]
-  tst(sapply(sort(unique(i))[keep], function(x) sum((i==x)*dirm,na.rm=TRUE)), summary(dirnw ~ sender(nodes=keep), response="w"))
-  tst(sapply(sort(unique(i))[keep], function(x) sum((i==x)*(dirm!=0),na.rm=TRUE)), summary(dirnw ~ sender(nodes=keep, form="nonzero"), response="w"))
+  tst(sapply(sort(unique(i))[keep], function(x) sum((i==x)*dirm,na.rm=TRUE)), dirnw ~ sender(nodes=keep))
+  tst(sapply(sort(unique(i))[keep], function(x) sum((i==x)*(dirm!=0),na.rm=TRUE)), dirnw ~ sender(nodes=keep, form="nonzero"))
 }
 
 # sociality
 for(base in list(0, 1, 2, 1:2, 3)){
   i <- seq_len(network.size(dirnw))
   keep <- if(all(base==0)) i else i[-base]
-  tst(sapply(sort(unique(i))[keep], function(x) sum((i==x)*undm,na.rm=TRUE)), summary(undnw ~ sociality(nodes=keep), response="w"))
-  tst(sapply(sort(unique(i))[keep], function(x) sum((i==x)*(undm!=0),na.rm=TRUE)), summary(undnw ~ sociality(nodes=keep, form="nonzero"), response="w"))
+  tst(sapply(sort(unique(i))[keep], function(x) sum((i==x)*undm,na.rm=TRUE)), undnw ~ sociality(nodes=keep))
+  tst(sapply(sort(unique(i))[keep], function(x) sum((i==x)*(undm!=0),na.rm=TRUE)), undnw ~ sociality(nodes=keep, form="nonzero"))
 }
 
 
 # sum
-tst(sum(dirm,na.rm=TRUE), summary(dirnw ~ sum, response="w"))
-tst(sum(undm,na.rm=TRUE)/2, summary(undnw ~ sum, response="w"))
-tst(sum(bipm,na.rm=TRUE), summary(bipnw ~ sum, response="w"))
+tst(sum(dirm,na.rm=TRUE), dirnw ~ sum)
+tst(sum(undm,na.rm=TRUE)/2, undnw ~ sum)
+tst(sum(bipm,na.rm=TRUE), bipnw ~ sum)

@@ -4,9 +4,9 @@ author: "statnet.org"
 date: "07/28/2014"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{ERGM terms cross-reference}
   %\VignetteEngine{knitr::rmarkdown}
-  \usepackage[utf8]{inputenc}
+  %\VignetteEncoding{UTF-8}
+  %\VignetteIndexEntry{ERGM terms cross-reference}
 ---
 <style type="text/css">
 table, td, th {
@@ -46,8 +46,15 @@ search.ergmTerms(categories=c('bipartite','dyad-independent'))
 For convenience, this table lists a subset of the most commonly-used ergm terms and categories.
 
 ```{r,results='asis',echo=FALSE}
-ergm:::.termMatrix(terms,categories=c('binary', 'valued', 'directed', 'undirected', 'bipartite', 'dyad-independent'),only.include='frequently-used')
+ergm:::.termMatrix(terms,categories=c('binary', 'valued', 'directed', 'undirected', 'bipartite', 'dyad-independent','operator','layer-aware'),only.include='frequently-used')
 ```
+
+For convenience, this table lists operator terms: terms that wrap or modify other terms.
+
+```{r,results='asis',echo=FALSE}
+ergm:::.termMatrix(terms,categories=c('binary', 'valued', 'directed', 'undirected', 'bipartite', 'dyad-independent','operator','layer-aware'),only.include='operator')
+```
+
 
 ## Complete term category matrix
 This table lists the complete set of terms available in the ergm package. In HTML versions, clicking on a term name will jump to its definition. 

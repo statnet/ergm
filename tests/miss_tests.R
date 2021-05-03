@@ -11,7 +11,8 @@ library(statnet.common)
 opttest({
 library(ergm)
 theta0err<- 1 # Perturbation in the initial values
-tolerance<-5 # Result must be within 5*MCMCSE. of truth.
+tolerance<-4 # Result must be within 5*MCMCSE of truth.
+bridge.target.se <- 0.005 # Log-likelihood MCMC standard error must be within this.
 
 n<-20 # Number of nodes
 b<-3 # Bipartite split
@@ -57,33 +58,33 @@ run.miss.test<-function(y){
   mple.llk.OK<-all.equal(llk,as.vector(logLik(mplefit)),check.attributes=FALSE)
   cat("MPLE estimate =", coef(mplefit),"with log-likelihood",logLik(mplefit), if(isTRUE(mple.theta.OK)&&isTRUE(mple.llk.OK)) "OK.","\n")
 
-  mcmcfit<-ergm(y~edges, control=control.ergm(force.main=TRUE, init=theta+theta0err), verbose=TRUE)
+  mcmcfit<-ergm(y~edges, control=snctrl(force.main=TRUE, init=theta+theta0err, bridge.target.se=bridge.target.se), verbose=TRUE)
   mcmc.diagnostics(mcmcfit)
   mcmc.theta.OK<-abs(theta-coef(mcmcfit))/sqrt(diag(vcov(mcmcfit, source="estimation")))
-  mcmc.llk.OK<-abs(llk-logLik(mcmcfit))/abs(llk)
+  mcmc.llk.OK<-abs(llk-logLik(mcmcfit))/bridge.target.se
   
   cat("MCMCMLE estimate =", coef(mcmcfit),"with log-likelihood",logLik(mcmcfit), if(mcmc.theta.OK<tolerance&&mcmc.llk.OK<tolerance) "OK.","\n")
   
-  return(isTRUE(mple.theta.OK) && (mcmc.theta.OK<tolerance) && isTRUE(mple.llk.OK) && (mcmc.llk.OK<tolerance))
+  stopifnot(isTRUE(mple.theta.OK), mcmc.theta.OK<tolerance, isTRUE(mple.llk.OK), mcmc.llk.OK<tolerance)
 }
 
 # Directed
 cat("\n\nDirected Network\n")
 set.seed(123)
 y<-mk.missnet(n, d, m, TRUE, FALSE)
-stopifnot(run.miss.test(y))
+run.miss.test(y)
 
 # Undirected
 cat("\n\nUndirected Network\n")
 set.seed(456)
 y<-mk.missnet(n, d, m, FALSE, FALSE)
-stopifnot(run.miss.test(y))  
+run.miss.test(y)
 
 # Bipartite Undirected
 cat("\n\nBipartite Undirected Network\n")
 set.seed(0)
 y<-mk.missnet(n, d, m, FALSE, b)
-stopifnot(run.miss.test(y))
+run.miss.test(y)
 
 # Add the curved+missing test here for now
 
@@ -95,12 +96,12 @@ y.miss <- simulate(y~edges, coef=logit(0.01))
 y[as.edgelist(y.miss)] <- NA
 
 cat("Network statistics:\n")
-print(summary(y~edges+gwesp(0.5)))
+print(summary(y~edges+gwesp()))
 truth<-correct.edges.theta(y)
 cat("Correct estimate =",truth,"\n")
 
 set.seed(654)
-mcmcfit<-ergm(y~edges+gwesp(0.5), control=control.ergm(MCMLE.maxit=5))
+mcmcfit<-ergm(y~edges+gwesp(), control=control.ergm(MCMLE.maxit=5))
 summary(mcmcfit)
-stopifnot(abs(coef(mcmcfit)[1]-truth)/sqrt(mcmcfit$covar[1])<2)
+stopifnot(abs(coef(mcmcfit)[1]-truth)/sqrt(mcmcfit$covar[1])<tolerance)
 }, "missing data")

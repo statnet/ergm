@@ -243,30 +243,29 @@ as.rlebdm.ergm_conlist <- function(x, constraints.obs = NULL, which = c("free", 
          free={
            y <- NULL
            for(con in x){
-             if(!is.null(con$free_dyads)){
+             if(!is.null(free_dyads(con))){
                y <-
-                 if(is.null(y)) con$free_dyads
+                 if(is.null(y)) free_dyads(con)
                  else{
-                   if(NVL(con$sign, +1)==+1) y & con$free_dyads
-                   else y | con$free_dyads
+                   if(NVL(con$sign, +1)==+1) y & free_dyads(con)
+                   else y | free_dyads(con)
                  }
              }
            }
            if(!is.null(y)) compress(y)
          },
          missing={
-           free_dyads <- as.rlebdm(x)
            free_dyads.obs <- as.rlebdm(constraints.obs)
            
-           if(is.null(free_dyads)){
+           if(is.null(x)){
              free_dyads.obs # Already compacted.
            }else{
-             NVL3(free_dyads.obs, compress(free_dyads & .),  NULL)
+             NVL3(free_dyads.obs, compress(as.rlebdm(x) & .),  NULL)
            }
          },
          informative={
            y <- as.rlebdm(x)
-           NVL3(constraints.obs, compress(y & !as.rlebdm(x, ., which="missing")), y)
+           EVL3(constraints.obs, compress(y & !as.rlebdm(x, ., which="missing")), y)
          }
          )
 }
@@ -366,5 +365,5 @@ to_ergm_Cdouble.rlebdm <- function(x, ...){
   runstart <- runstart[-length(runstart)]
   runstart <- runstart[x$values==TRUE]
 
-  as.double(c(ndyads, nruns, runstart, c(0,cumlen)))
+  as.double(c(attr(x,"n"), ndyads, nruns, runstart, c(0,cumlen)))
 }

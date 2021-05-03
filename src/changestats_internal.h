@@ -7,15 +7,11 @@
  *
  *  Copyright 2003-2020 Statnet Commons
  */
+
+#ifndef _CHANGESTATS_INTERNAL_H_
+#define _CHANGESTATS_INTERNAL_H_
+
 #include "ergm_edgetree.h"
 #include "ergm_changestat.h"
 
-/********************  changestats: internal ***********/
-D_CHANGESTAT_FN(d_b1degree_edgecov);
-D_CHANGESTAT_FN(d_b2degree_edgecov);
-D_CHANGESTAT_FN(d_b1mindegree);
-D_CHANGESTAT_FN(d_b2mindegree);
-D_CHANGESTAT_FN(d_b1mindegree_edgecov);
-D_CHANGESTAT_FN(d_b2mindegree_edgecov);
-
-
+#endif // _CHANGESTATS_INTERNAL_H_

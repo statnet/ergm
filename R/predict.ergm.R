@@ -155,7 +155,7 @@ predict_ergm_unconditional <- function(object, coef, nsim=100, output="network",
 predict.ergm <- function(object, ...) {
   predict.formula(
     object = object$formula,
-    theta = ergm.eta(object$coef, object$etamap),
+    theta = ergm.eta(coef(object), object$etamap),
     ...
   )
 }

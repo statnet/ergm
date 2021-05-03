@@ -91,6 +91,7 @@ summary.ergm <- function (object, ...,
   control <- object$control
   pseudolikelihood <- object$estimate=="MPLE"
   independence <- NVL(object$MPLE_is_MLE, is.dyad.independent(object))
+  coef <- coef(object)
 
   ans <- list(formula=object$formula,
               call=object$call,
@@ -102,45 +103,9 @@ summary.ergm <- function (object, ...,
               pseudolikelihood=pseudolikelihood,
               independence=independence,
               estimate=object$estimate,
+              estimate.desc=object$estimate.desc,
               control=object$control)
   
-  ans$samplesize <- switch(object$estimate,
-                           EGMME = NVL3(control$EGMME.main.method, switch(.,
-                             `Gradient-Descent`=control$SA.phase3_n,
-                             stop("Unknown estimation method. This is a bug."))),
-                           MPLE = NA,
-                           CD=,
-                           MLE = NVL3(control$main.method, switch(.,
-                             CD=control$MCMC.samplesize,
-                             `Stochastic-Approximation`=,
-                               MCMLE=control$MCMC.samplesize,
-                             `Robbins-Monro`=control$RM.phase3n,
-                             `Stepping`=control$Step.MCMC.samplesize,
-                             stop("Unknown estimation method. This is a bug."))),
-                           stop("Unknown estimate type. This is a bug.")
-                           )
-                              
-
-  ans$iterations <- switch(object$estimate,
-                           EGMME = NVL3(control$EGMME.main.method, switch(.,
-                             `Gradient-Descent`=NA,
-                             stop("Unknown estimation method. This is a bug."))),
-                           MPLE = NA,
-                           CD=control$CD.maxit,
-                           MLE = NVL3(control$main.method, switch(.,
-                               `Stochastic-Approximation`=NA,
-                             MCMLE=paste(object$iterations, "out of", control$MCMLE.maxit),
-                             CD=control$CD.maxit,
-                             `Robbins-Monro`=NA,
-                             `Stepping`=NA,
-                             stop("Unknown estimation method. This is a bug."))),
-                           stop("Unknown estimate type. This is a bug.")
-                           )
-  
-  dyads<- sum(as.rlebdm(object$constrained, object$constrained.obs, which="informative"))
-  df <- length(object$coef)
-
-
   asycov <- vcov(object, sources=if(total.variation) "all" else "model")
   asyse <- sqrt(diag(asycov))
   # Convert to % error  
@@ -153,13 +118,12 @@ summary.ergm <- function (object, ...,
     est.pct[!is.na(est.se)] <- ifelse(est.se[!is.na(est.se)]>0, round(100*(tot.se[!is.na(est.se)]-mod.se[!is.na(est.se)])/tot.se[!is.na(est.se)]), 0)
   }
 
-  rdf <- dyads - df
-  zval <- object$coef / asyse
+  zval <- coef / asyse
   pval <- 2 * pnorm(q=abs(zval), lower.tail=FALSE)
   
   count <- 1
   coefmat <- cbind(
-    `Estimate` = coef(object),
+    `Estimate` = coef,
     `Std. Error` = asyse,
     `MCMC %` = est.pct,
     `z value` = zval,
@@ -181,22 +145,26 @@ summary.ergm <- function (object, ...,
     ans$message <- "\nFor this model, the pseudolikelihood is the same as the likelihood.\n"
   }
   mle.lik<-try(logLik(object,...), silent=TRUE)
-  null.lik<-try(logLikNull(object,...), silent=TRUE)
 
-  ans$null.lik.0 <- is.na(null.lik)
+  if(inherits(mle.lik,"try-error")) ans$objname<-deparse(substitute(object))
+  else if(!is.na(mle.lik)){
+    # Only evaluate the null likelihood if the MLE likelihood is defined.
+    null.lik<-try(logLikNull(object,...), silent=TRUE)
+    ans$null.lik.0 <- is.na(null.lik)
 
-  if(!inherits(mle.lik,"try-error")){
-
+    df <- length(coef)
+    dyads<- sum(as.rlebdm(object$constrained, object$constrained.obs, which="informative"))
+    rdf <- dyads - df
     ans$devtable <- matrix(c(if(is.na(null.lik)) 0 else -2*null.lik, -2*mle.lik,
                              c(dyads, rdf)), 2,2, dimnames=list(c("Null","Residual"),
                                                                 c("Resid. Dev", "Resid. Df")))
     ans$devtext <- devtext
         
-    ans$aic <- AIC(mle.lik)
-    ans$bic <- BIC(mle.lik)
+    ans$aic <- AIC(object)
+    ans$bic <- BIC(object)
     ans$mle.lik <- ERRVL(mle.lik, NA)
     ans$null.lik <- ERRVL(null.lik, NA)
-  }else ans$objname<-deparse(substitute(object))
+  }else ans$devtable <- NA
 
   ans$coefs <- as.data.frame(coefmat)[,-3] # For backwards compatibility.
   ans$coefficients <- as.data.frame(coefmat)
@@ -205,4 +173,3 @@ summary.ergm <- function (object, ...,
   class(ans) <- "summary.ergm"
   ans
 }
-

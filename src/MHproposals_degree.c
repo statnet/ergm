@@ -42,18 +42,18 @@ MH_P_FN(MH_CondDegreeTetrad){
       Swapping A1 and A2 half the time allows either of the above
       proposals to be considered.
     */
-    if(!nwp->directed_flag && !nwp->bipartite && unif_rand()<0.5) GetRandEdge(&A2, &A1, nwp);
+    if(!DIRECTED && !BIPARTITE && unif_rand()<0.5) GetRandEdge(&A2, &A1, nwp);
     else GetRandEdge(&A1, &A2, nwp);
 
     GetRandEdge(&B1, &B2, nwp);
     //Rprintf("A1 %d A2 %d B1 %d B2 %d\n",A1,A2,B1,B2); 
   }while(A1==B1 || A1==B2 || A2==B1 || A2==B2 || 
-	 (nwp->directed_flag ? 
+	 (DIRECTED ? 
 	  (IS_OUTEDGE(A1, B2) || IS_OUTEDGE(B1, A2)) : // Directed
 	  (IS_UNDIRECTED_EDGE(A1,B2) || IS_UNDIRECTED_EDGE(B1,A2)) // Undirected
 	  ));
   //Rprintf("in A1 %d A2 %d B1 %d B2 %d\n",A1,A2,B1,B2); 
-  if(nwp->directed_flag){
+  if(DIRECTED){
     Mtail[0]=A1; Mhead[0]=A2;
     Mtail[1]=A1; Mhead[1]=B2;
     Mtail[2]=B1; Mhead[2]=B2;
@@ -73,7 +73,7 @@ MH_P_FN(MH_CondDegreeTetrad){
 //    return;
 //  }
 //
-////if(nwp->directed_flag && unif_rand() > 0.0){ /* Do the mix or non-mixed proposal.*/
+////if(DIRECTED && unif_rand() > 0.0){ /* Do the mix or non-mixed proposal.*/
 //  if(unif_rand() > 0.5){ /* Do the mix or non-mixed proposal.*/
 //    MH_CondDegreeTetradMixBoth(MHp, nwp);
 //  }else{
@@ -105,7 +105,7 @@ MH_P_FN(MH_CondDegreeTetradMixMore){
   }while(
   	 ((fabs(MHp->inputs[A1-1]-MHp->inputs[A2-1])>0.001)||(fabs(MHp->inputs[B2-1]-MHp->inputs[B1-1])>0.001)||(fabs(MHp->inputs[A1-1]-MHp->inputs[B1-1])<0.001))|| 
 	  A1==B1 || A1==B2 || A2==B1 || A2==B2 || 
-	 (nwp->directed_flag ? 
+	 (DIRECTED ? 
 	  IS_OUTEDGE(A1, B2) || IS_OUTEDGE(B1, A2) : // Directed
 	  IS_UNDIRECTED_EDGE(A1,B2) || IS_UNDIRECTED_EDGE(B1,A2) // Undirected
 	  ));
@@ -143,7 +143,7 @@ MH_P_FN(MH_CondDegreeTetradMixLess){
   }while(
   	 ((fabs(MHp->inputs[A1-1]-MHp->inputs[A2-1])<0.001)||(fabs(MHp->inputs[B2-1]-MHp->inputs[B1-1])<0.001)||(fabs(MHp->inputs[A1-1]-MHp->inputs[B1-1])<0.001))|| 
 	  A1==B1 || A1==B2 || A2==B1 || A2==B2 || 
-	 (nwp->directed_flag ? 
+	 (DIRECTED ? 
 	  IS_OUTEDGE(A1, B2) || IS_OUTEDGE(B1, A2) : // Directed
 	  IS_UNDIRECTED_EDGE(A1,B2) || IS_UNDIRECTED_EDGE(B1,A2) // Undirected
 	  ));
@@ -187,7 +187,7 @@ MH_P_FN(MH_CondDegreeMixChangeOrig){
 //}
   }while(
   	 (bbb<20) || b || A1==B1 || A1==B2 || A2==B1 || A2==B2 || 
-	 (nwp->directed_flag ? 
+	 (DIRECTED ? 
 	  IS_OUTEDGE(A1, B2) || IS_OUTEDGE(B1, A2) : // Directed
 	  IS_UNDIRECTED_EDGE(A1,B2) || IS_UNDIRECTED_EDGE(B1,A2) // Undirected
 	  ));
@@ -229,7 +229,7 @@ MH_P_FN(MH_CondDegreeMix){
     /* goodtype = 2; */
   }while(
   	 (numtrys<1000) && ((!bad) || A11==B11 || A11==B12 || A12==B11 || A12==B12 || 
-	 (nwp->directed_flag ? 
+	 (DIRECTED ? 
 	  IS_OUTEDGE(A11, B12) || IS_OUTEDGE(B11, A12) : // Directed
 	  IS_UNDIRECTED_EDGE(A11,B12) || IS_UNDIRECTED_EDGE(B11,A12) // Undirected
 	  )));
@@ -241,7 +241,7 @@ MH_P_FN(MH_CondDegreeMix){
     /* goodtype = 0; */
   }while(
   	 (numtrys<1000) && ((!bad) || A21==B21 || A21==B22 || A22==B21 || A22==B22 || 
-	 (nwp->directed_flag ? 
+	 (DIRECTED ? 
 	  IS_OUTEDGE(A21, B22) || IS_OUTEDGE(B21, A22) : // Directed
 	  IS_UNDIRECTED_EDGE(A21,B22) || IS_UNDIRECTED_EDGE(B21,A22) // Undirected
 	  )));
@@ -254,7 +254,7 @@ MH_P_FN(MH_CondDegreeMix){
     /* goodtype = 3; */
   }while(
   	 (numtrys<1000) && ((!bad) || A11==B11 || A11==B12 || A12==B11 || A12==B12 || 
-	 (nwp->directed_flag ? 
+	 (DIRECTED ? 
 	  IS_OUTEDGE(A11, B12) || IS_OUTEDGE(B11, A12) : // Directed
 	  IS_UNDIRECTED_EDGE(A11,B12) || IS_UNDIRECTED_EDGE(B11,A12) // Undirected
 	  )));
@@ -266,7 +266,7 @@ MH_P_FN(MH_CondDegreeMix){
     /* goodtype = 4;*/
   }while(
   	 (numtrys<1000) && ((!bad) || A21==B21 || A21==B22 || A22==B21 || A22==B22 || 
-	 (nwp->directed_flag ? 
+	 (DIRECTED ? 
 	  IS_OUTEDGE(A21, B22) || IS_OUTEDGE(B21, A22) : // Directed
 	  IS_UNDIRECTED_EDGE(A21,B22) || IS_UNDIRECTED_EDGE(B21,A22) // Undirected
 	  )));
@@ -326,11 +326,11 @@ MH_P_FN(MH_CondDegreeHexad){
 
   do{
     GetRandEdge(&B1, &B2, nwp);
-  }while(B1==A1 || B2==A1 || B2==A2 || EdgetreeSearch(A1, B2, nwp->outedges));
+  }while(B1==A1 || B2==A1 || B2==A2 || IS_OUTEDGE(A1, B2));
 
   do{
     GetRandEdge(&C1, &C2, nwp);
-  }while(C1==A1 || C1==B1 || C1==A2 || C2==A2 || C2==B2 || C2==B1 || EdgetreeSearch(B1, C2, nwp->outedges) || EdgetreeSearch(C1, A2, nwp->outedges));
+  }while(C1==A1 || C1==B1 || C1==A2 || C2==A2 || C2==B2 || C2==B1 || IS_OUTEDGE(B1, C2) || IS_OUTEDGE(C1, A2));
 
   Mtail[0]=A1; Mhead[0]=A2;
   Mtail[1]=A1; Mhead[1]=B2;
@@ -343,11 +343,11 @@ MH_P_FN(MH_CondDegreeHexad){
 MH_P_FN(MH_CondDegree){  
   
   if(MHp->ntoggles == 0) { /* Initialize CondDeg by */
-      MHp->ntoggles= nwp->directed_flag ? 6 : 4;
+      MHp->ntoggles= DIRECTED ? 6 : 4;
     return;
   }
 
-  if(nwp->directed_flag && unif_rand() > 0.9){ /* Do the tetrad or hexad proposal. Undirected networks don't need the hexad.*/
+  if(DIRECTED && unif_rand() > 0.9){ /* Do the tetrad or hexad proposal. Undirected networks don't need the hexad.*/
     MHp->ntoggles=6;
     MH_CondDegreeHexad(MHp, nwp);
   }else{
@@ -366,8 +366,8 @@ MH_P_FN(MH_CondOutDegree){
 
   do{
     GetRandEdge(&A1, &A2, nwp);
-    B2 = 1 + unif_rand() * nwp->nnodes;
-  }while(A1==B2 || A2==B2 || EdgetreeSearch(A1, B2, nwp->outedges));
+    B2 = 1 + unif_rand() * N_NODES;
+  }while(A1==B2 || A2==B2 || IS_OUTEDGE(A1, B2));
 
 //Rprintf("A1 %d A2 %d B1 %d B2 %d\n",A1,A2,B1,B2); 
 //Rprintf("in A1 %d A2 %d B1 %d B2 %d\n",A1,A2,B1,B2); 
@@ -385,8 +385,8 @@ MH_P_FN(MH_CondInDegree){
 
   do{
     GetRandEdge(&A1, &A2, nwp);
-    B1 = 1 + unif_rand() * nwp->nnodes;
-  }while(A1==B1 || A2==B1 || EdgetreeSearch(B1, A2, nwp->outedges));
+    B1 = 1 + unif_rand() * N_NODES;
+  }while(A1==B1 || A2==B1 || IS_OUTEDGE(B1, A2));
 
 //Rprintf("A1 %d A2 %d B1 %d B2 %d\n",A1,A2,B1,B2); 
 //Rprintf("in A1 %d A2 %d B1 %d B2 %d\n",A1,A2,B1,B2); 
@@ -405,8 +405,8 @@ MH_P_FN(MH_CondB1Degree){
 
   do{
     GetRandEdge(&A1, &A2, nwp);
-    B2 = 1 + nwp->bipartite + unif_rand() * (nwp->nnodes-nwp->bipartite);
-  }while(A2==B2 || EdgetreeSearch(A1, B2, nwp->outedges));
+    B2 = 1 + BIPARTITE + unif_rand() * (N_NODES-BIPARTITE);
+  }while(A2==B2 || IS_OUTEDGE(A1, B2));
 
 //Rprintf("A1 %d A2 %d B1 %d B2 %d\n",A1,A2,B1,B2); 
 //Rprintf("in A1 %d A2 %d B1 %d B2 %d\n",A1,A2,B1,B2); 
@@ -424,8 +424,8 @@ MH_P_FN(MH_CondB2Degree){
 
   do{
     GetRandEdge(&A1, &A2, nwp);
-    B1 = 1 + unif_rand() * nwp->bipartite;
-  }while(A1==B1 || A2==B1 || EdgetreeSearch(B1, A2, nwp->outedges));
+    B1 = 1 + unif_rand() * BIPARTITE;
+  }while(A1==B1 || A2==B1 || IS_OUTEDGE(B1, A2));
 
 //Rprintf("A1 %d A2 %d B1 %d B2 %d\n",A1,A2,B1,B2); 
 //Rprintf("in A1 %d A2 %d B1 %d B2 %d\n",A1,A2,B1,B2); 

@@ -8,6 +8,7 @@
  *  Copyright 2003-2020 Statnet Commons
  */
 #include "wtMHproposals.h"
+#include "ergm_wtchangestat.h"
 #include "ergm_rlebdm.h"
 
 /*********************
@@ -25,7 +26,7 @@ WtMH_P_FN(MH_StdNormal){
   
   GetRandDyad(Mtail, Mhead, nwp);
   
-  oldwt = WtGetEdge(Mtail[0],Mhead[0],nwp);
+  oldwt = GETWT(Mtail[0],Mhead[0]);
 
   const double propsd = 0.2; // This ought to be tunable.
 
@@ -53,7 +54,7 @@ WtMH_P_FN(MH_Unif){
   
   GetRandDyad(Mtail, Mhead, nwp);
   
-  oldwt = WtGetEdge(Mtail[0],Mhead[0],nwp);
+  oldwt = GETWT(Mtail[0],Mhead[0]);
 
   do{
     Mweight[0] = runif(a,b);
@@ -90,7 +91,7 @@ WtMH_P_FN(MH_UnifNonObserved){
   Mtail[0]=MHp->inputs[rane+2];
   Mhead[1]=MHp->inputs[nmissing+rane+2];
 
-  double oldwt = WtGetEdge(Mtail[0],Mhead[0],nwp);
+  double oldwt = GETWT(Mtail[0],Mhead[0]);
 
   do{
     Mweight[0] = runif(a,b);
@@ -118,7 +119,7 @@ WtMH_P_FN(MH_DiscUnif){
   
   GetRandDyad(Mtail, Mhead, nwp);
   
-  oldwt = WtGetEdge(Mtail[0],Mhead[0],nwp);
+  oldwt = GETWT(Mtail[0],Mhead[0]);
 
   do{
     Mweight[0] = floor(runif(a,b+1));
@@ -154,12 +155,49 @@ WtMH_P_FN(MH_DiscUnifNonObserved){
   Mtail[0]=MHp->inputs[rane+2];
   Mhead[1]=MHp->inputs[nmissing+rane+2];
 
-  double oldwt = WtGetEdge(Mtail[0],Mhead[0],nwp);
+  double oldwt = GETWT(Mtail[0],Mhead[0]);
 
   do{
     Mweight[0] = floor(runif(a,b+1));
   }while(Mweight[0]==oldwt);
 
+  MHp->logratio += 0; // h(y) is uniform and the proposal is symmetric
+}
+
+/*********************
+ void MH_DiscUnifTwice
+
+ MH algorithm for discrete-uniform-reference ERGM, twice
+*********************/
+void MH_DiscUnif2(WtMHProposal *MHp, WtNetwork *nwp)  {  
+  double oldwt;
+  static int a, b;
+  
+  if(MHp->ntoggles == 0) { // Initialize DiscUnif 
+    MHp->ntoggles=2;
+    a = MHp->inputs[0];
+    b = MHp->inputs[1];
+    return;
+  }
+  
+  GetRandDyad(Mtail, Mhead, nwp);
+  
+  oldwt = GETWT(Mtail[0],Mhead[0]);
+
+  do{
+    Mweight[0] = floor(runif(a,b+1));
+  }while(Mweight[0]==oldwt);
+
+  do{
+    GetRandDyad(Mtail+1, Mhead+1, nwp);
+    
+    oldwt = GETWT(Mtail[1],Mhead[1]);
+    
+    do{
+      Mweight[1] = floor(runif(a,b+1));
+    }while(Mweight[1]==oldwt);
+  }while(Mtail[0]==Mtail[1] && Mhead[0]==Mhead[1]);
+  
   MHp->logratio += 0; // h(y) is uniform and the proposal is symmetric
 }
 
@@ -175,14 +213,14 @@ WtMH_P_FN(MH_DistRLE)
   if(MHp->ntoggles == 0) { /* Initialize */
     MHp->ntoggles=1;
     inputs = MHp->inputs;
-    r = unpack_RLEBDM1D(&inputs, nwp->nnodes);
+    r = unpack_RLEBDM1D(&inputs);
     if(r.ndyads==0) MHp->ntoggles = MH_FAILED; /* No missing values. */
     else MHp->ntoggles=1;
     return;
   }
 
   GetRandRLEBDM1D_RS(Mtail, Mhead, &r);
-  double oldwt = WtGetEdge(Mtail[0],Mhead[0],nwp);
+  double oldwt = GETWT(Mtail[0],Mhead[0]);
 
   do{
     switch((unsigned int) *inputs){

@@ -33,26 +33,17 @@
 #' @export
 print.ergm <- function (x, digits = max(3, getOption("digits") - 3), ...) {
   # The following code is based on stats:::print.lm(), but there really isn't another concise way to do this:
-  if(!is.null(x$call)) cat("\nCall:\n", paste(deparse(x$call), sep="\n", collapse="\n"), "\n\n", sep="")
+  if(!is.null(x$call)) cat("\nCall:\n", paste(deparse(x$call), sep="\n", collapse="\n"), "\n", sep="")
 
-   if(is.matrix(x$sample)){
-#    if(!is.matrix(x$thetasample) && !is.null(x$iterations)){
-#     cat("Newton-Raphson iterations: ", x$iterations[1], "\n")
-#    }
-    cat("MCMC sample of size", nrow(as.matrix(x$sample)), "based on: \n")
-    print.default(format(x$MCMCtheta, digits = digits), print.gap = 2, 
-        quote = FALSE)
-    cat("\nMonte Carlo MLE Coefficients:\n")
-    print.default(format(x$coef, digits = digits), print.gap = 2, 
-        quote = FALSE)
-   }else{
-#    if (!is.null(x$iterations)) {
-#      cat("Newton-Raphson iterations: ", x$iterations[1], "\n")
-#    }
+  if(is.mcmc.list(x$sample)){
+    cat("\nLast MCMC sample of size", niter(x$sample)*nchain(x$sample), "based on:\n")
+    print.default(format(x$MCMCtheta, digits = digits), print.gap = 2, ...,
+                  quote = FALSE)
+  }
 
-     cat("\n",x$estimate," Coefficients:\n",sep="")
-     print.default(format(x$coef, digits = digits), print.gap = 2, 
-         quote = FALSE)
-   }
+  cat("\n",x$estimate.desc," Coefficients:\n",sep="")
+  print.default(format(coef(x), digits = digits), print.gap = 2, ...,
+                quote = FALSE)
+
   invisible(x)
 }

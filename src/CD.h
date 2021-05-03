@@ -12,28 +12,31 @@
 
 #include "MCMC.h"
 
-/* *** don't forget tail-> head, so this function accepts tails first, not heads  */
+#define CD_UNDOS_ALLOC \
+  Vertex *undotail = R_calloc(MHp->ntoggles * INTEGER(CDparams)[0] * INTEGER(CDparams)[1], Vertex); \
+  Vertex *undohead = R_calloc(MHp->ntoggles * INTEGER(CDparams)[0] * INTEGER(CDparams)[1], Vertex);
 
-void CD_wrapper(int *dnedges,
-		  int *tails, int *heads,
-		  int *dn, int *dflag, int *bipartite, 
-		  int *nterms, char **funnames,
-		  char **sonames, 
-		  char **MHProposaltype, char **MHProposalpackage,
-		double *inputs, double *theta0, int *samplesize, int *CDparams,
-		  double *sample, 
-		  int *fVerbose, 
-		  int *attribs, int *maxout, int *maxin, int *minout,
-		  int *minin, int *condAllDegExact, int *attriblength, 
-		int *status);
-MCMCStatus CDSample(MHProposal *MHp,
-		    double *theta, double *networkstatistics, 
-		    int samplesize, int *CDparams, Vertex *undotails, Vertex *undoheads,
-		    int fVerbose,
-		    Network *nwp, Model *m, double *extraworkspace);
-MCMCStatus CDStep(MHProposal *MHp,
-		  double *theta, double *statistics,
-		  int *CDparams, int *staken, Vertex *undotail, Vertex *undohead, 
-		  int fVerbose,
-		  Network *nwp, Model *m, double *extraworkspace);
+#define CD_UNDOS_PASS undotail, undohead
+
+#define CD_UNDOS_RECEIVE Vertex *undotail, Vertex *undohead
+
+#define CD_PROP_TOGGLE_PROVISIONAL                                      \
+  Vertex t=MHp->toggletail[i], h=MHp->togglehead[i];                    \
+  undotail[ntoggled]=t;                                                 \
+  undohead[ntoggled]=h;                                                 \
+  ntoggled++;                                                           \
+  ToggleEdge(t, h, nwp);
+
+#define CD_PROP_UNDO_TOGGLE(idvar)                              \
+  Vertex t = undotail[idvar], h = undohead[idvar];              \
+  /* FIXME: This should be done in one call, but it's very easy \
+     to make a fencepost error here. */                         \
+  ToggleEdge(t, h, nwp);
+
+#define DISPATCH_CD_wrapper CD_wrapper
+#define DISPATCH_CDSample CDSample
+#define DISPATCH_CDStep CDStep
+
+#include "CD.h.template.do_not_include_directly.h"
+
 #endif

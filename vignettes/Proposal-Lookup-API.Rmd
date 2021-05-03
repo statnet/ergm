@@ -1,0 +1,58 @@
+---
+title: "API for MCMC Proposal Selection"
+author: Pavel N. Krivitsky
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+  %\VignetteIndexEntry{API for MCMC Proposal Selection}
+---
+
+# Summary
+
+This document describes the process by which `ergm` and related packages selects the MCMC proposal for a particular analysis. Note that it is not intended to be a tutorial as much as a description of what inputs and outputs different parts of the system expect. Nor does it cover the C API.
+
+# Description
+
+## Inputs
+
+There is a number of factors that can affect MCMC sampling, some of them historical and some of them new:
+
+Globals
+
+: functions and other structures defined in an accessible namespace
+
+    * `ergm_proposal_table()` a function that if called with no arguments returns a table of registered proposals and updates it otherwise. See `? ergm_proposal_table` for documentation and the meaning of its columns. Of particular interest is its `Constraints` column, which encodes which constraints the proposal **does** (always) enforce and which it **can** enforce.
+    * `InitErgmReference.<REFERENCE>` a family of initializers for the reference distribution. For the purposes of the proposal selection, among its outputs should be `$name` specifying the name of the reference distribution.
+    * `InitErgmConstraint.<CONSTRAINT>` a family of initializers for constraints, weightings, and other high-level specifiers of the proposal distribution. Hard constraints, probabilistic weights, and hints all use this API. For the purposes of the proposal selection, its outputs include
+        * `$constrain` (defaulting to `<CONSTRAINT>`) a character vector specifying which constraints are enforced, and can include several semantically nested elements;
+        * `$dependence` (defaulting to `TRUE`) specifying whether the constraint is dyad-dependent;
+        * `$priority` (defaulting to `Inf`) specifying how important it is that the constraint is met (with `Inf` meaning that it *must* be met); and
+        * `$implies`/`$impliedby` specifying which other constraints this constraint enforces or is enforced by, and this can include itself for constraints, such as `edges` that can only be applied once.
+
+Arguments
+
+: arguments and settings passed to the call or as control parameters.
+
+    * `constraints=` argument (top-level): A one-sided formula containing a `+`- or `-`-separated list of constraints. `+` terms add additional constraints to the model whereas `-` constraints relax them. `-` constraints are primarily used internally observational process estimation and are not described in detail, except to note that 1) they must be dyad-independent and 2) they necessitate falling back to the RLEBDM sampling API.
+    * `reference=` argument (top-level): A one-sided formula specifying the ERGM reference distribution, usually as a name with parameters if appropriate.
+    * `control$MCMC.prop=` control parameter: A formula whose RHS containing `+`-separated "hints" to the sampler; an optional LHS may contain the proposal name directly.
+    * `control$MCMC.prop.weights=` control parameter: A string selecting proposal weighting (probably deprecated)
+    * `control$MCMC.prop.args=` control parameter: A list specifying information to be passed to the proposal
+
+## Code Path
+
+Most of this is implemented in the `ergm_proposal.formula()` method:
+
+1. `InitErgmReference.<REFERENCE>` is called with arguments of `reference=`'s LHS, obtaining the name of the reference.
+1. For each term in the following formula's RHS, the corresponding `InitErgmConstraint.<CONSTRAINT>` function is called and their outputs are stored in a list of initialized constraints (an `ergm_conlist` object). `.dyads` pseudo-constraint is added to dyad-independent constraints (not to hints with `$priority < Inf`).
+    1. `constraints=`
+    1. `MCMC.prop=`
+1. Constraint lists from the previous two steps are concatenated, with redundant constraints removed based on their `$implies`/`$impliedby` settings.
+1. Proposal candidates returned by `ergm_proposal_table()` are filtered by `Class`, `Reference`, `Weights` (if `MCMC.prop.weights` differs from `"default"`), and `Proposal` (if the LHS of `MCMC.prop` is provided).
+1. Each candidate proposal is "scored" as follows:
+    1. If a proposal **does** enforce a constraint that is not among the requested by the constraints list, it is discarded.
+    1. If a proposal cannot enforce a constraint that is among the requested with `priority=Inf`, it is discarded.
+    1. For each constraint that is among requested with `priority<Inf` *and* that the proposal **does**n't and **can**'t enforce, its (innate, specified in the column of the `ergm_proposal_table()`) `Priority` value is penalised by the `priority` of that constraint.
+1. If there are no candidate proposals left, an error is raised.
+1. If more than one is left, the proposal with the highest priority (after being penalised for unmet constraints) is selected.

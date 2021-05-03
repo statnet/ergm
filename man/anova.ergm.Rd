@@ -66,7 +66,6 @@ are missing values and 's default of \code{na.action = na.omit} is used, and
 
 \examples{
 
-\donttest{
 data(molecule)
 molecule \%v\% "atomic type" <- c(1,1,1,1,1,1,2,2,2,2,2,2,2,3,3,3,3,3,3,3)
 fit0 <- ergm(molecule ~ edges)
@@ -78,7 +77,6 @@ fit2 <- ergm(molecule ~ edges + nodefactor("atomic type") +  gwesp(0.5,
   fixed=TRUE), eval.loglik=TRUE) # Note the eval.loglik argument.
 anova(fit0, fit1)
 anova(fit0, fit1, fit2)
-}
 
 }
 \seealso{

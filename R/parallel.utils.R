@@ -53,66 +53,131 @@ ergm.MCMC.packagenames <- local({
   }
 })
 
-#' Parallel Processing in the \code{\link[=ergm-package]{ergm}} Package
-#' 
-#' For estimation that require MCMC, \code{\link[=ergm-package]{ergm}}
-#' can take advantage of multiple CPUs or CPU cores on the system on
-#' which it runs, as well as computing clusters. It uses package
-#' \code{parallel} and \code{snow} to facilitate this, and supports
-#' all cluster types that they does. The number of nodes used and the
-#' parallel API are controlled using the \code{parallel} and
-#' \code{parallel.type} arguments passed to the control functions,
-#' such as \code{\link{control.ergm}}.
-#' 
-#' 
-#' Further details on the various cluster types are included below.
-#' 
-#' 
-#' @name ergm-parallel
-#' @aliases ergm-parallel parallel ergm.parallel parallel.ergm parallel-ergm
-#' 
-#' @docType methods
-#' @section PSOCK clusters: The \code{parallel} package is used with
-#'   PSOCK clusters by default, to utilize multiple cores on a
-#'   system. The number of cores on a system can be determined with
-#'   the \code{detectCores} function.
-#' 
-#'   This method works with the base installation of R on all
-#'   platforms, and does not require additional software.
-#' 
-#'   For more advanced applications, such as clusters that span
-#'   multiple machines on a network, the clusters can be initialized
-#'   manually, and passed into \code{ergm} using the \code{parallel}
-#'   control argument. See the second example below.
+#' Parallel Processing in the `ergm` Package
 #'
-#' @section MPI clusters: To use MPI to accelerate ERGM sampling, pass
-#'   the control parameter \code{parallel.type="MPI"}.
-#'   \code{\link[=ergm-package]{ergm}} requires the \code{snow} and
-#'   \code{Rmpi} packages to communicate with an MPI cluster.
-#'  
-#'   Using MPI clusters requires the system to have an existing MPI
-#'   installation.  See the MPI documentation for your particular
-#'   platform for instructions.
+#' Using clusters multiple CPUs or CPU cores to speed up ERGM
+#' estimation and simulation.
 #'
-#'   To use `ergm` across multiple machines in a high performance
-#'   computing environment, see the section "User initiated clusters"
-#'   below.
+#' @details
 #'
+#' For estimation that require MCMC, [ergm][ergm-package] can take
+#' advantage of multiple CPUs or CPU cores on the system on which it
+#' runs, as well as computing clusters through one of two mechanisms:
 #'
-#' @section User initiated clusters: A cluster can be passed into
-#'   \code{ergm} with the \code{parallel} control parameter.
-#'   \code{ergm} will detect the number of nodes in the cluster, and
-#'   use all of them for MCMC sampling. This method is flexible: it
-#'   will accept any cluster type that is compatible with \code{snow}
-#'   or \code{parallel} packages.
-## #'   Usage examples for a
-## #'   multiple-machine high performance MPI cluster can be found at the
-## #'   statnet wiki:
-## #'   \url{https://statnet.csde.washington.edu/trac/wiki/ergmParallel}
+#' \describe{\item{Running MCMC chains in parallel}{ Packages
+#' `parallel` and `snow` are used to to facilitate this, all cluster
+#' types that they support are supported.
+#' 
+#' The number of nodes used and the parallel API are controlled using
+#' the `parallel` and `parallel.type` arguments passed to the control
+#' functions, such as [control.ergm()].
+#'   
+#' The [ergm.getCluster()] function is usually called internally by
+#' the ergm process (in [ergm_MCMC_sample()]) and will attempt to
+#' start the appropriate type of cluster indicated by the
+#' [control.ergm()] settings. The [ergm.stopCluster()] is helpful if
+#' the user has directly created a cluster.
+#'     
+#' Further details on the various cluster types are included below.}
+#' 
+#' \item{Multithreaded evaluation of model terms}{ Rather than running
+#' multiple MCMC chains, it is possible to attempt to accelerate
+#' sampling by evaluating qualified terms' change statistics in
+#' multiple threads run in parallel. This is done using the
+#' [OpenMP](http://www.openmp.org/) API.
 #'
+#' However, this introduces a nontrivial amont of computational
+#' overhead. See below for a list of the major factors affecting
+#' whether it is worthwhile.}}
 #'
+#' Generally, the two approaches should not be used at the same time
+#' without caution. In particular, by default, cluster slave nodes
+#' will not \dQuote{inherit} the multithreading setting; but
+#' `parallel.inherit.MT=` control parameter can override that. Their
+#' relative advantages and disadvantages are as follows:
+#'
+#' * Multithreading terms cannot take advantage of clusters but only
+#'   of CPUs and cores.
+#'
+#' * Parallel MCMC chains produce several independent chains;
+#'   multithreading still only produces one.
+#' 
+#' * Multithreading terms actually accellerates sampling, including
+#'   the burn-in phase; parallel MCMC's multiple burn-in runs are
+#'   effectively \dQuote{wasted}.
+#' 
+#' 
+#' 
+#' @section Different types of clusters:
+#'
+#' \describe{\item{PSOCK clusters}{ The `parallel` package is used with PSOCK clusters
+#' by default, to utilize multiple cores on a system. The number of
+#' cores on a system can be determined with the [detectCores()]
+#' function.
+#'   
+#' This method works with the base installation of R on all platforms,
+#' and does not require additional software.
+#'   
+#' For more advanced applications, such as clusters that span multiple
+#' machines on a network, the clusters can be initialized manually,
+#' and passed into [ergm()] and others using the `parallel` control
+#' argument. See the second example below.}
+#'
+#' \item{MPI clusters}{ To use MPI to accelerate ERGM sampling,
+#' pass the control parameter `parallel.type="MPI"`.
+#' [ergm][ergm-package] requires the `snow` and `Rmpi` packages to
+#' communicate with an MPI cluster.
+#'   
+#' Using MPI clusters requires the system to have an existing MPI
+#' installation.  See the MPI documentation for your particular
+#' platform for instructions.
+#' 
+#' To use [ergm()] across multiple machines in a high performance
+#' computing environment, see the section "User initiated clusters"
+#' below.}
+#' 
+#' \item{User initiated clusters}{ A cluster can be passed into [ergm()]
+#' with the `parallel` control parameter. [ergm()] will detect the
+#' number of nodes in the cluster, and use all of them for MCMC
+#' sampling. This method is flexible: it will accept any cluster type
+#' that is compatible with `snow` or `parallel` packages.
+## #' Usage
+## #' examples for a multiple-machine high performance MPI cluster can be
+## #' found at the [Statnet
+## #' wiki](https://statnet.csde.washington.edu/trac/wiki/ergmParallel).
+#' }}
+#'
+#' @section When is multithreading terms worthwhile?:
+#' 
+#' * The more terms with statistics the model has, the more
+#'   benefit from parallel execution.
+#' 
+#' * The more expensive the terms in the model are, the more benefit
+#'   from parallel execution. For example, models with terms like
+#'   [`gwdsp`] will generally get more benefit than models where all
+#'   terms are dyad-independent.
+#'
+#' * Sampling more dense networks will generally get more benefit than
+#'   sparse networks. Network size has little, if any, effect.
+#'
+#' * More CPUs/cores usually give greater speed-up, but only up to a
+#'   point, because the amount of overhead grows with the number of
+#'   threads; it is often better to \dQuote{batch} the terms into a smaller
+#'   number of threads than possible.
+#'
+#' * Any other workload on the system will have a more severe effect
+#'   on multithreaded execution. In particular, do not run more
+#'   threads than CPUs/cores that you want to allocate to the tasks.
+#'
+#' * Under Windows, even compiling with OpenMP appears to introduce
+#'   unacceptable amounts of overhead, so it is disabled for Windows
+#'   at compile time. To enable, *delete* `src/Makevars.win` and
+#'   recompile from scratch.
+#' 
+#' 
+#' 
 #' @examples
-#' 
+#'
 #' \donttest{
 #' # Uses 2 SOCK clusters for MCMLE estimation
 #' data(faux.mesa.high)
@@ -122,6 +187,9 @@ ergm.MCMC.packagenames <- local({
 #' summary(fauxmodel.01)
 #' 
 #' }
+#'
+#' @name ergm-parallel
+#' @aliases parallel ergm.parallel parallel.ergm parallel-ergm
 #'
 NULL
 
@@ -136,8 +204,7 @@ NULL
 #'   parameter values from which the parallel settings should be read;
 #'   can also be [`NULL`], in which case an existing cluster is used
 #'   if started, or no cluster otherwise.
-#' @param verbose logical, should detailed status info be printed to
-#'   console?
+#' @template verbose
 #' @param stop_on_exit An [`environment`] or `NULL`. If an
 #'   `environment`, defaulting to that of the calling function, the
 #'   cluster will be stopped when the calling the frame in question
@@ -147,6 +214,8 @@ NULL
 ergm.getCluster <- function(control=NULL, verbose=FALSE, stop_on_exit=parent.frame()){
   # If we don't want a cluster, just return NULL.
   if (is.numeric(control$parallel) && control$parallel==0) return(NULL)
+
+  if(ERRVL(try(get.MT_terms(),silent=TRUE), FALSE) && control$parallel.inherit.MT==FALSE) warning("Using term multithreading in combination with parallel MCMC is generally not advised. See help('ergm-parallel') for more information.")
   
   if(inherits(control$parallel,"cluster")){
     # Control argument *is* a cluster. Overrides everything.
@@ -207,6 +276,11 @@ ergm.getCluster <- function(control=NULL, verbose=FALSE, stop_on_exit=parent.fra
       wrong <- !sapply(slave.versions,identical,master.version)
       if(any(wrong))
         stop("The version of ", sQuote(pkg), " (", paste(slave.versions[wrong], collapse=", "), ") attached on one or more slave nodes is different from that on the (this) master node (", master.version,"). Make sure that the same version is installed on all nodes. If you are absolutely certain that this message is in error, override with the parallel.version.check=FALSE control parameter.")
+    }
+
+    if(control$parallel.inherit.MT && ERRVL(try(get.MT_terms(), silent=TRUE), 0)!=0){
+      clusterCall(cl, set.MT_terms,
+                  get.MT_terms())
     }
     ergm.MCMC.packagenames(loaded=pkg)
   }
@@ -269,6 +343,39 @@ ergm.sample.tomcmc<-function(sample, params){
     # Let mcmc() figure out the "end" from dimensions.
     mcmc(sample, start = params$MCMC.burnin, thin = params$MCMC.interval)
   }
+}
+
+#' [set.MT_terms()] controls multithreading of model terms.
+#'
+#' @param n an integer specifying the number of threads to use; 0 (the
+#'   starting value) disables multithreading, and \eqn{-1} or
+#'   \code{NA} sets it to the number of CPUs detected.
+#' 
+#' @return [set.MT_terms()] returns the previous setting, invisibly.
+#'
+#' @note The this is a setting global to the `ergm` package and all of
+#'   its C functions, including when called from other packages via
+#'   the `Linking-To` mechanism.
+#'
+#' @rdname ergm-parallel
+#' @export
+set.MT_terms <- function(n){
+  old <- get.MT_terms()
+  n <- as.integer(n)
+  if(is.na(n) || n < -1) n <- -1L
+  .Call("set_ergm_omp_terms", n, PACKAGE="ergm")
+  invisible(old)
+}
+
+#' [get.MT_terms()] queries the current number of term calculation
+#' threads.
+#'
+#' @return [get.MT_terms()] returns the current setting.
+#'
+#' @rdname ergm-parallel
+#' @export
+get.MT_terms <- function(){
+  .Call("get_ergm_omp_terms", PACKAGE="ergm")
 }
 
 #' @rdname ergm-parallel

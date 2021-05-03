@@ -31,9 +31,6 @@ statistics associated with those terms.
 In practice, \code{\link[=summary.formula]{summary.formula()}} is a thin wrapper around the
 \code{\link[=summary_formula]{summary_formula()}} generic, which dispatches methods based on the
 class of the LHS of the formula.
-
-\code{summary.formula} for networks understands the
-\code{\link{lasttoggle}} "API".
 }
 \examples{
 

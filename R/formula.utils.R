@@ -12,7 +12,7 @@
 ## manipulating ERGM formulas.                                   ##
 ###################################################################
 
-model.transform.formula <- function(object, theta, response=NULL, recipes, ...){
+model.transform.formula <- function(object, theta, recipes, ...){
   ## Recipe syntax:
   ##
   ## Recipes are a named list with the names representing a map from
@@ -65,7 +65,7 @@ model.transform.formula <- function(object, theta, response=NULL, recipes, ...){
   ## a simple special case of toarg, if it were given a function that
   ## returned a constant value.
 
-  m <- ergm_model(object, ergm.getnetwork(object), response=response, ...)
+  m <- ergm_model(object, ergm.getnetwork(object), ...)
   theta.inds<-cumsum(c(1,nparam(m, byterm=TRUE)))
   terms<-list_rhs.formula(object)
   form<-object
@@ -172,8 +172,8 @@ model.transform.formula <- function(object, theta, response=NULL, recipes, ...){
 #' options(ergm.eval.loglik=FALSE)
 #' }
 #' data(sampson)
-#' gest<-ergm(samplike~edges+gwesp(decay=.5,fixed=FALSE),
-#'            control=control.ergm(MCMLE.maxit=3, MCMC.burnin=1024, MCMC.interval=128))
+#' gest<-ergm(samplike~edges+gwesp(),
+#'            control=control.ergm(MCMLE.maxit=2))
 #' summary(gest)
 #' # A statistic for esp(1),...,esp(16)
 #' simulate(gest,output="stats")
@@ -190,14 +190,13 @@ fix.curved <- function(object, ...) UseMethod("fix.curved")
 #' @rdname fix.curved
 #' @export
 fix.curved.ergm <- function(object,...){
-  fix.curved.formula(object$formula, coef(object), response=object$response, ...)
+  fix.curved.formula(object$formula, coef(object), ...)
 }
 
 #' @rdname fix.curved
 #' @param theta Curved model parameter configuration.
-#' @template response
 #' @export
-fix.curved.formula <- function(object, theta, response=NULL, ...){
+fix.curved.formula <- function(object, theta, ...){
   recipes<-list()
   is.fixed.1<-function(a) is.null(a$fixed) || a$fixed==FALSE
   recipes$dgwdsp<-recipes$dgwesp<-recipes$dgwnsp<-recipes$gwdsp<-recipes$gwesp<-recipes$gwnsp<-recipes$gwb1dsp<-recipes$gwb2dsp<-
@@ -207,17 +206,17 @@ fix.curved.formula <- function(object, theta, response=NULL, ...){
   recipes$gwb1degree<-recipes$gwb2degree<-recipes$gwdegree<-recipes$gwidegree<-recipes$gwodegree<-
     list(filter=is.fixed.1, tocoef=1, toarg=list(decay=2), constant=list(fixed=TRUE))
 
-  model.transform.formula(object, theta, response=response, recipes, ...)
+  model.transform.formula(object, theta, recipes, ...)
 }
 
 
 #' Convert a curved ERGM into a form suitable as initial values for the same
-#' ergm.
+#' ergm. Deprecated in 4.0.0.
 #' 
 #' The generic \code{enformulate.curved} converts an \code{\link{ergm}} object
 #' or formula of a model with curved terms to the variant in which the curved
 #' parameters embedded into the formula and are removed from the parameter
-#' vector. This is the form required by \code{\link{ergm}} calls.
+#' vector. This is the form that used to be required by \code{\link{ergm}} calls.
 #' 
 #' Because of a current kludge in \code{\link{ergm}}, output from one run
 #' cannot be directly passed as initial values (\code{control.ergm(init=)}) for
@@ -238,44 +237,41 @@ fix.curved.formula <- function(object, theta, response=NULL, ...){
 #' vector with curved parameter estimates removed.}
 #' @seealso \code{\link{ergm}}, \code{\link{simulate.ergm}}
 #' @keywords model
-#' @examples
-#' 
-#' \donttest{
-#' \dontshow{
-#' options(ergm.eval.loglik=FALSE)
-#' }
-#' data(sampson)
-#' gest<-ergm(samplike~edges+gwesp(decay=.5, fixed=FALSE), 
-#'     control=control.ergm(MCMC.burnin=1024, MCMC.interval=8, MCMLE.maxit=1))
-#' # Error:
-#' gest2<-try(ergm(gest$formula,
-#'                 control=control.ergm(init=coef(gest), MCMC.burnin=1024,
-#'                                      MCMC.interval=8, MCMLE.maxit=1)))
-#' print(gest2)
-#' 
-#' # Works:
-#' tmp<-enformulate.curved(gest)
-#' tmp
-#' gest2<-try(ergm(tmp$formula,
-#'                 control=control.ergm(init=tmp$theta, MCMC.burnin=1024,
-#'                                      MCMC.interval=8, MCMLE.maxit=1)))
-#' summary(gest2)
-#' }
+#' @name enformulate.curved-deprecated
+## #' @examples
+## #' 
+## #' \donttest{
+## #' \dontshow{
+## #' options(ergm.eval.loglik=FALSE)
+## #' }
+## #' data(sampson)
+## #' gest<-ergm(samplike~edges+gwesp(decay=.5, fixed=FALSE), 
+## #'     control=control.ergm(MCMLE.maxit=1))
+## #' # Error:
+## #' gest2<-try(ergm(gest$formula, control=control.ergm(init=coef(gest), MCMLE.maxit=1)))
+## #' print(gest2)
+## #' 
+## #' # Works:
+## #' tmp<-enformulate.curved(gest)
+## #' tmp
+## #' gest2<-try(ergm(tmp$formula, control=control.ergm(init=tmp$theta, MCMLE.maxit=1)))
+## #' summary(gest2)
+## #' }
 #' 
 #' @export enformulate.curved
 enformulate.curved <- function(object, ...) UseMethod("enformulate.curved")
 
-#' @rdname enformulate.curved
+#' @rdname enformulate.curved-deprecated
 #' @export
 enformulate.curved.ergm <- function(object,...){
-  fix.curved.formula(object$formula, coef(object), response=object$response, ...)
+  .Deprecated(msg="enformulate.curved() family of functions has been obviated by native handling of curved ERGM terms.")
+  fix.curved.formula(object$formula, coef(object), ...)
 }
 
-#' @rdname enformulate.curved
+#' @rdname enformulate.curved-deprecated
 #' @param theta Curved model parameter configuration.
-#' @template response
 #' @export
-enformulate.curved.formula <- function(object, theta, response=NULL, ...){
+enformulate.curved.formula <- function(object, theta, ...){
   recipes<-list()
   is.fixed.1<-function(a) is.null(a$fixed) || a$fixed==FALSE
   recipes$dgwdsp<-recipes$dgwesp<-recipes$dgwnsp<-recipes$gwdsp<-recipes$gwesp<-recipes$gwnsp<-recipes$gwb1dsp<-recipes$gwb2dsp<-
@@ -285,36 +281,15 @@ enformulate.curved.formula <- function(object, theta, response=NULL, ...){
   recipes$gwb1degree<-recipes$gwb2degree<-recipes$gwdegree<-recipes$gwidegree<-recipes$gwodegree<-
     list(filter=is.fixed.1, tocoef=1, toarg=list(decay=2))
 
-  model.transform.formula(object, theta, response=response, recipes, ...) 
-}
-
-set.offset.formula <- function(object, which, response=NULL, ...){
-  nw <- ergm.getnetwork(object)
-  m<-ergm_model(object, nw, response=response,role="target", ...)
-  to_offset <-unique(rep(seq_along(m$terms),nparam(m, byterm=TRUE))[which]) # Figure out which terms correspond to the coefficients to be offset.
-  terms <- list_rhs.formula(object)
-  for(i in to_offset)
-    if(!inherits(terms[[i]],"call") || terms[[i]][[1]]!="offset") # Don't offset terms already offset.
-      terms[[i]]<-call("offset", terms[[i]]) # Enclose the term in an offset.
-  nonsimp_update.formula(object, append_rhs.formula(~.,terms)) # append_rhs.formula call returns a formula of the form .~terms[[1]] + terms[[2]], etc.
-}
-
-unset.offset.formula <- function(object, which=TRUE, response=NULL, ...){
-  nw <- ergm.getnetwork(object)
-  m<-ergm_model(object, nw, response=response,role="target", ...)
-  to_unoffset <-unique(rep(seq_along(m$terms),nparam(m, byterm=TRUE))[which]) # Figure out which terms correspond to the coefficients to be un offset.
-  terms <- list_rhs.formula(object)
-  for(i in to_unoffset)
-    if(inherits(terms[[i]],"call") && terms[[i]][[1]]=="offset") # Is the term an offset?
-      terms[[i]]<-terms[[i]][[2]] # Grab the term inside the offset.
-  nonsimp_update.formula(object, append_rhs.formula(~.,terms)) # append_rhs.formula call returns a formula of the form .~terms[[1]] + terms[[2]], etc.
+  model.transform.formula(object, theta, recipes, ...)
 }
 
 #' @describeIn ergm-deprecated \code{offset.info.formula} returns the offset
 #'   vectors associated with a formula.
 #' @export offset.info.formula
-offset.info.formula <- function(object, response=NULL, ...){
+offset.info.formula <- function(object, ...){
+  .Deprecated()
   nw <- ergm.getnetwork(object)
-  m<-ergm_model(object, nw, response=response,role="target", ...)
+  m<-ergm_model(object, nw, ...)
   with(m$etamap, list(term=offset, theta=offsettheta,eta=offsetmap))
 }

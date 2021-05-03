@@ -64,16 +64,6 @@ test_that("SAN errors when passed the wrong number of offsets", {
     expect_error(san(x ~ edges + offset(concurrent), target.stats=c(6*n), offset.coef=c(1,2)), paste0("Length of ", sQuote("offset.coef"), " in SAN is 2, while the number of offset coefficients in the model is 1."))
 })
 
-test_that("san.ergm does not default to offsets in the ergm", {
-    x <- network(n, directed=FALSE,numedges=1)
-    e <- ergm(x ~ edges + offset(concurrent), offset.coef=c(-Inf),estimate="MPLE")
-    expect_error(san(e, target.stats=c(floor(n/2))))
-    y <- san(e, target.stats=c(floor(n/2)), offset.coef=c(-Inf))
-    z <- summary(y ~ edges + offset(concurrent))
-    expect_true(z["edges"] >= 0.95*floor(n/2))
-    expect_true(z["offset(concurrent)"] == 0)
-})
-
 test_that("SAN works with curved terms", {
     x <- network(n, directed=FALSE,numedges=1)
     y <- san(x ~ edges + gwesp(0,fixed=T), target.stats=c(100,10))
@@ -99,7 +89,7 @@ test_that("SAN works with curved terms", {
     expect_true(z["edges"] >= 29 && z["edges"] <= 31)
     expect_true(z["gwesp.fixed.0"] >= 8 && z["gwesp.fixed.0"] <= 10)
     
-    e <- ergm(x ~ edges + offset(degree(3)) + gwesp(cutoff=2), offset.coef=c(-Inf), control=control.ergm(MCMLE.maxit=1, loglik.control=control.logLik.ergm(nsteps=1)))
+    e <- ergm(x ~ edges + offset(degree(3)) + gwesp(cutoff=2), offset.coef=c(-Inf), control=control.ergm(MCMLE.maxit=1, loglik=control.logLik.ergm(bridge.nsteps=1)))
     y <- san(e, target.stats=c(30,9,0), offset.coef=c(-Inf))
     z <- summary(y ~ edges + gwesp(cutoff=2))
     expect_true(z["edges"] >= 29 && z["edges"] <= 31)
@@ -109,25 +99,33 @@ test_that("SAN works with curved terms", {
 
 test_that("SAN offsets work with curved terms", {
     x <- network(n, directed=FALSE,numedges=1)
-    expect_error(san(x ~ edges + offset(gwesp(1)), target.stats=c(100)))
-    expect_error(san(x ~ edges + offset(gwesp(1)), target.stats=c(100), offset.coef=c(1,1)))    
-    y <- san(x ~ edges + offset(gwesp(1)), target.stats=c(100), offset.coef=c(1))
+    expect_error(san(x ~ edges + offset(gwesp), target.stats=c(100)))
+    expect_error(san(x ~ edges + offset(gwesp), target.stats=c(100), offset.coef=c(1)))    
+    y <- san(x ~ edges + offset(gwesp), target.stats=c(100), offset.coef=c(1,1))
     z <- summary(y ~ edges)
     expect_true(z["edges"] >= 98 && z["edges"] <= 102)
 
-    expect_error(san(x ~ edges + offset(gwesp(1)) + triangle, target.stats=c(100, 10)))
-    expect_error(san(x ~ edges + offset(gwesp(1)) + triangle, target.stats=c(100, 10), offset.coef=c(1,1)))    
-    y <- san(x ~ edges + offset(gwesp(1)) + triangle, target.stats=c(100, 10), offset.coef=c(-Inf))
+    expect_error(san(x ~ edges + offset(gwesp) + triangle, target.stats=c(100, 10)))
+    expect_error(san(x ~ edges + offset(gwesp) + triangle, target.stats=c(100, 10), offset.coef=c(-Inf)))    
+    y <- san(x ~ edges + offset(gwesp) + triangle, target.stats=c(100, 10), offset.coef=c(-Inf,1))
     z <- summary(y ~ triangle)
     expect_true(z["triangle"] == 0)
 
-    expect_error(san(x ~ edges + gwesp(0.1) + offset(gwnsp(1)), target.stats=c(100)))
-    expect_error(san(x ~ edges + gwesp(0.1) + offset(gwnsp(1)), target.stats=c(100), offset.coef=c(1,1)))    
-    y <- san(x ~ edges + gwesp(0.1) + offset(gwnsp(1)), target.stats=c(100, 15:1, rep(0, 15)), offset.coef=c(-Inf))
-    expect_true(all(summary(y ~ gwnsp(1)) == rep(0, 30)))
+    expect_error(san(x ~ edges + gwesp + offset(gwnsp), target.stats=c(100)))
+    expect_error(san(x ~ edges + gwesp + offset(gwnsp), target.stats=c(100), offset.coef=c(-Inf)))    
+    y <- san(x ~ edges + gwesp + offset(gwnsp), target.stats=c(100, 15:1, rep(0, 15)), offset.coef=c(-Inf,1))
+    expect_true(all(summary(y ~ gwnsp) == rep(0, 30)))
 
-    expect_error(san(x ~ edges + offset(gwnsp(1)) + gwesp(0.1), target.stats=c(100)))
-    expect_error(san(x ~ edges + offset(gwnsp(1)) + gwesp(0.1), target.stats=c(100), offset.coef=c(1,1)))    
-    y <- san(x ~ edges + offset(gwnsp(1)) + gwesp(0.1), target.stats=c(100, 15:1, rep(0, 15)), offset.coef=c(-Inf))
-    expect_true(all(summary(y ~ gwnsp(1)) == rep(0, 30)))
+    expect_error(san(x ~ edges + offset(gwnsp) + gwesp, target.stats=c(100)))
+    expect_error(san(x ~ edges + offset(gwnsp) + gwesp, target.stats=c(100), offset.coef=c(-Inf)))    
+    y <- san(x ~ edges + offset(gwnsp) + gwesp, target.stats=c(100, 15:1, rep(0, 15)), offset.coef=c(-Inf,1))
+    expect_true(all(summary(y ~ gwnsp) == rep(0, 30)))
+})
+
+test_that("san incorporates SAN.invcov= control parameter correctly", {
+  nw <- network.initialize(n, directed=FALSE)
+  nw0 <- san(nw~edges+edges, target.stats=c(0,n), control=control.san(SAN.invcov=diag(c(10000,1)),SAN.maxit=1,SAN.nsteps=n*4))
+  nwn <- san(nw~edges+edges, target.stats=c(0,n), control=control.san(SAN.invcov=diag(c(1,10000)),SAN.maxit=1,SAN.nsteps=n*4))
+  expect_equal(network.edgecount(nw0), 0)
+  expect_equal(network.edgecount(nwn), n)
 })

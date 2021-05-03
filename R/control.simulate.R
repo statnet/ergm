@@ -25,7 +25,20 @@
 #' @param MCMC.burnin Number of proposals before any MCMC sampling is done. It
 #' typically is set to a fairly large number.
 #' @param MCMC.interval Number of proposals between sampled statistics.
-#' @param MCMC.init.maxedges Maximum number of edges expected in network.
+#'
+#' @template control_MCMC.batch
+#'
+#' @param MCMC.scale For `control.simulate.ergm()` inheriting
+#'   `MCMC.burnin` and `MCMC.interval` from the [`ergm`] fit, the
+#'   multiplier for the inherited values. This can be useful because
+#'   MCMC parameters used in the fit are tuned to generate a specific
+#'   effective sample size for the sufficient statistic in a large
+#'   MCMC sample, so the inherited values might not generate
+#'   independent realisations.
+#'
+#' @template control_MCMC_effectiveSize
+#' 
+#' @template control_MCMC_maxedges
 #' @param MCMC.runtime.traceplot Logical: If `TRUE`, plot traceplots of the MCMC
 #' sample.
 #' @param network.output R class with which to output networks. The options are
@@ -34,9 +47,7 @@
 #' @template term_options
 #' @template control_MCMC_parallel
 #' @template control_MCMC_packagenames
-#' @param \dots Additional arguments, passed to other functions This argument
-#' is helpful because it collects any control parameters that have been
-#' deprecated; a warning message is printed in case of deprecated arguments.
+#' @template control_dots
 #' @return A list with arguments as components.
 #' @seealso \code{\link{simulate.ergm}}, \code{\link{simulate.formula}}.
 #' \code{\link{control.ergm}} performs a similar function for
@@ -46,12 +57,21 @@
 #' @name control.simulate.ergm
 #' @keywords models
 #' @export control.simulate.formula.ergm
-control.simulate.formula.ergm<-function(MCMC.burnin=10000,
-                                        MCMC.interval=1000,
+control.simulate.formula.ergm<-function(MCMC.burnin=MCMC.interval*16,
+                                        MCMC.interval=1024,
+                                        MCMC.prop=trim_env(~sparse),
                                         MCMC.prop.weights="default",
                                         MCMC.prop.args=list(),
+
+                                        MCMC.batch=NULL,
+
+                                        MCMC.effectiveSize=NULL,
+                                        MCMC.effectiveSize.damp=10,
+                                        MCMC.effectiveSize.maxruns=1000,
+                                        MCMC.effectiveSize.burnin.pval=0.2,
+                                        MCMC.effectiveSize.order.max=NULL,
                                         
-                                        MCMC.init.maxedges=20000,
+                                        MCMC.maxedges=Inf,
                                         MCMC.packagenames=c(),
                                         
                                         MCMC.runtime.traceplot=FALSE,  
@@ -62,29 +82,17 @@ control.simulate.formula.ergm<-function(MCMC.burnin=10000,
                                         parallel=0,
                                         parallel.type=NULL,
                                         parallel.version.check=TRUE,
+                                        parallel.inherit.MT=FALSE,
+
                                         ...){
   old.controls <- list(
-                       maxedges="MCMC.init.maxedges",
+                       maxedges="MCMC.maxedges",
                        prop.weights="MCMC.prop.weights",
                        prop.args="MCMC.prop.args",
                        packagenames="MCMC.packagenames"
                        )
 
-  control<-list()
-  formal.args<-formals(sys.function())
-  formal.args[["..."]]<-NULL
-  for(arg in names(formal.args))
-    control[arg]<-list(get(arg))
-
-  for(arg in names(list(...))){
-    if(!is.null(old.controls[[arg]])){
-      warning("Passing ",arg," to control.simulate.formula(...) is deprecated and may be removed in a future version. Specify it as control.simulate.formula(",old.controls[[arg]],"=...) instead.")
-      control[old.controls[[arg]]]<-list(list(...)[[arg]])
-    }else{
-      stop("Unrecognized control parameter: ",arg,".")
-    }
-  }
-
+  control <- handle.controls("control.simulate.formula", ...)
   set.control.class("control.simulate.formula")
 }
 
@@ -105,10 +113,20 @@ control.simulate.formula<-control.simulate.formula.ergm
 #' @export control.simulate.ergm
 control.simulate.ergm<-function(MCMC.burnin=NULL,
                                 MCMC.interval=NULL,
+                                MCMC.scale=1,
+                                MCMC.prop=NULL,
                                 MCMC.prop.weights=NULL,
                                 MCMC.prop.args=NULL,
 
-                                MCMC.init.maxedges=NULL,
+                                MCMC.batch=NULL,
+                                
+                                MCMC.effectiveSize=NULL,
+                                MCMC.effectiveSize.damp=10,
+                                MCMC.effectiveSize.maxruns=1000,
+                                MCMC.effectiveSize.burnin.pval=0.2,
+                                MCMC.effectiveSize.order.max=NULL,
+                                
+                                MCMC.maxedges=Inf,
                                 MCMC.packagenames=NULL,
                                 
                                 MCMC.runtime.traceplot=FALSE,
@@ -119,25 +137,16 @@ control.simulate.ergm<-function(MCMC.burnin=NULL,
                                 parallel=0,
                                 parallel.type=NULL,
                                 parallel.version.check=TRUE,
+                                parallel.inherit.MT=FALSE,
+
                                 ...){
   old.controls <- list(
-                       maxedges="MCMC.init.maxedges",
+                       maxedges="MCMC.maxedges",
                        prop.weights="MCMC.prop.weights",
                        prop.args="MCMC.prop.args",
                        packagenames="MCMC.packagenames"
                        )
 
-  control<-list()
-  formal.args<-formals(sys.function())
-  formal.args[["..."]]<-NULL
-  for(arg in names(formal.args))
-    control[arg]<-list(get(arg))
-
-  for(arg in names(list(...)))
-    if(!is.null(old.controls[[arg]])){
-      warning("Passing ",arg," to control.simulate.ergm(...) is deprecated and may be removed in a future version. Specify it as control.simulate.ergm(",old.controls[[arg]],"=...) instead.")
-      control[old.controls[[arg]]]<-list(list(...)[[arg]])
-    }
- 
+  control <- handle.controls("control.simulate.ergm", ...)
   set.control.class("control.simulate.ergm")
 }

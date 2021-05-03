@@ -15,3 +15,4 @@ appveyor.yml
 ^revdep$
 ^.github$
 ^man-roxygen$
+^codecov\.yml$

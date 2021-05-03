@@ -118,11 +118,11 @@ ergm.bounddeg <- function(bounddeg,nw){
     constrains <- "bd"    
   }
   list(condAllDegExact=FALSE,
-       attribs=attribs,
-       maxout=maxout,
-       maxin=maxin,
-       minout=minout,
-       minin=minin,
+       attribs=as.integer(attribs),
+       maxout=as.integer(maxout),
+       maxin=as.integer(maxin),
+       minout=as.integer(minout),
+       minin=as.integer(minin),
        dependence=dependence,
        constrains=constrains)
 }

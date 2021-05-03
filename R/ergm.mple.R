@@ -36,7 +36,7 @@
 #' MPLE values are used even in the case of dyadic dependence models as
 #' starting points for the MCMC algorithm.
 #' 
-#' @param nw response network.
+#' @param nw response [`network`] or [`ergm_state`].
 #' @param fd An \code{\link{rlebdm}} with informative dyads.
 #' @param m the model, as returned by \code{\link{ergm_model}}
 #' @param init a vector a vector of initial theta coefficients
@@ -51,10 +51,8 @@
 #'
 #' @templateVar mycontrol control.ergm
 #' @template control
+#' @template verbose
 #'
-#' @param proposal an [ergm_proposal()] object.
-#' @param verbose whether this and the C routines should be verbose (T
-#'   or F); default=FALSE
 #' @param \dots additional parameters passed from within; all will be
 #'   ignored
 #' @return \code{ergm.mple} returns an ergm object as a list
@@ -75,7 +73,7 @@ ergm.mple<-function(nw, fd, m, init=NULL,
                     MPLEtype="glm", family="binomial",
                     save.glm=TRUE,
                     save.xmat=TRUE,
-		    control=NULL, proposal=NULL,
+		    control=NULL,
                     verbose=FALSE,
                     ...) {
   message("Starting maximum pseudolikelihood estimation (MPLE):")
@@ -83,7 +81,12 @@ ergm.mple<-function(nw, fd, m, init=NULL,
   pl <- ergm.pl(nw=nw, fd=fd, m=m,
                 theta.offset=init,
 		control=control,
+                ignore.offset=MPLEtype=="logitreg",
                 verbose=verbose)
+
+  # test whether the MPLE actually exists
+  # FIXME: Figure out how to test for MPLE's existence in penalised and curved MPLEs.
+  if(! MPLEtype%in%c("penalized","logitreg"))  mple.existence(pl)
 
   message("Maximizing the pseudolikelihood.")
   if(MPLEtype=="penalized"){
@@ -98,8 +101,8 @@ ergm.mple<-function(nw, fd, m, init=NULL,
    if(MPLEtype=="logitreg"){
     mplefit <- model.matrix(terms(pl$zy ~ .-1,data=data.frame(pl$xmat)),
                            data=data.frame(pl$xmat))
-    mplefit <- ergm.logitreg(x=mplefit, y=pl$zy, offset=pl$foffset, wt=pl$wend,
-                             start=init[!m$etamap$offsettheta])
+    mplefit <- ergm.logitreg(x=mplefit, y=pl$zy, m=m, wt=pl$wend,
+                             start=init, maxit=control$MPLE.maxit, verbose=max(verbose-2,0))
     mplefit.summary <- list(cov.unscaled=mplefit$cov.unscaled)
    }else{
 #     mplefit <- suppressWarnings(try(
@@ -117,7 +120,7 @@ ergm.mple<-function(nw, fd, m, init=NULL,
       stop(glm.result$error)
     } else if (!is.null(glm.result$warnings)) {
       # if the glm results are crazy, redo it with 0 starting values
-      if (max(abs(glm.result$value$coef), na.rm=T) > 1e6) {
+      if (max(abs(coef(glm.result$value)), na.rm=T) > 1e6) {
         warning("GLM model may be separable; restarting glm with zeros.\n")
         mplefit <- glm(pl$zy ~ .-1 + offset(pl$foffset), 
                        data=data.frame(pl$xmat),
@@ -139,12 +142,12 @@ ergm.mple<-function(nw, fd, m, init=NULL,
 
    }
   }
-  real.coef <- mplefit$coef
+  real.coef <- coef(mplefit)
   real.cov <- mplefit.summary$cov.unscaled
 
   theta <- NVL(init, real.coef)
   theta[!m$etamap$offsettheta] <- real.coef
-  names(theta) <- param_names(m,canonical=TRUE)
+  names(theta) <- param_names(m, FALSE)
 
 #
 # Old end
@@ -173,18 +176,16 @@ ergm.mple<-function(nw, fd, m, init=NULL,
 # mplefit <- call(MPLEtype, pl$zy ~ 1, family=binomial)
 #
   if(MPLEtype=="penalized"){
-    mplefit.null <- ergm.pen.glm(pl$zy ~ 1, weights=pl$wend)
+    mplefit.null <- ergm.pen.glm(pl$zy ~ -1 + offset(pl$foffset), weights=pl$wend)
+  }else if(MPLEtype=="logitreg"){
+    mplefit.null <- ergm.logitreg(x=matrix(0,ncol=1,nrow=length(pl$zy)),
+                                  y=pl$zy, offset=pl$foffset, wt=pl$wend, verbose=max(verbose-2,0))
   }else{
-    if(MPLEtype=="logitreg"){
-      mplefit.null <- ergm.logitreg(x=matrix(1,ncol=1,nrow=length(pl$zy)),
-                                    y=pl$zy, offset=pl$foffset, wt=pl$wend)
-    }else{
-      mplefit.null <- try(glm(pl$zy ~ 1, family=family, weights=pl$wend),
-                          silent = TRUE)
-      if (inherits(mplefit.null, "try-error")) {
-        mplefit.null <- list(coef=0, deviance=0, null.deviance=0,
-                             cov.unscaled=diag(1))
-      }
+    mplefit.null <- try(glm(pl$zy ~ -1 + offset(pl$foffset), family=family, weights=pl$wend),
+                        silent = TRUE)
+    if (inherits(mplefit.null, "try-error")) {
+      mplefit.null <- list(coefficients=0, deviance=0, null.deviance=0,
+                           cov.unscaled=diag(1))
     }
   }
 
@@ -192,16 +193,64 @@ ergm.mple<-function(nw, fd, m, init=NULL,
     glm <- mplefit
     glm.null <- mplefit.null
   }else{
-    glm <- NULL
-    glm.null <- NULL
+    glm <- list(deviance=mplefit$deviance)
+    glm.null <- list(deviance=mplefit.null$deviance)
   }
   message("Finished MPLE.")
   # Output results as ergm-class object
-  structure(list(coef=theta,
+  structure(list(coefficients=theta,
       iterations=iteration, 
       MCMCtheta=theta, gradient=gradient,
-      hessian=hess, covar=covar, failure=FALSE,
-      est.cov=est.cov, glm = glm, glm.null = glm.null, xmat.full = if(save.xmat) pl$xmat.full),
+      hessian=NULL, covar=covar, failure=FALSE,
+      glm = glm, glm.null = glm.null, xmat.full = if(save.xmat) pl$xmat.full),
      class="ergm")
 }
 
+#' Test whether the MPLE exists
+#'
+#' The \code{mple.existence} function tests whether the MPLE actually exists. The code
+#' applies the approach introduced by Konis (2007).
+#'
+#' Konis shows that the MPLE doesn't exist if data may be separated in the sense that
+#' there exists a vector beta such that
+#'    beta > (T(A^+_{ij})-T(A^-_{ij})) <0  when Aij= 0, and
+#'    beta > (T(A^+_{ij})-T(A^-_{ij})) >0  when Aij= 1.
+#' Here T(A^+_{ij})-T(A^-_{ij}) is the change
+#' statistic of an adjacency matrix A. He derives that finding such beta
+#' can be posed as a linear programming problem. In particular,
+#' maximize (e' X)beta,
+#' subject to X beta >= 0   (1)
+#' where e is a vector of ones, and X is the design matrix (T(A^+_ij)-T(A^-_ij)),
+#' where each element in a row that corresponds to a dyad with no tie, i.e.,Aij= 0,
+#' is being multiplied by -1. If there exist a beta such that (1) has a solution,
+#' then the data is separable and the MPLE does not exist.
+#'
+#' @param pl An ergm.pl-object
+#'
+#' @references Konis K (2007).  "Linear Programming Algorithms for Detecting Separated
+#' Data in Binary LogisticRegression Models (Ph.D. Thesis)." _Worcester College, Oxford University_.
+#' \url{https://ora.ox.ac.uk/objects/uuid:8f9ee0d0-d78e-4101-9ab4-f9cbceed2a2a}
+#' @noRd
+mple.existence <- function(pl) {
+#' @importFrom lpSolveAPI make.lp set.column set.objfn set.constr.type set.rhs set.bounds lp.control
+  X <- pl$xmat
+  y <- pl$zy
+  y[y==0] <- -1
+  X.bar <- y*X
+  e_n <- rep(1, nrow(X.bar))
+  obj <- e_n%*%X.bar 
+  lprec <- make.lp(nrow=nrow(X.bar), ncol=length(obj)) # set constraint and decision variables
+  for(k in 1:length(c(obj))){
+    status <- set.column(lprec, k, X.bar[,k])
+  }
+  status <- set.objfn(lprec, c( obj) )
+  status <- set.constr.type(lprec, rep(">=", NROW(X.bar)))
+  status <- set.rhs(lprec,  rep(0, NROW(X.bar)))
+  status <- set.bounds(lprec, lower = rep(-Inf, length(obj)), upper = rep(Inf, length(obj)))
+  control <- lp.control(lprec, pivoting = "firstindex", sense = "max",
+                        simplextype = c("primal", "primal"))
+  status <- solve(lprec)
+  if(status == 3){
+    warning("The MPLE does not exist!")
+  }
+}

@@ -7,28 +7,25 @@
 ergmMPLE(
   formula,
   constraints = ~.,
+  obs.constraints = ~-observed,
   fitmodel = FALSE,
-  output = c("matrix", "array", "fit"),
+  output = c("matrix", "array", "dyadlist", "fit"),
   expand.bipartite = FALSE,
-  as.initialfit = TRUE,
   control = control.ergm(),
   verbose = FALSE,
-  ...
+  ...,
+  basis = ergm.getnetwork(formula)
 )
 }
 \arguments{
-\item{formula, constraints}{An ERGM formula and a constraint formula. See \code{\link{ergm}}.}
+\item{formula, constraints, obs.constraints}{An ERGM formula and
+(optional) constraint specification formulas. See \code{\link{ergm}}.}
 
 \item{fitmodel}{Deprecated. Use \code{output="fit"} instead.}
 
 \item{output}{Character, partially matched. See Value.}
 
 \item{expand.bipartite}{Logical. Specifies whether the output matrices (or array slices) representing dyads for bipartite networks are represented as rectangular matrices with first mode vertices in rows and second mode in columns, or as square matrices with dimension equalling the total number of vertices, containing with structural \code{NA}s or 0s within each mode.}
-
-\item{as.initialfit}{Logical. Specifies whether terms are initialized with
-argument \code{initialfit==TRUE} (the default). Generally, if \code{TRUE},
-all curved ERGM terms will be treated as having their curved parameters
-fixed. See Example.}
 
 \item{control}{A list of control parameters for algorithm tuning,
 typically constructed with \code{\link[=control.ergm]{control.ergm()}}. Its documentation
@@ -37,10 +34,15 @@ meaning. The more generic utility \code{\link[=snctrl]{snctrl()}} (StatNet ConTR
 also provides argument completion for the available control
 functions and limited argument name checking.}
 
-\item{verbose}{Logical; if \code{TRUE}, the program will print out some
-additional information.}
+\item{verbose}{A logical or an integer to control the amount of
+progress and diagnostic information to be printed. \code{FALSE}/\code{0}
+produces minimal output, wit higher values producing more
+detail. Note that very high values (5+) may significantly slow
+down processing.}
 
 \item{\dots}{Additional arguments, to be passed to lower-level functions.}
+
+\item{basis}{a value (usually a \code{\link{network}}) to override the LHS of the formula.}
 }
 \value{
 If \code{output=="matrix"} (the default), then only the response, predictor,
@@ -52,6 +54,14 @@ return a list with three elements, \code{response}, \code{predictor}, and
 \code{weights}, respectively the response vector, the predictor matrix, and
 a vector of weights, which are really counts that tell how many times each
 corresponding response, predictor pair is repeated.
+
+If \code{output=="dyadlist"}, as \code{"matrix"}, but rather than
+coalescing the duplicated rows, every relation in the network that
+is not fixed and is observed will have its own row in \code{predictor}
+and element in \code{response} and \code{weights}, and \code{predictor} matrix
+will have two additional rows at the start, \code{tail} and \code{head},
+indicating to which dyad the row and the corresponding elements
+pertain.
 
 If \code{output=="array"}, a list with similarly named three elements is
 returned, but \code{response} is formatted into a sociomatrix;
@@ -103,27 +113,43 @@ formula <- faux.mesa.high ~ edges + nodematch("Sex") + nodefactor("Grade")
 mplesetup <- ergmMPLE(formula)
 
 # Obtain MPLE coefficients "by hand":
-glm(mplesetup$response ~ . - 1, data = data.frame(mplesetup$predictor), 
-    weights = mplesetup$weights, family="binomial")$coefficients
+coef(glm(mplesetup$response ~ . - 1, data = data.frame(mplesetup$predictor),
+         weights = mplesetup$weights, family="binomial"))
 
 # Check that the coefficients agree with the output of the ergm function:
-ergmMPLE(formula, output="fit")$coef
+coef(ergmMPLE(formula, output="fit"))
 
 # We can also format the predictor matrix into an array:
 mplearray <- ergmMPLE(formula, output="array")
 
+# The resulting matrices are big, so only print the first 8 actors:
+mplearray$response[1:8,1:8]
+mplearray$predictor[1:8,1:8,]
+mplearray$weights[1:8,1:8]
+
+if(require(tergm)){
+# Constraints are handled:
+faux.mesa.high\%v\%"block" <- seq_len(network.size(faux.mesa.high)) \%/\% 4
+mplearray <- ergmMPLE(faux.mesa.high~edges, constraints=~blockdiag("block"), output="array")
+mplearray$response[1:8,1:8]
+mplearray$predictor[1:8,1:8,]
+mplearray$weights[1:8,1:8]
+
+# Or, a dyad list:
+faux.mesa.high\%v\%"block" <- seq_len(network.size(faux.mesa.high)) \%/\% 4
+mplearray <- ergmMPLE(faux.mesa.high~edges, constraints=~blockdiag("block"), output="dyadlist")
+mplearray$response[1:8]
+mplearray$predictor[1:8,]
+mplearray$weights[1:8]
+}
+
+# Curved terms produce predictors on the canonical scale:
+formula2 <- faux.mesa.high ~ gwesp
+mplearray <- ergmMPLE(formula2, output="array")
 # The resulting matrices are big, so only print the first 5 actors:
 mplearray$response[1:5,1:5]
-mplearray$predictor[1:5,1:5,]
+mplearray$predictor[1:5,1:5,1:3]
 mplearray$weights[1:5,1:5]
-
-formula2 <- faux.mesa.high ~ gwesp(0.5,fix=FALSE)
-
-# The term is treated as fixed: only the gwesp term is returned:
-colnames(ergmMPLE(formula2, as.initialfit=TRUE)$predictor)
-
-# The term is treated as curved: individual esp# terms are returned:
-colnames(ergmMPLE(formula2, as.initialfit=FALSE)$predictor)
 }
 \seealso{
 \code{\link{ergm}}, \code{\link{glm}}

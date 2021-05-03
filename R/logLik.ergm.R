@@ -21,11 +21,12 @@
 #'   \code{\link{ergm}}.
 #' @param add Logical: If `TRUE`, instead of returning the
 #'   log-likelihood, return \code{object} with log-likelihood value
-#'   set.
+#'   (and the null likelihood value) set.
 #' @param force.reeval Logical: If `TRUE`, reestimate the
 #'   log-likelihood even if \code{object} already has an estiamte.
 #' @param eval.loglik Logical: If `TRUE`, evaluate the log-likelihood
 #'   if not set on \code{object}.
+#' @param k see help for [AIC()].
 #'
 #' @templateVar mycontrol control.logLik.ergm
 #' @template control
@@ -68,7 +69,7 @@
 #' # for speed's sake.
 #' gest.logLik <- logLik(gest, add=TRUE)
 #' 
-#' gest.logLik <- logLik(gest, add=TRUE, control=control.logLik.ergm(nsteps=3))
+#' gest.logLik <- logLik(gest, add=TRUE, control=control.logLik.ergm(bridge.nsteps=3))
 #' # Deviances, AIC, and BIC are now shown:
 #' summary(gest.logLik)
 #' # Null model likelihood can also be evaluated, but not for all constraints:
@@ -84,47 +85,45 @@ logLik.ergm<-function(object, add=FALSE, force.reeval=FALSE, eval.loglik=add || 
   
   check.control.class("logLik.ergm", "logLik.ergm")
   handle.control.toplevel("logLik.ergm", ...)
- 
-  control.transfer <- c("MCMC.burnin", "MCMC.interval", "MCMC.prop.weights",
-"MCMC.prop.args", "MCMC.packagenames", "MCMC.init.maxedges", "MCMC.samplesize",
-"obs.MCMC.burnin", "obs.MCMC.interval", "obs.MCMC.samplesize","MPLE.type","MPLE.max.dyad.types","parallel","parallel.type","parallel.version.check","term.options"
-)
+
+  bridge.names <- names(formals(control.ergm.bridge))
+  control.bridge <- control[intersect(bridge.names, names(control))]
+  control.transfer <- intersect(c("MCMC.samplesize", SCALABLE_MCMC_CONTROLS, STATIC_MCMC_CONTROLS, PARALLEL_MCMC_CONTROLS, MPLE_CONTROLS), bridge.names)
   for(arg in control.transfer)
-    if(is.null(control[[arg]]))
-      control[arg] <- list(object$control[[arg]])
+    if(is.null(control.bridge[[arg]]))
+      control.bridge[[arg]] <- object$control[[arg]]
 
-  control <- set.control.class("control.ergm.bridge")
-
-  # "object" has an element control.
-  loglik.control<-control
+  control.null <- control
+  control.bridge <- do.call(control.ergm.bridge, control.bridge)
   
   out<-with(object,
             {
               if(!eval.loglik) stop(NO_LOGLIK_MESSAGE)
               
-              ## If dyad-independent or MPLE, just go from the deviance.
-              if(object$estimate=="MPLE"
-                 || (is.dyad.independent(object, term.options=control$term.options)
-                     && is.null(object$sample)
-                     && is.null(object$response)))
-			 if(control$MPLE.type=="penalized")
-				 object$glm$loglik - object$glm.null$loglik else
-                -object$glm$deviance/2 - -object$glm$null.deviance/2
-              else
-                ## If dyad-dependent but not valued and has a dyad-independent constraint, bridge from a dyad-independent model.
-                if(is.dyad.independent(object$constrained, object$constrained.obs)
-                   && is.null(object$response))
-                  ergm.bridge.dindstart.llk(formula,reference=reference,constraints=constraints,coef=coef(object),control=loglik.control,llkonly=FALSE,...)
-                else
-                  ## If valued or has dyad-dependent constraint, compute a path sample from reference measure.
-                  ergm.bridge.0.llk(formula,response=object$response,reference=reference,constraints=constraints,coef=coef(object),control=loglik.control,llkonly=FALSE,...)
-            }
-            )
-  
+    ## If dyad-independent or MPLE, just go from the deviance.
+    if(estimate=="MPLE"
+       || (is.dyad.independent(object, term.options=control$term.options)
+         && is.null(object$sample)
+         && !is.valued(object)))
+      structure(-glm$deviance/2 - -glm.null$deviance/2, vcov = 0)
+    ## If dyad-dependent but not valued and has a dyad-independent constraint, bridge from a dyad-independent model.
+    else if(is.dyad.independent(object$constrained, object$constrained.obs)
+                   && !is.valued(object))
+      ergm.bridge.dindstart.llk(formula,reference=reference,constraints=constraints,obs.constraints=obs.constraints,coef=coef(object),target.stats=object$target.stats,control=control.bridge,llkonly=FALSE,...)
+    ## If valued or has dyad-dependent constraint, bridge from the null model (reference measure).
+    else
+      ergm.bridge.0.llk(formula,reference=reference,constraints=constraints,obs.constraints=obs.constraints,coef=coef(object),target.stats=object$target.stats,control=control.bridge,llkonly=FALSE,basis=object$network,...)
+  }
+  )
+
+  # Add the null likelihood. This incidentally means that the nobs() calls below is short-circuited to reuse the result here.
+  if(add) object$null.lik <- logLikNull(object, control=control.null, ...)
+
   if(is.numeric(out)){
     llk<-out
   }else{
     llk<-out$llk
+    attr(llk,"vcov") <- out$vcov.llr
     attr(llk,"br")<-out
   }
   if(!inherits(llk,"logLik")){
@@ -176,7 +175,7 @@ logLikNull.ergm <- function(object, control=control.logLik.ergm(), ...){
   nobs <- nobs(object,...)
 
   llk <-
-    if(!is.null(object$response)){
+    if(is.valued(object)){
       message(paste(strwrap(paste("Note: Null model likelihood calculation is not implemented for valued ERGMs at this time. ", NO_NULL_IMPLICATION)), collapse="\n"))
       NA
     }else if(!is.dyad.independent(object$constrained, object$constrained.obs)){
@@ -210,3 +209,28 @@ nobs.ergm <- function(object, ...){
 }
 
 NO_NULL_IMPLICATION <- "This means that all likelihood-based inference (LRT, Analysis of Deviance, AIC, BIC, etc.) is only valid between models with the same reference distribution and constraints."
+
+#' @describeIn logLik.ergm A [deviance()] method.
+#' @export
+deviance.ergm <- function(object, ...){
+  llk <- logLik(object, ...)
+  structure(-2*as.vector(llk), vcov = EVL(4*attr(llk,"vcov"), NA))
+}
+
+#' @describeIn logLik.ergm An [AIC()] method.
+#' @export
+AIC.ergm <- function(object, ..., k = 2){
+  if(...length()==0){
+    llk <- logLik(object)
+    structure(AIC(llk, k=k), vcov = EVL(4*attr(llk,"vcov"), NA))
+  }else NextMethod()
+}
+
+#' @describeIn logLik.ergm A [BIC()] method.
+#' @export
+BIC.ergm <- function(object, ...){
+  if(...length()==0){
+    llk <- logLik(object)
+    structure(BIC(llk), vcov = EVL(4*attr(llk,"vcov"), NA))
+  }else NextMethod()
+}

@@ -8,25 +8,26 @@
 #  Copyright 2003-2020 Statnet Commons
 #######################################################################
 
-ergm_CD_sample <- function(nw, model, proposal, control, theta=NULL, 
-                             response=NULL, verbose=FALSE,..., eta=ergm.eta(theta, model$etamap)) {
+ergm_CD_sample <- function(state, control, theta=NULL, 
+                           verbose=FALSE,..., eta=ergm.eta(theta, (if(is.ergm_state(state))as.ergm_model(state)else as.ergm_model(state[[1]]))$etamap)){
   # Start cluster if required (just in case we haven't already).
   ergm.getCluster(control, verbose)
   
-  if(is.network(nw) || is.pending_update_network(nw)) nw <- list(nw)
-  nws <- rep(nw, length.out=nthreads(control))
-  
-  Clists <- lapply(nws, ergm::ergm.Cprepare, model, response=response)
+  if(is.ergm_state(state)) state <- list(state)
+  state <- rep(state, length.out=nthreads(control))
 
   control.parallel <- control
-  control.parallel$MCMC.samplesize <- NVL3(control$MCMC.samplesize, ceiling(. / nthreads(control)))
+  control.parallel$CD.samplesize <- NVL3(control$CD.samplesize, ceiling(. / nthreads(control)))
 
   flush.console()
 
+  state0 <- state
+  state <- lapply(state, ergm_state_send) # Don't carry around nw0.
+
   doruns <- function(samplesize=NULL){
     if(!is.null(ergm.getCluster(control))) persistEvalQ({clusterMap(ergm.getCluster(control), ergm_CD_slave,
-                                  Clist=Clists, MoreArgs=list(proposal=proposal,eta=eta,control=control.parallel,verbose=verbose,...,samplesize=samplesize))}, retries=getOption("ergm.cluster.retries"), beforeRetry={ergm.restartCluster(control,verbose)})
-    else list(ergm_CD_slave(Clist=Clists[[1]], samplesize=samplesize,proposal=proposal,eta=eta,control=control.parallel,verbose=verbose,...))
+                                                                    state=state, MoreArgs=list(eta=eta,control=control.parallel,verbose=verbose,...,samplesize=samplesize))}, retries=getOption("ergm.cluster.retries"), beforeRetry={ergm.restartCluster(control,verbose)})
+    else list(ergm_CD_slave(state=state[[1]], samplesize=samplesize,eta=eta,control=control.parallel,verbose=verbose,...))
   }
   
   outl <- doruns()
@@ -35,7 +36,7 @@ ergm_CD_sample <- function(nw, model, proposal, control, theta=NULL,
   }
   
   if(control.parallel$MCMC.runtime.traceplot){
-    lapply(outl, function(out) NVL3(theta, ergm.estfun(out$s, ., model), out$s[,Clists[[1]]$diagnosable,drop=FALSE])) %>%
+    lapply(outl, function(out) NVL3(theta, ergm.estfun(out$s, ., as.ergm_model(state[[1]])), out$s[,!as.ergm_model(state[[1]])$offsetmap,drop=FALSE])) %>%
       lapply.mcmc.list(mcmc, start=1) %>% lapply.mcmc.list(`-`) %>% window(., thin=thin(.)*max(1,floor(niter(.)/1000))) %>%
       plot(ask=FALSE,smooth=TRUE,density=FALSE)
   }
@@ -47,15 +48,11 @@ ergm_CD_sample <- function(nw, model, proposal, control, theta=NULL,
   newnetworks <- list()
   for(i in (1:nthreads(control))){
     z <- outl[[i]]
-    
-    if(z$status == 1){ # MCMC_TOO_MANY_EDGES, exceeding even control.parallel$MCMC.max.maxedges
-      return(list(status=z$status))
-    }
-    
+        
     if(z$status == 2){ # MCMC_MH_FAILED
       # MH proposal failed somewhere. Throw an error.
       stop("Sampling failed due to a Metropolis-Hastings proposal failing.")
-      }
+    }
     
     statsmatrices[[i]] <- z$s
   }
@@ -67,59 +64,33 @@ ergm_CD_sample <- function(nw, model, proposal, control, theta=NULL,
   list(stats = stats, networks=newnetworks, status=0)
 }
 
-ergm_CD_slave <- function(Clist,proposal,eta,control,verbose,..., samplesize=NULL) {
-    nedges <- c(Clist$nedges,0,0)
-    tails <- Clist$tails
-    heads <- Clist$heads
-    weights <- Clist$weights
-    stats <- rep(0, Clist$nstats)
-  
-  if(is.null(samplesize)) samplesize <- control$MCMC.samplesize
+ergm_CD_slave <- function(state, eta,control,verbose,..., samplesize=NULL){  
+  on.exit(ergm_Cstate_clear())
 
-  samplesize <- control$MCMC.samplesize
-  
-  if(is.null(Clist$weights)){
-    z <- .C("CD_wrapper",
-            as.integer(nedges),
-            as.integer(tails), as.integer(heads),
-            as.integer(Clist$n),
-            as.integer(Clist$dir), as.integer(Clist$bipartite),
-            as.integer(Clist$nterms),
-            as.character(Clist$fnamestring),
-            as.character(Clist$snamestring),
-            as.character(proposal$name), as.character(proposal$pkgname),
-            as.double(c(Clist$inputs,proposal$inputs)), as.double(deInf(eta)),
-            as.integer(samplesize), as.integer(c(control$CD.nsteps,control$CD.multiplicity)),
-            s = as.double(rep(stats, samplesize)),
-            as.integer(verbose), as.integer(proposal$arguments$constraints$bd$attribs),
-            as.integer(proposal$arguments$constraints$bd$maxout), as.integer(proposal$arguments$constraints$bd$maxin),
-            as.integer(proposal$arguments$constraints$bd$minout), as.integer(proposal$arguments$constraints$bd$minin),
-            as.integer(proposal$arguments$constraints$bd$condAllDegExact), as.integer(length(proposal$arguments$constraints$bd$attribs)),
-            status = integer(1),
-            PACKAGE="ergm")
-    
-    # save the results
-    z<-list(s=matrix(z$s, ncol=Clist$nstats, byrow = TRUE), status=z$status)
-  }else{
-    z <- .C("WtCD_wrapper",
-            as.integer(nedges),
-            as.integer(tails), as.integer(heads), as.double(weights),
-            as.integer(Clist$n),
-            as.integer(Clist$dir), as.integer(Clist$bipartite),
-            as.integer(Clist$nterms),
-            as.character(Clist$fnamestring),
-            as.character(Clist$snamestring),
-            as.character(proposal$name), as.character(proposal$pkgname),
-            as.double(c(Clist$inputs,proposal$inputs)), as.double(deInf(eta)),
-            as.integer(samplesize), as.integer(c(control$CD.nsteps,control$CD.multiplicity)),
-            s = as.double(rep(stats, samplesize)),
-            as.integer(verbose), 
-            status = integer(1),
-            PACKAGE="ergm")
-    # save the results
-    z<-list(s=matrix(z$s, ncol=Clist$nstats, byrow = TRUE), status=z$status)
-  }
-  
+  state$proposal$flags$CD <- TRUE
+  if(is.null(samplesize)) samplesize <- control$CD.samplesize
+
+  z <- if(!is.valued(state))
+         .Call("CD_wrapper",
+               state,
+               # MCMC settings
+               as.double(deInf(eta)),
+               as.integer(samplesize),
+               as.integer(c(control$CD.nsteps,control$CD.multiplicity)),
+               as.integer(verbose),
+               PACKAGE="ergm")
+       else
+         .Call("WtCD_wrapper",
+               state,
+               # MCMC settings
+               as.double(deInf(eta)),
+               as.integer(samplesize),
+               as.integer(c(control$CD.nsteps,control$CD.multiplicity)),
+               as.integer(verbose),
+               PACKAGE="ergm")
+
+  z$s <- matrix(z$s, ncol=nparam(state,canonical=TRUE), byrow = TRUE)
+  colnames(z$s) <- param_names(state, canonical=TRUE)
+
   z
-    
 }

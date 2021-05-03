@@ -64,8 +64,9 @@
 #' @param MCMC.burnin Number of proposals before any MCMC sampling is done. It
 #' typically is set to a fairly large number.
 #' @param MCMC.interval Number of proposals between sampled statistics.
+#' @template control_MCMC.batch
 #' @template control_MCMC_prop
-#' @param MCMC.init.maxedges Maximum number of edges expected in network.
+#' @template control_MCMC_maxedges
 #' @param MCMC.runtime.traceplot Logical: If `TRUE`, plot traceplots of the MCMC
 #' sample.
 #' @param network.output R class with which to output networks. The options are
@@ -84,10 +85,13 @@
 control.gof.formula<-function(nsim=100,
                               MCMC.burnin=10000,
                               MCMC.interval=1000,
+                              MCMC.batch=0,
+
+                              MCMC.prop=trim_env(~sparse),
                               MCMC.prop.weights="default",
                               MCMC.prop.args=list(),
                               
-                              MCMC.init.maxedges=20000,
+                              MCMC.maxedges=Inf,
                               MCMC.packagenames=c(),
                               
                               MCMC.runtime.traceplot=FALSE,          
@@ -96,11 +100,9 @@ control.gof.formula<-function(nsim=100,
                               seed=NULL,
                               parallel=0,
                               parallel.type=NULL,
-                              parallel.version.check=TRUE){
-  control<-list()
-  for(arg in names(formals(sys.function())))
-    control[arg]<-list(get(arg))
-  
+                              parallel.version.check=TRUE,
+                              parallel.inherit.MT=FALSE){
+  control <- handle.controls("control.gof.formula")
   set.control.class("control.gof.formula")
 }
 
@@ -112,12 +114,16 @@ control.gof.formula<-function(nsim=100,
 #'  
 #' @export control.gof.formula
 control.gof.ergm<-function(nsim=100,
+
                            MCMC.burnin=NULL,
                            MCMC.interval=NULL,
+                           MCMC.batch=NULL,
+
+                           MCMC.prop=NULL,
                            MCMC.prop.weights=NULL,
                            MCMC.prop.args=NULL,
                            
-                           MCMC.init.maxedges=NULL,
+                           MCMC.maxedges=NULL,
                            MCMC.packagenames=NULL,
 
                            MCMC.runtime.traceplot=FALSE,
@@ -126,10 +132,8 @@ control.gof.ergm<-function(nsim=100,
                            seed=NULL,
                            parallel=0,
                            parallel.type=NULL,
-                           parallel.version.check=TRUE){
-  control<-list()
-  for(arg in names(formals(sys.function())))
-    control[arg]<-list(get(arg))
-
+                           parallel.version.check=TRUE,
+                           parallel.inherit.MT=FALSE){
+  control <- handle.controls("control.gof.ergm")
   set.control.class("control.gof.ergm")
 }

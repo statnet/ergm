@@ -471,7 +471,7 @@ ergm_get_vattr.AsIs <- function(object, nw, accept="character", bip=c("n","b1","
 }
 
 #' @rdname nodal_attributes-API
-#' @importFrom purrr "%>%" "map" "pmap_chr"
+#' @importFrom purrr "%>%" map pmap_chr
 #' @importFrom rlang set_names
 #' @export
 ergm_get_vattr.character <- function(object, nw, accept="character", bip=c("n","b1","b2","a"), multiple=if(accept=="character") "paste" else "stop", ...){
@@ -501,14 +501,12 @@ ergm_get_vattr.function <- function(object, nw, accept="character", bip=c("n","b
       args[[aname]] <- get(aname)
   args <- c(list(nw), list(...), args)
 
-  ERRVL(try({
+  ergm_Init_try({
     a <- do.call(object, args)
     while(is(a,'formula')||is(a,'function')) a <- ergm_get_vattr(a, nw, accept=accept, bip=bip, multiple=multiple, ...)
     a %>% .rightsize_vattr(nw, bip, accept) %>% .handle_multiple(multiple=multiple) %>%
       structure(., name=NVL(attr(.,"name"), strtrim(despace(paste(deparse(body(object)),collapse="\n")),80)))
-  }, silent=TRUE),
-  ergm_Init_abort(.)) %>%
-    .check_acceptable(accept=accept)
+  }) %>% .check_acceptable(accept=accept)
 }
 
 
@@ -525,14 +523,12 @@ ergm_get_vattr.formula <- function(object, nw, accept="character", bip=c("n","b1
              lst(`.`=nw, .nw=nw, ...))
 
   e <- ult(object)
-  ERRVL(try({
+  ergm_Init_try({
     a <- eval(e, envir=vlist, enclos=environment(object))
     while(is(a,'formula')||is(a,'function')) a <- ergm_get_vattr(a, nw, accept=accept, bip=bip, multiple=multiple, ...)
     a %>% .rightsize_vattr(nw, bip, accept) %>% .handle_multiple(multiple=multiple) %>%
       structure(., name=NVL(attr(.,"name"), if(length(object)>2) eval_lhs.formula(object) else despace(paste(deparse(e),collapse="\n"))))
-  }, silent=TRUE),
-  ergm_Init_abort(.)) %>%
-    .check_acceptable(accept=accept, xspec=object)
+  }) %>% .check_acceptable(accept=accept, xspec=object)
 }
 
 #' @rdname nodal_attributes-API

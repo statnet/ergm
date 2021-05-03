@@ -129,7 +129,7 @@ approx.hotelling.diff.test<-function(x,y=NULL, mu0=0, assume.indep=FALSE, var.eq
   novar <- diag(vcov.d)==0
   p <- p-sum(novar)
 
-  if(p==0) stop("data are essentially contstant")
+  if(p==0) stop("data are essentially constant")
   
   ivcov.d <-ginv(vcov.d[!novar,!novar,drop=FALSE])
   
@@ -275,6 +275,8 @@ spectrum0.mvar <- function(x, order.max=NULL, aic=is.null(order.max), tol=.Machi
   v <- matrix(0,p,p)
   novar <- abs(apply(x,2,stats::sd))<tol
   x <- x[,!novar,drop=FALSE]
+
+  if(ncol(x) == 0) stop("All variables are constant.")
 
   # Index of the first local minimum in a sequence.
   first_local_min <- function(x){

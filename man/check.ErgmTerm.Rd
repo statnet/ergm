@@ -14,7 +14,6 @@ check.ErgmTerm(
   vartypes = NULL,
   defaultvalues = list(),
   required = NULL,
-  response = NULL,
   dep.inform = rep(FALSE, length(required)),
   dep.warn = rep(FALSE, length(required))
 )
@@ -44,10 +43,6 @@ arguments of term X; default=list()}
 
 \item{required}{the logical vector of whether each possible
 argument is required; default=NULL}
-
-\item{response}{Name of the edge attribute whose value is to be
-modeled in the valued ERGM framework. Defaults to \code{NULL} for
-simple presence or absence, modeled via a binary ERGM.}
 
 \item{dep.inform, dep.warn}{a list of length equal to the number of
 arguments the term can take; if the corresponding element of the

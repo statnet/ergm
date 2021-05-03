@@ -1,2 +1,6 @@
+## ifndef DEBUG
+## PKG_CFLAGS = $(SHLIB_OPENMP_CFLAGS)
+## PKG_LIBS = $(SHLIB_OPENMP_CFLAGS)
+## endif
 ## Avoid code duplication between src/ and inst/include .
 PKG_CPPFLAGS= -I../inst/include

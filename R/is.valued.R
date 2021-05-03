@@ -1,0 +1,29 @@
+#' Function to check whether an ERGM fit or some aspect of it is valued
+#' @param object the object to be tested.
+#' @param ... additional arguments for methods, currently unused.
+#' @export
+is.valued <- function(object, ...) UseMethod("is.valued")
+
+#' @describeIn is.valued a method for [`ergm_state`] objects.
+#' @export
+is.valued.ergm_state <- function(object, ...){
+  is.valued(object$el)
+}
+
+#' @describeIn is.valued a method for [`edgelist`] objects.
+#' @export
+is.valued.edgelist <- function(object, ...){
+  ncol(object)>2
+}
+
+#' @describeIn is.valued a method for [`ergm`] objects.
+#' @export
+is.valued.ergm <- function(object, ...){
+  is.valued(object$network)
+}
+
+#' @describeIn is.valued a method for [`network`] objects.
+#' @export
+is.valued.network <- function(object, ...){
+  NVL(attr(object %ergmlhs% "response", "valued"), FALSE)
+}

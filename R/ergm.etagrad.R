@@ -32,15 +32,6 @@
 #' @return For \code{ergm.etagrad}, a matrix of the gradient of eta
 #'   with respect to theta.
 #' @export ergm.etagrad
-ergm.etagrad <- function(theta, etamap) {
-  etagrad <- matrix(0, length(theta), etamap$etalength)
-  ec <- etamap$canonical
-# Set gradient for canonical parameters to the identity matrix
-  etagrad[ec>0, ec[ec>0]] <- diag(sum(ec>0))
-  if(length(etamap$curved)>0) {
-    for(cm in etamap$curved) {
-      etagrad[cm$from,cm$to] <- cm$gradient(theta[cm$from], length(cm$to), cm$cov)
-    }
-  }
-  etagrad
+ergm.etagrad <- function(theta, etamap){
+  .Call("ergm_etagrad_wrapper", as.numeric(theta), etamap, PACKAGE="ergm")
 }

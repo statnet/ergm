@@ -39,69 +39,42 @@
 #
 ###############################################################################
 
-ergm.phase12 <- function(g, model,
-                        proposal, eta0,
+ergm.phase12 <- function(s, theta0,
                         control, verbose) {
-# ms <- model$target.stats
-# if(!is.null(ms)) {
-#   if (is.null(names(ms)) && length(ms) == nparam(model,canonical=TRUE))
-#     names(ms) <- param_names(model,canonical=TRUE)
-#   obs <- control$orig.obs
-#   obs <- obs[match(names(ms), names(obs))]
-#   ms  <-  ms[match(names(obs), names(ms))]
-#   matchcols <- match(names(ms), names(obs))
-#   if (any(!is.na(matchcols))) {
-#     ms[!is.na(matchcols)] <- ms[!is.na(matchcols)] - obs[matchcols[!is.na(matchcols)]]
-#   }
-# }
-  Clist <- ergm.Cprepare(g, model)
-  maxedges <- max(control$MCMC.init.maxedges, Clist$nedges)/5
-  control$MCMC.init.maxedges <- control$MCMC.init.maxedges/5
-  z <- list(newnwtails=maxedges+1)
-  while(z$newnwtails[1] >= maxedges){
-    maxedges <- 5*maxedges
-    control$MCMC.init.maxedges <- 5*control$MCMC.init.maxedges
-    if(verbose){message(paste("MCMC workspace is ",maxedges,"."))}
-    # *** don't forget, pass in tails first now, not heads
-    z <- .C("MCMCPhase12",
-            as.integer(Clist$tails), as.integer(Clist$heads), 
-            as.integer(Clist$nedges), 
-            as.integer(Clist$n),
-            as.integer(Clist$dir), as.integer(Clist$bipartite),
-            as.integer(Clist$nterms), 
-            as.character(Clist$fnamestring),
-            as.character(Clist$snamestring),
-            as.character(proposal$name), as.character(proposal$pkgname),
-            as.double(Clist$inputs),
-            eta=as.double(deInf(eta0)),
-            as.integer(control$MCMC.samplesize),
-            as.double(control$gain), as.double(control$stats),
-            as.integer(control$phase1),
-            as.integer(control$nsub),
-            s = double(control$MCMC.samplesize * Clist$nstats),
-            as.integer(control$MCMC.burnin), as.integer(control$MCMC.interval),
-            newnwtails = integer(maxedges),
-            newnwheads = integer(maxedges),
-            as.integer(verbose), 
-            as.integer(proposal$arguments$constraints$bd$attribs), 
-            as.integer(proposal$arguments$constraints$bd$maxout), as.integer(proposal$arguments$constraints$bd$maxin),
-            as.integer(proposal$arguments$constraints$bd$minout), as.integer(proposal$arguments$constraints$bd$minin),
-            as.integer(proposal$arguments$constraints$bd$condAllDegExact), as.integer(length(proposal$arguments$constraints$bd$attribs)), 
-            as.integer(maxedges),
-            as.integer(0.0), as.integer(0.0), 
-            as.integer(0),
-            PACKAGE="ergm") 
-  }
-  statsmatrix <- matrix(z$s, nrow=control$MCMC.samplesize,
-                        ncol=Clist$nstats,
-                        byrow = TRUE)
-   eta <- z$eta
-  names(eta) <- names(eta0)
+  on.exit(ergm_Cstate_clear())
 
-  newnetwork<-as.network(pending_update_network(g,z))
+  z <-
+    if(!is.valued(s))
+      .Call("MCMCPhase12",
+            s,
+            # Phase12 settings
+            as.double(deInf(theta0)),
+            as.integer(control$MCMC.samplesize), as.integer(control$MCMC.burnin), as.integer(control$MCMC.interval),
+            as.double(control$gain), as.integer(control$phase1), as.integer(control$nsub),
+            as.integer(deInf(NVL(control$MCMC.maxedges,Inf),"maxint")),
+            as.integer(verbose),
+            PACKAGE="ergm")
+    else
+      .Call("WtMCMCPhase12",
+            s,
+            # Phase12 settings
+            as.double(deInf(theta0)),
+            as.integer(control$MCMC.samplesize), as.integer(control$MCMC.burnin), as.integer(control$MCMC.interval),
+            as.double(control$gain), as.integer(control$phase1), as.integer(control$nsub),
+            as.integer(deInf(NVL(control$MCMC.maxedges,Inf),"maxint")),
+            as.integer(verbose),
+            PACKAGE="ergm")
+
+  statsmatrix <- matrix(z$s, nrow=control$MCMC.samplesize,
+                        ncol=nparam(s,canonical=TRUE),
+                        byrow = TRUE)
+  theta <- z$theta
+  names(theta) <- names(theta0)
+
+  z$state <- update(z$state)
+  newnetwork<-as.network(z$state)
   
-  colnames(statsmatrix) <- param_names(model,canonical=TRUE)
-  list(statsmatrix=statsmatrix, newnetwork=newnetwork, target.stats=model$target.stats,
-       maxedges=control$MCMC.init.maxedges,
-       eta=eta)
+  colnames(statsmatrix) <- param_names(s,canonical=TRUE)
+  list(statsmatrix=statsmatrix, newnetwork=newnetwork, target.stats=as.ergm_model(s)$target.stats, nw.stats=as.ergm_model(s)$nw.stats,
+       theta=theta, state=z$state)
 }

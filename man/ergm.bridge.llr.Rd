@@ -9,10 +9,13 @@
 ergm.bridge.llr(
   object,
   response = NULL,
+  reference = ~Bernoulli,
   constraints = ~.,
   from,
   to,
-  basis = NULL,
+  obs.constraints = ~. - observed,
+  target.stats = NULL,
+  basis = eval_lhs.formula(object),
   verbose = FALSE,
   ...,
   llronly = FALSE,
@@ -21,12 +24,13 @@ ergm.bridge.llr(
 
 ergm.bridge.0.llk(
   object,
-  response = response,
-  constraints = ~.,
+  response = NULL,
+  reference = ~Bernoulli,
   coef,
   ...,
   llkonly = TRUE,
-  control = control.ergm.bridge()
+  control = control.ergm.bridge(),
+  basis = eval_lhs.formula(object)
 )
 
 ergm.bridge.dindstart.llk(
@@ -34,33 +38,54 @@ ergm.bridge.dindstart.llk(
   response = NULL,
   constraints = ~.,
   coef,
+  obs.constraints = ~. - observed,
+  target.stats = NULL,
   dind = NULL,
   coef.dind = NULL,
-  basis = NULL,
+  basis = eval_lhs.formula(object),
   ...,
   llkonly = TRUE,
-  control = control.ergm.bridge()
+  control = control.ergm.bridge(),
+  verbose = FALSE
 )
 }
 \arguments{
 \item{object}{A model formula. See \code{\link{ergm}} for details.}
 
-\item{response}{Name of the edge attribute whose value is to be
-modeled in the valued ERGM framework. Defaults to \code{NULL} for
-simple presence or absence, modeled via a binary ERGM.}
+\item{response}{Either a character string, a formula, or \code{NULL} (the default), to specify the response attributes and whether the ERGM is binary or valued. Interpreted as follows: \describe{
 
-\item{constraints}{A one-sided formula specifying one or more
-constraints on the support of the distribution of the networks
-being simulated. See the documentation for a similar argument for
+\item{\code{NULL}}{Model simple presence or absence, via a binary ERGM.}
+
+\item{character string}{The name of the edge attribute whose value is to be modeled. Type of ERGM will be determined by whether the attribute is \code{\link{logical}} (\code{TRUE}/\code{FALSE}) for binary or \code{\link{numeric}} for valued.}
+
+\item{a formula}{must be of the form \code{NAME~EXPR|TYPE} (with \code{|} being literal). \code{EXPR} is evaluated in the formula's environment with the network's edge attributes accessible as variables. The optional \code{NAME} specifies the name of the edge attribute into which the results should be stored, with the default being a concise version of \code{EXPR}. Normally, the type of ERGM is determined by whether the result of evaluating \code{EXPR} is logical or numeric, but the optional \code{TYPE} can be used to override by specifying a scalar of the type involved (e.g., \code{TRUE} for binary and \code{1} for valued).}
+
+}}
+
+\item{reference}{{A one-sided formula specifying the reference
+measure (\eqn{h(y)}) to be used.  (Defaults to
+\code{~Bernoulli}.)}}
+
+\item{constraints, obs.constraints}{One-sided formulas specifying
+one or more constraints on the support of the distribution of the
+networks being simulated and on the observation process
+respectively. See the documentation for a similar argument for
 \code{\link{ergm}} for more information.}
 
 \item{from, to}{The initial and final parameter vectors.}
+
+\item{target.stats}{{A vector of sufficient statistics to be used
+in place of those of the network in the formula.}}
 
 \item{basis}{An optional \code{\link[network]{network}} object to
 start the Markov chain.  If omitted, the default is the
 left-hand-side of the \code{object}.}
 
-\item{verbose}{Logical: If TRUE, print detailed information.}
+\item{verbose}{A logical or an integer to control the amount of
+progress and diagnostic information to be printed. \code{FALSE}/\code{0}
+produces minimal output, wit higher values producing more
+detail. Note that very high values (5+) may significantly slow
+down processing.}
 
 \item{\dots}{Further arguments to \code{ergm.bridge.llr} and
 \code{\link{simulate.formula.ergm}}.}
@@ -95,10 +120,10 @@ If \code{llronly=TRUE} or \code{llkonly=TRUE}, these functions return
 the scalar log-likelihood-ratio or the log-likelihood.
 Otherwise, they return a list with the following components:
 \item{llr}{The estimated log-ratio.}  \item{llrs}{The estimated
-log-ratios for each of the \code{nsteps} bridges.}  \item{path}{A
-numeric matrix with nsteps rows, with each row being the
+log-ratios for each of the \code{bridge.nsteps} bridges.}  \item{path}{A
+numeric matrix with \code{bridge.nsteps} rows, with each row being the
 respective bridge's parameter configuration.}  \item{stats}{A
-numeric matrix with nsteps rows, with each row being the
+numeric matrix with \code{bridge.nsteps} rows, with each row being the
 respective bridge's vector of simulated statistics.}
 \item{Dtheta.Du}{The gradient vector of the parameter values with
 respect to position of the bridge.}

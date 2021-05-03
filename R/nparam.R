@@ -34,26 +34,25 @@ nparam.default <- function(object, ...){
 # #' @template canonical // Documented in one of the other methods of ergm_model.
 #' @export
 nparam.ergm_model <- function(object, canonical=FALSE, offset=NA, byterm=FALSE, ...){
-  terms <-
-    if(is.na(offset)) object$terms
-    else if(offset) object$terms[object$etamap$offset]
-    else if(!offset) object$terms[!object$etamap$offset]
-  
-  out <-
-    if(canonical){
-      sapply(terms, function(term){
-        length(term$coef.names)
-      })
-    }else{
-      sapply(terms, function(term){
+  tocount <- if(canonical) object$etamap$offsetmap else object$etamap$offsettheta
+  tocount <-
+    if(is.na(offset)) rep(TRUE, length(tocount))
+    else if(offset) tocount
+    else if(!offset) !tocount
+
+  if(byterm){
+    terms <- object$terms
+    lens <-
+      if(canonical) terms %>% map("coef.names") %>% lengths
+      else terms %>% map_int(function(term){
         ## curved term
         if(!is.null(term$params)) length(term$params)
         ## linear term
         else length(term$coef.names)
       })
-    }
-  out <- unlist(out)
-  if(byterm) out else sum(out)
+
+    tocount %>% split(factor(rep(seq_along(terms), lens),levels=seq_along(terms))) %>% map_int(sum)
+  }else sum(tocount)
 }
 
 #' @describeIn nparam

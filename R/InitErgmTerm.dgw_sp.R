@@ -119,8 +119,6 @@
 #  These inputs are automatically supplied to the d_xxxy function by the 
 #  network_stats_wrapper function 
 
-
-
 ################################################################################
 #Term to count ESP statistics, where the shared partners may be any of
 #several distinct types.
@@ -139,7 +137,7 @@
 #routine is used (since it is safe for undirected graphs), irrespective of
 #the user's selection.  UTP cannot be chosen otherwise, since it won't work.
 #
-InitErgmTerm.desp<-function(nw, arglist, ...) {
+InitErgmTerm.desp<-function(nw, arglist, cache.sp=TRUE, ...) {
   a <- check.ErgmTerm(nw, arglist,
                       varnames = c("d","type"),
                       vartypes = c("numeric","character"),
@@ -160,11 +158,13 @@ InitErgmTerm.desp<-function(nw, arglist, ...) {
     dname <- "desp"
   }else{
     ergm_Init_inform("Use the ergm term 'esp' for undirected networks.")
+    dname <- "desp"
     conam<-"esp"
     type<-"UTP"
     typecode<-0
   }
-  list(name=dname, coef.names=paste(conam,d,sep=""), inputs=c(typecode,d), minval=0)
+
+  list(name=dname, coef.names=paste(conam,d,sep=""), inputs=c(typecode,d), minval=0, auxiliaries=if(cache.sp) .spcache.aux(type) else NULL)
 }
 
 
@@ -186,11 +186,11 @@ InitErgmTerm.desp<-function(nw, arglist, ...) {
 #always used (since it is directedness-safe), and the user's input is
 #overridden.  UTP cannot be chosen otherwise, since it won't work.
 #
-InitErgmTerm.dgwesp<-function(nw, arglist, initialfit=FALSE, gw.cutoff=30, ...) {
+InitErgmTerm.dgwesp<-function(nw, arglist, cache.sp=TRUE, gw.cutoff=30, ...) {
   a <- check.ErgmTerm(nw, arglist,
                       varnames = c("decay","fixed","cutoff","type", "alpha"),
                       vartypes = c("numeric","logical","numeric","character", "numeric"),
-                      defaultvalues = list(0, FALSE, gw.cutoff,"OTP", NULL),
+                      defaultvalues = list(NULL, FALSE, gw.cutoff,"OTP", NULL),
                       required = c(FALSE, FALSE, FALSE, FALSE, FALSE))
   if(!is.null(a$alpha)){
     ergm_Init_abort("For consistency with gw*degree terms, in all gw*sp and dgw*sp terms the argument ", sQuote("alpha"), " has been renamed to " ,sQuote("decay"), ".")
@@ -205,33 +205,39 @@ InitErgmTerm.dgwesp<-function(nw, arglist, initialfit=FALSE, gw.cutoff=30, ...) 
     ergm_Init_abort("Illegal type code for gwesp; valid types are:",paste(type.vec, collapse=","))
   dname<-"desp"
   if(!is.directed(nw)){  
-    ergm_Init_abort("Use the gwesp term for undirected networks.")
+    ergm_Init_inform("Use the gwesp term for undirected networks.")
+    type <- "UTP"
+    typecode<-0
+    basenam<-paste("gwesp",sep=".")
   }else{
     typecode<-which(type==type.vec)
     basenam<-paste("gwesp",type,sep=".")
   }
-  if(!initialfit && !fixed){ # This is a curved exponential family model
+  
+  if(!fixed){ # This is a curved exponential family model
+    if(!is.null(a$decay)) warning("In term 'dgwesp': decay parameter 'decay' passed with 'fixed=FALSE'. 'decay' will be ignored. To specify an initial value for 'decay', use the 'init' control parameter.", call.=FALSE)
+
     maxesp <- min(cutoff,network.size(nw)-2)
     d <- 1:maxesp
     ld<-length(d)
     if(ld==0){return(NULL)}
     params<-list(gwesp=NULL,gwesp.decay=decay)
     names(params)<-c(basenam,paste(basenam,"decay",sep="."))
+
     c(list(name=dname,
-         coef.names=if(is.directed(nw)) paste("esp.",type,"#",d,sep="") else paste("esp#",d,sep=""), 
-         inputs=c(typecode,d), params=params), GWDECAY)
+           coef.names=if(is.directed(nw)) paste("esp.",type,"#",d,sep="") else paste("esp#",d,sep=""), 
+           inputs=c(typecode,d), params=params, auxiliaries=if(cache.sp) .spcache.aux(type) else NULL), GWDECAY)
   }else{
+    if(is.null(a$decay)) stop("Term 'dgwesp' with 'fixed=TRUE' requires a decay parameter 'decay'.", call.=FALSE)
+
     dname<-"dgwesp"
     maxesp <- min(cutoff,network.size(nw)-2)
-    if (initialfit && !fixed){  # First pass to get MPLE coefficient
-      coef.names <- basenam
-    }else{ # fixed == TRUE
-      if(is.directed(nw))
-        coef.names <- paste(paste("gwesp",type,"fixed.",sep="."),decay, sep="")
-      else
-        coef.names <- paste("gwesp.fixed.",decay,sep="")
-    }
-    list(name=dname, coef.names=coef.names, inputs=c(decay,typecode,maxesp))
+    if(is.directed(nw))
+      coef.names <- paste(paste("gwesp",type,"fixed.",sep="."),decay, sep="")
+    else
+      coef.names <- paste("gwesp.fixed.",decay,sep="")
+
+    list(name=dname, coef.names=coef.names, inputs=c(decay,typecode,maxesp), auxiliaries=if(cache.sp) .spcache.aux(type) else NULL)
   }
 }
 
@@ -254,7 +260,7 @@ InitErgmTerm.dgwesp<-function(nw, arglist, initialfit=FALSE, gw.cutoff=30, ...) 
 #routine is used (since it is safe for undirected graphs), irrespective of
 #the user's selection.  UTP cannot be chosen otherwise, since it won't work.
 #
-InitErgmTerm.ddsp<-function(nw, arglist, ...) {
+InitErgmTerm.ddsp<-function(nw, arglist, cache.sp=TRUE, ...) {
   a <- check.ErgmTerm(nw, arglist,
                       varnames = c("d","type"),
                       vartypes = c("numeric","character"),
@@ -268,17 +274,17 @@ InitErgmTerm.ddsp<-function(nw, arglist, ...) {
   type.vec<-c("OTP","ITP","RTP","OSP","ISP")
   if(!(type%in%type.vec))
     ergm_Init_abort("Illegal type code for sp; valid types are:",paste(type.vec, collapse=","))
-  dname<-"dsp"
+  dname<-"ddsp"
   if(is.directed(nw)){
     conam <- paste("dsp",type,sep=".")
     typecode<-which(type==type.vec)
-    dname <- "ddsp"
   }else{
     ergm_Init_inform("Use the ergm term 'dsp' for undirected networks.")
     conam<-"dsp"
     type<-"UTP"
     typecode<-0
   }
+
   if (any(d==0)) {
     emptynwstats <- rep(0, length(d))
     if(is.bipartite(nw)){
@@ -291,21 +297,18 @@ InitErgmTerm.ddsp<-function(nw, arglist, ...) {
   }else{
     emptynwstats <- NULL
   }
-
-  list(name=dname, coef.names=paste(conam,d,sep=""), inputs=c(typecode,d), minval=0, emptynwstats=emptynwstats)
+  
+  list(name=dname, coef.names=paste(conam,d,sep=""), inputs=c(typecode,d), minval=0, emptynwstats=emptynwstats, auxiliaries=if(cache.sp) .spcache.aux(type) else NULL)
 }
 
 
 
 ################################################################################
-InitErgmTerm.dgwdsp<-function(nw, arglist, initialfit=FALSE, gw.cutoff=30, ...) {
-  # the following line was commented out in <InitErgm.gwdsp>:
-  #    ergm.checkdirected("gwdsp", is.directed(nw), requirement=FALSE)
-  # so, I've not passed 'directed=FALSE' to <check.ErgmTerm>  
+InitErgmTerm.dgwdsp<-function(nw, arglist, cache.sp=TRUE, gw.cutoff=30, ...) {
   a <- check.ErgmTerm(nw, arglist,
                       varnames = c("decay","fixed","cutoff","type", "alpha"),
                       vartypes = c("numeric","logical","numeric","character", "numeric"),
-                      defaultvalues = list(0, FALSE, gw.cutoff,"OTP", NULL),
+                      defaultvalues = list(NULL, FALSE, gw.cutoff,"OTP", NULL),
                       required = c(FALSE, FALSE, FALSE, FALSE, FALSE))
   if(!is.null(a$alpha)){
     ergm_Init_abort("For consistency with gw*degree terms, in all gw*sp and dgw*sp terms the argument ", sQuote("alpha"), " has been renamed to " ,sQuote("decay"), ".")
@@ -322,13 +325,18 @@ InitErgmTerm.dgwdsp<-function(nw, arglist, initialfit=FALSE, gw.cutoff=30, ...) 
   dname<-"ddsp"
   
   if(!is.directed(nw)){  
-    ergm_Init_abort("Use the gwnsp term for undirected networks.")
+    ergm_Init_inform("Use the gwdsp term for undirected networks.")
+    type <- "UTP"
+    basenam<-"gwdsp"
+    typecode<-0
   }else{
     typecode<-which(type==type.vec)
     basenam<-paste("gwdsp",type,sep=".")
   }
-  
-  if(!initialfit && !fixed){ # This is a curved exponential family model
+
+  if(!fixed){ # This is a curved exponential family model
+    if(!is.null(a$decay)) warning("In term 'dgwdsp': decay parameter 'decay' passed with 'fixed=FALSE'. 'decay' will be ignored. To specify an initial value for 'decay', use the 'init' control parameter.", call.=FALSE)
+
     #   d <- 1:(network.size(nw)-1)
     maxesp <- min(cutoff,network.size(nw)-2)
     d <- 1:maxesp
@@ -339,22 +347,20 @@ InitErgmTerm.dgwdsp<-function(nw, arglist, initialfit=FALSE, gw.cutoff=30, ...) 
     names(params)<-c(basenam,paste(basenam,"decay",sep="."))
     
     c(list(name=dname,
-         coef.names=if(is.directed(nw)) paste("dsp.",type,"#",d,sep="") else paste("dsp#",d,sep=""), 
-         inputs=c(typecode,d), params=params),
+           coef.names=if(is.directed(nw)) paste("dsp.",type,"#",d,sep="") else paste("dsp#",d,sep=""), 
+           inputs=c(typecode,d), params=params, auxiliaries=if(cache.sp) .spcache.aux(type) else NULL),
       GWDECAY)
   }else{
+    if(is.null(a$decay)) stop("Term 'dgwdsp' with 'fixed=TRUE' requires a decay parameter 'decay'.", call.=FALSE)
+
     dname<-"dgwdsp"
     maxesp <- min(cutoff,network.size(nw)-2)
-    if (initialfit && !fixed)  # First pass to get MPLE coefficient
-      coef.names <- basenam
-    else { # fixed == TRUE
-      if (is.directed(nw)) 
-        coef.names <- paste("gwdsp",type,"fixed",decay,sep=".")
-      else
-        coef.names <- paste("gwdsp.fixed",decay,sep=".")
-    }
+    if (is.directed(nw)) 
+      coef.names <- paste("gwdsp",type,"fixed",decay,sep=".")
+    else
+      coef.names <- paste("gwdsp.fixed",decay,sep=".")
     
-    list(name=dname, coef.names=coef.names, inputs=c(decay,typecode,maxesp))
+    list(name=dname, coef.names=coef.names, inputs=c(decay,typecode,maxesp), auxiliaries=if(cache.sp) .spcache.aux(type) else NULL)
   }
 }
 
@@ -376,7 +382,7 @@ InitErgmTerm.dgwdsp<-function(nw, arglist, initialfit=FALSE, gw.cutoff=30, ...) 
 #routine is used (since it is safe for undirected graphs), irrespective of
 #the user's selection.  UTP cannot be chosen otherwise, since it won't work.
 #
-InitErgmTerm.dnsp<-function(nw, arglist, ...) {
+InitErgmTerm.dnsp<-function(nw, arglist, cache.sp=TRUE, ...) {
   a <- check.ErgmTerm(nw, arglist,
                       varnames = c("d","type"),
                       vartypes = c("numeric","character"),
@@ -390,17 +396,17 @@ InitErgmTerm.dnsp<-function(nw, arglist, ...) {
   type.vec<-c("OTP","ITP","RTP","OSP","ISP")
   if(!(type%in%type.vec))
     ergm_Init_abort("Illegal type code for sp; valid types are:",paste(type.vec, collapse=","))
-  dname<-"nsp"
+  dname<-"dnsp"
   if(is.directed(nw)){
     conam <- paste("nsp",type,sep=".")
     typecode<-which(type==type.vec)
-    dname <- "dnsp"
   }else{
     ergm_Init_inform("Use the ergm term 'nsp' for undirected networks.")
     conam<-"nsp"
     type<-"UTP"
     typecode<-0
   }
+
   if (any(d==0)) {
     emptynwstats <- rep(0, length(d))
     if(is.bipartite(nw)){
@@ -413,19 +419,17 @@ InitErgmTerm.dnsp<-function(nw, arglist, ...) {
   }else{
     emptynwstats <- NULL
   }
-  list(name=dname, coef.names=paste(conam,d,sep=""), inputs=c(typecode,d), minval=0, emptynwstats=emptynwstats)
+  
+  list(name=dname, coef.names=paste(conam,d,sep=""), inputs=c(typecode,d), minval=0, emptynwstats=emptynwstats, auxiliaries=if(cache.sp) .spcache.aux(type) else NULL)
 }
 
 
 ################################################################################
-InitErgmTerm.dgwnsp<-function(nw, arglist, initialfit=FALSE, gw.cutoff=30, ...) {
-  # the following line was commented out in <InitErgm.gwnsp>:
-  #    ergm.checkdirected("gwnsp", is.directed(nw), requirement=FALSE)
-  # so, I've not passed 'directed=FALSE' to <check.ErgmTerm>  
+InitErgmTerm.dgwnsp<-function(nw, arglist, cache.sp=TRUE, gw.cutoff=30, ...) {
   a <- check.ErgmTerm(nw, arglist,
                       varnames = c("decay","fixed","cutoff","type", "alpha"),
                       vartypes = c("numeric","logical","numeric","character", "numeric"),
-                      defaultvalues = list(0, FALSE, gw.cutoff,"OTP", NULL),
+                      defaultvalues = list(NULL, FALSE, gw.cutoff,"OTP", NULL),
                       required = c(FALSE, FALSE, FALSE, FALSE, FALSE))
   if(!is.null(a$alpha)){
     ergm_Init_abort("For consistency with gw*degree terms, in all gw*sp and dgw*sp terms the argument ", sQuote("alpha"), " has been renamed to " ,sQuote("decay"), ".")
@@ -442,13 +446,18 @@ InitErgmTerm.dgwnsp<-function(nw, arglist, initialfit=FALSE, gw.cutoff=30, ...) 
   dname<-"dnsp"
   
   if(!is.directed(nw)){  
-    ergm_Init_abort("Use the gwnsp term for undirected networks.")
+    ergm_Init_inform("Use the gwnsp term for undirected networks.")
+    type <- "UTP"
+    basenam<-"gwdsp"
+    typecode<-0
   }else{
     typecode<-which(type==type.vec)
     basenam<-paste("gwnsp",type,sep=".")
   }
   
-  if(!initialfit && !fixed){ # This is a curved exponential family model
+  if(!fixed){ # This is a curved exponential family model
+    if(!is.null(a$decay)) warning("In term 'dgwnsp': decay parameter 'decay' passed with 'fixed=FALSE'. 'decay' will be ignored. To specify an initial value for 'decay', use the 'init' control parameter.", call.=FALSE)
+
     #   d <- 1:(network.size(nw)-1)
     maxesp <- min(cutoff,network.size(nw)-2)
     d <- 1:maxesp
@@ -459,21 +468,19 @@ InitErgmTerm.dgwnsp<-function(nw, arglist, initialfit=FALSE, gw.cutoff=30, ...) 
     names(params)<-c(basenam,paste(basenam,"decay",sep="."))
     
     c(list(name=dname,
-         coef.names=if(is.directed(nw)) paste("nsp.",type,"#",d,sep="") else paste("nsp#",d,sep=""), 
-
-         inputs=c(typecode,d), params=params),GWDECAY)
+           coef.names=if(is.directed(nw)) paste("nsp.",type,"#",d,sep="") else paste("nsp#",d,sep=""), 
+           
+           inputs=c(typecode,d), params=params, auxiliaries=if(cache.sp) .spcache.aux(type) else NULL),GWDECAY)
   }else{
+    if(is.null(a$decay)) stop("Term 'dgwnsp' with 'fixed=TRUE' requires a decay parameter 'decay'.", call.=FALSE)
+
     dname<-"dgwnsp"
     maxesp <- min(cutoff,network.size(nw)-2)
-    if (initialfit && !fixed)  # First pass to get MPLE coefficient
-      coef.names <- basenam
-    else { # fixed == TRUE
-      if (is.directed(nw)) 
-        coef.names <- paste("gwnsp",type,"fixed",decay,sep=".")
-      else
-        coef.names <- paste("gwnsp.fixed",decay,sep=".")
-    }
+    if (is.directed(nw)) 
+      coef.names <- paste("gwnsp",type,"fixed",decay,sep=".")
+    else
+      coef.names <- paste("gwnsp.fixed",decay,sep=".")
     
-    list(name=dname, coef.names=coef.names, inputs=c(decay,typecode,maxesp))
+    list(name=dname, coef.names=coef.names, inputs=c(decay,typecode,maxesp), auxiliaries=if(cache.sp) .spcache.aux(type) else NULL)
   }
 }

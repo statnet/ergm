@@ -5,7 +5,7 @@
 \alias{summary_formula.ergm}
 \alias{summary_formula.network.list}
 \alias{summary_formula.network}
-\alias{summary_formula.pending_update_network}
+\alias{summary_formula.ergm_state}
 \alias{summary_formula.matrix}
 \alias{summary_formula.default}
 \title{Dispatching a summary function based on the class of the LHS of a
@@ -15,15 +15,15 @@ summary_formula(object, ..., basis = NULL)
 
 \method{summary_formula}{ergm}(object, ..., basis = NULL)
 
-\method{summary_formula}{network.list}(object, response = NULL, ..., basis = NULL)
+\method{summary_formula}{network.list}(object, response = NULL, ..., basis = eval_lhs.formula(object))
 
-\method{summary_formula}{network}(object, response = NULL, ..., basis = NULL)
+\method{summary_formula}{network}(object, response = NULL, ..., basis = ergm.getnetwork(object))
 
-\method{summary_formula}{pending_update_network}(object, response = NULL, ..., basis = NULL)
+\method{summary_formula}{ergm_state}(object, ..., basis = NULL)
 
-\method{summary_formula}{matrix}(object, response = NULL, ..., basis = NULL)
+\method{summary_formula}{matrix}(object, response = NULL, ..., basis = ergm.getnetwork(object))
 
-\method{summary_formula}{default}(object, response = NULL, ..., basis = NULL)
+\method{summary_formula}{default}(object, response = NULL, ..., basis = ergm.getnetwork(object))
 }
 \arguments{
 \item{object}{A two-sided formula.}
@@ -32,9 +32,15 @@ summary_formula(object, ..., basis = NULL)
 
 \item{basis}{Optional object of the same class as the LHS of the formula, substituted in place of the LHS.}
 
-\item{response}{Name of the edge attribute whose value is to be
-modeled in the valued ERGM framework. Defaults to \code{NULL} for
-simple presence or absence, modeled via a binary ERGM.}
+\item{response}{Either a character string, a formula, or \code{NULL} (the default), to specify the response attributes and whether the ERGM is binary or valued. Interpreted as follows: \describe{
+
+\item{\code{NULL}}{Model simple presence or absence, via a binary ERGM.}
+
+\item{character string}{The name of the edge attribute whose value is to be modeled. Type of ERGM will be determined by whether the attribute is \code{\link{logical}} (\code{TRUE}/\code{FALSE}) for binary or \code{\link{numeric}} for valued.}
+
+\item{a formula}{must be of the form \code{NAME~EXPR|TYPE} (with \code{|} being literal). \code{EXPR} is evaluated in the formula's environment with the network's edge attributes accessible as variables. The optional \code{NAME} specifies the name of the edge attribute into which the results should be stored, with the default being a concise version of \code{EXPR}. Normally, the type of ERGM is determined by whether the result of evaluating \code{EXPR} is logical or numeric, but the optional \code{TYPE} can be used to override by specifying a scalar of the type involved (e.g., \code{TRUE} for binary and \code{1} for valued).}
+
+}}
 }
 \value{
 A vector of statistics measured on the network.
@@ -53,7 +59,7 @@ method.
 
 \item \code{network}: a method for a \code{\link{network}} on the LHS of the formula.
 
-\item \code{pending_update_network}: a method for the semi-internal \code{\link{pending_update_network}} on the LHS of the formula.
+\item \code{ergm_state}: a method for the semi-internal \code{\link{ergm_state}} on the LHS of the formula.
 
 \item \code{matrix}: a method for a \code{\link{matrix}} on the LHS of the formula.
 

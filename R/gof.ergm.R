@@ -59,13 +59,13 @@
 #'
 #' @templateVar mycontrols [control.gof.formula()] or [control.gof.ergm()]
 #' @template control2
+#' @template verbose
 #'
 #' @param unconditional logical; if \code{TRUE}, the simulation is
 #' unconditional on the observed dyads.  if not \code{TRUE}, the simulation is
 #' conditional on the observed dyads. This is primarily used internally when
 #' the network has missing data and a conditional GoF is produced.
-#' @param verbose Provide verbose information on the progress of the
-#' simulation.
+#' @template basis
 #' @return \code{\link{gof}}, \code{\link{gof.ergm}}, and
 #' \code{\link{gof.formula}} return an object of class \code{gof.ergm}, which inherits from class `gof`.  This
 #' is a list of the tables of statistics and \eqn{p}-values.  This is typically
@@ -123,42 +123,38 @@ gof.default <- function(object,...) {
 #' and odegree.
 #'
 #' @export
-gof.ergm <- function (object, ..., 
-                      coef=NULL,
-                      GOF=NULL, 
-                      constraints=NULL,
-                      control=control.gof.ergm(),
-                      verbose=FALSE) {
+gof.ergm <- function (object, ...,
+                      coef = coefficients(object),
+                      GOF = NULL,
+                      constraints = object$constraints,
+                      control = control.gof.ergm(),
+                      verbose = FALSE) {
   check.control.class(c("gof.ergm","gof.formula"), "gof.ergm")
   handle.control.toplevel("gof.ergm", ...)
-  .gof.nw <- as.network(object$network)
 
-  if(!is.null(object$response)) stop("GoF for valued ERGMs is not implemented at this time.")
+  if(is.valued(object)) stop("GoF for valued ERGMs is not implemented at this time.")
   
-  formula <- nonsimp_update.formula(object$formula, .gof.nw~., from.new=".gof.nw")
-# paste("~",paste(unlist(dimnames(attr(terms(formula),"factors"))[-1]),collapse="+"),sep="")
-  if(!is.network(.gof.nw)){
-    stop("A network must be given as part of the network object.")
-  }
-
-  if(is.null(coef)) coef <- coef(object)
-
-  control.transfer <- c("MCMC.burnin", "MCMC.prop.weights", "MCMC.prop.args", "MCMC.packagenames", "MCMC.init.maxedges","term.options")
-  for(arg in control.transfer)
+  # If both the passed control and the object's control are NULL (such as if MPLE was estimated), overwrite with simulate.formula()'s defaults.
+  formula.control <- control.simulate.formula()
+  for(arg in STATIC_MCMC_CONTROLS)
     if(is.null(control[[arg]]))
-      control[arg] <- list(object$control[[arg]])
+      control[arg] <- list(NVL(object$control[[arg]], formula.control[[arg]]))
+
+  MCMC.interval.set <- !is.null(control$MCMC.interval)
+  for(arg in SCALABLE_MCMC_CONTROLS)
+    if(is.null(control[[arg]]))
+      control[arg] <- list(EVL(object$control[[arg]]*control$MCMC.scale, formula.control[[arg]]))
 
   # Rescale the interval by the ratio between the estimation sample size and the GOF sample size so that the total number of MCMC iterations would be about the same.
-  NVL(control$MCMC.interval) <- max(ceiling(object$control$MCMC.interval*object$control$MCMC.samplesize/control$nsim),1)
+  if(!MCMC.interval.set) control$MCMC.interval <- max(ceiling(control$MCMC.interval*EVL(object$control$MCMC.samplesize/control$nsim,1)),1)
 
   control <- set.control.class("control.gof.formula")
-  
-  if(is.null(constraints)) constraints <- object$constraints
-  
-  gof.formula(object=formula, coef=coef,
+
+  gof.formula(object=object$formula, coef=coef,
               GOF=GOF,
               constraints=constraints,
               control=control,
+              basis=object$network,
               verbose=verbose, ...)
 }
 
@@ -173,31 +169,29 @@ gof.formula <- function(object, ...,
                         coef=NULL,
                         GOF=NULL,
                         constraints=~.,
+                        basis=eval_lhs.formula(object),
                         control=NULL,
-			unconditional=TRUE,
+                        unconditional=TRUE,
                         verbose=FALSE) {
   if("response" %in% names(list(...))) stop("GoF for valued ERGMs is not implemented at this time.")
 
   if(!is.null(control$seed)){
     set.seed(as.integer(control$seed))
   }
-  if (verbose) 
-    message("Starting GOF for the given ERGM formula.")
+  if (verbose) message("Starting GOF for the given ERGM formula.")
 
-  # get network
-  lhs <- ERRVL(try(eval_lhs.formula(object)),
-               stop("A network object on the RHS of the formula argument must be given"))
-  if(is.ergm(lhs)){
-    if(is.null(GOF)) GOF <- nonsimp_update.formula(object, ~.) # Remove LHS from formula.
-    if(is.null(constraints)) constraints <- NULL
-    if(is.null(control)) control <- control.gof.ergm()
+  if(is.ergm(basis)){ # Kick it back to gof.ergm().
+    NVL(GOF) <- nonsimp_update.formula(object, ~.) # Remove LHS from formula.
+    NVL(control) <- control.gof.ergm()
     
-    return(gof(lhs, GOF=GOF, coef=coef, control=control, unconditional=unconditional, verbose=verbose, ...)) # Kick it back to gof.ergm.
+    return(
+      gof(basis, GOF = GOF, coef = coef, control = control, unconditional = unconditional, verbose = verbose, ...)
+    )
   }
-  
-  nw <- as.network(lhs)
 
-  if(is.null(control)) control <- control.gof.formula()
+  # Otherwise, LHS/basis must be a network.
+  nw <- ensure_network(basis)
+  NVL(control) <- control.gof.formula()
 
   check.control.class(c("gof.formula","gof.ergm"), "ERGM gof.formula")
   handle.control.toplevel("gof.formula", ...)
@@ -230,7 +224,7 @@ gof.formula <- function(object, ...,
 
   proposal <- if(inherits(constraints, "ergm_proposal")) constraints
                 else ergm_proposal(constraints,arguments=control$MCMC.prop.args,
-                                   nw=nw, weights=control$MCMC.prop.weights, class="c"## ,reference=reference,response=response
+                                   nw=nw, weights=control$MCMC.prop.weights, class="c", term.options=control$term.options## ,reference=reference
                                    )
 
   if(is.null(coef)){
@@ -246,6 +240,7 @@ gof.formula <- function(object, ...,
                   GOF=GOF, 
                   constraints=constraints.obs,
                   control=control,
+                  basis=basis,
                   unconditional=FALSE,
                   verbose=verbose)
   }
@@ -311,31 +306,24 @@ gof.formula <- function(object, ...,
   if(verbose)
     message("Starting simulations.")
 
-  calc_sim_stat <- function(gv, calc, i){
+  myenv <- environment()
+
+  calc_sim_stat <- function(nw, gv, calc, i){
     simname <- paste("sim", gv, sep=".")
     sim <- get(simname)
-    sim[i,] <- calc(tempnet)
-    assign(simname, sim, parent.frame())
+    sim[i,] <- calc(nw)
+    assign(simname, sim, myenv)
   }
 
-  tempnet <- nw
-  for (i in 1:control$nsim) {
-    if(verbose){
-      message("Sim ",i," of ",control$nsim,": ",appendLF=FALSE)
-    }
-    if(network.naedgecount(nw) & !unconditional){tempnet <- nw}
-    tempnet <- simulate(m, nsim=1, coef=coef,
-                        constraints=proposal,
-                        control=set.control.class("control.simulate.formula",control),
-                        basis=tempnet,
-                        verbose=verbose)
+  summfun <- function(state, iter, ...)
+    for(gv in GVMAP) calc_sim_stat(as.network(state), gv[[1]], gv[[3]], iter)
 
-    for(gv in GVMAP)
-      calc_sim_stat(gv[[1]], gv[[3]], i)
-  }
-  if(verbose){
-    message("")
-  }
+  simulate(m, nsim=control$nsim, coef=coef,
+           constraints=proposal,
+           control=set.control.class("control.simulate.formula",control),
+           output=summfun,
+           basis=nw,
+           verbose=verbose)
 
   # calculate p-values
   

@@ -38,7 +38,7 @@ is.curved.NULL <- function(object, ...) FALSE # By convention.
 #' @describeIn ergm_model Tests whether the model is curved.
 #' @export
 is.curved.ergm_model <- function(object, ...){
-  any(object$etamap$canonical==0)
+  length(object$etamap$curved)>0
 }
 
 #' @rdname is.curved 
@@ -53,13 +53,14 @@ is.curved.formula<-function(object,response=NULL,basis=NULL,...){
   }
   
   nw <- ensure_network(nw)
+  ergm_preprocess_response(nw, response)
   
-  m<-ergm_model(object, nw, response=response, ...)
+  m<-ergm_model(object, nw, ...)
   is.curved(m)
 }
 
 #' @rdname is.curved 
 #' @export
 is.curved.ergm<-function(object,...){
-  any(object$etamap$canonical==0)
+  length(object$etamap$curved)>0
 }

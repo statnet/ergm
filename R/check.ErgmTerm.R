@@ -52,7 +52,6 @@ ergm_Init_warn_once <- once(ergm_Init_warn)
 #'   will be issued if the user tries to pass it; if the element is a
 #'   character string, it will be used as a suggestion for
 #'   replacement.
-#' @template response
 #' @return A list of the values for each possible argument of term X;
 #'   user provided values are used when given, default values
 #'   otherwise. The list also has an `attr(,"missing")` attribute
@@ -63,9 +62,9 @@ ergm_Init_warn_once <- once(ergm_Init_warn)
 #' @export check.ErgmTerm
 check.ErgmTerm <- function(nw, arglist, directed=NULL, bipartite=NULL, nonnegative=FALSE,
                            varnames=NULL, vartypes=NULL,
-                           defaultvalues=list(), required=NULL, response=NULL, dep.inform=rep(FALSE, length(required)), dep.warn=rep(FALSE, length(required))){
+                           defaultvalues=list(), required=NULL, dep.inform=rep(FALSE, length(required)), dep.warn=rep(FALSE, length(required))){
   # Ensure that all inputs are of the correct type.
-  arglist <- as.list(arglist)
+  ergm_Init_try(arglist <- as.list(arglist))
   varnames <- as.character(varnames)
   vartypes <- as.character(vartypes)
   defaultvalues <- as.list(defaultvalues)
@@ -76,7 +75,6 @@ check.ErgmTerm <- function(nw, arglist, directed=NULL, bipartite=NULL, nonnegati
   stopifnot(all_identical(c(length(varnames), length(vartypes), length(defaultvalues), length(required), length(dep.inform), length(dep.warn))))
   message <- NULL
   if (!is.null(directed) && directed != (dnw<-is.directed(nw))) {
-    #directed != (dnw<-eval(expression(nw$gal$dir),parent.frame()))) {
     message <- paste("networks with directed==", dnw, sep="")
   }
   
@@ -97,104 +95,58 @@ check.ErgmTerm <- function(nw, arglist, directed=NULL, bipartite=NULL, nonnegati
   if (is.directed(nw) && bnw > 0) {
     message <- "directed bipartite networks"
   }
-  if (is.null(message) && nonnegative && any(nw %e% response < 0)){
+  if (is.null(message) && nonnegative && any(nw %e% (nw%ergmlhs%"response") < 0)){
     message <- "networks with negative dyad weights"
   }
   if (!is.null(message)) {
     ergm_Init_abort("Term may not be used with ",message,".")
   }
 
-  sr=sum(required)
-  lv=length(varnames)
-  la=length(arglist)
-  if(la < sr || la > lv) {
-    if (sr < lv)
-      expected = paste("from",sr,"to",lv,"arguments,")
-    else if(sr==1)
-      expected = "1 argument,"
-    else
-      expected = paste(sr,"arguments,")
-    ergm_Init_abort("Model term expected ", expected, " got ", la, '.')
+  # Construct a dummy function that copies all its arguments into a
+  # list and sets an attribute indicating whether they are missing.
+  f <- function(){
+    ..n <- names(formals())
+    ..l <- structure(vector("list", length(..n)), names=..n)
+    ..m <- structure(logical(length(..n)), names=..n)
+    for(..arg in ..n){
+      ..m[..arg] <- do.call(missing,list(as.name(..arg)))
+      ..l[..arg] <- list(get(..arg, inherits=FALSE))
+    }
+    structure(..l, missing=..m)
   }
-# The correctness of what the user typed is checked, but it is assumed
-# that each InitErgmTerm function faithfully passes in what the user typed;
-# thus, the correctness of input from the InitErgmTerm function isn't checked.
-  out = defaultvalues
-  missing <- !logical(length(out))
-  names(out) <- names(missing) <- varnames
 
-  m=NULL
-  still.required <- required
-  argument.counts <- rep(0, length(required))
-  if (la>0) {
-    for(i in 1:la) { # check each arglist entry
-      if (!is.null(names(arglist)) && (name <- names(arglist)[i]) != "") {
-        m = pmatch(name, varnames)# try to match user-typed name if applicable
-        if(is.na(m)) { # User typed an unrecognizable name
-          ergm_Init_abort("Model term does not recognize ", sQuote(name), " argument.")
-        }
-        # valid name match with mth variable if we got to here
-        if (!is.na(vartypes[m]) && nchar(vartypes[m]) && all(sapply(strsplit(vartypes[m],",",fixed=TRUE)[[1]], function(vartype) !is.null(arglist[[i]]) && !is(arglist[[i]], vartype)))) {
-          # Wrong type
-          ergm_Init_abort(sQuote(name), " argument is not of the expected ", sQuote(vartypes[m]), " type.")
-        }
-        # correct type if we got to here
-        out[m] <- list(arglist[[i]])
-        missing[m] <- FALSE
-		
-        still.required[m] <- FALSE
-        argument.counts[m] <- argument.counts[m] + 1
+  # Set the argument names and their defaults (if not required).
+  formals(f) <- replace(structure(defaultvalues, names = varnames), required, list(quote(expr=)))
+  # Now, try calling it with the arglist.
+  ergm_Init_try(out <- do.call(f, arglist, envir=baseenv(), quote=TRUE))
+  # out is now a list containing elements of arglist in the correct order and defaults filled in.
 
-        if(dep.inform[[m]] != FALSE) {
-          if(is.character(dep.inform[[m]]))
-            ergm_Init_inform_once("Argument ", sQuote(varnames[m]), " has been superseded by ", sQuote(dep.inform[[m]]), ", and it is recommended to use the latter.  Note that its interpretation may be different.")
-          else
-            ergm_Init_inform_once("Argument ", sQuote(varnames[m]), " has been deprecated and may be removed in a future version.")
-        }
-        if(dep.warn[[m]] != FALSE) {
-          if(is.character(dep.warn[[m]]))
-            ergm_Init_warn_once("Argument ", sQuote(varnames[m]), " has been deprecated and may be removed in a future version.  Use ", sQuote(dep.warn[[m]]), " instead.  Note that its interpretation may be different.")
-          else
-            ergm_Init_warn_once("Argument ", sQuote(varnames[m]), " has been deprecated and may be removed in a future version.")
-        }
-      } else { # no user-typed name for this argument
-        if (!is.null(m)) {
-          ergm_Init_abort("Unnamed argument follows named argument.")
-        }
-        if (!is.na(vartypes[i]) && nchar(vartypes[i]) && all(sapply(strsplit(vartypes[i],",",fixed=TRUE)[[1]], function(vartype) !is.null(arglist[[i]]) && !is(arglist[[i]], vartype)))) {
-          # Wrong type
-          ergm_Init_abort("Argument number ", i, " is not of the expected ", sQuote(vartypes[i]), " type.")
-        }
-        # correct type if we got to here
-        out[i] <- list(arglist[[i]])
-        missing[i] <- FALSE
+  for(m in seq_along(out)){
+    name <- names(out)[m]
+    miss <- attr(out, "missing")[m]
+    val <- out[[m]]
 
-        still.required[i] <- FALSE
-        argument.counts[i] <- argument.counts[i] + 1
+    # Check type
+    if(!is.na(vartypes[m]) && nchar(vartypes[m])
+       && all(sapply(strsplit(vartypes[m],",",fixed=TRUE)[[1]], function(vartype) !is.null(val) && !is(val, vartype))))
+      ergm_Init_abort(sQuote(name), " argument is not of any of the expected (", vartypes[m], ") types.")
 
-        if(dep.inform[[i]] != FALSE) {
-          if(is.character(dep.inform[[i]]))
-            ergm_Init_inform_once("Argument ", sQuote(varnames[i]), " has been superseded by ", sQuote(dep.inform[[i]]), ", and it is recommended to use the latter.  Note that its interpretation may be different.")
-          else
-            ergm_Init_inform_once("Argument ", sQuote(varnames[i]), " has been deprecated and may be removed in a future version.")
-        }
-        if(dep.warn[[i]] != FALSE) {
-          if(is.character(dep.warn[[i]]))
-            ergm_Init_warn_once("Argument ", sQuote(varnames[i]), " has been deprecated and may be removed in a future version.  Use ", sQuote(dep.warn[[i]]), " instead.  Note that its interpretation may be different.")
-          else
-            ergm_Init_warn_once("Argument ", sQuote(varnames[i]), " has been deprecated and may be removed in a future version.")
-        }
+    # Check deprecation (but only if passed explicitly)
+    if(!miss){
+      if(!isFALSE(dep.inform[[m]])) {
+        if(is.character(dep.inform[[m]]))
+          ergm_Init_inform_once("Argument ", sQuote(varnames[m]), " has been superseded by ", sQuote(dep.inform[[m]]), ", and it is recommended to use the latter.  Note that its interpretation may be different.")
+        else
+          ergm_Init_inform_once("Argument ", sQuote(varnames[m]), " has been deprecated and may be removed in a future version.")
+      }
+      if(!isFALSE(dep.warn[[m]])) {
+        if(is.character(dep.warn[[m]]))
+          ergm_Init_warn_once("Argument ", sQuote(varnames[m]), " has been deprecated and may be removed in a future version.  Use ", sQuote(dep.warn[[m]]), " instead.  Note that its interpretation may be different.")
+        else
+          ergm_Init_warn_once("Argument ", sQuote(varnames[m]), " has been deprecated and may be removed in a future version.")
       }
     }
   }
-  attr(out, "missing") <- missing
-  #  c(.conflicts.OK=TRUE,out)
-  
-  if(any(still.required))
-    ergm_Init_abort("argument ", sQuote(varnames[which(still.required)[1]]), " is missing, with no default.")
 
-  if(any(argument.counts > 1))
-    ergm_Init_abort("formal argument ", sQuote(varnames[which(argument.counts > 1)[1]]), "\" matched by multiple actual arguments.")
-	
   out
 }

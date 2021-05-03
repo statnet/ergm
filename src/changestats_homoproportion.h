@@ -12,7 +12,4 @@
 
 #include "ergm_changestat.h"
 
-/********************  ratiostats:   H    ***********/                       
-D_CHANGESTAT_FN(d_homoproportion);
-
 #endif
