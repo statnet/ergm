@@ -12,11 +12,6 @@
 
 #include "ergm_wtMHproposal.h"
 
-WtMH_P_FN(MH_Unif);
-WtMH_P_FN(MH_UnifNonObserved);
-WtMH_P_FN(MH_DiscUnif);
-WtMH_P_FN(MH_DiscUnifNonObserved);
-
 #endif 
 
 

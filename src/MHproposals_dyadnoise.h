@@ -16,11 +16,6 @@
 #include "ergm_storage.h"
 #include "ergm_MHproposal.h"
 
-MH_P_FN(MH_dyadnoiseTNT);
-MH_P_FN(MH_dyadnoisemTNT);
-MH_P_FN(MH_dyadnoise);
-MH_P_FN(MH_dyadnoisem);
-
 #endif 
 
 

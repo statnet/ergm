@@ -16,10 +16,6 @@
 #include "ergm_storage.h"
 #include "ergm_MHproposal.h"
 
-MH_P_FN(MH_BipartiteHammingConstantEdges);
-MH_P_FN(MH_BipartiteHammingTNT);
-MH_P_FN(MH_BipartiteCondDegreeDist);
-
 #endif 
 
 

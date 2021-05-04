@@ -11,16 +11,4 @@
 #define MHPROPOSALS_DEGREE_H
 #include "ergm_MHproposal.h"
 
-MH_P_FN(MH_CondDegree);
-MH_P_FN(MH_CondDegreeTetrad);
-MH_P_FN(MH_CondDegreeHexad);
-MH_P_FN(MH_CondOutDegree);
-MH_P_FN(MH_CondInDegree); 
-MH_P_FN(MH_CondB1Degree); 
-MH_P_FN(MH_CondB2Degree);  
-MH_P_FN(MH_CondDegreeMix);
-MH_P_FN(MH_CondDegreeTetradMixMore);
-MH_P_FN(MH_CondDegreeTetradMixLess);
-MH_P_FN(MH_CondDegreeMixChangeOrig);
-
 #endif
