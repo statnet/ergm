@@ -7,7 +7,8 @@
  *
  *  Copyright 2003-2020 Statnet Commons
  */
-#include "changestats_internal.h"
+#include "ergm_edgetree.h"
+#include "ergm_changestat.h"
 
 /***************************************************************
  changestats internal

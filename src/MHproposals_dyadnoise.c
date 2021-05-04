@@ -7,7 +7,7 @@
  *
  *  Copyright 2003-2017 Statnet Commons
  */
-#include "MHproposals_dyadnoise.h" 
+#include "ergm_MHproposal.h"
 #include "ergm_changestat.h"
 #include "ergm_edgelist.h"
 /* Shorthand. */

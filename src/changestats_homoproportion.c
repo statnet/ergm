@@ -7,7 +7,7 @@
  *
  *  Copyright 2003-2020 Statnet Commons
  */
-#include "changestats_homoproportion.h"
+#include "ergm_changestat.h"
 
 D_CHANGESTAT_FN(d_homoproportion) { 
   double change;

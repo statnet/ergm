@@ -7,7 +7,7 @@
  *
  *  Copyright 2003-2020 Statnet Commons
  */
-#include "MHproposals_degree.h"
+#include "ergm_MHproposal.h"
 #include "ergm_changestat.h"
 
 /* 
