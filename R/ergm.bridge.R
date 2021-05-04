@@ -78,7 +78,7 @@ ergm.bridge.llr<-function(object, response=NULL, reference=~Bernoulli, constrain
   path <- t(rbind(sapply(seq(from = 0 + 1 / 2 / control$bridge.nsteps, to = 1 - 1 / 2 / control$bridge.nsteps, length.out = control$bridge.nsteps), function(u) cbind(to * u + from * (1 - u)))))
 
   # Determine whether an observation process is in effect.
-  obs <- !is.null(.handle.auto.constraints(basis, constraints, obs.constraints, target.stats)$constraints.obs)
+  obs <- has.obs.constraints(basis, constraints, obs.constraints, target.stats)
 
   ## Control list constructor
   gen_control <- function(obs, burnin){
