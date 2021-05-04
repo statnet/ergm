@@ -105,8 +105,6 @@ prune.ergm_conlist <- function(conlist){
 #     package: shared library name where the proposal can be found (usually "ergm")
 #     arguments: list of arguments passed to the InitErgmProposal function; in particular,
 #       constraints: list of constraints
-#       constraints$bd: the list of parameters to bound degree in the fitting process
-#              and returned by <ergm.bounddeg>
 #
 ########################################################################################
 
@@ -199,11 +197,6 @@ ergm_proposal.character <- function(object, arguments, nw, ..., reference=ergm_r
 
   proposal$reference <- reference
 
-  # optionally bypass bd initialization if we are handling bd in some other way
-  if(!NVL(proposal$skip_bd, FALSE)) {
-    proposal$arguments$constraints$bd <- ergm.bounddeg(arguments$constraints$bd,nw)
-  }
-  
   # If package not specified, autodetect.
   if(is.null(proposal$pkgname))  proposal$pkgname <- environmentName(environment(eval(f)))
 

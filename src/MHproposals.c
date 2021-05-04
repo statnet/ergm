@@ -14,7 +14,6 @@
 #include "ergm_MHstorage.h"
 #include "ergm_unsorted_edgelist.h"
 #include "ergm_weighted_population.h"
-#include "ergm_dyadgen.h"
 #include "ergm_Rutil.h"
 #include "ergm_BDStrat_proposals.h"
 #include "ergm_hash_edgelist.h"
@@ -25,24 +24,24 @@
 
  Default MH algorithm
 *********************/
-MH_P_FN(MH_randomtoggle){  
+MH_I_FN(Mi_randomtoggle){
+  ALLOC_STORAGE(1, StoreDyadGenAndDegreeBound, storage);
+  storage->gen = DyadGenInitializeR(MHp->R, nwp, FALSE);
+  storage->bd = DegreeBoundInitializeR(MHp->R, nwp);
+  MHp->ntoggles=1;
+}
 
-  /* *** don't forget tail-> head now */
-
-  if(MHp->ntoggles == 0) { /* Initialize randomtoggle */
-    MH_STORAGE = DyadGenInitializeR(MHp->R, nwp, FALSE);
-    MHp->ntoggles=1;
-    return;
-  }
-  
-  BD_LOOP({
-      DyadGenRandDyad(Mtail, Mhead, MH_STORAGE);
+MH_P_FN(MH_randomtoggle){
+  GET_STORAGE(StoreDyadGenAndDegreeBound, storage);
+  BD_LOOP(storage->bd, {
+      DyadGenRandDyad(Mtail, Mhead, storage->gen);
     });
 }
 
 MH_F_FN(Mf_randomtoggle){
-  DyadGenDestroy(MH_STORAGE);
-  MH_STORAGE = NULL;
+  GET_STORAGE(StoreDyadGenAndDegreeBound, storage);
+  DyadGenDestroy(storage->gen);
+  DegreeBoundDestroy(storage->bd);
 }
 
 /********************
@@ -58,24 +57,27 @@ MH_F_FN(Mf_randomtoggle){
    network for the ties is the ties in the discord network.
 ***********************/
 
+MH_I_FN(Mi_TNT){
+  ALLOC_STORAGE(1, StoreDyadGenAndDegreeBound, storage);
+  storage->gen = DyadGenInitializeR(MHp->R, nwp, TRUE);
+  storage->bd = DegreeBoundInitializeR(MHp->R, nwp);
+  MHp->ntoggles=1;
+}
+
 MH_P_FN(Mp_TNT){
-  if(MHp->ntoggles == 0) { /* Initialize randomtoggle */
-    MH_STORAGE = DyadGenInitializeR(MHp->R, nwp, TRUE);
-    MHp->ntoggles=1;
-    return;
-  }
+  GET_STORAGE(StoreDyadGenAndDegreeBound, storage);
 
   const double P=0.5, Q=1-P;
-  double DP = P*((DyadGen *)MH_STORAGE)->ndyads, DO = DP/Q;
+  double DP = P*storage->gen->ndyads, DO = DP/Q;
 
-  Edge nedges = DyadGenEdgecount(MH_STORAGE);
+  Edge nedges = DyadGenEdgecount(storage->gen);
   double logratio=0;
-  BD_LOOP({
+  BD_LOOP(storage->bd, {
       if (unif_rand() < P && nedges > 0) { /* Select a tie at random from the network of eligibles */
-        DyadGenRandEdge(Mtail, Mhead, MH_STORAGE);
+        DyadGenRandEdge(Mtail, Mhead, storage->gen);
 	logratio = TNT_LR_E(nedges, Q, DP, DO);
       }else{ /* Select a dyad at random from the list */
-	DyadGenRandDyad(Mtail, Mhead, MH_STORAGE);
+	DyadGenRandDyad(Mtail, Mhead, storage->gen);
 	
 	if(IS_OUTEDGE(Mtail[0],Mhead[0])){
 	  logratio = TNT_LR_DE(nedges, Q, DP, DO);
@@ -87,11 +89,12 @@ MH_P_FN(Mp_TNT){
   MHp->logratio += logratio;
 }
 
-MH_F_FN(Mf_TNT){
-  DyadGenDestroy(MH_STORAGE);
-  MH_STORAGE = NULL;
-}
 
+MH_F_FN(Mf_TNT){
+  GET_STORAGE(StoreDyadGenAndDegreeBound, storage);
+  DyadGenDestroy(storage->gen);
+  DegreeBoundDestroy(storage->bd);
+}
 
 /********************
     MH_BDStratTNT
@@ -375,24 +378,22 @@ MH_F_FN(Mf_BDStratTNT) {
    because it does not correctly update network quantities like nedges
    after each of the 10 proposed toggles.
 ***********************/
-MH_P_FN(MH_TNT10)
-{
-  /* *** don't forget tail-> head now */
-  
-  Edge nedges=EDGECOUNT(nwp);
-  static double P=0.5;
-  static double Q, DP, DO;
 
-  if(MHp->ntoggles == 0) { /* Initialize */
-    MHp->ntoggles=10;
-    Q = 1-P;
-    DP = P*DYADCOUNT(nwp);
-    DO = DP/Q;
-    return;
-  }
+MH_I_FN(Mi_TNT10){
+  MH_STORAGE = DegreeBoundInitializeR(MHp->R, nwp);
+  MHp->ntoggles=10;
+}
+
+MH_P_FN(MH_TNT10){
+  Edge nedges=EDGECOUNT(nwp);
+  const double P=0.5;
+  double Q = 1-P;
+  double DP = P*DYADCOUNT(nwp);
+  double DO = DP/Q;
+
 
   double logratio = 0;
-  BD_LOOP({
+  BD_LOOP(MH_STORAGE, {
       logratio = 0;
       for(unsigned int n = 0; n < 10; n++){
 	if (unif_rand() < P && nedges > 0) { /* Select a tie at random */
@@ -411,6 +412,11 @@ MH_P_FN(MH_TNT10)
   MHp->logratio += logratio;
 }
 
+MH_F_FN(Mf_TNT10){
+  DegreeBoundDestroy(MH_STORAGE);
+}
+
+
 /*********************
  void MH_constantedges
  propose pairs of toggles that keep number of edges
@@ -422,6 +428,11 @@ MH_P_FN(MH_TNT10)
  NOT recommended for such networks.  However, most network
  datasets are sparse, so this is not likely to be an issue.
 *********************/
+MH_I_FN(Mi_ConstantEdges){
+  MH_STORAGE = DegreeBoundInitializeR(MHp->R, nwp);
+  MHp->ntoggles = 2;
+}
+
 MH_P_FN(MH_ConstantEdges){  
   /* *** don't forget tail-> head now */
   
@@ -433,13 +444,18 @@ MH_P_FN(MH_ConstantEdges){
   /* Note:  This proposal cannot be used for full or empty observed graphs.
      If desired, we could check for this at initialization phase. 
      (For now, however, no way to easily return an error message and stop.)*/
-  BD_LOOP({
+  BD_LOOP(MH_STORAGE, {
       /* First, select edge at random */
       GetRandEdge(Mtail, Mhead, nwp);
       /* Second, select non-edge at random */
       GetRandNonedge(Mtail+1, Mhead+1, nwp);
     });
 }
+
+MH_F_FN(Mf_ConstantEdges){
+  DegreeBoundDestroy(MH_STORAGE);
+}
+
 
 /*********************
  void MH_CondDegreeDist
@@ -577,17 +593,17 @@ MH_P_FN(MH_CondDegreeDist){
 /*********************
  void MH_CondOutDegreeDist
 *********************/
+MH_I_FN(Mi_CondOutDegreeDist){
+  MH_STORAGE = DegreeBoundInitializeR(MHp->R, nwp);
+  MHp->ntoggles=2;
+}
+
 MH_P_FN(MH_CondOutDegreeDist){  
   int noutedge=0, k, fvalid=0;
   int k0, k1;
   int trynode;
   Vertex e, alter, tail=0, head, head1;
   
-  if(MHp->ntoggles == 0) { /* Initialize */
-    MHp->ntoggles=2;    
-    return;
-  }
-
   fvalid = 0;
   trynode = 0;
   while(fvalid==0 && trynode < 1500){
@@ -629,7 +645,7 @@ MH_P_FN(MH_CondOutDegreeDist){
   Mhead[1] = alter;
   }
   
-  if(trynode==1500 || !CheckTogglesValid(MHp, nwp)){
+  if(trynode==1500 || !CheckTogglesValid(MH_STORAGE, MHp, nwp)){
       Mtail[0] = 1;
       Mhead[0] = 2;
       Mtail[1] = 1;
@@ -638,6 +654,11 @@ MH_P_FN(MH_CondOutDegreeDist){
   
 
 }
+
+MH_F_FN(Mf_CondOutDegreeDist){
+  DegreeBoundDestroy(MH_STORAGE);
+}
+
 
 /*********************
  void MH_CondInDegreeDist
@@ -825,6 +846,11 @@ MH_P_FN(MH_ConstrainedCondOutDegDist){
 }
 
 
+MH_I_FN(Mi_NodePairedTiesToggles){
+  MH_STORAGE = DegreeBoundInitializeR(MHp->R, nwp);
+  MHp->ntoggles = N_NODES;
+}
+
 MH_P_FN(MH_NodePairedTiesToggles){  
   /* chooses a node and toggles all ties and
 	 and toggles an equal number of matching nonties
@@ -886,11 +912,16 @@ MH_P_FN(MH_NodePairedTiesToggles){
     }
   
   j = 2*nedge;
-  if (!CheckTogglesValid(MHp, nwp))
+  if (!CheckTogglesValid(MH_STORAGE, MHp, nwp))
     {
       *Mtail = *Mhead = 0;
     }
 }
+
+MH_F_FN(Mf_NodePairedTiesToggles){
+  DegreeBoundDestroy(MH_STORAGE);
+}
+
 
 /*********************
  void MH_OneRandomTnTNode
@@ -1358,6 +1389,12 @@ MH_P_FN(MH_ConstrainedCondDegDist){
   }
 }
 
+
+MH_I_FN(Mi_ConstrainedNodePairedTiesToggles){
+  MH_STORAGE = DegreeBoundInitializeR(MHp->R, nwp);
+  MHp->ntoggles=N_NODES;
+}
+
 void MH_ConstrainedNodePairedTiesToggles (MHProposal *MHp,
        	 Network *nwp) {  
   /* chooses a node and toggles all ties and
@@ -1419,11 +1456,16 @@ void MH_ConstrainedNodePairedTiesToggles (MHProposal *MHp,
     }
   
   j = 2*nedge;
-  if (!CheckConstrainedTogglesValid(MHp, nwp))
+  if (!CheckConstrainedTogglesValid(MH_STORAGE, MHp, nwp))
     {
       *Mtail = *Mhead = 0;
     }
 }
+
+MH_F_FN(Mf_ConstrainedNodePairedTiesToggles){
+  DegreeBoundDestroy(MH_STORAGE);
+}
+
 
 /*********************
  void MH_ConstrainedReallocateWithReplacement
@@ -1536,6 +1578,11 @@ void MH_ConstrainedAllTogglesForOneNode (MHProposal *MHp,
 /*********************
  void MH_ConstrainedTwoRandomToggles
 *********************/
+MH_I_FN(Mi_ConstrainedTwoRandomToggles){
+  MH_STORAGE = DegreeBoundInitializeR(MHp->R, nwp);
+  MHp->ntoggles=2;
+}
+
 void MH_ConstrainedTwoRandomToggles (MHProposal *MHp,
 				 Network *nwp) {  
   int i;
@@ -1559,12 +1606,17 @@ void MH_ConstrainedTwoRandomToggles (MHProposal *MHp,
 	}
     }
   
-  if (!CheckConstrainedTogglesValid(MHp, nwp))
+  if (!CheckConstrainedTogglesValid(MH_STORAGE, MHp, nwp))
     {
       Mtail[0] = Mhead[0] = 0;
       Mtail[1] = Mhead[1] = 0;
     }  
 }
+
+MH_F_FN(Mf_ConstrainedTwoRandomToggles){
+  DegreeBoundDestroy(MH_STORAGE);
+}
+
 
 /*********************
  void MH_ConstrainedCondDeg

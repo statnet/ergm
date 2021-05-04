@@ -7,12 +7,13 @@
  *
  *  Copyright 2003-2020 Statnet Commons
  */
-#ifndef MHProposals_H
-#define MHProposals_H
+#ifndef MHPROPOSALS_H
+#define MHPROPOSALS_H
 
 #include "ergm_MHproposal.h"
+#include "ergm_MHproposal_bd.h"
+#include "ergm_dyadgen.h"
+
+typedef struct{DyadGen *gen; DegreeBound *bd;} StoreDyadGenAndDegreeBound;
 
 #endif 
-
-
-

@@ -44,11 +44,11 @@
 DyadGenType <- list(RandDyadGen=0L, WtRandDyadGen=1L, RLEBDM1DGen=2L, EdgeListGen=3L)
 
 InitErgmProposal.randomtoggle <- function(arguments, nw){
-  list(name = "randomtoggle", dyadgen = ergm_dyadgen_select(arguments, nw))
+  list(name = "randomtoggle", dyadgen = ergm_dyadgen_select(arguments, nw), bd = ergm_bd_init(arguments, nw))
 }
 
 InitErgmProposal.TNT <- function(nw, arguments, ...){
-  list(name = "TNT", dyadgen = ergm_dyadgen_select(arguments, nw))
+  list(name = "TNT", dyadgen = ergm_dyadgen_select(arguments, nw), bd = ergm_bd_init(arguments, nw))
 }
 
 InitErgmProposal.BDStratTNT <- function(arguments, nw) {
@@ -182,8 +182,7 @@ InitErgmProposal.BDStratTNT <- function(arguments, nw) {
                    blocks_heads = as.integer(blocks_heads - 1L),
                    blocks_mixtypes = as.integer(blocks_mixtypes),
                    empirical_flag = as.integer(arguments$constraints$strat$empirical),
-                   amat = as.integer(t(pairs_mat)),
-                   skip_bd = TRUE)
+                   amat = as.integer(t(pairs_mat)))
 
   proposal
 }
@@ -265,11 +264,12 @@ InitErgmProposal.CondOutDegreeDist <- function(arguments, nw) {
   if(is.bipartite(nw)){
      proposal$name <- "BipartiteCondDegreeDist"
   }
+  proposals$bd <- ergm_bd_init(arguments, nw)
   proposal
 }
 
 InitErgmProposal.ConstantEdges <- function(arguments, nw) {
-  proposal <- list(name = "ConstantEdges", inputs=NULL)
+  proposal <- list(name = "ConstantEdges", bd = ergm_bd_init(arguments, nw))
   proposal
 }
 

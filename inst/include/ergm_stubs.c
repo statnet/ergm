@@ -332,7 +332,12 @@ fun(theta,v,nv,etamap,ans);
 #define STUBFILE
 #include <stddef.h>
 #include <R_ext/Rdynload.h>
-#include "ergm_MHproposal.h"
+#include "ergm_MHproposal_bd.h"
+DegreeBound* DegreeBoundInitializeR(SEXP MHpR, Network *nwp){
+static DegreeBound* (*fun)(SEXP,Network *) = NULL;
+if(fun==NULL) fun = (DegreeBound* (*)(SEXP,Network *)) R_FindSymbol("DegreeBoundInitializeR", "ergm", NULL);
+return fun(MHpR,nwp);
+}
 DegreeBound* DegreeBoundInitialize(int *attribs, int *maxout, int *maxin,int *minout, int *minin, int condAllDegExact,int attriblength, Network *nwp){
 static DegreeBound* (*fun)(int *,int *,int *,int *,int *,int,int,Network *) = NULL;
 if(fun==NULL) fun = (DegreeBound* (*)(int *,int *,int *,int *,int *,int,int,Network *)) R_FindSymbol("DegreeBoundInitialize", "ergm", NULL);
@@ -343,6 +348,21 @@ static void (*fun)(DegreeBound *) = NULL;
 if(fun==NULL) fun = (void (*)(DegreeBound *)) R_FindSymbol("DegreeBoundDestroy", "ergm", NULL);
 fun(bd);
 }
+int CheckTogglesValid(DegreeBound *bd, MHProposal *MHp, Network *nwp){
+static int (*fun)(DegreeBound *,MHProposal *,Network *) = NULL;
+if(fun==NULL) fun = (int (*)(DegreeBound *,MHProposal *,Network *)) R_FindSymbol("CheckTogglesValid", "ergm", NULL);
+return fun(bd,MHp,nwp);
+}
+int CheckConstrainedTogglesValid(DegreeBound *bd, MHProposal *MHp, Network *nwp){
+static int (*fun)(DegreeBound *,MHProposal *,Network *) = NULL;
+if(fun==NULL) fun = (int (*)(DegreeBound *,MHProposal *,Network *)) R_FindSymbol("CheckConstrainedTogglesValid", "ergm", NULL);
+return fun(bd,MHp,nwp);
+}
+
+#define STUBFILE
+#include <stddef.h>
+#include <R_ext/Rdynload.h>
+#include "ergm_MHproposal.h"
 MHProposal * MHProposalInitialize(SEXP pR, Network *nwp, void **aux_storage){
 static MHProposal * (*fun)(SEXP,Network *,void **) = NULL;
 if(fun==NULL) fun = (MHProposal * (*)(SEXP,Network *,void **)) R_FindSymbol("MHProposalInitialize", "ergm", NULL);
@@ -352,16 +372,6 @@ void MHProposalDestroy(MHProposal *MHp, Network *nwp){
 static void (*fun)(MHProposal *,Network *) = NULL;
 if(fun==NULL) fun = (void (*)(MHProposal *,Network *)) R_FindSymbol("MHProposalDestroy", "ergm", NULL);
 fun(MHp,nwp);
-}
-int CheckTogglesValid(MHProposal *MHp, Network *nwp){
-static int (*fun)(MHProposal *,Network *) = NULL;
-if(fun==NULL) fun = (int (*)(MHProposal *,Network *)) R_FindSymbol("CheckTogglesValid", "ergm", NULL);
-return fun(MHp,nwp);
-}
-int CheckConstrainedTogglesValid(MHProposal *MHp, Network *nwp){
-static int (*fun)(MHProposal *,Network *) = NULL;
-if(fun==NULL) fun = (int (*)(MHProposal *,Network *)) R_FindSymbol("CheckConstrainedTogglesValid", "ergm", NULL);
-return fun(MHp,nwp);
 }
 
 #define STUBFILE

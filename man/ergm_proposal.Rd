@@ -115,7 +115,7 @@ giving the \R name of the proposal.
 \item \code{formula}: \code{object} argument is an ERGM constraint formula; constructs the \code{\link{ergm_conlist}} object and hands off to \code{ergm_proposal.ergm_conlist()}.
 
 \item \code{ergm_conlist}: \code{object} argument is an ERGM constraint
-list; constructs the \code{\link{ergm_reference}} object, looks up the
+list; constructs the internal \code{ergm_reference} object, looks up the
 proposal, and hands off to \code{ergm_proposal.character()}.
 
 \item \code{ergm}: \code{object} argument is an \code{\link{ergm}} fit whose proposals are extracted which is reproduced as best as possible.
