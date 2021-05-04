@@ -647,8 +647,6 @@ ergm <- function(formula, response=NULL,
   if(!is.directed(nw) && ("degrees" %in% names(proposal$arguments$constraints) ||
                                            all(c("b1degrees","b2degrees") %in% names(proposal$arguments$constraints)))) message("Note that degree-conditional MPLE has been removed in version 4.0, having been superceded by Contrastive Divergence.")  
   
-  # Construct the initial model.
-  
   # The following kludge knocks out MPLE if the sample space
   # constraints are not dyad-independent. For example, ~observed
   # constraint is dyad-independent, while ~edges is not.
