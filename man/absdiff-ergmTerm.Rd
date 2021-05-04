@@ -7,7 +7,7 @@
 \title{Absolute difference}
 \usage{
 # binary: absdiff(attr,
-                  pow=1)
+#                 pow=1)
 
 # valued: absdiff(attr,
 #                 pow=1,

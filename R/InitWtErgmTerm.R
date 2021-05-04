@@ -79,6 +79,23 @@ InitWtErgmTerm.absdiffcat <- function(nw, arglist, ..., version=packageVersion("
 }
 
 
+#' @name atleast-ergmTerm
+#' @title Number of dyads with values greater than or equal to a threshold
+#' @description Number of dyads with values greater than or equal to a threshold
+#' @details Adds the number of
+#'   statistics equal to the length of `threshold`
+#'   equaling to the number of dyads whose values equal or exceed the
+#'   corresponding element of
+#'   `threshold` .
+#'
+#' @usage
+#' # valued: atleast(threshold=0)
+#'
+#' @template ergmTerm-general
+#'
+#' @concept directed
+#' @concept undirected
+#' @concept dyad-independent
 InitWtErgmTerm.atleast<-function(nw, arglist, ...) {
   a <- check.ErgmTerm(nw, arglist,
                       varnames = c("threshold"),
@@ -93,6 +110,23 @@ InitWtErgmTerm.atleast<-function(nw, arglist, ...) {
        emptynwstats=ifelse(0>=a$threshold, network.dyadcount(nw,FALSE), 0))
 }
 
+#' @name atmost-ergmTerm
+#' @title Number of dyads with values less than or equal to a threshold
+#' @description Number of dyads with values less than or equal to a threshold
+#' @details Adds the number of
+#'   statistics equal to the length of `threshold`
+#'   equaling to the number of dyads whose values equal or are exceeded by the
+#'   corresponding element of
+#'   `threshold` .
+#'
+#' @usage
+#' # valued: atmost(threshold=0)
+#'
+#' @template ergmTerm-general
+#'
+#' @concept directed
+#' @concept undirected
+#' @concept dyad-independent
 InitWtErgmTerm.atmost<-function(nw, arglist, ...) {
   a <- check.ErgmTerm(nw, arglist,
                       varnames = c("threshold"),
@@ -107,6 +141,9 @@ InitWtErgmTerm.atmost<-function(nw, arglist, ...) {
        emptynwstats=ifelse(0<=a$threshold, network.dyadcount(nw,FALSE), 0))
 }
 
+#' @rdname b1cov-ergmTerm
+#' @usage
+#' # valued: b1cov(attr, form="sum")
 InitWtErgmTerm.b1cov<-function (nw, arglist, ..., version=packageVersion("ergm")) {
   if(version <= as.package_version("3.9.4")){
     a <- check.ErgmTerm(nw, arglist, directed=FALSE, bipartite=TRUE, 
@@ -124,6 +161,9 @@ InitWtErgmTerm.b1cov<-function (nw, arglist, ..., version=packageVersion("ergm")
   binary_dind_wrap("b1cov", nw, a, ..., version=version)
 }
 
+#' @rdname b1factor-ergmTerm
+#' @usage
+#' # valued: b1factor(attr, base=1, levels=-1, form="sum")
 InitWtErgmTerm.b1factor<-function (nw, arglist, ..., version=packageVersion("ergm")) {
   if(version <= as.package_version("3.9.4")){
     a <- check.ErgmTerm(nw, arglist, directed=FALSE, bipartite=TRUE,
@@ -142,6 +182,9 @@ InitWtErgmTerm.b1factor<-function (nw, arglist, ..., version=packageVersion("erg
   binary_dind_wrap("b1factor", nw, a, ..., version=version)
 }
 
+#' @rdname b1sociality-ergmTerm
+#' @usage
+#' # valued: b1sociality(nodes=-1, form="sum")
 InitWtErgmTerm.b1sociality<-function(nw, arglist, ...) {
   a <- check.ErgmTerm(nw, arglist, directed=FALSE, bipartite=TRUE,
                       varnames = c("nodes", "form"),
@@ -152,6 +195,9 @@ InitWtErgmTerm.b1sociality<-function(nw, arglist, ...) {
                       
 }
 
+#' @rdname b2cov-ergmTerm
+#' @usage
+#' # valued: b2cov(attr, form="sum")
 InitWtErgmTerm.b2cov<-function (nw, arglist, ..., version=packageVersion("ergm")) {
   if(version <= as.package_version("3.9.4")){
     a <- check.ErgmTerm(nw, arglist, directed=FALSE, bipartite=TRUE,
@@ -170,6 +216,9 @@ InitWtErgmTerm.b2cov<-function (nw, arglist, ..., version=packageVersion("ergm")
   binary_dind_wrap("b2cov", nw, a, ..., version=version)
 }
 
+#' @rdname b2factor-ergmTerm
+#' @usage
+#' # valued: b2factor(attr, base=1, levels=-1, form="sum")
 InitWtErgmTerm.b2factor<-function (nw, arglist, ..., version=packageVersion("ergm")) {
   if(version <= as.package_version("3.9.4")){
     a <- check.ErgmTerm(nw, arglist, directed=FALSE, bipartite=TRUE,
@@ -188,7 +237,9 @@ InitWtErgmTerm.b2factor<-function (nw, arglist, ..., version=packageVersion("erg
   binary_dind_wrap("b2factor", nw, a, ..., version=version)
 }
 
-
+#' @rdname b2sociality-ergmTerm
+#' @usage
+#' # valued: b2sociality(nodes=-1, form="sum")
 InitWtErgmTerm.b2sociality<-function(nw, arglist, ...) {
   a <- check.ErgmTerm(nw, arglist, directed=FALSE, bipartite=TRUE,
                       varnames = c("nodes", "form"),
@@ -199,7 +250,9 @@ InitWtErgmTerm.b2sociality<-function(nw, arglist, ...) {
 }
 
 
-
+#' @rdname diff-ergmTerm
+#' @usage
+#' # valued: diff(attr, pow=1, dir="t-h", sign.action="identity", form ="sum")
 InitWtErgmTerm.diff <- function(nw, arglist, ..., version=packageVersion("ergm")) {
   if(version <= as.package_version("3.9.4")){
     ### Check the network and arguments to make sure they are appropriate.
@@ -219,6 +272,9 @@ InitWtErgmTerm.diff <- function(nw, arglist, ..., version=packageVersion("ergm")
   binary_dind_wrap("diff", nw, a, ..., version=version)
 }
 
+#' @rdname edgecov-ergmTerm
+#' @usage
+#' # valued: edgecov(x, attrname=NULL, form="sum")
 InitWtErgmTerm.edgecov <- function(nw, arglist, ...) {
   ### Check the network and arguments to make sure they are appropriate.
   a <- check.ErgmTerm(nw, arglist, 
@@ -229,7 +285,21 @@ InitWtErgmTerm.edgecov <- function(nw, arglist, ...) {
   binary_dind_wrap("edgecov", nw, a, ...)
 }
 
-
+#' @name equalto-ergmTerm
+#' @title Number of dyads with values equal to a specific value (within tolerance)
+#' @description Number of dyads with values equal to a specific value (within tolerance)
+#' @details Adds one statistic equal to the number of dyads whose values
+#'   are within `tolerance` of `value` , i.e., between
+#'   `value-tolerance` and `value+tolerance` , inclusive.
+#'
+#' @usage
+#' # valued: equalto(value=0, tolerance=0)
+#'
+#' @template ergmTerm-general
+#'
+#' @concept directed
+#' @concept undirected
+#' @concept dyad-independent
 InitWtErgmTerm.equalto<-function(nw, arglist, ...) {
   a <- check.ErgmTerm(nw, arglist,
                       varnames = c("value", "tolerance"),

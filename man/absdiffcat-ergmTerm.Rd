@@ -13,7 +13,7 @@
 # valued: absdiffcat(attr,
 #                 base=NULL,
 #                 levels=NULL,
-#				 form="sum")
+#                 form="sum")
 }
 \arguments{
 \item{attr}{quantitative attribute (see Specifying Vertex attributes and Levels (\code{?nodal_attributes}) for details.)}
@@ -25,7 +25,7 @@ removed in a future version. When both \code{base} and \code{levels} are passed,
 \item{form}{character how to aggregate tie values in a valued ERGM}
 }
 \description{
-Absolute difference in nodal attribute.
+Categorical absolute difference in nodal attribute.
 }
 \details{
 This term adds one statistic for every possible nonzero distinct
