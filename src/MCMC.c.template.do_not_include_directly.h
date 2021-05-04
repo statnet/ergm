@@ -117,7 +117,10 @@ MCMCStatus DISPATCH_MCMCSample(DISPATCH_ErgmState *s,
     return MCMC_TOO_MANY_EDGES;
   }
 
-  if(s->save) SET_VECTOR_ELT(s->save, 0, DISPATCH_ErgmStateRSave(s));
+  if(s->save){
+    s->stats = networkstatistics;
+    SET_VECTOR_ELT(s->save, 0, DISPATCH_ErgmStateRSave(s));
+  }
 
 /*   if (verbose){
        Rprintf(".");
@@ -142,7 +145,10 @@ MCMCStatus DISPATCH_MCMCSample(DISPATCH_ErgmState *s,
 	return MCMC_TOO_MANY_EDGES;
       }
 
-      if(s->save) SET_VECTOR_ELT(s->save, i, DISPATCH_ErgmStateRSave(s));
+      if(s->save){
+        s->stats = networkstatistics;
+        SET_VECTOR_ELT(s->save, i, DISPATCH_ErgmStateRSave(s));
+      }
 
       tottaken += staken;
 
