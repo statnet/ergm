@@ -242,7 +242,7 @@ gof.formula <- function(object, ...,
                   control=control,
                   basis=basis,
                   unconditional=FALSE,
-                  verbose=verbose)
+                  verbose=verbose, ...)
   }
 
   n <- network.size(nw)
@@ -323,7 +323,7 @@ gof.formula <- function(object, ...,
            control=set.control.class("control.simulate.formula",control),
            output=summfun,
            basis=nw,
-           verbose=verbose)
+           verbose=verbose, ...)
 
   # calculate p-values
   
@@ -611,8 +611,3 @@ plot.gof <- function(x, ...,
   mtext(main,side=3,outer=TRUE,cex=1.5,padj=2)
   invisible()
 }
-
-
-
-
-

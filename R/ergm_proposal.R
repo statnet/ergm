@@ -22,7 +22,7 @@
 
 
 #' Table mapping reference,constraints, etc. to ERGM Metropolis-Hastings proposals
-#' 
+#'
 #' This is a low-level function not intended to be called directly by
 #' end users. For information on Metropolis-Hastings proposal methods,
 #' \link{ergm-proposals}. This function sets up the table mapping
@@ -84,7 +84,8 @@ prune.ergm_conlist <- function(conlist){
       }
     }
   }
-  structure(conlist, class="ergm_conlist")
+
+  structure(conlist, class = "ergm_conlist", lhs = attr(conlist, "lhs"))
 }
 
 
@@ -176,7 +177,7 @@ ergm_proposal.ergm_proposal<-function(object,...) return(object)
 #' @template term_options
 #' @template reference
 #' @export
-ergm_proposal.character <- function(object, arguments, nw, ..., reference=~Bernoulli, term.options=list()){
+ergm_proposal.character <- function(object, arguments, nw, ..., reference=ergm_reference(trim_env(~Bernoulli), nw, term.options=term.options, ...), term.options=list()){
   name<-object
 
   arguments$reference <- reference
@@ -238,7 +239,7 @@ ergm_proposal.character <- function(object, arguments, nw, ..., reference=~Berno
 ########################################################################################
 
 ergm_conlist <- function(object, ...) UseMethod("ergm_conlist")
-
+ergm_conlist.ergm_conlist <- function(object, ...) object
 ergm_conlist.NULL <- function(object, ...) NULL
 
 ergm_conlist.formula <- function(object, nw, ..., term.options=list()){
@@ -287,16 +288,28 @@ ergm_conlist.formula <- function(object, nw, ..., term.options=list()){
     conlist[[length(conlist)+1]] <- con
     names(conlist)[length(conlist)] <- conname
   }
-  
+
+  if (length(object) == 3) {
+    lhs <- try(eval_lhs.formula(object), silent = TRUE)
+    if (is(lhs, "try-error") || !is.character(lhs)) stop("Constraints formula must be either one-sided or have a string expression as its LHS.")
+
+    attr(conlist, "lhs") <- lhs
+  }
+
   prune.ergm_conlist(conlist)
 }
 
 c.ergm_conlist <- function(...){
-  NextMethod() %>% prune.ergm_conlist()
+  o <- NextMethod() %>% prune.ergm_conlist()
+
+  lhss <- lapply(list(...), attr, "lhs") %>% compact()
+  if(length(lhss)) attr(o, "lhs") <- ult(lhss)
+
+  o
 }
 
 `[.ergm_conlist` <- function(x, ...){
-  structure(NextMethod(), class="ergm_conlist")
+  structure(NextMethod(), class = "ergm_conlist", lhs = attr(x, "lhs"))
 }
 
 select_ergm_proposal <- function(conlist, class, ref, name, weights){
@@ -363,79 +376,65 @@ select_ergm_proposal <- function(conlist, class, ref, name, weights){
   proposal
 }
 
-#' @describeIn ergm_proposal `object` argument is an ERGM constraint formula.
-#' @param weights Specifies the method used to allocate probabilities of being
-#' proposed to dyads; options are "TNT", "StratTNT", "TNT10", "random", "nonobserved" and
-#' "default"; default="default"
-#' @param class The class of the proposal; choices include "c", "f", and "d"
-#' default="c".
+ergm_reference <- function(object, ...) UseMethod("ergm_reference")
+ergm_reference.ergm_reference <- function(object, ...) object
+
+ergm_reference.formula <- function(object, nw, ..., term.options=list()) {
+    env <- environment(object)
+
+    f <- locate_prefixed_function(object[[2]], "InitErgmReference", "Reference distribution")
+
+    if (names(formals(eval(f)))[1] == "lhs.nw") {
+      if (is.call(object[[2]])) {
+        ref.call <- list(f, lhs.nw = nw)
+        ref.call <- c(ref.call, as.list(object[[2]])[-1])
+      }else{
+        ref.call <- list(f, lhs.nw = nw)
+      }
+    }else{
+      ref.call <- termCall(f, object[[2]], nw, term.options, ..., env = env)
+    }
+
+    structure(eval(as.call(ref.call), env), class = "ergm_reference")
+}
+
+#' @describeIn ergm_proposal `object` argument is an ERGM constraint formula; constructs the [`ergm_conlist`] object and hands off to `ergm_proposal.ergm_conlist()`.
 #' @param constraints A one-sided formula specifying one or more constraints on
 #' the support of the distribution of the networks being simulated. See the
 #' documentation for a similar argument for \code{\link{ergm}} and see
 #' [list of implemented constraints][ergm-constraints] for more information.
 #' @export
-ergm_proposal.formula <- function(object, arguments, nw, hints=trim_env(~sparse), weights="default", class="c", reference=~Bernoulli, ..., term.options=list()) {
+ergm_proposal.formula <- function(object, arguments, nw, hints=trim_env(~sparse), ..., term.options=list()) {
   NVL(hints) <- trim_env(~sparse)
 
-  if(is(reference, "formula")){
-    env <- environment(reference)
+  conlist <- if("constraints" %in% names(arguments))
+               prune.ergm_conlist(arguments$constraints)
+             else c(ergm_conlist(object, nw, term.options=term.options, ...),
+                    ergm_conlist(hints, nw, term.options=term.options, ...))
 
-    f <- locate_prefixed_function(reference[[2]], "InitErgmReference", "Reference distribution")
-
-    if(names(formals(eval(f)))[1]=="lhs.nw"){
-      if(is.call(reference[[2]])){
-        ref.call <- list(f, lhs.nw=nw)
-        ref.call <- c(ref.call,as.list(reference[[2]])[-1])
-      }else{
-        ref.call <- list(f, lhs.nw=nw)
-      }
-    }else{
-      ref.call <- termCall(f, reference[[2]], nw, term.options, ..., env=env)
-    }
-
-    ref <- eval(as.call(ref.call), env)
-    class(ref) <- "ergm_reference"
-  }else if(is(reference, "ergm_reference")){
-    ref <- reference
-  }else stop("Invalid reference= argument.")
-
-  if(length(object)==3){
-    lhs <- object[[2]]
-    if(is.character(lhs)){
-      name <- object[[2]]
-    }else{
-      name <- try(eval_lhs.formula(object), silent=TRUE)
-      if(is(name, "try-error") || !is.character(name)) stop("Constraints formula must be either one-sided or have a string expression as its LHS.")
-    }
-    object <- object[-2]
-  }else if(length(hints)==3){
-    lhs <- hints[[2]]
-    if(is.character(lhs)){
-      name <- hints[[2]]
-    }else{
-      name <- try(eval_lhs.formula(hints), silent=TRUE)
-      if(is(name, "try-error") || !is.character(name)) stop("Constraints formula must be either one-sided or have a string expression as its LHS.")
-    }
-    hints <- hints[-2]
-  }else name <- NULL
-
-  if("constraints" %in% names(arguments)){
-    conlist <- prune.ergm_conlist(arguments$constraints)
-  }else{
-    conlist <- c(ergm_conlist(object, nw, term.options=term.options, ...), ergm_conlist(hints, nw, term.options=term.options, ...))
-  }
-
-  proposal <- select_ergm_proposal(conlist, class, ref, name, weights)
-
-  name<-proposal$Proposal
-  arguments$constraints<-conlist
-  ## Hand it off to the class character method.
-  ergm_proposal(name, arguments, nw, reference=ref, ..., term.options=term.options)
+  ## Hand it off to the class ergm_conlist method.
+  ergm_proposal(conlist, arguments, nw, ..., term.options = term.options)
 }
 
-
-
-
+#' @describeIn ergm_proposal `object` argument is an ERGM constraint
+#'   list; constructs the internal `ergm_reference` object, looks up the
+#'   proposal, and hands off to `ergm_proposal.character()`.
+#' @param weights Specifies the method used to allocate probabilities
+#'   of being proposed to dyads, providing an intermediate method
+#'   (between hints and specifying the proposal name directly) for
+#'   specifying the proposal; options include "TNT", "StratTNT",
+#'   "TNT10", "random", "nonobserved" and "default"; default="default"
+#' @param class The class of the proposal; choices include "c", "f",
+#'   and "d" default="c".
+#' @export
+ergm_proposal.ergm_conlist <- function(object, arguments, nw, weights="default", class="c", reference=trim_env(~Bernoulli), ..., term.options=list()) {
+  reference <- ergm_reference(reference, nw, term.options=term.options, ...)
+  proposal <- select_ergm_proposal(object, class = class, ref = reference, name = attr(object, "lhs"), weights = weights)
+  name <- proposal$Proposal
+  arguments$constraints <- object
+  ## Hand it off to the class character method.
+  ergm_proposal(name, arguments, nw, reference = reference, ..., term.options = term.options)
+}
 
 ########################################################################################
 # The <ergm_proposal.ergm> function creates the ergm_proposal object via <ergm_proposal.formula>
