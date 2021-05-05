@@ -323,13 +323,13 @@ ergm.bridge.dindstart.llk<-function(object, response=NULL, constraints=~., coef,
   ergm.dind<-suppressMessages(suppressWarnings(ergm(dind,estimate="MPLE",constraints=constraints,obs.constraints=obs.constraints,eval.loglik=FALSE,control=control.ergm(drop=FALSE, term.options=control$term.options, MPLE.max.dyad.types=control$MPLE.max.dyad.types), offset.coef = offset.dind)))
   
   if(is.null(coef.dind)){
-    eta.dind <- ergm.eta(coef.dind, ergm.dind$etamap)[!ergm.dind$etamap$offsetmap]
+    eta.dind <- ergm.eta(coef(ergm.dind), ergm.dind$etamap)[!ergm.dind$etamap$offsetmap]
     eta.dind <- ifelse(is.na(eta.dind),0,eta.dind)
     coef.dind <- coef(ergm.dind)[!ergm.dind$etamap$offsettheta]
     coef.dind <- ifelse(is.na(coef.dind),0,coef.dind)
     llk.dind<- -ergm.dind$glm$deviance/2 - -ergm.dind$glm.null$deviance/2
   }else{
-    eta.dind <- ergm.eta(coef.dind, ergm.dint$etamap)
+    eta.dind <- ergm.eta(coef(ergm.dind), ergm.dind$etamap)
     lin.pred <- model.matrix(ergm.dind$glm) %*% eta.dind
     llk.dind <- 
       crossprod(lin.pred,ergm.dind$glm$y*ergm.dind$glm$prior.weights)-sum(log1p(exp(lin.pred))*ergm.dind$glm$prior.weights) -
@@ -354,7 +354,7 @@ ergm.bridge.dindstart.llk<-function(object, response=NULL, constraints=~., coef,
 
   if(!is.null(target.stats) && any(is.na(target.stats))){
     warning("Using target.stats for a model with offset terms may produce an inaccurate estimate of the log-likelihood and derived quantities (deviance, AIC, BIC, etc.), because some of the target stats must be imputed.")
-    target.stats[m$etamap$offsetmap] <- summary(m, nw)[m$etamap$offsetmap]
+    target.stats[c(m$etamap$offsetmap, FALSE)] <- summary(m, nw)[m$etamap$offsetmap]
   }
 
   if(verbose){
