@@ -275,6 +275,7 @@ ergm.bridge.dindstart.llk<-function(object, response=NULL, constraints=~., coef,
   if(!is.null(dind)) stop("Custom dind scaffolding has been disabled. It may be reenabled in the future.")
 
   m<-ergm_model(object, nw, term.options=control$term.options)
+  m.edges <- ergm_model(~edges, nw, term.options = control$term.options)
   
   q.pos.full <- c(0,cumsum(nparam(m, canonical=FALSE, byterm=TRUE, offset=TRUE)))
   p.pos.full <- c(0,cumsum(nparam(m, canonical=TRUE, byterm=TRUE, offset=FALSE)))
@@ -308,10 +309,9 @@ ergm.bridge.dindstart.llk<-function(object, response=NULL, constraints=~., coef,
         offset.dind <- c(offset.dind, coef[(q.pos.full[i]+1):q.pos.full[i+1]][m$terms[[i]]$offset]) # Add offset coefficient where applicable.
       }
 
-    if(is.null(target.stats)){
-      terms.full <- c(terms.full, list(as.name("edges")))
-      dindmap <- c(dindmap, TRUE)
-    }
+    terms.full <- c(terms.full, list(as.name("edges")))
+    dindmap <- c(dindmap, TRUE)
+    if(!is.null(target.stats)) target.stats <- as.vector(c(target.stats, edges = network.edgecount(nw)))
 
     # Copy environment and LHS if present.
     dind <- append_rhs.formula(object[-length(object)], compact(terms.full))
@@ -323,31 +323,34 @@ ergm.bridge.dindstart.llk<-function(object, response=NULL, constraints=~., coef,
   ergm.dind<-suppressMessages(suppressWarnings(ergm(dind,estimate="MPLE",constraints=constraints,obs.constraints=obs.constraints,eval.loglik=FALSE,control=control.ergm(drop=FALSE, term.options=control$term.options, MPLE.max.dyad.types=control$MPLE.max.dyad.types), offset.coef = offset.dind)))
   
   if(is.null(coef.dind)){
+    eta.dind <- ergm.eta(coef.dind, ergm.dind$etamap)[!ergm.dind$etamap$offsetmap]
+    eta.dind <- ifelse(is.na(eta.dind),0,eta.dind)
     coef.dind <- coef(ergm.dind)[!ergm.dind$etamap$offsettheta]
     coef.dind <- ifelse(is.na(coef.dind),0,coef.dind)
-    llk.dind<--ergm.dind$glm$deviance/2 - -ergm.dind$glm.null$deviance/2
+    llk.dind<- -ergm.dind$glm$deviance/2 - -ergm.dind$glm.null$deviance/2
   }else{
-    lin.pred <- model.matrix(ergm.dind$glm) %*% coef.dind
+    eta.dind <- ergm.eta(coef.dind, ergm.dint$etamap)
+    lin.pred <- model.matrix(ergm.dind$glm) %*% eta.dind
     llk.dind <- 
       crossprod(lin.pred,ergm.dind$glm$y*ergm.dind$glm$prior.weights)-sum(log1p(exp(lin.pred))*ergm.dind$glm$prior.weights) -
-        (network.dyadcount(ergm.dind$network,FALSE) - network.edgecount(NVL(as.rlebdm(ergm.dind$constrained, ergm.dind$constrained.obs,which="missing"),network.initialize(1))))*log(1/2)
+      (network.dyadcount(ergm.dind$network,FALSE) - network.edgecount(NVL(as.rlebdm(ergm.dind$constrained, ergm.dind$constrained.obs,which="missing"),network.initialize(1))))*log(1/2)
   }
   
   # If there are target.stats we need to adjust the log-likelihood in
   # case they are different from those to which the dyad-independent
   # submodel was actually fit:
   # l(theta,ts)-l(theta,ns)=sum(theta*(ts-ns)).
-  if(!is.null(target.stats)) llk.dind <- llk.dind + c(crossprod(coef.dind, NVL(c(ts.dind), ergm.dind$nw.stats[!ergm.dind$etamap$offsetmap]) - ergm.dind$nw.stats[!ergm.dind$etamap$offsetmap]))
+  if(!is.null(target.stats)) llk.dind <- llk.dind + c(crossprod(eta.dind, NVL(c(ts.dind), ergm.dind$nw.stats[!ergm.dind$etamap$offsetmap]) - ergm.dind$nw.stats[!ergm.dind$etamap$offsetmap]))
 
   from <- numeric(length(dindmap))
   from[dindmap] <- replace(coef(ergm.dind), is.na(coef(ergm.dind)), 0)
-  to <- c(coef, if(is.null(target.stats)) 0)
+  to <- c(coef, 0)
 
-  form.aug <- if(is.null(target.stats)) append_rhs.formula(object, list(as.name("edges"))) else object
+  form.aug <- append_rhs.formula(object, list(as.name("edges")))
 
   ## From this point on, target.stats has NAs corresponding to offset
   ## terms.
-  if(!is.null(target.stats)) target.stats <- .align.target.stats.offset(m, target.stats)
+  if(!is.null(target.stats)) target.stats <- as.vector(.align.target.stats.offset(c(m,m.edges), target.stats))
 
   if(!is.null(target.stats) && any(is.na(target.stats))){
     warning("Using target.stats for a model with offset terms may produce an inaccurate estimate of the log-likelihood and derived quantities (deviance, AIC, BIC, etc.), because some of the target stats must be imputed.")

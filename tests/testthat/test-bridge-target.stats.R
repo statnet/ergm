@@ -29,3 +29,27 @@ test_that("Log-likelihood with unattainable target statistics",{
   llk <- l(y,ts)
   expect_equivalent(llk,llk.ergm,tolerance=0.05)
 })
+
+test_that("log-likelihood calculation for the situation where network stats differ significantly from target stats", {
+  # A nearly empty network with 0 triangles:
+  nw0 <- network.initialize(10, directed = FALSE)
+  nw0[1, 2] <- 1
+
+  # A network with 8 triangles:
+  nw1 <- nw0
+  nw1[cbind(1:9, 2:10)] <- 1
+  nw1[cbind(1:8, 3:10)] <- 1
+
+  # mle <-coef( ergm(nw1~triangles, eval.loglik = FALSE))
+  mle <- -0.2144383 # hard-code to save time
+
+  for (theta in c(mle, rnorm(1, -0.5, 0.25))) { # MLE and a random value
+    # network stats != target stats
+    llk0 <- ergm.bridge.dindstart.llk(nw0~triangles, coef = theta, target.stats = 8, llkonly = FALSE)
+    # network stats == target stats
+    llk1 <- ergm.bridge.dindstart.llk(nw1~triangles, coef = theta, llkonly = FALSE)
+
+    # difference |Z| < 3
+    expect_lt((llk0$llk - llk1$llk)^2 / (llk0$vcov.llr + llk1$vcov.llr), 9)
+  }
+})
