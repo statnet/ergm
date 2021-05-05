@@ -103,7 +103,8 @@ NULL
 #' student roster are not included in the stucture files.  In addition, we
 #' removed any students with missing values for race, grade or sex.
 #' 
-#' The following \code{\link{ergm}} model was fit to the original data:
+#' The following \code{\link{ergm}} model was fit to the original data
+#' (with code updated for modern syntax):
 #' 
 #' \preformatted{ desert.fit <- ergm(original.net ~ edges + mutual +
 #' absdiff("grade") + nodefactor("race", base=5) + nodefactor("grade", base=3)
@@ -116,8 +117,9 @@ NULL
 #' Then the faux.desert.high dataset was created by simulating a single network
 #' from the above model fit:
 #' 
-#' \preformatted{ faux.desert.high <- simulate(desert.fit, nsim=1, burnin=1e+8,
-#' constraint = "edges") }
+#' \preformatted{ faux.desert.high <- simulate(desert.fit, nsim=1,
+#'                  control=snctrl(MCMC.burnin=1e+8),
+#'                  constraints = ~edges) }
 #' @keywords datasets
 NULL
 
@@ -179,7 +181,8 @@ NULL
 #' student roster are not included in the stucture files.  In addition, we
 #' removed any students with missing values for race, grade or sex.
 #' 
-#' The following \code{\link{ergm}} model was fit to the original data:
+#' The following \code{\link{ergm}} model was fit to the original data
+#' (with code updated for modern syntax):
 #' 
 #' \preformatted{ dixon.fit <- ergm(original.net ~ edges + mutual +
 #' absdiff("grade") + nodefactor("race", base=5) + nodefactor("grade", base=3)
@@ -256,14 +259,14 @@ NULL
 #' \preformatted{ magnolia.fit <- ergm (magnolia ~ edges +
 #' nodematch("Grade",diff=T) + nodematch("Race",diff=T) +
 #' nodematch("Sex",diff=F) + absdiff("Grade") + gwesp(0.25,fixed=T),
-#' burnin=10000, interval=1000, MCMCsamplesize=2500, maxit=25,
-#' control=control.ergm(steplength=0.25)) }
+#' control=control.ergm(MCMC.burnin=10000, MCMC.interval=1000, MCMLE.maxit=25,
+#'                      MCMC.samplesize=2500, MCMLE.steplength=0.25)) }
 #' 
 #' Then the faux.magnolia.high dataset was created by simulating a single
 #' network from the above model fit:
 #' 
 #' \preformatted{ faux.magnolia.high <- simulate (magnolia.fit, nsim=1,
-#' burnin=100000000, constraint = "edges") }
+#'                  control = snctrl(MCMC.burnin=100000000), constraints = ~edges) }
 #' @keywords datasets
 NULL
 
