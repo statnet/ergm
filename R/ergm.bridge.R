@@ -282,8 +282,6 @@ ergm.bridge.dindstart.llk<-function(object, response=NULL, constraints=~., coef,
   if(is.null(coef.dind)){
     eta.dind <- ergm.eta(coef(ergm.dind), ergm.dind$etamap)[!ergm.dind$etamap$offsetmap]
     eta.dind <- ifelse(is.na(eta.dind),0,eta.dind)
-    coef.dind <- coef(ergm.dind)[!ergm.dind$etamap$offsettheta]
-    coef.dind <- ifelse(is.na(coef.dind),0,coef.dind)
     llk.dind<- -ergm.dind$glm$deviance/2 - -ergm.dind$glm.null$deviance/2
   }else{
     eta.dind <- ergm.eta(coef(ergm.dind), ergm.dind$etamap)
@@ -299,9 +297,9 @@ ergm.bridge.dindstart.llk<-function(object, response=NULL, constraints=~., coef,
   # l(theta,ts)-l(theta,ns)=sum(theta*(ts-ns)).
   if(!is.null(target.stats)) llk.dind <- llk.dind + c(crossprod(eta.dind, NVL(c(ts.dind), ergm.dind$nw.stats[!ergm.dind$etamap$offsetmap]) - ergm.dind$nw.stats[!ergm.dind$etamap$offsetmap]))
 
-  from <- numeric(length(dindmap))
-  from[dindmap] <- replace(coef(ergm.dind), is.na(coef(ergm.dind)), 0)
-  to <- c(coef, 0)
+  coef.dind <- numeric(length(dindmap))
+  coef.dind[dindmap] <- replace(coef(ergm.dind), is.na(coef(ergm.dind)), 0)
+  coef.aug <- c(coef, 0)
 
   form.aug <- append_rhs.formula(object, list(as.name("edges")))
 
@@ -316,13 +314,18 @@ ergm.bridge.dindstart.llk<-function(object, response=NULL, constraints=~., coef,
 
   if(verbose){
     message("Dyad-independent submodel MLE has likelihood ", format(llk.dind), " at:")
-    message_print(from)
+    message_print(coef.dind)
   }
-  
-  message("Bridging from dyad-independent submodel to full model...")
-  br<-ergm.bridge.llr(form.aug, constraints=constraints, obs.constraints=obs.constraints, from=from, to=to, basis=basis, target.stats=target.stats, control=control, verbose=verbose)
+
+  # NB: Since the LHS network is almost certainly going to be closer
+  # to a draw from the full model's MLE than from the submodel's MLE,
+  # bridge from the full model to the submodel and subtract below.
+  message("Bridging between the dyad-independent submodel and the full model...")
+  br <- ergm.bridge.llr(form.aug, constraints = constraints, obs.constraints = obs.constraints,
+                        from = coef.aug, to = coef.dind, basis = basis, target.stats = target.stats,
+                        control = control, verbose = verbose)
   message("Bridging finished.")
   
-  if(llkonly) llk.dind + br$llr
-  else c(br,llk.dind=llk.dind, llk=llk.dind + br$llr)
+  if (llkonly) llk.dind - br$llr
+  else c(br, llk.dind = llk.dind, llk = llk.dind - br$llr)
 }
