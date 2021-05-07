@@ -70,6 +70,9 @@ ergm.bridge.llr<-function(object, response=NULL, reference=~Bernoulli, constrain
 
   if(!is.null(control$seed)) {set.seed(as.integer(control$seed))}
 
+  # Set up a cluster, if not already.
+  ergm.getCluster(control, verbose)
+
   message("Setting up bridge sampling...")
   
   ergm_preprocess_response(basis, response)
@@ -81,53 +84,43 @@ ergm.bridge.llr<-function(object, response=NULL, reference=~Bernoulli, constrain
   obs <- has.obs.constraints(basis, constraints, obs.constraints, target.stats)
 
   ## Control list constructor
-  gen_control <- function(obs, burnin){
-    control.simulate.formula(
-      MCMC.burnin = if(burnin=="first"){
-                      if(obs) control$obs.MCMC.burnin
-                      else control$MCMC.burnin
-                    }else if(burnin=="between"){
-                      if(obs) control$obs.MCMC.burnin.between
-                      else control$MCMC.burnin.between
-                    }else{
-                      0
-                    },
-      term.options = control$term.options,
-      MCMC.interval = if(burnin!="no"){
-                       1
-                     }else{
-                       ceiling(
-                       (if(obs) control$obs.MCMC.interval else control$MCMC.interval) / control$bridge.nsteps
-                       )
-                     },
-      MCMC.packagenames=control$MCMC.packagenames,
-      parallel=control$parallel,
-      parallel.type=control$parallel.type,
-      parallel.version.check=control$parallel.version.check
-    )
+  gen_control <- function(obs, burnin = c("first", "between")){
+    control$MCMC.burnin <-
+      switch(match.arg(burnin),
+             first = if(obs) control$obs.MCMC.burnin
+                     else control$MCMC.burnin,
+             between = if(obs) control$obs.MCMC.burnin.between
+                       else control$MCMC.burnin.between)
+    control$MCMC.interval <-
+      if(obs) ceiling(control$obs.MCMC.interval / control$bridge.nsteps)
+      else ceiling(control$MCMC.interval / control$bridge.nsteps)
+
+    #' @importFrom utils head
+    modifyList(do.call(control.simulate.formula, control[intersect(names(control), head(names(formals(control.simulate.formula)), -1))]),
+               list(MCMC.samplesize = if(obs) control$obs.MCMC.samplesize else control$MCMC.samplesize))
   }
-  
+
   ## Obtain simulation setting arguments in terms of ergm_state.
   if(verbose) message("Initializing model and proposals...")
   sim_settings <- do.call(stats::simulate, c(simulate(object, coef=from, nsim=1, reference=reference, constraints=list(constraints, obs.constraints), observational=FALSE, output="ergm_state", verbose=max(verbose-1,0), basis = basis, control=gen_control(FALSE, "first"), ..., do.sim=FALSE), do.sim=FALSE))
   if(verbose) message("Model and proposals initialized.")
-  nw.state <- sim_settings$object
+  state <- list(sim_settings$object)
 
   if(obs){
     if(verbose) message("Initializing constrained model and proposals...")
     sim_settings.obs <- do.call(stats::simulate, c(simulate(object, coef=from, nsim=1, reference=reference, constraints=list(constraints, obs.constraints), observational=TRUE, output="ergm_state", verbose=max(verbose-1,0), basis = basis, control=gen_control(TRUE, "first"), ..., do.sim=FALSE), do.sim=FALSE))
     if(verbose) message("Constrained model and proposals initialized.")
-    nw.state.obs <- sim_settings.obs$object
+    state.obs <- list(sim_settings.obs$object)
   }
 
   ## Miscellaneous settings
-  Dtheta.Du <- (to-from)[!nw.state$model$etamap$offsettheta] / control$bridge.nsteps
-  target.stats <- NVL(target.stats, summary(nw.state))
+  Dtheta.Du <- (to-from)[!state[[1]]$model$etamap$offsettheta] / control$bridge.nsteps
+  target.stats <- NVL(target.stats, summary(state[[1]]))
 
   ## Helper function to calculate Dtheta.Du %*% Deta.Dtheta %*% g(y)
   llrsamp <- function(samp, theta){
-    if(is.mcmc.list(samp)) lapply.mcmc.list(ergm.estfun(samp, theta, nw.state$model$etamap), `%*%`, Dtheta.Du)
-    else sum(ergm.estfun(samp, theta, nw.state$model$etamap) * Dtheta.Du)
+    if(is.mcmc.list(samp)) lapply.mcmc.list(ergm.estfun(samp, theta, state[[1]]$model$etamap), `%*%`, Dtheta.Du)
+    else sum(ergm.estfun(samp, theta, state[[1]]$model$etamap) * Dtheta.Du)
   }
 
 
@@ -144,56 +137,20 @@ ergm.bridge.llr<-function(object, response=NULL, reference=~Bernoulli, constrain
       theta<-path[i,]
       if(verbose==0) message(i," ",appendLF=FALSE)
       if(verbose>0) message("Running theta=[",paste(format(theta),collapse=","),"].")
-      if(verbose>1) message("Burning in...")
 
       ## First burn-in has to be longer, but those thereafter should be shorter if the bridges are closer together.
-      sim_settings[c("nsim", "coef", "object", "output", "simplify", "control")] <-
-        list(
-          nsim = 1,
-          coef = theta,
-          object = nw.state,
-          output = "ergm_state",
-          simplify = TRUE,
-          control = gen_control(FALSE, if(i==1)"first"else"between")
-        )
-      nw.state <- do.call(stats::simulate, sim_settings)
-
-      if(obs){
-        sim_settings.obs[c("nsim", "coef", "object", "output", "simplify", "control")] <-
-          list(
-            nsim = 1,
-            coef = theta,
-            object = nw.state.obs,
-            output = "ergm_state",
-            simplify = TRUE,
-            control = gen_control(TRUE, if(i==1)"first"else"between")
-          )
-        nw.state.obs <- do.call(stats::simulate, sim_settings.obs)
-      }
-
-      if(verbose>1) message("Simulating...")
-      sim_settings[c("nsim", "object", "output", "simplify", "control")] <-
-        list(
-          nsim = control$MCMC.samplesize,
-          object = nw.state,
-          output = "stats",
-          simplify = FALSE,
-          control = gen_control(FALSE,"no")
-        )
-      samp <- llrsamp(do.call(stats::simulate, sim_settings), theta)
+      z <- ergm_MCMC_sample(state, theta = theta, verbose = max(verbose - 1, 0),
+                            control = gen_control(FALSE, if(i == 1) "first" else "between"))
+      state <- z$networks
+      samp <- llrsamp(z$stats, theta)
       vcov.llrs[i] <- c(ERRVL(try(spectrum0.mvar(samp)/(niter(samp)*nchain(samp)), silent=TRUE), 0))
       llrs[i] <- mean(as.matrix(samp))
 
       if(obs){
-        sim_settings.obs[c("nsim", "object", "output", "simplify", "control")] <-
-          list(
-            nsim = control$obs.MCMC.samplesize,
-            object = nw.state.obs,
-            output = "stats",
-            simplify = FALSE,
-            control = gen_control(TRUE,"no")
-          )
-        samp <- llrsamp(do.call(stats::simulate, sim_settings.obs), theta)
+        z <- ergm_MCMC_sample(state.obs, theta = theta, verbose = max(verbose - 1, 0),
+                              control = gen_control(TRUE, if(i == 1) "first" else "between"))
+        state.obs <- z$networks
+        samp <- llrsamp(z$stats, theta)
         vcov.llrs[i] <- vcov.llrs[i] + c(ERRVL(try(spectrum0.mvar(samp)/(niter(samp)*nchain(samp)), silent=TRUE), 0))
         llrs[i] <- llrs[i] - mean(as.matrix(samp))
       }else llrs[i] <- llrs[i] - llrsamp(target.stats, theta)
