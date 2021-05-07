@@ -314,7 +314,26 @@ InitWtErgmTerm.equalto<-function(nw, arglist, ...) {
        emptynwstats=if(abs(a$value)<=a$tolerance) network.dyadcount(nw,FALSE) else 0)
 }
 
-
+#' @name ininterval-ergmTerm
+#' @title Number of dyads whose values are in an interval
+#' @description Number of dyads whose values are in an interval
+#' @details Adds one statistic equaling to the number of dyads whose values
+#'   are between `lower` and
+#'   `upper` .
+#'
+#' @usage
+#' # valued: ininterval(lower=-Inf, upper=+Inf, open=c(TRUE,TRUE))
+#'
+#' @param open a `logical` vector of length 2 that controls whether
+#'   the interval is open (exclusive) on the lower and on the upper
+#'   end, respectively. `open` can also be specified as one of
+#'   `"[]"` , `"(]"` , `"[)"` , and `"()"` .
+#'
+#' @template ergmTerm-general
+#'
+#' @concept directed
+#' @concept undirected
+#' @concept dyad-independent
 InitWtErgmTerm.ininterval<-function(nw, arglist, ...) {
   a <- check.ErgmTerm(nw, arglist,
                       varnames = c("lower","upper","open"),
@@ -344,6 +363,22 @@ InitWtErgmTerm.ininterval<-function(nw, arglist, ...) {
        ) network.dyadcount(nw,FALSE) else 0)
 }
 
+#' @name greaterthan-ergmTerm
+#' @title Number of dyads with values strictly greater than a threshold
+#' @description Number of dyads with values strictly greater than a threshold
+#' @details Adds the number of
+#'   statistics equal to the length of `threshold`
+#'   equaling to the number of dyads whose values exceed the
+#'   corresponding element of `threshold` .
+#'
+#' @usage
+#' # valued: greaterthan(threshold=0)
+#'
+#' @template ergmTerm-general
+#'
+#' @concept directed
+#' @concept undirected
+#' @concept dyad-independent
 InitWtErgmTerm.greaterthan<-function(nw, arglist, ...) {
   a <- check.ErgmTerm(nw, arglist,
                       varnames = c("threshold"),
@@ -358,6 +393,22 @@ InitWtErgmTerm.greaterthan<-function(nw, arglist, ...) {
        emptynwstats=ifelse(0>a$threshold, network.dyadcount(nw,FALSE), 0))
 }
 
+#' @name smallerthan-ergmTerm
+#' @title Number of dyads with values strictly smaller than a threshold
+#' @description Number of dyads with values strictly smaller than a threshold
+#' @details Adds the number of
+#'   statistics equal to the length of `threshold`
+#'   equaling to the number of dyads whose values are exceeded by the
+#'   corresponding element of `threshold` .
+#'
+#' @usage
+#' # valued: smallerthan(threshold=0)
+#'
+#' @template ergmTerm-general
+#'
+#' @concept directed
+#' @concept undirected
+#' @concept dyad-independent
 InitWtErgmTerm.smallerthan<-function(nw, arglist, ...) {
   a <- check.ErgmTerm(nw, arglist,
                       varnames = c("threshold"),
@@ -373,6 +424,21 @@ InitWtErgmTerm.smallerthan<-function(nw, arglist, ...) {
 }
 
 
+#' @name sum-ergmTerm
+#' @title Sum of dyad values (optionally taken to a power)
+#' @description Sum of dyad values (optionally taken to a power)
+#' @details This term adds one statistic equal to the sum of
+#'   dyad values taken to the power `pow`.
+#'
+#' @usage
+#' # valued: sum(pow=1)
+#'
+#' @param pow power of dyad values. Defaults to 1.
+#'
+#' @template ergmTerm-general
+#'
+#' @concept directed
+#' @concept undirected
 InitWtErgmTerm.sum<-function(nw, arglist, ...) {
   a <- check.ErgmTerm(nw, arglist,
                       varnames = c("pow"),
@@ -392,6 +458,35 @@ InitWtErgmTerm.sum<-function(nw, arglist, ...) {
   }
 }
 
+
+#' @name nodecovar-ergmTerm
+#' @title Covariance of undirected dyad values incident on each actor
+#' @description Covariance of undirected dyad values incident on each actor
+#' @details This term adds one statistic equal to
+#'   \eqn{\sum_{i,j<k} y_{i,j}y_{i,k}/(n-2)} . This can be
+#'   viewed as a valued analog of the `star(2)`
+#'   statistic. 
+#'   
+#' @usage
+#' # valued: nodecovar(center, transform)
+#'
+#' @param center If `center=TRUE` , the \eqn{y_{\cdot,\cdot}} s are
+#'   centered by their mean over the whole network before the
+#'   calculation. Note that this makes the model non-local, but it may
+#'   alleviate multimodailty. 
+#'
+#' @param transform If `transform="sqrt"` ,
+#'   \eqn{y_{\cdot,\cdot}} s are repaced by their square roots before the
+#'   calculation. This makes sense for counts in particular. If
+#'   `center=TRUE` as well, they are centered by the mean of the
+#'   square roots.
+#'
+#' @template ergmTerm-general
+#'
+#' @note Note that this term replaces `nodesqrtcovar` , which has been
+#'   deprecated in favor of `nodecovar(transform="sqrt")` .
+#'
+#' @concept directed
 InitWtErgmTerm.nodecovar<-function (nw, arglist, ...) {
   ### Check the network and arguments to make sure they are appropriate.
   a <- check.ErgmTerm(nw, arglist, directed = FALSE,
@@ -429,6 +524,9 @@ InitWtErgmTerm.nodesqrtcovar<-function (nw, arglist, ...) {
   InitWtErgmTerm.nodecovar(nw, arglist, ...)
 }
 
+#' @rdname nodefactor-ergmTerm
+#' @usage
+#' # valued: nodefactor(attr, base=1, levels=-1, form="sum")
 InitWtErgmTerm.nodefactor<-function (nw, arglist, ..., version=packageVersion("ergm")) {
   ### Check the network and arguments to make sure they are appropriate.
   if(version <= as.package_version("3.9.4")){
@@ -448,7 +546,9 @@ InitWtErgmTerm.nodefactor<-function (nw, arglist, ..., version=packageVersion("e
   binary_dind_wrap("nodefactor", nw, a, ..., version=version)
 }
 
-
+#' @rdname sociality-ergmTerm
+#' @usage
+#' # valued: sociality(attr=NULL, base=1, levels=NULL, nodes=-1, form="sum")
 InitWtErgmTerm.sociality<-function (nw, arglist, ..., version=packageVersion("ergm")) {
   ### Check the network and arguments to make sure they are appropriate.
   if(version <= as.package_version("3.9.4")){
@@ -469,6 +569,34 @@ InitWtErgmTerm.sociality<-function (nw, arglist, ..., version=packageVersion("er
 }
 
 
+#' @name nodeocovar-ergmTerm
+#' @title Covariance of out-dyad values incident on each actor
+#' @description Covariance of out-dyad values incident on each actor
+#' @details This term adds one statistic equal to
+#'   \eqn{\sum_{i,j,k} y_{i,j}y_{i,k}/(n-2)} . This can be
+#'   viewed as a valued analog of the `ostar(2)`
+#'   statistic.
+#'   
+#' @usage
+#' # valued: nodeocovar(center, transform)
+#'
+#' @param center whether the \eqn{y_{\cdot,\cdot}} s are
+#'   centered by their mean over the whole network before the
+#'   calculation. Note that this makes the model non-local, but it may
+#'   alleviate multimodailty. 
+#'
+#' @param transform if `transform="sqrt"` ,
+#'   \eqn{y_{\cdot,\cdot}} s are repaced by their square roots before the
+#'   calculation. This makes sense for counts in particular. If
+#'   `center=TRUE` as well, they are centered by the mean of the
+#'   square roots.
+#'
+#' @template ergmTerm-general
+#'
+#' @note Note that this term replaces `nodeosqrtcovar` , which has been
+#'   deprecated in favor of `nodeocovar(transform="sqrt")` .
+#'
+#' @concept directed
 InitWtErgmTerm.nodeocovar<-function (nw, arglist, ...) {
   ### Check the network and arguments to make sure they are appropriate.
   a <- check.ErgmTerm(nw, arglist, directed = TRUE,
@@ -485,6 +613,9 @@ InitWtErgmTerm.nodeocovar<-function (nw, arglist, ...) {
        )
 }
 
+#' @rdname nodeofactor-ergmTerm
+#' @usage
+#' # valued: nodeofactor(attr, base=1, levels=-1, form="sum")
 InitWtErgmTerm.nodeofactor<-function (nw, arglist, ..., version=packageVersion("ergm")) {
   ### Check the network and arguments to make sure they are appropriate.
   if(version <= as.package_version("3.9.4")){
@@ -504,6 +635,9 @@ InitWtErgmTerm.nodeofactor<-function (nw, arglist, ..., version=packageVersion("
   binary_dind_wrap("nodeofactor", nw, a, ..., version=version)
 }
 
+#' @rdname sender-ergmTerm
+#' @usage
+#' # valued: sender(base=1, nodes=-1, form="sum")
 InitWtErgmTerm.sender<-function (nw, arglist, ..., version=packageVersion("ergm")) {
   ### Check the network and arguments to make sure they are appropriate.
   if(version <= as.package_version("3.9.4")){
@@ -523,6 +657,34 @@ InitWtErgmTerm.sender<-function (nw, arglist, ..., version=packageVersion("ergm"
   binary_dind_wrap("sender", nw, a, ..., version=version)
 }
 
+#' @name nodeicovar-ergmTerm
+#' @title Covariance of in-dyad values incident on each actor
+#' @description Covariance of in-dyad values incident on each actor
+#' @details This term adds one statistic equal to
+#'   \eqn{\sum_{i,j,k} y_{j,i}y_{k,i}/(n-2)} . This can be
+#'   viewed as a valued analog of the `istar(2)`
+#'   statistic. 
+#'   
+#' @usage
+#' # valued: nodeicovar(center, transform)
+#'
+#' @param center If `center=TRUE` , the \eqn{y_{\cdot,\cdot}} s are
+#'   centered by their mean over the whole network before the
+#'   calculation. Note that this makes the model non-local, but it may
+#'   alleviate multimodailty. 
+#'
+#' @param transform If `transform="sqrt"` ,
+#'   \eqn{y_{\cdot,\cdot}} s are repaced by their square roots before the
+#'   calculation. This makes sense for counts in particular. If
+#'   `center=TRUE` as well, they are centered by the mean of the
+#'   square roots.
+#'
+#' @template ergmTerm-general
+#'
+#' @note Note that this term replaces `nodeisqrtcovar` , which has been
+#'   deprecated in favor of `nodeicovar(transform="sqrt")` .
+#'
+#' @concept directed
 InitWtErgmTerm.nodeicovar<-function (nw, arglist, ...) {
   ### Check the network and arguments to make sure they are appropriate.
   a <- check.ErgmTerm(nw, arglist, directed = TRUE,
@@ -539,6 +701,9 @@ InitWtErgmTerm.nodeicovar<-function (nw, arglist, ...) {
        )
 }
 
+#' @rdname nodeifactor-ergmTerm
+#' @usage
+#' # valued: nodeifactor(attr, base=1, levels=-1, form="sum")
 InitWtErgmTerm.nodeifactor<-function (nw, arglist, ..., version=packageVersion("ergm")) {
   ### Check the network and arguments to make sure they are appropriate.
   if(version <= as.package_version("3.9.4")){
@@ -558,6 +723,9 @@ InitWtErgmTerm.nodeifactor<-function (nw, arglist, ..., version=packageVersion("
   binary_dind_wrap("nodeifactor", nw, a, ..., version=version)
 }
 
+#' @rdname receiver-ergmTerm
+#' @usage
+#' # valued: receiver(base=1, nodes=-1, form="sum")
 InitWtErgmTerm.receiver<-function (nw, arglist, ..., version=packageVersion("ergm")) {
   ### Check the network and arguments to make sure they are appropriate.
   if(version <= as.package_version("3.9.4")){
@@ -577,7 +745,9 @@ InitWtErgmTerm.receiver<-function (nw, arglist, ..., version=packageVersion("erg
   binary_dind_wrap("receiver", nw, a, ..., version=version)
 }
 
-
+#' @rdname nodematch-ergmTerm
+#' @usage
+#' # valued: nodematch(attr, diff=FALSE, keep=NULL, levels=NULL, form="sum")
 InitWtErgmTerm.nodematch<-InitWtErgmTerm.match<-function (nw, arglist, ..., version=packageVersion("ergm")) {
   ### Check the network and arguments to make sure they are appropriate.
   if(version <= as.package_version("3.9.4")){
@@ -598,6 +768,9 @@ InitWtErgmTerm.nodematch<-InitWtErgmTerm.match<-function (nw, arglist, ..., vers
   binary_dind_wrap("nodematch", nw, a, ..., version=version)
 }
 
+#' @rdname nodemix-ergmTerm
+#' @usage
+#' # valued: nodemix(attr, base=NULL, b1levels=NULL, b2levels=NULL, levels=NULL, levels2=-1, form="sum")
 InitWtErgmTerm.nodemix<-function (nw, arglist, ..., version=packageVersion("ergm")) {
   if(version <= as.package_version("3.9.4")){
     ### Check the network and arguments to make sure they are appropriate.
@@ -617,6 +790,9 @@ InitWtErgmTerm.nodemix<-function (nw, arglist, ..., version=packageVersion("ergm
   binary_dind_wrap("nodemix", nw, a, ..., version=version)
 }
 
+#' @rdname nodecov-ergmTerm
+#' @usage
+#' # valued: nodecov(attr, form="sum")
 InitWtErgmTerm.nodecov<-InitWtErgmTerm.nodemain<-function (nw, arglist, ..., version=packageVersion("ergm")) {
   if(version <= as.package_version("3.9.4")){
     a <- check.ErgmTerm(nw, arglist,
@@ -634,6 +810,9 @@ InitWtErgmTerm.nodecov<-InitWtErgmTerm.nodemain<-function (nw, arglist, ..., ver
   binary_dind_wrap("nodecov", nw, a, ..., version=version)
 }
 
+#' @rdname nodeicov-ergmTerm
+#' @usage
+#' # valued: nodeicov(attr, form="sum")
 InitWtErgmTerm.nodeicov<-function (nw, arglist, ..., version=packageVersion("ergm")) {
   if(version <= as.package_version("3.9.4")){
     a <- check.ErgmTerm(nw, arglist, directed=TRUE,
@@ -652,7 +831,9 @@ InitWtErgmTerm.nodeicov<-function (nw, arglist, ..., version=packageVersion("erg
   binary_dind_wrap("nodeicov", nw, a, ..., version=version)
 }
 
-
+#' @rdname nodeocov-ergmTerm
+#' @usage
+#' # valued: nodeocov(attr, form="sum")
 InitWtErgmTerm.nodeocov<-function (nw, arglist, ..., version=packageVersion("ergm")) {
   if(version <= as.package_version("3.9.4")){
     a <- check.ErgmTerm(nw, arglist, directed=TRUE, 
@@ -672,6 +853,23 @@ InitWtErgmTerm.nodeocov<-function (nw, arglist, ..., version=packageVersion("erg
 }
 
 
+#' @name nonzero-ergmTerm
+#' @title Edges
+#' @description Edges
+#' @details This term adds one network statistic equal
+#'   to the number of edges (i.e. nonzero values) in the network. For undirected networks, `edges`
+#'   is equal to `kstar(1)` ; for directed networks, `edges` is equal to
+#'   both `ostar(1)` and `istar(1)` .
+#'
+#' @usage
+#' # valued: nonzero
+#' # valued: edges
+#'
+#' @template ergmTerm-general
+#'
+#' @concept directed
+#' @concept undirected
+#' @concept dyad-independent
 InitWtErgmTerm.edges<-InitWtErgmTerm.nonzero<-function(nw, arglist, ...) {
   a <- check.ErgmTerm(nw, arglist,
                       varnames = NULL,
@@ -685,6 +883,9 @@ InitWtErgmTerm.edges<-InitWtErgmTerm.nonzero<-function(nw, arglist, ...) {
        minval=0, maxval=network.dyadcount(nw,FALSE))
 }
 
+#' @rdname mutual-ergmTerm
+#' @usage
+#' # valued: mutual(form="min",threshold=0)
 InitWtErgmTerm.mutual<-function (nw, arglist, ...) {
 ### Check the network and arguments to make sure they are appropriate.
   a <- check.ErgmTerm(nw, arglist, directed=TRUE, bipartite=NULL,
@@ -760,6 +961,34 @@ InitWtErgmTerm.cyclicalties<-function (nw, arglist, ...) {
   
 }
 
+#' @name cyclicalweights-ergmTerm
+#' @title Cyclical weights
+#' @description Cyclical weights
+#' @details This statistic implements the cyclical weights
+#'   statistic, like that defined by Krivitsky (2012), Equation 13,
+#'   but with the focus dyad being \eqn{y_{j,i}} rather than
+#'   \eqn{y_{i,j}} . For each option,
+#'   the first (and the default) is more stable but also more
+#'   conservative, while the second is more sensitive but more likely
+#'   to induce a multimodal distribution of networks.
+#'
+#' @usage
+#' # valued: cyclicalweights(twopath="min", combine="max", affect="min")
+#'
+#' @param twopath the minimum of the constituent dyads ( `"min"` ) or their geometric mean
+#'   ( `"geomean"` )
+#'
+#' @param combine the maximum of the
+#'   2-path strengths ( `"max"` ) or their sum ( `"sum"` )
+#'
+#' @param affected the minimum of the focus dyad and the
+#'   combined strength of the two paths ( `"min"` ) or their
+#'   geometric mean ( `"geomean"` )
+#'
+#' @template ergmTerm-general
+#'
+#' @concept directed
+#' @concept undirected
 InitWtErgmTerm.cyclicalweights<-function (nw, arglist, ...) {
 ### Check the network and arguments to make sure they are appropriate.
   a <- check.ErgmTerm(nw, arglist, bipartite=NULL, nonnegative=TRUE,
@@ -785,6 +1014,9 @@ InitWtErgmTerm.cyclicalweights<-function (nw, arglist, ...) {
        minval = 0)
 }
 
+#' @rdname mm-ergmTerm
+#' @usage
+#' # valued: mm(attrs, levels=NULL, levels2=-1, form="sum")
 InitWtErgmTerm.mm<-function (nw, arglist, ...) {
   a <- check.ErgmTerm(nw, arglist,
                       varnames = c("attrs", "levels", "levels2", "form"),

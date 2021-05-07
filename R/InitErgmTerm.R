@@ -4072,6 +4072,29 @@ InitErgmTerm.idegrange<-function(nw, arglist, ..., version=packageVersion("ergm"
 }
 
 ################################################################################
+
+#' @name idegree-ergmTerm
+#' @title In-degree
+#' @description In-degree
+#' @details This term adds one network statistic to
+#'   the model for each element in `d` ; the \eqn{i} th such statistic equals
+#'   the number of nodes in the network of in-degree `d[i]` , i.e. the number
+#'   of nodes with exactly `d[i]` in-edges. 
+#'   This term can only be used with directed networks; for undirected networks
+#'   see `degree` .
+#'
+#' @usage
+#' # binary: idegree(d, by=NULL, homophily=FALSE, levels=NULL)
+#'
+#' @param d a vector of distinct integers
+#'
+#' @template ergmTerm-by
+#'
+#' @template ergmTerm-general
+#'
+#' @concept directed
+#' @concept categorical nodal attribute
+#' @concept frequently-used
 InitErgmTerm.idegree<-function(nw, arglist, ..., version=packageVersion("ergm")) {
   if(version <= as.package_version("3.9.4")){
     a <- check.ErgmTerm(nw, arglist, directed=TRUE,
@@ -4138,6 +4161,22 @@ InitErgmTerm.idegree<-function(nw, arglist, ..., version=packageVersion("ergm"))
 
 
 ################################################################################
+
+#' @name idegree1.5-ergmTerm
+#' @title In-degree to the 3/2 power
+#' @description In-degree to the 3/2 power
+#' @details This term adds one network statistic to the model equaling the sum
+#'   over the actors of each actor's indegree taken to the 3/2 power
+#'   (or, equivalently, multiplied by its square root). This term is
+#'   analogous to the term of Snijders et al. (2010), equation (12). This
+#'   term can only be used with directed networks.
+#'
+#' @usage
+#' # binary: idegree1.5
+#'
+#' @template ergmTerm-general
+#'
+#' @concept directed
 InitErgmTerm.idegree1.5<-function (nw, arglist, ...) {
   a <- check.ErgmTerm(nw, arglist, directed=TRUE,
                       varnames = NULL,
@@ -4165,6 +4204,27 @@ InitErgmTerm.idegreepopularity<-function (nw, arglist, ...) {
 
 
 ################################################################################
+
+#' @name intransitive-ergmTerm
+#' @title Intransitive triads
+#' @description Intransitive triads
+#' @details This term adds one statistic to the model, equal to the number of triads in
+#'   the network that are intransitive. The intransitive triads are those of type
+#'   `111D` , `201` , `111U` , `021C` , or `030C` in the
+#'   categorization of Davis and Leinhardt (1972). For details on the 16 possible
+#'   triad types, see `triad.classify` in the
+#'   `sna` package. Note the distinction from the `ctriple`
+#'   term.
+#'
+#' @usage
+#' # binary: intransitive
+#'
+#' @template ergmTerm-general
+#'
+#' @template ergmTerm-directed
+#'
+#' @concept directed
+#' @concept triad-related
 InitErgmTerm.intransitive<-function (nw, arglist, ...) {
   a <- check.ErgmTerm(nw, arglist, directed=TRUE,
                       varnames = NULL,
@@ -4175,6 +4235,22 @@ InitErgmTerm.intransitive<-function (nw, arglist, ...) {
 }
 
 ################################################################################
+
+#' @name isolatededges-ergmTerm
+#' @title Isolated edges
+#' @description Isolated edges
+#' @details This term adds one statistic to the
+#'   model equal to the number of isolated edges in the network, i.e., the number
+#'   of edges each of whose endpoints has degree 1. This term can only be used
+#'   with undirected networks.
+#'
+#' @usage
+#' # binary: isolatededges
+#'
+#' @template ergmTerm-general
+#'
+#' @concept undirected
+#' @concept bipartite
 InitErgmTerm.isolatededges <- function(nw, arglist, ...) {
   ### Check the network and arguments to make sure they are appropriate.
   a <- check.ErgmTerm(nw, arglist, directed=FALSE, bipartite=NULL,
@@ -4193,6 +4269,24 @@ InitErgmTerm.isolatededges <- function(nw, arglist, ...) {
 }
 
 ################################################################################
+
+#' @name isolates-ergmTerm
+#' @title Isolates
+#' @description Isolates
+#' @details This term adds one statistic to the
+#'   model equal to the number of isolates in the network. For an undirected
+#'   network, an isolate is defined to be any node with degree zero. For a
+#'   directed network, an isolate is any node with both in-degree and out-degree
+#'   equal to zero.
+#'
+#' @usage
+#' # binary: isolates
+#'
+#' @template ergmTerm-general
+#'
+#' @concept directed
+#' @concept undirected
+#' @concept frequently-used
 InitErgmTerm.isolates <- function(nw, arglist, ...) {
   ### Check the network and arguments to make sure they are appropriate.
   a <- check.ErgmTerm(nw, arglist, directed=NULL, bipartite=NULL,
@@ -4211,6 +4305,31 @@ InitErgmTerm.isolates <- function(nw, arglist, ...) {
 }
 
 ################################################################################
+
+#' @name istar-ergmTerm
+#' @title In-stars
+#' @description In-stars
+#' @details This term adds one network statistic to the
+#'   model for each element in `k` . The \eqn{i} th such statistic counts the
+#'   number of distinct `k[i]` -instars in the network, where a
+#'   \eqn{k} -instar is defined to be a node \eqn{N} and a set of \eqn{k}
+#'   different nodes \eqn{\{O_1, \dots, O_k\}}{\{O[1], ..., O[k]\}} such that the ties
+#'   \eqn{(O_j{\rightarrow}N)}{(O_j, N)} exist for \eqn{j=1, \dots, k} . If `attr` is specified
+#'   then the count is over the number of \eqn{k} -instars where all nodes have
+#'   the same value of the attribute. This term can only be used for directed
+#'   networks; for undirected networks see `kstar` . Note that
+#'   `istar(1)` is equal to both `ostar(1)` and `edges` .
+#'
+#' @usage
+#' # binary: istar(k, attr=NULL, levels=NULL)
+#'
+#' @param k a vector of distinct integers
+#' @template ergmTerm-attr
+#'
+#' @template ergmTerm-general
+#'
+#' @concept directed
+#' @concept categorical nodal attribute
 InitErgmTerm.istar<-function(nw, arglist, ..., version=packageVersion("ergm")) {
   if(version <= as.package_version("3.9.4")){
     a <- check.ErgmTerm(nw, arglist, directed=TRUE,
@@ -4258,6 +4377,32 @@ InitErgmTerm.istar<-function(nw, arglist, ..., version=packageVersion("ergm")) {
 #=======================InitErgmTerm functions:  K============================#
 
 ################################################################################
+
+#' @name kstar-ergmTerm
+#' @title k-Stars
+#' @description k-Stars
+#' @details This term adds one
+#'   network statistic to the model for each element in `k` . The \eqn{i} th
+#'   such statistic counts the number of distinct `k[i]` -stars in the
+#'   network, where a \eqn{k} -star is defined to be a node \eqn{N} and a set of
+#'   \eqn{k} different nodes \eqn{\{O_1, \dots, O_k\}}{\{O[1], ..., O[k]\}} such that the ties
+#'   \eqn{\{N, O_i\}}{\{N, O[i]\}} exist for \eqn{i=1, \dots, k} . If this is specified then the count is over
+#'   the number of \eqn{k} -stars where all nodes have the same value of the
+#'   attribute. This term can only be used for undirected networks; for directed
+#'   networks, see `istar` , `ostar` , `twopath` and `m2star` .
+#'   Note that `kstar(1)` is equal to `edges` .
+#'
+#' @usage
+#' # binary: kstar(k, attr=NULL, levels=NULL)
+#'
+#' @param k a vector of distinct integers
+#'
+#' @template ergmTerm-attr
+#'
+#' @template ergmTerm-general
+#'
+#' @concept undirected
+#' @concept categorical nodal attribute
 InitErgmTerm.kstar<-function(nw, arglist, ..., version=packageVersion("ergm")) {
   if(version <= as.package_version("3.9.4")){
     a <- check.ErgmTerm(nw, arglist, directed=FALSE,
@@ -4303,6 +4448,32 @@ InitErgmTerm.kstar<-function(nw, arglist, ..., version=packageVersion("ergm")) {
 #=======================InitErgmTerm functions:  L============================#
 
 ################################################################################
+
+#' @name localtriangle-ergmTerm
+#' @title Triangles within neighborhoods
+#' @description Triangles within neighborhoods
+#' @details This term adds one statistic to the model equal to the number of triangles
+#'   in the network between nodes "close to" each other. For an undirected
+#'   network, a local triangle is defined to be any set of three edges between
+#'   nodal pairs \eqn{\{(i,j), (j,k), (k,i)\}} that are in the same neighborhood.
+#'   For a directed network, a triangle is defined as any set of three edges
+#'   \eqn{(i{\rightarrow}j), (j{\rightarrow}k)}{(i,j), (j,k)} and either
+#'   \eqn{(k{\rightarrow}i)} or \eqn{(k{\leftarrow}i)} where again all nodes are
+#'   within the same neighborhood.
+#'
+#' @usage
+#' # binary: localtriangle(x)
+#'
+#' @param x an undirected
+#'   network or an symmetric adjacency matrix that specifies whether the two nodes
+#'   are in the same neighborhood. Note that `triangle` , with or without an argument, is a
+#'   special case of `localtriangle` .
+#'
+#' @template ergmTerm-general
+#'
+#' @concept triad-related
+#' @concept directed
+#' @concept undirected
 InitErgmTerm.localtriangle<-function (nw, arglist, ...) {
   a <- check.ErgmTerm(nw, arglist,
                       varnames = c("x", "attrname"),
@@ -4335,6 +4506,26 @@ InitErgmTerm.localtriangle<-function (nw, arglist, ...) {
 #=======================InitErgmTerm functions:  M============================#
 
 ################################################################################
+
+#' @name m2star-ergmTerm
+#' @title Mixed 2-stars, a.k.a 2-paths
+#' @description Mixed 2-stars, a.k.a 2-paths
+#' @details This term adds one statistic to the model, equal to the number of mixed
+#'   2-stars in the network, where a mixed 2-star is a pair of distinct edges
+#'   \eqn{(i{\rightarrow}j), (j{\rightarrow}k)}{(i,j), (j,k)} . A mixed 2-star is
+#'   sometimes called a 2-path because it is a directed path of length 2 from
+#'   \eqn{i} to \eqn{k} via \eqn{j} . However, in the case of a 2-path the focus
+#'   is usually on the endpoints \eqn{i} and \eqn{k} , whereas for a mixed 2-star
+#'   the focus is usually on the midpoint \eqn{j} . This term can only be used
+#'   with directed networks; for undirected networks see `kstar(2)` . See
+#'   also `twopath` .
+#'
+#' @usage
+#' # binary: m2star
+#'
+#' @template ergmTerm-general
+#'
+#' @concept directed
 InitErgmTerm.m2star<-function(nw, arglist, ...) {
   a <- check.ErgmTerm(nw, arglist, directed=TRUE, 
                       varnames = NULL,
@@ -4346,6 +4537,22 @@ InitErgmTerm.m2star<-function(nw, arglist, ...) {
 
 
 ################################################################################
+
+#' @name meandeg-ergmTerm
+#' @title Mean vertex degree
+#' @description Mean vertex degree
+#' @details This term adds one network statistic to the model equal to the
+#'   average degree of a node. Note that this term is a constant multiple of
+#'   both `edges` and `density` .
+#'
+#' @usage
+#' # binary: meandeg
+#'
+#' @template ergmTerm-general
+#'
+#' @concept dyad-independent
+#' @concept directed
+#' @concept undirected
 InitErgmTerm.meandeg<-function(nw, arglist, ...) {
   a <- check.ErgmTerm(nw, arglist,
                       varnames = NULL,
@@ -4357,6 +4564,34 @@ InitErgmTerm.meandeg<-function(nw, arglist, ...) {
 
 
 ################################################################################
+
+#' @name mm-ergmTerm
+#' @title Mixing matrix cells and margins
+#' @description Mixing matrix cells and margins
+#' @details `attrs` is the rows of the mixing matrix and whose RHS gives
+#'   that for its columns. A one-sided formula (e.g.,
+#'   `~A` ) is symmetrized (e.g., `A~A` ). `levels`
+#'   similarly specifies the subset of rows and columns to be
+#'   used. `levels2` can then be used to filter which specific cells
+#'   of the matrix to include. A two-sided formula with a dot on one side
+#'   calculates the margins of the mixing matrix, analogously to `nodefactor` , with
+#'   `A~.` calculating the row/sender/b1 margins and `.~A`
+#'   calculating the column/receiver/b2 margins.
+#'
+#' @usage
+#' # binary: mm(attrs, levels=NULL, levels2=-1)
+#'
+#' @param attrs a two-sided formula whose LHS gives the attribute or
+#'   attribute function (see Specifying Vertex attributes and Levels (`?nodal_attributes`) for details.) for the rows of the mixing matrix and whose RHS gives
+#'   for its columns. A one-sided formula (e.g., `~A`) is symmetrized (e.g., `A~A`)
+#'
+#' @template ergmTerm-general
+#'
+#' @concept dyad-independent
+#' @concept frequently-used
+#' @concept directed
+#' @concept undirected
+#' @concept categorical nodal attribute
 InitErgmTerm.mm<-function (nw, arglist, ..., version=packageVersion("ergm")) {
   if(version <= as.package_version("3.11.0")){
     a <- check.ErgmTerm(nw, arglist,
@@ -4475,6 +4710,50 @@ InitErgmTerm.mm<-function (nw, arglist, ..., version=packageVersion("ergm")) {
 
 
 ################################################################################
+
+#' @name mutual-ergmTerm
+#' @title Mutuality
+#' @description Mutuality
+#' @details In binary ERGMs, equal to the number of
+#'   pairs of actors \eqn{i} and \eqn{j} for which \eqn{(i{\rightarrow}j)}{(i,j)}
+#'   and \eqn{(j{\rightarrow}i)}{(j,i)} both exist. For valued ERGMs, equal to \eqn{\sum_{i<j} m(y_{i,j},y_{j,i})} ,
+#'   where \eqn{m} is determined by `form` argument: `"min"`
+#'   for \eqn{\min(y_{i,j},y_{j,i})} , `"nabsdiff"` for
+#'   \eqn{-|y_{i,j},y_{j,i}|} , `"product"` for
+#'   \eqn{y_{i,j}y_{j,i}} , and `"geometric"` for
+#'   \eqn{\sqrt{y_{i,j}}\sqrt{y_{j,i}}} . See Krivitsky (2012) for a
+#'   discussion of these statistics. `form="threshold"` simply
+#'   computes the binary `mutuality` after
+#'   thresholding at `threshold` .
+#'   
+#'   This term can only be used with directed networks. 
+#'   
+#' @usage
+#' # binary: mutual(same=NULL, by=NULL, diff=FALSE, keep=NULL, levels=NULL)
+#'
+#' @param same if the optional argument is passed
+#'   (see Specifying Vertex attributes and Levels (`?nodal_attributes`) for details),
+#'   only mutual pairs that match on the attribute are counted;
+#'   separate counts for each unique matching value can be obtained by using
+#'   `diff=TRUE` with `same`. Only one of `same` or `by` may be used. If both parameters are used, `by` is 
+#'   ignored. This paramer is affected by `diff`.
+#'
+#' @param by if the optional argument is passed (see Specifying Vertex attributes and Levels (`?nodal_attributes`) for details),
+#'   then each node is counted separately for each mutual pair in which it
+#'   occurs and the counts are tabulated by unique values of the attribute.
+#'   This means that the sum of the mutual statistics when `by` is used
+#'   will equal twice the standard mutual statistic. Only one of `same` or `by` may be used. If both parameters are used, `by` is 
+#'   ignored. This paramer is not affected by `diff`.
+#'
+#' @param levels which statistics should be kept
+#'   whenever the `mutual` term would ordinarily result in multiple statistics (see Specifying Vertex attributes and Levels (`?nodal_attributes`) for details).
+#'
+#' @template ergmTerm-general
+#'
+#' @template ergmTerm-keep-dep
+#'
+#' @concept directed
+#' @concept frequently-used
 InitErgmTerm.mutual<-function (nw, arglist, ..., version=packageVersion("ergm")) {
   if(version <= as.package_version("3.9.4")){
     ### Check the network and arguments to make sure they are appropriate.
@@ -4556,6 +4835,23 @@ InitErgmTerm.mutual<-function (nw, arglist, ..., version=packageVersion("ergm"))
 
 
 ################################################################################
+
+#' @name nearsimmelian-ergmTerm
+#' @title Near simmelian triads
+#' @description Near simmelian triads
+#' @details This term adds one statistic to the model equal to the number of near
+#'   Simmelian triads, as defined by Krackhardt and Handcock (2007). This is a
+#'   sub-graph of size three which is exactly one tie short of being complete.
+#'
+#' @usage
+#' # binary: nearsimmelian
+#'
+#' @template ergmTerm-general
+#'
+#' @template ergmTerm-directed
+#'
+#' @concept directed
+#' @concept triad-related
 InitErgmTerm.nearsimmelian<-function (nw, arglist, ...) {
   a <- check.ErgmTerm(nw, arglist, directed=TRUE,
                       varnames = NULL,
@@ -4567,6 +4863,31 @@ InitErgmTerm.nearsimmelian<-function (nw, arglist, ...) {
 
 
 ################################################################################
+
+#' @name nodecov-ergmTerm
+#' @title Main effect of a covariate
+#' @description Main effect of a covariate
+#' @details This term adds a single network statistic for each quantitative attribute or matrix column to the model equaling the sum of
+#'   `attr(i)` and `attr(j)` for all edges \eqn{(i,j)} in the
+#'   network. For categorical attributes, see `nodefactor` . Note that for
+#'   directed networks, `nodecov` equals `nodeicov` plus
+#'   `nodeocov` .
+#'
+#' @usage
+#' # binary: nodecov(attr)
+#' # binary: nodemain
+#'
+#' @template ergmTerm-attr
+#'
+#' @template ergmTerm-general
+#'
+#' @template ergmTerm-args-3.9.4
+#'
+#' @concept dyad-independent
+#' @concept frequently-used
+#' @concept directed
+#' @concept undirected
+#' @concept quantitative nodal attribute
 InitErgmTerm.nodecov<-InitErgmTerm.nodemain<-function (nw, arglist, ..., version=packageVersion("ergm")) {
   if(version <= as.package_version("3.9.4")){
     a <- check.ErgmTerm(nw, arglist,
@@ -4596,6 +4917,36 @@ InitErgmTerm.nodecov<-InitErgmTerm.nodemain<-function (nw, arglist, ..., version
 
 
 ################################################################################
+
+#' @name nodefactor-ergmTerm
+#' @title Factor attribute effect
+#' @description Factor attribute effect
+#' @details This term adds multiple network statistics to the
+#'   model, one for each of (a subset of) the unique values of the
+#'   `attr` attribute (or each combination of the attributes
+#'   given). Each of these statistics gives the number of times a node
+#'   with that attribute or those attributes appears in an edge in the
+#'   network.
+#'   
+#' @usage
+#' # binary: nodefactor(attr, base=1, levels=-1)
+#'
+#' @template ergmTerm-attr
+#'
+#' @templateVar fn nodefactor
+#' @template ergmTerm-levels-explain
+#'
+#' @template ergmTerm-general
+#'
+#' @template ergmTerm-levels-not-first
+#'
+#' @template ergmTerm-base-dep
+#'
+#' @concept dyad-independent
+#' @concept directed
+#' @concept undirected
+#' @concept categorical nodal attribute
+#' @concept frequently-used
 InitErgmTerm.nodefactor<-function (nw, arglist, ..., version=packageVersion("ergm")) {
   if(version <= as.package_version("3.9.4")){
     a <- check.ErgmTerm(nw, arglist,
@@ -4641,6 +4992,27 @@ InitErgmTerm.nodefactor<-function (nw, arglist, ..., version=packageVersion("erg
 }
 
 ################################################################################
+
+#' @name nodeicov-ergmTerm
+#' @title Main effect of a covariate for in-edges
+#' @description Main effect of a covariate for in-edges
+#' @details This term adds a single network statistic for each quantitative attribute or matrix column to the model equaling the total
+#'   value of `attr(j)` for all edges \eqn{(i,j)} in the network. This
+#'   term may only be used with directed networks. For categorical attributes,
+#'   see `nodeifactor` .
+#'
+#' @usage
+#' # binary: nodeicov(attr)
+#'
+#' @template ergmTerm-attr
+#'
+#' @template ergmTerm-general
+#'
+#' @template ergmTerm-args-3.9.4
+#'
+#' @concept directed
+#' @concept quantitative nodal attribute
+#' @concept frequently-used
 InitErgmTerm.nodeicov<-function (nw, arglist, ..., version=packageVersion("ergm")) {
   if(version <= as.package_version("3.9.4")){
     ### Check the network and arguments to make sure they are appropriate.
@@ -4672,6 +5044,37 @@ InitErgmTerm.nodeicov<-function (nw, arglist, ..., version=packageVersion("ergm"
 
 
 ################################################################################
+
+#' @name nodeifactor-ergmTerm
+#' @title Factor attribute effect for in-edges
+#' @description Factor attribute effect for in-edges
+#' @details This term adds multiple network
+#'   statistics to the model, one for each of (a subset of) the unique
+#'   values of the `attr` attribute (or each combination of the
+#'   attributes given). Each of these statistics gives the number of
+#'   times a node with that attribute or those attributes appears as the
+#'   terminal node of a directed tie.
+#'   
+#'   For an analogous term for quantitative vertex attributes, see `nodeicov` .
+#'
+#' @usage
+#' # binary: nodeifactor(attr, base=1, levels=-1)
+#'
+#' @template ergmTerm-attr
+#'
+#' @template ergmTerm-base-dep
+#'
+#' @templateVar fn nodeifactor
+#' @template ergmTerm-levels-explain
+#'
+#' @template ergmTerm-levels-not-first
+#'
+#' @template ergmTerm-general
+#'
+#' @concept dyad-independent
+#' @concept directed
+#' @concept categorical nodal attribute
+#' @concept frequently-used
 InitErgmTerm.nodeifactor<-function (nw, arglist, ..., version=packageVersion("ergm")) {
   if(version <= as.package_version("3.9.4")){
     a <- check.ErgmTerm(nw, arglist, directed=TRUE, 
@@ -4717,6 +5120,42 @@ InitErgmTerm.nodeifactor<-function (nw, arglist, ..., version=packageVersion("er
 }
 
 ################################################################################
+
+#' @name nodematch-ergmTerm
+#' @title Uniform homophily and differential homophily
+#' @description Uniform homophily and differential homophily
+#' @details When `diff=FALSE` , this term adds one network statistic
+#'   to the model, which counts the number of edges \eqn{(i,j)} for which
+#'   `attr(i)==attr(j)` . This is also called ''uniform homophily,'' because each group is assumed to have the same propensity for within-group ties. When multiple attribute names are given, the
+#'   statistic counts only ties for which all of the attributes
+#'   match. When `diff=TRUE` , \eqn{p} network statistics are added
+#'   to the model, where \eqn{p} is the number of unique values of the
+#'   `attr` attribute. The \eqn{k} th such statistic counts the
+#'   number of edges \eqn{(i,j)} for which `attr(i) ==
+#'   ` `	attr(j) == value(k)` , where `value(k)` is the \eqn{k} th
+#'   smallest unique value of the `attr` attribute. This is also called ''differential homophily,'' because each group is allowed to have a unique propensity for within-group ties. Note that a statistical test of uniform vs. differential homophily should be conducted using the ANOVA function.
+#'   
+#'   By default, matches on all levels \eqn{k} are
+#'   counted.nodematch This works for both
+#'   `diff=TRUE` and `diff=FALSE` .
+#'
+#' @usage
+#' # binary: nodematch(attr, diff=FALSE, keep=NULL, levels=NULL)
+#'
+#' @template ergmTerm-attr
+#'
+#' @template ergmTerm-keep-dep
+#'
+#' @template ergmTerm-levels-explain
+#'
+#' @template ergmTerm-general
+#'
+#' @concept dyad-independent
+#' @concept frequently-used
+#' @concept directed
+#' @concept undirected
+#' @concept categorical nodal attribute
+#' @concept match
 InitErgmTerm.nodematch<-InitErgmTerm.match<-function (nw, arglist, ..., version=packageVersion("ergm")) {
   if(version <= as.package_version("3.9.4")){
     ### Check the network and arguments to make sure they are appropriate.
@@ -4768,6 +5207,45 @@ InitErgmTerm.nodematch<-InitErgmTerm.match<-function (nw, arglist, ..., version=
 }
 
 ################################################################################
+
+#' @name nodemix-ergmTerm
+#' @title Nodal attribute mixing
+#' @description Nodal attribute mixing
+#' @details By default, this term adds one network statistic to
+#'   the model for each possible pairing of attribute values. The
+#'   statistic equals the number of edges in the network in which the
+#'   nodes have that pairing of values. (When multiple attributes are specified, a
+#'   statistic is added for each combination of attribute values for
+#'   those attributes.) In other words, this term produces one statistic for
+#'   every entry in the mixing matrix for the attribute(s). By default, the ordering of
+#'   the attribute values is lexicographic: alphabetical (for nominal categories) or
+#'   numerical (for ordered categories), but this can be overridden using
+#'   the `levels` arguments.
+#'   The optional arguments `levels` , `levels2` ,
+#'   `b1levels` , and `b2levels` control what statistics are included in the model, and the order in which they appear.
+#'   `levels2` apply to all networks; `levels` applies to unipartite networks; `b1levels` and `b2levels` apply to
+#'   bipartite networks (see
+#'   
+#'   
+#'
+#' @usage
+#' # binary: nodemix(attr, base=NULL, b1levels=NULL, b2levels=NULL, levels=NULL, levels2=-1)
+#'
+#' @template ergmTerm-attr
+#'
+#' @template ergmTerm-base-dep
+#'
+#' @template ergmTerm-base-dep2
+#'
+#' @param levels override the ordering of the attribute values. Applies to 
+#'
+#' @template ergmTerm-general
+#'
+#' @concept dyad-independent
+#' @concept frequently-used
+#' @concept directed
+#' @concept undirected
+#' @concept categorical nodal attribute
 InitErgmTerm.nodemix<-function (nw, arglist, ..., version=packageVersion("ergm")) {
   if(version <= as.package_version("3.9.4")){
     a <- check.ErgmTerm(nw, arglist,
@@ -4898,6 +5376,28 @@ InitErgmTerm.nodemix<-function (nw, arglist, ..., version=packageVersion("ergm")
 }
 
 ################################################################################
+
+#' @name nodeocov-ergmTerm
+#' @title Main effect of a covariate for out-edges
+#' @description Main effect of a covariate for out-edges
+#' @details This term adds a single network statistic for each quantitative attribute or matrix column to the model equaling the total
+#'   value of `attr(i)` for all edges \eqn{(i,j)} in the network. This
+#'   term may only be used with directed networks. For categorical attributes,
+#'   see `nodeofactor` .
+#'   
+#' @usage
+#' # binary: nodeocov(attr)
+#'
+#' @template ergmTerm-attr
+#'
+#' @template ergmTerm-general
+#'
+#' @template ergmTerm-args-3.9.4
+#'
+#' @concept directed
+#' @concept dyad-independent
+#' @concept quantitative nodal attribute
+#' @concept nodal attribute
 InitErgmTerm.nodeocov<-function (nw, arglist, ..., version=packageVersion("ergm")) {
   if(version <= as.package_version("3.9.4")){
     ### Check the network and arguments to make sure they are appropriate.
@@ -4929,6 +5429,36 @@ InitErgmTerm.nodeocov<-function (nw, arglist, ..., version=packageVersion("ergm"
 
 
 ################################################################################
+
+#' @name nodeofactor-ergmTerm
+#' @title Factor attribute effect for out-edges
+#' @description Factor attribute effect for out-edges
+#' @details This term adds multiple network
+#'   statistics to the model, one for each of (a subset of) the unique
+#'   values of the `attr` attribute (or each combination of the
+#'   attributes given). Each of these statistics gives the number of
+#'   times a node with that attribute or those attributes appears as the
+#'   node of origin of a directed tie.
+#'   
+#' @usage
+#' # binary: nodeofactor(attr, base=1, levels=-1)
+#'
+#' @template ergmTerm-attr
+#'
+#' @template ergmTerm-base-dep
+#'
+#' @templateVar fn nodeofactor
+#' @template ergmTerm-levels-explain
+#'
+#' @template ergmTerm-levels-not-first
+#'
+#' @template ergmTerm-general
+#'
+#' @template ergmTerm-directed
+#'
+#' @concept dyad-independent
+#' @concept directed
+#' @concept categorical nodal attribute
 InitErgmTerm.nodeofactor<-function (nw, arglist, ..., version=packageVersion("ergm")) {
   if(version <= as.package_version("3.9.4")){
     a <- check.ErgmTerm(nw, arglist, directed=TRUE, 
@@ -4975,6 +5505,33 @@ InitErgmTerm.nodeofactor<-function (nw, arglist, ..., version=packageVersion("er
 }
 
 ################################################################################
+
+#' @name nsp-ergmTerm
+#' @title Nonedgewise shared partners
+#' @description Nonedgewise shared partners
+#' @details This is
+#'   just like the `dsp` and `esp` terms, except this term adds
+#'   one network statistic to the model for each element in `d`
+#'   where the \eqn{i} th such statistic equals the number of
+#'   non-edges (that is, dyads that do not have an edge) in the network
+#'   with exactly `d[i]` shared partners. This term can be used with
+#'   directed and undirected networks.
+#'   
+#' @usage
+#' # binary: nsp(d)
+#'
+#' @param d a vector of distinct integers
+#'
+#' @template ergmTerm-general
+#'
+#' @templateVar fn nsp
+#' @templateVar kind (directed) non-edge `(i,j)`
+#' @templateVar see dnsp
+#' 
+#' @template ergmTerm-sp-to-dsp
+#'
+#' @concept directed
+#' @concept undirected
 InitErgmTerm.nsp<-function(nw, arglist, cache.sp=TRUE, ...) {
 # The following line was commented out in <InitErgm.nsp>
 #   ergm.checkdirected("nsp", is.directed(nw), requirement=FALSE)
@@ -5015,6 +5572,37 @@ InitErgmTerm.nsp<-function(nw, arglist, cache.sp=TRUE, ...) {
 #=======================InitErgmTerm functions:  O============================#
 
 ################################################################################
+
+#' @name odegrange-ergmTerm
+#' @title Out-degree range
+#' @description Out-degree range
+#' @details This term adds one
+#'   network statistic to the model for each element of `from` (or `to` ); the \eqn{i} th
+#'   such statistic equals the number of nodes in the network of out-degree
+#'   greater than or equal to
+#'   `from[i]` but strictly less than `to[i]` , i.e. with
+#'   out-edge count
+#'   in semiopen interval `[from,to)` . 
+#'
+#'   This term can only be used with directed networks; for undirected
+#'   networks (bipartite and not)
+#'   see `degrange` . For degrees of specific modes of bipartite
+#'   networks, see `b1degrange` and `b2degrange` . For
+#'   in-degrees, see `idegrange` .
+#'
+#' @usage
+#' # binary: odegrange(from, to=+Inf, by=NULL, homophily=FALSE, levels=NULL)
+#'
+#' @template ergmTerm-from-to
+#'
+#' @template ergmTerm-by
+#'
+#' @template ergmTerm-general
+#'
+#' @template ergmTerm-attr
+#'
+#' @concept directed
+#' @concept categorical nodal attribute
 InitErgmTerm.odegrange<-function(nw, arglist, ..., version=packageVersion("ergm")) {
   if(version <= as.package_version("3.9.4")){
     a <- check.ErgmTerm(nw, arglist, directed=TRUE,
@@ -5096,6 +5684,27 @@ InitErgmTerm.odegrange<-function(nw, arglist, ..., version=packageVersion("ergm"
 }
 
 ################################################################################
+
+#' @name odegree-ergmTerm
+#' @title Out-degree
+#' @description Out-degree
+#' @details This term adds one network statistic to
+#'   the model for each element in `d` ; the \eqn{i} th such statistic equals
+#'   the number of nodes in the network of out-degree `d[i]` , i.e. the
+#'   number of nodes with exactly `d[i]` out-edges. 
+#'   This term can only be used with directed networks; for undirected networks
+#'   see `degree` .
+#'
+#' @usage
+#' # binary: odegree(d, by=NULL, homophily=FALSE, levels=NULL)
+#'
+#' @param d a vector of distinct integers
+#'
+#' @template ergmTerm-general
+#'
+#' @concept directed
+#' @concept categorical nodal attribute
+#' @concept frequently-used
 InitErgmTerm.odegree<-function(nw, arglist, ..., version=packageVersion("ergm")) {
   if(version <= as.package_version("3.9.4")){
     a <- check.ErgmTerm(nw, arglist, directed=TRUE,
@@ -5163,6 +5772,22 @@ InitErgmTerm.odegree<-function(nw, arglist, ..., version=packageVersion("ergm"))
 
 
 ################################################################################
+
+#' @name odegree1.5-ergmTerm
+#' @title Out-degree to the 3/2 power
+#' @description Out-degree to the 3/2 power
+#' @details This term adds one network statistic to the model equaling the sum
+#'   over the actors of each actor's outdegree taken to the 3/2 power
+#'   (or, equivalently, multiplied by its square root). This term is
+#'   analogous to the term of Snijders et al. (2010), equation (12). This
+#'   term can only be used with directed networks.
+#'
+#' @usage
+#' # binary: odegree1.5
+#'
+#' @template ergmTerm-general
+#'
+#' @concept directed
 InitErgmTerm.odegree1.5<-function (nw, arglist, ...) {
   a <- check.ErgmTerm(nw, arglist, directed=TRUE,
                       varnames = NULL,
@@ -5189,6 +5814,22 @@ InitErgmTerm.odegreepopularity<-function (nw, arglist, ...) {
 
 
 ################################################################################
+
+#' @name opentriad-ergmTerm
+#' @title Open triads
+#' @description Open triads
+#' @details This term
+#'   adds one statistic to the model equal to the number of 2-stars minus
+#'   three times the number of triangles in the network. It is currently
+#'   only implemented for undirected networks.
+#'
+#' @usage
+#' # binary: opentriad
+#'
+#' @template ergmTerm-general
+#'
+#' @concept undirected
+#' @concept triad-related
 InitErgmTerm.opentriad<-function (nw, arglist, ...) {
   a <- check.ErgmTerm(nw, arglist, directed=FALSE,
                       varnames = c(),
@@ -5200,6 +5841,33 @@ InitErgmTerm.opentriad<-function (nw, arglist, ...) {
 
 
 ################################################################################
+
+#' @name ostar-ergmTerm
+#' @title k-Outstars
+#' @description k-Outstars
+#' @details This term adds one network statistic to the
+#'   model for each element in `k` . The \eqn{i} th such statistic counts the
+#'   number of distinct `k[i]` -outstars in the network, where a
+#'   \eqn{k} -outstar is defined to be a node \eqn{N} and a set of \eqn{k}
+#'   different nodes \eqn{\{O_1, \dots, O_k\}}{{O[1], ..., O[k]}} such that the ties
+#'   \eqn{(N{\rightarrow}O_j)}{(N,O_j)} exist for \eqn{j=1, \dots, k} . If `attr` is specified
+#'   then the count is the number of \eqn{k} -outstars where all nodes have the
+#'   same value of the attribute. This term can only be used with directed
+#'   networks; for undirected networks see `kstar` .
+#'
+#' @usage
+#' # binary: ostar(k, attr=NULL, levels=NULL)
+#'
+#' @param k a vector of distinct integers
+#'
+#' @template ergmTerm-attr
+#'
+#' @template ergmTerm-general
+#'
+#' @note `ostar(1)` is equal to both `istar(1)` and `edges` .
+#'
+#' @concept directed
+#' @concept categorical nodal attribute
 InitErgmTerm.ostar<-function(nw, arglist, ..., version=packageVersion("ergm")) {
   if(version <= as.package_version("3.9.4")){
     a <- check.ErgmTerm(nw, arglist, directed=TRUE,
@@ -5252,6 +5920,32 @@ InitErgmTerm.ostar<-function(nw, arglist, ..., version=packageVersion("ergm")) {
 
 
 ################################################################################
+
+#' @name receiver-ergmTerm
+#' @title Receiver effect
+#' @description Receiver effect
+#' @details This term adds one network statistic for each node equal to the number of
+#'   in-ties for that node. This measures the popularity of the node. The term
+#'   for the first node is omitted by default because of linear dependence that
+#'   arises if this term is used together with `edges` , but its coefficient
+#'   can be computed as the negative of the sum of the coefficients of all the
+#'   other actors. That is, the average coefficient is zero, following the
+#'   Holland-Leinhardt parametrization of the $p_1$ model (Holland and Leinhardt,
+#'   1981).  This
+#'   term can only be used with directed networks. For undirected networks, see
+#'   `sociality` .
+#'
+#' @usage
+#' # binary: receiver(base=1, nodes=-1)
+#'
+#' @template ergmTerm-base-dep-node
+#'
+#' @param nodes specify which nodes' statistics should be included or excluded (see Specifying Vertex attributes and Levels (`?nodal_attributes`) for details)
+#'
+#' @template ergmTerm-general
+#'
+#' @concept directed
+#' @concept dyad-independent
 InitErgmTerm.receiver<-function(nw, arglist, ..., version=packageVersion("ergm")) {
   if(version <= as.package_version("3.9.4")){
     a <- check.ErgmTerm(nw, arglist, directed=TRUE,
@@ -5281,6 +5975,34 @@ InitErgmTerm.receiver<-function(nw, arglist, ..., version=packageVersion("ergm")
 #=======================InitErgmTerm functions:  S============================#
 
 ################################################################################
+
+#' @name sender-ergmTerm
+#' @title Sender effect
+#' @description Sender effect
+#' @details This term adds one network statistic for each node equal to the number of
+#'   out-ties for that node. This measures the activity of the node. The term for
+#'   the first node is omitted by default because of linear dependence that
+#'   arises if this term is used together with `edges` , but its coefficient
+#'   can be computed as the negative of the sum of the coefficients of all the
+#'   other actors. That is, the average coefficient is zero, following the
+#'   Holland-Leinhardt parametrization of the $p_1$ model (Holland and Leinhardt,
+#'   1981). 
+#'   
+#'   For undirected networks, see `sociality` .
+#'
+#' @usage
+#' # binary: sender(base=1, nodes=-1)
+#'
+#' @template ergmTerm-base-dep-node
+#'
+#' @param nodes specify which nodes' statistics should be included or excluded (see Specifying Vertex attributes and Levels (`?nodal_attributes`) for details)
+#'
+#' @template ergmTerm-general
+#'
+#' @template ergmTerm-directed
+#'
+#' @concept directed
+#' @concept dyad-independent
 InitErgmTerm.sender<-function(nw, arglist, ..., version=packageVersion("ergm")) {
   if(version <= as.package_version("3.9.4")){
     a <- check.ErgmTerm(nw, arglist, directed=TRUE,
@@ -5307,6 +6029,24 @@ InitErgmTerm.sender<-function(nw, arglist, ..., version=packageVersion("ergm")) 
 }
 
 ################################################################################
+
+#' @name simmelian-ergmTerm
+#' @title Simmelian triads
+#' @description Simmelian triads
+#' @details This term adds one
+#'   statistic to the model equal to the number of Simmelian triads, as defined
+#'   by Krackhardt and Handcock (2007). This is a complete sub-graph of size
+#'   three.
+#'
+#' @usage
+#' # binary: simmelian
+#'
+#' @template ergmTerm-general
+#'
+#' @template ergmTerm-directed
+#'
+#' @concept directed
+#' @concept triad-related
 InitErgmTerm.simmelian<-function (nw, arglist, ...) {
   a <- check.ErgmTerm(nw, arglist, directed=TRUE,
                       varnames = NULL,
@@ -5318,6 +6058,28 @@ InitErgmTerm.simmelian<-function (nw, arglist, ...) {
 
 
 ################################################################################
+
+#' @name simmelianties-ergmTerm
+#' @title Ties in simmelian triads
+#' @description Ties in simmelian triads
+#' @details This term adds
+#'   one statistic to the model equal to the number of ties in the network that
+#'   are associated with Simmelian triads, as defined by Krackhardt and Handcock
+#'   (2007). Each Simmelian has six ties in it but, because Simmelians can
+#'   overlap in terms of nodes (and associated ties), the total number of ties in
+#'   these Simmelians is less than six times the number of Simmelians. Hence this
+#'   is a measure of the clustering of Simmelians (given the number of
+#'   Simmelians).
+#'
+#' @usage
+#' # binary: simmelianties
+#'
+#' @template ergmTerm-general
+#'
+#' @template ergmTerm-directed
+#'
+#' @concept triad-related
+#' @concept directed
 InitErgmTerm.simmelianties<-function (nw, arglist, ...) {
   a <- check.ErgmTerm(nw, arglist, directed=TRUE,
                       varnames = NULL,
@@ -5330,6 +6092,27 @@ InitErgmTerm.simmelianties<-function (nw, arglist, ...) {
 
 
 ################################################################################
+
+#' @name smalldiff-ergmTerm
+#' @title Number of ties between actors with similar (but not necessarily identical) attribute values
+#' @description Number of ties between actors with similar (but not necessarily identical) attribute values
+#' @details This term adds one statistic, having as its
+#'   value the number of edges in the network for which the incident
+#'   actors' attribute values differ less than `cutoff` ; that is,
+#'   number of edges between `i` to `j` such that
+#'   `abs(attr[i]-attr[j])<cutoff` .
+#'
+#' @usage
+#' # binary: smalldiff(attr, cutoff)
+#'
+#' @template ergmTerm-attr
+#'
+#' @template ergmTerm-general
+#'
+#' @concept dyad-independent
+#' @concept directed
+#' @concept undirected
+#' @concept quantitative nodal attribute
 InitErgmTerm.smalldiff<-function (nw, arglist, ..., version=packageVersion("ergm")) {
   if(version <= as.package_version("3.9.4")){
     a <- check.ErgmTerm(nw, arglist,
@@ -5365,6 +6148,35 @@ InitErgmTerm.smalldiff<-function (nw, arglist, ..., version=packageVersion("ergm
   
 
 ################################################################################
+
+#' @name sociality-ergmTerm
+#' @title Undirected degree
+#' @description Undirected degree
+#' @details This term adds one network statistic for each node equal to the number of
+#'   ties of that node. For directed networks, see `sender` and
+#'   `receiver` . 
+#'
+#' @usage
+#' # binary: sociality(attr=NULL, base=1, levels=NULL, nodes=-1)
+#'
+#' @param attr this optional argument is deprecated and will be replaced with a more elegant implementation in a future release. In the meantime, it specifies a categorical vertex attribute (see Specifying Vertex attributes and Levels (`?nodal_attributes`) for details). If provided, this term only counts ties between nodes with the same value of the attribute (an actor-specific version of the `nodematch` term), restricted to be one of the values specified by (also deprecated) `levels` if `levels` is not `NULL` .
+#'
+#' @template ergmTerm-base-dep
+#'
+#' @template ergmTerm-base-dep-node
+#'
+#' @param nodes By default, `nodes=-1` means that the statistic for the
+#'   first node will be omitted, but this argument may be changed to control
+#'   which statistics are included just as for the `nodes` argument of `sender` and
+#'   `receiver` terms.
+#'
+#' @template ergmTerm-general
+#'
+#' @template ergmTerm-undirected
+#'
+#' @concept undirected
+#' @concept dyad-independent
+#' @concept categorical nodal attribute
 InitErgmTerm.sociality<-function(nw, arglist, ..., version=packageVersion("ergm")) {
   if(version <= as.package_version("3.9.4")){
     a <- check.ErgmTerm(nw, arglist, directed=FALSE,
