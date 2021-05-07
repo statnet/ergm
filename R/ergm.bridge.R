@@ -90,8 +90,32 @@ ergm.bridge.llr<-function(object, response=NULL, reference=~Bernoulli, constrain
   
   ergm_preprocess_response(basis, response)
 
-  ## Generate the path.
-  path <- t(rbind(sapply(seq(from = 0 + 1 / 2 / control$bridge.nsteps, to = 1 - 1 / 2 / control$bridge.nsteps, length.out = control$bridge.nsteps), function(u) cbind(to * u + from * (1 - u)))))
+  ## Generate a path of n points shifted by shift in [-1/2, +1/2] as a
+  ## fraction of the width of a bridge.
+  ##
+  ## The weight of each bridge is the size of the Voronoi partition
+  ## for that bridge.
+  mkpath <- function(n, shift = 0, reverse = FALSE) {
+    stopifnot(shift >= -1/2, shift <= 1/2)
+    u0 <- seq(from = 0 + 1 / 2 / n, to = 1 - 1 / 2 / n, length.out = n)
+    u <- u0 + shift / n
+    halfgap <- c(u[1], diff(u)/2, 1 - ult(u))
+    w <- sapply(seq_len(n), function(i) halfgap[i] + halfgap[i + 1])
+    if (reverse) {
+      u <- rev(u)
+      w <- rev(w)
+    }
+    list(
+      theta = t(rbind(sapply(u, function(u) cbind(to * u + from * (1 - u))))),
+      weight = w
+    )
+  }
+
+  # A low-discrepancy sequence: Kronecker Recurrence using inverse
+  # Golden Ratio (0.6180...) step size.
+  KR <- function(i, shift = 0) (shift + 0.61803398874989479 * i) %% 1
+  # Ensure that shifts are in [-1/2, +1/2] and the first shift is 0.
+  pathshift <- function(i) KR(i, shift = -KR(1) + 1/2) - 1/2
 
   # Determine whether an observation process is in effect.
   obs <- has.obs.constraints(basis, constraints, obs.constraints, target.stats)
@@ -127,7 +151,7 @@ ergm.bridge.llr<-function(object, response=NULL, reference=~Bernoulli, constrain
   }
 
   ## Miscellaneous settings
-  Dtheta.Du <- (to-from)[!state[[1]]$model$etamap$offsettheta] / control$bridge.nsteps
+  Dtheta.Du <- (to-from)[!state[[1]]$model$etamap$offsettheta]
 
   ## Handle target statistics, if passed.
   if(!is.null(target.stats)){
@@ -155,12 +179,13 @@ ergm.bridge.llr<-function(object, response=NULL, reference=~Bernoulli, constrain
   repeat{
     attempt <- length(path.hist) + 1
     # Bridge in reverse order on even-numbered attempts, if bidirectional bridging used.
-    if(control$bridge.bidirectional && attempt > 1) path <- path[nrow(path):1, , drop = FALSE]
+    path <- mkpath(control$bridge.nsteps, shift = pathshift(attempt), reverse = control$bridge.bidirectional && attempt %% 2 == 0)
     llrs <- numeric(control$bridge.nsteps)
     vcov.llrs <- numeric(control$bridge.nsteps)
 
     for(i in seq_len(control$bridge.nsteps)){
-      theta<-path[i,]
+      theta <- path$theta[i, ]
+      weight <- path$weight[i]
       if(verbose==0) message(i," ",appendLF=FALSE)
       if(verbose>0) message("Running theta=[",paste(format(theta),collapse=","),"].")
 
@@ -169,17 +194,17 @@ ergm.bridge.llr<-function(object, response=NULL, reference=~Bernoulli, constrain
                             control = gen_control(FALSE, if(i == 1 && (attempt == 1 || !control$bridge.bidirectional)) "first" else "between"))
       state <- z$networks
       samp <- llrsamp(z$stats, theta)
-      vcov.llrs[i] <- c(ERRVL(try(spectrum0.mvar(samp)/(niter(samp)*nchain(samp)), silent=TRUE), 0))
-      llrs[i] <- mean(as.matrix(samp))
+      vcov.llrs[i] <- c(ERRVL(try(spectrum0.mvar(samp)/(niter(samp)*nchain(samp)), silent=TRUE), 0)) * weight^2
+      llrs[i] <- mean(as.matrix(samp)) * weight
 
       if(obs){
         z <- ergm_MCMC_sample(state.obs, theta = theta, verbose = max(verbose - 1, 0),
                               control = gen_control(TRUE, if(i == 1 && (attempt == 1 || !control$bridge.bidirectional)) "first" else "between"))
         state.obs <- z$networks
         samp <- llrsamp(z$stats, theta)
-        vcov.llrs[i] <- vcov.llrs[i] + c(ERRVL(try(spectrum0.mvar(samp)/(niter(samp)*nchain(samp)), silent=TRUE), 0))
-        llrs[i] <- llrs[i] - mean(as.matrix(samp))
-      }else llrs[i] <- llrs[i] - llrsamp(target.stats, theta)
+        vcov.llrs[i] <- vcov.llrs[i] + c(ERRVL(try(spectrum0.mvar(samp)/(niter(samp)*nchain(samp)), silent=TRUE), 0)) * weight^2
+        llrs[i] <- llrs[i] - mean(as.matrix(samp)) * weight
+      }else llrs[i] <- llrs[i] - llrsamp(target.stats, theta) * weight
     }
     message(".")
 
