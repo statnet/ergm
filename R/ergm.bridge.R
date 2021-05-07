@@ -50,12 +50,25 @@
 #' @return If `llronly=TRUE` or `llkonly=TRUE`, these functions return
 #'   the scalar log-likelihood-ratio or the log-likelihood.
 #'   Otherwise, they return a list with the following components:
-#'   \item{llr}{The estimated log-ratio.}  \item{llrs}{The estimated
-#'   log-ratios for each of the \code{bridge.nsteps} bridges.}  \item{path}{A
-#'   numeric matrix with `bridge.nsteps` rows, with each row being the
-#'   respective bridge's parameter configuration.}  \item{stats}{A
-#'   numeric matrix with `bridge.nsteps` rows, with each row being the
-#'   respective bridge's vector of simulated statistics.}
+#'
+#'   \item{llr}{The estimated log-ratio.}
+#'
+#'   \item{llr.vcov}{The estimated variance of the log-ratio due to
+#'   MCMC approximation.}
+#'
+#'   \item{llrs}{A list of lists (1 per attempt) of the estimated
+#'   log-ratios for each of the \code{bridge.nsteps} bridges.}
+#'
+#'   \item{llrs.vcov}{A list of lists (1 per attempt) of the estimated
+#'   variances of the estimated log-ratios for each of the
+#'   \code{bridge.nsteps} bridges.}
+#'
+#'   \item{paths}{A list of lists (1 per attempt) with two elements:
+#'   `theta`, a numeric matrix with `bridge.nsteps` rows, with each
+#'   row being the respective bridge's parameter configuration; and
+#'   `weight`, a vector of length `bridge.nsteps` containing its
+#'   weight.}
+#'
 #'   \item{Dtheta.Du}{The gradient vector of the parameter values with
 #'   respect to position of the bridge.}
 #' @seealso \code{\link{simulate.formula.ergm}}
@@ -128,11 +141,15 @@ ergm.bridge.llr<-function(object, response=NULL, reference=~Bernoulli, constrain
 
   llr.hist <- list()
   vcov.llr.hist <- list()
+  path.hist <- list()
 
   repeat{
+    attempt <- length(path.hist) + 1
+    # Bridge in reverse order on even-numbered attempts, if bidirectional bridging used.
+    if(control$bridge.bidirectional && attempt > 1) path <- path[nrow(path):1, , drop = FALSE]
     llrs <- numeric(control$bridge.nsteps)
     vcov.llrs <- numeric(control$bridge.nsteps)
-  
+
     for(i in seq_len(control$bridge.nsteps)){
       theta<-path[i,]
       if(verbose==0) message(i," ",appendLF=FALSE)
@@ -140,7 +157,7 @@ ergm.bridge.llr<-function(object, response=NULL, reference=~Bernoulli, constrain
 
       ## First burn-in has to be longer, but those thereafter should be shorter if the bridges are closer together.
       z <- ergm_MCMC_sample(state, theta = theta, verbose = max(verbose - 1, 0),
-                            control = gen_control(FALSE, if(i == 1) "first" else "between"))
+                            control = gen_control(FALSE, if(i == 1 && (attempt == 1 || !control$bridge.bidirectional)) "first" else "between"))
       state <- z$networks
       samp <- llrsamp(z$stats, theta)
       vcov.llrs[i] <- c(ERRVL(try(spectrum0.mvar(samp)/(niter(samp)*nchain(samp)), silent=TRUE), 0))
@@ -148,7 +165,7 @@ ergm.bridge.llr<-function(object, response=NULL, reference=~Bernoulli, constrain
 
       if(obs){
         z <- ergm_MCMC_sample(state.obs, theta = theta, verbose = max(verbose - 1, 0),
-                              control = gen_control(TRUE, if(i == 1) "first" else "between"))
+                              control = gen_control(TRUE, if(i == 1 && (attempt == 1 || !control$bridge.bidirectional)) "first" else "between"))
         state.obs <- z$networks
         samp <- llrsamp(z$stats, theta)
         vcov.llrs[i] <- vcov.llrs[i] + c(ERRVL(try(spectrum0.mvar(samp)/(niter(samp)*nchain(samp)), silent=TRUE), 0))
@@ -159,18 +176,19 @@ ergm.bridge.llr<-function(object, response=NULL, reference=~Bernoulli, constrain
 
     if(verbose) message("Bridge sampling finished. Collating...")
 
-    llr.hist[[length(llr.hist)+1]] <- llrs
-    vcov.llr.hist[[length(vcov.llr.hist)+1]] <- vcov.llrs
+    llr.hist[[attempt]] <- llrs
+    vcov.llr.hist[[attempt]] <- vcov.llrs
+    path.hist[[attempt]] <- path
 
-    llr <- sum(unlist(llr.hist)) / length(llr.hist)
-    vcov.llr <- sum(unlist(vcov.llr.hist)) / length(vcov.llr.hist)^2
+    llr <- sum(unlist(llr.hist)) / attempt
+    vcov.llr <- sum(unlist(vcov.llr.hist)) / attempt^2
 
     if(is.null(control$bridge.target.se) || vcov.llr <= control$bridge.target.se^2) break
     else message("Estimated standard error (", format(sqrt(vcov.llr)), ") above target (", format(control$bridge.target.se), "). Drawing additional samples.")
   }
 
   if(llronly) structure(llr, vcov=vcov.llr)
-  else list(llr=llr,vcov.llr=vcov.llr,from=from,to=to,llrs=llr.hist,vcov.llrs=vcov.llr.hist,path=path,Dtheta.Du=Dtheta.Du)
+  else list(llr = llr, vcov.llr = vcov.llr, from = from, to = to, llrs = llr.hist, vcov.llrs = vcov.llr.hist, paths = path.hist, Dtheta.Du = Dtheta.Du)
 }
 
 #' @rdname ergm.bridge.llr

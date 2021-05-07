@@ -22,6 +22,7 @@
 #' @export control.logLik.ergm
 control.logLik.ergm<-function(bridge.nsteps=16,
                               bridge.target.se=NULL,
+                              bridge.bidirectional = TRUE,
 
                               MCMC.burnin=NULL,
                               MCMC.interval=NULL,
