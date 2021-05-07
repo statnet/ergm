@@ -8,7 +8,7 @@
 \usage{
 # binary: mm(attrs, levels=NULL, levels2=-1)
 
-# mm(attrs, levels=NULL, levels2=-1, form="sum")
+# valued: mm(attrs, levels=NULL, levels2=-1, form="sum")
 }
 \arguments{
 \item{attrs}{a two-sided formula whose LHS gives the attribute or

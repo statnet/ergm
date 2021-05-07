@@ -2098,8 +2098,6 @@ InitErgmTerm.concurrent<-function(nw, arglist, ..., version=packageVersion("ergm
 #' @usage
 #' # binary: ctriple(attr=NULL, diff=FALSE, levels=NULL)
 #'
-#' # binary: ctriad
-#'
 #' @template ergmTerm-attr
 #'
 #' @template ergmTerm-general
@@ -2114,7 +2112,7 @@ InitErgmTerm.concurrent<-function(nw, arglist, ..., version=packageVersion("ergm
 #' @concept triad-related
 #' @concept categorical nodal attribute
 #' @concept ctriad
-InitErgmTerm.ctriple<-InitErgmTerm.ctriad<-function (nw, arglist, ..., version=packageVersion("ergm")) {
+InitErgmTerm.ctriple<-function (nw, arglist, ..., version=packageVersion("ergm")) {
   if(version <= as.package_version("3.9.4")){
     a <- check.ErgmTerm(nw, arglist, directed=TRUE,
                         varnames = c("attrname","diff", "levels"),
@@ -2159,6 +2157,11 @@ InitErgmTerm.ctriple<-InitErgmTerm.ctriad<-function (nw, arglist, ..., version=p
 }
 
 
+#' @rdname ctriple-ergmTerm
+#'
+#' @usage
+#' # binary: ctriad
+InitErgmTerm.ctriad<-InitErgmTerm.ctriple
 
 ################################################################################
 
@@ -4875,7 +4878,6 @@ InitErgmTerm.nearsimmelian<-function (nw, arglist, ...) {
 #'
 #' @usage
 #' # binary: nodecov(attr)
-#' # binary: nodemain
 #'
 #' @template ergmTerm-attr
 #'
@@ -4888,7 +4890,7 @@ InitErgmTerm.nearsimmelian<-function (nw, arglist, ...) {
 #' @concept directed
 #' @concept undirected
 #' @concept quantitative nodal attribute
-InitErgmTerm.nodecov<-InitErgmTerm.nodemain<-function (nw, arglist, ..., version=packageVersion("ergm")) {
+InitErgmTerm.nodecov<-function (nw, arglist, ..., version=packageVersion("ergm")) {
   if(version <= as.package_version("3.9.4")){
     a <- check.ErgmTerm(nw, arglist,
                         varnames = c("attrname","transform","transformname"),
@@ -4914,7 +4916,11 @@ InitErgmTerm.nodecov<-InitErgmTerm.nodemain<-function (nw, arglist, ..., version
   list(name="nodecov", coef.names=coef.names, inputs=c(nodecov), dependence=FALSE)
 }
 
-
+#' @rdname nodecov-ergmTerm
+#'
+#' @usage
+#' # binary: nodemain
+InitErgmTerm.nodemain<-InitErgmTerm.nodecov
 
 ################################################################################
 

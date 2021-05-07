@@ -3,10 +3,12 @@
 \name{nodecov-ergmTerm}
 \alias{nodecov-ergmTerm}
 \alias{InitErgmTerm.nodecov}
+\alias{InitErgmTerm.nodemain}
 \alias{InitWtErgmTerm.nodecov}
 \title{Main effect of a covariate}
 \usage{
 # binary: nodecov(attr)
+
 # binary: nodemain
 
 # valued: nodecov(attr, form="sum")

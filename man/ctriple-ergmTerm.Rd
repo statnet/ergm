@@ -3,6 +3,7 @@
 \name{ctriple-ergmTerm}
 \alias{ctriple-ergmTerm}
 \alias{InitErgmTerm.ctriple}
+\alias{InitErgmTerm.ctriad}
 \title{Cyclic triples}
 \usage{
 # binary: ctriple(attr=NULL, diff=FALSE, levels=NULL)
