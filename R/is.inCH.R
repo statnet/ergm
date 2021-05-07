@@ -129,11 +129,12 @@ is.inCH <- function(p, M, verbose=FALSE, ...) { # Pass extra arguments directly 
 
     # If the objective function (min) is not zero, the point p[i,] is not in the CH of M.
     if(get.objective(lprec) < 0){
-      if(verbose>1) message(sprintf("is.inCH: iter= %d, outside hull.",i))
+      if(verbose > 1) message(sprintf("is.inCH: iter = %d, outside hull.",i))
       return(FALSE)
-    }
+    }else if(verbose > 2 && nrow(p) > 1) message(sprintf("is.inCH: iter = %d, inside hull.", i))
+
   }
 
-  if(verbose>1) message(sprintf("is.inCH: iter= %d, inside hull.",i))
+  if(verbose > 1) message("is.inCH: all test points inside hull.")
   return(TRUE) # If all points passed the test, return TRUE.
 }

@@ -294,7 +294,7 @@ ergm.estimate<-function(init, model, statsmatrices, statsmatrices.obs=NULL,
 #     message("the log-likelihood did not improve.")
 #   }
     if(inherits(Lout,"try-error") || Lout$value > max(199, trustregion) || Lout$value < -790) {
-      if(!inherits(Lout,"try-error")) message("Apparent likelihood improvement: ", Lout$value, ".")
+      if(!inherits(Lout,"try-error")) message("Apparent likelihood improvement: ", format(Lout$value), ".")
       message("MLE could not be found. Trying Nelder-Mead...")
       Lout <- try(optim(par=guess, 
                         fn=llik.fun.median,

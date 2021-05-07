@@ -372,7 +372,7 @@ ergm.MCMLE <- function(init, nw, model,
       v <- list(loglikelihood=control$MCMLE.adaptive.trustregion*2)
       while(v$loglikelihood > control$MCMLE.adaptive.trustregion){
         adaptive.steplength <- adaptive.steplength / 2
-        if(verbose){message("Optimizing with step length ",adaptive.steplength,".")}
+        if(verbose){message("Optimizing with step length ", fixed.pval(adaptive.steplength, 2),".")}
         #
         #   If not the last iteration do not compute all the extraneous
         #   statistics that are not needed until output
@@ -395,11 +395,7 @@ ergm.MCMLE <- function(init, nw, model,
                          estimateonly=TRUE)
       }
       if(v$loglikelihood < control$MCMLE.trustregion-0.001){
-        current.scipen <- options()$scipen
-        options(scipen=3)
-        message("The log-likelihood improved by",
-            format.pval(v$loglikelihood,digits=4,eps=1e-4),".")
-        options(scipen=current.scipen)
+        message("The log-likelihood improved by ", fixed.pval(v$loglikelihood, 4), ".")
       }else{
         message("The log-likelihood did not improve.")
       }
@@ -438,7 +434,7 @@ ergm.MCMLE <- function(init, nw, model,
         steplen.converged <- TRUE
       }
 
-      message("Optimizing with step length ",steplen,".")
+      message("Optimizing with step length ", fixed.pval(steplen, eps = control$MCMLE.steplength.min), ".")
       if(control$MCMLE.steplength==steplen && !steplen.converged)
         message("Note that convergence diagnostic step length is ",steplen0,".")
       
@@ -466,11 +462,7 @@ ergm.MCMLE <- function(init, nw, model,
                        verbose=verbose,
                        estimateonly=!calc.MCSE)
       if(v$loglikelihood < control$MCMLE.trustregion-0.001){
-        current.scipen <- options()$scipen
-        options(scipen=3)
-        message("The log-likelihood improved by ",
-            format.pval(v$loglikelihood,digits=4,eps=1e-4),".")
-        options(scipen=current.scipen)
+        message("The log-likelihood improved by ", fixed.pval(v$loglikelihood, 4), ".")
       }else{
         message("The log-likelihood did not improve.")
       }
@@ -484,7 +476,7 @@ ergm.MCMLE <- function(init, nw, model,
     
     if(control$MCMLE.termination=='Hotelling'){
       conv.pval <- ERRVL(try(suppressWarnings(approx.hotelling.diff.test(esteqs, esteqs.obs)$p.value)), NA)
-      message("Nonconvergence test p-value:",conv.pval,"")
+      message("Nonconvergence test p-value:", format(conv.pval), "")
       # I.e., so that the probability of one false nonconvergence in two successive iterations is control$MCMLE.conv.min.pval (sort of).
       if(!is.na(conv.pval) && conv.pval>=1-sqrt(1-control$MCMLE.conv.min.pval)){
         if(last.adequate){
@@ -547,7 +539,7 @@ ergm.MCMLE <- function(init, nw, model,
               nonconv.pval <- .ptsq(T2, hotel$parameter["param"], hotel$parameter["df"], lower.tail=FALSE)
               if(verbose) message("Test statistic: T^2 = ",T2,", with ",
                                   hotel$parameter["param"], " free parameters and ",hotel$parameter["df"], " degrees of freedom.")
-              message("Convergence test p-value: ",nonconv.pval,". ", appendLF=FALSE)
+              message("Convergence test p-value: ", fixed.pval(nonconv.pval, 4), ". ", appendLF=FALSE)
               if(nonconv.pval < 1-control$MCMLE.confidence){
                 message("Converged with ",control$MCMLE.confidence*100,"% confidence.")
                 break
