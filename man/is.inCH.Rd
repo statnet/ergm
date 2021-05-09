@@ -10,7 +10,7 @@ is.inCH(p, M, verbose = FALSE, ...)
 \arguments{
 \item{p}{A \eqn{d}-dimensional vector or a matrix with \eqn{d} columns}
 
-\item{M}{An \eqn{r} by \eqn{d} matrix.  Each row of \code{M} is a
+\item{M}{An \eqn{n} by \eqn{d} matrix.  Each row of \code{M} is a
 \eqn{d}-dimensional vector.}
 
 \item{verbose}{A logical or an integer to control the amount of
@@ -37,23 +37,15 @@ forming the rows of \code{M} if and only if there exists no separating
 hyperplane between \code{p} and the rows of \code{M}.  This condition may be
 reworded as follows:
 
-Letting \eqn{q=(1 p')'} and \eqn{L = (1 M)}, if the maximum value of
-\eqn{z'q} for all \eqn{z} such that \eqn{z'L \le 0} equals zero (the maximum
-must be at least zero since z=0 gives zero), then there is no separating
+Letting \eqn{q=(1 p')'} and \eqn{L = (1 M)}, if the minimum value of
+\eqn{z'q} for all \eqn{z} such that \eqn{z'L \le 0} equals zero (the minimum
+must be at most zero since z=0 gives zero), then there is no separating
 hyperplane and so \code{p} is contained in the convex hull of the rows of
 \code{M}.  So the question of interest becomes a constrained optimization
 problem.
 
-Solving this problem relies on the package \code{lpSolve} to solve a linear
-program.  We may put the program in "standard form" by writing \eqn{z=a-b},
-where \eqn{a} and \eqn{b} are nonnegative vectors.  If we write \eqn{x=(a'
-b')'}, we obtain the linear program given by:
-
-Minimize \eqn{(-q' q')x} subject to \eqn{x'(L -L) \le 0} and \eqn{x \ge 0}.
-One additional constraint arises because whenever any strictly negative
-value of \eqn{(-q' q')x} may be achieved, doubling \eqn{x} arbitrarily many
-times makes this value arbitrarily large in the negative direction, so no
-minimizer exists.  Therefore, we add the constraint \eqn{(q' -q')x \le 1}.
+Solving this problem relies on the package \pkg{lpSolveAPI} to solve a linear
+program.
 
 This function is used in the "stepping" algorithm of Hummel et al (2012).
 }
