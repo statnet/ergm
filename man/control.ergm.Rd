@@ -78,11 +78,8 @@ control.ergm(
   MCMLE.dampening.min.ess = 20,
   MCMLE.dampening.level = 0.1,
   MCMLE.steplength.margin = 0.05,
-  MCMLE.steplength.point.exp = 1,
-  MCMLE.steplength.prefilter = FALSE,
   MCMLE.steplength = NVL2(MCMLE.steplength.margin, 1, 0.5),
-  MCMLE.steplength.parallel = c("observational", "always", "never"),
-  MCMLE.steplength.precision = 0.25,
+  MCMLE.steplength.parallel = c("observational", "never"),
   MCMLE.sequential = TRUE,
   MCMLE.density.guard.min = 10000,
   MCMLE.density.guard = exp(3),
@@ -102,7 +99,6 @@ control.ergm(
   MCMLE.last.boost = 4,
   MCMLE.steplength.esteq = TRUE,
   MCMLE.steplength.miss.sample = function(x1) ceiling(sqrt(ncol(rbind(x1)))),
-  MCMLE.steplength.maxit = NVL3(MCMLE.steplength.margin, if (. < 0) 5 else 25),
   MCMLE.steplength.min = 1e-04,
   MCMLE.effectiveSize.interval_drop = 2,
   MCMLE.save_intermediates = NULL,
@@ -151,7 +147,6 @@ control.ergm(
   CD.adaptive.epsilon = 0.01,
   CD.steplength.esteq = TRUE,
   CD.steplength.miss.sample = function(x1) ceiling(sqrt(ncol(rbind(x1)))),
-  CD.steplength.maxit = 25,
   CD.steplength.min = 1e-04,
   CD.steplength.parallel = c("observational", "always", "never"),
   loglik = control.logLik.ergm(),
@@ -499,16 +494,6 @@ to \code{NULL} to use fixed step length. Note that this parameter is
 required to be non-\code{NULL} for MCMLE termination using Hummel or
 precision criteria.}
 
-\item{MCMLE.steplength.point.exp}{For observation process ERGMs,
-allows the step length to scale the spread of points differently
-from the amount of shift towards the centroid by exponentiating
-the former by \code{MCMLE.steplength.point.exp}.}
-
-\item{MCMLE.steplength.prefilter}{Whether to enable
-pre-filtering of target and test points in the Hummel step length
-calculation. May improve performance for large MCMC sample sizes
-with missing data MLE.}
-
 \item{MCMLE.steplength}{Multiplier for step length (on the
 mean-value parameter scale), which may (for values less than one)
 make fitting more stable at the cost of computational efficiency.
@@ -522,12 +507,9 @@ will preclude using Hummel or precision as termination criteria.}
 \item{MCMLE.steplength.parallel}{Whether parallel multisection
 search (as opposed to a bisection search) for the Hummel step
 length should be used if running in multiple threads. Possible
-values (partially matched) are \code{"always"}, \code{"never"}, and
+values (partially matched) are \code{"never"}, and
 (default) \code{"observational"} (i.e., when missing data MLE is
 used).}
-
-\item{MCMLE.steplength.precision}{Required relative precision of the step
-length calculation: \eqn{(u-l)/l}.}
 
 \item{MCMLE.sequential}{Logical: If TRUE, the next iteration of the fit uses
 the last network sampled as the starting network.  If FALSE, always use the
@@ -569,9 +551,6 @@ procedure, a sample is taken of the points most likely to be
 outside it.  This parameter specifies the sample size or a
 function of the unconstrained sample matrix to determine the
 sample size.}
-
-\item{MCMLE.steplength.maxit}{Maximum number of iterations in searching for the
-best step length.}
 
 \item{MCMLE.steplength.min}{Stops MCMLE estimation when the step length gets
 stuck below this minimum value.}
@@ -620,7 +599,7 @@ optimization chooses a step length equal to the largest possible multiple of
 \item{Step.burnin, Step.interval, Step.samplesize}{Sets the corresponding
 \verb{MCMC.*} parameters when \code{main.method="Stepping"}.}
 
-\item{CD.samplesize.per_theta, obs.CD.samplesize.per_theta, CD.maxit, CD.conv.min.pval, CD.NR.maxit, CD.NR.reltol, CD.metric, CD.method, CD.dampening, CD.dampening.min.ess, CD.dampening.level, CD.steplength.margin, CD.steplength, CD.steplength.parallel, CD.adaptive.epsilon, CD.steplength.esteq, CD.steplength.miss.sample, CD.steplength.maxit, CD.steplength.min}{Miscellaneous tuning parameters of the CD sampler and
+\item{CD.samplesize.per_theta, obs.CD.samplesize.per_theta, CD.maxit, CD.conv.min.pval, CD.NR.maxit, CD.NR.reltol, CD.metric, CD.method, CD.dampening, CD.dampening.min.ess, CD.dampening.level, CD.steplength.margin, CD.steplength, CD.steplength.parallel, CD.adaptive.epsilon, CD.steplength.esteq, CD.steplength.miss.sample, CD.steplength.min}{Miscellaneous tuning parameters of the CD sampler and
 optimizer. These have the same meaning as their \verb{MCMLE.*} and
 \verb{MCMC.*} counterparts.
 

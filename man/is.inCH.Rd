@@ -2,10 +2,13 @@
 % Please edit documentation in R/is.inCH.R
 \name{is.inCH}
 \alias{is.inCH}
+\alias{shrink_into_CH}
 \title{Determine whether a vector is in the closure of the convex hull of some
 sample of vectors}
 \usage{
 is.inCH(p, M, verbose = FALSE, ...)
+
+shrink_into_CH(p, M, m = NULL, verbose = FALSE, ...)
 }
 \arguments{
 \item{p}{A \eqn{d}-dimensional vector or a matrix with \eqn{d} columns}
@@ -55,6 +58,11 @@ program.
 
 This function is used in the "stepping" algorithm of Hummel et al (2012).
 }
+\section{Functions}{
+\itemize{
+\item \code{shrink_into_CH}: Shrink points p towards m until all are in the convex hull of M.
+}}
+
 \references{
 \itemize{ \item
 \url{https://www.cs.mcgill.ca/~fukuda/soft/polyfaq/node22.html}

@@ -138,3 +138,58 @@ is.inCH <- function(p, M, verbose=FALSE, ...) { # Pass extra arguments directly 
   if(verbose > 1) message("is.inCH: all test points inside hull.")
   return(TRUE) # If all points passed the test, return TRUE.
 }
+
+
+
+
+#' @describeIn is.inCH Shrink points p towards m until all are in the convex hull of M.
+#' @export
+shrink_into_CH <- function(p, M, m = NULL, verbose=FALSE, ...) { # Pass extra arguments directly to LP solver
+  verbose <- max(0, min(verbose, 4))
+
+  if(is.null(dim(p))) p <- rbind(p)
+
+  if (!is.matrix(M))
+    stop("Second argument must be a matrix.")
+  if ((d <- ncol(p)) != ncol(M))
+    stop("Number of columns in matrix (2nd argument) is not equal to dimension ",
+         "of first argument.")
+
+  NVL(m) <- colMeans(M)
+  p <- sweep_cols.matrix(p, m)
+  np <- nrow(p)
+  M <- sweep_cols.matrix(M, m)
+
+  if((n <- nrow(M)) == 1L){
+    for(i in seq_len(np)){
+      if(!isTRUE(all.equal(p[i,], M, check.attributes = FALSE))) return(0)
+    }
+    return(1)
+  }
+
+  # Minimise: p'z
+  # Constrain: Mz >= -1. No further constraints!
+  # Set up the optimisation problem: the following are common for all rows of p.
+  lprec <- make.lp(n, d)
+  for(k in seq_len(d)) set.column(lprec, k, M[, k])
+  set.constr.type(lprec, rep.int(2L, n)) # 2 = ">="
+  set.rhs(lprec,  rep.int(-1, n))
+  # By default, z are bounded >= 0. We need to remove these bounds.
+  set.bounds(lprec, rep.int(-Inf, d), rep.int(+Inf, d))
+  lp.control(lprec, verbose=c("important","important","important","normal","detailed")[min(max(verbose+1,0),5)], ...)
+
+  if (verbose >= 2) message("Iterating over ", np, " test points.")
+  g <- Inf
+  for (i in seq_len(np)) { # Iterate over test points.
+    if (verbose >= 3) message("Test point ", i)
+    if (all((x <- p[i,]) == 0)) next # Test point is at centroid. TODO: Tolerance?
+
+    set.objfn(lprec, x)
+    solve(lprec)
+    g <- min(g, -1/get.objective(lprec))
+
+    if (verbose >= 3) message("Step length is now ", g, ".")
+  }
+
+  g
+}

@@ -64,7 +64,7 @@ ergm.estimate<-function(init, model, statsmatrices, statsmatrices.obs=NULL,
                         dampening=FALSE,
                         dampening.min.ess=100,
                         dampening.level=0.1,
-                        steplen=1, steplen.point.exp=1,
+                        steplen=1,
                         cov.type="normal",# cov.type="robust", 
                         estimateonly=FALSE, ...) {
   estimateonly <- estimateonly & !calc.mcmc.se
@@ -84,7 +84,7 @@ ergm.estimate<-function(init, model, statsmatrices, statsmatrices.obs=NULL,
 
   statsmean <- colMeans.mcmc.list(statsmatrices.orig)
   if(!is.null(statsmatrices.orig.obs)){
-    statsmatrices.obs <- lapply.mcmc.list(statsmatrices.orig.obs, .shift_scale_points, statsmean, steplen, steplen^steplen.point.exp) # I.e., shrink each point of statsmatrix.obs towards the centroid of statsmatrix.
+    statsmatrices.obs <- lapply.mcmc.list(statsmatrices.orig.obs, .shift_scale_points, statsmean, steplen) # I.e., shrink each point of statsmatrix.obs towards the centroid of statsmatrix.
   }else{
     statsmatrices <- lapply.mcmc.list(statsmatrices.orig,sweep,2,(1-steplen)*statsmean,"-")
   }

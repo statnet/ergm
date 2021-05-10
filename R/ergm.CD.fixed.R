@@ -212,8 +212,8 @@ ergm.CD.fixed <- function(init, nw, model,
           .Hummel.steplength(
             if(control$CD.steplength.esteq) esteq else statsmatrix[,!model$etamap$offsetmap,drop=FALSE], 
             if(control$CD.steplength.esteq) esteq.obs else statsmatrix.obs[,!model$etamap$offsetmap,drop=FALSE],
-            control$CD.steplength.margin, control$CD.steplength, steplength.prev=steplen, verbose=verbose,
-            x2.num.max=control$CD.steplength.miss.sample, steplength.maxit=control$CD.steplength.maxit,
+            control$CD.steplength.margin, control$CD.steplength, verbose=verbose,
+            x2.num.max=control$CD.steplength.miss.sample,
             parallel=control$CD.steplength.parallel, control=control)
         else control$CD.steplength
       

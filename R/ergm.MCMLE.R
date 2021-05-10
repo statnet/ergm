@@ -366,8 +366,8 @@ ergm.MCMLE <- function(init, nw, model,
         steplen <- .Hummel.steplength(
           if(control$MCMLE.steplength.esteq) esteq else statsmatrix[,!model$etamap$offsetmap,drop=FALSE],
           if(control$MCMLE.steplength.esteq) esteq.obs else statsmatrix.obs[,!model$etamap$offsetmap,drop=FALSE],
-          control$MCMLE.steplength.margin, control$MCMLE.steplength, point.gamma.exp=control$MCMLE.steplength.point.exp, steplength.prev=steplen, x1.prefilter=control$MCMLE.steplength.prefilter, x2.prefilter=control$MCMLE.steplength.prefilter, precision=control$MCMLE.steplength.precision, min=control$MCMLE.steplength.min, verbose=verbose,
-          x2.num.max=control$MCMLE.steplength.miss.sample, parallel=control$MCMLE.steplength.parallel, steplength.maxit=control$MCMLE.steplength.maxit, control=control
+          control$MCMLE.steplength.margin, control$MCMLE.steplength, verbose=verbose,
+          x2.num.max=control$MCMLE.steplength.miss.sample, parallel=control$MCMLE.steplength.parallel, control=control
         )
 
         # If the step length margin is negative and signals convergence,
@@ -378,8 +378,8 @@ ergm.MCMLE <- function(init, nw, model,
           .Hummel.steplength(
               if(control$MCMLE.steplength.esteq) esteq else statsmatrix[,!model$etamap$offsetmap,drop=FALSE],
               if(control$MCMLE.steplength.esteq) esteq.obs else statsmatrix.obs[,!model$etamap$offsetmap,drop=FALSE],
-              0, control$MCMLE.steplength, steplength.prev=steplen, point.gamma.exp=control$MCMLE.steplength.point.exp, x1.prefilter=control$MCMLE.steplength.prefilter, x2.prefilter=control$MCMLE.steplength.prefilter, precision=control$MCMLE.steplength.precision, min=control$MCMLE.steplength.min, verbose=verbose,
-            x2.num.max=control$MCMLE.steplength.miss.sample, steplength.maxit=control$MCMLE.steplength.maxit,
+              0, control$MCMLE.steplength, verbose=verbose,
+            x2.num.max=control$MCMLE.steplength.miss.sample,
             parallel=control$MCMLE.steplength.parallel, control=control
           )
           else steplen
@@ -415,7 +415,7 @@ ergm.MCMLE <- function(init, nw, model,
                        dampening.min.ess=control$MCMLE.dampening.min.ess,
                        dampening.level=control$MCMLE.dampening.level,
                        metric=control$MCMLE.metric,
-                       steplen=steplen, steplen.point.exp=control$MCMLE.steplength.point.exp,
+                       steplen=steplen,
                        verbose=verbose,
                        estimateonly=!calc.MCSE)
         message("The log-likelihood improved by ", fixed.pval(v$loglikelihood, 4), ".")
