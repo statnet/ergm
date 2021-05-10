@@ -10,7 +10,11 @@
 \arguments{
 \item{k}{a vector of distinct integers}
 
-\item{attr}{quantitative attribute (see Specifying Vertex attributes and Levels (\code{?nodal_attributes}) for details.)}
+\item{attr}{quantitative attribute (see Specifying Vertex attributes and Levels (\code{?nodal_attributes}) for details.) then the count is over
+the number of \eqn{k} -stars (with center node in the second mode) where all
+nodes have the same value of the attribute.}
+
+\item{levels}{TODO}
 }
 \description{
 k-Stars for the second mode in a bipartite (aka two-mode) network
@@ -22,9 +26,7 @@ distinct \code{k[i]} -stars whose center node is in the second mode of the
 network. The second mode of a bipartite network object is sometimes known as
 the "event" mode. A \eqn{k} -star is defined to be a center node \eqn{N} and
 a set of \eqn{k} different nodes \eqn{\{O_1, \dots, O_k\}}{\{O[1], ..., O[k]\}} such that the
-ties \eqn{\{N, O_i\}} exist for \eqn{i=1, \dots, k} . If \code{attr} is specified then the count is over
-the number of \eqn{k} -stars (with center node in the second mode) where all
-nodes have the same value of the attribute. This term can only be used for
+ties \eqn{\{N, O_i\}} exist for \eqn{i=1, \dots, k} . This term can only be used for
 undirected bipartite networks.
 }
 \note{

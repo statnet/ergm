@@ -13,11 +13,11 @@
 \arguments{
 \item{attr}{quantitative attribute (see Specifying Vertex attributes and Levels (\code{?nodal_attributes}) for details.)}
 
-\item{base}{This argument is retained for backwards compatibility and may be
-removed in a future version. When both \code{base} and \code{levels2} are passed,
-\code{levels2} overrides \code{base}.}
+\item{base}{deprecated}
 
-\item{levels}{override the ordering of the attribute values. Applies to}
+\item{b1levels, b2levels, levels, level2}{control what statistics are included in the model and the order in which they appear. \code{levels2} apply to all networks; \code{levels} applies to unipartite networks; \code{b1levels} and \code{b2levels} apply to bipartite networks (see Specifying Vertex attributes and Levels (\code{?nodal_attributes}) for details)}
+
+\item{form}{character how to aggregate tie values in a valued ERGM}
 }
 \description{
 Nodal attribute mixing
@@ -31,12 +31,16 @@ statistic is added for each combination of attribute values for
 those attributes.) In other words, this term produces one statistic for
 every entry in the mixing matrix for the attribute(s). By default, the ordering of
 the attribute values is lexicographic: alphabetical (for nominal categories) or
-numerical (for ordered categories), but this can be overridden using
-the \code{levels} arguments.
-The optional arguments \code{levels} , \code{levels2} ,
-\code{b1levels} , and \code{b2levels} control what statistics are included in the model, and the order in which they appear.
-\code{levels2} apply to all networks; \code{levels} applies to unipartite networks; \code{b1levels} and \code{b2levels} apply to
-bipartite networks (see
+numerical (for ordered categories).
+}
+\note{
+The argument \code{base} is retained for backwards compatibility and may be
+removed in a future version. When both \code{base} and \code{levels} are passed,
+\code{levels} overrides \code{base}.
+
+The argument \code{base} is retained for backwards compatibility and may be
+removed in a future version. When both \code{base} and \code{levels2} are passed,
+\code{levels2} overrides \code{base}.
 }
 \concept{categorical nodal attribute}
 \concept{directed}

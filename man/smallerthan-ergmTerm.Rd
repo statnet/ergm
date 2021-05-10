@@ -7,6 +7,9 @@
 \usage{
 # valued: smallerthan(threshold=0)
 }
+\arguments{
+\item{threshold}{vector of numerical values}
+}
 \description{
 Number of dyads with values strictly smaller than a threshold
 }

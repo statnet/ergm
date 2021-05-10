@@ -10,7 +10,7 @@
 \arguments{
 \item{d}{a vector of distinct integers}
 
-\item{by}{this optional argument specifies a vertex attribute (see Specifying
+\item{by, homophily}{the optional argument \code{by} specifies a vertex attribute (see Specifying
 Vertex attributes and Levels (\code{?nodal_attributes}) for details).
 If this is specified and \code{homophily} is \code{TRUE} ,
 then degrees are calculated using the subnetwork consisting of only
@@ -19,6 +19,8 @@ If \code{by} is specified and
 \code{homophily} is \code{FALSE} (the default), then separate degree range
 statistics are calculated for nodes having each separate
 value of the attribute.}
+
+\item{levels}{TODO}
 }
 \description{
 In-degree

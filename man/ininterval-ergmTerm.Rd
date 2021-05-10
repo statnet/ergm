@@ -8,6 +8,10 @@
 # valued: ininterval(lower=-Inf, upper=+Inf, open=c(TRUE,TRUE))
 }
 \arguments{
+\item{lower}{defaults to -Inf}
+
+\item{upper}{defaults to +Inf}
+
 \item{open}{a \code{logical} vector of length 2 that controls whether
 the interval is open (exclusive) on the lower and on the upper
 end, respectively. \code{open} can also be specified as one of

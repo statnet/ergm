@@ -7,6 +7,9 @@
 \usage{
 # valued: atmost(threshold=0)
 }
+\arguments{
+\item{threshold}{a vector of numerical values}
+}
 \description{
 Number of dyads with values less than or equal to a threshold
 }

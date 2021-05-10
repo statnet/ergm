@@ -8,7 +8,7 @@
 # binary: gwb1dsp(decay=0, fixed=FALSE, cutoff=30)
 }
 \arguments{
-\item{decay}{This value non-negative which should be non-negative. The value supplied for
+\item{decay, fixed}{This value non-negative which should be non-negative. The value supplied for
 this parameter may be fixed (if \code{fixed=TRUE} ),
 or it may be used instead as the starting value for the estimation of \code{decay}
 in a curved exponential family model (when \code{fixed=FALSE} , the default) (see Hunter and Handcock, 2006).}

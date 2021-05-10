@@ -7,6 +7,9 @@
 \usage{
 # binary: esp(d)
 }
+\arguments{
+\item{d}{a vector of distinct integers}
+}
 \description{
 Edgewise shared partners
 }

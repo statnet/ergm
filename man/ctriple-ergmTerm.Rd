@@ -11,7 +11,11 @@
 # binary: ctriad
 }
 \arguments{
-\item{attr}{quantitative attribute (see Specifying Vertex attributes and Levels (\code{?nodal_attributes}) for details.)}
+\item{attr, diff}{quantitative attribute (see Specifying Vertex attributes and Levels (\code{?nodal_attributes}) for details.) If \code{attr} is specified and \code{diff} is \code{FALSE} , then the statistic is the number of cyclic triples where all
+three nodes have the same value of the attribute. If \code{attr} is specified and \code{diff} is \code{TRUE} , then one statistic is added to the model for each value of \code{attr}, equal to the number of cyclic triples where all
+three nodes have that value of the attribute.}
+
+\item{levels}{specifies the value of \code{attr} to consider if \code{attr} is passed and \code{diff=TRUE}}
 }
 \description{
 Cyclic triples
@@ -19,10 +23,7 @@ Cyclic triples
 \details{
 By default, this term adds one
 statistic to the model, equal to the number of cyclic triples in the
-network, defined as a set of edges of the form \eqn{\{(i{\rightarrow}j), (j{\rightarrow}k), (k{\rightarrow}i)\}}{\{(i,j), (j,k), (k,i)\}} . If \code{attr} is specified and \code{diff} is \code{FALSE} , then the statistic is the number of cyclic triples where all
-three nodes have the same value of the attribute. If \code{attr} is specified and \code{diff} is \code{TRUE} , then one statistic is added to the model for each value of \code{attr} (or each
-value of \code{attr} specified by \code{levels} if that argument is passed), equal to the number of cyclic triples where all
-three nodes have that value of the attribute.
+network, defined as a set of edges of the form \eqn{\{(i{\rightarrow}j), (j{\rightarrow}k), (k{\rightarrow}i)\}}{\{(i,j), (j,k), (k,i)\}} .
 }
 \note{
 This term can only be used with directed networks.

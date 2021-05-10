@@ -12,6 +12,24 @@
 }
 \arguments{
 \item{attr}{quantitative attribute (see Specifying Vertex attributes and Levels (\code{?nodal_attributes}) for details.)}
+
+\item{pow}{exponent for the node difference}
+
+\item{dir}{determines which vertix's attribute is subtracted from which. Accepts: \code{"t-h"} (the default), \code{"tail-head"} , \code{"b1-b2"}, \code{"h-t"} , \code{"head-tail"} , and \code{"b2-b1"} .}
+
+\item{sign.action}{one of \code{"identity"}, \code{"abs"}, \code{"posonly"}, \code{"negonly"}. The following \code{sign.actions} are possible:
+\itemize{
+\item \code{"identity"} (the default) no transformation of the
+difference regardless of sign
+\item \code{"abs"} absolute value of the difference: equivalent
+to the absdiff term
+\item \code{"posonly"} positive differences are kept, negative
+differences are replaced by 0
+\item \code{"negonly"} negative differences are kept, positive
+differences are replaced by 0
+}}
+
+\item{form}{character how to aggregate tie values in a valued ERGM}
 }
 \description{
 Difference
@@ -21,9 +39,8 @@ For values of \code{pow} other than
 \code{0} , this term adds one network statistic to the model,
 equaling the sum, over directed edges \eqn{(i,j)} , of
 \code{sign.action(attr[i]-attr[j])^pow} if \code{dir} is
-\code{"t-h"} (the default), \code{"tail-head"} , or \code{"b1-b2"}
-and of \code{sign.action(attr[j]-attr[i])^pow} if
-\code{"h-t"} , \code{"head-tail"} , or \code{"b2-b1"} . That is, the
+\code{"t-h"} and of \code{sign.action(attr[j]-attr[i])^pow} if
+\code{"h-t"} . That is, the
 argument \code{dir} determines which vertex's attribute is
 subtracted from which, with tail being the origin of a directed edge
 and head being its destination, and bipartite networks' edges being
@@ -36,20 +53,6 @@ that this function is applied after the
 \code{sign.action} . The comparison is exact, so when using
 calculated values of \code{attr} , ensure that values that you
 want to be considered equal are, in fact, equal.
-
-The following \code{sign.actions} are possible:
-
-\code{"identity"} (the default) no transformation of the
-difference regardless of sign
-
-\code{"abs"} absolute value of the difference: equivalent
-to the absdiff term
-
-\code{"posonly"} positive differences are kept, negative
-differences are replaced by 0
-
-\code{"negonly"} negative differences are kept, positive
-differences are replaced by 0
 }
 \note{
 this term may not be meaningful for unipartite undirected

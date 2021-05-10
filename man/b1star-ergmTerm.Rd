@@ -11,6 +11,8 @@
 \item{k}{a vector of distinct integers}
 
 \item{attr}{quantitative attribute (see Specifying Vertex attributes and Levels (\code{?nodal_attributes}) for details.)}
+
+\item{levels}{TODO}
 }
 \description{
 k-Stars for the first mode in a bipartite (aka two-mode) network

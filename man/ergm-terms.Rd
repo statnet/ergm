@@ -31,22 +31,15 @@
 \alias{concurrentties}
 \alias{cyclicalties}
 \alias{ddsp}
-\alias{degreepopularity}
 \alias{desp}
 \alias{dgwdsp}
 \alias{dgwesp}
 \alias{dgwnsp}
 \alias{dnsp}
-\alias{idegreepopularity}
 \alias{nodeisqrtcovar}
 \alias{nodeosqrtcovar}
 \alias{nodesqrtcovar}
-\alias{odegreepopularity}
-\alias{threepath}
-\alias{threetrail}
-\alias{transitive}
 \alias{transitiveties}
-\alias{transitiveweights}
 \alias{triadcensus}
 \alias{triangle}
 \alias{triangles}
@@ -587,9 +580,6 @@
 
       macro_SPTypes}
 
-    \item{\code{degreepopularity}  (binary)  (undirected) (deprecated)
-    }{\emph{Degree popularity (deprecated):} see \code{degree1.5}.}
-
     \item{\code{desp(d, type="OTP")} (binary) (directed)}{  \emph{Directed edgewise shared partners:} This term adds one network statistic to the model for each element in \code{d} where the \eqn{i}th such statistic equals the number of \emph{edges} in the network with exactly \code{d[i]} shared partners. macro_Directed
 
       macro_SPTypes}
@@ -617,50 +607,12 @@
       macro_SPTypes
     }
 
-    \item{\code{idegreepopularity}  (binary)  (directed) (deprecated)
-    }{\emph{In-degree popularity (deprecated):} see \code{idegree1.5}.}
-
     \item{\code{nodecovar}  (valued)  (directed)  (undirected) (quantitative nodal attribute)
     }{\emph{Uncentered covariance of dyad values
 	incident on each actor:} This term adds one statistic equal to
       \eqn{\sum_{i,j,k} (y_{i,j}y_{i,k}+y_{k,j}y_{k,j})}. This can be
       viewed as a valued analog of the \code{\link[=ergm-terms]{kstar(2)}}
       statistic.}
-
-    \item{\code{odegreepopularity}  (binary)  (directed) (deprecated)
-    }{\emph{Out-degree popularity (deprecated):} see \code{odegree1.5}.}
-
-    \item{\code{threetrail(keep=NULL, levels=NULL)} (binary)  (directed)  (undirected)
-      (triad-related)
-    }{\emph{ Three-trails:}
-      a.k.a. \code{threepath}.
-      For an undirected network, this term adds one statistic equal to the number
-      of 3-trails, where a 3-trail is defined as a \dQuote{trail} of length three that
-      traverses three distinct edges.
-      Note that a 3-trail need not
-      include four distinct nodes; in particular, a triangle counts as three
-      3-trails.  For a directed network, this term adds four statistics
-      (or some subset of these four specified by the \code{levels} argument),
-      one for each of the four distinct types of directed three-paths. If the
-      nodes of the path are written from left to right such that the middle edge
-      points to the right (R), then the four types are RRR, RRL, LRR, and LRL.
-      That is, an RRR 3-trail is of the form
-      \eqn{i\rightarrow j\rightarrow k\rightarrow l}{i-->j-->k-->l}, and RRL
-      3-trail is of the form
-      \eqn{i\rightarrow j\rightarrow k\leftarrow l}{i-->j-->k<--l}, etc.
-      Like in the undirected case, there is no requirement that the nodes be
-      distinct in a directed 3-trail.  However, the three edges must all be
-      distinct.  Thus, a mutual tie \eqn{i\leftrightarrow j}{i<-->j} does not
-      count as a 3-trail of the form
-      \eqn{i\rightarrow j\rightarrow i\leftarrow j}{i-->j-->i<--j}; however,
-      in the subnetwork \eqn{i\leftrightarrow j \rightarrow k}{i<-->j-->k},
-      there are two directed 3-trails, one LRR
-      (\eqn{k\leftarrow j\rightarrow i\leftarrow j}{k<--j-->i-->j})
-      and one RRR
-      (\eqn{j\rightarrow i\rightarrow j\leftarrow k}{k<--j-->i-->j}).
-
-      macro_KeepDep This term used to be (inaccurately) called \code{threepath}. That
-      name has been deprecated and may be removed in a future version.}
 
     \item{\code{transitive}  (binary)  (directed)  (triad-related)}{\emph{Transitive triads:}
       This term adds one statistic to the model, equal to the number of triads in
@@ -680,21 +632,6 @@
       given, all three nodes
       involved (\eqn{i}, \eqn{j}, and the node on the two-path) must match
       on this attribute in order for \eqn{i\rightarrow j}{i-->j} to be counted.}
-
-    \item{\code{transitiveweights(twopath="min",combine="max",affect="min")}  (valued)  (directed)  (undirected)  (non-negative) (triad-related)
-    }{\emph{Transitive
-	weights:} This statistic implements the transitive weights
-      statistic defined by Krivitsky (2012), Equation 13. The
-      currently implemented options for \code{twopath} is the minimum
-      of the constituent dyads (\code{"min"}) or their geometric mean
-      (\code{"geomean"}); for \code{combine}, the maximum of the
-      2-path strengths (\code{"max"}) or their sum (\code{"sum"}); and
-      for \code{affect}, the minimum of the focus dyad and the
-      combined strength of the two paths (\code{"min"}) or their
-      geometric mean (\code{"geomean"}). For each of these options,
-      the first (and the default) is more stable but also more
-      conservative, while the second is more sensitive but more likely
-      to induce a multimodal distribution of networks.}
 
     \item{\code{triadcensus(levels)}  (binary)  (triad-related)  (directed)  (undirected)}{\emph{Triad census:}
       For a directed network, this term adds one network statistic for each of

@@ -10,10 +10,11 @@
 \arguments{
 \item{d}{a vector of distinct integers.}
 
-\item{by}{The optional argument \code{by} specifies
-a vertex attribute (see Specifying Vertex attributes and Levels (\code{?nodal_attributes}) for details). If this is specified
+\item{by}{a vertex attribute (see Specifying Vertex attributes and Levels (\code{?nodal_attributes}) for details). If this is specified
 then each node's degree is tabulated only with other nodes having the same
 value of the \code{by} attribute.}
+
+\item{levels}{TODO}
 }
 \description{
 Degree for the first mode in a bipartite (aka two-mode) network

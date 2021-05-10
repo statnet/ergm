@@ -8,6 +8,8 @@
 # binary: gwdsp(decay, fixed=FALSE, cutoff=30)
 }
 \arguments{
+\item{decay}{decay parameter to the model}
+
 \item{fixed}{optional argument indicating
 whether the \code{decay} parameter is fixed at the given value, or is to be fit as a curved
 exponential-family model (see Hunter and Handcock, 2006). The

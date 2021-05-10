@@ -245,11 +245,12 @@ InitErgmTerm.absdiff <- function(nw, arglist, ..., version=packageVersion("ergm"
 #' #                 levels=NULL)
 #'
 #' @template ergmTerm-attr
-#'
-#' @template ergmTerm-base-dep
+#' @param base deprecated
+#' @param levels specifies which nonzero difference to include in or exclude from the model (See Specifying Vertex
+#'   attributes and Levels (`?nodal_attributes`) for details.)
 #'
 #' @template ergmTerm-args-3.9.4
-#'
+#' @template ergmTerm-base-dep
 #' @template ergmTerm-general
 #'
 #' @concept dyad-independent
@@ -317,8 +318,8 @@ InitErgmTerm.absdiffcat <- function(nw, arglist, ..., version=packageVersion("er
 #' # binary: altkstar(lambda,
 #' #                 fixed=FALSE)
 #'
-#' @template ergmTerm-attr
-#' @param fixed This optional argument indicates whether the `decay` parameter is
+#' @param lambda weight parameter to model
+#' @param fixed indicates whether the `decay` parameter is
 #'   fixed at the given value, or is to be fit as a curved exponential family model
 #'   (see Hunter and Handcock, 2006).  The default is `FALSE`, which means the scale
 #'   parameter is not fixed and thus the model is a CEF model.
@@ -371,22 +372,21 @@ InitErgmTerm.altkstar <- function(nw, arglist, ...) {
 
 
 ################################################################################
+
 #' @name asymmetric-ergmTerm
 #' @title Asymmetric dyads
 #' @description Asymmetric dyads
 #' @details This term adds one network statistic to the model equal to the
 #'   number of pairs of actors for which exactly one of
 #'   \eqn{(i{\rightarrow}j)}{(i,j)} or \eqn{(j{\rightarrow}i)}{(j,i)} exists.
-#'   If `attr` is specified, only asymmetric pairs that match on the
-#'   vertex attribute `attr` are counted.
 #'   
 #' @usage
 #' # binary: asymmetric(attr=NULL, diff=FALSE, keep=NULL, levels=NULL)
 #'
-#' @template ergmTerm-attr
+#' @param attr quantitative attribute (see Specifying Vertex attributes and Levels (`?nodal_attributes`) for details.) If specified, only symmetric pairs that match on the vertex attribute are counted.
 #'
 #' @param diff Used in the same way as for the `nodematch` term. (See `nodematch` (`?nodematch`) for details.)
-#'
+#' @param keep deprecated
 #' @param level Used in the same way as for the `nodematch` term. (See `nodematch` (`?nodematch`) for details.)
 #'
 #' @template ergmTerm-general
@@ -540,12 +540,12 @@ InitErgmTerm.attrcov <- function (nw, arglist, ..., version=packageVersion("ergm
 #' @usage
 #' # binary: b1concurrent(by=NULL, levels=NULL)
 #'
-#' @template ergmTerm-attr
-#'
-#' @param by the optional argument `by` specifies a vertex attribute (see Specifying
+#' @param by optional argument specifying a vertex attribute (see Specifying
 #'   Vertex attributes and Levels (`?nodal_attributes`) for details).
 #'   It functions just like the `by` argument of the `b1degree` term.
 #'   Without the optional argument, this statistic is equivalent to `b1mindegree(2)` .
+#'
+#' @param levels TODO
 #'
 #' @template ergmTerm-general
 #'
@@ -624,6 +624,8 @@ InitErgmTerm.b1concurrent<-function(nw, arglist, ..., version=packageVersion("er
 #' @template ergmTerm-by
 #'
 #' @template ergmTerm-general
+#'
+#' @param levels TODO
 #'
 #' @concept bipartite
 #' @concept undirected
@@ -784,10 +786,11 @@ InitErgmTerm.b1cov<-function (nw, arglist, ..., version=packageVersion("ergm")) 
 #'
 #' @param d a vector of distinct integers. 
 #'
-#' @param by The optional argument `by` specifies
-#'   a vertex attribute (see Specifying Vertex attributes and Levels (`?nodal_attributes`) for details). If this is specified
+#' @param by a vertex attribute (see Specifying Vertex attributes and Levels (`?nodal_attributes`) for details). If this is specified
 #'   then each node's degree is tabulated only with other nodes having the same
 #'   value of the `by` attribute.
+#'
+#' @param levels TODO
 #'
 #' @template ergmTerm-general
 #'
@@ -914,13 +917,13 @@ InitErgmTerm.b1dsp<-function(nw, arglist, cache.sp=TRUE, ...) {
 #' # binary: b1factor(attr, base=1, levels=-1)
 #'
 #' @template ergmTerm-attr
-#'
-#' @template ergmTerm-base-dep
-#'
+#' @param base deprecated
 #' @templateVar fn b1factor
 #' @template ergmTerm-levels-explain
 #'
 #' @template ergmTerm-levels-not-first
+#'
+#' @template ergmTerm-base-dep
 #'
 #' @template ergmTerm-general
 #'
@@ -986,7 +989,13 @@ InitErgmTerm.b1factor<-function (nw, arglist, ..., version=packageVersion("ergm"
 #' @usage
 #' # binary: b1sociality(nodes=-1)
 #'
-#' @template ergmTerm-node
+#' @param nodes By default, `nodes=-1` means that the statistic for the
+#'   first node (in the second bipartition) will be omitted, but this argument may be changed to control
+#'   which statistics are included. The `nodes` argument is interpreted using the new UI for level specification
+#'   (see Specifying Vertex Attributes and Levels (`?nodal_attributes`) for details), where both the attribute and the sorted
+#'   unique values are the vector of vertex indices `(nb1 + 1):n` , where
+#'   `nb1` is the size of the first bipartition and `n` is the total number of nodes in the network. Thus `nodes=120` will include only the statistic
+#'   for the 120th node in the second biparition, while `nodes=I(120)` will include only the statistic for the 120th node in the entire network.
 #'
 #' @template ergmTerm-general
 #'
@@ -1034,6 +1043,7 @@ InitErgmTerm.b1sociality<-function(nw, arglist, ...) {
 #'
 #' @param k a vector of distinct integers
 #' @template ergmTerm-attr
+#' @param levels TODO
 #'
 #' @template ergmTerm-general
 #'
@@ -1099,20 +1109,24 @@ InitErgmTerm.b1star <- function(nw, arglist, ..., version=packageVersion("ergm")
 #'   however, these two attributes should be combined to form a single nodal
 #'   attribute, `attr` ). A different statistic is created for each
 #'   value of `attr` seen in a b1 node, even if no k-stars are observed
-#'   with this value. Whether a different statistic is created for each value
-#'   seen in a b2 node depends on the value of the `diff` argument: When
-#'   `diff=TRUE` , the default, a different statistic is created for each
-#'   value and thus the behavior of this term is reminiscent of the
-#'   `nodemix` term, from which it takes its name; when `diff=FALSE` ,
-#'   all homophilous k-stars are counted together, though these k-stars are still
-#'   categorized according to the value of the central b1 node.
+#'   with this value.
 #'
 #' @usage
 #' # binary: b1starmix(k, attr, base=NULL, diff=TRUE)
 #'
 #' @param k only a single value of \eqn{k} is allowed
+#' @template ergmTerm-attr
+#' @param base deprecated
+#'
+#' @param diff whether a different statistic is created for each value seen in a b2 node. When `diff=TRUE`,
+#'    the default, a different statistic is created for each value and thus the behavior of this term is reminiscent of the
+#'   `nodemix` term, from which it takes its name; when `diff=FALSE` ,
+#'   all homophilous k-stars are counted together, though these k-stars are still
+#'   categorized according to the value of the central b1 node.
 #'
 #' @template ergmTerm-general
+#'
+#' @template ergmTerm-base-dep
 #'
 #' @concept bipartite
 #' @concept undirected
@@ -1184,14 +1198,15 @@ InitErgmTerm.b1starmix <- function(nw, arglist, ..., version=packageVersion("erg
 #'   values of `b2attr` among the b2 nodes, then the total number of
 #'   distinct categories of two stars according to these two attributes is
 #'   \eqn{n_1(n_2)(n_2+1)/2}. By default, this model term creates a distinct statistic
-#'   counting each of these categories. The `b1levels` , `b2levels` , `base` , and `levels2` arguments
-#'   may be used to leave some of these categories out (seefor details).
+#'   counting each of these categories.
 #'   
 #' @usage
 #' # binary: b1twostar(b1attr, b2attr, base=NULL, b1levels=NULL, b2levels=NULL, levels2=NULL)
 #'
 #' @param b1attr b1 nodes (actors in some contexts) (see Specifying Vertex attributes and Levels (`?nodal_attributes`) for details)
 #' @param b2attr b2 nodes (events in some contexts). If `b2attr` is not passed, it is assumed to be the same as `b1attr` .
+#' @param b1levels,b2levels,base,levels2 used to leave some of the categories out (see Specifying Vertex attributes and Levels (`?nodal_attributes`) for details)
+#'
 #' @template ergmTerm-general
 #'
 #' @template ergmTerm-base-dep
@@ -1416,6 +1431,8 @@ InitErgmTerm.b2cov<-function (nw, arglist, ..., version=packageVersion("ergm")) 
 #' @template ergmTerm-from-to
 #'
 #' @template ergmTerm-by
+#'
+#' @param levels TODO
 #'
 #' @template ergmTerm-general
 #'
@@ -1651,7 +1668,7 @@ InitErgmTerm.b2dsp<-function(nw, arglist, cache.sp=TRUE, ...) {
 #' # binary: b2factor(attr, base=1, levels=-1)
 #'
 #' @template ergmTerm-attr
-#'
+#' @param base deprecated
 #' @templateVar fn b2factor
 #' @template ergmTerm-levels-explain
 #'
@@ -1731,7 +1748,7 @@ InitErgmTerm.b2factor<-function (nw, arglist, ..., version=packageVersion("ergm"
 #'   unique values are the vector of vertex indices `(nb1 + 1):n` , where
 #'   `nb1` is the size of the first bipartition and `n` is the total number of nodes in the network. Thus `nodes=120` will include only the statistic
 #'   for the 120th node in the second biparition, while `nodes=I(120)` will include only the statistic for the 120th node in the entire network.
-
+#'
 #' @template ergmTerm-general
 #'
 #' @template ergmTerm-bipartite
@@ -1770,17 +1787,17 @@ InitErgmTerm.b2sociality<-function(nw, arglist, ...) {
 #'   network. The second mode of a bipartite network object is sometimes known as
 #'   the "event" mode. A \eqn{k} -star is defined to be a center node \eqn{N} and
 #'   a set of \eqn{k} different nodes \eqn{\{O_1, \dots, O_k\}}{\{O[1], ..., O[k]\}} such that the
-#'   ties \eqn{\{N, O_i\}} exist for \eqn{i=1, \dots, k} . If `attr` is specified then the count is over
-#'   the number of \eqn{k} -stars (with center node in the second mode) where all
-#'   nodes have the same value of the attribute. This term can only be used for
+#'   ties \eqn{\{N, O_i\}} exist for \eqn{i=1, \dots, k} . This term can only be used for
 #'   undirected bipartite networks. 
 #'
 #' @usage
 #' # binary: b2star(k, attr=NULL, levels=NULL)
 #'
 #' @param k a vector of distinct integers
-#'
-#' @template ergmTerm-attr
+#' @param attr quantitative attribute (see Specifying Vertex attributes and Levels (`?nodal_attributes`) for details.) then the count is over
+#'   the number of \eqn{k} -stars (with center node in the second mode) where all
+#'   nodes have the same value of the attribute. 
+#' @param levels TODO
 #'
 #' @template ergmTerm-general
 #'
@@ -1842,7 +1859,18 @@ InitErgmTerm.b2star <- function(nw, arglist, ..., version=packageVersion("ergm")
 #' @usage
 #' # binary: b2starmix(k, attr, base=NULL, diff=TRUE)
 #'
+#' @param k only a single value of \eqn{k} is allowed
+#' @template ergmTerm-attr
+#' @param base deprecated
+#' @param diff whether a different statistic is created for each value seen in a b1 node. When `diff=TRUE`,
+#'    the default, a different statistic is created for each value and thus the behavior of this term is reminiscent of the
+#'   `nodemix` term, from which it takes its name; when `diff=FALSE` ,
+#'   all homophilous k-stars are counted together, though these k-stars are still
+#'   categorized according to the value of the central b1 node.
+#'
 #' @template ergmTerm-general
+#'
+#' @template ergmTerm-base-dep
 #'
 #' @concept bipartite
 #' @concept undirected
@@ -1915,7 +1943,15 @@ InitErgmTerm.b2starmix <- function(nw, arglist, ..., version=packageVersion("erg
 #' @usage
 #' # binary: b2twostar(b1attr, b2attr, base=NULL, b1levels=NULL, b2levels=NULL, levels2=NULL)
 #'
+#' @param b1attr b1 nodes (actors in some contexts) (see Specifying Vertex attributes and Levels (`?nodal_attributes`) for details)
+#' @param b2attr b2 nodes (events in some contexts). If `b1attr` is not passed, it is assumed to be the same as `b2attr` .
+#' @param b1levels,b2levels,base,levels2 used to leave some of the categories out (see Specifying Vertex attributes and Levels (`?nodal_attributes`) for details)
+#'
 #' @template ergmTerm-general
+#'
+#' @template ergmTerm-base-dep
+#'
+#' @template ergmTerm-base-dep2
 #'
 #' @concept bipartite
 #' @concept undirected
@@ -2090,15 +2126,15 @@ InitErgmTerm.concurrent<-function(nw, arglist, ..., version=packageVersion("ergm
 #' @description Cyclic triples
 #' @details By default, this term adds one
 #'   statistic to the model, equal to the number of cyclic triples in the
-#'   network, defined as a set of edges of the form \eqn{\{(i{\rightarrow}j), (j{\rightarrow}k), (k{\rightarrow}i)\}}{\{(i,j), (j,k), (k,i)\}} . If `attr` is specified and `diff` is `FALSE` , then the statistic is the number of cyclic triples where all
-#'   three nodes have the same value of the attribute. If `attr` is specified and `diff` is `TRUE` , then one statistic is added to the model for each value of `attr` (or each
-#'   value of `attr` specified by `levels` if that argument is passed), equal to the number of cyclic triples where all
-#'   three nodes have that value of the attribute.
+#'   network, defined as a set of edges of the form \eqn{\{(i{\rightarrow}j), (j{\rightarrow}k), (k{\rightarrow}i)\}}{\{(i,j), (j,k), (k,i)\}} . 
 #'
 #' @usage
 #' # binary: ctriple(attr=NULL, diff=FALSE, levels=NULL)
 #'
-#' @template ergmTerm-attr
+#' @param attr,diff quantitative attribute (see Specifying Vertex attributes and Levels (`?nodal_attributes`) for details.) If `attr` is specified and `diff` is `FALSE` , then the statistic is the number of cyclic triples where all
+#'   three nodes have the same value of the attribute. If `attr` is specified and `diff` is `TRUE` , then one statistic is added to the model for each value of `attr`, equal to the number of cyclic triples where all
+#'   three nodes have that value of the attribute.
+#' @param levels specifies the value of `attr` to consider if `attr` is passed and `diff=TRUE`
 #'
 #' @template ergmTerm-general
 #'
@@ -2321,6 +2357,8 @@ InitErgmTerm.degcrossprod<-function (nw, arglist, ...) {
 #'
 #' @template ergmTerm-by
 #'
+#' @param levels TODO
+#'
 #' @template ergmTerm-general
 #'
 #' @concept undirected
@@ -2423,8 +2461,8 @@ InitErgmTerm.degrange<-function(nw, arglist, ..., version=packageVersion("ergm")
 #' # binary: degree(d, by=NULL, homophily=FALSE, levels=NULL)
 #'
 #' @param d vector of distinct integers
-#'
 #' @template ergmTerm-by
+#' @param levels TODO
 #'
 #' @template ergmTerm-general
 #'
@@ -2525,6 +2563,19 @@ InitErgmTerm.degree1.5<-function (nw, arglist, ...) {
 
 
 ################################################################################
+#' @name degreepopularity-ergmTerm
+#' @title Degree popularity (deprecated)
+#' @description Degree popularity (deprecated)
+#' @details see `degree1.5` .
+#'
+#' @usage
+#' # binary: degreepopularity
+#'
+#' @template ergmTerm-general
+#'
+#' @concept undirected
+#' @concept deprecated
+#'
 #' @include ergm-deprecated.R
 #' @describeIn ergm-deprecated Use [`degree1.5`] instead.
 InitErgmTerm.degreepopularity<-function (nw, arglist, ...) {
@@ -2576,9 +2627,8 @@ InitErgmTerm.density<-function(nw, arglist, ...) {
 #'   `0` , this term adds one network statistic to the model,
 #'   equaling the sum, over directed edges \eqn{(i,j)} , of
 #'   `sign.action(attr[i]-attr[j])^pow` if `dir` is
-#'   `"t-h"` (the default), `"tail-head"` , or `"b1-b2"`
-#'   and of `sign.action(attr[j]-attr[i])^pow` if
-#'   `"h-t"` , `"head-tail"` , or `"b2-b1"` . That is, the
+#'   `"t-h"` and of `sign.action(attr[j]-attr[i])^pow` if
+#'   `"h-t"` . That is, the
 #'   argument `dir` determines which vertex's attribute is
 #'   subtracted from which, with tail being the origin of a directed edge
 #'   and head being its destination, and bipartite networks' edges being
@@ -2592,24 +2642,25 @@ InitErgmTerm.density<-function(nw, arglist, ...) {
 #'   calculated values of `attr` , ensure that values that you
 #'   want to be considered equal are, in fact, equal.
 #'   
-#'   The following `sign.actions` are possible:
-#'   
-#'   `"identity"` (the default) no transformation of the
-#'   difference regardless of sign
-#'
-#'   `"abs"` absolute value of the difference: equivalent
-#'   to the absdiff term
-#'
-#'   `"posonly"` positive differences are kept, negative
-#'   differences are replaced by 0
-#'
-#'   `"negonly"` negative differences are kept, positive
-#'   differences are replaced by 0
-#'   
 #' @usage
 #' # binary: diff(attr, pow=1, dir="t-h", sign.action="identity")
 #'
 #' @template ergmTerm-attr
+#' @param pow exponent for the node difference
+#' @param dir determines which vertix's attribute is subtracted from which. Accepts: `"t-h"` (the default), `"tail-head"` , `"b1-b2"`, `"h-t"` , `"head-tail"` , and `"b2-b1"` .
+#' @param sign.action one of `"identity"`, `"abs"`, `"posonly"`, `"negonly"`. The following `sign.actions` are possible:
+#'   
+#'   - `"identity"` (the default) no transformation of the
+#'   difference regardless of sign
+#'
+#'   - `"abs"` absolute value of the difference: equivalent
+#'   to the absdiff term
+#'
+#'   - `"posonly"` positive differences are kept, negative
+#'   differences are replaced by 0
+#'
+#'   - `"negonly"` negative differences are kept, positive
+#'   differences are replaced by 0
 #'
 #' @template ergmTerm-general
 #'
@@ -2913,6 +2964,8 @@ InitErgmTerm.edges<-function(nw, arglist, ...) {
 #' @usage
 #' # binary: esp(d)
 #'
+#' @param d a vector of distinct integers
+#'
 #' @template ergmTerm-general
 #'
 #' @templateVar fn esp
@@ -2959,18 +3012,17 @@ InitErgmTerm.esp<-function(nw, arglist, cache.sp=TRUE, ...) {
 #' @usage
 #' # binary: gwb1degree(decay, fixed=FALSE, attr=NULL, cutoff=30, levels=NULL)
 #'
-#' @param decay the same as theta_s in
+#' @param decay,fixed the same as theta_s in
 #'   equation (14) in Hunter (2007). The value supplied for
 #'   this parameter may be fixed (if `fixed=TRUE` ),
 #'   or it may be used as merely the starting value for the estimation
 #'   in a curved exponential family model (the default).
-#'
 #' @template ergmTerm-attr
-#'
-#' @template ergmTerm-general
-#'
 #' @templateVar underlying degree
 #' @template ergmTerm-gw-cutoff
+#' @param levels TODO
+#'
+#' @template ergmTerm-general
 #'
 #' @concept bipartite
 #' @concept undirected
@@ -3054,15 +3106,14 @@ InitErgmTerm.gwb1degree<-function(nw, arglist, gw.cutoff=30, ..., version=packag
 #' @usage
 #' # binary: gwb1dsp(decay=0, fixed=FALSE, cutoff=30)
 #'
-#' @param decay This value non-negative which should be non-negative. The value supplied for
+#' @param decay,fixed This value non-negative which should be non-negative. The value supplied for
 #'   this parameter may be fixed (if `fixed=TRUE` ),
 #'   or it may be used instead as the starting value for the estimation of `decay`
 #'   in a curved exponential family model (when `fixed=FALSE` , the default) (see Hunter and Handcock, 2006).
-#'
-#' @template ergmTerm-general
-#'
 #' @templateVar underlying b1dsp
 #' @template ergmTerm-gw-cutoff
+#'
+#' @template ergmTerm-general
 #'
 #' @concept bipartite
 #' @concept undirected
@@ -3116,18 +3167,17 @@ InitErgmTerm.gwb1dsp<-function(nw, arglist, cache.sp=TRUE, gw.cutoff=30, ...) {
 #' @usage
 #' # binary: gwb2degree(decay, fixed=FALSE, attr=NULL, cutoff=30, levels=NULL)
 #'
-#' @template ergmTerm-attr
-#'
-#' @param decay the same as theta_s in
+#' @param decay,fixed the same as theta_s in
 #'   equation (14) in Hunter (2007). The value supplied for
 #'   this parameter may be fixed (if `fixed=TRUE` ),
 #'   or it may be used as merely the starting value for the estimation
 #'   in a curved exponential family model (the default).
-#'
-#' @template ergmTerm-general
-#'
+#' @template ergmTerm-attr
 #' @templateVar underlying degree
 #' @template ergmTerm-gw-cutoff
+#' @param levels TODO
+#'
+#' @template ergmTerm-general
 #'
 #' @concept bipartite
 #' @concept undirected
@@ -3209,16 +3259,16 @@ InitErgmTerm.gwb2degree<-function(nw, arglist, cache.sp=TRUE, gw.cutoff=30, ...,
 #' @usage
 #' # binary: gwb2dsp(decay=0, fixed=FALSE, cutoff=30)
 #'
+#' @param decay decay parmeter for the model
 #' @param fixed optional argument indicating
 #'   whether the `decay` parameter is fixed at the given value, or is to be fit as a curved
 #'   exponential-family model (see Hunter and Handcock, 2006). The
 #'   default is `FALSE` , which means the scale parameter is not
 #'   fixed and thus the model is a CEF model. 
-#'
-#' @template ergmTerm-general
-#'
 #' @templateVar underlying b2dsp
 #' @template ergmTerm-gw-cutoff
+#'
+#' @template ergmTerm-general
 #'
 #' @concept bipartite
 #' @concept undirected
@@ -3270,19 +3320,17 @@ InitErgmTerm.gwb2dsp<-function(nw, arglist, cache.sp=TRUE, gw.cutoff=30, ...) {
 #' # binary: gwdegree(decay, fixed=FALSE, attr=NULL, cutoff=30, levels=NULL)
 #'
 #' @param decay the same as theta_s in equation (14) in Hunter (2007)
-#'
 #' @param fixed optional argument indicating
 #'   whether the `decay` parameter is fixed at the given value, or is to be fit as a curved
 #'   exponential-family model (see Hunter and Handcock, 2006). The
 #'   default is `FALSE` , which means the scale parameter is not
 #'   fixed and thus the model is a CEF model. 
-#'
 #' @template ergmTerm-attr
-#'
-#' @template ergmTerm-general
-#'
 #' @templateVar underlying degree
 #' @template ergmTerm-gw-cutoff
+#' @param levels TODO
+#'
+#' @template ergmTerm-general
 #'
 #' @concept undirected
 #' @concept curved
@@ -3359,16 +3407,16 @@ InitErgmTerm.gwdegree<-function(nw, arglist, gw.cutoff=30, ..., version=packageV
 #' @usage
 #' # binary: gwdsp(decay, fixed=FALSE, cutoff=30)
 #'
+#' @param decay decay parameter to the model
 #' @param fixed optional argument indicating
 #'   whether the `decay` parameter is fixed at the given value, or is to be fit as a curved
 #'   exponential-family model (see Hunter and Handcock, 2006). The
 #'   default is `FALSE` , which means the scale parameter is not
 #'   fixed and thus the model is a CEF model. 
-#'
-#' @template ergmTerm-general
-#'
 #' @templateVar underlying DSP
 #' @template ergmTerm-gw-cutoff
+#'
+#' @template ergmTerm-general
 #'
 #' @templateVar fn gwdsp
 #' @templateVar kind (directed) dyad `(i,j)`
@@ -3432,16 +3480,16 @@ InitErgmTerm.gwdsp<-function(nw, arglist, cache.sp=TRUE, gw.cutoff=30, ...) {
 #' @usage
 #' # binary: gwesp(decay, fixed=FALSE, cutoff=30)
 #'
+#' @param decay decay parameter to the model
 #' @param fixed optional argument indicating
 #'   whether the `decay` parameter is fixed at the given value, or is to be fit as a curved
 #'   exponential-family model (see Hunter and Handcock, 2006). The
 #'   default is `FALSE` , which means the scale parameter is not
 #'   fixed and thus the model is a CEF model. 
-#'
-#' @template ergmTerm-general
-#'
 #' @templateVar underlying ESP
 #' @template ergmTerm-gw-cutoff
+#'
+#' @template ergmTerm-general
 #'
 #' @templateVar fn gwesp
 #' @templateVar kind (directed) edge `i -> j`
@@ -3505,19 +3553,17 @@ InitErgmTerm.gwesp<-function(nw, arglist, cache.sp=TRUE, gw.cutoff=30, ...) {
 #' # binary: gwidegree(decay, fixed=FALSE, attr=NULL, cutoff=30, levels=NULL)
 #'
 #' @param decay This parameter was called `alpha` prior to `ergm 3.7`
-#'
 #' @param fixed optional argument indicating
 #'   whether the `decay` parameter is fixed at the given value, or is to be fit as a curved
 #'   exponential-family model (see Hunter and Handcock, 2006). The
 #'   default is `FALSE` , which means the scale parameter is not
 #'   fixed and thus the model is a CEF model. 
-#'
 #' @template ergmTerm-attr
-#'
-#' @template ergmTerm-general
-#'
 #' @templateVar underlying degree
 #' @template ergmTerm-gw-cutoff
+#' @param levels TODO
+#'
+#' @template ergmTerm-general
 #'
 #' @concept directed
 #' @concept curved
@@ -3597,17 +3643,15 @@ InitErgmTerm.gwidegree<-function(nw, arglist, gw.cutoff=30, ..., version=package
 #' # binary: gwnsp(decay, fixed=FALSE, cutoff=30)
 #'
 #' @param decay This parameter was called `alpha` prior to `ergm 3.7`.
-#'
 #' @param fixed optional argument indicating
 #'   whether the `decay` parameter is fixed at the given value, or is to be fit as a curved
 #'   exponential-family model (see Hunter and Handcock, 2006). The
 #'   default is `FALSE` , which means the scale parameter is not
 #'   fixed and thus the model is a CEF model. 
-#'
-#' @template ergmTerm-general
-#'
 #' @templateVar underlying NSP
 #' @template ergmTerm-gw-cutoff
+#'
+#' @template ergmTerm-general
 #'
 #' @templateVar fn gwnsp
 #' @templateVar kind (directed) non-edge `(i,j)`
@@ -3669,19 +3713,17 @@ InitErgmTerm.gwnsp<-function(nw, arglist, cache.sp=TRUE, gw.cutoff=30, ...) {
 #' # binary: gwodegree(decay, fixed=FALSE, attr=NULL, cutoff=30, levels=NULL)
 #'
 #' @param decay this parameter was called `alpha` prior to `ergm 3.7`
-#'
 #' @param fixed optional argument indicating
 #'   whether the `decay` parameter is fixed at the given value, or is to be fit as a curved
 #'   exponential-family model (see Hunter and Handcock, 2006). The
 #'   default is `FALSE` , which means the scale parameter is not
 #'   fixed and thus the model is a CEF model. 
-#'
 #' @template ergmTerm-attr
-#'
-#' @template ergmTerm-general
-#'
 #' @templateVar underlying degree
 #' @template ergmTerm-gw-cutoff
+#' @param levels TODO
+#'
+#' @template ergmTerm-general
 #'
 #' @concept directed
 #' @concept curved
@@ -3770,9 +3812,7 @@ InitErgmTerm.gwodegree<-function(nw, arglist, gw.cutoff=30, ..., version=package
 #' @param x defaults to be the observed
 #'   network, i.e., the network on the left side of the \eqn{\sim} in the formula
 #'   that defines the ERGM.
-#'
 #' @param cov either a matrix of edgewise weights or a network
-#'
 #' @param attrname option argument that provides the name of the edge attribute
 #'   to use for weight values when a network is specified in `cov`
 #'
@@ -3987,8 +4027,8 @@ InitErgmTerm.hammingmix<-function (nw, arglist, ..., version=packageVersion("erg
 #' # binary: idegrange(from, to=+Inf, by=NULL, homophily=FALSE, levels=NULL)
 #'
 #' @template ergmTerm-from-to
-#'
 #' @template ergmTerm-by
+#' @param levels TODO
 #'
 #' @template ergmTerm-general
 #'
@@ -4090,8 +4130,8 @@ InitErgmTerm.idegrange<-function(nw, arglist, ..., version=packageVersion("ergm"
 #' # binary: idegree(d, by=NULL, homophily=FALSE, levels=NULL)
 #'
 #' @param d a vector of distinct integers
-#'
 #' @template ergmTerm-by
+#' @param levels TODO
 #'
 #' @template ergmTerm-general
 #'
@@ -4192,6 +4232,19 @@ InitErgmTerm.idegree1.5<-function (nw, arglist, ...) {
 
 
 ################################################################################
+#' @name idegreepopularity-ergmTerm
+#' @title In-degree popularity (deprecated)
+#' @description In-degree popularity (deprecated)
+#' @details see `idegree1.5` .
+#'
+#' @usage
+#' # binary: idegreepopularity
+#'
+#' @template ergmTerm-general
+#'
+#' @concept directed
+#' @concept deprecated
+#'
 #' @describeIn ergm-deprecated Use [`idegree1.5`] instead.
 InitErgmTerm.idegreepopularity<-function (nw, arglist, ...) {
   .Deprecated("idegree1.5")
@@ -4328,6 +4381,7 @@ InitErgmTerm.isolates <- function(nw, arglist, ...) {
 #'
 #' @param k a vector of distinct integers
 #' @template ergmTerm-attr
+#' @param levels TODO
 #'
 #' @template ergmTerm-general
 #'
@@ -4399,8 +4453,8 @@ InitErgmTerm.istar<-function(nw, arglist, ..., version=packageVersion("ergm")) {
 #' # binary: kstar(k, attr=NULL, levels=NULL)
 #'
 #' @param k a vector of distinct integers
-#'
 #' @template ergmTerm-attr
+#' @param levels TODO
 #'
 #' @template ergmTerm-general
 #'
@@ -4573,10 +4627,7 @@ InitErgmTerm.meandeg<-function(nw, arglist, ...) {
 #' @description Mixing matrix cells and margins
 #' @details `attrs` is the rows of the mixing matrix and whose RHS gives
 #'   that for its columns. A one-sided formula (e.g.,
-#'   `~A` ) is symmetrized (e.g., `A~A` ). `levels`
-#'   similarly specifies the subset of rows and columns to be
-#'   used. `levels2` can then be used to filter which specific cells
-#'   of the matrix to include. A two-sided formula with a dot on one side
+#'   `~A` ) is symmetrized (e.g., `A~A` ). A two-sided formula with a dot on one side
 #'   calculates the margins of the mixing matrix, analogously to `nodefactor` , with
 #'   `A~.` calculating the row/sender/b1 margins and `.~A`
 #'   calculating the column/receiver/b2 margins.
@@ -4587,6 +4638,8 @@ InitErgmTerm.meandeg<-function(nw, arglist, ...) {
 #' @param attrs a two-sided formula whose LHS gives the attribute or
 #'   attribute function (see Specifying Vertex attributes and Levels (`?nodal_attributes`) for details.) for the rows of the mixing matrix and whose RHS gives
 #'   for its columns. A one-sided formula (e.g., `~A`) is symmetrized (e.g., `A~A`)
+#' @param levels subset of rows and columns to be used
+#' @param levels2 which specific cells of the matrix to include
 #'
 #' @template ergmTerm-general
 #'
@@ -4747,7 +4800,7 @@ InitErgmTerm.mm<-function (nw, arglist, ..., version=packageVersion("ergm")) {
 #'   This means that the sum of the mutual statistics when `by` is used
 #'   will equal twice the standard mutual statistic. Only one of `same` or `by` may be used. If both parameters are used, `by` is 
 #'   ignored. This paramer is not affected by `diff`.
-#'
+#' @param keep deprecated
 #' @param levels which statistics should be kept
 #'   whenever the `mutual` term would ordinarily result in multiple statistics (see Specifying Vertex attributes and Levels (`?nodal_attributes`) for details).
 #'
@@ -4938,7 +4991,7 @@ InitErgmTerm.nodemain<-InitErgmTerm.nodecov
 #' # binary: nodefactor(attr, base=1, levels=-1)
 #'
 #' @template ergmTerm-attr
-#'
+#' @param base deprecated
 #' @templateVar fn nodefactor
 #' @template ergmTerm-levels-explain
 #'
@@ -5067,15 +5120,15 @@ InitErgmTerm.nodeicov<-function (nw, arglist, ..., version=packageVersion("ergm"
 #' # binary: nodeifactor(attr, base=1, levels=-1)
 #'
 #' @template ergmTerm-attr
-#'
-#' @template ergmTerm-base-dep
-#'
+#' @param base deprecated
 #' @templateVar fn nodeifactor
 #' @template ergmTerm-levels-explain
 #'
 #' @template ergmTerm-levels-not-first
 #'
 #' @template ergmTerm-general
+#'
+#' @template ergmTerm-base-dep
 #'
 #' @concept dyad-independent
 #' @concept directed
@@ -5142,17 +5195,19 @@ InitErgmTerm.nodeifactor<-function (nw, arglist, ..., version=packageVersion("er
 #'   smallest unique value of the `attr` attribute. This is also called ''differential homophily,'' because each group is allowed to have a unique propensity for within-group ties. Note that a statistical test of uniform vs. differential homophily should be conducted using the ANOVA function.
 #'   
 #'   By default, matches on all levels \eqn{k} are
-#'   counted.nodematch This works for both
+#'   counted. This works for both
 #'   `diff=TRUE` and `diff=FALSE` .
 #'
 #' @usage
 #' # binary: nodematch(attr, diff=FALSE, keep=NULL, levels=NULL)
 #'
 #' @template ergmTerm-attr
+#' @param diff specify if the term has uniform or differential homophily
+#' @param keep deprecated
+#' @templateVar fn nodematch
+#' @template ergmTerm-levels-explain
 #'
 #' @template ergmTerm-keep-dep
-#'
-#' @template ergmTerm-levels-explain
 #'
 #' @template ergmTerm-general
 #'
@@ -5225,27 +5280,20 @@ InitErgmTerm.nodematch<-InitErgmTerm.match<-function (nw, arglist, ..., version=
 #'   those attributes.) In other words, this term produces one statistic for
 #'   every entry in the mixing matrix for the attribute(s). By default, the ordering of
 #'   the attribute values is lexicographic: alphabetical (for nominal categories) or
-#'   numerical (for ordered categories), but this can be overridden using
-#'   the `levels` arguments.
-#'   The optional arguments `levels` , `levels2` ,
-#'   `b1levels` , and `b2levels` control what statistics are included in the model, and the order in which they appear.
-#'   `levels2` apply to all networks; `levels` applies to unipartite networks; `b1levels` and `b2levels` apply to
-#'   bipartite networks (see
+#'   numerical (for ordered categories).
 #'   
-#'   
-#'
 #' @usage
 #' # binary: nodemix(attr, base=NULL, b1levels=NULL, b2levels=NULL, levels=NULL, levels2=-1)
 #'
 #' @template ergmTerm-attr
+#' @param base deprecated
+#' @param b1levels,b2levels,levels,level2 control what statistics are included in the model and the order in which they appear. `levels2` apply to all networks; `levels` applies to unipartite networks; `b1levels` and `b2levels` apply to bipartite networks (see Specifying Vertex attributes and Levels (`?nodal_attributes`) for details)
+#'
+#' @template ergmTerm-general
 #'
 #' @template ergmTerm-base-dep
 #'
 #' @template ergmTerm-base-dep2
-#'
-#' @param levels override the ordering of the attribute values. Applies to 
-#'
-#' @template ergmTerm-general
 #'
 #' @concept dyad-independent
 #' @concept frequently-used
@@ -5450,11 +5498,11 @@ InitErgmTerm.nodeocov<-function (nw, arglist, ..., version=packageVersion("ergm"
 #' # binary: nodeofactor(attr, base=1, levels=-1)
 #'
 #' @template ergmTerm-attr
-#'
-#' @template ergmTerm-base-dep
-#'
+#' @param base deprecated
 #' @templateVar fn nodeofactor
 #' @template ergmTerm-levels-explain
+#'
+#' @template ergmTerm-base-dep
 #'
 #' @template ergmTerm-levels-not-first
 #'
@@ -5600,8 +5648,8 @@ InitErgmTerm.nsp<-function(nw, arglist, cache.sp=TRUE, ...) {
 #' # binary: odegrange(from, to=+Inf, by=NULL, homophily=FALSE, levels=NULL)
 #'
 #' @template ergmTerm-from-to
-#'
 #' @template ergmTerm-by
+#' @param levels TODO
 #'
 #' @template ergmTerm-general
 #'
@@ -5705,6 +5753,8 @@ InitErgmTerm.odegrange<-function(nw, arglist, ..., version=packageVersion("ergm"
 #' # binary: odegree(d, by=NULL, homophily=FALSE, levels=NULL)
 #'
 #' @param d a vector of distinct integers
+#' @template ergmTerm-by
+#' @param levels TODO
 #'
 #' @template ergmTerm-general
 #'
@@ -5806,6 +5856,19 @@ InitErgmTerm.odegree1.5<-function (nw, arglist, ...) {
 
 
 ################################################################################
+#' @name odegreepopularity-ergmTerm
+#' @title Out-degree popularity (deprecated)
+#' @description Out-degree popularity (deprecated)
+#' @details see `odegree1.5` .
+#'
+#' @usage
+#' # binary: odegreepopularity
+#'
+#' @template ergmTerm-general
+#'
+#' @concept directed
+#' @concept deprecated
+#'
 #' @describeIn ergm-deprecated Use [`odegree1.5`] instead.
 InitErgmTerm.odegreepopularity<-function (nw, arglist, ...) {
   .Deprecated("odegree1.5")
@@ -5865,8 +5928,8 @@ InitErgmTerm.opentriad<-function (nw, arglist, ...) {
 #' # binary: ostar(k, attr=NULL, levels=NULL)
 #'
 #' @param k a vector of distinct integers
-#'
 #' @template ergmTerm-attr
+#' @param levels TODO
 #'
 #' @template ergmTerm-general
 #'
@@ -5944,9 +6007,10 @@ InitErgmTerm.ostar<-function(nw, arglist, ..., version=packageVersion("ergm")) {
 #' @usage
 #' # binary: receiver(base=1, nodes=-1)
 #'
-#' @template ergmTerm-base-dep-node
-#'
+#' @param base deprecated
 #' @param nodes specify which nodes' statistics should be included or excluded (see Specifying Vertex attributes and Levels (`?nodal_attributes`) for details)
+#'
+#' @template ergmTerm-base-dep-node
 #'
 #' @template ergmTerm-general
 #'
@@ -5999,9 +6063,10 @@ InitErgmTerm.receiver<-function(nw, arglist, ..., version=packageVersion("ergm")
 #' @usage
 #' # binary: sender(base=1, nodes=-1)
 #'
-#' @template ergmTerm-base-dep-node
-#'
+#' @param base deprecated
 #' @param nodes specify which nodes' statistics should be included or excluded (see Specifying Vertex attributes and Levels (`?nodal_attributes`) for details)
+#'
+#' @template ergmTerm-base-dep-node
 #'
 #' @template ergmTerm-general
 #'
@@ -6112,6 +6177,7 @@ InitErgmTerm.simmelianties<-function (nw, arglist, ...) {
 #' # binary: smalldiff(attr, cutoff)
 #'
 #' @template ergmTerm-attr
+#' @param cutoff TODO
 #'
 #' @template ergmTerm-general
 #'
@@ -6165,16 +6231,16 @@ InitErgmTerm.smalldiff<-function (nw, arglist, ..., version=packageVersion("ergm
 #' @usage
 #' # binary: sociality(attr=NULL, base=1, levels=NULL, nodes=-1)
 #'
-#' @param attr this optional argument is deprecated and will be replaced with a more elegant implementation in a future release. In the meantime, it specifies a categorical vertex attribute (see Specifying Vertex attributes and Levels (`?nodal_attributes`) for details). If provided, this term only counts ties between nodes with the same value of the attribute (an actor-specific version of the `nodematch` term), restricted to be one of the values specified by (also deprecated) `levels` if `levels` is not `NULL` .
-#'
-#' @template ergmTerm-base-dep
-#'
-#' @template ergmTerm-base-dep-node
-#'
+#' @param attr,levels this optional argument is deprecated and will be replaced with a more elegant implementation in a future release. In the meantime, it specifies a categorical vertex attribute (see Specifying Vertex attributes and Levels (`?nodal_attributes`) for details). If provided, this term only counts ties between nodes with the same value of the attribute (an actor-specific version of the `nodematch` term), restricted to be one of the values specified by (also deprecated) `levels` if `levels` is not `NULL` .
+#' @param base deprecated
 #' @param nodes By default, `nodes=-1` means that the statistic for the
 #'   first node will be omitted, but this argument may be changed to control
 #'   which statistics are included just as for the `nodes` argument of `sender` and
 #'   `receiver` terms.
+#'
+#' @template ergmTerm-base-dep
+#'
+#' @template ergmTerm-base-dep-node
 #'
 #' @template ergmTerm-general
 #'
@@ -6232,6 +6298,11 @@ InitErgmTerm.sociality<-function(nw, arglist, ..., version=packageVersion("ergm"
 
 
 ################################################################################
+
+#' @rdname threetrail-ergmTerm
+#'
+#' @usage
+#' # threepath
 InitErgmTerm.threepath <- function(nw, arglist, ..., version=packageVersion("ergm")) {
   ergm_Init_warn("This term is inaccurately named and actually refers to a '3-trail' in that it counts repeated vertices: i-j-k-i is a 3-trail but not a 3-path. See ergm-terms help for more information. This name has been deprecated and will be removed in a future version: if a 3-trail is what you want, use the term 'threetrail'.")
   if(version <= as.package_version("3.9.4")){
@@ -6265,6 +6336,51 @@ InitErgmTerm.threepath <- function(nw, arglist, ..., version=packageVersion("erg
 }
 
 ################################################################################
+
+#' @name threetrail-ergmTerm
+#' @title Three-trails
+#' @description Three-trails
+#' @details For an undirected network, this term adds one statistic equal to the number
+#'   of 3-trails, where a 3-trail is defined as a trail of length three that
+#'   traverses three distinct edges.
+#'   Note that a 3-trail need not
+#'   include four distinct nodes; in particular, a triangle counts as three
+#'   3-trails. For a directed network, this term adds four statistics
+#'   (or some subset of these four),
+#'   one for each of the four distinct types of directed three-paths. If the
+#'   nodes of the path are written from left to right such that the middle edge
+#'   points to the right (R), then the four types are RRR, RRL, LRR, and LRL.
+#'   That is, an RRR 3-trail is of the form
+#'   \eqn{i\rightarrow j\rightarrow k\rightarrow l}{i-->j-->k-->l} , and RRL
+#'   3-trail is of the form
+#'   \eqn{i\rightarrow j\rightarrow k\leftarrow l}{i-->j-->k<--l} , etc.
+#'   Like in the undirected case, there is no requirement that the nodes be
+#'   distinct in a directed 3-trail. However, the three edges must all be
+#'   distinct. Thus, a mutual tie \eqn{i\leftrightarrow j}{i<-->j} does not
+#'   count as a 3-trail of the form
+#'   \eqn{i\rightarrow j\rightarrow i\leftarrow j}{i-->j-->i<--j} ; however,
+#'   in the subnetwork \eqn{i\leftrightarrow j \rightarrow k}{i<-->j-->k} ,
+#'   there are two directed 3-trails, one LRR
+#'   ( \eqn{k\leftarrow j\rightarrow i\leftarrow j}{k<--j-->i-->j} )
+#'   and one RRR
+#'   ( \eqn{j\rightarrow i\rightarrow j\leftarrow k}{k<--j-->i-->j} ).
+#'   
+#' @usage
+#' # binary: threetrail(keep=NULL, levels=NULL)
+#'
+#' @param keep deprecated
+#' @param levels specify a subset of the four statistics for directed networks
+#'
+#' @template ergmTerm-keep-dep
+#'
+#' @template ergmTerm-general
+#'
+#' @note This term used to be (inaccurately) called `threepath` . That
+#'   name has been deprecated and may be removed in a future version.
+#'
+#' @concept directed
+#' @concept undirected
+#' @concept triad-related
 InitErgmTerm.threetrail <- function(nw, arglist, ..., version=packageVersion("ergm")) {
   if(version <= as.package_version("3.9.4")){
     ### Check the network and arguments to make sure they are appropriate.
@@ -6297,6 +6413,25 @@ InitErgmTerm.threetrail <- function(nw, arglist, ..., version=packageVersion("er
 }
 
 ################################################################################
+
+#' @name transitive-ergmTerm
+#' @title Transitive triads
+#' @description Transitive triads
+#' @details This term adds one statistic to the model, equal to the number of triads in
+#'   the network that are transitive. The transitive triads are those of type
+#'   `120D` , `030T` , `120U` , or `300` in the categorization
+#'   of Davis and Leinhardt (1972). For details on the 16 possible triad types,
+#'   see `?triad.classify` in the `sna` package.
+#'   Note the distinction from the `ttriple` term. This term can only be
+#'   used with directed networks.
+#'
+#' @usage
+#' # binary: transitive
+#'
+#' @template ergmTerm-general
+#'
+#' @concept directed
+#' @concept triad-related
 InitErgmTerm.transitive<-function (nw, arglist, ...) {
   a <- check.ErgmTerm(nw, arglist, directed=TRUE,
                       varnames = NULL,
@@ -6307,6 +6442,36 @@ InitErgmTerm.transitive<-function (nw, arglist, ...) {
 }
 
 ################################################################################
+
+#' @name triadcensus-ergmTerm
+#' @title Triad census
+#' @description Triad census
+#' @details For a directed network, this term adds one network statistic for each of
+#'   an arbitrary subset of the 16 possible types of triads categorized by
+#'   Davis and Leinhardt (1972) as `003, 012, 102, 021D, 021U, 021C, 111D,
+#'   ` `	111U, 030T, 030C, 201, 120D, 120U, 120C, 210,` and `300` . Note that at
+#'   least one category should be dropped; otherwise a linear dependency will
+#'   exist among the 16 statistics, since they must sum to the total number of
+#'   three-node sets. By default, the category `003` , which is the category
+#'   of completely empty three-node sets, is dropped. This is considered category
+#'   zero, and the others are numbered 1 through 15 in the order given above. Each statistic is the count of the corresponding triad
+#'   type in the network. For details on the 16 types, see `?triad.classify`
+#'   in the `sna` package, on which this code is based. For an undirected
+#'   network, the triad census is over the four types defined by the number of
+#'   ties (i.e., 0, 1, 2, and 3).
+#'
+#' @usage
+#' # binary: triadcensus(levels)
+#'
+#' @param levels For directed networks, specify a set of terms to add other than the default value of `1:15`. 
+#'   For undirected networks, specify which of the four types of ties to include. The default is `1:3` where 0 is dropped. (See Specifying Vertex
+#'   attributes and Levels (`?nodal_attributes`) for details.)
+#'
+#' @template ergmTerm-general
+#'
+#' @concept triad-related
+#' @concept directed
+#' @concept undirected
 InitErgmTerm.triadcensus<-function (nw, arglist, ..., version=packageVersion("ergm")) {
   if(version <= as.package_version("3.9.4")){
     a <- check.ErgmTerm(nw, arglist,

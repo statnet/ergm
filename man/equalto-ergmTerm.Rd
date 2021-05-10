@@ -7,6 +7,11 @@
 \usage{
 # valued: equalto(value=0, tolerance=0)
 }
+\arguments{
+\item{value}{numerical threshold}
+
+\item{tolerance}{numerical threshold}
+}
 \description{
 Number of dyads with values equal to a specific value (within tolerance)
 }

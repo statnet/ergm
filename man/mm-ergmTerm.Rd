@@ -14,6 +14,12 @@
 \item{attrs}{a two-sided formula whose LHS gives the attribute or
 attribute function (see Specifying Vertex attributes and Levels (\code{?nodal_attributes}) for details.) for the rows of the mixing matrix and whose RHS gives
 for its columns. A one-sided formula (e.g., \code{~A}) is symmetrized (e.g., \code{A~A})}
+
+\item{levels}{subset of rows and columns to be used}
+
+\item{levels2}{which specific cells of the matrix to include}
+
+\item{form}{character how to aggregate tie values in a valued ERGM}
 }
 \description{
 Mixing matrix cells and margins
@@ -21,10 +27,7 @@ Mixing matrix cells and margins
 \details{
 \code{attrs} is the rows of the mixing matrix and whose RHS gives
 that for its columns. A one-sided formula (e.g.,
-\code{~A} ) is symmetrized (e.g., \code{A~A} ). \code{levels}
-similarly specifies the subset of rows and columns to be
-used. \code{levels2} can then be used to filter which specific cells
-of the matrix to include. A two-sided formula with a dot on one side
+\code{~A} ) is symmetrized (e.g., \code{A~A} ). A two-sided formula with a dot on one side
 calculates the margins of the mixing matrix, analogously to \code{nodefactor} , with
 \code{A~.} calculating the row/sender/b1 margins and \code{.~A}
 calculating the column/receiver/b2 margins.

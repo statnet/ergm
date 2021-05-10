@@ -22,6 +22,8 @@ fixed and thus the model is a CEF model.}
 to use in computing the statistics when \code{fixed=FALSE}, in order to reduce
 the computational burden.  Its default value can also be controlled by the
 \code{gw.cutoff} term option control parameter. (See \code{?control.ergm}.)}
+
+\item{levels}{TODO}
 }
 \description{
 Geometrically weighted degree distribution

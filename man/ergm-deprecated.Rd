@@ -3,22 +3,13 @@
 %   R/ergm.san.R, R/formula.utils.R
 \name{ergm-deprecated}
 \alias{ergm-deprecated}
-\alias{InitErgmTerm.degreepopularity}
 \alias{InitErgmTerm.hammingmix}
 \alias{hammingmix}
-\alias{InitErgmTerm.idegreepopularity}
-\alias{InitErgmTerm.odegreepopularity}
 \alias{san.ergm}
 \alias{offset.info.formula}
 \title{Functions that will no longer be supported in future releases of the package}
 \usage{
-InitErgmTerm.degreepopularity(nw, arglist, ...)
-
 InitErgmTerm.hammingmix(nw, arglist, ..., version = packageVersion("ergm"))
-
-InitErgmTerm.idegreepopularity(nw, arglist, ...)
-
-InitErgmTerm.odegreepopularity(nw, arglist, ...)
 
 \method{san}{ergm}(
   object,
@@ -45,12 +36,6 @@ Functions that have been superceed, were never documented, or will be removed fr
 }
 \section{Functions}{
 \itemize{
-\item \code{InitErgmTerm.degreepopularity}: Use \code{\link{degree1.5}} instead.
-
-\item \code{InitErgmTerm.idegreepopularity}: Use \code{\link{idegree1.5}} instead.
-
-\item \code{InitErgmTerm.odegreepopularity}: Use \code{\link{odegree1.5}} instead.
-
 \item \code{san.ergm}: The developers are not aware of a use case for this function. Please contact them if you would like to prevent its removal.
 
 \item \code{offset.info.formula}: \code{offset.info.formula} returns the offset

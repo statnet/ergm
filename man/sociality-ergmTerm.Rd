@@ -11,16 +11,16 @@
 # valued: sociality(attr=NULL, base=1, levels=NULL, nodes=-1, form="sum")
 }
 \arguments{
-\item{attr}{this optional argument is deprecated and will be replaced with a more elegant implementation in a future release. In the meantime, it specifies a categorical vertex attribute (see Specifying Vertex attributes and Levels (\code{?nodal_attributes}) for details). If provided, this term only counts ties between nodes with the same value of the attribute (an actor-specific version of the \code{nodematch} term), restricted to be one of the values specified by (also deprecated) \code{levels} if \code{levels} is not \code{NULL} .}
+\item{attr, levels}{this optional argument is deprecated and will be replaced with a more elegant implementation in a future release. In the meantime, it specifies a categorical vertex attribute (see Specifying Vertex attributes and Levels (\code{?nodal_attributes}) for details). If provided, this term only counts ties between nodes with the same value of the attribute (an actor-specific version of the \code{nodematch} term), restricted to be one of the values specified by (also deprecated) \code{levels} if \code{levels} is not \code{NULL} .}
 
-\item{base}{This argument is retained for backwards compatibility and may be
-removed in a future version. When both \code{base} and \code{nodes} are passed,
-\code{nodes} overrides \code{base}.}
+\item{base}{deprecated}
 
 \item{nodes}{By default, \code{nodes=-1} means that the statistic for the
 first node will be omitted, but this argument may be changed to control
 which statistics are included just as for the \code{nodes} argument of \code{sender} and
 \code{receiver} terms.}
+
+\item{form}{character how to aggregate tie values in a valued ERGM}
 }
 \description{
 Undirected degree
@@ -31,6 +31,14 @@ ties of that node. For directed networks, see \code{sender} and
 \code{receiver} .
 }
 \note{
+The argument \code{base} is retained for backwards compatibility and may be
+removed in a future version. When both \code{base} and \code{levels} are passed,
+\code{levels} overrides \code{base}.
+
+The argument \code{base} is retained for backwards compatibility and may be
+removed in a future version. When both \code{base} and \code{nodes} are passed,
+\code{nodes} overrides \code{base}.
+
 This term can only be used with undirected networks.
 }
 \concept{categorical nodal attribute}

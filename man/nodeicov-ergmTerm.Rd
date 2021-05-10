@@ -12,6 +12,8 @@
 }
 \arguments{
 \item{attr}{quantitative attribute (see Specifying Vertex attributes and Levels (\code{?nodal_attributes}) for details.)}
+
+\item{form}{character how to aggregate tie values in a valued ERGM}
 }
 \description{
 Main effect of a covariate for in-edges

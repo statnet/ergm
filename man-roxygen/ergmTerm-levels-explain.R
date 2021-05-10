@@ -1,4 +1,4 @@
-#' @param levels The optional `levels` argument controls which levels of the attribute
+#' @param levels this optional argument controls which levels of the attribute
 #'   should be included and which should be excluded. (See Specifying Vertex
 #'   attributes and Levels (`?nodal_attributes`) for details.) For example, if
 #'   the "fruit" attribute has levels "orange", "apple", "banana", and "pear",

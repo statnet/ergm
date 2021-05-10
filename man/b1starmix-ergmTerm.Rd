@@ -9,6 +9,16 @@
 }
 \arguments{
 \item{k}{only a single value of \eqn{k} is allowed}
+
+\item{attr}{quantitative attribute (see Specifying Vertex attributes and Levels (\code{?nodal_attributes}) for details.)}
+
+\item{base}{deprecated}
+
+\item{diff}{whether a different statistic is created for each value seen in a b2 node. When \code{diff=TRUE},
+the default, a different statistic is created for each value and thus the behavior of this term is reminiscent of the
+\code{nodemix} term, from which it takes its name; when \code{diff=FALSE} ,
+all homophilous k-stars are counted together, though these k-stars are still
+categorized according to the value of the central b1 node.}
 }
 \description{
 Mixing matrix for k-stars centered on the first mode of a bipartite network
@@ -25,13 +35,12 @@ attributes, one for the b1 nodes and another for the b2 nodes (in this case,
 however, these two attributes should be combined to form a single nodal
 attribute, \code{attr} ). A different statistic is created for each
 value of \code{attr} seen in a b1 node, even if no k-stars are observed
-with this value. Whether a different statistic is created for each value
-seen in a b2 node depends on the value of the \code{diff} argument: When
-\code{diff=TRUE} , the default, a different statistic is created for each
-value and thus the behavior of this term is reminiscent of the
-\code{nodemix} term, from which it takes its name; when \code{diff=FALSE} ,
-all homophilous k-stars are counted together, though these k-stars are still
-categorized according to the value of the central b1 node.
+with this value.
+}
+\note{
+The argument \code{base} is retained for backwards compatibility and may be
+removed in a future version. When both \code{base} and \code{levels} are passed,
+\code{levels} overrides \code{base}.
 }
 \concept{bipartite}
 \concept{categorical nodal attribute}

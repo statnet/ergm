@@ -8,11 +8,9 @@
 # binary: b1degrange(from, to=`+Inf`, by=NULL, homophily=FALSE, levels=NULL)
 }
 \arguments{
-\item{from}{vector of distinct integers. It is recycled to the length of \code{to} if it has length 1. Otherwise, it must have the same length as \code{to}.}
+\item{from, to}{vectors of distinct integers. If one of the vectors have length 1, it is recycled to the length of the other. Otherwise, it must have the same length.}
 
-\item{to}{see \code{from} for details. Defaults to \code{+Inf}.}
-
-\item{by}{this optional argument specifies a vertex attribute (see Specifying
+\item{by, homophily}{the optional argument \code{by} specifies a vertex attribute (see Specifying
 Vertex attributes and Levels (\code{?nodal_attributes}) for details).
 If this is specified and \code{homophily} is \code{TRUE} ,
 then degrees are calculated using the subnetwork consisting of only
@@ -21,6 +19,8 @@ If \code{by} is specified and
 \code{homophily} is \code{FALSE} (the default), then separate degree range
 statistics are calculated for nodes having each separate
 value of the attribute.}
+
+\item{levels}{TODO}
 }
 \description{
 Degree range for the first mode in a bipartite (a.k.a. two-mode) network

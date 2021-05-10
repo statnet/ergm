@@ -12,9 +12,7 @@
 
 \item{b2attr}{b2 nodes (events in some contexts). If \code{b2attr} is not passed, it is assumed to be the same as \code{b1attr} .}
 
-\item{base}{This argument is retained for backwards compatibility and may be
-removed in a future version. When both \code{base} and \code{levels2} are passed,
-\code{levels2} overrides \code{base}.}
+\item{b1levels, b2levels, base, levels2}{used to leave some of the categories out (see Specifying Vertex attributes and Levels (\code{?nodal_attributes}) for details)}
 }
 \description{
 Two-star census for central nodes centered on the first mode of a bipartite network
@@ -25,8 +23,16 @@ This term takes two nodal attributes. Assuming that there are
 values of \code{b2attr} among the b2 nodes, then the total number of
 distinct categories of two stars according to these two attributes is
 \eqn{n_1(n_2)(n_2+1)/2}. By default, this model term creates a distinct statistic
-counting each of these categories. The \code{b1levels} , \code{b2levels} , \code{base} , and \code{levels2} arguments
-may be used to leave some of these categories out (seefor details).
+counting each of these categories.
+}
+\note{
+The argument \code{base} is retained for backwards compatibility and may be
+removed in a future version. When both \code{base} and \code{levels} are passed,
+\code{levels} overrides \code{base}.
+
+The argument \code{base} is retained for backwards compatibility and may be
+removed in a future version. When both \code{base} and \code{levels2} are passed,
+\code{levels2} overrides \code{base}.
 }
 \concept{bipartite}
 \concept{categorical nodal attribute}

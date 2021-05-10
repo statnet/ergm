@@ -18,6 +18,8 @@ which statistics are included. The \code{nodes} argument is interpreted using th
 unique values are the vector of vertex indices \code{(nb1 + 1):n} , where
 \code{nb1} is the size of the first bipartition and \code{n} is the total number of nodes in the network. Thus \code{nodes=120} will include only the statistic
 for the 120th node in the second biparition, while \code{nodes=I(120)} will include only the statistic for the 120th node in the entire network.}
+
+\item{form}{character how to aggregate tie values in a valued ERGM}
 }
 \description{
 Degree

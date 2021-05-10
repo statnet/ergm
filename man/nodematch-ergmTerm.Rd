@@ -13,16 +13,21 @@
 \arguments{
 \item{attr}{quantitative attribute (see Specifying Vertex attributes and Levels (\code{?nodal_attributes}) for details.)}
 
-\item{keep}{This argument is retained for backwards compatibility and may be
-removed in a future version. When both \code{keep} and \code{levels} are passed,
-\code{levels} overrides \code{keep}.}
+\item{diff}{specify if the term has uniform or differential homophily}
 
-\item{levels}{The optional \code{levels} argument controls which levels of the attribute
+\item{keep}{deprecated}
+
+\item{levels}{this optional argument controls which levels of the attribute
 should be included and which should be excluded. (See Specifying Vertex
 attributes and Levels (\code{?nodal_attributes}) for details.) For example, if
 the "fruit" attribute has levels "orange", "apple", "banana", and "pear",
 then to include just two levels, one for "apple" and one for "pear", use
-any of `}
+any of \code{nodematch("fruit", levels=-(2:3))}, \code{nodematch("fruit", levels=c(1,4))}, and
+\code{nodematch("fruit", levels=c("apple", "pear"))}. Note: if you are using numeric
+values to specify the levels of a character variable, the levels will
+correspond to the alphabetically sorted character levels.}
+
+\item{form}{character how to aggregate tie values in a valued ERGM}
 }
 \description{
 Uniform homophily and differential homophily
@@ -39,8 +44,13 @@ number of edges \eqn{(i,j)} for which \verb{attr(i) == } \code{	attr(j) == value
 smallest unique value of the \code{attr} attribute. This is also called ''differential homophily,'' because each group is allowed to have a unique propensity for within-group ties. Note that a statistical test of uniform vs. differential homophily should be conducted using the ANOVA function.
 
 By default, matches on all levels \eqn{k} are
-counted.nodematch This works for both
+counted. This works for both
 \code{diff=TRUE} and \code{diff=FALSE} .
+}
+\note{
+The argument \code{keep} is retained for backwards compatibility and may be
+removed in a future version. When both \code{keep} and \code{levels} are passed,
+\code{levels} overrides \code{keep}.
 }
 \concept{categorical nodal attribute}
 \concept{directed}

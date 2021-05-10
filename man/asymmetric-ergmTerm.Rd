@@ -8,15 +8,13 @@
 # binary: asymmetric(attr=NULL, diff=FALSE, keep=NULL, levels=NULL)
 }
 \arguments{
-\item{attr}{quantitative attribute (see Specifying Vertex attributes and Levels (\code{?nodal_attributes}) for details.)}
+\item{attr}{quantitative attribute (see Specifying Vertex attributes and Levels (\code{?nodal_attributes}) for details.) If specified, only symmetric pairs that match on the vertex attribute are counted.}
 
 \item{diff}{Used in the same way as for the \code{nodematch} term. (See \code{nodematch} (\code{?nodematch}) for details.)}
 
-\item{level}{Used in the same way as for the \code{nodematch} term. (See \code{nodematch} (\code{?nodematch}) for details.)}
+\item{keep}{deprecated}
 
-\item{keep}{This argument is retained for backwards compatibility and may be
-removed in a future version. When both \code{keep} and \code{levels} are passed,
-\code{levels} overrides \code{keep}.}
+\item{level}{Used in the same way as for the \code{nodematch} term. (See \code{nodematch} (\code{?nodematch}) for details.)}
 }
 \description{
 Asymmetric dyads
@@ -25,11 +23,13 @@ Asymmetric dyads
 This term adds one network statistic to the model equal to the
 number of pairs of actors for which exactly one of
 \eqn{(i{\rightarrow}j)}{(i,j)} or \eqn{(j{\rightarrow}i)}{(j,i)} exists.
-If \code{attr} is specified, only asymmetric pairs that match on the
-vertex attribute \code{attr} are counted.
 }
 \note{
 This term can only be used with directed networks.
+
+The argument \code{keep} is retained for backwards compatibility and may be
+removed in a future version. When both \code{keep} and \code{levels} are passed,
+\code{levels} overrides \code{keep}.
 }
 \concept{directed}
 \concept{dyad-independent}

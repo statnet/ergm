@@ -25,12 +25,12 @@ This means that the sum of the mutual statistics when \code{by} is used
 will equal twice the standard mutual statistic. Only one of \code{same} or \code{by} may be used. If both parameters are used, \code{by} is
 ignored. This paramer is not affected by \code{diff}.}
 
+\item{keep}{deprecated}
+
 \item{levels}{which statistics should be kept
 whenever the \code{mutual} term would ordinarily result in multiple statistics (see Specifying Vertex attributes and Levels (\code{?nodal_attributes}) for details).}
 
-\item{keep}{This argument is retained for backwards compatibility and may be
-removed in a future version. When both \code{keep} and \code{levels} are passed,
-\code{levels} overrides \code{keep}.}
+\item{form}{character how to aggregate tie values in a valued ERGM}
 }
 \description{
 Mutuality
@@ -49,6 +49,11 @@ computes the binary \code{mutuality} after
 thresholding at \code{threshold} .
 
 This term can only be used with directed networks.
+}
+\note{
+The argument \code{keep} is retained for backwards compatibility and may be
+removed in a future version. When both \code{keep} and \code{levels} are passed,
+\code{levels} overrides \code{keep}.
 }
 \concept{directed}
 \concept{frequently-used}

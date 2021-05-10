@@ -9,6 +9,8 @@
 }
 \arguments{
 \item{attr}{quantitative attribute (see Specifying Vertex attributes and Levels (\code{?nodal_attributes}) for details.)}
+
+\item{cutoff}{TODO}
 }
 \description{
 Number of ties between actors with similar (but not necessarily identical) attribute values

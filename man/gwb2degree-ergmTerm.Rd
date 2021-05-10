@@ -8,18 +8,20 @@
 # binary: gwb2degree(decay, fixed=FALSE, attr=NULL, cutoff=30, levels=NULL)
 }
 \arguments{
-\item{attr}{quantitative attribute (see Specifying Vertex attributes and Levels (\code{?nodal_attributes}) for details.)}
-
-\item{decay}{the same as theta_s in
+\item{decay, fixed}{the same as theta_s in
 equation (14) in Hunter (2007). The value supplied for
 this parameter may be fixed (if \code{fixed=TRUE} ),
 or it may be used as merely the starting value for the estimation
 in a curved exponential family model (the default).}
 
+\item{attr}{quantitative attribute (see Specifying Vertex attributes and Levels (\code{?nodal_attributes}) for details.)}
+
 \item{cutoff}{This optional argument sets the number of underlying degree terms
 to use in computing the statistics when \code{fixed=FALSE}, in order to reduce
 the computational burden.  Its default value can also be controlled by the
 \code{gw.cutoff} term option control parameter. (See \code{?control.ergm}.)}
+
+\item{levels}{TODO}
 }
 \description{
 Geometrically weighted degree distribution for the second mode in a bipartite (aka two-mode) network

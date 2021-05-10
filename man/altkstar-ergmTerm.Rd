@@ -9,9 +9,9 @@
 #                 fixed=FALSE)
 }
 \arguments{
-\item{attr}{quantitative attribute (see Specifying Vertex attributes and Levels (\code{?nodal_attributes}) for details.)}
+\item{lambda}{weight parameter to model}
 
-\item{fixed}{This optional argument indicates whether the \code{decay} parameter is
+\item{fixed}{indicates whether the \code{decay} parameter is
 fixed at the given value, or is to be fit as a curved exponential family model
 (see Hunter and Handcock, 2006).  The default is \code{FALSE}, which means the scale
 parameter is not fixed and thus the model is a CEF model.}

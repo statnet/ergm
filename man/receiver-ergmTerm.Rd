@@ -11,11 +11,11 @@
 # valued: receiver(base=1, nodes=-1, form="sum")
 }
 \arguments{
-\item{base}{This argument is retained for backwards compatibility and may be
-removed in a future version. When both \code{base} and \code{nodes} are passed,
-\code{nodes} overrides \code{base}.}
+\item{base}{deprecated}
 
 \item{nodes}{specify which nodes' statistics should be included or excluded (see Specifying Vertex attributes and Levels (\code{?nodal_attributes}) for details)}
+
+\item{form}{character how to aggregate tie values in a valued ERGM}
 }
 \description{
 Receiver effect
@@ -31,6 +31,11 @@ Holland-Leinhardt parametrization of the $p_1$ model (Holland and Leinhardt,
 1981).  This
 term can only be used with directed networks. For undirected networks, see
 \code{sociality} .
+}
+\note{
+The argument \code{base} is retained for backwards compatibility and may be
+removed in a future version. When both \code{base} and \code{nodes} are passed,
+\code{nodes} overrides \code{base}.
 }
 \concept{directed}
 \concept{dyad-independent}

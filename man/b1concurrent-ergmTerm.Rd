@@ -8,12 +8,12 @@
 # binary: b1concurrent(by=NULL, levels=NULL)
 }
 \arguments{
-\item{attr}{quantitative attribute (see Specifying Vertex attributes and Levels (\code{?nodal_attributes}) for details.)}
-
-\item{by}{the optional argument \code{by} specifies a vertex attribute (see Specifying
+\item{by}{optional argument specifying a vertex attribute (see Specifying
 Vertex attributes and Levels (\code{?nodal_attributes}) for details).
 It functions just like the \code{by} argument of the \code{b1degree} term.
 Without the optional argument, this statistic is equivalent to \code{b1mindegree(2)} .}
+
+\item{levels}{TODO}
 }
 \description{
 Concurrent node count for the first mode in a bipartite (aka two-mode) network

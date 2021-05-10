@@ -13,11 +13,9 @@
 \arguments{
 \item{attr}{quantitative attribute (see Specifying Vertex attributes and Levels (\code{?nodal_attributes}) for details.)}
 
-\item{base}{This argument is retained for backwards compatibility and may be
-removed in a future version. When both \code{base} and \code{levels} are passed,
-\code{levels} overrides \code{base}.}
+\item{base}{deprecated}
 
-\item{levels}{The optional \code{levels} argument controls which levels of the attribute
+\item{levels}{this optional argument controls which levels of the attribute
 should be included and which should be excluded. (See Specifying Vertex
 attributes and Levels (\code{?nodal_attributes}) for details.) For example, if
 the "fruit" attribute has levels "orange", "apple", "banana", and "pear",
@@ -26,6 +24,8 @@ any of \code{b1factor("fruit", levels=-(2:3))}, \code{b1factor("fruit", levels=c
 \code{b1factor("fruit", levels=c("apple", "pear"))}. Note: if you are using numeric
 values to specify the levels of a character variable, the levels will
 correspond to the alphabetically sorted character levels.}
+
+\item{form}{character how to aggregate tie values in a valued ERGM}
 }
 \description{
 Factor attribute effect for the first mode in a bipartite (aka two-mode) network
@@ -44,6 +44,10 @@ dependency would arise in any model also including \code{edges}. The default,
 \code{levels=-1}, is therefore to omit the first (in lexicographic order)
 attribute level. To include all levels, pass either \code{levels=TRUE}
 (i.e., keep all levels) or \code{levels=NULL} (i.e., do not filter levels).
+
+The argument \code{base} is retained for backwards compatibility and may be
+removed in a future version. When both \code{base} and \code{levels} are passed,
+\code{levels} overrides \code{base}.
 
 This term can only be used with undirected bipartite networks.
 }

@@ -18,9 +18,10 @@
 \arguments{
 \item{attr}{quantitative attribute (see Specifying Vertex attributes and Levels (\code{?nodal_attributes}) for details.)}
 
-\item{base}{This argument is retained for backwards compatibility and may be
-removed in a future version. When both \code{base} and \code{levels} are passed,
-\code{levels} overrides \code{base}.}
+\item{base}{deprecated}
+
+\item{levels}{specifies which nonzero difference to include in or exclude from the model (See Specifying Vertex
+attributes and Levels (\code{?nodal_attributes}) for details.)}
 
 \item{form}{character how to aggregate tie values in a valued ERGM}
 }
@@ -36,6 +37,10 @@ absolute difference.
 \note{
 \pkg{ergm} versions 3.9.4 and earlier used different arguments for this
 term. See \code{\link{ergm-options}} for how to invoke the old behaviour.
+
+The argument \code{base} is retained for backwards compatibility and may be
+removed in a future version. When both \code{base} and \code{levels} are passed,
+\code{levels} overrides \code{base}.
 }
 \concept{categorical nodal attribute}
 \concept{directed}

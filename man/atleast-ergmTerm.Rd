@@ -7,6 +7,9 @@
 \usage{
 # valued: atleast(threshold=0)
 }
+\arguments{
+\item{threshold}{vector of numerical values}
+}
 \description{
 Number of dyads with values greater than or equal to a threshold
 }

@@ -11,11 +11,15 @@
 # valued: b1sociality(nodes=-1, form="sum")
 }
 \arguments{
-\item{node}{for level specification. The attribute and the sorted
-unique values are the vector of vertex indices \code{1:nb1} , where
-\code{nb1} is the size of the first bipartition. By default, \code{nodes=-1} means that the statistic for the
-first node will be omitted, but this argument may be changed to control
-which statistics are included. See Specifying Vertex attributes and Levels (\code{?nodal_attributes}) for details.)}
+\item{nodes}{By default, \code{nodes=-1} means that the statistic for the
+first node (in the second bipartition) will be omitted, but this argument may be changed to control
+which statistics are included. The \code{nodes} argument is interpreted using the new UI for level specification
+(see Specifying Vertex Attributes and Levels (\code{?nodal_attributes}) for details), where both the attribute and the sorted
+unique values are the vector of vertex indices \code{(nb1 + 1):n} , where
+\code{nb1} is the size of the first bipartition and \code{n} is the total number of nodes in the network. Thus \code{nodes=120} will include only the statistic
+for the 120th node in the second biparition, while \code{nodes=I(120)} will include only the statistic for the 120th node in the entire network.}
+
+\item{form}{character how to aggregate tie values in a valued ERGM}
 }
 \description{
 Degree

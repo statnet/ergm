@@ -8,7 +8,7 @@
 # binary: dyadcov(x, attrname=NULL)
 }
 \arguments{
-\item{x}{either a square matrix of covariates, one for each possible
+\item{x, attrname}{either a square matrix of covariates, one for each possible
 edge in the network, the name of a network attribute of covariates,
 or a network; if the latter, optional argument \code{attrname} provides
 the name of the quantitative edge attribute to use for covariate values
