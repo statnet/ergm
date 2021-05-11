@@ -472,10 +472,8 @@ simulate.ergm_state_full <- function(object, nsim=1, seed=NULL,
   m <- as.ergm_model(state)
 
   # Explain how many iterations and steps will ensue if verbose==TRUE
-  if (verbose) {
-    message(paste ("Starting MCMC iterations to generate ", nsim,
-                " network", ifelse(nsim>1,"s","")))
-  }
+  if (verbose) message(paste0("Starting MCMC iterations to generate ", nsim,
+                              " network", if (nsim > 1) "s"))
 
   if (nsim > 1) {
     # Only start the cluster if needed. We don't actually need it
