@@ -16,7 +16,7 @@ InitErgmConstraint.Strat<-function(nw, arglist, ...){
 InitErgmConstraint.strat <- function(nw, arglist, ...) {
   a <- check.ErgmTerm(nw, arglist,
                       varnames = c("attr", "pmat", "empirical"),
-                      vartypes = c(ERGM_VATTR_SPEC, "matrix", "logical"),
+                      vartypes = c(ERGM_VATTR_SPEC, "matrix,table", "logical"),
                       defaultvalues = list(NULL, NULL, FALSE),
                       required = c(TRUE, FALSE, FALSE))
   attr <- a$attr; pmat <- a$pmat; empirical <- a$empirical

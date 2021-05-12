@@ -21,9 +21,11 @@
 #'   print.formula,print.fitinfo,print.coefmat,print.message,print.deviances,print.drop,print.offset,print.call
 #'   which components of the fit summary to print.
 #'   
-#' @details The default printout of the summary object contains the call, number
-#'   of iterations used, null and residual deviances, and the values of AIC and
-#'   BIC. The coeficient table contains the following columns:
+#' @details The default printout of the summary object contains the
+#'   call, number of iterations used, null and residual deviances, and
+#'   the values of AIC and BIC (and their MCMC standard errors, if
+#'   applicable). The coefficient table contains the following
+#'   columns:
 #'   
 #'   - `Estimate`, `Std. Error` - parameter estimates and their standard errors
 #'   - `MCMC %` - if `total.variation=TRUE` (default) the percentage of standard
@@ -54,7 +56,7 @@ print.summary.ergm <- function (x,
   }
 
   if(print.coefmat){
-    printCoefmat(x$coefficients, digits=digits, signif.stars=signif.stars,
+    printCoefmat(coef(x), digits=digits, signif.stars=signif.stars,
                  P.values=TRUE, has.Pvalue=TRUE, na.print="NA",
                  eps.Pvalue=eps.Pvalue, cs.ind=1:2, tst.ind=4L,...)
   }
@@ -76,27 +78,27 @@ print.summary.ergm <- function (x,
 
       if(x$null.lik.0) writeLines(c(strwrap(paste("Note that the null model likelihood and deviance are defined to be 0.", NO_NULL_IMPLICATION)),''))
       
-      cat(paste("AIC:", format(x$aic, digits = digits), "  ", 
-                "BIC:", format(x$bic, digits = digits), "  ",
-                "(Smaller is better.)", "\n", sep=" "))
+      cat(paste0("AIC: ", format(x$aic, digits = digits), "  ",
+                 "BIC: ", format(x$bic, digits = digits), "  ",
+                 "(Smaller is better. MC Std. Err. = ", format(sqrt(NVL(attr(x$aic,"vcov"),0)), digits=digits), ")", "\n"))
     }
   }
 
   if(print.drop){
     if(any(x$drop!=0)){
       cat("\n Warning: The following terms have infinite coefficient estimates:\n  ")
-      cat(rownames(x$coefficients)[x$drop!=0], "\n")
+      cat(rownames(coef(x))[x$drop!=0], "\n")
     }
     if(any(!x$estimable)){
       cat("\n Warning: The following terms could not be estimated because they conflicted with the sample space constraint:\n  ")
-      cat(rownames(x$coefficients)[!x$estimable], "\n")
+      cat(rownames(coef(x))[!x$estimable], "\n")
     }
   }
 
   if(print.offset){
     if(any(x$offset & x$drop==0 & x$estimable)){
       cat("\n The following terms are fixed by offset and are not estimated:\n  ")
-      cat(rownames(x$coefficients)[x$offset & x$drop==0 & x$estimable], "\n\n")
+      cat(rownames(coef(x))[x$offset & x$drop==0 & x$estimable], "\n\n")
     }
   }
 

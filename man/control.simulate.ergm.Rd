@@ -13,6 +13,7 @@ control.simulate.formula.ergm(
   MCMC.prop = trim_env(~sparse),
   MCMC.prop.weights = "default",
   MCMC.prop.args = list(),
+  MCMC.batch = NULL,
   MCMC.effectiveSize = NULL,
   MCMC.effectiveSize.damp = 10,
   MCMC.effectiveSize.maxruns = 1000,
@@ -36,6 +37,7 @@ control.simulate(
   MCMC.prop = trim_env(~sparse),
   MCMC.prop.weights = "default",
   MCMC.prop.args = list(),
+  MCMC.batch = NULL,
   MCMC.effectiveSize = NULL,
   MCMC.effectiveSize.damp = 10,
   MCMC.effectiveSize.maxruns = 1000,
@@ -59,6 +61,7 @@ control.simulate.formula(
   MCMC.prop = trim_env(~sparse),
   MCMC.prop.weights = "default",
   MCMC.prop.args = list(),
+  MCMC.batch = NULL,
   MCMC.effectiveSize = NULL,
   MCMC.effectiveSize.damp = 10,
   MCMC.effectiveSize.maxruns = 1000,
@@ -80,8 +83,10 @@ control.simulate.ergm(
   MCMC.burnin = NULL,
   MCMC.interval = NULL,
   MCMC.scale = 1,
+  MCMC.prop = NULL,
   MCMC.prop.weights = NULL,
   MCMC.prop.args = NULL,
+  MCMC.batch = NULL,
   MCMC.effectiveSize = NULL,
   MCMC.effectiveSize.damp = 10,
   MCMC.effectiveSize.maxruns = 1000,
@@ -126,6 +131,11 @@ highest priority available.}
 \item{MCMC.prop.args}{An alternative, direct way of
 specifying additional arguments to proposal.}
 
+\item{MCMC.batch}{if not 0 or \code{NULL}, sample about this many
+networks per call to the lower-level code; this can be useful if
+\verb{output=} is a function, where it can be used to limit the number
+of networks held in memory at any given time.}
+
 \item{MCMC.effectiveSize, MCMC.effectiveSize.damp, MCMC.effectiveSize.maxruns, MCMC.effectiveSize.burnin.pval, MCMC.effectiveSize.order.max}{Set \code{MCMC.effectiveSize} to a non-NULL value to adaptively
 determine the burn-in and the MCMC length needed to get the
 specified effective size; 50 is a reasonable value. In the
@@ -150,7 +160,7 @@ falls below that, while doubling
 set the order of the AR model used to estimate the effective
 sample size and the variance for the Geweke diagnostic.}
 
-\item{MCMC.maxedges}{The maximum number of edges that may occur during the MCMC sampling.}
+\item{MCMC.maxedges}{The maximum number of edges that may occur during the MCMC sampling. If this number is exceeded at any time, sampling is stopped immediately.}
 
 \item{MCMC.packagenames}{Names of packages in which to look for change
 statistic functions in addition to those autodetected. This argument should
@@ -180,9 +190,7 @@ that running on the master node.}
 \item{parallel.inherit.MT}{Logical: If TRUE, slave nodes and
 processes inherit the \code{\link[=set.MT_terms]{set.MT_terms()}} setting.}
 
-\item{\dots}{Additional arguments, passed to other functions This argument
-is helpful because it collects any control parameters that have been
-deprecated; a warning message is printed in case of deprecated arguments.}
+\item{\dots}{A dummy argument to catch deprecated or mistyped control parameters.}
 
 \item{MCMC.scale}{For \code{control.simulate.ergm()} inheriting
 \code{MCMC.burnin} and \code{MCMC.interval} from the \code{\link{ergm}} fit, the

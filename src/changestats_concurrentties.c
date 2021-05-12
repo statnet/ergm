@@ -7,7 +7,8 @@
  *
  *  Copyright 2003-2020 Statnet Commons
  */
-#include "changestats_concurrentties.h"
+#include "ergm_edgetree.h"
+#include "ergm_changestat.h"
 
 /*****************
  changestat: d_concurrent_ties

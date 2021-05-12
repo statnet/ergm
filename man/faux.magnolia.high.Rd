@@ -35,14 +35,14 @@ The following \code{\link{ergm}} model was fit to the original data:
 \preformatted{ magnolia.fit <- ergm (magnolia ~ edges +
 nodematch("Grade",diff=T) + nodematch("Race",diff=T) +
 nodematch("Sex",diff=F) + absdiff("Grade") + gwesp(0.25,fixed=T),
-burnin=10000, interval=1000, MCMCsamplesize=2500, maxit=25,
-control=control.ergm(steplength=0.25)) }
+control=control.ergm(MCMC.burnin=10000, MCMC.interval=1000, MCMLE.maxit=25,
+                     MCMC.samplesize=2500, MCMLE.steplength=0.25)) }
 
 Then the faux.magnolia.high dataset was created by simulating a single
 network from the above model fit:
 
 \preformatted{ faux.magnolia.high <- simulate (magnolia.fit, nsim=1,
-burnin=100000000, constraint = "edges") }
+                 control = snctrl(MCMC.burnin=100000000), constraints = ~edges) }
 }
 \usage{
 data(faux.magnolia.high)

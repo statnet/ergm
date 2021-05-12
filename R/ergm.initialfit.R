@@ -77,7 +77,7 @@ ergm.initialfit<-function(init, initial.is.final,
                               control=control,
                               verbose=verbose, ...)
                   },
-                  zeros = structure(list(coef=.constrain_init(m, ifelse(is.na(init),0,init))),class="ergm"),
+                  zeros = structure(list(coefficients=.constrain_init(m, ifelse(is.na(init),0,init))),class="ergm"),
                   CD = ergm.CD.fixed(.constrain_init(m, ifelse(is.na(init),0,init)),
                       nw, m, control, proposal, proposal.obs, verbose,...),
                   stop(paste("Invalid method specified for initial parameter calculation. Available methods are ",paste.and(formals()$method),".",sep=""))
@@ -85,7 +85,7 @@ ergm.initialfit<-function(init, initial.is.final,
   }else{
     # If this is just the initial value, *and* the user has supplied
     # all elements for init, just echo init.
-    fit <- structure(list(coef=init),class="ergm")
+    fit <- structure(list(coefficients=init),class="ergm")
   }
   fit
 }

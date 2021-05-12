@@ -225,6 +225,79 @@ F_CHANGESTAT_FN(f_Sum){
   }
 }
 
+
+// Log: Take a natural logarithm of the model's statistics.
+
+I_CHANGESTAT_FN(i_Log){
+  GET_AUX_STORAGE(StoreModelAndStats, modstats);
+  DELETE_IF_UNUSED_IN_SUBMODEL(z_func, modstats->m);
+}
+
+C_CHANGESTAT_FN(c_Log){
+  GET_AUX_STORAGE(StoreModelAndStats, modstats);
+  double *log0 = INPUT_PARAM;
+
+  ChangeStats1(tail, head, nwp, modstats->m, edgestate);
+  for(unsigned int i=0; i<N_CHANGE_STATS; i++){
+    if(modstats->m->workspace[i] == 0) CHANGE_STAT[i] = 0;
+    else{
+      double old = modstats->stats[i];
+      old = old == 0 ? log0[i] : log(old);
+      double new = modstats->stats[i]+modstats->m->workspace[i];
+      new = new == 0 ? log0[i] : log(new);
+      CHANGE_STAT[i] = new - old;
+    }
+  }
+}
+
+Z_CHANGESTAT_FN(z_Log){
+  GET_AUX_STORAGE(StoreModelAndStats, modstats);
+  double* log0 = INPUT_PARAM;
+
+  EmptyNetworkStats(modstats->m, FALSE);
+  memcpy(CHANGE_STAT, modstats->m->workspace, N_CHANGE_STATS*sizeof(double));
+  ZStats(nwp, modstats->m, FALSE);
+  for(unsigned int i=0; i<N_CHANGE_STATS; i++){
+    if(modstats->m->workspace[i] == 0) CHANGE_STAT[i] = 0;
+    else{
+      double old = CHANGE_STAT[i];
+      old = old == 0 ? log0[i] : log(old);
+      double new = CHANGE_STAT[i]+modstats->m->workspace[i];
+      new = new == 0 ? log0[i] : log(new);
+      CHANGE_STAT[i] = new - old;
+    }
+  }
+}
+
+// Exp: Exponentiate the model's statistics.
+
+I_CHANGESTAT_FN(i_Exp){
+  GET_AUX_STORAGE(StoreModelAndStats, modstats);
+  DELETE_IF_UNUSED_IN_SUBMODEL(z_func, modstats->m);
+}
+
+C_CHANGESTAT_FN(c_Exp){
+  GET_AUX_STORAGE(StoreModelAndStats, modstats);
+
+  ChangeStats1(tail, head, nwp, modstats->m, edgestate);
+  for(unsigned int i=0; i<N_CHANGE_STATS; i++){
+    if(modstats->m->workspace[i] == 0) CHANGE_STAT[i] = 0;
+    else CHANGE_STAT[i] = exp(modstats->stats[i]+modstats->m->workspace[i]) - exp(modstats->stats[i]);
+  }
+}
+
+Z_CHANGESTAT_FN(z_Exp){
+  GET_AUX_STORAGE(StoreModelAndStats, modstats);
+  EmptyNetworkStats(modstats->m, FALSE);
+  memcpy(CHANGE_STAT, modstats->m->workspace, N_CHANGE_STATS*sizeof(double));
+  ZStats(nwp, modstats->m, FALSE);
+  for(unsigned int i=0; i<N_CHANGE_STATS; i++){
+    if(modstats->m->workspace[i] == 0) CHANGE_STAT[i] = 0;
+    else CHANGE_STAT[i] = exp(CHANGE_STAT[i]+modstats->m->workspace[i]) - exp(CHANGE_STAT[i]);
+  }
+}
+
+
 #include "ergm_changestats_auxnet.h"
 
 ON_AUXNET(_discord_net_Network)

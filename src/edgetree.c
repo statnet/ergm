@@ -265,11 +265,9 @@ void AddOnNetworkEdgeChange(Network *nwp, OnNetworkEdgeChange callback, void *pa
 
   pos = MIN(pos, nwp->n_on_edge_change); // Last position.
   // Move everything down the list.
-  for(unsigned int i = nwp->n_on_edge_change; i>pos ; i--){
-    nwp->on_edge_change[i] = nwp->on_edge_change[i-1];
-    nwp->on_edge_change_payload[i] = nwp->on_edge_change_payload[i-1];
-  }
-  
+  memmove(nwp->on_edge_change+pos+1, nwp->on_edge_change+pos, (nwp->n_on_edge_change-pos)*sizeof(OnNetworkEdgeChange));
+  memmove(nwp->on_edge_change_payload+pos+1, nwp->on_edge_change_payload+pos, (nwp->n_on_edge_change-pos)*sizeof(void*));
+
   nwp->on_edge_change[pos] = callback;
   nwp->on_edge_change_payload[pos] = payload;
   
@@ -290,10 +288,8 @@ void DeleteOnNetworkEdgeChange(Network *nwp, OnNetworkEdgeChange callback, void 
 
   if(i==nwp->n_on_edge_change) error("Attempting to delete a nonexistent callback.");
 
-  for(; i+1 < nwp->n_on_edge_change; i++){
-    nwp->on_edge_change[i] = nwp->on_edge_change[i+1];
-    nwp->on_edge_change_payload[i] = nwp->on_edge_change_payload[i+1];
-  }
+  memmove(nwp->on_edge_change+i, nwp->on_edge_change+i+1, (nwp->n_on_edge_change-i-1)*sizeof(OnNetworkEdgeChange));
+  memmove(nwp->on_edge_change_payload+i, nwp->on_edge_change_payload+i+1, (nwp->n_on_edge_change-i-1)*sizeof(void*));
 
   nwp->n_on_edge_change--;
 }

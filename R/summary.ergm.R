@@ -160,8 +160,8 @@ summary.ergm <- function (object, ...,
                                                                 c("Resid. Dev", "Resid. Df")))
     ans$devtext <- devtext
         
-    ans$aic <- AIC(mle.lik)
-    ans$bic <- BIC(mle.lik)
+    ans$aic <- AIC(object)
+    ans$bic <- BIC(object)
     ans$mle.lik <- ERRVL(mle.lik, NA)
     ans$null.lik <- ERRVL(null.lik, NA)
   }else ans$devtable <- NA

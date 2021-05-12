@@ -19,7 +19,8 @@ ergm_model(
   silent = FALSE,
   ...,
   term.options = list(),
-  extra.aux = list()
+  extra.aux = list(),
+  env = globalenv()
 )
 
 \method{c}{ergm_model}(...)
@@ -50,9 +51,11 @@ initialization of each model term.}
 
 \item{\dots}{additional parameters for model formulation}
 
-\item{term.options}{a list of optional settings such as calculation tuning options to be passed to the \code{InitErgmTerm} functions.}
+\item{term.options}{A list of additional arguments to be passed to term initializers. See \code{\link[=term.options]{? term.options}}.}
 
 \item{extra.aux}{a list of auxiliary request formulas required elsewhere; if named, the resulting \code{slots.extra.aux} will also be named.}
+
+\item{env}{a throwaway argument needed to prevent conflicts with some usages of \code{ergm_model}. The initialization environment is \emph{always} taken from the \code{formula}.}
 
 \item{x}{object to be converted to an \code{ergm_model}.}
 

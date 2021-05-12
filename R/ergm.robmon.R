@@ -171,7 +171,7 @@ message(paste("theta new:",theta,""))
 # ve$mcmcloglik <- ve$mcmcloglik - network.dyadcount(nw)*log(2)
 
   # From ergm.estimate:
-  #    structure(list(coef=theta, sample=statsmatrix, 
+  #    structure(list(coefficients=theta, sample=statsmatrix, 
                       # iterations=iteration, mcmcloglik=mcmcloglik,
                       # MCMCtheta=init, 
                       # loglikelihood=loglikelihood, gradient=gradient,

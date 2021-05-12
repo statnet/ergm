@@ -7,7 +7,9 @@
  *
  *  Copyright 2003-2020 Statnet Commons
  */
-#include "changestats_test.h"
+#include "ergm_edgetree.h"
+#include "ergm_changestat.h"
+#include "ergm_storage.h"
 #include "ergm_changestats_auxnet.h"
 #include "ergm_dyad_hashmap.h"
 

@@ -105,7 +105,7 @@ control.ergm(
   MCMLE.last.boost = 4,
   MCMLE.steplength.esteq = TRUE,
   MCMLE.steplength.miss.sample = function(x1) ceiling(sqrt(ncol(rbind(x1)))),
-  MCMLE.steplength.maxit = if (MCMLE.steplength.margin < 0) 5 else 25,
+  MCMLE.steplength.maxit = NVL3(MCMLE.steplength.margin, if (. < 0) 5 else 25),
   MCMLE.steplength.min = 1e-04,
   MCMLE.effectiveSize.interval_drop = 2,
   MCMLE.save_intermediates = NULL,
@@ -196,9 +196,9 @@ are used as starting values in the estimation.
 \item Initial values for the elements that are \code{NA} are fit using the
 method specified by \code{\link[=control.ergm]{control$init.method}}.
 
-} Passing \code{control.ergm(init=coef(prev.fit))} can be used to ``resume''
-an uncoverged \code{\link[=ergm]{ergm()}} run, but see
-\code{\link{enformulate.curved}}.}
+} Passing \code{control.ergm(init=coef(prev.fit))} can be used to
+``resume'' an uncoverged \code{\link[=ergm]{ergm()}} run, though \code{checkpoint} and
+`resume` would be better under most circumstances.}
 
 \item{init.method}{A chatacter vector or \code{NULL}. The default
 method depends on the reference measure used. For the binary
@@ -367,7 +367,7 @@ convergence.}
 \item{MCMC.runtime.traceplot}{Logical: If \code{TRUE}, plot traceplots of the MCMC
 sample after every MCMC MLE iteration.}
 
-\item{MCMC.maxedges}{The maximum number of edges that may occur during the MCMC sampling.}
+\item{MCMC.maxedges}{The maximum number of edges that may occur during the MCMC sampling. If this number is exceeded at any time, sampling is stopped immediately.}
 
 \item{MCMC.addto.se}{Whether to add the standard errors induced by the MCMC
 algorithm to the estimates' standard errors.}
@@ -695,9 +695,7 @@ that running on the master node.}
 \item{parallel.inherit.MT}{Logical: If TRUE, slave nodes and
 processes inherit the \code{\link[=set.MT_terms]{set.MT_terms()}} setting.}
 
-\item{\dots}{Additional arguments, passed to other functions This argument
-is helpful because it collects any control parameters that have been
-deprecated; a warning message is printed in case of deprecated arguments.}
+\item{\dots}{A dummy argument to catch deprecated or mistyped control parameters.}
 }
 \value{
 A list with arguments as components.

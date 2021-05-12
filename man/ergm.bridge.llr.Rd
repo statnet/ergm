@@ -45,7 +45,8 @@ ergm.bridge.dindstart.llk(
   basis = eval_lhs.formula(object),
   ...,
   llkonly = TRUE,
-  control = control.ergm.bridge()
+  control = control.ergm.bridge(),
+  verbose = FALSE
 )
 }
 \arguments{
@@ -80,7 +81,11 @@ in place of those of the network in the formula.}}
 start the Markov chain.  If omitted, the default is the
 left-hand-side of the \code{object}.}
 
-\item{verbose}{Logical: If TRUE, print detailed information.}
+\item{verbose}{A logical or an integer to control the amount of
+progress and diagnostic information to be printed. \code{FALSE}/\code{0}
+produces minimal output, wit higher values producing more
+detail. Note that very high values (5+) may significantly slow
+down processing.}
 
 \item{\dots}{Further arguments to \code{ergm.bridge.llr} and
 \code{\link{simulate.formula.ergm}}.}
@@ -114,12 +119,25 @@ point. Defaults to the MLE of \code{dind}.}
 If \code{llronly=TRUE} or \code{llkonly=TRUE}, these functions return
 the scalar log-likelihood-ratio or the log-likelihood.
 Otherwise, they return a list with the following components:
-\item{llr}{The estimated log-ratio.}  \item{llrs}{The estimated
-log-ratios for each of the \code{nsteps} bridges.}  \item{path}{A
-numeric matrix with nsteps rows, with each row being the
-respective bridge's parameter configuration.}  \item{stats}{A
-numeric matrix with nsteps rows, with each row being the
-respective bridge's vector of simulated statistics.}
+
+\item{llr}{The estimated log-ratio.}
+
+\item{llr.vcov}{The estimated variance of the log-ratio due to
+MCMC approximation.}
+
+\item{llrs}{A list of lists (1 per attempt) of the estimated
+log-ratios for each of the \code{bridge.nsteps} bridges.}
+
+\item{llrs.vcov}{A list of lists (1 per attempt) of the estimated
+variances of the estimated log-ratios for each of the
+\code{bridge.nsteps} bridges.}
+
+\item{paths}{A list of lists (1 per attempt) with two elements:
+\code{theta}, a numeric matrix with \code{bridge.nsteps} rows, with each
+row being the respective bridge's parameter configuration; and
+\code{weight}, a vector of length \code{bridge.nsteps} containing its
+weight.}
+
 \item{Dtheta.Du}{The gradient vector of the parameter values with
 respect to position of the bridge.}
 

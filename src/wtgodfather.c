@@ -88,7 +88,7 @@ SEXP WtGodfather_wrapper(SEXP stateR,
   /* record new generated network to pass back to R */
   if(asInteger(status) == MCMC_OK && asInteger(end_network)){
     s->stats = REAL(stats) + (nstatrows-1)*m->n_stats;
-    SET_VECTOR_ELT(outl, 2, WtErgmStateRSave(stateR, s));
+    SET_VECTOR_ELT(outl, 2, WtErgmStateRSave(s));
   }
   
   WtErgmStateDestroy(s);

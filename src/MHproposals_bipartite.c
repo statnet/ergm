@@ -7,7 +7,8 @@
  *
  *  Copyright 2003-2020 Statnet Commons
  */
-#include "MHproposals_bipartite.h" 
+
+#include "ergm_MHproposal.h"
 
 /********************
    void MH_BipartiteHammingConstantEdges

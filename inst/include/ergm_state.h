@@ -8,16 +8,18 @@
 #include "ergm_model.h"
 
 typedef struct{
+  SEXP R;
   double *stats;
   Network *nwp;
   Model *m;
   MHProposal *MHp;
+  SEXP save;
 } ErgmState;
 
 ErgmState *ErgmStateInit(// Network settings
                          SEXP stateR,
                          unsigned int flags);
-SEXP ErgmStateRSave(SEXP startR, ErgmState *s);
+SEXP ErgmStateRSave(ErgmState *s);
 void ErgmStateDestroy(ErgmState *s);
 SEXP ErgmStateArrayClear();
 

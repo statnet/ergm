@@ -16,13 +16,16 @@
 
 \alias{B}
 \alias{Curve}
+\alias{Exp}
 \alias{F}
 \alias{NodematchFilter}
 \alias{Label}
+\alias{Log}
 \alias{Offset}
+\alias{Prod}
 \alias{S}
 \alias{Sum}
-\alias{Undir}
+\alias{Symmetrize}
 \alias{absdiffcat}
 \alias{altkstar}
 \alias{asymmetric}
@@ -472,6 +475,11 @@
 
     }
 
+    \item{\code{Exp(formula)} (binary) (operator), \code{Exp(formula)} (valued) (operator)}{\emph{Exponentiate a network's statistic}:
+      Evaluate the terms specified in \code{formula} and exponentiates them with base \eqn{e}.
+    }
+
+
     \item{\code{F(formula, form)} (binary) (operator)}{\emph{Filtering on arbitrary one-term model.}
       \code{form} must contain one binary \code{ergm} term, with
       the following properties:
@@ -492,6 +500,38 @@
       \code{formula} will be evaluated on a network constructed by
       taking \eqn{y} and removing any edges for which
       \eqn{f_{i,j}(y_{i,j}) = 0}{f[i,j](y[i,j])=0}.
+    }
+
+    \item{\code{Log(formula, log0=-1/sqrt(.Machine$double.eps))} (binary) (operator), \code{Log(formula, log0=-1/sqrt(.Machine$double.eps))} (valued) (operator)}{\emph{Take a natural logarithm of a network's statistic}:
+      Evaluate the terms specified in \code{formula} and takes a natural (base \eqn{e}) logarithm of them. Since an ERGM statistic must be finite, \code{log0} specifies the value to be substituted for \code{log(0)}. The default value seems reasonable for most purposes.
+    }
+
+    \item{\code{Prod(formulas, label)} (binary) (operator), \code{Prod(formulas, label)} (valued) (operator)}{\emph{A product (or an arbitrary power combination) of one or more formulas}:
+
+      \code{formulas} is a list of formulas whose corresponding RHS
+      statistics will be multiplied elementwise. They are required to be nonnegative.
+
+      If a formula has an LHS, it is interpreted as follows: \describe{
+	\item{a numeric scalar}{Network statistics of this formula will be exponentiated by this.}
+	\item{a numeric vector}{Corresponding network statistics of this formula will be exponentiated by this.}
+	\item{a numeric matrix}{Vector of network statistics will be exponentiated by this using the same pattern as matrix multiplication.}
+	\item{a character string}{One of several predefined linear combinations. Currently supported presets are as follows: \describe{
+            \item{\code{"prod"}}{Network statistics of this formula will be multiplied together; equivalent to \code{matrix(1,1,p)}, where \code{p} is the length of the network statistic vector.}
+            \item{\code{"geomean"}}{Network statistics of this formula will be geometrically averaged; equivalent to \code{matrix(1/p,1,p)}, where \code{p} is the length of the network statistic vector.}
+            }.}
+      }
+      Note that each formula must either produce the same number of
+      statistics or be mapped through a matrix to produce the same
+      number of statistics.
+
+      A single formula is also permissible. This can be useful if one
+      wishes to, say, multiply together the statistics returned by a formula.
+
+      \code{label} is used to specify the names of the elements of the resulting term product vector. If \code{label} is of length 1, it will be recycled with indices appended.
+
+      Curved models are supported, subject to some limitations. In particular, the \emph{first} model's etamap will be used, overwriting the others. If \code{label} is not of length 1, it should have an \code{\link{attr}}-style attribute \code{"curved"} specifying the names for the curved parameters.
+
+      Note that the current implementation piggybacks on the \code{Log}, \code{Exp}, and \code{Sum} operators, essentially \code{Exp(~Sum(~Log(formula), label))}. This may result in loss of precision, particularly for extremely large or small statistics. The implementation may change in the future.
     }
 
     \item{\code{S(formula, attrs)} (binary) (operator)}{\emph{Evaluation on an induced subgraph}:
@@ -530,7 +570,7 @@
     }
 
 
-    \item{\code{Undir(formula, rule="weak")} (binary) (directed) (operator)}{\emph{Evaluation on symmetrized (undirected) network}:
+    \item{\code{Symmetrize(formula, rule="weak")} (binary) (directed) (operator)}{\emph{Evaluation on symmetrized (undirected) network}:
       Evaluates the terms in \code{formula} on an undirected network
       constructed by symmetrizing the LHS network using one of four rules:
       \describe{

@@ -300,6 +300,191 @@ test_that("BDStratTNT simulates reasonably", {
   }
 })
 
+test_that("BDStratTNT simulates reasonably with heterogeneous degree bounds", {
+  for(deg_bound in 1:5) {
+    net_size <- 2000L
+  
+    nw <- network.initialize(net_size, dir = FALSE)
+  
+    vattr <- sample(c("A","B","C"), net_size, TRUE)
+    sex <- sample(c(1,2,3), net_size, TRUE)
+    
+    attribs <- matrix(FALSE, nrow = net_size, ncol = 3)
+    attribs[cbind(seq_len(net_size), sex)] <- TRUE    
+    
+    nw %v% "vattr" <- vattr
+    nw %v% "sex" <-  sex
+    nw %v% "blocks_attr" <- sample(1:6, net_size, TRUE)
+    
+    blocks_levels_2 <- matrix(FALSE, 6, 6)
+    blocks_levels_2[cbind(c(1,2,2,4), c(5,2,3,4))] <- TRUE
+    blocks_levels_2 <- blocks_levels_2 | t(blocks_levels_2)
+    
+    levels2 <- matrix(c(1,0,1,0,0,0,1,0,0),3,3)
+    levels2 <- levels2 > 0
+    
+    pmat <- 1 - matrix(c(1,0,0,0,1,0,0,0,0),3,3)
+          
+    nw_sim <- nw
+
+    maxout <- matrix(0, nrow = net_size, ncol = 3)
+
+    for(row_index in 1:3) {
+      for(col_index in 1:3) {
+        if(!levels2[row_index, col_index]) {
+          maxout[sex == row_index, col_index] <- deg_bound
+        }
+      }
+    }
+    maxout <- maxout + round(5*(runif(length(maxout)) - 1/2))
+    maxout[maxout < 0] <- 0
+    
+    for(i in 1:5) {    
+      nw_sim <- simulate(nw_sim ~ edges, 
+                         coef = c(0), 
+                         constraints = ~bd(attribs = attribs, maxout = maxout) + blocks(~blocks_attr, levels2 = blocks_levels_2) + strat(attr = "vattr", pmat = pmat),
+                         output = "network")
+      
+      summ_stats_vattr <- summary(nw_sim ~ nodemix("vattr",levels2=TRUE))
+      expect_true(all(summ_stats_vattr[c(1,3)] == 0))
+      expect_true(all(summ_stats_vattr[-c(1,3)] > 0))
+  
+      summ_stats_blocks_attr <- summary(nw_sim ~ nodemix("blocks_attr",levels2=TRUE))
+      expect_true(all(summ_stats_blocks_attr[c(3,5,10,11)] == 0))
+      expect_true(all(summ_stats_blocks_attr[-c(3,5,10,11)] > 0))
+      
+      el <- as.edgelist(nw_sim)
+      degs <- table(from = factor(c(el), levels = seq_len(net_size)), to = factor(sex[c(el[,c(2,1)])], levels = seq_len(3)))
+      expect_true(all(degs <= maxout))
+    }  
+  }
+})
+
+test_that("BDStratTNT simulates reasonably with bipartite heterogeneous degree bounds", {
+  for(deg_bound in 1:5) {
+    net_size <- 2000L
+    bip <- 700L
+    
+    nw <- network.initialize(net_size, dir = FALSE, bip = bip)
+  
+    vattr <- c(sample(c("A","B","C","D"), bip, TRUE), sample(c("X","Y","Z"), net_size - bip, TRUE))
+    sex <- c(sample(c(1,2,3,4,5), bip, TRUE), sample(c(6,7,8,9,10,11), net_size - bip, TRUE))
+    
+    attribs <- matrix(FALSE, nrow = net_size, ncol = length(unique(sex)))
+    attribs[cbind(seq_len(net_size), sex)] <- TRUE    
+    
+    nw %v% "vattr" <- vattr
+    nw %v% "sex" <-  sex
+    nw %v% "blocks_attr" <- c(sample(c(1,2,3), bip, TRUE), sample(c(4,5,6,7), net_size - bip, TRUE))
+    
+    blocks_levels_2 <- matrix(FALSE, nrow = 3, 4)
+    blocks_levels_2[cbind(c(3,2,2), c(1,2,3))] <- TRUE
+    
+    levels2 <- matrix(as.logical(round(runif(11*11))), nrow = 11, ncol = 11)
+    levels2 <- levels2 | t(levels2)
+    
+    pmat <- 1 - matrix(c(1,0,0,0,1,0,1,0,0,0,0,1),nrow = 4, ncol = 3)
+          
+    nw_sim <- nw
+
+    maxout <- matrix(0, nrow = net_size, ncol = 11)
+
+    for(row_index in 1:11) {
+      for(col_index in 1:11) {
+        if(!levels2[row_index, col_index]) {
+          maxout[sex == row_index, col_index] <- deg_bound
+        }
+      }
+    }
+    maxout <- maxout + round(5*(runif(length(maxout)) - 1/2))
+    maxout[maxout < 0] <- 0
+    
+    for(i in 1:5) {    
+      nw_sim <- simulate(nw_sim ~ edges, 
+                         coef = c(0), 
+                         constraints = ~bd(attribs = attribs, maxout = maxout) + blocks(~blocks_attr, levels2 = blocks_levels_2) + strat(attr = "vattr", pmat = pmat),
+                         output = "network")
+      
+      summ_stats_vattr <- summary(nw_sim ~ nodemix("vattr",levels2=TRUE))
+      expect_true(all(summ_stats_vattr[c(1,5,7,12)] == 0))
+      expect_true(all(summ_stats_vattr[-c(1,5,7,12)] > 0))
+  
+      summ_stats_blocks_attr <- summary(nw_sim ~ nodemix("blocks_attr",levels2=TRUE))
+      expect_true(all(summ_stats_blocks_attr[c(3,5,8)] == 0))
+      expect_true(all(summ_stats_blocks_attr[-c(3,5,8)] > 0))
+      
+      el <- as.edgelist(nw_sim)
+      degs <- table(from = factor(c(el), levels = seq_len(net_size)), to = factor(sex[c(el[,c(2,1)])], levels = seq_len(11)))
+      expect_true(all(degs <= maxout))
+    }  
+  }
+})
+
+test_that("BDStratTNT simulates reasonably with directed heterogeneous degree bounds", {
+  for(deg_bound in 1:5) {
+    net_size <- 2000L
+  
+    nw <- network.initialize(net_size, dir = TRUE)
+  
+    vattr <- sample(c("A","B","C"), net_size, TRUE)
+    sex <- sample(c(1,2,3), net_size, TRUE)
+    
+    attribs <- matrix(FALSE, nrow = net_size, ncol = 3)
+    attribs[cbind(seq_len(net_size), sex)] <- TRUE    
+    
+    nw %v% "vattr" <- vattr
+    nw %v% "sex" <-  sex
+    nw %v% "blocks_attr" <- sample(1:6, net_size, TRUE)
+    
+    blocks_levels_2 <- matrix(FALSE, 6, 6)
+    blocks_levels_2[cbind(c(5,2,2,4), c(1,2,3,4))] <- TRUE
+    
+    levels2 <- matrix(c(1,0,0,0,0,1,1,0,0),3,3)
+    levels2 <- levels2 > 0
+    
+    pmat <- 1 - matrix(c(1,0,0,0,0,0,0,1,0),3,3)
+          
+    nw_sim <- nw
+    
+    maxout <- matrix(0, nrow = net_size, ncol = 3)
+
+    for(row_index in 1:3) {
+      for(col_index in 1:3) {
+        if(!levels2[row_index, col_index]) {
+          maxout[sex == row_index, col_index] <- deg_bound
+        }
+      }
+    }
+    maxout <- maxout + round(5*(runif(length(maxout)) - 1/2))
+    maxout[maxout < 0] <- 0
+    
+    maxin <- maxout + round(5*(runif(length(maxout)) - 1/2))
+    maxin[maxin < 0] <- 0
+    
+    for(i in 1:5) {      
+      nw_sim <- simulate(nw_sim ~ edges, 
+                         coef = c(0), 
+                         constraints = ~bd(attribs = attribs, maxout = maxout, maxin = maxin) + blocks(~blocks_attr, levels2 = blocks_levels_2) + strat(attr = "vattr", pmat = pmat),
+                         output = "network")
+      
+      summ_stats_vattr <- summary(nw_sim ~ nodemix("vattr",levels2=TRUE))
+      expect_true(all(summ_stats_vattr[c(1,8)] == 0))
+      expect_true(all(summ_stats_vattr[-c(1,8)] > 0))
+  
+      summ_stats_blocks_attr <- summary(nw_sim ~ nodemix("blocks_attr",levels2=TRUE))
+      expect_true(all(summ_stats_blocks_attr[c(5,8,14,22)] == 0))
+      expect_true(all(summ_stats_blocks_attr[-c(5,8,14,22)] > 0))
+      
+      el <- as.edgelist(nw_sim)
+      out_degs <- table(from = factor(c(el[,1]), levels = seq_len(net_size)), to = factor(sex[c(el[,2])], levels = seq_len(3)))
+      in_degs <- table(from = factor(c(el[,2]), levels = seq_len(net_size)), to = factor(sex[c(el[,1])], levels = seq_len(3)))
+      expect_true(all(out_degs <= maxout))
+      expect_true(all(in_degs <= maxin))      
+    }  
+  }
+})
+
+
 test_that("BDStratTNT works with degree bound saturation", {
   nw <- network.initialize(900, dir=FALSE)
 

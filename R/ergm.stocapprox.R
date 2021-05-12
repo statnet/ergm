@@ -131,14 +131,14 @@ ergm.stocapprox <- function(init, nw, model,
                    verbose=verbose)
 #
 # Important: Keep R-M (pre-NR) theta
-# ve$coef <- theta
+# ve$coefficients <- theta
 #
   ve$sample <- ergm.sample.tomcmc(ve$sample, control)
 # The next is the right one to uncomment
 # ve$mcmcloglik <- ve$mcmcloglik - network.dyadcount(nw)*log(2)
 
   # From ergm.estimate:
-  #    structure(list(coef=theta, sample=mcmc.list(as.mcmc(stats)), 
+  #    structure(list(coefficients=theta, sample=mcmc.list(as.mcmc(stats)), 
                       # iterations=iteration, mcmcloglik=mcmcloglik,
                       # MCMCtheta=init, 
                       # loglikelihood=loglikelihood, gradient=gradient,

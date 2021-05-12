@@ -7,7 +7,7 @@
  *
  *  Copyright 2003-2020 Statnet Commons
  */
-#include "wtMHproposals.h"
+#include "ergm_wtMHproposal.h"
 #include "ergm_wtchangestat.h"
 #include "ergm_rlebdm.h"
 

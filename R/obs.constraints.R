@@ -58,6 +58,8 @@
   list(nw = nw, constraints = constraints, constraints.obs = constraints.obs)
 }
 
+has.obs.constraints <- function(...) !is.null(.handle.auto.constraints(...)$constraints.obs)
+
 .align.target.stats.offset <- function(model, target.stats){
   om <- model$etamap$offsetmap
   cno <- param_names(model, canonical=TRUE)
