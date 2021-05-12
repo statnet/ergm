@@ -128,15 +128,9 @@ ergm.MCMLE <- function(init, nw, model,
   s <- rep(list(s),nthreads(control)) # s is now a list of states.
   
   # Initialize control.obs and other *.obs if there is observation structure
-  
   if(obs){
     control.obs <- control
-    control.obs$MCMC.base.samplesize <- control$obs.MCMC.base.samplesize
-    control.obs$MCMC.base.effectiveSize <- control$obs.MCMC.base.effectiveSize
-    control.obs$MCMC.samplesize <- control$obs.MCMC.samplesize
-    control.obs$MCMC.effectiveSize <- control$obs.MCMC.effectiveSize
-    control.obs$MCMC.interval <- control$obs.MCMC.interval
-    control.obs$MCMC.burnin <- control$obs.MCMC.burnin
+    for(name in OBS_MCMC_CONTROLS) control.obs[[name]] <- control[[paste0("obs.", name)]]
     control0.obs <- control.obs
 
     s.obs <- lapply(s, update, model=NVL(model$obs.model,model), proposal=proposal.obs)
@@ -317,8 +311,8 @@ ergm.MCMLE <- function(init, nw, model,
       control$MCMC.burnin <- round(max(z$final.interval*16,16))
       if(verbose) message("New interval = ",control$MCMC.interval,".")
       if(obs){
-        control$obs.MCMC.interval <- control.obs$MCMC.interval <- round(max(z.obs$final.interval/control$MCMLE.effectiveSize.interval_drop,1))
-        control$obs.MCMC.burnin <- control.obs$MCMC.burnin <- round(max(z.obs$final.interval*16,16))
+        control.obs$MCMC.interval <- round(max(z.obs$final.interval/control$MCMLE.effectiveSize.interval_drop,1))
+        control.obs$MCMC.burnin <- round(max(z.obs$final.interval*16,16))
         if(verbose) message("New constrained interval = ",control.obs$MCMC.interval,".")
       }
     }
@@ -661,6 +655,8 @@ ergm.MCMLE <- function(init, nw, model,
   v$steplen.hist <- steplen.hist
   
   v$iterations <- iteration
+
+  if(obs) for(name in OBS_MCMC_CONTROLS) control[[paste0("obs.", name)]] <- control.obs[[name]]
   v$control <- control
   
   v$etamap <- model$etamap
