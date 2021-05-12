@@ -996,6 +996,9 @@ InitWtErgmTerm.transitiveweights<-function (nw, arglist, ...) {
        minval = 0)
 }
 
+#' @rdname cyclicalties-ergmTerm
+#' @usage
+#' # cyclicalties(threshold=0)
 InitWtErgmTerm.cyclicalties<-function (nw, arglist, ...) {
 ### Check the network and arguments to make sure they are appropriate.
   a <- check.ErgmTerm(nw, arglist, bipartite=NULL,

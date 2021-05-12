@@ -81,6 +81,20 @@ InitErgmTerm.passthrough <- function(nw, arglist, ...){
     wrap.ergm_model(m, nw, ergm_mk_std_op_namewrap('passthrough')))
 }
 
+#' @name Label-ergmTerm
+#' @title Modify terms' coefficient names
+#' @description Modify terms' coefficient names
+#' @details This operator evaluates `formula` without modification, but modifies its coefficient and/or parameter names based on `label` and `pos` .
+#'
+#' @usage
+#' # binary: Label(formula, label, pos)
+#' @param formula formula to be evaluated
+#' @param label either a character vector specifying the label for the terms or a function through which term names are mapped (or a `as_mapper` -style formula).
+#' @param pos controls how `label` modifies the term names: one of `"prepend"` , `"replace"` , `"append"` , or `"("` , with the latter wrapping the term names in parentheses like a function call with name specified by `label` .
+#'
+#' @template ergmTerm-general
+#'
+#' @concept operator
 InitErgmTerm.Label <- function(nw, arglist, ...){
   a <- check.ErgmTerm(nw, arglist,
                       varnames = c("formula", "label", "pos"),
@@ -202,6 +216,28 @@ InitErgmTerm..submodel_and_summary <- function(nw, arglist, ...){
   list(name="_submodel_and_summary_term", coef.names = c(), submodel=m, dependence=!is.dyad.independent(m))
 }
 
+#' @name F-ergmTerm
+#' @title Filtering on arbitrary one-term model.
+#' @description Filtering on arbitrary one-term model.
+#' @details Evaluates the given `formula` on a network constructed by
+#'   taking \eqn{y} and removing any edges for which
+#'   \eqn{f_{i,j}(y_{i,j}) = 0}{f[i,j](y[i,j])=0} .
+#'
+#' @usage
+#' # binary: F(formula, form)
+#' @param formula formula to be evaluated
+#' @param form must contain one binary `ergm` term, with
+#'   the following properties:
+#'   - dyadic independence;
+#'   - dyadwise contribution of 0 for a 0-valued dyad.
+#'   Formally, this means that it is expressable as
+#'   \deqn{g(y) = \sum_{i,j} f_{i,j}(y_{i,j}),}{sum[i,j]
+#'   f[i,j](y[i,j]),} where for all \eqn{i}, \eqn{j}, and \eqn{y},
+#'   \eqn{f_{i,j}(y_{i,j})} for which \eqn{f_{i,j}(0)=0}{f[i,j](0)=0}.
+#'
+#' @template ergmTerm-general
+#'
+#' @concept operator
 InitErgmTerm.F <- function(nw, arglist, ...){
   a <- check.ErgmTerm(nw, arglist,
                       varnames = c("formula", "form"),
@@ -240,6 +276,22 @@ InitErgmTerm..filter.formula.net <- function(nw, arglist, ...){
     wrap.ergm_model(m, nw, NULL))
 }
 
+#' @name Offset-ergmTerm
+#' @title Terms with fixed coefficients
+#' @description Terms with fixed coefficients
+#' @details This operator is analogous to the `offset()` wrapper, but the
+#'   coefficients are specified within the term and the curved ERGM
+#'   mechanism is used internally.
+#'
+#' @usage
+#' # binary: Offset(formula, coef, which)
+#' @param formula formula to be evaluated
+#' @param coef coefficients to the formula
+#' @param which used to specify which of the parameters in the formula are fixed. It can be a logical vector (recycled as needed), a numeric vector of indices of parameters to be fixed, or a character vector of parameter names.
+#'
+#' @template ergmTerm-general
+#'
+#' @concept operator
 InitErgmTerm.Offset <- function(nw, arglist, ...){
   a <- check.ErgmTerm(nw, arglist,
                       varnames = c("formula", "coef", "which"),
@@ -427,6 +479,35 @@ symmetrize.network <- function(x, rule=c("weak","strong","upper","lower"), ...){
   nvattr.copy.network(o, x)
 }
 
+#' @name Undir-ergmTerm
+#' @title Evaluation on symmetrized (undirected) network
+#' @description Evaluation on symmetrized (undirected) network
+#' @details :
+#'   Evaluates the terms in `formula` on an undirected network
+#'   constructed by symmetrizing the LHS network using one of four rules:
+#'   
+#'   1. "weak" A tie \eqn{(i,j)} is present in the constructed
+#'   network if the LHS network has either tie \eqn{(i,j)} or
+#'   \eqn{(j,i)} (or both).
+#'   2. "strong" A tie \eqn{(i,j)} is present in the constructed
+#'   network if the LHS network has both tie \eqn{(i,j)} and tie
+#'   \eqn{(j,i)} .
+#'   3. "upper" A tie \eqn{(i,j)} is present in the constructed
+#'   network if the LHS network has tie \eqn{(\min(i,j),\max(i,j))} :
+#'   the upper triangle of the LHS network.
+#'   4. "lower" A tie \eqn{(i,j)} is present in the constructed
+#'   network if the LHS network has tie \eqn{(\max(i,j),\min(i,j))} :
+#'   the lower triangle of the LHS network.
+#'
+#' @usage
+#' # binary: Undir(formula, rule="weak")
+#' @param formula formula to be evaluated
+#' @param rule one of `"weak"`, `"strong"`, `"upper"`, `"lower"`
+#'
+#' @template ergmTerm-general
+#'
+#' @concept directed
+#' @concept operator
 InitErgmTerm.Undir <- function(nw, arglist, ...){
   a <- check.ErgmTerm(nw, arglist, directed = TRUE,
                       varnames = c("formula", "rule"),
@@ -448,6 +529,36 @@ InitErgmTerm.Undir <- function(nw, arglist, ...){
                list(dependence=!is.dyad.independent(m) || rule%in%c("weak","strong"))))
 }
 
+#' @name Sum-ergmTerm
+#' @title A sum (or an arbitrary linear combination) of one or more formulas
+#' @description A sum (or an arbitrary linear combination) of one or more formulas
+#' @details This operator sums up the RHS statistics of the input formulas elementwise.
+#'   
+#'   If a formula has an LHS, it is interpreted as follows:
+#'   - a numeric scalar: Network statistics of this formula will be multiplied by this.
+#'   - a numeric vector: Corresponding network statistics of this formula will be multiplied by this.
+#'   - a numeric matrix: Vector of network statistics will be pre-multiplied by this.
+#'   - a character string: One of several predefined linear combinations. Currently supported presets are as follows:
+#'     - `"sum"` Network statistics of this formula will be summed up; equivalent to `matrix(1,1,p)` , where `p` is the length of the network statistic vector.
+#'     - `"mean"` Network statistics of this formula will be averaged; equivalent to `matrix(1/p,1,p)` , where `p` is the length of the network statistic vector.
+#'   
+#'   Note that each formula must either produce the same number of
+#'   statistics or be mapped through a matrix to produce the same
+#'   number of statistics.
+#'   
+#'   A single formula is also permissible. This can be useful if one
+#'   wishes to, say, sum up the statistics returned by a formula.
+#'   
+#'   Curved models are supported, subject to some limitations. In particular, the first model's etamap will be used, overwriting the others. If `label` is not of length 1, it should have an `attr` -style attribute `"curved"` specifying the names for the curved parameters.
+#'
+#' @usage
+#' # binary: Sum(formulas, label)
+#' @param formulas a list of formulas to be used
+#' @param label used to specify the names of the elements of the resulting term sum vector. If `label` is of length 1, it will be recycled with indices appended.
+#'
+#' @template ergmTerm-general
+#'
+#' @concept operator
 InitErgmTerm.Sum <- function(nw, arglist,...){
   a <- check.ErgmTerm(nw, arglist,
                       varnames = c("formulas", "label"),
@@ -521,6 +632,21 @@ InitErgmTerm.Sum <- function(nw, arglist,...){
     wms[[1L]][c("map", "gradient", "params", "minpar", "maxpar")])
 }
 
+#' @name S-ergmTerm
+#' @title Evaluation on an induced subgraph
+#' @description Evaluation on an induced subgraph
+#' @details This operator takes a two-sided forumla whose LHS gives the attribute or attribute function for which tails and heads will be used to construc the induced subgraph. valuate either to a logical vector equal in length to the number of tails (for LHS) and heads (for RHS) indicating which nodes are to be used to induce the subgraph or a numeric vector giving their indices. (As with indexing vectors, the logical vector will be recycled to the size of the network or the size of the appropriate bipartition, and negative indices will deselect vertices.)
+#'   
+#'   When the two sets are identical, the induced subgraph retains the directedness of the original graph. Otherwise, an undirected bipartite graph is induced.
+#'
+#' @usage
+#' # binary: S(formula, attrs)
+#' @param formula TODO
+#' @param attrs a two-sided formula to be used. A one-sided formula (e.g., `~A` ) is symmetrized (e.g., `A~A` ).
+#'
+#' @template ergmTerm-general
+#'
+#' @concept operator
 InitErgmTerm.S <- function(nw, arglist, ...){
   a <- check.ErgmTerm(nw, arglist,
                       varnames = c("formula", "attrs"),
@@ -591,6 +717,34 @@ InitErgmTerm.S <- function(nw, arglist, ...){
 }
 
 
+#' @name Curve-ergmTerm
+#' @title Impose a curved structure on term parameters.
+#' @description Impose a curved structure on term parameters.
+#' @details Arguments may have the same forms as in the API, but for convenience, alternative forms are accepted.
+#'   
+#'   If the model in `formula` is curved, then the outputs of this operator term's `map` argument will be used as inputs to the curved terms of the `formula` model.
+#'
+#' @usage
+#' # binary: Curve(formula, params, map, gradient=NULL, minpar=-Inf, maxpar=+Inf, cov=NULL)
+#' @param formula an arbitrary formula for a linear or curved ERGM
+#' @param params a named list whos names are the curved parameter names, may also be a character vector with names.
+#' @param map the mapping from curved to canonical. May have the following forms:
+#' - a `function(x, n, ...)` treated as in the API: called with `x` set to the curved parameter vector, `n` to the length of output expected, and `cov` , if present, passed in `...` . The function must return a numeric vector of length `n` .
+#' - a numeric vector to fix the output coefficients, like in an offset.
+#' - a character string to select (partially-matched) one of predefined forms. Currently, the defined forms include:
+#'   - `"rep"` recycle the input vector to the length of the output vector as a `rep` function would.
+#' @param gradient its gradient function. It is optional if `map` is constant or one of the predefined forms; otherwise it must have one of the following forms:
+#' - a `function(x, n, ...)` treated as in the API: called with `x` set to the curved parameter vector, `n` to the length of output expected, and `cov` , if present, passed in `...` . The function must return a numeric matrix with `length(params)` rows and `n` columns.
+#' - a numeric matrix to fix the gradient; this is useful when map is linear.
+#' - a character string to select (partially-matched) one of predefined forms. Currently, the defined forms include:
+#'   - `"linear"` calculate the (constant) gradient matrix using finite differences. Note that this will be done only once at the initialization stage, so use only if you are certain `map` is, in fact, linear.
+#' @param minpar,maxpar the minimum and maximum allowed curved parameter values. The parameters will be recycled to the appropriate length.
+#' @param cov optional
+#'
+#' @template ergmTerm-general
+#'
+#' @concept operator), Curve(formula, params, map, gradient=NULL, minpar=-Inf, maxpar=+Inf, cov=NULL
+#' @concept operator
 InitErgmTerm.Curve <- function(nw, arglist,...){
   a <- check.ErgmTerm(nw, arglist,
                       varnames = c("formula", "params", "map", "gradient", "minpar", "maxpar", "cov"),

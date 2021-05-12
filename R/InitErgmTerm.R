@@ -2577,7 +2577,7 @@ InitErgmTerm.degree1.5<-function (nw, arglist, ...) {
 #' @concept deprecated
 #'
 #' @include ergm-deprecated.R
-#' @describeIn ergm-deprecated Use [`degree1.5`] instead.
+# @describeIn ergm-deprecated Use [`degree1.5`] instead.
 InitErgmTerm.degreepopularity<-function (nw, arglist, ...) {
   .Deprecated("degree1.5")
   a <- check.ErgmTerm(nw, arglist, directed=FALSE,
@@ -4245,7 +4245,7 @@ InitErgmTerm.idegree1.5<-function (nw, arglist, ...) {
 #' @concept directed
 #' @concept deprecated
 #'
-#' @describeIn ergm-deprecated Use [`idegree1.5`] instead.
+# @describeIn ergm-deprecated Use [`idegree1.5`] instead.
 InitErgmTerm.idegreepopularity<-function (nw, arglist, ...) {
   .Deprecated("idegree1.5")
   a <- check.ErgmTerm(nw, arglist, directed=TRUE,
@@ -5869,7 +5869,7 @@ InitErgmTerm.odegree1.5<-function (nw, arglist, ...) {
 #' @concept directed
 #' @concept deprecated
 #'
-#' @describeIn ergm-deprecated Use [`odegree1.5`] instead.
+# @describeIn ergm-deprecated Use [`odegree1.5`] instead.
 InitErgmTerm.odegreepopularity<-function (nw, arglist, ...) {
   .Deprecated("odegree1.5")
   a <- check.ErgmTerm(nw, arglist, directed=TRUE,
@@ -6535,6 +6535,37 @@ InitErgmTerm.triadcensus<-function (nw, arglist, ..., version=packageVersion("er
 
 
 ################################################################################
+
+#' @name triangle-ergmTerm
+#' @title Triangles
+#' @description Triangles
+#' @details By default, this term adds one statistic to the model equal to the number of triangles
+#'   in the network. For an undirected network, a triangle is defined to be any
+#'   set \eqn{\{(i,j), (j,k), (k,i)\}} of three edges. For a directed network, a
+#'   triangle is defined as any set of three edges \eqn{(i{\rightarrow}j)}{(i,j)}
+#'   and \eqn{(j{\rightarrow}k)}{(j,k)} and either \eqn{(k{\rightarrow}i)}{(k,i)}
+#'   or \eqn{(k{\leftarrow}i)}{(i,k)} . The former case is called a "transitive
+#'   triple" and the latter is called a "cyclic triple", so in the case of a
+#'   directed network, `triangle` equals `ttriple` plus `ctriple`
+#'   --- thus at most two of these three terms can be in a model. 
+#'
+#' @usage
+#' # binary: triangle(attr=NULL, diff=FALSE, levels=NULL)
+#'
+#' @param attr,diff quantitative attribute (see Specifying Vertex attributes and Levels (`?nodal_attributes`) for details.) If `attr` is specified and `diff` is `FALSE` ,
+#'   then the count is restricted to those triples of nodes with
+#'   equal values of the vertex attribute specified by `attr` . If `attr` is specified and `diff` is `TRUE` ,
+#'   then one statistic is added for each value of `attr` ,
+#'   equal to the number of triangles where all three nodes have that value of the attribute.
+#' @param levels add one statistic for each value specified if `diff` is `TRUE`
+#'
+#' @template ergmTerm-general
+#'
+#' @concept frequently-used
+#' @concept triad-related
+#' @concept directed
+#' @concept undirected
+#' @concept categorical nodal attribute
 InitErgmTerm.triangle<-InitErgmTerm.triangles<-function (nw, arglist, ..., version=packageVersion("ergm")) {
   if(version <= as.package_version("3.9.4")){
     a <- check.ErgmTerm(nw, arglist,
@@ -6579,6 +6610,35 @@ InitErgmTerm.triangle<-InitErgmTerm.triangles<-function (nw, arglist, ..., versi
 
 
 ################################################################################
+
+#' @name tripercent-ergmTerm
+#' @title Triangle percentage
+#' @description Triangle percentage
+#' @details By default, this term adds one statistic to the model equal to 100 times the ratio of
+#'   the number of triangles in the network to the sum of the number of triangles
+#'   and the number of 2-stars not in triangles (the latter is considered a
+#'   potential but incomplete triangle). In case the denominator equals zero,
+#'   the statistic is defined to be zero. For the definition of triangle, see
+#'   `triangle` . This is often called
+#'   the mean correlation coefficient. This term can only be
+#'   used with undirected networks; for directed networks, it is difficult to
+#'   define the numerator and denominator in a consistent and meaningful way.
+#'
+#' @usage
+#' # binary: tripercent(attr=NULL, diff=FALSE, levels=NULL)
+#'
+#' @param attr,diff quantitative attribute (see Specifying Vertex attributes and Levels (`?nodal_attributes`) for details.) If `attr` is specified and `diff` is `FALSE` ,
+#'   then the counts are restricted to those triples of nodes with
+#'   equal values of the vertex attribute specified by `attr` . If `attr` is specified and `diff` is `TRUE` ,
+#'   then one statistic is added for each value of `attr` ,
+#'   equal to the number of triangles where all three nodes have that value of the attribute.
+#' @param levels add one statistic for each value specified if `diff` is `TRUE`
+#'
+#' @template ergmTerm-general
+#'
+#' @concept undirected
+#' @concept triad-related
+#' @concept categorical nodal attribute
 InitErgmTerm.tripercent<-function (nw, arglist, ..., version=packageVersion("ergm")) {
   if(version <= as.package_version("3.9.4")){
     a <- check.ErgmTerm(nw, arglist, directed=FALSE,
@@ -6622,7 +6682,36 @@ InitErgmTerm.tripercent<-function (nw, arglist, ..., version=packageVersion("erg
 
 
 ################################################################################
-InitErgmTerm.ttriple<-InitErgmTerm.ttriad<-function (nw, arglist, ..., version=packageVersion("ergm")) {
+
+#' @name ttriple-ergmTerm
+#' @title Transitive triples
+#' @description Transitive triples
+#' @details By default, this term adds one statistic to the model, equal to the number of transitive
+#'   triples in the network, defined as a set of edges \eqn{\{(i{\rightarrow}j),
+#'   j{\rightarrow}k), (i{\rightarrow}k)\}}{\{(i,j), (j,k), (i,k)\}} . Note that
+#'   `triangle` equals `ttriple+ctriple` for a directed network, so at
+#'   most two of the three terms can be in a model. 
+#'
+#' @usage
+#' # binary: ttriple(attr=NULL, diff=FALSE, levels=NULL)
+#'
+#' @param attr,diff quantitative attribute (see Specifying Vertex attributes and Levels (`?nodal_attributes`) for details.) If `attr` is specified and `diff` is `FALSE` ,
+#'   then the count is over the number of transitive triples where all three nodes have the same value of
+#'   the attribute. If `attr` is specified and `diff` is `TRUE` ,
+#'   then one statistic is added for each value of `attr` ,
+#'   equal to the number of triangles where all three nodes have that value of the attribute.
+#' @param levels add one statistic for each value specified if `diff` is `TRUE`
+#'
+#' @template ergmTerm-general
+#'
+#' @template ergmTerm-directed
+#'
+#' @template ergmTerm-attr
+#'
+#' @concept directed
+#' @concept triad-related
+#' @concept categorical nodal attribute
+InitErgmTerm.ttriple<-function (nw, arglist, ..., version=packageVersion("ergm")) {
   if(version <= as.package_version("3.9.4")){
     a <- check.ErgmTerm(nw, arglist, directed=TRUE,
                         varnames = c("attrname", "diff", "levels"),
@@ -6662,9 +6751,33 @@ InitErgmTerm.ttriple<-InitErgmTerm.ttriad<-function (nw, arglist, ..., version=p
   list(name="ttriple", coef.names=coef.names, inputs=inputs, minval = 0)
 }
 
-
+#' @rdname ttriple-ergmTerm
+#' @usage
+#' # ttriad
+InitErgmTerm.ttriad<-InitErgmTerm.ttriple
 
 ################################################################################
+
+#' @name twopath-ergmTerm
+#' @title 2-Paths
+#' @description 2-Paths
+#' @details This term adds one statistic to the model, equal to the number of 2-paths in
+#'   the network. For a directed network this is defined as a pair of edges
+#'   \eqn{(i{\rightarrow}j), (j{\rightarrow}k)}{(i,j), (j,k)} , where \eqn{i} and
+#'   \eqn{j} must be distinct. That is, it is a directed path of length 2 from
+#'   \eqn{i} to \eqn{k} via \eqn{j} . For directed networks a 2-path is also a
+#'   mixed 2-star but the interpretation is usually different; see `m2star` .
+#'   For undirected networks a twopath is defined as a pair of edges
+#'   \eqn{\{i,j\}, \{j,k\}} . That is, it is an undirected path of length 2 from
+#'   \eqn{i} to \eqn{k} via \eqn{j} , also known as a 2-star.
+#'
+#' @usage
+#' # binary: twopath
+#'
+#' @template ergmTerm-general
+#'
+#' @concept directed
+#' @concept undirected
 InitErgmTerm.twopath<-function(nw, arglist, ...) {
   a <- check.ErgmTerm(nw, arglist,
                       varnames = NULL,

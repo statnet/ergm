@@ -7,6 +7,30 @@
 #
 #  Copyright 2003-2020 Statnet Commons
 #######################################################################
+
+#' @name coincidence-ergmTerm
+#' @title Coincident node count for the second mode in a bipartite (aka two-mode) network
+#' @description Coincident node count for the second mode in a bipartite (aka two-mode) network
+#' @details By default this term adds one
+#'   network statistic to the model for each pair of nodes of mode two. It is
+#'   equal to the number of (first mode) mutual partners of that pair.
+#'   The first mode of a bipartite
+#'   network object is sometimes known as the "actor" mode and the seconds as the "event" mode. So this is the number of actors going to both events in the pair. This term can only be
+#'   used with undirected bipartite networks.
+#'   
+#' @usage
+#' # binary: coincidence(levels=NULL,active=0)
+#'
+#' @param levels specifies which pairs of nodes in mode two to include (see Specifying Vertex attributes and Levels (`?nodal_attributes`) for details.)
+#' @param active selects pairs for which the observed count is at least `active` . Ignored if `levels` is
+#'   specified. (Thus, indices passed as `levels` should correspond to indices when `levels` = NULL and `active` = 0.) 
+#'
+#' @template ergmTerm-general
+#'
+#' @template ergmTerm-args-3.9.4
+#'
+#' @concept bipartite
+#' @concept undirected
 InitErgmTerm.coincidence<-function(nw, arglist, ..., version=packageVersion("ergm")) {
   if(version <= as.package_version("3.9.4")){
     a <- check.ErgmTerm(nw, arglist, directed=FALSE, bipartite=TRUE,

@@ -10,6 +10,27 @@
 # This new InitErgmTerm function still needs to be tested:
 
 #################################################################################
+
+#' @name transitiveties-ergmTerm
+#' @title Transitive ties
+#' @description Transitive ties
+#' @details This term adds one statistic, equal to the number of ties
+#'   \eqn{i\rightarrow j}{i-->j} such that there exists a two-path from
+#'   \eqn{i} to \eqn{j} . (Related to the `ttriple` term.)
+#'
+#' @usage
+#' # binary: transitiveties(attr=NULL, levels=NULL)
+#'
+#' @param attr quantitative attribute (see Specifying Vertex attributes and Levels (`?nodal_attributes`) for details.) If set, all three nodes involved ( \eqn{i} , \eqn{j} , and the node on the two-path) must match
+#'   on this attribute in order for \eqn{i\rightarrow j}{i-->j} to be counted.
+#' @param levels TODO
+#'
+#' @template ergmTerm-general
+#'
+#' @concept directed
+#' @concept undirected
+#' @concept triad-related
+#' @concept categorical nodal attribute
 InitErgmTerm.transitiveties<-function (nw, arglist, ..., version=packageVersion("ergm")) {
   if(version <= as.package_version("3.9.4")){
     a <- check.ErgmTerm(nw, arglist,
@@ -56,6 +77,24 @@ InitErgmTerm.transitiveties<-function (nw, arglist, ..., version=packageVersion(
 }
 
 #################################################################################
+
+#' @name cyclicalties-ergmTerm
+#' @title Cyclical ties
+#' @description Cyclical ties
+#' @details This term adds one statistic, equal to the number of ties
+#'   \eqn{i\rightarrow j}{i-->j} such that there exists a two-path from
+#'   \eqn{j} to \eqn{i} . (Related to the `ttriple` term.)
+#'
+#' @usage
+#' # binary: cyclicalties(attr=NULL, levels=NULL)
+#' @param attr quantitative attribute (see Specifying Vertex attributes and Levels (`?nodal_attributes`) for details.) If set, all three nodes involved ( \eqn{i} , \eqn{j} , and the node on the two-path) must match
+#'   on this attribute in order for \eqn{i\rightarrow j}{i-->j} to be counted.
+#' @param levels TODO
+#'
+#' @template ergmTerm-general
+#'
+#' @concept directed
+#' @concept undirected
 InitErgmTerm.cyclicalties<-function (nw, arglist, ..., version=packageVersion("ergm")) {
   if(version <= as.package_version("3.9.4")){
     a <- check.ErgmTerm(nw, arglist,
