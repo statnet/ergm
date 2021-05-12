@@ -194,7 +194,7 @@ ergm.CD.fixed <- function(init, nw, model,
 
     if(!estimate){
       if(verbose){message("Skipping optimization routines...")}
-      l <- list(coef=mcmc.init, mc.se=rep(NA,length=length(mcmc.init)),
+      l <- list(coefficients=mcmc.init, mc.se=rep(NA,length=length(mcmc.init)),
                 sample=statsmatrices, sample.obs=statsmatrices.obs,
                 iterations=1, MCMCtheta=mcmc.init,
                 loglikelihood=NA, #mcmcloglik=NULL, 
@@ -292,12 +292,12 @@ ergm.CD.fixed <- function(init, nw, model,
       }
     }
           
-    coef.hist <- rbind(coef.hist, v$coef)
+    coef.hist <- rbind(coef.hist, coef(v))
     stats.obs.hist <- NVL3(statsmatrix.obs, rbind(stats.obs.hist, apply(.[], 2, base::mean)))
     stats.hist <- rbind(stats.hist, apply(statsmatrix, 2, base::mean))
     if(finished) break # This allows premature termination.
     # Update the coefficient for CD sampling.
-    mcmc.init <- v$coef
+    mcmc.init <- coef(v)
   } # end of main loop
 
   message("Finished CD.")

@@ -2,12 +2,15 @@
 % Please edit documentation in R/ergm_estfun.R
 \name{ergm.estfun}
 \alias{ergm.estfun}
+\alias{ergm.estfun.numeric}
 \alias{ergm.estfun.matrix}
 \alias{ergm.estfun.mcmc}
 \alias{ergm.estfun.mcmc.list}
 \title{Compute the Sample Estimating Function Values of an ERGM.}
 \usage{
 ergm.estfun(stats, theta, model, ...)
+
+\method{ergm.estfun}{numeric}(stats, theta, model, ...)
 
 \method{ergm.estfun}{matrix}(stats, theta, model, ...)
 
@@ -43,6 +46,8 @@ instead.
 }
 \section{Methods (by class)}{
 \itemize{
+\item \code{numeric}: Method for numeric vectors of length \eqn{p}.
+
 \item \code{matrix}: Method for matrices with \eqn{p} columns.
 
 \item \code{mcmc}: Method for \code{\link{mcmc}} objects with \eqn{p} variables.

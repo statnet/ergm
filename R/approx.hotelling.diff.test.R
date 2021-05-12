@@ -276,6 +276,8 @@ spectrum0.mvar <- function(x, order.max=NULL, aic=is.null(order.max), tol=.Machi
   novar <- abs(apply(x,2,stats::sd))<tol
   x <- x[,!novar,drop=FALSE]
 
+  if(ncol(x) == 0) stop("All variables are constant.")
+
   # Index of the first local minimum in a sequence.
   first_local_min <- function(x){
     d <- diff(c(Inf,x,Inf))

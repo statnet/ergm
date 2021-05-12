@@ -284,28 +284,6 @@ enformulate.curved.formula <- function(object, theta, ...){
   model.transform.formula(object, theta, recipes, ...)
 }
 
-set.offset.formula <- function(object, which, ...){
-  nw <- ergm.getnetwork(object)
-  m<-ergm_model(object, nw, ...)
-  to_offset <-unique(rep(seq_along(m$terms),nparam(m, byterm=TRUE))[which]) # Figure out which terms correspond to the coefficients to be offset.
-  terms <- list_rhs.formula(object)
-  for(i in to_offset)
-    if(!inherits(terms[[i]],"call") || terms[[i]][[1]]!="offset") # Don't offset terms already offset.
-      terms[[i]]<-call("offset", terms[[i]]) # Enclose the term in an offset.
-  nonsimp_update.formula(object, append_rhs.formula(~.,terms)) # append_rhs.formula call returns a formula of the form .~terms[[1]] + terms[[2]], etc.
-}
-
-unset.offset.formula <- function(object, which=TRUE, ...){
-  nw <- ergm.getnetwork(object)
-  m<-ergm_model(object, nw, ...)
-  to_unoffset <-unique(rep(seq_along(m$terms),nparam(m, byterm=TRUE))[which]) # Figure out which terms correspond to the coefficients to be un offset.
-  terms <- list_rhs.formula(object)
-  for(i in to_unoffset)
-    if(inherits(terms[[i]],"call") && terms[[i]][[1]]=="offset") # Is the term an offset?
-      terms[[i]]<-terms[[i]][[2]] # Grab the term inside the offset.
-  nonsimp_update.formula(object, append_rhs.formula(~.,terms)) # append_rhs.formula call returns a formula of the form .~terms[[1]] + terms[[2]], etc.
-}
-
 #' @describeIn ergm-deprecated \code{offset.info.formula} returns the offset
 #'   vectors associated with a formula.
 #' @export offset.info.formula

@@ -71,8 +71,8 @@ e.a <- ergm(fmh ~ absdiff(function(x) x %v% "Grade"))
 s.ap <- summary(fmh ~ absdiff(~Grade, pow=2))
 e.ap <- ergm(fmh ~ absdiff("Grade", pow=2))
 
-if (s.a-79 != 0 || round(e.a$coef + 4.354,3) != 0 ||
-    s.ap-195 != 0 || round(e.ap$coef + 3.41,3) != 0) {
+if (s.a-79 != 0 || round(coef(e.a) + 4.354,3) != 0 ||
+    s.ap-195 != 0 || round(coef(e.ap) + 3.41,3) != 0) {
  print(list(s.a=s.a,e.a=e.a, s.ap=s.ap, e.ap=e.ap))
  stop("Failed absdiff term test")
 }else{
@@ -88,9 +88,9 @@ e.a <- ergm(fmh ~ absdiffcat("Grade"))
 s.ab <- summary(fmh ~ absdiffcat(function(x) x %v% "Grade", levels=-(4:5)))
 e.ab <- ergm(fmh ~ absdiffcat(~Grade, base=(4:5)))
 if (!all(s.a==c(15,15,7,2,1)) ||
-    !all(round(e.a$coef+c(6.005,5.788,6.063,6.891,6.611),3)==0) ||
+    !all(round(coef(e.a)+c(6.005,5.788,6.063,6.891,6.611),3)==0) ||
     !all(s.ab==c(15,15,7)) ||
-    !all(round(e.ab$coef+c(6.005,5.788,6.063),3)==0)) {
+    !all(round(coef(e.ab)+c(6.005,5.788,6.063),3)==0)) {
  print(list(s.a=s.a,e.a=e.a, s.ab=s.ab, e.ab=e.ab))
  stop("Failed absdiffcat term test")
 } else {
@@ -104,7 +104,7 @@ if (!all(s.a==c(15,15,7,2,1)) ||
 num.tests=num.tests+1
 s.0 <- summary(fmh~balance)
 e.0 <- ergm(fmh~balance, estimate="MPLE")
-if (s.0 != 40139 || round(e.0$coef + .02376, 3) != 0) {
+if (s.0 != 40139 || round(coef(e.0) + .02376, 3) != 0) {
  print(list(s.0=s.0, e.0=e.0))
  stop("Failed balance term test")
 } else {
@@ -127,7 +127,7 @@ if(!all(s.0 == c(28, 39, 111, 260, 651)) ||
    !all(s.1 == c(57, 216, 787, 2908, 10508)) ||
    !all(round(coef(e.1), 3) == c(-0.009, 0.144, 0.070, -0.031, 0.001)) || 
    !all(s.k==c(62,80,138,270)) ||
-   !all(round(e.k$coef+c(-.1615, .2083),3)==0)) {
+   !all(round(coef(e.k)+c(-.1615, .2083),3)==0)) {
  print(list(s.0=s.0, e.0=e.0, s.1=s.1, e.1=e.1, s.k=s.k, e.k=e.k))
  stop("Failed cycle test")
 } else {
@@ -142,7 +142,7 @@ num.tests=num.tests+1
 s.0 <- summary(fmh~density)
 e.0 <- ergm(samplike~density, estimate="MPLE")
 if (round(s.0 - .009708274,3) != 0 ||
-    round(e.0$coef + 277.5904, 3) != 0) {
+    round(coef(e.0) + 277.5904, 3) != 0) {
  print(list(s.0=s.0, e.0=e.0))
  stop("Failed density term test")
 } else {
@@ -197,8 +197,8 @@ e.x <- ergm(samplike ~ dyadcov(cov))
 s.xa <- summary(fmh~dyadcov(fmh, "GradeMet"))
 e.xa <- ergm(fmh ~ dyadcov(fmh, "GradeMet"))
 if (!all(s.x==c(31,21,14)) ||
-    !all(round(e.x$coef+c(.8546, 1.0732, 1.3467),3)==0) ||
-    s.xa!=641 || round(e.xa$coef - 12.31787,3)!=0) {
+    !all(round(coef(e.x)+c(.8546, 1.0732, 1.3467),3)==0) ||
+    s.xa!=641 || round(coef(e.xa) - 12.31787,3)!=0) {
  print(list(s.x=s.x,e.x=e.x,s.xa=s.xa,e.xa=e.xa))
  stop("Failed dyadcov test")
 }else{
@@ -219,8 +219,8 @@ e.xa <- ergm(samplike ~ edgecov(samplike, "YearsTrusted"))
 n.x <- try(summary(samplike~edgecov('dummy')),silent=TRUE)
 set.network.attribute(samplike,'dummy',cov)
 n2.x <- summary(samplike~edgecov('dummy'))
-if (s.x!=134 || round(e.x$coef + .5022,3)!=0  ||
-    s.xa!=183 || e.xa$coef!=+Inf ||
+if (s.x!=134 || round(coef(e.x) + .5022,3)!=0  ||
+    s.xa!=183 || coef(e.xa)!=+Inf ||
     !is(n.x,'try-error') || n2.x!=134) {
  print(list(s.x=s.x,e.x=e.x,s.xa=s.xa,e.xa=e.xa))
  stop("Failed edgecov test")
@@ -235,7 +235,7 @@ if (s.x!=134 || round(e.x$coef + .5022,3)!=0  ||
 num.tests=num.tests+1
 s.0 <- summary(fmh~edges)
 e.0 <- ergm(samplike~edges, estimate="MPLE")
-if (s.0 != 203 || round(e.0$coef + .9072, 3) != 0) {
+if (s.0 != 203 || round(coef(e.0) + .9072, 3) != 0) {
  print(list(s.0=s.0, e.0=e.0))
  stop("Failed edges term test")
 } else {
@@ -253,7 +253,7 @@ num.tests=num.tests+1
 s.d <- summary(fmh~dsp(2:3), cache.sp=cache.sp)
 e.d <- ergm(samplike~dsp(4), estimate="MPLE", control=control.ergm(term.options=list(cache.sp=cache.sp)))
 if (!all(s.d==c(75,23)) ||
-    round(e.d$coef + .04275, 3) != 0) {
+    round(coef(e.d) + .04275, 3) != 0) {
    print(list(s.d=s.d, e.d=e.d))
     stop("Failed dsp term test")
 } else {
@@ -267,7 +267,7 @@ num.tests=num.tests+1
 s.d <- summary(fmh~esp(2:3), cache.sp=cache.sp)
 e.d <- ergm(samplike~esp(4), estimate="MPLE", control=control.ergm(term.options=list(cache.sp=cache.sp)))
 if (!all(s.d==c(36,13)) ||
-    round(e.d$coef - .3093, 3) != 0) {
+    round(coef(e.d) - .3093, 3) != 0) {
    print(list(s.d=s.d, e.d=e.d))
     stop("Failed esp term test")
 } else {
@@ -281,7 +281,7 @@ num.tests=num.tests+1
 s.d <- summary(fmh~nsp(2:3), cache.sp=cache.sp)
 e.d <- ergm(samplike~nsp(4), estimate="MPLE", control=control.ergm(term.options=list(cache.sp=cache.sp)))
 if (!all(s.d==c(39, 10)) ||
-   round(e.d$coef + 1.1096, 3) != 0) {
+   round(coef(e.d) + 1.1096, 3) != 0) {
    print(list(s.d=s.d, e.d=e.d))
    stop("Failed nsp term test")
 } else {
@@ -299,11 +299,11 @@ s.f <- summary(fmh~gwdsp(0, fixed=TRUE), cache.sp=cache.sp)
 s.af <- summary(fmh~gwdsp(.3, fixed=TRUE), cache.sp=cache.sp)
 e.af <- ergm(samplike~gwdsp(.2, fixed=TRUE), estimate="MPLE", control=control.ergm(term.options=list(cache.sp=cache.sp)))
 if (!all(head(s.0)==c(431, 75, 23, 1, 1, 0)) ||
-    round(e.0$coef + .3309974, 3) != 0 ||
-    round(e.a$coef + .1875983, 3) != 0 ||
+    round(coef(e.0) + .3309974, 3) != 0 ||
+    round(coef(e.a) + .1875983, 3) != 0 ||
     s.f!=531 ||
     round(s.af - 558.6369, 3) != 0 ||
-    round(e.af$coef + .2829672, 3) != 0) {
+    round(coef(e.af) + .2829672, 3) != 0) {
   print(list(s.0=head(s.0), e.0=e.0, e.a=e.a, s.f=s.f, s.af=s.af, e.af=e.af))
  stop("Failed gwdsp term test")
 } else {
@@ -321,11 +321,11 @@ s.f <- summary(fmh~gwesp(0, fixed=TRUE), cache.sp=cache.sp)
 s.af <- summary(fmh~gwesp(.3, fixed=TRUE), cache.sp=cache.sp)
 e.af <- ergm(samplike~gwesp(.2, fixed=TRUE), estimate="MPLE", control=control.ergm(term.options=list(cache.sp=cache.sp)))
 if (!all(head(s.0)==c(70,36,13,0,1,0)) ||
-    round(e.0$coef + .4115515, 3) != 0 ||
-    round(e.a$coef + .1898684, 3) != 0 ||
+    round(coef(e.0) + .4115515, 3) != 0 ||
+    round(coef(e.a) + .1898684, 3) != 0 ||
     s.f!=120 ||
     round(s.af - 133.9215, 3) != 0 ||
-    round(e.af$coef + .3371385, 3) != 0) {
+    round(coef(e.af) + .3371385, 3) != 0) {
   print(list(s.0=head(s.0), e.0=e.0, e.a=e.a, s.f=s.f, s.af=s.af, e.af=e.af))
  stop("Failed gwesp term test")
 } else {
@@ -344,11 +344,11 @@ s.f <- summary(fmh~gwnsp(0, fixed=TRUE), cache.sp=cache.sp)
 s.af <- summary(fmh~gwnsp(.3, fixed=TRUE), cache.sp=cache.sp)
 e.af <- ergm(samplike~gwnsp(.2, fixed=TRUE), estimate="MPLE", control=control.ergm(term.options=list(cache.sp=cache.sp)))
 if (!all(head(s.0)==c(361,39,10,1,0,0)) ||
-    round(e.0$coef + .4189, 3) != 0 ||
-    round(e.a$coef + .3123, 3) != 0 ||
+    round(coef(e.0) + .4189, 3) != 0 ||
+    round(coef(e.a) + .3123, 3) != 0 ||
     s.f!=411 ||
     round(s.af - 424.7154, 3) != 0 ||
-    round(e.af$coef + .3934841, 3) != 0) {
+    round(coef(e.af) + .3934841, 3) != 0) {
   print(list(s.0=head(s.0), e.0=e.0, e.a=e.a, s.f=s.f, s.af=s.af, e.af=e.af))
  stop("Failed gwnsp term test")
 } else {
@@ -415,7 +415,7 @@ e.0 <- ergm(fmh~isolatededges, estimate="MPLE")
 s.1 <- summary(bipnw2~isolatededges)
 e.1 <- ergm(bipnw2~isolatededges, estimate="MPLE")
 
-if (s.0 != 4 || s.1 != 25 || round(e.0$coef - 0.01034, 3) != 0 || round(e.1$coef + 0.1611, 3) != 0) {
+if (s.0 != 4 || s.1 != 25 || round(coef(e.0) - 0.01034, 3) != 0 || round(coef(e.1) + 0.1611, 3) != 0) {
  print(list(s.0=s.0, e.0=e.0, s.1=s.1, e.1=e.1))
  stop("Failed isolatededges term test")
 } else {
@@ -429,7 +429,7 @@ if (s.0 != 4 || s.1 != 25 || round(e.0$coef - 0.01034, 3) != 0 || round(e.1$coef
 num.tests=num.tests+1
 s.0 <- summary(samplike~isolates)
 e.0 <- ergm(fmh~isolates, estimate="MPLE")
-if (s.0 != 0 || round(e.0$coef - 5.10979, 3) != 0) {
+if (s.0 != 0 || round(coef(e.0) - 5.10979, 3) != 0) {
  print(list(s.0=s.0, e.0=e.0))
  stop("Failed isolates term test")
 } else {
@@ -446,7 +446,7 @@ if (s.0 != 0 || round(e.0$coef - 5.10979, 3) != 0) {
 #s.x <- summary(samplike~localtriangle(x))
 #e.x <- ergm(samplike~localtriangle(x), estimate="MPLE")
 #s.xa <- summary(fmh~localtriangle(fmh, "GradeMet"))
-#if (s.x != 56 || round(e.x$coef + .1553, 3) != 0 ||
+#if (s.x != 56 || round(coef(e.x) + .1553, 3) != 0 ||
 #    s.xa != 61) {
 # print(list(s.x=s.x, e.x=e.x, s.xa=s.xa))
 # stop("Failed localtriangle term test")
@@ -462,7 +462,7 @@ num.tests=num.tests+1
 s.0 <- summary(samplike~meandeg)
 e.0 <- ergm(fmh~meandeg, estimate="MPLE")
 if (round(s.0 - 4.8889, 3) != 0 ||
-    round(e.0$coef + 474.0647, 3) != 0) {
+    round(coef(e.0) + 474.0647, 3) != 0) {
  print(list(s.0=s.0, e.0=e.0))
  stop("Failed meandeg term test")
 } else {
@@ -480,8 +480,8 @@ s.at <- summary(samplike~nodecov(~YearsServed^2))
 e.at <- ergm(fmh~nodecov(~(.%v%"Grade")^2), estimate="MPLE")
 s.att <- summary(samplike~nodecov(function(x)(x%v%"YearsServed")^2))
 s.attt <- summary(samplike~nodecov(~poly(YearsServed,2,raw=TRUE)))
-if (s.a != 906 || round(e.a$coef + .271, 3) != 0 ||
-    s.at != 5036 || round(e.at$coef + .03199, 3) != 0 ||
+if (s.a != 906 || round(coef(e.a) + .271, 3) != 0 ||
+    s.at != 5036 || round(coef(e.at) + .03199, 3) != 0 ||
     s.att != 5036 || any(s.attt != c(906,5036))) {
  print(list(s.a=s.a, e.a=e.a, s.at=s.at, e.at=e.at, s.att=s.att, s.attt=s.attt))
  stop("Failed nodecov term test")
@@ -499,9 +499,9 @@ e.a <- ergm(samplike~nodefactor(~group), estimate="MPLE")
 s.ab <- summary(fmh~nodefactor(function(x) x %v% "Sex", base=(4:5)))
 e.ab <- ergm(samplike~nodefactor("Trinity", levels=TRUE), estimate="MPLE")
 if (!all(s.a==c(75, 65, 36, 49, 28)) ||
-    !all(round(e.a$coef+c(.9480, .3273),3)==0) ||
+    !all(round(coef(e.a)+c(.9480, .3273),3)==0) ||
     !all(s.ab==c(235,171)) ||
-    !all(round(e.ab$coef+c(.4451, .4451, .4706),3)==0)) {
+    !all(round(coef(e.ab)+c(.4451, .4451, .4706),3)==0)) {
   print(list(s.a=s.a,e.a=e.a, s.ab=s.ab, e.ab=e.ab))
   stop("Failed nodefactor term test")
 } else {
@@ -521,12 +521,12 @@ s.ak <- summary(fmh~nodematch(~Grade, levels=3:4))
 e.ak <- ergm(samplike~nodematch(function(x) x %v% "group", levels=2), estimate="MPLE")
 s.adk <- summary(samplike~nodematch(~Trinity, TRUE, 1:2))
 e.adk <- ergm(fmh~nodematch("Race", TRUE, 2), estimate="MPLE")
-if (s.a != 103 || round(e.a$coef + 1.45725,3)!=0  ||
+if (s.a != 103 || round(coef(e.a) + 1.45725,3)!=0  ||
     !all(s.ad==c(23,10,30)) ||
-    !all(round(e.ad$coef+c(4.06317, 4.7032),3)==0) ||
-    s.ak!=32 || !all(round(e.ad$coef+c(4.063173, 4.703204),3)!=0 ||
+    !all(round(coef(e.ad)+c(4.06317, 4.7032),3)==0) ||
+    s.ak!=32 || !all(round(coef(e.ad)+c(4.063173, 4.703204),3)!=0 ||
     !all(s.adk==c(8,4)) ||
-    round(e.adk$coef+ 4.700995,3)==0)) {
+    round(coef(e.adk)+ 4.700995,3)==0)) {
  print(list(s.0=s.0, e.0=e.0, s.a=s.a, e.a=e.a, s.ad=s.ad, e.ad=e.ad, s.ak=s.ak,
             e.ak=e.ak, s.adk=e.adk))
  stop("Failed nodematch term test")
@@ -549,9 +549,9 @@ if (!all(s.a == c(0, 33, 0, 2, 23, 1, 4, 7, 9, 1,
     !all(round(coef(e.a) - c(-3.2958369, -2.1747517, -2.5649494, 1.6094379,
                              -3.2958369,  -1.4916549, -1.0986123, 0.9162907), 3) == 0) ||
     !all(s.ab==c(9,8,8,7,7,5,4,6,6)) ||
-    !all(round(e.ab$coef+c(3.497, 4.431, 3.989, 3.989),3)==0) ||
+    !all(round(coef(e.ab)+c(3.497, 4.431, 3.989, 3.989),3)==0) ||
     !all(s.ab2==c(8,53,13,41,46,0,1,0,0,5,22,10,0,4)) ||
-    !all(round(e.ab2$coef+c(1.0116, .82098),3)==0)) {
+    !all(round(coef(e.ab2)+c(1.0116, .82098),3)==0)) {
   print(list(s.a=s.a, e.a=e.a, s.ab=s.ab, e.ab=e.ab, s.ab2=s.ab2, e.ab2=e.ab2))
   stop("Failed nodemix term test")
 } else {
@@ -569,9 +569,9 @@ e.ac.d <- ergm(samplike~smalldiff(~YearsServed, 3), estimate="MPLE")
 e.ac.u <- ergm(fmh~smalldiff(~Grade, 2), estimate="MPLE")
 e.ac.b <- ergm(bipnw~smalldiff(function(x) x %v% "Cost", 1), estimate="MPLE")                
 if (s.ac.d != 78 || s.ac.u != 193 || s.ac.b != 48 ||
-    round(e.ac.d$coef + .86903, 3) != 0 ||
-    round(e.ac.u$coef + 4.3525, 3) != 0 ||
-    round(e.ac.b$coef + 3.8318, 3) != 0 ) {
+    round(coef(e.ac.d) + .86903, 3) != 0 ||
+    round(coef(e.ac.u) + 4.3525, 3) != 0 ||
+    round(coef(e.ac.b) + 3.8318, 3) != 0 ) {
 print(list(s.ac.d=s.ac.d, s.ac.u=s.ac.u, s.ac.b=s.ac.b,
            e.ac.d=e.ac.d, e.ac.u=e.ac.u, e.ac.b=e.ac.b))
  stop("Failed smalldiff term test")
@@ -589,9 +589,9 @@ e.0 <- ergm(fmh~threetrail, estimate="MPLE")
 s.k <- summary(samplike~threetrail(levels=2))
 e.k <- ergm(samplike~threetrail(keep=1:2), estimate="MPLE")
 if (!all(s.0==c(2103, 2326, 1749, 1897)) ||
-    round(e.0$coef + .2842, 3) != 0 ||
+    round(coef(e.0) + .2842, 3) != 0 ||
     s.k!=2326 ||
-    !all(round(e.k$coef+c(.0188, -.0077),3)==0)) {
+    !all(round(coef(e.k)+c(.0188, -.0077),3)==0)) {
  print(list(s.0=s.0, e.0=e.0, s.k=s.k, e.k=e.k))
  stop("Failed threetrail term test")
 } else {
@@ -609,10 +609,10 @@ s.a <- summary(fmh~triangles(function(x) x %v% "Race"))
 e.a <- ergm(samplike~triangle("group"), estimate="MPLE")                
 s.ad <- summary(samplike~triangles(~Trinity, diff=TRUE))
 e.ad <- ergm(fmh~triangle("Sex", diff=TRUE), estimate="MPLE")   
-if (s.0 != 62 || round(e.0$coef + .06997, 3) != 0 ||
-    s.a != 18 || round(e.a$coef - .06354, 3) != 0 ||
+if (s.0 != 62 || round(coef(e.0) + .06997, 3) != 0 ||
+    s.a != 18 || round(coef(e.a) - .06354, 3) != 0 ||
     !all(s.ad==c(2,0,0)) ||
-    !all(round(e.ad$coef + c(.70278, .44099), 3) == 0)) { 
+    !all(round(coef(e.ad) + c(.70278, .44099), 3) == 0)) { 
  print(list(s.0=s.0, e.0=e.0, s.a=s.a, e.a=e.a, s.ad=s.ad, e.ad=e.ad))
  stop("Failed triangles term test")
 } else {
@@ -630,8 +630,8 @@ e.0 <- ergm(fmh~triadcensus, estimate="MPLE")
 s.d <- summary(samplike~triadcensus(3))
 e.d <- ergm(fmh~triadcensus(2:3), estimate="MPLE")
 if (!all(s.0==c(205, 190, 12, 24, 24, 68, 34, 5, 0, 35, 15, 6, 5, 18, 8)) ||
-    !all(round(e.0$coef+c(.02559, .06254, -2.61531),3)==0) ||
-    s.d != 12 || !all(round(e.d$coef - c(-1.749635, 2.228183), 3) ==0)) {
+    !all(round(coef(e.0)+c(.02559, .06254, -2.61531),3)==0) ||
+    s.d != 12 || !all(round(coef(e.d) - c(-1.749635, 2.228183), 3) ==0)) {
  print(list(s.0=s.0, e.0=e.0, s.d=s.d, e.d=e.d))
  stop("Failed triadcensus term test")
 } else {
@@ -645,7 +645,7 @@ if (!all(s.0==c(205, 190, 12, 24, 24, 68, 34, 5, 0, 35, 15, 6, 5, 18, 8)) ||
 num.tests=num.tests+1
 s.0 <- summary(samplike~twopath)
 e.0 <- ergm(fmh~twopath, estimate="MPLE")
-if (s.0 != 378 || round(e.0$coef + 1.297362, 3)){
+if (s.0 != 378 || round(coef(e.0) + 1.297362, 3)){
  print(list(s.0=s.0, e.0=e.0))
  stop("Failed twopath term test")
 } else {

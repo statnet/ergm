@@ -10,10 +10,11 @@ control.gof.formula(
   nsim = 100,
   MCMC.burnin = 10000,
   MCMC.interval = 1000,
+  MCMC.batch = 0,
   MCMC.prop = trim_env(~sparse),
   MCMC.prop.weights = "default",
   MCMC.prop.args = list(),
-  MCMC.init.maxedges = 20000,
+  MCMC.maxedges = Inf,
   MCMC.packagenames = c(),
   MCMC.runtime.traceplot = FALSE,
   network.output = "network",
@@ -28,10 +29,11 @@ control.gof.ergm(
   nsim = 100,
   MCMC.burnin = NULL,
   MCMC.interval = NULL,
+  MCMC.batch = NULL,
   MCMC.prop = NULL,
   MCMC.prop.weights = NULL,
   MCMC.prop.args = NULL,
-  MCMC.init.maxedges = NULL,
+  MCMC.maxedges = NULL,
   MCMC.packagenames = NULL,
   MCMC.runtime.traceplot = FALSE,
   network.output = "network",
@@ -51,6 +53,11 @@ to the observed network.}
 typically is set to a fairly large number.}
 
 \item{MCMC.interval}{Number of proposals between sampled statistics.}
+
+\item{MCMC.batch}{if not 0 or \code{NULL}, sample about this many
+networks per call to the lower-level code; this can be useful if
+\verb{output=} is a function, where it can be used to limit the number
+of networks held in memory at any given time.}
 
 \item{MCMC.prop}{Specifies the proposal (directly) and/or
 a series of "hints" about the structure of the model being
@@ -73,7 +80,7 @@ highest priority available.}
 \item{MCMC.prop.args}{An alternative, direct way of
 specifying additional arguments to proposal.}
 
-\item{MCMC.init.maxedges}{Maximum number of edges expected in network.}
+\item{MCMC.maxedges}{The maximum number of edges that may occur during the MCMC sampling. If this number is exceeded at any time, sampling is stopped immediately.}
 
 \item{MCMC.packagenames}{Names of packages in which to look for change
 statistic functions in addition to those autodetected. This argument should

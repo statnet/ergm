@@ -41,8 +41,11 @@ parameter values from which the parallel settings should be read;
 can also be \code{\link{NULL}}, in which case an existing cluster is used
 if started, or no cluster otherwise.}
 
-\item{verbose}{logical, should detailed status info be printed to
-console?}
+\item{verbose}{A logical or an integer to control the amount of
+progress and diagnostic information to be printed. \code{FALSE}/\code{0}
+produces minimal output, wit higher values producing more
+detail. Note that very high values (5+) may significantly slow
+down processing.}
 
 \item{stop_on_exit}{An \code{\link{environment}} or \code{NULL}. If an
 \code{environment}, defaulting to that of the calling function, the

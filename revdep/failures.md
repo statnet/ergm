@@ -2,11 +2,11 @@
 
 <details>
 
-* Version: 1.9.9
+* Version: 1.9.13
 * GitHub: https://github.com/leifeld/btergm
 * Source code: https://github.com/cran/btergm
-* Date/Publication: 2020-06-18 05:00:06 UTC
-* Number of recursive dependencies: 73
+* Date/Publication: 2020-10-26 14:30:02 UTC
+* Number of recursive dependencies: 71
 
 Run `revdep_details(, "btergm")` for more info
 
@@ -40,10 +40,13 @@ Run `revdep_details(, "btergm")` for more info
 ** R
 ** inst
 ** byte-compile and prepare package for lazy loading
-Error: object ‘remove.offset.formula’ is not exported by 'namespace:ergm'
+Warning message:
+replacing previous import ‘vctrs::data_frame’ by ‘tibble::data_frame’ when loading ‘dplyr’ 
+Error: object ‘ergm.Cprepare’ is not exported by 'namespace:ergm'
 Execution halted
 ERROR: lazy loading failed for package ‘btergm’
 * removing ‘/homes/morrism/GitHub/StatnetOrganization/ergm/revdep/checks/btergm/new/btergm.Rcheck/btergm’
+
 
 ```
 ### CRAN
@@ -55,15 +58,21 @@ ERROR: lazy loading failed for package ‘btergm’
 ** R
 ** inst
 ** byte-compile and prepare package for lazy loading
+Warning message:
+replacing previous import ‘vctrs::data_frame’ by ‘tibble::data_frame’ when loading ‘dplyr’ 
 Warning: no DISPLAY variable so Tk is not available
 ** help
+...
 *** installing help indices
 ** building package indices
 ** testing if installed package can be loaded from temporary location
+Warning: replacing previous import ‘vctrs::data_frame’ by ‘tibble::data_frame’ when loading ‘dplyr’
 Warning: no DISPLAY variable so Tk is not available
 ** testing if installed package can be loaded from final location
+Warning: replacing previous import ‘vctrs::data_frame’ by ‘tibble::data_frame’ when loading ‘dplyr’
 Warning: no DISPLAY variable so Tk is not available
 ** testing if installed package keeps a record of temporary installation path
 * DONE (btergm)
+
 
 ```

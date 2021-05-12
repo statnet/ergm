@@ -7,7 +7,9 @@
  *
  *  Copyright 2003-2017 Statnet Commons
  */
-#include "wtchangestats_test.h"
+#include "ergm_wtedgetree.h"
+#include "ergm_wtchangestat.h"
+#include "ergm_storage.h"
 
 WtC_CHANGESTAT_FN(c_test_abs_sum_minus_5){
   GET_STORAGE(double, stored_sum_ptr);

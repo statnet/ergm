@@ -9,6 +9,9 @@ WtErgmState *WtErgmStateInit(SEXP stateR,
                              unsigned int flags){
   WtErgmState *s = Calloc(1, WtErgmState);
 
+  /* Save a reference to the corresponding R object */
+  s->R = stateR;
+
   /* Extract stats vector */
   SEXP tmp = getListElement(stateR, "stats");
   s->stats = length(tmp) ? REAL(tmp) : NULL;
@@ -38,7 +41,9 @@ WtErgmState *WtErgmStateInit(SEXP stateR,
   return s;
 }
 
-SEXP WtErgmStateRSave(SEXP startR, WtErgmState *s){
+SEXP WtErgmStateRSave(WtErgmState *s){
+  SEXP startR = s->R;
+
   // Duplicate state
   SEXP outl = PROTECT(allocVector(VECSXP, length(startR)));
   setAttrib(outl, R_NamesSymbol, getAttrib(startR, R_NamesSymbol));

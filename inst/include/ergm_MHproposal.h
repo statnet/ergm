@@ -13,23 +13,6 @@
 #include "ergm_edgetree.h"
 #include "R_ext/Rdynload.h"
 
-typedef struct DegreeBoundstruct {
-  int attrcount;
-  int fBoundDegByAttr;
-  int *attribs;
-  int *maxout;
-  int *minout;
-  int *maxin;
-  int *minin;
-} DegreeBound;
-
-DegreeBound* DegreeBoundInitialize(int *attribs, int *maxout, int *maxin, 
-			   int *minout, int *minin, int condAllDegExact, 
-			   int attriblength, Network *nwp);
-
-void DegreeBoundDestroy(DegreeBound *bd);
-
-
 #define NO_EDGE       0x00 /*these four used in realocateWithReplacement */
 #define OLD_EDGE      0x01 
 #define NEW_EDGE      0x02 
@@ -82,7 +65,6 @@ typedef struct MHProposalstruct {
   Vertex *togglehead;
   double logratio;
   int status;
-  DegreeBound *bd;
   double *inputs; /* may be used if needed, ignored if not. */
   int *iinputs; /* may be used if needed, ignored if not. */
   void *storage;
@@ -95,25 +77,6 @@ typedef struct MHProposalstruct {
 MHProposal *MHProposalInitialize(SEXP pR, Network *nwp, void **aux_storage);
 
 void MHProposalDestroy(MHProposal *MHp, Network *nwp);
-
-int CheckTogglesValid(MHProposal *MHp, Network *nwp);
-int CheckConstrainedTogglesValid(MHProposal *MHp, Network *nwp);
-
-#define BD_LOOP(proc) BD_COND_LOOP({proc}, TRUE, 1)
-
-#define BD_COND_LOOP(proc, cond, tryfactor)				\
-  unsigned int trytoggle;						\
-  for(trytoggle = 0; trytoggle < MAX_TRIES*tryfactor; trytoggle++){	\
-    {proc}								\
-    if(cond) break;							\
-  }									\
-  if(trytoggle>=MAX_TRIES*tryfactor){					\
-    MHp->toggletail[0]=MH_FAILED;					\
-    MHp->togglehead[0]=MH_UNSUCCESSFUL;					\
-  }else	if(!CheckTogglesValid(MHp,nwp)){				\
-    MHp->toggletail[0]=MH_FAILED;					\
-    MHp->togglehead[0]=MH_CONSTRAINT;                                   \
-  }									
 
 /* Helper macros */
 #define MH_DINPUTS MHp->inputs

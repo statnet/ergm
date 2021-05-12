@@ -10,7 +10,7 @@
 \arguments{
 \item{d}{a vector of distinct integers}
 
-\item{type}{one of \code{c("OTP", "UTP", "ITP", "RTP", "OSP", "ISP")}. \code{"UTP"} is only available for undirected graphs}
+\item{type}{one of \code{c("OTP", "ITP", "RTP", "OSP", "ISP")}}
 }
 \description{
 Directed dyadwise shared partners

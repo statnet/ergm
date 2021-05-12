@@ -34,7 +34,8 @@ take the AddHealth survey or who were not listed by name on the schools'
 student roster are not included in the stucture files.  In addition, we
 removed any students with missing values for race, grade or sex.
 
-The following \code{\link{ergm}} model was fit to the original data:
+The following \code{\link{ergm}} model was fit to the original data
+(with code updated for modern syntax):
 
 \preformatted{ dixon.fit <- ergm(original.net ~ edges + mutual +
 absdiff("grade") + nodefactor("race", base=5) + nodefactor("grade", base=3)

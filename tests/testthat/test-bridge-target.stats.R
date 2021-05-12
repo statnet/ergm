@@ -1,12 +1,14 @@
+local_edition(3)
 
 library(ergm)
 library(statnet.common)
+
 logit <- function(p) log(p/(1-p))
 expit <- function(e) exp(e)/(1+exp(e))
 l <- function(nw, ets=NULL, theta=NULL){
   e <- NVL(ets, network.edgecount(nw))
   d <- network.dyadcount(nw)
-  theta <- NVL(theta, logit(e/d))
+  NVL(theta) <- logit(e/d)
 
   e*log(expit(theta)) + (d-e)*log(expit(-theta))
 }
@@ -19,7 +21,7 @@ test_that("Log-likelihood with attainable target statistics",{
   ts <- 3
   llk.ergm <- as.vector(logLik(ergm(flomarriage~edges, target.stats=ts)))
   llk <- l(y,ts)
-  expect_equivalent(llk,llk.ergm,tolerance=0.01)
+  expect_equal(llk,llk.ergm)
 })
 
 test_that("Log-likelihood with unattainable target statistics",{
@@ -27,5 +29,32 @@ test_that("Log-likelihood with unattainable target statistics",{
   ts <- 3.5
   llk.ergm <- as.vector(logLik(ergm(flomarriage~edges, target.stats=ts)))
   llk <- l(y,ts)
-  expect_equivalent(llk,llk.ergm,tolerance=0.05)
+  expect_equal(llk,llk.ergm,tolerance=0.05)
 })
+
+# A nearly empty network with 0 triangles:
+nw0 <- network.initialize(10, directed = FALSE)
+nw0[1, 2] <- 1
+
+# A network with 8 triangles:
+nw1 <- nw0
+nw1[cbind(1:9, 2:10)] <- 1
+nw1[cbind(1:8, 3:10)] <- 1
+
+# mle <-coef( ergm(nw1~triangles, eval.loglik = FALSE))
+mle <- -0.2144383 # hard-code to save time
+
+set.seed(1)
+
+for (theta in c(mle, rnorm(1, -0.5, 0.25))) { # MLE and a random value
+  test_that(paste("log-likelihood calculation for the situation where network stats differ significantly from target stats:",
+                  if (theta == mle) "MLE" else format(theta)), {
+    # network stats != target stats
+    llk0 <- ergm.bridge.dindstart.llk(nw0~triangles, coef = theta, target.stats = 8, llkonly = FALSE)
+    # network stats == target stats
+    llk1 <- ergm.bridge.dindstart.llk(nw1~triangles, coef = theta, llkonly = FALSE)
+
+    # difference |Z| < 3
+    expect_lt((llk0$llk - llk1$llk)^2 / (llk0$vcov.llr + llk1$vcov.llr), 9)
+  })
+}

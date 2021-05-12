@@ -4,9 +4,9 @@ author: "statnet.org"
 date: "07/28/2014"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{ERGM terms cross-reference}
   %\VignetteEngine{knitr::rmarkdown}
-  \usepackage[utf8]{inputenc}
+  %\VignetteEncoding{UTF-8}
+  %\VignetteIndexEntry{ERGM terms cross-reference}
 ---
 <style type="text/css">
 table, td, th {

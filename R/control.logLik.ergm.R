@@ -9,39 +9,21 @@
 #######################################################################
 
 
-#' Auxiliary for Controlling logLik.ergm
-#' 
-#' Auxiliary function as user interface for fine-tuning logLik.ergm algorithm,
-#' which approximates log likelihood values.
-#' 
-#' This function is only used within a call to the \code{\link{logLik.ergm}}
-#' function.
-#' 
-#' @templateVar MCMCType MCMC
+#' @rdname control.ergm.bridge
 #'
-#' @param nsteps Number of geometric bridges to use.
-#' @param MCMC.burnin Number of proposals before any MCMC sampling is done. It
-#' typically is set to a fairly large number.
-#' @param MCMC.interval Number of proposals between sampled statistics.
-#' @param MCMC.samplesize Number of network statistics, randomly drawn from a
-#' given distribution on the set of all networks, returned by the
-#' Metropolis-Hastings algorithm.
-#' @param obs.MCMC.burnin,obs.MCMC.interval,obs.MCMC.samplesize The \code{obs}
-#' versions of these arguments are for the unobserved data simulation
-#' algorithm.
-#' @template control_MCMC_prop
-#' @param warn.dyads Whether or not a warning should be issued when sample
-#' space constraints render the observed number of dyads ill-defined. Now defunct: use `options(ergm.logLik.warn_dyads=...)` instead.
-#' @param MCMC.init.maxedges Maximum number of edges expected in network.
-#' @template term_options
-#' @template control_MCMC_parallel
-#' @template seed
-#' @template control_MCMC_packagenames
-#' @return A list with arguments as components.
+#' @description By default, the bridge sampler inherits its control
+#'   parameters from the [ergm()] fit; `control.logLik.ergm()` allows
+#'   the user to selectively override them.
+#'
+#' @details `control.logLik.ergm()` is only used within a call to the
+#'   [logLik.ergm()].
+#'
 #' @seealso \code{\link{logLik.ergm}}
-#' @keywords models
 #' @export control.logLik.ergm
-control.logLik.ergm<-function(nsteps=20,
+control.logLik.ergm<-function(bridge.nsteps=16,
+                              bridge.target.se=NULL,
+                              bridge.bidirectional = TRUE,
+
                               MCMC.burnin=NULL,
                               MCMC.interval=NULL,
                               MCMC.samplesize=NULL,
@@ -52,10 +34,11 @@ control.logLik.ergm<-function(nsteps=20,
                               MCMC.prop=NULL,
                               MCMC.prop.weights=NULL,
                               MCMC.prop.args=NULL,
+                              obs.MCMC.prop=MCMC.prop,
+                              obs.MCMC.prop.weights=MCMC.prop.weights,
+                              obs.MCMC.prop.args=MCMC.prop.args,
 
-                              warn.dyads=NULL,
-
-                              MCMC.init.maxedges=NULL,
+                              MCMC.maxedges=NULL,
                               MCMC.packagenames=NULL,
                               
                               term.options=NULL,
@@ -63,16 +46,11 @@ control.logLik.ergm<-function(nsteps=20,
                               parallel=NULL,
                               parallel.type=NULL,
                               parallel.version.check=TRUE,
-                              parallel.inherit.MT=FALSE
+                              parallel.inherit.MT=FALSE,
+
+                              ...
 ){
-
-  # TODO: Remove after 3.10 release.
-  if(!is.null(warn.dyads)) .Deprecate_once(msg=paste("Option", sQuote("warn.dyads="), "is no longer used. Use", sQuote("options(ergm.logLik.warn_dyads=...)"), "instead."))
-
-  control<-list()
-  formal.args<-formals(sys.function())
-  for(arg in names(formal.args))
-    control[arg]<-list(get(arg))
-
+  old.controls <- list(nsteps = bridge.nsteps)
+  control <- handle.controls("control.logLik.ergm", ...)
   set.control.class("control.logLik.ergm")
 }

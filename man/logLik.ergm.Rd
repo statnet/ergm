@@ -2,6 +2,9 @@
 % Please edit documentation in R/logLik.ergm.R
 \name{logLik.ergm}
 \alias{logLik.ergm}
+\alias{deviance.ergm}
+\alias{AIC.ergm}
+\alias{BIC.ergm}
 \title{A \code{\link{logLik}} method for \code{\link{ergm}} fits.}
 \usage{
 \method{logLik}{ergm}(
@@ -12,6 +15,12 @@
   control = control.logLik.ergm(),
   ...
 )
+
+\method{deviance}{ergm}(object, ...)
+
+\method{AIC}{ergm}(object, ..., k = 2)
+
+\method{BIC}{ergm}(object, ...)
 }
 \arguments{
 \item{object}{An \code{\link[=ergm.object]{ergm}} fit, returned by
@@ -35,6 +44,8 @@ also provides argument completion for the available control
 functions and limited argument name checking.}
 
 \item{\dots}{Other arguments to the likelihood functions.}
+
+\item{k}{see help for \code{\link[=AIC]{AIC()}}.}
 }
 \value{
 The form of the output of \code{logLik.ergm} depends on
@@ -55,6 +66,15 @@ A function to return the log-likelihood associated with an
 necessary. If the log-likelihood was not computed for
 \code{object}, produces an error unless \code{eval.loglik=TRUE}.
 }
+\section{Functions}{
+\itemize{
+\item \code{deviance.ergm}: A \code{\link[=deviance]{deviance()}} method.
+
+\item \code{AIC.ergm}: An \code{\link[=AIC]{AIC()}} method.
+
+\item \code{BIC.ergm}: A \code{\link[=BIC]{BIC()}} method.
+}}
+
 \examples{
 
 # See help(ergm) for a description of this model. The likelihood will
@@ -75,7 +95,7 @@ summary(gest)
 # for speed's sake.
 gest.logLik <- logLik(gest, add=TRUE)
 
-gest.logLik <- logLik(gest, add=TRUE, control=control.logLik.ergm(nsteps=3))
+gest.logLik <- logLik(gest, add=TRUE, control=control.logLik.ergm(bridge.nsteps=3))
 # Deviances, AIC, and BIC are now shown:
 summary(gest.logLik)
 # Null model likelihood can also be evaluated, but not for all constraints:

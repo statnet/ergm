@@ -107,11 +107,11 @@
         \item{InitErgmProposal.CondOutDegree}{MHp for \eqn{constraints= ~odegrees}. For directed networks, randomly select two dyads with a common tail node, one having an edge and one not, and propose to swap the tie from one head to the other.
         }
 
-        \item{InitErgmProposal.BDStratTNT}{Implements a TNT proposal with any subset of the following features: (1) an upper
-                    bound on degree, specified via the \code{\link{bd}} constraint's \code{maxout} and/or \code{maxin} arguments 
-                    (which must be single numbers for \code{BDStratTNT}); (2) stratification of proposals according to mixing type
-                    on a vertex attribute, specified via the \code{\link{strat}} hint; (3) fixation of specified mixing types on
-                    a(nother) vertex attribute, specified via the \code{\link{blocks}} constraint.
+        \item{InitErgmProposal.BDStratTNT}{Implements a TNT proposal with any subset of the following features: (1) upper
+                    bounds on degree, specified via the \code{\link{bd}} constraint's \code{maxout}, \code{maxin}, and \code{attribs}
+                    arguments; (2) stratification of proposals according to mixing type on a vertex attribute, specified via the 
+                    \code{\link{strat}} hint; (3) fixation of specified mixing types on a(nother) vertex attribute, specified via 
+                    the \code{\link{blocks}} constraint.
         }
 
        }}

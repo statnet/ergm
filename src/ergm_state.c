@@ -9,6 +9,9 @@ ErgmState *ErgmStateInit(SEXP stateR,
                          unsigned int flags){
   ErgmState *s = Calloc(1, ErgmState);
 
+  /* Save a reference to the corresponding R object */
+  s->R = stateR;
+
   /* Extract stats vector */
   SEXP tmp = getListElement(stateR, "stats");
   s->stats = length(tmp) ? REAL(tmp) : NULL;
@@ -38,7 +41,9 @@ ErgmState *ErgmStateInit(SEXP stateR,
   return s;
 }
 
-SEXP ErgmStateRSave(SEXP startR, ErgmState *s){
+SEXP ErgmStateRSave(ErgmState *s){
+  SEXP startR = s->R;
+
   // Duplicate state
   SEXP outl = PROTECT(allocVector(VECSXP, length(startR)));
   setAttrib(outl, R_NamesSymbol, getAttrib(startR, R_NamesSymbol));

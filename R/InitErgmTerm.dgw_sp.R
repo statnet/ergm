@@ -389,9 +389,6 @@ InitErgmTerm.ddsp<-function(nw, arglist, cache.sp=TRUE, ...) {
 #'
 #' @concept directed
 InitErgmTerm.dgwdsp<-function(nw, arglist, cache.sp=TRUE, gw.cutoff=30, ...) {
-  # the following line was commented out in <InitErgm.gwdsp>:
-  #    ergm.checkdirected("gwdsp", is.directed(nw), requirement=FALSE)
-  # so, I've not passed 'directed=FALSE' to <check.ErgmTerm>  
   a <- check.ErgmTerm(nw, arglist,
                       varnames = c("decay","fixed","cutoff","type", "alpha"),
                       vartypes = c("numeric","logical","numeric","character", "numeric"),
@@ -555,9 +552,6 @@ InitErgmTerm.dnsp<-function(nw, arglist, cache.sp=TRUE, ...) {
 #'
 #' @concept directed
 InitErgmTerm.dgwnsp<-function(nw, arglist, cache.sp=TRUE, gw.cutoff=30, ...) {
-  # the following line was commented out in <InitErgm.gwnsp>:
-  #    ergm.checkdirected("gwnsp", is.directed(nw), requirement=FALSE)
-  # so, I've not passed 'directed=FALSE' to <check.ErgmTerm>  
   a <- check.ErgmTerm(nw, arglist,
                       varnames = c("decay","fixed","cutoff","type", "alpha"),
                       vartypes = c("numeric","logical","numeric","character", "numeric"),

@@ -1,14 +1,14 @@
-# broom
+# Bergm
 
 <details>
 
-* Version: 0.7.0
-* GitHub: https://github.com/tidymodels/broom
-* Source code: https://github.com/cran/broom
-* Date/Publication: 2020-07-09 12:30:09 UTC
-* Number of recursive dependencies: 277
+* Version: 5.0.2
+* GitHub: NA
+* Source code: https://github.com/cran/Bergm
+* Date/Publication: 2020-11-12 22:20:03 UTC
+* Number of recursive dependencies: 37
 
-Run `revdep_details(, "broom")` for more info
+Run `revdep_details(, "Bergm")` for more info
 
 </details>
 
@@ -16,39 +16,48 @@ Run `revdep_details(, "broom")` for more info
 
 *   checking examples ... ERROR
     ```
+    Running examples in ‘Bergm-Ex.R’ failed
+    The error most likely occurred in:
+    
+    > ### Name: bergm
+    > ### Title: Parameter estimation for Bayesian ERGMs
+    > ### Aliases: bergm
+    > 
+    > ### ** Examples
+    > 
+    > # Load the florentine marriage network
     ...
-    NOTE: Versions before 3.6.1 had a bug in the implementation of the bd()
-    constraint which distorted the sampled distribution somewhat. In
-    addition, Sampson's Monks datasets had mislabeled vertices. See the
-    NEWS and the documentation for more details.
-    
-    NOTE: Some common term arguments pertaining to vertex attribute and
-    level selection have changed in 3.10.0. See terms help for more
-    details. Use ‘options(ergm.term=list(version="3.9.4"))’ to use old
-    behavior.
-    
-    
-    Attaching package: ‘xergm.common’
-    
-    The following object is masked from ‘package:ergm’:
-    
-        gof
-    
-    Loading required package: ggplot2
-    Error: package or namespace load failed for ‘btergm’:
-     object ‘remove.offset.formula’ is not exported by 'namespace:ergm'
+    > # Posterior parameter estimation:
+    > p.flo <- bergm(flomarriage ~ edges + kstar(2),
+    +                burn.in    = 50,
+    +                aux.iters  = 500,
+    +                main.iters = 1000,
+    +                gamma      = 1.2)
+    Error in ergm.Cprepare(y, model) : 
+      could not find function "ergm.Cprepare"
+    Calls: bergm
     Execution halted
+    ```
+
+*   checking R code for possible problems ... NOTE
+    ```
+    bergm: no visible global function definition for ‘ergm.Cprepare’
+    bergmC: no visible global function definition for ‘ergm.Cprepare’
+    bergmM: no visible global function definition for ‘ergm.Cprepare’
+    ergmAPL: no visible global function definition for ‘ergm.Cprepare’
+    Undefined global functions or variables:
+      ergm.Cprepare
     ```
 
 # btergm
 
 <details>
 
-* Version: 1.9.9
+* Version: 1.9.13
 * GitHub: https://github.com/leifeld/btergm
 * Source code: https://github.com/cran/btergm
-* Date/Publication: 2020-06-18 05:00:06 UTC
-* Number of recursive dependencies: 73
+* Date/Publication: 2020-10-26 14:30:02 UTC
+* Number of recursive dependencies: 71
 
 Run `revdep_details(, "btergm")` for more info
 
@@ -82,10 +91,13 @@ Run `revdep_details(, "btergm")` for more info
 ** R
 ** inst
 ** byte-compile and prepare package for lazy loading
-Error: object ‘remove.offset.formula’ is not exported by 'namespace:ergm'
+Warning message:
+replacing previous import ‘vctrs::data_frame’ by ‘tibble::data_frame’ when loading ‘dplyr’ 
+Error: object ‘ergm.Cprepare’ is not exported by 'namespace:ergm'
 Execution halted
 ERROR: lazy loading failed for package ‘btergm’
 * removing ‘/homes/morrism/GitHub/StatnetOrganization/ergm/revdep/checks/btergm/new/btergm.Rcheck/btergm’
+
 
 ```
 ### CRAN
@@ -97,27 +109,33 @@ ERROR: lazy loading failed for package ‘btergm’
 ** R
 ** inst
 ** byte-compile and prepare package for lazy loading
+Warning message:
+replacing previous import ‘vctrs::data_frame’ by ‘tibble::data_frame’ when loading ‘dplyr’ 
 Warning: no DISPLAY variable so Tk is not available
 ** help
+...
 *** installing help indices
 ** building package indices
 ** testing if installed package can be loaded from temporary location
+Warning: replacing previous import ‘vctrs::data_frame’ by ‘tibble::data_frame’ when loading ‘dplyr’
 Warning: no DISPLAY variable so Tk is not available
 ** testing if installed package can be loaded from final location
+Warning: replacing previous import ‘vctrs::data_frame’ by ‘tibble::data_frame’ when loading ‘dplyr’
 Warning: no DISPLAY variable so Tk is not available
 ** testing if installed package keeps a record of temporary installation path
 * DONE (btergm)
+
 
 ```
 # EpiModel
 
 <details>
 
-* Version: 2.0.2
+* Version: 2.0.3
 * GitHub: https://github.com/statnet/EpiModel
 * Source code: https://github.com/cran/EpiModel
-* Date/Publication: 2020-08-05 09:52:19 UTC
-* Number of recursive dependencies: 99
+* Date/Publication: 2020-11-09 21:40:13 UTC
+* Number of recursive dependencies: 102
 
 Run `revdep_details(, "EpiModel")` for more info
 
@@ -125,97 +143,28 @@ Run `revdep_details(, "EpiModel")` for more info
 
 ## Newly broken
 
-*   checking for missing documentation entries ... WARNING
-    ```
-    Error: package ‘ergm’ required by ‘tergm’ could not be found
-    Call sequence:
-    5: stop(gettextf("package %s required by %s could not be found", 
-           sQuote(pkg), sQuote(pkgname)), call. = FALSE, domain = NA)
-    4: .getRequiredPackages2(pkgInfo, quietly = quietly)
-    3: library(pkg, character.only = TRUE, logical.return = TRUE, lib.loc = lib.loc, 
-           quietly = quietly)
-    2: .getRequiredPackages2(pkgInfo, quietly = quietly)
-    1: library(package, lib.loc = lib.loc, character.only = TRUE, verbose = FALSE)
-    Execution halted
-    All user-level objects in a package should have documentation entries.
-    See chapter ‘Writing R documentation files’ in the ‘Writing R
-    Extensions’ manual.
-    ```
-
-*   checking for code/documentation mismatches ... WARNING
-    ```
-    ...
-    Execution halted
-    Error: package ‘ergm’ required by ‘tergm’ could not be found
-    Call sequence:
-    5: stop(gettextf("package %s required by %s could not be found", 
-           sQuote(pkg), sQuote(pkgname)), call. = FALSE, domain = NA)
-    4: .getRequiredPackages2(pkgInfo, quietly = quietly)
-    3: library(pkg, character.only = TRUE, logical.return = TRUE, lib.loc = lib.loc, 
-           quietly = quietly)
-    2: .getRequiredPackages2(pkgInfo, quietly = quietly)
-    1: library(package, lib.loc = lib.loc, character.only = TRUE, verbose = FALSE)
-    Execution halted
-    Error: package ‘ergm’ required by ‘tergm’ could not be found
-    Call sequence:
-    5: stop(gettextf("package %s required by %s could not be found", 
-           sQuote(pkg), sQuote(pkgname)), call. = FALSE, domain = NA)
-    4: .getRequiredPackages2(pkgInfo, quietly = quietly)
-    3: library(pkg, character.only = TRUE, logical.return = TRUE, lib.loc = lib.loc, 
-           quietly = quietly)
-    2: .getRequiredPackages2(pkgInfo, quietly = quietly)
-    1: library(package, lib.loc = lib.loc, character.only = TRUE, verbose = FALSE)
-    Execution halted
-    ```
-
-*   checking Rd cross-references ... NOTE
-    ```
-    Package unavailable to check Rd xrefs: ‘ergm’
-    ```
-
-*   checking Rd \usage sections ... NOTE
-    ```
-    Error: package ‘ergm’ required by ‘tergm’ could not be found
-    Call sequence:
-    5: stop(gettextf("package %s required by %s could not be found", 
-           sQuote(pkg), sQuote(pkgname)), call. = FALSE, domain = NA)
-    4: .getRequiredPackages2(pkgInfo, quietly = quietly)
-    3: library(pkg, character.only = TRUE, logical.return = TRUE, lib.loc = lib.loc, 
-           quietly = quietly)
-    2: .getRequiredPackages2(pkgInfo, quietly = quietly)
-    1: library(package, lib.loc = lib.loc, character.only = TRUE, verbose = FALSE)
-    Execution halted
-    The \usage entries for S3 methods should use the \method markup and not
-    their full name.
-    See chapter ‘Writing R documentation files’ in the ‘Writing R
-    Extensions’ manual.
-    ```
-
-## In both
-
 *   checking examples ... ERROR
     ```
+    Running examples in ‘EpiModel-Ex.R’ failed
+    The error most likely occurred in:
+    
+    > ### Name: as.data.frame.netdx
+    > ### Title: Extract Timed Edgelists netdx Objects
+    > ### Aliases: as.data.frame.netdx
+    > ### Keywords: extract
+    > 
+    > ### ** Examples
+    > 
     ...
-    
-    networkDynamic: version 0.10.1, created on 2020-01-16
-    Copyright (c) 2020, Carter T. Butts, University of California -- Irvine
-                        Ayn Leslie-Cook, University of Washington
-                        Pavel N. Krivitsky, University of Wollongong
-                        Skye Bender-deMoll, University of Washington
-                        with contributions from
-                        Zack Almquist, University of California -- Irvine
-                        David R. Hunter, Penn State University
-                        Li Wang
-                        Kirk Li, University of Washington
-                        Steven M. Goodreau, University of Washington
-                        Jeffrey Horner
-                        Martina Morris, University of Washington
-    Based on "statnet" project software (statnet.org).
-    For license and citation information see statnet.org/attribution
-    or type citation("networkDynamic").
-    
-    Loading required package: tergm
-    Error: package ‘ergm’ required by ‘tergm’ could not be found
+    Finished MPLE.
+    Stopping at the initial estimate.
+    > 
+    > # Simulate the network with netdx
+    > dx <- netdx(est, nsims = 3, nsteps = 10, keep.tedgelist = TRUE,
+    +             verbose = FALSE)
+    Error in get(name, pos = environment(new)) : 
+      argument "set.control.stergm" is missing, with no default
+    Calls: netdx ... .handle.auto.constraints -> nonsimp_update.formula -> assign -> get
     Execution halted
     ```
 
@@ -224,107 +173,20 @@ Run `revdep_details(, "EpiModel")` for more info
      ERROR
     Running the tests in ‘tests/test-all.R’ failed.
     Last 13 lines of output:
-                          Li Wang
-                          Kirk Li, University of Washington
-                          Steven M. Goodreau, University of Washington
-                          Jeffrey Horner
-                          Martina Morris, University of Washington
-      Based on "statnet" project software (statnet.org).
-      For license and citation information see statnet.org/attribution
-      or type citation("networkDynamic").
+       13.             │   └─base::eval(cl, parent.frame())
+       14.             ├─stats::simulate(...)
+       15.             └─ergm:::simulate.formula_lhs_network(...)
+       16.               ├─ergm::simulate_formula(...)
+       17.               └─ergm:::simulate_formula.network(...)
+       18.                 └─ergm:::.handle.auto.constraints(...)
+       19.                   └─statnet.common::nonsimp_update.formula(...)
+       20.                     ├─base::assign(name, get(name, pos = environment(new)), pos = e)
+       21.                     └─base::get(name, pos = environment(new))
       
-      Loading required package: tergm
-      Failed with error:  'package 'ergm' required by 'tergm' could not be found'
-      Error in loadNamespace(i, c(lib.loc, .libPaths()), versionCheck = vI[[i]]) : 
-        there is no package called 'ergm'
-      Calls: test_check ... loadNamespace -> withRestarts -> withOneRestart -> doWithOneRestart
-      Execution halted
-    ```
-
-*   checking package dependencies ... NOTE
-    ```
-    Package suggested but not available for checking: ‘ndtv’
-    ```
-
-# ergm
-
-<details>
-
-* Version: 3.10.4
-* GitHub: https://github.com/statnet/ergm
-* Source code: https://github.com/cran/ergm
-* Date/Publication: 2019-06-10 05:30:07 UTC
-* Number of recursive dependencies: 71
-
-Run `revdep_details(, "ergm")` for more info
-
-</details>
-
-## Newly broken
-
-*   checking examples ... ERROR
-    ```
-    ...
-    Running examples in ‘ergm-Ex.R’ failed
-    The error most likely occurred in:
-    
-    > ### Name: ergmMPLE
-    > ### Title: ERGM Predictors and response for logistic regression calculation
-    > ###   of MPLE
-    > ### Aliases: ergmMPLE
-    > ### Keywords: models regression
-    > 
-    > ### ** Examples
-    > 
-    > 
-    > data(faux.mesa.high)
-    > formula <- faux.mesa.high ~ edges + nodematch("Sex") + nodefactor("Grade")
-    > mplesetup <- ergmMPLE(formula)
-    Warning: 'compact.rle' is deprecated.
-    Use 'compress' instead.
-    See help("Deprecated")
-    Error in as.rle(x) : could not find function "as.rle"
-    Calls: ergmMPLE ... ergm_conlist -> eval -> eval -> <Anonymous> -> rlebdm
-    Execution halted
-    ```
-
-*   checking tests ...
-    ```
-     ERROR
-    Running the tests in ‘tests/constrain_degrees_edges.R’ failed.
-    Last 13 lines of output:
-      > id <- function(nw) apply(as.matrix(nw, matrix.type="adjacency"), 2, sum)
-      > e <- function(nw) network.edgecount(nw)
-      > 
-      > ###### Directed
-      > y0 <- as.network(n, density=d, directed=TRUE)
-      > 
-      > ### Outdegrees
-      > ys <- simulate(y0~sender(nodes=TRUE)+receiver(nodes=TRUE), constraints=~odegrees, coef=rep(0,n*2), nsim=nsim, output="stats")
-      Error in as.rle(x) : could not find function "as.rle"
-      Calls: simulate ... ergm_conlist -> eval -> eval -> <Anonymous> -> rlebdm
+      [ FAIL 33 | WARN 0 | SKIP 78 | PASS 231 ]
+      Error: Test failures
       In addition: Warning message:
-      'compact.rle' is deprecated.
-      Use 'compress' instead.
-      See help("Deprecated") 
+      replacing previous import 'vctrs::data_frame' by 'tibble::data_frame' when loading 'dplyr' 
       Execution halted
-    ```
-
-*   checking R code for possible problems ... NOTE
-    ```
-    rlebdm: no visible global function definition for ‘as.rle’
-    Undefined global functions or variables:
-      as.rle
-    ```
-
-## In both
-
-*   checking installed package size ... NOTE
-    ```
-      installed size is  6.5Mb
-      sub-directories of 1Mb or more:
-        R      1.2Mb
-        doc    1.7Mb
-        libs   2.5Mb
     ```
 

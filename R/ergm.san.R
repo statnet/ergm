@@ -106,8 +106,8 @@ san.default <- function(object,...)
 #'
 #' @templateVar mycontrol control.san
 #' @template control
+#' @template verbose
 #'
-#' @param verbose Logical or numeric giving the level of verbosity. Higher values produce more verbose output.
 #' @param offset.coef A vector of offset coefficients; these must be passed in by the user.  
 #' Note that these should be the same set of coefficients one would pass to \code{ergm} via 
 #' its \code{offset.coef} argument.
@@ -199,7 +199,7 @@ san.formula <- function(object, response=NULL, reference=~Bernoulli, constraints
   tmp <- .handle.auto.constraints(nw, constraints, NULL, NULL)
   nw <- tmp$nw; constraints <- tmp$constraints
 
-  proposal<-ergm_proposal(constraints,arguments=control$SAN.prop.args,nw=nw, hints=control$SAN.prop, weights=control$SAN.prop.weights, class="c",reference=reference)
+  proposal<-ergm_proposal(constraints,arguments=control$SAN.prop.args,nw=nw, hints=control$SAN.prop, weights=control$SAN.prop.weights, class="c",reference=reference, term.options=control$term.options)
   model <- ergm_model(formula, nw, extra.aux=list(proposal=proposal$auxiliaries), term.options=control$term.options)
   proposal$aux.slots <- model$slots.extra.aux$proposal
 
@@ -270,7 +270,7 @@ san.ergm_model <- function(object, reference=~Bernoulli, constraints=~., target.
                 tmp <- .handle.auto.constraints(nw, constraints, NULL, NULL)
                 nw <- tmp$nw; constraints <- tmp$constraints
                 ergm_proposal(constraints,arguments=control$SAN.prop.args,
-                              nw=nw, hints=control$SAN.prop, weights=control$SAN.prop.weights, class="c",reference=reference)
+                              nw=nw, hints=control$SAN.prop, weights=control$SAN.prop.weights, class="c",reference=reference, term.options=control$term.options)
               }
 
   if(length(proposal$auxiliaries) && !length(model$slots.extra.aux$proposal))

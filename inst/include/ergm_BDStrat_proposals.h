@@ -64,13 +64,18 @@ typedef struct {
   
   WtPop *wtp;
   
-  int maxout;
-  int maxin;
+  int **maxout;
+  int **maxin;
+  
+  int **indegree;
+  int **outdegree;
+  int nbdlevels;
   
   int nmixtypes;
   
   int *strat_vattr;
-  int *bd_vattr;
+  int *blocks_vattr;
+  int *bd_vattr;  
   
   int nstratlevels;
   
@@ -83,7 +88,7 @@ typedef struct {
 } BDStratTNTStorage;
 
 // determines which strat mixing types (if any) will have a change in toggleability status if we make the proposed toggle
-static inline void ComputeChangesToToggleability(Vertex *tail, Vertex *head, int edgestate, BDStratTNTStorage *sto) {
+static inline void ComputeChangesToToggleability(Vertex *tail, Vertex *head, BDStratTNTStorage *sto) {
   // here we compute the proposedcumprob, checking only those
   // mixing types that can be influenced by toggles made on 
   // the current mixing type
@@ -92,10 +97,7 @@ static inline void ComputeChangesToToggleability(Vertex *tail, Vertex *head, int
   // avoid these somewhat expensive checks in the typical case
   // where you have enough submaximal nodes that you cannot
   // be exhausting any mixing types of toggleable dyads
-  if((sto->blocks->tails[sto->strat_vattr[*tail]][sto->bd_vattr[*tail]]->length <= 2 &&
-      sto->blocks->boths[sto->strat_vattr[*tail]][sto->bd_vattr[*tail]]->length <= 2) || 
-     (sto->blocks->heads[sto->strat_vattr[*head]][sto->bd_vattr[*head]]->length <= 2 && 
-      sto->blocks->boths[sto->strat_vattr[*head]][sto->bd_vattr[*head]]->length <= 2)) {
+  if(sto->blocks->last_tails->length <= 2 || sto->blocks->last_heads->length <= 2) {
     // temporarily set tail and head toggleability to what it would be in the proposed network
     BDStratBlocksToggleIf(*tail, *head, sto->blocks, sto->tailmaxl, sto->headmaxl);
     

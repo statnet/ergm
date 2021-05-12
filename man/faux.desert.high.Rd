@@ -34,7 +34,8 @@ take the AddHealth survey or who were not listed by name on the schools'
 student roster are not included in the stucture files.  In addition, we
 removed any students with missing values for race, grade or sex.
 
-The following \code{\link{ergm}} model was fit to the original data:
+The following \code{\link{ergm}} model was fit to the original data
+(with code updated for modern syntax):
 
 \preformatted{ desert.fit <- ergm(original.net ~ edges + mutual +
 absdiff("grade") + nodefactor("race", base=5) + nodefactor("grade", base=3)
@@ -47,8 +48,9 @@ control.ergm(MCMLE.steplength = .25, MCMC.burnin = 100000, MCMC.interval =
 Then the faux.desert.high dataset was created by simulating a single network
 from the above model fit:
 
-\preformatted{ faux.desert.high <- simulate(desert.fit, nsim=1, burnin=1e+8,
-constraint = "edges") }
+\preformatted{ faux.desert.high <- simulate(desert.fit, nsim=1,
+                 control=snctrl(MCMC.burnin=1e+8),
+                 constraints = ~edges) }
 }
 \usage{
 data(faux.desert.high)

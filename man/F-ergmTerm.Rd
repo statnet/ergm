@@ -12,7 +12,7 @@
 
 \item{form}{must contain one binary \code{ergm} term, with
 the following properties:
-\enumerate{
+\itemize{
 \item dyadic independence;
 \item dyadwise contribution of 0 for a 0-valued dyad.
 Formally, this means that it is expressable as

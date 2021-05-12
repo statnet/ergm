@@ -41,10 +41,10 @@
 #'   statistics are not returned.
 #' @param changes.only Whether to return network statistics or only
 #'   their changes relative to the initial network.
-#' @param verbose Whether to print progress messages.
 #'
 #' @templateVar mycontrol control.ergm.godfather
 #' @template control
+#' @template verbose
 #'
 #' @return If \code{end.network==FALSE} (the default), an
 #'   \code{\link{mcmc}} object with the requested network statistics
@@ -145,9 +145,6 @@ ergm.godfather <- function(formula, changes=NULL, response=NULL,
 #' 
 #' @export control.ergm.godfather
 control.ergm.godfather<-function(term.options=NULL){
-    control<-list()
-    for(arg in names(formals(sys.function())))
-      control[arg]<-list(get(arg))
-
-    set.control.class("control.ergm.godfather")
+  control <- handle.controls("control.ergm.godfather")
+  set.control.class("control.ergm.godfather")
 }

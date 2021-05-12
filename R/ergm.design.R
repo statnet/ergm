@@ -38,14 +38,13 @@
 #' the future.
 #'
 #' @param nw a [`network`] object.
-#' @param verbose verbosity; currently ignored.
+#' @param ... term options.
 #'
 #' @return \code{ergm.design} returns a \code{\link{rlebdm}} of
 #'   informative (non-missing, non fixed) dyads.
 #' @export ergm.design
-ergm.design <- function(nw, verbose=FALSE){
-  if(!missing(verbose)) .Deprecate_once(msg="verbose= argument to ergm.design() has been deprecated and is ignored.")
-  basecon <- ergm_conlist(~.attributes, nw)
-  misscon <- if(!is.ergm_state(nw) && network.naedgecount(nw)) ergm_conlist(~.attributes+observed, nw)
+ergm.design <- function(nw, ...){
+  basecon <- ergm_conlist(~.attributes, nw, ...)
+  misscon <- if(!is.ergm_state(nw) && network.naedgecount(nw)) ergm_conlist(~.attributes+observed, nw, ...)
   as.rlebdm(basecon, misscon, which="informative")
 }

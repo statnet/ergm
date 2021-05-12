@@ -294,7 +294,7 @@ ergm.estimate<-function(init, model, statsmatrices, statsmatrices.obs=NULL,
 #     message("the log-likelihood did not improve.")
 #   }
     if(inherits(Lout,"try-error") || Lout$value > max(199, trustregion) || Lout$value < -790) {
-      if(!inherits(Lout,"try-error")) message("Apparent likelihood improvement: ", Lout$value, ".")
+      if(!inherits(Lout,"try-error")) message("Apparent likelihood improvement: ", format(Lout$value), ".")
       message("MLE could not be found. Trying Nelder-Mead...")
       Lout <- try(optim(par=guess, 
                         fn=llik.fun.median,
@@ -325,7 +325,7 @@ ergm.estimate<-function(init, model, statsmatrices, statsmatrices.obs=NULL,
   names(theta) <- names(init)
   if (estimateonly) {
     # Output results as ergm-class object
-    return(structure(list(coef=theta,
+    return(structure(list(coefficients=theta,
                           MCMCtheta=init,
                           samplesize=nrow(statsmatrix),
                           loglikelihood=Lout$value, 
@@ -403,7 +403,7 @@ ergm.estimate<-function(init, model, statsmatrices, statsmatrices.obs=NULL,
     names(theta) <- names(init)
     
     # Output results as ergm-class object
-    return(structure(list(coef=theta, sample=statsmatrices, sample.obs=statsmatrices.obs, 
+    return(structure(list(coefficients=theta, sample=statsmatrices, sample.obs=statsmatrices.obs, 
                           iterations=iteration, #mcmcloglik=mcmcloglik,
                           MCMCtheta=init, 
                           loglikelihood=loglikelihood, gradient=gradient, hessian=Lout$hessian,

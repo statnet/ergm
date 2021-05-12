@@ -225,11 +225,7 @@
 #'
 #' @templateVar mycontrol control.ergm
 #' @template control
-#'
-#' @param verbose A `logical` or an integer: if this is
-#'   \code{TRUE}/\code{1}, the program will print out additional
-#'   information about the progress of estimation and
-#'   simulation. Higher values produce more verbosity.
+#' @template verbose
 #'
 #' @param \dots Additional
 #' arguments, to be passed to lower-level functions.
@@ -576,7 +572,7 @@ ergm <- function(formula, response=NULL,
     warn(paste0("The default Bernoulli reference distribution operates in the binary (",sQuote("response=NULL"),") mode only. Did you specify the ",sQuote("reference")," argument?"))
   }
     
-    proposal <- ergm_proposal(constraints, hints=control$MCMC.prop, weights=control$MCMC.prop.weights, control$MCMC.prop.args, nw, class=proposalclass,reference=reference)
+    proposal <- ergm_proposal(constraints, hints=control$MCMC.prop, weights=control$MCMC.prop.weights, control$MCMC.prop.args, nw, class=proposalclass,reference=reference, term.options=control$term.options)
   }else proposal <- constraints
   
   if (verbose) message(sQuote(paste0(proposal$pkgname,":MH_",proposal$name)),".")
@@ -589,7 +585,7 @@ ergm <- function(formula, response=NULL,
   if(!is(obs.constraints, "ergm_proposal")){
     if(!is.null(constraints.obs)){
       if (verbose) message("Initializing constrained Metropolis-Hastings proposal: ", appendLF=FALSE)
-      proposal.obs <- ergm_proposal(constraints.obs, hints=control$obs.MCMC.prop, weights=control$obs.MCMC.prop.weights, control$obs.MCMC.prop.args, nw, class=proposalclass, reference=reference)
+      proposal.obs <- ergm_proposal(constraints.obs, hints=control$obs.MCMC.prop, weights=control$obs.MCMC.prop.weights, control$obs.MCMC.prop.args, nw, class=proposalclass, reference=reference, term.options=control$term.options)
       if (verbose) message(sQuote(paste0(proposal.obs$pkgname,":MH_",proposal.obs$name)), appendLF=FALSE)
       
       if(!is.null(proposal.obs$auxiliaries)){
@@ -651,8 +647,6 @@ ergm <- function(formula, response=NULL,
   if(!is.directed(nw) && ("degrees" %in% names(proposal$arguments$constraints) ||
                                            all(c("b1degrees","b2degrees") %in% names(proposal$arguments$constraints)))) message("Note that degree-conditional MPLE has been removed in version 4.0, having been superceded by Contrastive Divergence.")  
   
-  # Construct the initial model.
-  
   # The following kludge knocks out MPLE if the sample space
   # constraints are not dyad-independent. For example, ~observed
   # constraint is dyad-independent, while ~edges is not.
@@ -688,9 +682,7 @@ ergm <- function(formula, response=NULL,
         message("number of statistics is ",length(model$coef.names), "")
       }
       stop(paste("Invalid starting parameter vector control$init:",
-                 "wrong number of parameters.",
-                 "If you are passing output from another ergm run as control$init,",
-                 "in a model with curved terms, see help(enformulate.curved)."))
+                 "wrong number of parameters."))
     }
   }else control$init <- rep(NA, length(model$etamap$offsettheta)) # Set the default value of control$init.
   
@@ -742,7 +734,7 @@ ergm <- function(formula, response=NULL,
   if(all(model$etamap$offsettheta)){
     # Note that this cannot be overridden with control$force.main.
     message("All terms are either offsets or extreme values. No optimization is performed.")
-    return(structure(list(coef=control$init,
+    return(structure(list(coefficients=control$init,
                           call=ergm_call,
                           iterations=0,
                           loglikelihood=NA,
@@ -786,11 +778,11 @@ ergm <- function(formula, response=NULL,
                                 ...)
 
   switch(control$init.method,
-         MPLE = NVL3(initialfit$xmat.full, check_nonidentifiability(., initialfit$coef, model,
+         MPLE = NVL3(initialfit$xmat.full, check_nonidentifiability(., coef(initialfit), model,
                                                                     tol = control$MPLE.nonident.tol, type="covariates",
                                                                     nonident_action = control$MPLE.nonident,
                                                                     nonvar_action = control$MPLE.nonvar)),
-         CD = NVL3(initialfit$sample, check_nonidentifiability(as.matrix(.), initialfit$coef, model,
+         CD = NVL3(initialfit$sample, check_nonidentifiability(as.matrix(.), coef(initialfit), model,
                                                                tol = control$MPLE.nonident.tol, type="statistics",
                                                                nonident_action = control$MPLE.nonident,
                                                                nonvar_action = control$MPLE.nonvar))
@@ -827,7 +819,7 @@ ergm <- function(formula, response=NULL,
     initialfit$target.stats <- suppressWarnings(na.omit(model$target.stats))
     initialfit$nw.stats <- model$nw.stats
       initialfit$etamap <- model$etamap
-    initialfit$target.esteq <- suppressWarnings(na.omit(if(!is.null(model$target.stats)) ergm.estfun(rbind(model$target.stats), initialfit$coef, model)))
+    initialfit$target.esteq <- suppressWarnings(na.omit(if(!is.null(model$target.stats)) ergm.estfun(rbind(model$target.stats), coef(initialfit), model)))
     initialfit$estimate <- estimate
     initialfit$estimate.desc <- estimate.desc
 
@@ -846,7 +838,7 @@ ergm <- function(formula, response=NULL,
   ergm.getCluster(control, max(verbose-1,0))
   
   # Revise the initial value, if necessary:
-  init <- initialfit$coef
+  init <- coef(initialfit)
   init[is.na(init)] <- 0
   names(init) <- param_names(model, FALSE)
   
@@ -888,7 +880,7 @@ ergm <- function(formula, response=NULL,
   mainfit$formula <- formula
   mainfit$target.stats <- suppressWarnings(na.omit(model$target.stats))
   mainfit$nw.stats <- model$nw.stats
-  mainfit$target.esteq <- suppressWarnings(na.omit(if(!is.null(model$target.stats)) ergm.estfun(rbind(model$target.stats), mainfit$coef, model)))
+  mainfit$target.esteq <- suppressWarnings(na.omit(if(!is.null(model$target.stats)) ergm.estfun(rbind(model$target.stats), coef(mainfit), model)))
   
   mainfit$constrained <- proposal$arguments$constraints
   mainfit$constrained.obs <- proposal.obs$arguments$constraints

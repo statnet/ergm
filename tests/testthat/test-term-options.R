@@ -29,7 +29,7 @@ test_that("ergm() MCMLE of a term that takes options",{
 })
 
 test_that("gof() of a model that had term options",{
-  gof(e2, control=control.gof.ergm(nsim=10))
+  expect_error(gof(e2, control=control.gof.ergm(nsim=10)), NA)
 })
 
 options(ergm.eval.loglik=FALSE)

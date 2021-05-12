@@ -104,9 +104,8 @@
 #'
 #' @templateVar mycontrols [control.simulate.ergm()] or [control.simulate.formula()]
 #' @template control2
+#' @template verbose
 #'
-#' @param verbose Logical: If TRUE, extra information is printed as the Markov
-#' chain progresses.
 #' @param \dots Further arguments passed to or used by methods.
 #' 
 #' @param do.sim Logical: If `FALSE`, do not proceed to the simulation
@@ -293,7 +292,7 @@ simulate_formula <- function(object, ..., basis=eval_lhs.formula(object)) {
   # auxiliary requests could be passed to ergm_model().
   proposal <- if(inherits(constraints, "ergm_proposal")) constraints
                 else ergm_proposal(constraints,arguments=if(observational) control$obs.MCMC.prop.args else control$MCMC.prop.args,
-                                   nw=nw, hints=if(observational) control$obs.MCMC.prop else control$MCMC.prop, weights=if(observational) control$obs.MCMC.prop.weights else control$MCMC.prop.weights, class="c",reference=reference)
+                                   nw=nw, hints=if(observational) control$obs.MCMC.prop else control$MCMC.prop, weights=if(observational) control$obs.MCMC.prop.weights else control$MCMC.prop.weights, class="c",reference=reference, term.options=control$term.options)
   
   # Prepare inputs to ergm.getMCMCsample
   m <- ergm_model(object, nw, extra.aux=list(proposal=proposal$auxiliaries), term.options=control$term.options)
@@ -410,7 +409,7 @@ simulate.ergm_model <- function(object, nsim=1, seed=NULL,
                 tmp <- .handle.auto.constraints(nw0, constraints[[1]], constraints[[2]], NULL)
                 nw0 <- tmp$nw; constraints <- if(observational) tmp$constraints.obs else tmp$constraints
                 ergm_proposal(constraints,arguments=control$MCMC.prop.args,
-                              nw=nw0, hints=control$MCMC.prop, weights=control$MCMC.prop.weights, class="c",reference=reference)
+                              nw=nw0, hints=control$MCMC.prop, weights=control$MCMC.prop.weights, class="c",reference=reference, term.options=control$term.options)
               }
 
   if(length(proposal$auxiliaries) && !length(m$slots.extra.aux$proposal))
@@ -473,10 +472,8 @@ simulate.ergm_state_full <- function(object, nsim=1, seed=NULL,
   m <- as.ergm_model(state)
 
   # Explain how many iterations and steps will ensue if verbose==TRUE
-  if (verbose) {
-    message(paste ("Starting MCMC iterations to generate ", nsim,
-                " network", ifelse(nsim>1,"s","")))
-  }
+  if (verbose) message(paste0("Starting MCMC iterations to generate ", nsim,
+                              " network", if (nsim > 1) "s"))
 
   if (nsim > 1) {
     # Only start the cluster if needed. We don't actually need it
@@ -487,51 +484,63 @@ simulate.ergm_state_full <- function(object, nsim=1, seed=NULL,
 
   #########################
   ## Main part of function:
-  if(sequential && output=="stats"){
+
+  convert_output <-
+    switch(output,
+           ergm_state = function(states, ...) states,
+           network = function(states, ...) lapply(states, as.network),
+           edgelist = function(states, ...) lapply(states, as.edgelist),
+           "function" = function(states, chain, ...) mapply(output.f, states, chain = chain, iter = seq_along(states), SIMPLIFY = FALSE)
+           )
+
+  if(output != "stats") control$MCMC.save_networks <- TRUE
+  if(!sequential) control$MCMC.batch <- 1
+  else NVL(control$MCMC.batch) <- 0
+
+  if(control$MCMC.batch == 0 || control$MCMC.batch >= nsim){ # also implies sequential==TRUE
     # In this case, we can make one parallelized run of
     # ergm_MCMC_sample.
     control$MCMC.samplesize <- nsim
     z <- ergm_MCMC_sample(state, control, theta=coef, verbose=max(verbose-1,0))
     stats <- z$stats
+    if(output != "stats") # then store the returned network:
+      nw.list <- mapply(convert_output, z$sampnetworks, chain=seq_along(z$sampnetworks), SIMPLIFY=FALSE)
   }else{
     # Create objects to store output
-    if (output!="stats") { 
+    if (output!="stats") {
       nw.list <- rep(list(list()),nthreads(control))
     }
     stats <- rep(list(matrix(nrow=0, ncol=nparam(state,canonical=TRUE), 
                              dimnames = list(NULL, param_names(m,canonical=TRUE)))),nthreads(control))
     
-    # Call ergm_MCMC_sample once for each network desired.  This is
-    # much slower than when sequential==TRUE and output=="stats", but
+    # Call ergm_MCMC_sample once for each batch desired.  This is
+    # much slower than when sequential==TRUE and MCMC.batch==0, but
     # here we have a more complicated situation: Either we want a
-    # network for each MCMC iteration (output="network") or we want to
+    # multiple runs (MCMC.batch!=0) or we want to
     # restart each chain at the original network (sequential=FALSE).
-    for(i in 1:ceiling(nsim/nthreads(control))){
+
+    batch_size <- max(control$MCMC.batch, nthreads(control))
+
+    for(i in seq_len(ceiling(nsim/batch_size))){
 
       control.parallel <- modifyList(control,
-                                     list(MCMC.samplesize = nthreads(control),
+                                     list(MCMC.samplesize = batch_size,
                                           MCMC.burnin = if(i==1 || sequential==FALSE) control$MCMC.burnin else control$MCMC.interval))
       z <- ergm_MCMC_sample(state, control.parallel, theta=coef, verbose=max(verbose-1,0))
       
       stats <- mapply(function(s, os) rbind(s, os), stats, z$stats, SIMPLIFY=FALSE)
       
-      if(output!="stats") # then store the returned network:
+      if(output != "stats"){ # then store the returned network:
         # Concatenate the following...
-        nw.list <- mapply(function(nwl, newnw){nwl[[length(nwl)+1]] <- newnw; nwl}, nw.list,
-                          # Extract into a list of network representations, one for each thread:
-                          switch(output,
-                                 ergm_state=z$networks,
-                                 network=lapply(z$networks, as.network),
-                                 edgelist=lapply(z$networks, as.edgelist),
-                                 "function"=mapply(output.f, z$networks, chain=seq_along(z$networks), iter=i, SIMPLIFY=FALSE)
-                                 ),
-                          SIMPLIFY=FALSE)
-      
-      if(sequential){ # then update the network state:
-        state <- z$networks
+        newnw <- mapply(convert_output, z$sampnetworks, chain=seq_along(z$sampnetworks), SIMPLIFY=FALSE)
+        nw.list <- mapply(c, nw.list, newnw, SIMPLIFY=FALSE)
+
+        if(sequential){ # then update the network state:
+          state <- z$networks
+        }
       }
 
-      if(verbose){message(sprintf("Finished simulation %d of %d.",i, nsim))}
+      if (verbose) message(sprintf("Finished simulation %d of %d.", i * control$MCMC.batch, nsim))
     }
   }
 
@@ -552,7 +561,7 @@ simulate.ergm_state_full <- function(object, nsim=1, seed=NULL,
   if(length(nw.list)==1&&simplify){
     nw.list <- nw.list[[1]] # Just one network.
   }else{
-    attributes(nw.list) <- list(coef=coef,
+    attributes(nw.list) <- list(coefficients=coef,
                                 control=control,
                                 response=names(as.edgelist(
                                   if(is.ergm_state(state)) state
@@ -561,7 +570,8 @@ simulate.ergm_state_full <- function(object, nsim=1, seed=NULL,
     class(nw.list) <- "network.list"
   }
   attr(nw.list, "stats") <- stats
-  return(nw.list)
+
+  nw.list
 }
 
 #' @rdname simulate.ergm
@@ -575,7 +585,7 @@ simulate.ergm_state_full <- function(object, nsim=1, seed=NULL,
 #' 
 #' @export
 simulate.ergm <- function(object, nsim=1, seed=NULL, 
-                          coef=object$coef,
+                          coef=coefficients(object),
                           response=object$network%ergmlhs%"response",
                           reference=object$reference,
                           constraints=list(object$constraints, object$obs.constraints),

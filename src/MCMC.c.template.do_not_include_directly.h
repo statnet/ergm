@@ -30,6 +30,9 @@ SEXP DISPATCH_MCMC_wrapper(SEXP stateR,
                     SEXP verbose){
   GetRNGstate();  /* R function enabling uniform RNG */
   DISPATCH_ErgmState *s = DISPATCH_ErgmStateInit(stateR, 0);
+  if(asInteger(maxedges) < 0){
+    s->save = PROTECT(allocVector(VECSXP, asInteger(samplesize)));
+  }else s->save = NULL;
 
   DISPATCH_Model *m = s->m;
   DISPATCH_MHProposal *MHp = s->MHp;
@@ -40,25 +43,31 @@ SEXP DISPATCH_MCMC_wrapper(SEXP stateR,
 
   SEXP status;
   if(MHp) status = PROTECT(ScalarInteger(DISPATCH_MCMCSample(s,
-                                                      REAL(eta), REAL(sample), asInteger(samplesize),
-                                                      asInteger(burnin), asInteger(interval), asInteger(maxedges),
-                                                      asInteger(verbose))));
+                                                             REAL(eta), REAL(sample), asInteger(samplesize),
+                                                             asInteger(burnin), asInteger(interval), abs(asInteger(maxedges)),
+                                                             asInteger(verbose))));
   else status = PROTECT(ScalarInteger(MCMC_MH_FAILED));
 
-  const char *outn[] = {"status", "s", "state", ""};
+  const char *outn[] = {"status", "s", "state", "saved", ""};
   SEXP outl = PROTECT(mkNamed(VECSXP, outn));
   SET_VECTOR_ELT(outl, 0, status);
   SET_VECTOR_ELT(outl, 1, sample);
+  UNPROTECT(2);
 
   /* record new generated network to pass back to R */
-  if(asInteger(status) == MCMC_OK && asInteger(maxedges)>0){
+  if(asInteger(status) == MCMC_OK && asInteger(maxedges) != 0){
     s->stats = REAL(sample) + (asInteger(samplesize)-1)*m->n_stats;
-    SET_VECTOR_ELT(outl, 2, DISPATCH_ErgmStateRSave(stateR, s));
+    SET_VECTOR_ELT(outl, 2, DISPATCH_ErgmStateRSave(s));
+  }
+
+  if(s->save){
+    SET_VECTOR_ELT(outl, 3, s->save);
+    UNPROTECT(1);
   }
 
   DISPATCH_ErgmStateDestroy(s);  
   PutRNGstate();  /* Disable RNG before returning */
-  UNPROTECT(3);
+  UNPROTECT(1);
   return outl;
 }
 
@@ -81,7 +90,6 @@ MCMCStatus DISPATCH_MCMCSample(DISPATCH_ErgmState *s,
   DISPATCH_Model *m = s->m;
 
   int staken, tottaken;
-  int i;
 
   /*********************
   networkstatistics are modified in groups of m->n_stats, and they
@@ -106,8 +114,12 @@ MCMCStatus DISPATCH_MCMCSample(DISPATCH_ErgmState *s,
 			verbose)!=MCMC_OK)
     return MCMC_MH_FAILED;
   if(nmax!=0 && EDGECOUNT(nwp) >= nmax-1){
-    DISPATCH_ErgmStateDestroy(s);  
-    error("Number of edges %u exceeds the upper limit set by the user (%u). This can be a sign of degeneracy, but if not, it can be controlled via MCMC.max.maxedges= and/or MCMLE.density.guard= control parameters.", EDGECOUNT(nwp), nmax);
+    return MCMC_TOO_MANY_EDGES;
+  }
+
+  if(s->save){
+    s->stats = networkstatistics;
+    SET_VECTOR_ELT(s->save, 0, DISPATCH_ErgmStateRSave(s));
   }
 
 /*   if (verbose){
@@ -119,7 +131,7 @@ MCMCStatus DISPATCH_MCMCSample(DISPATCH_ErgmState *s,
     tottaken = 0;
 
     /* Now sample networks */
-    for (i=1; i < samplesize; i++){
+    for (unsigned int i=1; i < samplesize; i++){
       /* Set current vector of stats equal to previous vector */
       memcpy(networkstatistics+m->n_stats, networkstatistics, m->n_stats*sizeof(double));
       networkstatistics += m->n_stats;
@@ -132,6 +144,12 @@ MCMCStatus DISPATCH_MCMCSample(DISPATCH_ErgmState *s,
       if(nmax!=0 && EDGECOUNT(nwp) >= nmax-1){
 	return MCMC_TOO_MANY_EDGES;
       }
+
+      if(s->save){
+        s->stats = networkstatistics;
+        SET_VECTOR_ELT(s->save, i, DISPATCH_ErgmStateRSave(s));
+      }
+
       tottaken += staken;
 
       R_CheckUserInterrupt();
@@ -297,7 +315,7 @@ SEXP DISPATCH_MCMCPhase12 (SEXP stateR,
   /* record new generated network to pass back to R */
   if(asInteger(status) == MCMC_OK && asInteger(maxedges)>0){
     s->stats = REAL(sample) + (asInteger(samplesize)-1)*m->n_stats;
-    SET_VECTOR_ELT(outl, 3, DISPATCH_ErgmStateRSave(stateR, s));
+    SET_VECTOR_ELT(outl, 3, DISPATCH_ErgmStateRSave(s));
   }
 
   DISPATCH_ErgmStateDestroy(s);

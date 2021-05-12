@@ -20,10 +20,10 @@
 A sum (or an arbitrary linear combination) of one or more formulas
 }
 \details{
-: This operator sums up the RHS statistics of the input formulas elementwise.
+This operator sums up the RHS statistics of the input formulas elementwise.
 
 If a formula has an LHS, it is interpreted as follows:
-\enumerate{
+\itemize{
 \item a numeric scalar: Network statistics of this formula will be multiplied by this.
 \item a numeric vector: Corresponding network statistics of this formula will be multiplied by this.
 \item a numeric matrix: Vector of network statistics will be pre-multiplied by this.
@@ -31,7 +31,6 @@ If a formula has an LHS, it is interpreted as follows:
 \itemize{
 \item \code{"sum"} Network statistics of this formula will be summed up; equivalent to \code{matrix(1,1,p)} , where \code{p} is the length of the network statistic vector.
 \item \code{"mean"} Network statistics of this formula will be averaged; equivalent to \code{matrix(1/p,1,p)} , where \code{p} is the length of the network statistic vector.
-.
 }
 }
 

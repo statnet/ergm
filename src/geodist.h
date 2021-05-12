@@ -21,12 +21,4 @@ void full_geodesic_distribution (int *edgelist, int *nnodes,
 				 int *nodecolor, int *dist, int *Q,
 				 int *geodist);
 
-void geodesic_matrix (int *edgelist, int *nnodes,
-		      int *nodelist, int *nedges, 
-		      int *nodecolor, int *distmat, int *Q);
-
-void pair_geodesic (int *edgelist, int *nnodes, int *nodelist,
-                     int *nedges, int *nodecolor, int *dist, 
-		    int *Q, int *source, int *destination);
-
 #endif

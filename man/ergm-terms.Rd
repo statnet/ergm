@@ -14,6 +14,10 @@
 \alias{terms.ergm}
 \alias{InitErgmTerm}
 
+\alias{Exp}
+\alias{Log}
+\alias{Prod}
+\alias{match}
 \alias{nodeisqrtcovar}
 \alias{nodeosqrtcovar}
 \alias{nodesqrtcovar}
@@ -207,6 +211,43 @@
     % documentation about ergm terms. (parsing functions are in build_term_index.R)
     % The list of term tags must appear on the same line as the term name to be parsed correctly
     %%beginTerms%%
+
+    \item{\code{Exp(formula)} (binary) (operator), \code{Exp(formula)} (valued) (operator)}{\emph{Exponentiate a network's statistic}:
+      Evaluate the terms specified in \code{formula} and exponentiates them with base \eqn{e}.
+    }
+
+    \item{\code{Log(formula, log0=-1/sqrt(.Machine$double.eps))} (binary) (operator), \code{Log(formula, log0=-1/sqrt(.Machine$double.eps))} (valued) (operator)}{\emph{Take a natural logarithm of a network's statistic}:
+      Evaluate the terms specified in \code{formula} and takes a natural (base \eqn{e}) logarithm of them. Since an ERGM statistic must be finite, \code{log0} specifies the value to be substituted for \code{log(0)}. The default value seems reasonable for most purposes.
+    }
+
+    \item{\code{Prod(formulas, label)} (binary) (operator), \code{Prod(formulas, label)} (valued) (operator)}{\emph{A product (or an arbitrary power combination) of one or more formulas}:
+
+      \code{formulas} is a list of formulas whose corresponding RHS
+      statistics will be multiplied elementwise. They are required to be nonnegative.
+
+      If a formula has an LHS, it is interpreted as follows: \describe{
+	\item{a numeric scalar}{Network statistics of this formula will be exponentiated by this.}
+	\item{a numeric vector}{Corresponding network statistics of this formula will be exponentiated by this.}
+	\item{a numeric matrix}{Vector of network statistics will be exponentiated by this using the same pattern as matrix multiplication.}
+	\item{a character string}{One of several predefined linear combinations. Currently supported presets are as follows: \describe{
+            \item{\code{"prod"}}{Network statistics of this formula will be multiplied together; equivalent to \code{matrix(1,1,p)}, where \code{p} is the length of the network statistic vector.}
+            \item{\code{"geomean"}}{Network statistics of this formula will be geometrically averaged; equivalent to \code{matrix(1/p,1,p)}, where \code{p} is the length of the network statistic vector.}
+            }.}
+      }
+      Note that each formula must either produce the same number of
+      statistics or be mapped through a matrix to produce the same
+      number of statistics.
+
+      A single formula is also permissible. This can be useful if one
+      wishes to, say, multiply together the statistics returned by a formula.
+
+      \code{label} is used to specify the names of the elements of the resulting term product vector. If \code{label} is of length 1, it will be recycled with indices appended.
+
+      Curved models are supported, subject to some limitations. In particular, the \emph{first} model's etamap will be used, overwriting the others. If \code{label} is not of length 1, it should have an \code{\link{attr}}-style attribute \code{"curved"} specifying the names for the curved parameters.
+
+      Note that the current implementation piggybacks on the \code{Log}, \code{Exp}, and \code{Sum} operators, essentially \code{Exp(~Sum(~Log(formula), label))}. This may result in loss of precision, particularly for extremely large or small statistics. The implementation may change in the future.
+    }
+
     \item{\code{nodecovar}  (valued)  (directed)  (undirected) (quantitative nodal attribute)
     }{\emph{Uncentered covariance of dyad values
 	incident on each actor:} This term adds one statistic equal to

@@ -40,9 +40,9 @@
 #' \item Initial values for the elements that are \code{NA} are fit using the
 #' method specified by \code{\link[=control.ergm]{control$init.method}}.
 #' 
-#' } Passing \code{control.ergm(init=coef(prev.fit))} can be used to ``resume''
-#' an uncoverged [ergm()] run, but see
-#' \code{\link{enformulate.curved}}.
+#' } Passing \code{control.ergm(init=coef(prev.fit))} can be used to
+#' ``resume'' an uncoverged [ergm()] run, though `checkpoint` and
+#' `resume` would be better under most circumstances.
 #' 
 #' @param init.method A chatacter vector or \code{NULL}. The default
 #'   method depends on the reference measure used. For the binary
@@ -170,7 +170,7 @@
 #' convergence.
 #' @param MCMC.runtime.traceplot Logical: If `TRUE`, plot traceplots of the MCMC
 #' sample after every MCMC MLE iteration.
-#' @param MCMC.maxedges The maximum number of edges that may occur during the MCMC sampling.
+#' @template control_MCMC_maxedges
 #' @param MCMC.addto.se Whether to add the standard errors induced by the MCMC
 #' algorithm to the estimates' standard errors.
 #' @param SAN.maxit When \code{target.stats} argument is passed to
@@ -442,9 +442,7 @@
 #' @template control_MCMC_parallel
 #' @template seed
 #' @template control_MCMC_packagenames
-#' @param \dots Additional arguments, passed to other functions This argument
-#' is helpful because it collects any control parameters that have been
-#' deprecated; a warning message is printed in case of deprecated arguments.
+#' @template control_dots
 #' @return A list with arguments as components.
 #' @seealso [ergm()]. The \code{\link{control.simulate}} function
 #' performs a similar function for \code{\link{simulate.ergm}};
@@ -592,7 +590,7 @@ control.ergm<-function(drop=TRUE,
                        MCMLE.last.boost=4,
                        MCMLE.steplength.esteq=TRUE, 
                        MCMLE.steplength.miss.sample=function(x1) ceiling(sqrt(ncol(rbind(x1)))),
-                       MCMLE.steplength.maxit=if(MCMLE.steplength.margin<0) 5 else 25, 
+                       MCMLE.steplength.maxit=NVL3(MCMLE.steplength.margin, if(.<0) 5 else 25),
                        MCMLE.steplength.min=0.0001,
                        MCMLE.effectiveSize.interval_drop=2,
                        MCMLE.save_intermediates=NULL,
@@ -680,24 +678,8 @@ control.ergm<-function(drop=TRUE,
                        )
 
   match.arg.pars <- c("MPLE.type","MCMLE.metric","MCMLE.method","main.method",'MCMLE.termination',"CD.metric","CD.method","MCMLE.steplength.parallel","CD.steplength.parallel","MPLE.nonident","MPLE.nonvar","MCMLE.nonvar","MCMLE.nonident")
-  
-  control<-list()
-  formal.args<-formals(sys.function())
-  formal.args[["..."]]<-NULL
-  for(arg in names(formal.args))
-    control[arg]<-list(get(arg))
 
-  for(arg in names(list(...))){
-    if(!is.null(old.controls[[arg]])){
-      warning("Passing ",arg," to control.ergm(...) is deprecated and may be removed in a future version. Specify it as control.ergm(",old.controls[[arg]],"=...) instead.")
-      control[old.controls[[arg]]]<-list(list(...)[[arg]])
-    }else{
-      stop("Unrecognized control parameter: ",arg,".")
-    }
-  }
-
-  for(arg in match.arg.pars)
-    control[arg]<-list(match.arg(control[[arg]][1],eval(formal.args[[arg]])))
+  control <- handle.controls("control.ergm", ...)
 
   if((MCMLE.steplength!=1 || is.null(MCMLE.steplength.margin)) && MCMLE.termination %in% c("Hummel", "precision"))
     stop("Hummel and precision-based termination require non-null MCMLE.steplength.margin and MCMLE.steplength = 1.")
@@ -707,6 +689,7 @@ control.ergm<-function(drop=TRUE,
   set.control.class("control.ergm")
 }
 
+
 handle.control.toplevel<-function(myname, ...){
   myctrlname <- paste0("control.",myname)
   control.names <- names(list(...))[names(list(...)) %in% names(formals(get(myctrlname, mode="function")))]
@@ -714,7 +697,7 @@ handle.control.toplevel<-function(myname, ...){
 }
 
 SCALABLE_MCMC_CONTROLS <- c("MCMC.burnin", "MCMC.interval")
-STATIC_MCMC_CONTROLS <- c("MCMC.samplesize", "MCMC.prop", "MCMC.prop.weights", "MCMC.prop.args", "MCMC.packagenames", "MCMC.maxedges", "term.options", "obs.MCMC.mul", "obs.MCMC.samplesize.mul", "obs.MCMC.samplesize", "obs.MCMC.interval.mul", "obs.MCMC.interval", "obs.MCMC.burnin.mul", "obs.MCMC.burnin", "obs.MCMC.prop", "obs.MCMC.prop.weights", "obs.MCMC.prop.args", "term.options")
+STATIC_MCMC_CONTROLS <- c("MCMC.samplesize", "MCMC.prop", "MCMC.prop.weights", "MCMC.prop.args", "MCMC.packagenames", "MCMC.maxedges", "term.options", "obs.MCMC.mul", "obs.MCMC.samplesize.mul", "obs.MCMC.samplesize", "obs.MCMC.interval.mul", "obs.MCMC.interval", "obs.MCMC.burnin.mul", "obs.MCMC.burnin", "obs.MCMC.prop", "obs.MCMC.prop.weights", "obs.MCMC.prop.args", "MCMC.batch")
 ADAPTIVE_MCMC_CONTROLS <- c("MCMC.effectiveSize", "MCMC.effectiveSize.damp", "MCMC.effectiveSize.maxruns", "MCMC.effectiveSize.burnin.pval", "obs.MCMC.effectiveSize")
 PARALLEL_MCMC_CONTROLS <- c("parallel","parallel.type","parallel.version.check")
 MPLE_CONTROLS <- c("MPLE.max.dyad.types","MPLE.samplesize","MPLE.type","MPLE.maxit")

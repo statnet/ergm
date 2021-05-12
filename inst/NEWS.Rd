@@ -74,7 +74,7 @@
       }
 
       \item{
-        A new type of term, an \emph{operator} is introduced, taking one or more \code{\link{ergm}} formulas as arguments and transforming their inputs and outputs allowing a wide variety of models to be specified. These include interactions for dyad-independent effects (\code{TERM1:TERM2} and \code{TERM1*TERM2}), \code{B()}inary terms in valued ERGMs, \code{Label()}, \code{F()}ilter, \code{Offset()}, \code{Undir()}, \code{Sum()}, \code{S()}ubgraph, \code{Curve()}, \code{NodematchFilter()}, \code{Undir()}ected, and others.
+        A new type of term, an \emph{operator} is introduced, taking one or more \code{\link{ergm}} formulas as arguments and transforming their inputs and outputs allowing a wide variety of models to be specified. These include interactions for dyad-independent effects (\code{TERM1:TERM2} and \code{TERM1*TERM2}), \code{B()}inary terms in valued ERGMs, \code{Label()}, \code{F()}ilter, \code{Offset()}, \code{Symmetrize()}, \code{Sum()}, \code{S()}ubgraph, \code{Curve()}, \code{NodematchFilter()}, and others.
       }
 
       \item{

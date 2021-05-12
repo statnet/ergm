@@ -28,8 +28,9 @@
 #' @param silent logical, whether to print the warning messages from the
 #' initialization of each model term.
 #' @param \dots additional parameters for model formulation
-#' @param term.options a list of optional settings such as calculation tuning options to be passed to the `InitErgmTerm` functions.
+#' @template term_options
 #' @param extra.aux a list of auxiliary request formulas required elsewhere; if named, the resulting `slots.extra.aux` will also be named.
+#' @param env a throwaway argument needed to prevent conflicts with some usages of `ergm_model`. The initialization environment is *always* taken from the `formula`.
 #' @param object An `ergm_model` object.
 #' @return `ergm_model` returns an  `ergm_model` object as a list
 #' containing:
@@ -41,7 +42,7 @@
 #' @seealso [summary.ergm_model()]
 #' @keywords internal
 #' @export
-ergm_model <- function(formula, nw=NULL, silent=FALSE, ..., term.options=list(), extra.aux=list()){
+ergm_model <- function(formula, nw=NULL, silent=FALSE, ..., term.options=list(), extra.aux=list(), env=globalenv()){
   if (!is(formula, "formula"))
     stop("Invalid model formula of class ",sQuote(class(formula)),".", call.=FALSE)
   
@@ -50,9 +51,6 @@ ergm_model <- function(formula, nw=NULL, silent=FALSE, ..., term.options=list(),
 
   nw <- ensure_network(nw)
   nw <- as.network(nw, populate=FALSE) # In case it's an ergm_state.
-
-  #' @importFrom utils modifyList
-  term.options <- modifyList(as.list(getOption("ergm.term")), as.list(term.options))
   
   #' @importFrom statnet.common list_rhs.formula
   v<-list_rhs.formula(formula)
@@ -123,8 +121,6 @@ ergm_model <- function(formula, nw=NULL, silent=FALSE, ..., term.options=list(),
 #' @keywords internal
 #' @export call.ErgmTerm
 call.ErgmTerm <- function(term, env, nw, ..., term.options=list()){
-  term.options <- modifyList(term.options, list(...))
-
   termroot<-if(!is.valued(nw)) "InitErgm" else "InitWtErgm"
   
   if(is.call(term)) { # This term has some arguments; save them.
@@ -132,17 +128,12 @@ call.ErgmTerm <- function(term, env, nw, ..., term.options=list()){
     args[[1]] <- as.name("list")
   }else args <- list()
   
-  termFun<-locate_prefixed_function(term, paste0(termroot,"Term"), "ERGM term", env=env)
-  termCall<-as.call(list(termFun, nw, args))
-  
-  dotdotdot <- term.options
-  for(j in seq_along(dotdotdot)) {
-    termCall[[3L+j]] <- dotdotdot[[j]]
-    names(termCall)[3L+j] <- names(dotdotdot)[j]
-  }
+  termFun <- locate_prefixed_function(term, paste0(termroot,"Term"), "ERGM term", env=env)
+  termCall <- termCall(termFun, term, nw, term.options, ..., env=env)
+
   #Call the InitErgm function in the environment where the formula was created
   # so that it will have access to any parameters of the ergm terms
-  out <- eval(termCall,env)
+  out <- eval(termCall, env)
   if(is.null(out)) return(NULL)
   # If SO package name not specified explicitly, autodetect.
   if(is.null(out$pkgname)) out$pkgname <- environmentName(environment(eval(termFun)))
@@ -304,3 +295,36 @@ as.ergm_model.formula <- function(x, ...)
 #' @noRd
 #' @export
 as.ergm_model.NULL <- function(x, ...) NULL
+
+
+#' Construct a standard term call
+#'
+#' The call will comprise a function, the network, an argument list
+#' (whose composition depends on the API), and a list of additional
+#' options, passed either through `term.options` or in `...`.
+#'
+#' @param f the function to be called.
+#' @param args a list of arguments to be passed as a part of the
+#'   argument list or a [call()]: if the latter, the first element is
+#'   replaced by `list`.
+#' @param nw a network.
+#' @template term_options
+#' @param ... additional options.
+#' @noRd
+termCall <- function(f, args, nw, term.options, ...){
+  if(is.call(args)) args[[1]] <- as.name("list") # This term has some arguments; save them.
+  else if(!is.list(args)) args <- list()
+
+  termCall <- as.call(list(f, nw, args))
+
+  #' @importFrom utils modifyList
+  dotdotdot <- as.list(getOption("ergm.term")) %>% modifyList(as.list(term.options)) %>% modifyList(list(...))
+  # FIXME: There's probably a more elegant way to do this, but this
+  # works for both calls and lists.
+  for(i in seq_along(dotdotdot)) {
+    termCall[[length(termCall)+1]] <- dotdotdot[[i]]
+    names(termCall)[length(termCall)] <- names(dotdotdot)[i]
+  }
+
+  termCall
+}

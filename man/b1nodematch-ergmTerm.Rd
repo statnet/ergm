@@ -14,7 +14,7 @@
 
 \item{keep}{deprecated}
 
-\item{alpha, beta}{optional discount parameters both of which take values from \link{0, 1}, only one should be
+\item{alpha, beta}{optional discount parameters both of which take values from \verb{[0, 1]}, only one should be
 set at one time}
 
 \item{byb2attr}{specifies a

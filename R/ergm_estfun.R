@@ -34,6 +34,15 @@ ergm.estfun <- function(stats, theta, model, ...){
   UseMethod("ergm.estfun")
 }
 
+#' @describeIn ergm.estfun Method for numeric vectors of length \eqn{p}.
+#' @export
+ergm.estfun.numeric <- function(stats, theta, model, ...){
+  etamap <- if(is(model, "ergm_model")) model$etamap else model
+  estf <- c(ergm.etagradmult(theta,stats,etamap))[!etamap$offsettheta]
+  names(estf) <- (if(is(model, "ergm_model")) param_names(model, FALSE) else names(theta))[!etamap$offsettheta]
+  -estf
+}
+
 #' @describeIn ergm.estfun Method for matrices with \eqn{p} columns.
 #' @export
 ergm.estfun.matrix <- function(stats, theta, model, ...){

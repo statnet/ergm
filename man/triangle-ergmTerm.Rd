@@ -25,7 +25,8 @@ in the network. For an undirected network, a triangle is defined to be any
 set \eqn{\{(i,j), (j,k), (k,i)\}} of three edges. For a directed network, a
 triangle is defined as any set of three edges \eqn{(i{\rightarrow}j)}{(i,j)}
 and \eqn{(j{\rightarrow}k)}{(j,k)} and either \eqn{(k{\rightarrow}i)}{(k,i)}
-or \eqn{(k{\leftarrow}i)}{(i,k)} . The former case is called a \verb{transitive triple'' and the latter is called a }cyclic triple'', so in the case of a
+or \eqn{(k{\leftarrow}i)}{(i,k)} . The former case is called a "transitive
+triple" and the latter is called a "cyclic triple", so in the case of a
 directed network, \code{triangle} equals \code{ttriple} plus \code{ctriple}
 --- thus at most two of these three terms can be in a model.
 }
