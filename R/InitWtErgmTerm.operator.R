@@ -157,16 +157,25 @@ InitWtErgmTerm..submodel_and_summary <- function(nw, arglist, ...){
 }
 
 
+#' @rdname Exp-ergmTerm
+#' @usage
+#' # valued: Exp(formula)
 InitWtErgmTerm.Exp <- function(nw, arglist, ...){
   out <- InitErgmTerm.Exp(nw, arglist, ...)
   out$name <- "wtExp"
   out
 }
 
+#' @rdname Log-ergmTerm
+#' @usage
+#' # valued: Log(formula, log0=-1/sqrt(.Machine$double.eps)
 InitWtErgmTerm.Log <- function(nw, arglist, ...){
   out <- InitErgmTerm.Log(nw, arglist, ...)
   out$name <- "wtLog"
   out
 }
 
+#' @rdname Prod-ergmTerm
+#' @usage
+#' # valued: Prod(formulas, label)
 InitWtErgmTerm.Prod <- InitErgmTerm.Prod

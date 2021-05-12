@@ -822,6 +822,19 @@ InitErgmTerm.Curve <- function(nw, arglist,...){
   c(list(name="passthrough_term", submodel=m), wm)
 }
 
+#' @name Log-ergmTerm
+#' @title Take a natural logarithm of a network's statistic
+#' @description Take a natural logarithm of a network's statistic
+#' @details Evaluate the terms specified in `formula` and takes a natural (base \eqn{e} ) logarithm of them. Since an ERGM statistic must be finite, `log0` specifies the value to be substituted for `log(0)` . The default value seems reasonable for most purposes.
+#'
+#' @usage
+#' # binary: Log(formula, log0=-1/sqrt(.Machine$double.eps))
+#' @param formula formula to be evaluated
+#' @param log0 the value to be substituted for `log(0)`
+#'
+#' @template ergmTerm-general
+#'
+#' @concept operator
 InitErgmTerm.Log <- function(nw, arglist, ...){
   a <- check.ErgmTerm(nw, arglist,
                       varnames = c("formula", "log0"),
@@ -839,6 +852,18 @@ InitErgmTerm.Log <- function(nw, arglist, ...){
   c(list(name="Log", inputs=log0, auxiliaries=~.submodel_and_summary(m)), wm)
 }
 
+#' @name Exp-ergmTerm
+#' @title Exponentiate a network's statistic
+#' @description Exponentiate a network's statistic
+#' @details Evaluate the terms specified in `formula` and exponentiates them with base \eqn{e} .
+#'
+#' @usage
+#' # binary: Exp(formula)
+#' @param formula formula to be evaluated
+#'
+#' @template ergmTerm-general
+#'
+#' @concept operator
 InitErgmTerm.Exp <- function(nw, arglist, ...){
   a <- check.ErgmTerm(nw, arglist,
                       varnames = c("formula"),
@@ -854,6 +879,39 @@ InitErgmTerm.Exp <- function(nw, arglist, ...){
   c(list(name="Exp", auxiliaries=~.submodel_and_summary(m)), wm)
 }
 
+#' @name Prod-ergmTerm
+#' @title A product (or an arbitrary power combination) of one or more formulas
+#' @description A product (or an arbitrary power combination) of one or more formulas
+#' @details This operator evaluates a list of formulas whose corresponnding RHS
+#'   statistics will be multiplied elementwise. They are required to be nonnegative.
+#'   
+#'   If a formula has an LHS, it is interpreted as follows:
+#'   - a numeric scalar: Network statistics of this formula will be exponentiated by this.
+#'   - a numeric vector: Corresponding network statistics of this formula will be exponentiated by this.
+#'   - a numeric matrix: Vector of network statistics will be exponentiated by this using the same pattern as matrix multiplication.
+#'   - a character string: One of several predefined linear combinations. Currently supported presets are as follows:
+#'     - `"prod"`: Network statistics of this formula will be multiplied together; equivalent to `matrix(1,1,p)` , where `p` is the length of the network statistic vector.
+#'     - `"geomean"`: Network statistics of this formula will be geometrically averaged; equivalent to `matrix(1/p,1,p)` , where `p` is the length of the network statistic vector.
+#'   
+#'   Note that each formula must either produce the same number of
+#'   statistics or be mapped through a matrix to produce the same
+#'   number of statistics.
+#'   
+#'   A single formula is also permissible. This can be useful if one
+#'   wishes to, say, multiply together the statistics returned by a formula.
+#'   
+#'   Curved models are supported, subject to some limitations. In particular, the first model's etamap will be used, overwriting the others. If `label` is not of length 1, it should have an `attr` -style attribute `"curved"` specifying the names for the curved parameters.
+#'   
+#' @usage
+#' # binary: Prod(formulas, label)
+#' @param formulas formulas to be evaluated
+#' @param label used to specify the names of the elements of the resulting term product vector. If `label` is of length 1, it will be recycled with indices appended.
+#'
+#' @template ergmTerm-general
+#'
+#' @note The current implementation piggybacks on the `Log` , `Exp` , and `Sum` operators, essentially `Exp(~Sum(~Log(formula), label))` . This may result in loss of precision, particularly for extremely large or small statistics. The implementation may change in the future.
+#'
+#' @concept operator
 InitErgmTerm.Prod <- function(nw, arglist, ..., env=baseenv()){
   a <- check.ErgmTerm(nw, arglist,
                       varnames = c("formulas", "label"),
