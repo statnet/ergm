@@ -37,7 +37,6 @@
 #   trace           : a non-negative interger specifying how much tracing
 #                     information should be printed by the <optim> routine;
 #                     default=6*'verbose'
-#   trustregion     : the trust region parameter for the likelihood functions
 #   dampening       : (logical) should likelihood dampening be used?
 #  dampening.min.ess: effective sample size below which dampening is used
 #   dampening.level : proportional distance from boundary of the convex hull
@@ -62,7 +61,6 @@ ergm.estimate<-function(init, model, statsmatrices, statsmatrices.obs=NULL,
                         method="Nelder-Mead",
                         calc.mcmc.se=TRUE, hessianflag=TRUE,
                         verbose=FALSE, trace=6*verbose,
-                        trustregion=20, 
                         dampening=FALSE,
                         dampening.min.ess=100,
                         dampening.level=0.1,
@@ -252,16 +250,16 @@ ergm.estimate<-function(init, model, statsmatrices, statsmatrices.obs=NULL,
     # "guess" will be the starting point for the optim search algorithm.
     guess <- init[!model$etamap$offsettheta]
     
-    loglikelihoodfn.trust<-function(theta, ..., trustregion=20){
+    loglikelihoodfn.trust<-function(theta, ...){
       # Check for box constraint violation.
       if(anyNA(theta) ||
          any(theta < model$etamap$mintheta[!model$etamap$offsettheta]) ||
          any(theta > model$etamap$maxtheta[!model$etamap$offsettheta]))
         return(list(value=-Inf))
       
-      value<-loglikelihoodfn(theta, ..., trustregion=trustregion)
-      grad<-gradientfn(theta, ..., trustregion=trustregion)
-      hess<-Hessianfn(theta, ..., trustregion=trustregion)
+      value<-loglikelihoodfn(theta, ...)
+      grad<-gradientfn(theta, ...)
+      hess<-Hessianfn(theta, ...)
       hess[upper.tri(hess)]<-t(hess)[upper.tri(hess)]
 #      message_print(value)
 #      message_print(grad)
@@ -277,24 +275,14 @@ ergm.estimate<-function(init, model, statsmatrices, statsmatrices.obs=NULL,
                       parscale=rep(1,length(guess)), minimize=FALSE,
                       xsim=xsim,
                       xsim.obs=xsim.obs,
-                      varweight=varweight, trustregion=trustregion,
+                      varweight=varweight,
                       dampening=dampening,
                       dampening.min.ess=dampening.min.ess,
                       dampening.level=dampening.level,
                       eta0=eta0, etamap=etamap.no),
             silent=FALSE)
     Lout$par<-Lout$argument
-#   if(Lout$value < trustregion-0.001){
-#     current.scipen <- options()$scipen
-#     options(scipen=3)
-#     message("the log-likelihood improved by",
-#         format.pval(Lout$value,digits=4,eps=1e-4),"")
-#     options(scipen=current.scipen)
-#   }else{
-#     message("the log-likelihood did not improve.")
-#   }
-    if(inherits(Lout,"try-error") || Lout$value > max(199, trustregion) || Lout$value < -790) {
-      if(!inherits(Lout,"try-error")) message("Apparent likelihood improvement: ", format(Lout$value), ".")
+    if(inherits(Lout,"try-error")) {
       message("MLE could not be found. Trying Nelder-Mead...")
       Lout <- try(optim(par=guess, 
                         fn=llik.fun.median,
@@ -304,13 +292,13 @@ ergm.estimate<-function(init, model, statsmatrices, statsmatrices.obs=NULL,
                                      reltol=nr.reltol),
                         xsim=xsim,
                         xsim.obs=xsim.obs,
-                        varweight=varweight, trustregion=trustregion,
+                        varweight=varweight,
                         dampening=dampening,
                         dampening.min.ess=dampening.min.ess,
                         dampening.level=dampening.level,
                         eta0=eta0, etamap=etamap.no),
               silent=FALSE)
-      if(inherits(Lout,"try-error") || Lout$value > max(500, trustregion) ){
+      if(inherits(Lout,"try-error")){
         message(paste("No direct MLE exists!"))
       }
       if(Lout$convergence != 0 ){
@@ -335,7 +323,7 @@ ergm.estimate<-function(init, model, statsmatrices, statsmatrices.obs=NULL,
     gradienttheta <- llik.grad.IS(theta=Lout$par,
                         xsim=xsim,
                         xsim.obs=xsim.obs,
-                        varweight=varweight, trustregion=trustregion,
+                        varweight=varweight,
                         eta0=eta0, etamap=etamap.no)
     gradient <- rep(NA, length=length(init))
     gradient[!model$etamap$offsettheta] <- gradienttheta
@@ -350,7 +338,7 @@ ergm.estimate<-function(init, model, statsmatrices, statsmatrices.obs=NULL,
       Lout$hessian <- Hessianfn(theta=Lout$par,
                         xsim=xsim.orig,
                         xsim.obs=xsim.orig.obs,
-                        varweight=varweight,trustregion=+Inf,
+                        varweight=varweight,
                         eta0=eta0, etamap=etamap.no
                         )
     }
