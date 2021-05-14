@@ -7,6 +7,8 @@
 \section{Term index}{
 
 
-\Sexpr[results=rd,stage=render]{ergm:::.generateDynamicIndex()}
+\if{html}{\Sexpr[results=rd,stage=render]{ergm:::.generateDynamicIndex(ergm:::.formatHtml)}}
+\if{latex}{\Sexpr[results=rd,stage=render]{ergm:::.generateDynamicIndex(ergm:::.formatLatex)}}
+\if{text}{\Sexpr[results=verbatim,stage=render]{ergm:::.generateDynamicIndex(ergm:::.formatText)}}
 }
 

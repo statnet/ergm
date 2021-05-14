@@ -9,6 +9,7 @@
 #######################################################################
 
 library(magrittr)
+library(knitr)
 
 # Return the index entry for a single term in the new format
 .parseTerm <- function(name, pkg, pkg_name) {
@@ -24,7 +25,7 @@ library(magrittr)
         trimws()
 	usages <- list()
 	for (usage_line in regmatches(raw_usage, regexec("^(binary|valued): *(.+)$", raw_usage))) {
-		usages[[length(usages) + 1]] <- list(type=usage_line[2], value=usage_line[3])
+		usages[[usage_line[2]]] <- usage_line[3]
 	}
 
     ret <- list(
@@ -51,7 +52,6 @@ library(magrittr)
 #' @noRd
 ergmTermCache <- local({
 	cache <- list()
-	watchlist <- character(0) # Packages being watched for unloading.
 	pkglist <- character(0) # Current list of packages.
 
 	# Reset the cache and update the list of watched packages.
@@ -78,7 +78,8 @@ ergmTermCache <- local({
 
 	# Check if new namespaces have been added.
 	checknew <- function() {
-		for (pkg_name in .packages(TRUE)) {
+		loaded_packages <- .packages(TRUE)
+		for (pkg_name in loaded_packages) {
 			if (!pkg_name %in% pkglist) {
 				load(pkg_name)
 
@@ -86,33 +87,49 @@ ergmTermCache <- local({
 				setHook(packageEvent(pkg_name, "onUnload"), unload)
 			}
 		}
+
+		pkglist <<- loaded_packages
 	}
 
 	function (name=NULL) {
 		checknew()
 
-		if (is.null(name)) {
-			return (cache)
-		} else {
-			return (cache[[name]])
-		}
+		if (is.null(name)) (cache) else (cache[[name]])
 	}
 })
 
-# Generate the index entry for a single term
-.genTermEntry <- function(term) {
-    ret <- sprintf('%s (%s)\n    %s\n\n    Keywords: %s\n    %s\n\n',
-                   term$name,
-                   term$package,
-				   if (!is.null(term$description)) term$description else term$title,
-				   paste(term$concept, collapse=' '),
-                   'link')
-    return(ret)
+.buildTermsDataframe <- function(terms) {
+	df <- c()
+	for (term in terms) {
+		usage <- paste(sprintf('%s (%s)', term$usages, names(term$usages)), collapse=', ')
+		df <- rbind(df, c(usage, term$package, term$title, paste(term$concepts, collapse=', ')))
+	}
+
+	df <- data.frame(df)
+	colnames(df) <- c('Term', 'Package', 'Description', 'Concepts')
+
+	return (df)
 }
 
 # Generate the dynamic index text
-.generateDynamicIndex <- function() {
-    return(paste(sapply(ergmTermCache(), .genTermEntry), collapse=''))
+.generateDynamicIndex <- function(formatter) {
+	df <- .buildTermsDataframe(ergmTermCache())
+	formatter(df)
+}
+
+# Format the table for text output
+.formatText <- function(df) {
+	knitr::kable(df, 'simple')
+}
+
+# Format the table for text output
+.formatLatex <- function(df) {
+	knitr::kable(df, 'latex')
+}
+
+# Format the table for text output
+.formatHtml <- function(df) {
+	gsub(' *\n *', '', sprintf('\\out{%s}', knitr::kable(df, 'html')))
 }
 
 #' An index of Ergm terms
@@ -121,5 +138,7 @@ ergmTermCache <- local({
 #' @docType package
 #' @section Term index:
 #'
-#' \Sexpr[results=rd,stage=render]{ergm:::.generateDynamicIndex()}
+#' \if{html}{\Sexpr[results=rd,stage=render]{ergm:::.generateDynamicIndex(ergm:::.formatHtml)}}
+#' \if{latex}{\Sexpr[results=rd,stage=render]{ergm:::.generateDynamicIndex(ergm:::.formatLatex)}}
+#' \if{text}{\Sexpr[results=verbatim,stage=render]{ergm:::.generateDynamicIndex(ergm:::.formatText)}}
 NULL
