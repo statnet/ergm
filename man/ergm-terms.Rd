@@ -482,8 +482,8 @@
     }
 
 
-    \item{\code{F(formula, form)} (binary) (operator)}{\emph{Filtering on arbitrary one-term model.}
-      \code{form} must contain one binary \code{ergm} term, with
+    \item{\code{F(formula, filter)} (binary) (operator)}{\emph{Filtering on arbitrary one-term model.}
+      \code{filter} must contain one binary \code{ergm} term, with
       the following properties:
       \itemize{
 	\item{dyadic independence;}
