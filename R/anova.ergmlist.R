@@ -50,54 +50,17 @@ anova.ergmlist <- function (object, ..., eval.loglik=FALSE, scale = 0, test = "F
   nmodels <- length(objects)
   if (nmodels == 1) 
     return(anova.ergm(object))
-  n <- network.size(object$newnetwork)
   logl <- df <- Rdf <- rep(0, nmodels)
   logl.null <- if(is.null(objects[[1]][["null.lik"]])) 0 else objects[[1]][["null.lik"]]
   for (i in 1:nmodels) {
-    nodes<- network.size(objects[[i]]$newnetwork)
     n <- nobs(logLik(objects[[i]]))
     df[i] <- nparam(objects[[i]], offset = FALSE) 
     Rdf[i] <- n - df[i]
     logl[i] <- logLik(objects[[i]])
   }
-  k <- nmodels
-# k <- 1 + length(objects[[i]]$glm$coef)
-#
-# if (k >= 2) {
-#    k <- k+1
-#    if(length(object$glm$coef) > 3)
-#      varlist <- attr(object$terms, "variables")
-#    x <- if (n <- match("x", names(object$glm), 0))
-#      object$glm[[n]]
-#    else
-#      model.matrix(object$glm)
-#    varseq <- attr(x, "assign")
-#    nvars <- max(0, varseq)
-#    resdev <- resdf <- NULL
-#    if(nvars>1)
-#      for(i in 1:(nvars - 1))
-#      {
-#        fit <- glm.fit(x = x[, varseq <= i, drop = FALSE], 
-#                     y = object$glm$y, weights = object$prior.weights, 
-#                     start = object$glm$start, offset = object$glm$offset, 
-#                     family = object$glm$family, control = object$glm$control)
-#        resdev <- c(resdev, fit$deviance)
-#        resdf <- c(resdf, fit$df.residual)
-#      }
-#
-#    df <- c(0, object$glm$df.null - object$glm$df.residual, df)
-#    Rdf <- c(object$glm$df.null, resdf,object$glm$df.residual, Rdf)
-#    df <- n - Rdf
-#    if(length(resdev>0))
-#      logl <- c(-object$glm.null$deviance/2, -resdev/2,-object$glm$deviance/2, logl)
-#    else logl <- c(-object$glm.null$deviance/2, -object$glm$deviance/2, logl)
-#  } else {
     df <- c(0, df)
-#   Rdf <- c(object$glm$df.null, Rdf)
-#   logl <- c(-object$glm.null$deviance/2, logl)
     Rdf <- c(n, Rdf)
     logl <- c(logl.null, logl)
-#  }
   pv <- pchisq(abs(2 * diff(logl)), abs(diff(df)), lower.tail = FALSE)
 
   table <- data.frame(c(NA, -diff(Rdf)), c(NA, diff(2 * logl)), 
@@ -106,9 +69,6 @@ anova.ergmlist <- function (object, ..., eval.loglik=FALSE, scale = 0, test = "F
                                                  collapse = "\n"))
   colnames(table) <- c("Df","Deviance", "Resid. Df",
                               "Resid. Dev", "Pr(>|Chisq|)")
-  if (k > 2) 
-    rownames(table) <- c("NULL", object$glm.names,1:nmodels)
-  else
     rownames(table) <- c("NULL", 1:nmodels)
 
   title <- "Analysis of Variance Table\n"
