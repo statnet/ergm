@@ -31,7 +31,7 @@ binary_dind_wrap <- function(name, nw, a, ..., cn=name){
 #' # valued: absdiff(attr,
 #' #                 pow=1,
 #' #                 form="sum")
-#' @param form character how to aggregate tie values in a valued ERGM
+#' @template ergmTerm-form
 InitWtErgmTerm.absdiff <- function(nw, arglist, ..., version=packageVersion("ergm")) {
   if(version <= as.package_version("3.9.4")){
     ### Check the network and arguments to make sure they are appropriate.
@@ -58,7 +58,7 @@ InitWtErgmTerm.absdiff <- function(nw, arglist, ..., version=packageVersion("erg
 #' #                 base=NULL,
 #' #                 levels=NULL,
 #' #                 form="sum")
-#' @param form character how to aggregate tie values in a valued ERGM
+#' @template ergmTerm-form
 InitWtErgmTerm.absdiffcat <- function(nw, arglist, ..., version=packageVersion("ergm")) {
   if(version <= as.package_version("3.9.4")){
     ### Check the network and arguments to make sure they are appropriate.
@@ -148,7 +148,7 @@ InitWtErgmTerm.atmost<-function(nw, arglist, ...) {
 #' @rdname b1cov-ergmTerm
 #' @usage
 #' # valued: b1cov(attr, form="sum")
-#' @param form character how to aggregate tie values in a valued ERGM
+#' @template ergmTerm-form
 InitWtErgmTerm.b1cov<-function (nw, arglist, ..., version=packageVersion("ergm")) {
   if(version <= as.package_version("3.9.4")){
     a <- check.ErgmTerm(nw, arglist, directed=FALSE, bipartite=TRUE, 
@@ -169,7 +169,7 @@ InitWtErgmTerm.b1cov<-function (nw, arglist, ..., version=packageVersion("ergm")
 #' @rdname b1factor-ergmTerm
 #' @usage
 #' # valued: b1factor(attr, base=1, levels=-1, form="sum")
-#' @param form character how to aggregate tie values in a valued ERGM
+#' @template ergmTerm-form
 InitWtErgmTerm.b1factor<-function (nw, arglist, ..., version=packageVersion("ergm")) {
   if(version <= as.package_version("3.9.4")){
     a <- check.ErgmTerm(nw, arglist, directed=FALSE, bipartite=TRUE,
@@ -191,7 +191,7 @@ InitWtErgmTerm.b1factor<-function (nw, arglist, ..., version=packageVersion("erg
 #' @rdname b1sociality-ergmTerm
 #' @usage
 #' # valued: b1sociality(nodes=-1, form="sum")
-#' @param form character how to aggregate tie values in a valued ERGM
+#' @template ergmTerm-form
 InitWtErgmTerm.b1sociality<-function(nw, arglist, ...) {
   a <- check.ErgmTerm(nw, arglist, directed=FALSE, bipartite=TRUE,
                       varnames = c("nodes", "form"),
@@ -205,7 +205,7 @@ InitWtErgmTerm.b1sociality<-function(nw, arglist, ...) {
 #' @rdname b2cov-ergmTerm
 #' @usage
 #' # valued: b2cov(attr, form="sum")
-#' @param form character how to aggregate tie values in a valued ERGM
+#' @template ergmTerm-form
 InitWtErgmTerm.b2cov<-function (nw, arglist, ..., version=packageVersion("ergm")) {
   if(version <= as.package_version("3.9.4")){
     a <- check.ErgmTerm(nw, arglist, directed=FALSE, bipartite=TRUE,
@@ -227,7 +227,7 @@ InitWtErgmTerm.b2cov<-function (nw, arglist, ..., version=packageVersion("ergm")
 #' @rdname b2factor-ergmTerm
 #' @usage
 #' # valued: b2factor(attr, base=1, levels=-1, form="sum")
-#' @param form character how to aggregate tie values in a valued ERGM
+#' @template ergmTerm-form
 InitWtErgmTerm.b2factor<-function (nw, arglist, ..., version=packageVersion("ergm")) {
   if(version <= as.package_version("3.9.4")){
     a <- check.ErgmTerm(nw, arglist, directed=FALSE, bipartite=TRUE,
@@ -249,7 +249,7 @@ InitWtErgmTerm.b2factor<-function (nw, arglist, ..., version=packageVersion("erg
 #' @rdname b2sociality-ergmTerm
 #' @usage
 #' # valued: b2sociality(nodes=-1, form="sum")
-#' @param form character how to aggregate tie values in a valued ERGM
+#' @template ergmTerm-form
 InitWtErgmTerm.b2sociality<-function(nw, arglist, ...) {
   a <- check.ErgmTerm(nw, arglist, directed=FALSE, bipartite=TRUE,
                       varnames = c("nodes", "form"),
@@ -263,7 +263,7 @@ InitWtErgmTerm.b2sociality<-function(nw, arglist, ...) {
 #' @rdname diff-ergmTerm
 #' @usage
 #' # valued: diff(attr, pow=1, dir="t-h", sign.action="identity", form ="sum")
-#' @param form character how to aggregate tie values in a valued ERGM
+#' @template ergmTerm-form
 InitWtErgmTerm.diff <- function(nw, arglist, ..., version=packageVersion("ergm")) {
   if(version <= as.package_version("3.9.4")){
     ### Check the network and arguments to make sure they are appropriate.
@@ -286,7 +286,7 @@ InitWtErgmTerm.diff <- function(nw, arglist, ..., version=packageVersion("ergm")
 #' @rdname edgecov-ergmTerm
 #' @usage
 #' # valued: edgecov(x, attrname=NULL, form="sum")
-#' @param form character how to aggregate tie values in a valued ERGM
+#' @template ergmTerm-form
 InitWtErgmTerm.edgecov <- function(nw, arglist, ...) {
   ### Check the network and arguments to make sure they are appropriate.
   a <- check.ErgmTerm(nw, arglist, 
@@ -545,7 +545,7 @@ InitWtErgmTerm.nodesqrtcovar<-function (nw, arglist, ...) {
 #' @rdname nodefactor-ergmTerm
 #' @usage
 #' # valued: nodefactor(attr, base=1, levels=-1, form="sum")
-#' @param form character how to aggregate tie values in a valued ERGM
+#' @template ergmTerm-form
 InitWtErgmTerm.nodefactor<-function (nw, arglist, ..., version=packageVersion("ergm")) {
   ### Check the network and arguments to make sure they are appropriate.
   if(version <= as.package_version("3.9.4")){
@@ -568,7 +568,7 @@ InitWtErgmTerm.nodefactor<-function (nw, arglist, ..., version=packageVersion("e
 #' @rdname sociality-ergmTerm
 #' @usage
 #' # valued: sociality(attr=NULL, base=1, levels=NULL, nodes=-1, form="sum")
-#' @param form character how to aggregate tie values in a valued ERGM
+#' @template ergmTerm-form
 InitWtErgmTerm.sociality<-function (nw, arglist, ..., version=packageVersion("ergm")) {
   ### Check the network and arguments to make sure they are appropriate.
   if(version <= as.package_version("3.9.4")){
@@ -636,7 +636,7 @@ InitWtErgmTerm.nodeocovar<-function (nw, arglist, ...) {
 #' @rdname nodeofactor-ergmTerm
 #' @usage
 #' # valued: nodeofactor(attr, base=1, levels=-1, form="sum")
-#' @param form character how to aggregate tie values in a valued ERGM
+#' @template ergmTerm-form
 InitWtErgmTerm.nodeofactor<-function (nw, arglist, ..., version=packageVersion("ergm")) {
   ### Check the network and arguments to make sure they are appropriate.
   if(version <= as.package_version("3.9.4")){
@@ -659,7 +659,7 @@ InitWtErgmTerm.nodeofactor<-function (nw, arglist, ..., version=packageVersion("
 #' @rdname sender-ergmTerm
 #' @usage
 #' # valued: sender(base=1, nodes=-1, form="sum")
-#' @param form character how to aggregate tie values in a valued ERGM
+#' @template ergmTerm-form
 InitWtErgmTerm.sender<-function (nw, arglist, ..., version=packageVersion("ergm")) {
   ### Check the network and arguments to make sure they are appropriate.
   if(version <= as.package_version("3.9.4")){
@@ -726,7 +726,7 @@ InitWtErgmTerm.nodeicovar<-function (nw, arglist, ...) {
 #' @rdname nodeifactor-ergmTerm
 #' @usage
 #' # valued: nodeifactor(attr, base=1, levels=-1, form="sum")
-#' @param form character how to aggregate tie values in a valued ERGM
+#' @template ergmTerm-form
 InitWtErgmTerm.nodeifactor<-function (nw, arglist, ..., version=packageVersion("ergm")) {
   ### Check the network and arguments to make sure they are appropriate.
   if(version <= as.package_version("3.9.4")){
@@ -749,7 +749,7 @@ InitWtErgmTerm.nodeifactor<-function (nw, arglist, ..., version=packageVersion("
 #' @rdname receiver-ergmTerm
 #' @usage
 #' # valued: receiver(base=1, nodes=-1, form="sum")
-#' @param form character how to aggregate tie values in a valued ERGM
+#' @template ergmTerm-form
 InitWtErgmTerm.receiver<-function (nw, arglist, ..., version=packageVersion("ergm")) {
   ### Check the network and arguments to make sure they are appropriate.
   if(version <= as.package_version("3.9.4")){
@@ -772,7 +772,7 @@ InitWtErgmTerm.receiver<-function (nw, arglist, ..., version=packageVersion("erg
 #' @rdname nodematch-ergmTerm
 #' @usage
 #' # valued: nodematch(attr, diff=FALSE, keep=NULL, levels=NULL, form="sum")
-#' @param form character how to aggregate tie values in a valued ERGM
+#' @template ergmTerm-form
 InitWtErgmTerm.nodematch<-InitWtErgmTerm.match<-function (nw, arglist, ..., version=packageVersion("ergm")) {
   ### Check the network and arguments to make sure they are appropriate.
   if(version <= as.package_version("3.9.4")){
@@ -796,7 +796,7 @@ InitWtErgmTerm.nodematch<-InitWtErgmTerm.match<-function (nw, arglist, ..., vers
 #' @rdname nodemix-ergmTerm
 #' @usage
 #' # valued: nodemix(attr, base=NULL, b1levels=NULL, b2levels=NULL, levels=NULL, levels2=-1, form="sum")
-#' @param form character how to aggregate tie values in a valued ERGM
+#' @template ergmTerm-form
 InitWtErgmTerm.nodemix<-function (nw, arglist, ..., version=packageVersion("ergm")) {
   if(version <= as.package_version("3.9.4")){
     ### Check the network and arguments to make sure they are appropriate.
@@ -819,7 +819,7 @@ InitWtErgmTerm.nodemix<-function (nw, arglist, ..., version=packageVersion("ergm
 #' @rdname nodecov-ergmTerm
 #' @usage
 #' # valued: nodecov(attr, form="sum")
-#' @param form character how to aggregate tie values in a valued ERGM
+#' @template ergmTerm-form
 InitWtErgmTerm.nodecov<-InitWtErgmTerm.nodemain<-function (nw, arglist, ..., version=packageVersion("ergm")) {
   if(version <= as.package_version("3.9.4")){
     a <- check.ErgmTerm(nw, arglist,
@@ -840,7 +840,7 @@ InitWtErgmTerm.nodecov<-InitWtErgmTerm.nodemain<-function (nw, arglist, ..., ver
 #' @rdname nodeicov-ergmTerm
 #' @usage
 #' # valued: nodeicov(attr, form="sum")
-#' @param form character how to aggregate tie values in a valued ERGM
+#' @template ergmTerm-form
 InitWtErgmTerm.nodeicov<-function (nw, arglist, ..., version=packageVersion("ergm")) {
   if(version <= as.package_version("3.9.4")){
     a <- check.ErgmTerm(nw, arglist, directed=TRUE,
@@ -862,7 +862,7 @@ InitWtErgmTerm.nodeicov<-function (nw, arglist, ..., version=packageVersion("erg
 #' @rdname nodeocov-ergmTerm
 #' @usage
 #' # valued: nodeocov(attr, form="sum")
-#' @param form character how to aggregate tie values in a valued ERGM
+#' @template ergmTerm-form
 InitWtErgmTerm.nodeocov<-function (nw, arglist, ..., version=packageVersion("ergm")) {
   if(version <= as.package_version("3.9.4")){
     a <- check.ErgmTerm(nw, arglist, directed=TRUE, 
@@ -906,7 +906,7 @@ InitWtErgmTerm.edges <- InitWtErgmTerm.nonzero
 #' @rdname mutual-ergmTerm
 #' @usage
 #' # valued: mutual(form="min",threshold=0)
-#' @param form character how to aggregate tie values in a valued ERGM
+#' @template ergmTerm-form
 InitWtErgmTerm.mutual<-function (nw, arglist, ...) {
 ### Check the network and arguments to make sure they are appropriate.
   a <- check.ErgmTerm(nw, arglist, directed=TRUE, bipartite=NULL,
@@ -1070,7 +1070,7 @@ InitWtErgmTerm.cyclicalweights<-function (nw, arglist, ...) {
 #' @rdname mm-ergmTerm
 #' @usage
 #' # valued: mm(attrs, levels=NULL, levels2=-1, form="sum")
-#' @param form character how to aggregate tie values in a valued ERGM
+#' @template ergmTerm-form
 InitWtErgmTerm.mm<-function (nw, arglist, ...) {
   a <- check.ErgmTerm(nw, arglist,
                       varnames = c("attrs", "levels", "levels2", "form"),
