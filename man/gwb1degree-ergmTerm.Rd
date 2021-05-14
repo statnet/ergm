@@ -3,7 +3,7 @@
 \name{gwb1degree-ergmTerm}
 \alias{gwb1degree-ergmTerm}
 \alias{InitErgmTerm.gwb1degree}
-\title{Geometrically weighted degree distribution for the first mode in a bipartite (aka two-mode) network}
+\title{Geometrically weighted degree distribution for the first mode in a bipartite network}
 \usage{
 # binary: gwb1degree(decay, fixed=FALSE, attr=NULL, cutoff=30, levels=NULL)
 }

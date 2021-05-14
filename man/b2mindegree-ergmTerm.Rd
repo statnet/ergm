@@ -3,7 +3,7 @@
 \name{b2mindegree-ergmTerm}
 \alias{b2mindegree-ergmTerm}
 \alias{InitErgmTerm.b2mindegree}
-\title{Minimum degree for the second mode in a bipartite (aka two-mode) network}
+\title{Minimum degree for the second mode in a bipartite network}
 \usage{
 # binary: b2mindegree(d)
 }

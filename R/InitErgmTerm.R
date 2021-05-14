@@ -528,8 +528,8 @@ InitErgmTerm.attrcov <- function (nw, arglist, ..., version=packageVersion("ergm
 ################################################################################
 
 #' @name b1concurrent-ergmTerm
-#' @title Concurrent node count for the first mode in a bipartite (aka two-mode) network
-#' @description Concurrent node count for the first mode in a bipartite (aka two-mode) network
+#' @title Concurrent node count for the first mode in a bipartite network
+#' @description Concurrent node count for the first mode in a bipartite network
 #' @details This term adds one
 #'   network statistic to the model, equal to the number of nodes in the first
 #'   mode of the network with degree 2 or higher. The first mode of a bipartite
@@ -602,7 +602,7 @@ InitErgmTerm.b1concurrent<-function(nw, arglist, ..., version=packageVersion("er
 ################################################################################
 
 #' @name b1degrange-ergmTerm
-#' @title Degree range for the first mode in a bipartite (a.k.a. two-mode) network
+#' @title Degree range for the first mode in a bipartite network
 #' @description Degree range for the first mode in a bipartite (a.k.a. two-mode) network
 #' @details This term adds one
 #'   network statistic to the model for each element of `from` (or `to` ); the \eqn{i}th
@@ -718,7 +718,7 @@ InitErgmTerm.b1degrange<-function(nw, arglist, ..., version=packageVersion("ergm
 ################################################################################
 
 #' @name b1cov-ergmTerm
-#' @title Main effect of a covariate for the first mode in a bipartite (aka two-mode) network
+#' @title Main effect of a covariate for the first mode in a bipartite network
 #' @description Main effect of a covariate for the first mode in a bipartite (aka two-mode) network
 #' @details This term adds a single network statistic for each quantitative attribute or matrix column to the model equaling the total
 #'   value of `attr(i)` for all edges /eqn{(i,j)} in the network. This
@@ -773,7 +773,7 @@ InitErgmTerm.b1cov<-function (nw, arglist, ..., version=packageVersion("ergm")) 
 ################################################################################
 
 #' @name b1degree-ergmTerm
-#' @title Degree for the first mode in a bipartite (aka two-mode) network
+#' @title Degree for the first mode in a bipartite network
 #' @description Degree for the first mode in a bipartite (aka two-mode) network
 #' @details This term adds one network statistic to the model for
 #'   each element in `d` ; the \eqn{i}th such statistic equals the number of
@@ -905,7 +905,7 @@ InitErgmTerm.b1dsp<-function(nw, arglist, cache.sp=TRUE, ...) {
 ################################################################################
 
 #' @name b1factor-ergmTerm
-#' @title Factor attribute effect for the first mode in a bipartite (aka two-mode) network
+#' @title Factor attribute effect for the first mode in a bipartite network
 #' @description Factor attribute effect for the first mode in a bipartite (aka two-mode) network
 #' @details This term adds multiple network statistics to the model, one for each of (a subset of) the
 #'   unique values of the `attr` attribute. Each of these statistics
@@ -1025,7 +1025,7 @@ InitErgmTerm.b1sociality<-function(nw, arglist, ...) {
 ################################################################################
 
 #' @name b1star-ergmTerm
-#' @title k-Stars for the first mode in a bipartite (aka two-mode) network
+#' @title k-Stars for the first mode in a bipartite network
 #' @description k-Stars for the first mode in a bipartite (aka two-mode) network
 #' @details This term adds one network statistic to the model for
 #'   each element in `k` . The \eqn{i} th such statistic counts the number of
@@ -1287,7 +1287,7 @@ InitErgmTerm.b1twostar <- function(nw, arglist, ..., version=packageVersion("erg
 ################################################################################
 
 #' @name b2concurrent-ergmTerm
-#' @title Concurrent node count for the second mode in a bipartite (aka two-mode) network
+#' @title Concurrent node count for the second mode in a bipartite network
 #' @description Concurrent node count for the second mode in a bipartite (aka two-mode) network
 #' @details This term adds one
 #'   network statistic to the model, equal to the number of nodes in the second
@@ -1358,7 +1358,7 @@ InitErgmTerm.b2concurrent<-function(nw, arglist, ..., version=packageVersion("er
 ################################################################################
 
 #' @name b2cov-ergmTerm
-#' @title Main effect of a covariate for the second mode in a bipartite (aka two-mode) network
+#' @title Main effect of a covariate for the second mode in a bipartite  network
 #' @description Main effect of a covariate for the second mode in a bipartite (aka two-mode) network
 #' @details This term adds a single network statistic for each quantitative attribute or matrix column to the model equaling the total
 #'   value of `attr(j)` for all edges \eqn{(i,j)} in the network. This
@@ -1411,7 +1411,7 @@ InitErgmTerm.b2cov<-function (nw, arglist, ..., version=packageVersion("ergm")) 
 ################################################################################
 
 #' @name b2degrange-ergmTerm
-#' @title Degree range for the second mode in a bipartite (a.k.a. two-mode) network
+#' @title Degree range for the second mode in a bipartite network
 #' @description Degree range for the second mode in a bipartite (a.k.a. two-mode) network
 #' @details This term adds one
 #'   network statistic to the model for each element of `from` (or `to` ); the \eqn{i} th
@@ -1528,7 +1528,7 @@ InitErgmTerm.b2degrange<-function(nw, arglist, ..., version=packageVersion("ergm
 ################################################################################
 
 #' @name b2degree-ergmTerm
-#' @title Degree for the second mode in a bipartite (aka two-mode) network
+#' @title Degree for the second mode in a bipartite network
 #' @description Degree for the second mode in a bipartite (aka two-mode) network
 #' @details This term adds one network statistic to the model for
 #'   each element in `d` ; the \eqn{i} th such statistic equals the number of
@@ -1656,7 +1656,7 @@ InitErgmTerm.b2dsp<-function(nw, arglist, cache.sp=TRUE, ...) {
 ################################################################################
 
 #' @name b2factor-ergmTerm
-#' @title Factor attribute effect for the second mode in a bipartite (aka two-mode) network
+#' @title Factor attribute effect for the second mode in a bipartite network
 #' @description Factor attribute effect for the second mode in a bipartite (aka two-mode) network
 #' @details This term adds multiple network statistics to the model, one for each of (a subset of) the
 #'   unique values of the `attr` attribute. Each of these statistics
@@ -1779,7 +1779,7 @@ InitErgmTerm.b2sociality<-function(nw, arglist, ...) {
 ################################################################################
 
 #' @name b2star-ergmTerm
-#' @title k-Stars for the second mode in a bipartite (aka two-mode) network
+#' @title k-Stars for the second mode in a bipartite network
 #' @description k-Stars for the second mode in a bipartite (aka two-mode) network
 #' @details This term adds one network statistic to the model for
 #'   each element in `k` . The \eqn{i} th such statistic counts the number of
@@ -2993,7 +2993,7 @@ InitErgmTerm.esp<-function(nw, arglist, cache.sp=TRUE, ...) {
 ################################################################################
 
 #' @name gwb1degree-ergmTerm
-#' @title Geometrically weighted degree distribution for the first mode in a bipartite (aka two-mode) network
+#' @title Geometrically weighted degree distribution for the first mode in a bipartite network
 #' @description Geometrically weighted degree distribution for the first mode in a bipartite (aka two-mode) network
 #' @details This term adds one network statistic to the model equal to the weighted
 #'   degree distribution with decay controlled by the `decay` parameter, which should be non-negative,
@@ -3150,7 +3150,7 @@ InitErgmTerm.gwb1dsp<-function(nw, arglist, cache.sp=TRUE, gw.cutoff=30, ...) {
 ################################################################################
 
 #' @name gwb2degree-ergmTerm
-#' @title Geometrically weighted degree distribution for the second mode in a bipartite (aka two-mode) network
+#' @title Geometrically weighted degree distribution for the second mode in a bipartite network
 #' @description Geometrically weighted degree distribution for the second mode in a bipartite (aka two-mode) network
 #' @details This term adds one network statistic to the model equal to the weighted
 #'   degree distribution with decay controlled by the which should be non-negative,
@@ -6147,7 +6147,7 @@ InitErgmTerm.simmelianties<-function (nw, arglist, ...) {
 ################################################################################
 
 #' @name smalldiff-ergmTerm
-#' @title Number of ties between actors with similar (but not necessarily identical) attribute values
+#' @title Number of ties between actors with similar attribute values
 #' @description Number of ties between actors with similar (but not necessarily identical) attribute values
 #' @details This term adds one statistic, having as its
 #'   value the number of edges in the network for which the incident
@@ -6284,7 +6284,7 @@ InitErgmTerm.sociality<-function(nw, arglist, ..., version=packageVersion("ergm"
 #' @rdname threetrail-ergmTerm
 #'
 #' @usage
-#' # threepath
+#' # binary: threepath
 InitErgmTerm.threepath <- function(nw, arglist, ..., version=packageVersion("ergm")) {
   ergm_Init_warn("This term is inaccurately named and actually refers to a '3-trail' in that it counts repeated vertices: i-j-k-i is a 3-trail but not a 3-path. See ergm-terms help for more information. This name has been deprecated and will be removed in a future version: if a 3-trail is what you want, use the term 'threetrail'.")
   if(version <= as.package_version("3.9.4")){
@@ -6735,7 +6735,7 @@ InitErgmTerm.ttriple<-function (nw, arglist, ..., version=packageVersion("ergm")
 
 #' @rdname ttriple-ergmTerm
 #' @usage
-#' # ttriad
+#' # binary: ttriad
 InitErgmTerm.ttriad<-InitErgmTerm.ttriple
 
 ################################################################################

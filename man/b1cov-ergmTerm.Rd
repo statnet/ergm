@@ -4,7 +4,7 @@
 \alias{b1cov-ergmTerm}
 \alias{InitErgmTerm.b1cov}
 \alias{InitWtErgmTerm.b1cov}
-\title{Main effect of a covariate for the first mode in a bipartite (aka two-mode) network}
+\title{Main effect of a covariate for the first mode in a bipartite network}
 \usage{
 # binary: b1cov(attr)
 

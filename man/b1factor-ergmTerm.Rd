@@ -4,7 +4,7 @@
 \alias{b1factor-ergmTerm}
 \alias{InitErgmTerm.b1factor}
 \alias{InitWtErgmTerm.b1factor}
-\title{Factor attribute effect for the first mode in a bipartite (aka two-mode) network}
+\title{Factor attribute effect for the first mode in a bipartite network}
 \usage{
 # binary: b1factor(attr, base=1, levels=-1)
 

@@ -9,7 +9,7 @@
 \usage{
 # binary: cyclicalties(attr=NULL, levels=NULL)
 
-# cyclicalties(threshold=0)
+# valued: cyclicalties(threshold=0)
 }
 \arguments{
 \item{attr}{quantitative attribute (see Specifying Vertex attributes and Levels (\code{?nodal_attributes}) for details.) If set, all three nodes involved ( \eqn{i} , \eqn{j} , and the node on the two-path) must match

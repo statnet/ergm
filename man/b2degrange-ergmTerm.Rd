@@ -3,7 +3,7 @@
 \name{b2degrange-ergmTerm}
 \alias{b2degrange-ergmTerm}
 \alias{InitErgmTerm.b2degrange}
-\title{Degree range for the second mode in a bipartite (a.k.a. two-mode) network}
+\title{Degree range for the second mode in a bipartite network}
 \usage{
 # binary: b2degrange(from, to=+Inf, by=NULL, homophily=FALSE, levels=NULL)
 }

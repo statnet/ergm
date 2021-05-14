@@ -3,7 +3,7 @@
 \name{smalldiff-ergmTerm}
 \alias{smalldiff-ergmTerm}
 \alias{InitErgmTerm.smalldiff}
-\title{Number of ties between actors with similar (but not necessarily identical) attribute values}
+\title{Number of ties between actors with similar attribute values}
 \usage{
 # binary: smalldiff(attr, cutoff)
 }

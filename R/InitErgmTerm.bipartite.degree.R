@@ -17,7 +17,7 @@
 ###########  InitErgmTerm.b1mindegree  ###################
 
 #' @name b1mindegree-ergmTerm
-#' @title Minimum degree for the first mode in a bipartite (aka two-mode) network
+#' @title Minimum degree for the first mode in a bipartite network
 #' @description Minimum degree for the first mode in a bipartite (aka two-mode) network
 #' @details This term adds one network statistic to the model for
 #'   each element in `d` ; the \eqn{i} th such statistic equals the number of
@@ -61,7 +61,7 @@ InitErgmTerm.b1mindegree <- function(nw, arglist, ...) {
 ###########  InitErgmTerm.b2mindegree  ###################
 
 #' @name b2mindegree-ergmTerm
-#' @title Minimum degree for the second mode in a bipartite (aka two-mode) network
+#' @title Minimum degree for the second mode in a bipartite network
 #' @description Minimum degree for the second mode in a bipartite (aka two-mode) network
 #' @details This term adds one network statistic to the model for
 #'   each element in `d` ; the \eqn{i} th such statistic equals the number of

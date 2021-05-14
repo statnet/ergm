@@ -3,7 +3,7 @@
 \name{b1nodematch-ergmTerm}
 \alias{b1nodematch-ergmTerm}
 \alias{InitErgmTerm.b1nodematch}
-\title{Nodal attribute-based homophily effect for the first mode in a bipartite (aka two-mode) network}
+\title{Nodal attribute-based homophily effect for the first mode in a bipartite network}
 \usage{
 # binary: b1nodematch(attr, diff=FALSE, keep=NULL, alpha=1, beta=1, byb2attr=NULL, levels=NULL)
 }

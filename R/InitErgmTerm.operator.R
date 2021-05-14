@@ -743,7 +743,6 @@ InitErgmTerm.S <- function(nw, arglist, ...){
 #'
 #' @template ergmTerm-general
 #'
-#' @concept operator), Curve(formula, params, map, gradient=NULL, minpar=-Inf, maxpar=+Inf, cov=NULL
 #' @concept operator
 InitErgmTerm.Curve <- function(nw, arglist,...){
   a <- check.ErgmTerm(nw, arglist,

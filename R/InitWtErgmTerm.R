@@ -298,7 +298,7 @@ InitWtErgmTerm.edgecov <- function(nw, arglist, ...) {
 }
 
 #' @name equalto-ergmTerm
-#' @title Number of dyads with values equal to a specific value (within tolerance)
+#' @title Number of dyads with values equal to a specific value
 #' @description Number of dyads with values equal to a specific value (within tolerance)
 #' @details Adds one statistic equal to the number of dyads whose values
 #'   are within `tolerance` of `value` , i.e., between
@@ -998,7 +998,7 @@ InitWtErgmTerm.transitiveweights<-function (nw, arglist, ...) {
 
 #' @rdname cyclicalties-ergmTerm
 #' @usage
-#' # cyclicalties(threshold=0)
+#' # valued: cyclicalties(threshold=0)
 InitWtErgmTerm.cyclicalties<-function (nw, arglist, ...) {
 ### Check the network and arguments to make sure they are appropriate.
   a <- check.ErgmTerm(nw, arglist, bipartite=NULL,

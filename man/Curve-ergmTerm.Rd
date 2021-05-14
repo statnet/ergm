@@ -49,4 +49,3 @@ Arguments may have the same forms as in the API, but for convenience, alternativ
 If the model in \code{formula} is curved, then the outputs of this operator term's \code{map} argument will be used as inputs to the curved terms of the \code{formula} model.
 }
 \concept{operator}
-\concept{operator), Curve(formula, params, map, gradient=NULL, minpar=-Inf, maxpar=+Inf, cov=NULL}

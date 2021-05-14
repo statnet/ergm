@@ -3,7 +3,7 @@
 \name{equalto-ergmTerm}
 \alias{equalto-ergmTerm}
 \alias{InitWtErgmTerm.equalto}
-\title{Number of dyads with values equal to a specific value (within tolerance)}
+\title{Number of dyads with values equal to a specific value}
 \usage{
 # valued: equalto(value=0, tolerance=0)
 }

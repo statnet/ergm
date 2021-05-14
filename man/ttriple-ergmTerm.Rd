@@ -8,7 +8,7 @@
 \usage{
 # binary: ttriple(attr=NULL, diff=FALSE, levels=NULL)
 
-# ttriad
+# binary: ttriad
 }
 \arguments{
 \item{attr, diff}{quantitative attribute (see Specifying Vertex attributes and Levels (\code{?nodal_attributes}) for details.) If \code{attr} is specified and \code{diff} is \code{FALSE} ,

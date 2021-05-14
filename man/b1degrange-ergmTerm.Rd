@@ -3,7 +3,7 @@
 \name{b1degrange-ergmTerm}
 \alias{b1degrange-ergmTerm}
 \alias{InitErgmTerm.b1degrange}
-\title{Degree range for the first mode in a bipartite (a.k.a. two-mode) network}
+\title{Degree range for the first mode in a bipartite network}
 \usage{
 # binary: b1degrange(from, to=`+Inf`, by=NULL, homophily=FALSE, levels=NULL)
 }

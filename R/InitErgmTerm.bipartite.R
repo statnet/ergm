@@ -21,7 +21,7 @@
 #########################################################
 
 #' @name b1nodematch-ergmTerm
-#' @title Nodal attribute-based homophily effect for the first mode in a bipartite (aka two-mode) network
+#' @title Nodal attribute-based homophily effect for the first mode in a bipartite network
 #' @description Nodal attribute-based homophily effect for the first mode in a bipartite (aka two-mode) network
 #' @details This term is introduced
 #'   in Bomiriya et al (2014). With the default `alpha` and `beta` values, this term will
@@ -153,7 +153,7 @@ InitErgmTerm.b1nodematch	<-	function (nw, arglist, ..., version=packageVersion("
 ##########################################################
 
 #' @name b2nodematch-ergmTerm
-#' @title Nodal attribute-based homophily effect for the second mode in a bipartite (aka two-mode) network
+#' @title Nodal attribute-based homophily effect for the second mode in a bipartite network
 #' @description Nodal attribute-based homophily effect for the second mode in a bipartite (aka two-mode) network
 #' @details This term is introduced in Bomiriya et al (2014).
 #'   With the default `alpha` and `beta` values, this term will

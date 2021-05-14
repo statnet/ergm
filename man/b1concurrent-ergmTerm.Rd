@@ -3,7 +3,7 @@
 \name{b1concurrent-ergmTerm}
 \alias{b1concurrent-ergmTerm}
 \alias{InitErgmTerm.b1concurrent}
-\title{Concurrent node count for the first mode in a bipartite (aka two-mode) network}
+\title{Concurrent node count for the first mode in a bipartite network}
 \usage{
 # binary: b1concurrent(by=NULL, levels=NULL)
 }
@@ -16,7 +16,7 @@ Without the optional argument, this statistic is equivalent to \code{b1mindegree
 \item{levels}{TODO}
 }
 \description{
-Concurrent node count for the first mode in a bipartite (aka two-mode) network
+Concurrent node count for the first mode in a bipartite network
 }
 \details{
 This term adds one

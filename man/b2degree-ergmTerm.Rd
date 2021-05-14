@@ -3,7 +3,7 @@
 \name{b2degree-ergmTerm}
 \alias{b2degree-ergmTerm}
 \alias{InitErgmTerm.b2degree}
-\title{Degree for the second mode in a bipartite (aka two-mode) network}
+\title{Degree for the second mode in a bipartite network}
 \usage{
 # binary: b2degree(d, by=NULL)
 }

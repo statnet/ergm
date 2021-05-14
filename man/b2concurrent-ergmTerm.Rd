@@ -3,7 +3,7 @@
 \name{b2concurrent-ergmTerm}
 \alias{b2concurrent-ergmTerm}
 \alias{InitErgmTerm.b2concurrent}
-\title{Concurrent node count for the second mode in a bipartite (aka two-mode) network}
+\title{Concurrent node count for the second mode in a bipartite network}
 \usage{
 # binary: b2concurrent(by=NULL)
 }

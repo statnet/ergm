@@ -3,7 +3,7 @@
 \name{b1star-ergmTerm}
 \alias{b1star-ergmTerm}
 \alias{InitErgmTerm.b1star}
-\title{k-Stars for the first mode in a bipartite (aka two-mode) network}
+\title{k-Stars for the first mode in a bipartite network}
 \usage{
 # binary: b1star(k, attr=NULL, levels=NULL)
 }

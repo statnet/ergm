@@ -6,7 +6,7 @@
 \alias{InitErgmTerm.threetrail}
 \title{Three-trails}
 \usage{
-# threepath
+# binary: threepath
 
 # binary: threetrail(keep=NULL, levels=NULL)
 }
