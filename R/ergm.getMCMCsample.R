@@ -85,14 +85,14 @@
 #'
 #' # FYI: Obtain input for simulate.ergm_model():
 #' sim.mod <- simulate(flomarriage~absdiff("wealth"), constraints=~edges,
-#'                     coef = -1, nsim=3, control=control,
+#'                     coef = NULL, nsim=3, control=control,
 #'                     return.args="ergm_model")
 #' names(sim.mod)
 #' str(sim.mod$object,1) # ergm_model
 #'
 #' # Obtain input for simulate.ergm_state_full():
 #' sim.state <- simulate(flomarriage~absdiff("wealth"), constraints=~edges,
-#'                       coef = -1, nsim=3, control=control,
+#'                       coef = NULL, nsim=3, control=control,
 #'                       return.args="ergm_state")
 #' names(sim.state)
 #' str(sim.state$object, 1) # ergm_state

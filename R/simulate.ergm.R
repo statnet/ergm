@@ -49,9 +49,12 @@
 #' distribution on the set of all networks, returned by the Metropolis-Hastings
 #' algorithm.
 #' @template seed
-#' @param coef Vector of parameter values for the model from which the sample
-#' is to be drawn.  If \code{object} is of class \code{ergm}, the default value
-#' is the vector of estimated coefficients.
+#' 
+#' @param coef Vector of parameter values for the model from which the
+#'   sample is to be drawn.  If \code{object} is of class \code{ergm},
+#'   the default value is the vector of estimated coefficients. Can be
+#'   set to `NULL` to bypass, but only if `return.args` below is used.
+#' 
 #' @template response
 #' @template reference
 #' @param constraints A one-sided formula specifying one or more
@@ -122,11 +125,6 @@
 #' @param do.sim Logical; a deprecated interface superseded by `return.args`,
 #'   that saves the inputs to the next level of the function.
 #'
-#' Logical: If `FALSE`, do not proceed to the simulation
-#'   but rather return a list of arguments that would have been passed
-#'   to the next function down ([simulate.ergm_model()] for formula
-#'   and [simulate.ergm_state()]). 
-#' 
 #' @return If \code{output=="stats"} an [`mcmc`] object containing the
 #'   simulated network statistics. If \code{control$parallel>0}, an
 #'   [`mcmc.list`] object. If `simplify=TRUE` (the default), these
@@ -411,9 +409,10 @@ simulate.ergm_model <- function(object, nsim=1, seed=NULL,
     warning("No parameter values given, using Bernouli network.")
   }
 
-  coef <- c(coef, rep(0, nparam(monitor)))
-  
-  if(nparam(m)!=length(coef)) stop("coef has ", length(coef) - nparam(monitor), " elements, while the model requires ",nparam(m) - nparam(monitor)," parameters.")
+  if(!is.null(coef)){
+    coef <- c(coef, rep(0, nparam(monitor)))
+    if(nparam(m)!=length(coef)) stop("coef has ", length(coef) - nparam(monitor), " elements, while the model requires ",nparam(m) - nparam(monitor)," parameters.")
+  }
 
   proposal <- if(inherits(constraints, "ergm_proposal")) constraints
               else{
@@ -429,9 +428,6 @@ simulate.ergm_model <- function(object, nsim=1, seed=NULL,
 
   if(length(proposal$auxiliaries) && !length(m$slots.extra.aux$proposal))
     stop("The proposal appears to be requesting auxiliaries, but the initialized model does not export any proposal auxiliaries.")
-  
-  if (any(is.nan(coef) | is.na(coef)))
-    stop("Illegal value of coef passed to simulate.formula")
   
   # Create vector of current statistics
   curstats<-summary(m, nw, term.options=control$term.options)
@@ -467,8 +463,13 @@ simulate.ergm_state_full <- function(object, nsim=1, seed=NULL,
                                 sequential=TRUE,
                                 control=control.simulate.formula(),
                                 verbose=FALSE, ..., return.args=NULL){
-  if(!is.null(return.args) && is(object, return.args))
-    return(c(as.list(environment()), list(...)))
+  if(!is.null(return.args)){
+    if(is(object, return.args)) return(c(as.list(environment()), list(...)))
+    else stop("return.args= is not NULL yet the code has arrived at the actual simulation stage; this likely means an incorrect value had been passed to return.args=")
+  }
+
+  if (any(is.nan(coef) | is.na(coef)))
+    stop("Illegal value of coef passed to simulate functions")
 
   if(is.character(output))
     output <- match.arg(output)

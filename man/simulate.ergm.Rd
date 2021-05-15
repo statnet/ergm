@@ -141,9 +141,10 @@ algorithm.}
 
 \item{basis}{a value (usually a \code{\link{network}}) to override the LHS of the formula.}
 
-\item{coef}{Vector of parameter values for the model from which the sample
-is to be drawn.  If \code{object} is of class \code{ergm}, the default value
-is the vector of estimated coefficients.}
+\item{coef}{Vector of parameter values for the model from which the
+sample is to be drawn.  If \code{object} is of class \code{ergm},
+the default value is the vector of estimated coefficients. Can be
+set to \code{NULL} to bypass, but only if \code{return.args} below is used.}
 
 \item{response}{Either a character string, a formula, or \code{NULL} (the default), to specify the response attributes and whether the ERGM is binary or valued. Interpreted as follows: \describe{
 
@@ -221,12 +222,7 @@ detail. Note that very high values (5+) may significantly slow
 down processing.}
 
 \item{do.sim}{Logical; a deprecated interface superseded by \code{return.args},
-that saves the inputs to the next level of the function.
-
-Logical: If \code{FALSE}, do not proceed to the simulation
-but rather return a list of arguments that would have been passed
-to the next function down (\code{\link[=simulate.ergm_model]{simulate.ergm_model()}} for formula
-and \code{\link[=simulate.ergm_state]{simulate.ergm_state()}}).}
+that saves the inputs to the next level of the function.}
 
 \item{return.args}{Character; if not \code{NULL}, the \code{simulate} method
 for that particular class will, instead of proceeding for
