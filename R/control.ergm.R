@@ -661,6 +661,11 @@ control.ergm<-function(drop=TRUE,
                        SAN.burnin.times="SAN.nsteps.times"
                        )
 
+  for(trustarg in c("MCMLE.trustregion", "MCMLE.adaptive.trustregion",
+                    "CD.trustregion", "CD.adaptive.trustregion",
+                    "SA.trustregion"))
+    old.controls[[trustarg]] <- list(action = warning, message = paste(" The trust region mechanism has been obviated by step length", sQuote("*.steplen"), "and other mechanisms and has been removed."))
+
   match.arg.pars <- c("MPLE.type","MCMLE.metric","MCMLE.method","main.method",'MCMLE.termination',"CD.metric","CD.method","MCMLE.steplength.parallel","CD.steplength.parallel","MPLE.nonident","MPLE.nonvar","MCMLE.nonvar","MCMLE.nonident")
 
   control <- handle.controls("control.ergm", ...)
