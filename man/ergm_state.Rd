@@ -216,5 +216,9 @@ its default argument, since missing edges are not stored.
 \item \code{ergm_state}: a very low-level function that calculates summary statistics associated with an \code{\link{ergm_state}} object.
 }}
 
+\seealso{
+\code{\link[=ergm_MCMC_sample]{ergm_MCMC_sample()}} for an example of manually
+constructing and manipulating an \code{ergm_state}.
+}
 \keyword{datasets}
 \keyword{internal}

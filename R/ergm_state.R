@@ -55,6 +55,10 @@
 #' \item{c(`ergm_state_full`, `ergm_state_send`,`ergm_state_receive`,`ergm_state`)}{ needs the above but also the `nw0`: is needed to reconstruct the original network.}
 #'
 #' }
+#'
+#' @seealso [ergm_MCMC_sample()] for an example of manually
+#'   constructing and manipulating an `ergm_state`.
+#'
 #' @keywords internal
 #' @export
 ergm_state <- function(x, ...) UseMethod("ergm_state")

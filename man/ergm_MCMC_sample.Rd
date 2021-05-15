@@ -95,4 +95,67 @@ and it does not return \code{statsmatrix} or \code{newnetwork}
 elements. Rather, if parallel processing is not in effect,
 \code{stats} is an \code{\link{mcmc.list}} with one chain and \code{networks} is a
 list with one element.
+
+At this time, repeated calls to \code{ergm_MCMC_sample} will not
+produce the same sequence of networks as a single long call, even
+with the same starting seeds. This is because the network
+sampling algorithms rely on the internal state of the network
+representation in C, which may not be reconstructed exactly the
+same way when "resuming". This behaviour may change in the
+future.
+}
+\examples{
+
+# This example illustrates constructing "ingredients" for calling
+# ergm_MCMC_sample() directly from repeated calls to
+# simulate.ergm(). One can also construct an ergm_state object
+# directly from ergm_model(), ergm_proposal(), etc., but this
+# approach is likely to be the least error-prone and the most
+# robust to future API changes.
+
+data(florentine)
+control <- control.simulate(MCMC.burnin = 2, MCMC.interval = 1)
+
+# The regular call hierarchy is
+#
+# simulate_formula.network() (long story) ->
+#   simulate.ergm_model() ->
+#     simulate.ergm_state_full()
+#
+# For the first two, you can interrupt the call and have it return
+# a list of arguments that would be passed to the next function
+# down by passing do.sim = FALSE.
+
+# Obtain input for simulate.ergm_model():
+sim.mod <- simulate(flomarriage~absdiff("wealth"), constraints=~edges,
+                    coef = -1, nsim=3, control=control, do.sim=FALSE)
+names(sim.mod)
+str(sim.mod$object,1) # ergm_model
+
+# Obtain input for simulate.ergm_state_full():
+sim.state <- do.call(simulate, c(sim.mod, do.sim=FALSE))
+names(sim.state)
+str(sim.state$object, 1) # ergm_state
+
+# This control parameter would be set by nsim in the regular
+# simulate() call:
+control$MCMC.samplesize <- 3
+
+# Capture intermediate networks; can also be left NULL for just the stats:
+control$MCMC.save_networks <- TRUE
+
+# Simulate from state:
+out <- ergm_MCMC_sample(sim.state$object, control, theta = -1, verbose=6)
+names(out)
+out$stats # Sampled statistics
+str(out$networks, 1) # Updated ergm_state (one per thread)
+# List (an element per thread) of lists of captured ergm_states,
+# one for each sampled network:
+str(out$sampnetworks, 2)
+lapply(out$sampnetworks[[1]], as.network) # Converted to networks.
+
+# One more, picking up where the previous sampler left off, but see Note:
+control$MCMC.samplesize <- 1
+str(ergm_MCMC_sample(out$networks, control, theta = -1, verbose=6), 2)
+
 }
