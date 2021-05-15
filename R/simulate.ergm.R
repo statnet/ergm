@@ -108,13 +108,24 @@
 #'
 #' @param \dots Further arguments passed to or used by methods.
 #' 
-#' @param do.sim Logical: If `FALSE`, do not proceed to the simulation
+#' @param return.args Character; if not `NULL`, the `simulate` method
+#'   for that particular class will, instead of proceeding for
+#'   simulation, instead return its arguments as a list that can be
+#'   passed as a second argument to [do.call()] or a lower-level
+#'   function such as [ergm_MCMC_sample()]. This can be useful if, for
+#'   example, one wants to run several simulations with varying
+#'   coefficients and does not want to reinitialize the model and the
+#'   proposal every time. Valid inputs at this time are `"formula"`,
+#'   "ergm_model", and one of the `"ergm_state"` classes, for the three
+#'   respective stopping points.
+#'
+#' @param do.sim Logical; a deprecated interface superseded by `return.args`,
+#'   that saves the inputs to the next level of the function.
+#'
+#' Logical: If `FALSE`, do not proceed to the simulation
 #'   but rather return a list of arguments that would have been passed
 #'   to the next function down ([simulate.ergm_model()] for formula
-#'   and [simulate.ergm_state()]). This can be useful if, for example,
-#'   one wants to run several simulations with varying coefficients
-#'   and does not want to reinitialize the model and the proposal
-#'   every time.
+#'   and [simulate.ergm_state()]). 
 #' 
 #' @return If \code{output=="stats"} an [`mcmc`] object containing the
 #'   simulated network statistics. If \code{control$parallel>0}, an
@@ -170,7 +181,8 @@
 #' concatenated, and if a total of one network had been simulated, the
 #' network itself will be returned.
 #'
-#' @seealso \code{\link{ergm}}, \code{\link[network]{network}}
+#' @seealso \code{\link{ergm}}, \code{\link[network]{network}},
+#'   [ergm_MCMC_sample()] for a demonstration of `return.args=`.
 #' @keywords models
 #' @examples
 #' \dontshow{
@@ -266,7 +278,15 @@ simulate_formula <- function(object, ..., basis=eval_lhs.formula(object)) {
                              simplify=TRUE,
                              sequential=TRUE,
                                control=control.simulate.formula(),
-                             verbose=FALSE, ..., basis=eval_lhs.formula(object), do.sim=TRUE) {
+                             verbose=FALSE, ..., basis=eval_lhs.formula(object), do.sim=TRUE,
+                             return.args = NULL){
+  if(!missing(do.sim)){
+    .Deprecate_once(msg=paste0("Use of ",sQuote("do.sim=")," argument has been deprecated. Use ",sQuote("return.args=")," instead."))
+    if(!do.sim) return.args <- "ergm_model"
+  }
+  if(!is.null(return.args) && is(object, return.args))
+    return(c(as.list(environment()), list(...)))
+
   #' @importFrom statnet.common check.control.class
   check.control.class("simulate.formula", myname="ERGM simulate.formula")
   handle.control.toplevel("simulate.formula", ...)
@@ -298,7 +318,6 @@ simulate_formula <- function(object, ..., basis=eval_lhs.formula(object)) {
   m <- ergm_model(object, nw, extra.aux=list(proposal=proposal$auxiliaries), term.options=control$term.options)
   proposal$aux.slots <- m$slots.extra.aux$proposal
 
-  if(do.sim){
     out <- simulate(m, nsim=nsim, seed=seed,
                     coef=coef,
                     constraints=proposal,
@@ -309,7 +328,9 @@ simulate_formula <- function(object, ..., basis=eval_lhs.formula(object)) {
                     simplify=simplify,
                     sequential=sequential,
                     control=control,
-                    verbose=verbose, ...)
+                    verbose=verbose,
+                    return.args=return.args,
+                    ...)
     
     if(statsonly || nsim==1) # Then out is either a matrix or a single
                            # network. Return it.
@@ -321,19 +342,6 @@ simulate_formula <- function(object, ..., basis=eval_lhs.formula(object)) {
     attributes(out) <- c(attributes(out),
                          list(formula=object, monitor=monitor, constraints=constraints, reference=reference))
     out
-  }else{
-    list(object=m, nsim=nsim, seed=seed,
-         coef=coef,
-         constraints=proposal,
-         monitor=mon.m,
-         basis=nw,
-         esteq=esteq,
-         output=output,
-         simplify=simplify,
-         sequential=sequential,
-         control=control,
-         verbose=verbose, ...)
-  }
 }
 
 #' @rdname simulate.ergm
@@ -360,7 +368,14 @@ simulate.ergm_model <- function(object, nsim=1, seed=NULL,
                                 simplify=TRUE,
                                 sequential=TRUE,
                                 control=control.simulate.formula(),
-                                verbose=FALSE, ..., do.sim=TRUE){
+                                verbose=FALSE, ..., do.sim=TRUE,
+                                return.args = NULL){
+  if(!missing(do.sim)){
+    .Deprecate_once(msg=paste0("Use of ",sQuote("do.sim=")," argument has been deprecated. Use ",sQuote("return.args=")," instead."))
+    if(!do.sim) return.args <- "ergm_state"
+  }
+  if(!is.null(return.args) && is(object, return.args))
+    return(c(as.list(environment()), list(...)))
 
   check.control.class(c("simulate.formula", "simulate.ergm_model"), myname="simulate.ergm_model")
   handle.control.toplevel("simulate.formula", ...)
@@ -424,7 +439,6 @@ simulate.ergm_model <- function(object, nsim=1, seed=NULL,
 
   state <- ergm_state(nw, model=m, proposal=proposal, stats=curstats)
 
-  if(do.sim){
     o <- simulate(state, nsim=nsim, seed=seed,
                   coef,
                   esteq=esteq,
@@ -432,20 +446,12 @@ simulate.ergm_model <- function(object, nsim=1, seed=NULL,
                   simplify=simplify,
                   sequential=sequential,
                   control=control,
-                  verbose=verbose, ...)
-  }else{
-    o <- list(object=state, nsim=nsim, seed=seed,
-              coef=coef,
-              esteq=esteq,
-              output=if(output=="function") output.f else output,
-              simplify=simplify,
-              sequential=sequential,
-              control=control,
-              verbose=verbose, ...)
-  }
+                  verbose=verbose,
+                  return.args=return.args,
+                  ...)
 
   mon <- rep(c(FALSE,TRUE), c(nparam(m,canonical=!esteq) - NVL3(monitor, nparam(.,canonical=!esteq), 0), NVL3(monitor, nparam(.,canonical=!esteq), 0)))
-  if(output=="stats" || !do.sim) attr(o, "monitored") <- mon
+  if(output=="stats" || is.null(attr(o, "stats"))) attr(o, "monitored") <- mon
   else attr(attr(o, "stats"), "monitored") <- mon
   o
 }
@@ -460,7 +466,10 @@ simulate.ergm_state_full <- function(object, nsim=1, seed=NULL,
                                 simplify=TRUE,
                                 sequential=TRUE,
                                 control=control.simulate.formula(),
-                                verbose=FALSE, ...){
+                                verbose=FALSE, ..., return.args=NULL){
+  if(!is.null(return.args) && is(object, return.args))
+    return(c(as.list(environment()), list(...)))
+
   if(is.character(output))
     output <- match.arg(output)
   else{

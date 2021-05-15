@@ -63,33 +63,37 @@
 #' @examples
 #'
 #' # This example illustrates constructing "ingredients" for calling
-#' # ergm_MCMC_sample() directly from repeated calls to
-#' # simulate.ergm(). One can also construct an ergm_state object
-#' # directly from ergm_model(), ergm_proposal(), etc., but this
-#' # approach is likely to be the least error-prone and the most
-#' # robust to future API changes.
+#' # ergm_MCMC_sample() from calls to simulate.ergm(). One can also
+#' # construct an ergm_state object directly from ergm_model(),
+#' # ergm_proposal(), etc., but the approach shown here is likely to
+#' # be the least error-prone and the most robust to future API
+#' # changes.
+#' #
+#' # The regular simulate() call hierarchy is
+#' #
+#' # simulate_formula.network(formula) ->
+#' #   simulate.ergm_model(ergm_model) ->
+#' #     simulate.ergm_state_full(ergm_state)
+#' #
+#' # They take an argument, return.args=, that will interrupt the call
+#' # and have it return its arguments. We can use it to obtain
+#' # low-level inputs robustly.
 #'
 #' data(florentine)
 #' control <- control.simulate(MCMC.burnin = 2, MCMC.interval = 1)
 #'
-#' # The regular call hierarchy is
-#' #
-#' # simulate_formula.network() (long story) ->
-#' #   simulate.ergm_model() ->
-#' #     simulate.ergm_state_full()
-#' #
-#' # For the first two, you can interrupt the call and have it return
-#' # a list of arguments that would be passed to the next function
-#' # down by passing do.sim = FALSE.
 #'
-#' # Obtain input for simulate.ergm_model():
+#' # FYI: Obtain input for simulate.ergm_model():
 #' sim.mod <- simulate(flomarriage~absdiff("wealth"), constraints=~edges,
-#'                     coef = -1, nsim=3, control=control, do.sim=FALSE)
+#'                     coef = -1, nsim=3, control=control,
+#'                     return.args="ergm_model")
 #' names(sim.mod)
 #' str(sim.mod$object,1) # ergm_model
 #'
 #' # Obtain input for simulate.ergm_state_full():
-#' sim.state <- do.call(simulate, c(sim.mod, do.sim=FALSE))
+#' sim.state <- simulate(flomarriage~absdiff("wealth"), constraints=~edges,
+#'                       coef = -1, nsim=3, control=control,
+#'                       return.args="ergm_state")
 #' names(sim.state)
 #' str(sim.state$object, 1) # ergm_state
 #'
@@ -97,10 +101,11 @@
 #' # simulate() call:
 #' control$MCMC.samplesize <- 3
 #'
-#' # Capture intermediate networks; can also be left NULL for just the stats:
+#' # Capture intermediate networks; can also be left NULL for just the
+#' # statistics:
 #' control$MCMC.save_networks <- TRUE
 #'
-#' # Simulate from state:
+#' # Simulate starting from this state:
 #' out <- ergm_MCMC_sample(sim.state$object, control, theta = -1, verbose=6)
 #' names(out)
 #' out$stats # Sampled statistics
