@@ -3079,6 +3079,7 @@ InitErgmTerm.mm<-function (nw, arglist, ..., version=packageVersion("ergm")) {
 
   # Run the table cell list through the cell filter.
   levels2sel <- ergm_attr_levels(a$levels2, list(row=attrval$row$val, col=attrval$col$val), nw, levels=levels2)
+  if(length(levels2sel) == 0) return(NULL)
   levels2codes <- levels2codes[match(levels2sel,levels2, NA)]
   levels2 <- levels2sel; rm(levels2sel)
 
@@ -3089,11 +3090,11 @@ InitErgmTerm.mm<-function (nw, arglist, ..., version=packageVersion("ergm")) {
     map(unlist) %>%
     with(paste0(
       "[",
-      if(length(attrval$row$levels)>1)
+      if(length(attrval$row$unique)>1)
         paste0(attrval$row$name, "=", .$row)
       else ".",
       ",",
-      if(length(attrval$col$levels)>1)
+      if(length(attrval$col$unique)>1)
         paste0(attrval$col$name, "=", .$col)
       else ".",
       "]"))
