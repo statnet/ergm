@@ -6159,7 +6159,7 @@ InitErgmTerm.simmelianties<-function (nw, arglist, ...) {
 #' # binary: smalldiff(attr, cutoff)
 #'
 #' @template ergmTerm-attr
-#' @param cutoff TODO
+#' @param maximum difference in attribute values for ties to be considered
 #'
 #' @template ergmTerm-general
 #'

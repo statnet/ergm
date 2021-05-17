@@ -8,8 +8,9 @@
 #  Copyright 2003-2021 Statnet Commons
 #######################################################################
 
-library(magrittr)
 library(knitr)
+library(magrittr)
+library(stringr)
 
 # Return the index entry for a single term in the new format
 .parseTerm <- function(name, pkg, pkg_name) {
@@ -100,11 +101,13 @@ ergmTermCache <- local({
 	}
 })
 
-.buildTermsDataframe <- function(terms, linebreak) {
+.buildTermsDataframe <- function(terms) {
 	df <- c()
 	for (term in terms) {
-		usage <- gsub('`', '', gsub('\\$', '\\\\$', paste(lapply(term$usages, function(u) sprintf('%s (%s)', u$usage, u$type)), collapse=linebreak)))
-		df <- rbind(df, c(usage, term$package, term$title, paste(term$concepts, collapse=linebreak)))
+		usage <- paste(sprintf('`%s` (%s)',
+			sapply(term$usages, "[[", 'usage') %>% gsub('\\$', '\\\\$', .) %>% gsub('`', '', .) %>% gsub(' *=[^,)]*(,|\\)) *', '\\1 ', .) %>% trimws,
+			sapply(term$usages, "[[", 'type')), collapse='\n')
+		df <- rbind(df, c(usage, term$package, term$title, paste(term$concepts, collapse='\n')))
 	}
 
 	df <- data.frame(df)
@@ -115,34 +118,77 @@ ergmTermCache <- local({
 
 # Generate the dynamic index text
 .generateDynamicIndex <- function(formatter) {
-	df <- .buildTermsDataframe(ergmTermCache(), formatter$linebreak)
-	formatter$formatter(df)
+	df <- .buildTermsDataframe(ergmTermCache())
+	formatter(df)
 }
 
 # Format the table for text output
-.formatText <- list(
-	'linebreak' = '\n',
-	'formatter' = function(df) {
-		knitr::kable(df, 'simple')
+.formatText <- function(df) {
+	df$Term <- gsub('`', '', df$Term)
+	for (c in colnames(df)) {
+		df[[c]] <- as.character(df[[c]])
 	}
-)
+
+	line_wrap <- function(lines, max_width) {
+		lines <- unlist(strsplit(sapply(strsplit(lines, '\n'), stringr::str_wrap, max_width), '\n'))
+
+		out <- c()
+		for (line in lines) {
+			while (nchar(line) > max_width) {
+				out <- c(out, substr(line, 1, max_width))
+				line <- substr(line, max_width + 1, nchar(line))
+			}
+			out <- c(out, line)
+		}
+		out
+	}
+
+	pad_lines <- function(lines, max_lines) {
+		c(lines, rep('', max_lines - length(lines)))
+	}
+
+	max_widths <- list('Term'=25, 'Pkg'=5, 'Description'=35, 'Concepts'=10)
+	colnames(df)[[2]] <- 'Pkg'
+	out <- sprintf('|%s|\n', paste(stringr::str_pad(colnames(df), max_widths, side='right', pad='-'), collapse='|'))
+	empty_row <- sprintf('|%s|\n', paste(stringr::str_pad(rep('', length(max_widths)), max_widths), collapse='|'))
+
+	r <- list()
+	for (i in 1:dim(df)[1]) {
+		for (c in colnames(df)) {
+			r[[c]] <- line_wrap(df[i, c], max_widths[[c]])
+		}
+
+		max_lines <- max(sapply(r, length))
+		for (c in colnames(df)) {
+			r[[c]] <- pad_lines(r[[c]], max_lines)
+		}
+
+		for (j in 1:max_lines) {
+			out <- sprintf('%s|%s|\n', out, paste(stringr::str_pad(sapply(r, "[[", j), max_widths, side='right'), collapse='|'))
+		}
+		out <- paste(out, empty_row, sep='')
+	}
+
+	sprintf('\\preformatted{%s}', out)
+}
 
 # Format the table for text output
-.formatLatex <- list(
-	'linebreak' = '\\hline',
-	'formatter' = function(df) {
-		sprintf('\\out{%s}', knitr::kable(df, 'latex'))
-	}
-)
+.formatLatex <- function(df) {
+	df$Term <- gsub('\n', '\\\\newline ', df$Term) %>% gsub('`', '', .) %>%
+		strsplit(' ') %>% sapply(., function(x) paste(sprintf('\\code{%s}', x), collapse=' '))
+	latex <- knitr::kable(df, 'latex', escape=FALSE, longtable=TRUE, align=sprintf('p{%.1f\\textwidth}', c(0.35, 0.05, 0.5, 0.1)), vline="") %>%
+		gsub(' *\n *', ' ', .) %>%
+		gsub('\\\\', '\\\\\\\\', .)
+	sprintf('\\out{%s}', latex)
+}
 
 # Format the table for text output
-.formatHtml <- list(
-	'linebreak' = '<br />',
-	'formatter' = function(df) {
-		css <- '<style>.striped th,.striped td {padding:3px 10px} .striped tbody tr:nth-child(odd) {background: #eee} .striped tr td:nth-child(1) {font-family: monospace; font-size:75\\%}</style>'
-		sprintf('\\out{%s%s}', css, knitr::kable(df, 'html', escape=FALSE, table.attr='class="striped"'))
-	}
-)
+.formatHtml <- function(df) {
+	df$Term <- gsub('`', '', gsub('\n', '<br />', df$Term))
+
+	css <- '<style>.striped th,.striped td {padding:3px 10px} .striped tbody tr:nth-child(odd) {background: #eee} .striped tr td:nth-child(1) {font-family: monospace; font-size:75\\%}</style>'
+	sprintf('\\out{%s%s}', css, knitr::kable(df, 'html', escape=FALSE, table.attr='class="striped"'))
+}
 
 #' An index of Ergm terms
 #'
@@ -152,5 +198,5 @@ ergmTermCache <- local({
 #'
 #' \if{html}{\Sexpr[results=rd,stage=render]{ergm:::.generateDynamicIndex(ergm:::.formatHtml)}}
 #' \if{latex}{\Sexpr[results=rd,stage=render]{ergm:::.generateDynamicIndex(ergm:::.formatLatex)}}
-#' \if{text}{\Sexpr[results=verbatim,stage=render]{ergm:::.generateDynamicIndex(ergm:::.formatText)}}
+#' \if{text}{\Sexpr[results=rd,stage=render,strip.white=FALSE]{ergm:::.generateDynamicIndex(ergm:::.formatText)}}
 NULL
