@@ -320,10 +320,6 @@
       }
 
       \item{
-        \code{blockdiag} constraint has been moved to \pkg{\link[=tergm:tergm-package]{tergm}} package.
-      }
-
-      \item{
         The \code{do.sim=} aregument to the \code{\link{simulate.ergm}} family of functions has been deprecated in favor of a more consistent \code{return.args=}.
       }
 
