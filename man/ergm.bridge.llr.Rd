@@ -15,7 +15,7 @@ ergm.bridge.llr(
   to,
   obs.constraints = ~. - observed,
   target.stats = NULL,
-  basis = eval_lhs.formula(object),
+  basis = ergm.getnetwork(object),
   verbose = FALSE,
   ...,
   llronly = FALSE,
@@ -30,7 +30,7 @@ ergm.bridge.0.llk(
   ...,
   llkonly = TRUE,
   control = control.ergm.bridge(),
-  basis = eval_lhs.formula(object)
+  basis = ergm.getnetwork(object)
 )
 
 ergm.bridge.dindstart.llk(
@@ -42,7 +42,7 @@ ergm.bridge.dindstart.llk(
   target.stats = NULL,
   dind = NULL,
   coef.dind = NULL,
-  basis = eval_lhs.formula(object),
+  basis = ergm.getnetwork(object),
   ...,
   llkonly = TRUE,
   control = control.ergm.bridge(),
