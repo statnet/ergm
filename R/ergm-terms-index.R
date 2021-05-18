@@ -184,7 +184,12 @@ ergmTermCache <- local({
 
 # Format the table for text output
 .formatHtml <- function(df) {
-	df$Term <- gsub('`', '', gsub('\n', '<br />', df$Term))
+	# Hack! because HTML code has to be wrapped \out{} which prevents \link{} from being parsed, the link has
+	# to be constructed with the actual address. To find the address, generate the correct link with 
+	# \link[=absdiff-ergmTerm]{test} and check that it works with \out{<a href="../help/absdiff-ergmTerm">test</a>}.
+	# This address may change from an upstream R-studio change
+
+	df$Term <- gsub('`([^`(]*)([^`]*)`', '<a href="../help/\\1-ergmTerm">\\1\\2</a>', gsub('\n', '<br />', df$Term))
 
 	css <- '<style>.striped th,.striped td {padding:3px 10px} .striped tbody tr:nth-child(odd) {background: #eee} .striped tr td:nth-child(1) {font-family: monospace; font-size:75\\%}</style>'
 	sprintf('\\out{%s%s}', css, knitr::kable(df, 'html', escape=FALSE, table.attr='class="striped"'))
@@ -196,7 +201,7 @@ ergmTermCache <- local({
 #' @docType package
 #' @section Term index:
 #'
-#' \if{html}{\Sexpr[results=rd,stage=render]{ergm:::.generateDynamicIndex(ergm:::.formatHtml)}}
 #' \if{latex}{\Sexpr[results=rd,stage=render]{ergm:::.generateDynamicIndex(ergm:::.formatLatex)}}
-#' \if{text}{\Sexpr[results=rd,stage=render,strip.white=FALSE]{ergm:::.generateDynamicIndex(ergm:::.formatText)}}
+#' \if{text}{\Sexpr[results=rd,stage=render]{ergm:::.generateDynamicIndex(ergm:::.formatText)}}
+#' \if{html}{\Sexpr[results=rd,stage=render]{ergm:::.generateDynamicIndex(ergm:::.formatHtml)}}
 NULL
