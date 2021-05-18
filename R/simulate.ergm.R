@@ -276,7 +276,7 @@ simulate_formula <- function(object, ..., basis=eval_lhs.formula(object)) {
                              simplify=TRUE,
                              sequential=TRUE,
                                control=control.simulate.formula(),
-                             verbose=FALSE, ..., basis=eval_lhs.formula(object), do.sim=TRUE,
+                             verbose=FALSE, ..., basis=ergm.getnetwork(object), do.sim=TRUE,
                              return.args = NULL){
   if(!missing(do.sim)){
     .Deprecate_once(msg=paste0("Use of ",sQuote("do.sim=")," argument has been deprecated. Use ",sQuote("return.args=")," instead."))
