@@ -521,6 +521,7 @@ InitWtErgmTerm.nodecovar<-function (nw, arglist, ...) {
        )
 }
 
+#' @rdname nodeocovar-ergmTerm
 InitWtErgmTerm.nodeosqrtcovar<-function (nw, arglist, ...) {
   .Deprecated('nodeocovar(transform="sqrt")',
             old = "nodeosqrtcovar")
@@ -528,6 +529,7 @@ InitWtErgmTerm.nodeosqrtcovar<-function (nw, arglist, ...) {
   InitWtErgmTerm.nodeocovar(nw, arglist, ...)
 }
 
+#' @rdname nodeicovar-ergmTerm
 InitWtErgmTerm.nodeisqrtcovar<-function (nw, arglist, ...) {
   .Deprecated('nodeicovar(transform="sqrt")',
             old = "nodeisqrtcovar")
@@ -535,6 +537,7 @@ InitWtErgmTerm.nodeisqrtcovar<-function (nw, arglist, ...) {
   InitWtErgmTerm.nodeicovar(nw, arglist, ...)
 }
 
+#' @rdname nodecovar-ergmTerm
 InitWtErgmTerm.nodesqrtcovar<-function (nw, arglist, ...) {
   .Deprecated('nodecovar(transform="sqrt")',
             old = "nodesqrtcovar")
@@ -773,7 +776,7 @@ InitWtErgmTerm.receiver<-function (nw, arglist, ..., version=packageVersion("erg
 #' @usage
 #' # valued: nodematch(attr, diff=FALSE, keep=NULL, levels=NULL, form="sum")
 #' @template ergmTerm-form
-InitWtErgmTerm.nodematch<-InitWtErgmTerm.match<-function (nw, arglist, ..., version=packageVersion("ergm")) {
+InitWtErgmTerm.nodematch<-function (nw, arglist, ..., version=packageVersion("ergm")) {
   ### Check the network and arguments to make sure they are appropriate.
   if(version <= as.package_version("3.9.4")){
     ### Check the network and arguments to make sure they are appropriate.
@@ -792,6 +795,9 @@ InitWtErgmTerm.nodematch<-InitWtErgmTerm.match<-function (nw, arglist, ..., vers
 
   binary_dind_wrap("nodematch", nw, a, ..., version=version)
 }
+
+#' @rdname nodematch-ergmTerm
+InitWtErgmTerm.match<-InitWtErgmTerm.nodematch
 
 #' @rdname nodemix-ergmTerm
 #' @usage

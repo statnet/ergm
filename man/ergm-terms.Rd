@@ -14,10 +14,6 @@
 \alias{terms.ergm}
 \alias{InitErgmTerm}
 
-\alias{match}
-\alias{nodeisqrtcovar}
-\alias{nodeosqrtcovar}
-\alias{nodesqrtcovar}
 \docType{methods}
 
 % The following macros define commonly repeated parts of the term description. It appears to be a limitation of the format that the whole macro must fit on one line.
@@ -202,20 +198,7 @@
   term documentation is
   available via \code{vignette('ergm-term-crossRef')} and terms
   can also be searched via \code{\link{search.ergmTerms}}.
-  \describe{
-    %%%%%%%%%%%%%%%%%%%%%%555
-    % This section below is specially formatted so that it can be parsed to build additional
-    % documentation about ergm terms. (parsing functions are in build_term_index.R)
-    % The list of term tags must appear on the same line as the term name to be parsed correctly
-    %%beginTerms%%
 
-    \item{\code{nodecovar}  (valued)  (directed)  (undirected) (quantitative nodal attribute)
-    }{\emph{Uncentered covariance of dyad values
-	incident on each actor:} This term adds one statistic equal to
-      \eqn{\sum_{i,j,k} (y_{i,j}y_{i,k}+y_{k,j}y_{k,j})}. This can be
-      viewed as a valued analog of the \code{\link[=ergm-terms]{kstar(2)}}
-      statistic.}
-  }
 }
 \references{
   \itemize{

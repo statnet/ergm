@@ -4,11 +4,14 @@
 \alias{nodematch-ergmTerm}
 \alias{InitErgmTerm.nodematch}
 \alias{InitWtErgmTerm.nodematch}
+\alias{InitWtErgmTerm.match}
 \title{Uniform homophily and differential homophily}
 \usage{
 # binary: nodematch(attr, diff=FALSE, keep=NULL, levels=NULL)
 
 # valued: nodematch(attr, diff=FALSE, keep=NULL, levels=NULL, form="sum")
+
+InitWtErgmTerm.match(nw, arglist, ..., version = packageVersion("ergm"))
 }
 \arguments{
 \item{attr}{quantitative attribute (see Specifying Vertex attributes and Levels (\code{?nodal_attributes}) for details.)}

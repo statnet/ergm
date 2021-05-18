@@ -3,9 +3,12 @@
 \name{nodecovar-ergmTerm}
 \alias{nodecovar-ergmTerm}
 \alias{InitWtErgmTerm.nodecovar}
+\alias{InitWtErgmTerm.nodesqrtcovar}
 \title{Covariance of undirected dyad values incident on each actor}
 \usage{
 # valued: nodecovar(center, transform)
+
+InitWtErgmTerm.nodesqrtcovar(nw, arglist, ...)
 }
 \arguments{
 \item{center}{If \code{center=TRUE} , the \eqn{y_{\cdot,\cdot}} s are
