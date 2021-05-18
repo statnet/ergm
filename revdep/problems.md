@@ -344,7 +344,7 @@ Run `revdep_details(, "ergm.ego")` for more info
       > stopifnot(all.equal(summary(f.y),summary(f.y.e)))
       Error: summary(f.y) and summary(f.y.e) are not equal:
         Names: 187 string mismatches
-        Numeric: lengths (788, 796) differ
+        Numeric: lengths (784, 792) differ
       Execution halted
     ```
 
@@ -435,53 +435,31 @@ Run `revdep_details(, "ergmito")` for more info
     Running examples in ‘ergmito-Ex.R’ failed
     The error most likely occurred in:
     
-    > ### Name: blockdiagonalize
-    > ### Title: Block-diagonal models using 'ergm'
-    > ### Aliases: blockdiagonalize splitnetwork ergm_blockdiag
+    > ### Name: vcov.ergmito
+    > ### Title: Estimation of ERGMs using Maximum Likelihood Estimation (MLE)
+    > ### Aliases: vcov.ergmito ergmito
     > 
     > ### ** Examples
     > 
-    > library(ergm)
-    ...
-    
-    > data(fivenets)
     > 
-    > fivenets2 <- blockdiagonalize(fivenets, attrname = "block") # A network with
-    > ans0 <- ergm(
-    +   fivenets2 ~ edges + nodematch("female"),
-    +   constraints = ~blockdiag("block")
-    +   )
-    Error: Sample space constraint ‘blockdiag’ function ‘InitErgmConstraint.blockdiag’ not found.
+    ...
+    Starting Monte Carlo maximum likelihood estimation (MCMLE):
+    Iteration 1 of at most 60:
+    Optimizing with step length 1.0000.
+    The log-likelihood improved by 0.0007.
+    Convergence test p-value: 0.0001. Converged with 99% confidence.
+    Finished MCMLE.
+    Evaluating log-likelihood at the estimate. Error in UseMethod("%ergmlhs%") : 
+      no applicable method for '%ergmlhs%' applied to an object of class "c('matrix', 'array', 'double', 'numeric')"
+    Calls: ergm ... ergm.bridge.dindstart.llk -> ergm_preprocess_response -> %ergmlhs%
     Execution halted
-    ```
-
-*   checking tests ...
-    ```
-     ERROR
-    Running the tests in ‘tests/tinytest.R’ failed.
-    Last 13 lines of output:
-      Running test-ergm_blockdiagonal.R.....    0 tests    
-      Running test-ergm_blockdiagonal.R.....    0 tests    
-      Running test-ergm_blockdiagonal.R.....    0 tests    
-      Running test-ergm_blockdiagonal.R.....    0 tests    
-      Running test-ergm_blockdiagonal.R.....    0 tests    
-      Running test-ergm_blockdiagonal.R.....    0 tests    
-      Running test-ergm_blockdiagonal.R.....    0 tests    
-      Running test-ergm_blockdiagonal.R.....    1 tests [0;32mOK[0m 
-      Running test-ergm_blockdiagonal.R.....    2 tests [0;32mOK[0m 
-      Running test-ergm_blockdiagonal.R.....    3 tests [0;32mOK[0m 
-      Running test-ergm_blockdiagonal.R.....    3 tests [0;32mOK[0m 
-      Running test-ergm_blockdiagonal.R.....    3 tests [0;32mOK[0m 
-      Running test-ergm_blockdiagonal.R.....    3 tests [0;32mOK[0m 
-      Running test-ergm_blockdiagonal.R.....    3 tests [0;32mOK[0m Error: Sample space constraint 'blockdiag' function 'InitErgmConstraint.blockdiag' not found.
-      Execution halted
     ```
 
 ## In both
 
 *   checking installed package size ... NOTE
     ```
-      installed size is  9.8Mb
+      installed size is  9.7Mb
       sub-directories of 1Mb or more:
         R      1.1Mb
         libs   7.9Mb

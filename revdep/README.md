@@ -39,7 +39,7 @@
 |[EpiModel](problems.md#epimodel)  |2.0.5   |__+2__ |        |       |
 |[ergm.ego](problems.md#ergmego)   |0.6.1   |__+2__ |        |       |
 |[ergm.rank](problems.md#ergmrank) |1.2.0   |__+1__ |        |       |
-|[ergmito](problems.md#ergmito)    |0.3-0   |__+2__ |        |1      |
+|[ergmito](problems.md#ergmito)    |0.3-0   |__+1__ |        |1      |
 |[gwdegree](problems.md#gwdegree)  |0.1.1   |       |__+1__  |1      |
 |[hergm](problems.md#hergm)        |4.1-7   |       |        |__+1__ |
 
@@ -59,7 +59,7 @@
 |[ergm.rank](problems.md#ergmrank)       |1.2.0   |__+1__ |        |       |
 |ergm.userterms                          |3.10.0  |       |        |       |
 |[ergMargins](problems.md#ergmargins)    |0.1.2   |       |        |2      |
-|[ergmito](problems.md#ergmito)          |0.3-0   |__+2__ |        |1      |
+|[ergmito](problems.md#ergmito)          |0.3-0   |__+1__ |        |1      |
 |fergm                                   |1.1.4   |       |        |       |
 |[gwdegree](problems.md#gwdegree)        |0.1.1   |       |__+1__  |1      |
 |[hergm](problems.md#hergm)              |4.1-7   |       |        |__+1__ |

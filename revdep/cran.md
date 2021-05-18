@@ -30,7 +30,6 @@ Issues with CRAN packages are summarised below.
 
 * ergmito
   checking examples ... ERROR
-  checking tests ...
 
 * gwdegree
   checking whether package ‘gwdegree’ can be installed ... WARNING
