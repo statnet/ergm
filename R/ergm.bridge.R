@@ -99,16 +99,18 @@ ergm.bridge.llr<-function(object, response=NULL, reference=~Bernoulli, constrain
     stopifnot(shift >= -1/2, shift <= 1/2)
     u0 <- seq(from = 0 + 1 / 2 / n, to = 1 - 1 / 2 / n, length.out = n)
     u <- u0 + shift / n
-    halfgap <- c(u[1], diff(u)/2, 1 - ult(u))
-    w <- sapply(seq_len(n), function(i) halfgap[i] + halfgap[i + 1])
-    if (reverse) {
-      u <- rev(u)
-      w <- rev(w)
-    }
+    if (reverse) u <- rev(u)
     list(
       theta = t(rbind(sapply(u, function(u) cbind(to * u + from * (1 - u))))),
-      weight = w
+      u = u
     )
+  }
+
+  uweights <- function(u) {
+    o <- order(u)
+    u <- u[o]
+    halfgap <- c(u[1], diff(u)/2, 1 - ult(u))
+    (head(halfgap, -1) + tail(halfgap, -1))[order(o)]
   }
 
   # A low-discrepancy sequence: Kronecker Recurrence using inverse
@@ -185,7 +187,6 @@ ergm.bridge.llr<-function(object, response=NULL, reference=~Bernoulli, constrain
 
     for(i in seq_len(control$bridge.nsteps)){
       theta <- path$theta[i, ]
-      weight <- path$weight[i]
       if(verbose==0) message(i," ",appendLF=FALSE)
       if(verbose>0) message("Running theta=[",paste(format(theta),collapse=","),"].")
 
@@ -194,17 +195,17 @@ ergm.bridge.llr<-function(object, response=NULL, reference=~Bernoulli, constrain
                             control = gen_control(FALSE, if(i == 1 && (attempt == 1 || !control$bridge.bidirectional)) "first" else "between"))
       state <- z$networks
       samp <- llrsamp(z$stats, theta)
-      vcov.llrs[i] <- c(ERRVL(try(spectrum0.mvar(samp)/(niter(samp)*nchain(samp)), silent=TRUE), 0)) * weight^2
-      llrs[i] <- mean(as.matrix(samp)) * weight
+      vcov.llrs[i] <- c(ERRVL(try(spectrum0.mvar(samp)/(niter(samp)*nchain(samp)), silent=TRUE), 0))
+      llrs[i] <- mean(as.matrix(samp))
 
       if(obs){
         z <- ergm_MCMC_sample(state.obs, theta = theta, verbose = max(verbose - 1, 0),
                               control = gen_control(TRUE, if(i == 1 && (attempt == 1 || !control$bridge.bidirectional)) "first" else "between"))
         state.obs <- z$networks
         samp <- llrsamp(z$stats, theta)
-        vcov.llrs[i] <- vcov.llrs[i] + c(ERRVL(try(spectrum0.mvar(samp)/(niter(samp)*nchain(samp)), silent=TRUE), 0)) * weight^2
-        llrs[i] <- llrs[i] - mean(as.matrix(samp)) * weight
-      }else llrs[i] <- llrs[i] - llrsamp(target.stats, theta) * weight
+        vcov.llrs[i] <- vcov.llrs[i] + c(ERRVL(try(spectrum0.mvar(samp)/(niter(samp)*nchain(samp)), silent=TRUE), 0))
+        llrs[i] <- llrs[i] - mean(as.matrix(samp))
+      }else llrs[i] <- llrs[i] - llrsamp(target.stats, theta)
     }
     message(".")
 
@@ -214,8 +215,9 @@ ergm.bridge.llr<-function(object, response=NULL, reference=~Bernoulli, constrain
     vcov.llr.hist[[attempt]] <- vcov.llrs
     path.hist[[attempt]] <- path
 
-    llr <- sum(unlist(llr.hist)) / attempt
-    vcov.llr <- sum(unlist(vcov.llr.hist)) / attempt^2
+    w <- uweights(unlist(lapply(path.hist, `[[`, "u")))
+    llr <- sum(unlist(llr.hist)*w)
+    vcov.llr <- sum(unlist(vcov.llr.hist)*w^2)
 
     if(is.null(control$bridge.target.se) || vcov.llr <= control$bridge.target.se^2) break
     else message("Estimated standard error (", format(sqrt(vcov.llr)), ") above target (", format(control$bridge.target.se), "). Drawing additional samples.")
