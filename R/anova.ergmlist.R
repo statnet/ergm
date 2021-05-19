@@ -17,28 +17,14 @@
 #            that of object, these are ignored. If this argument is not provided,
 #            the <anova.ergm> function is used instead
 #
-#
-# --IGNORED PARAMETERS--
-#   scale:  a numeric estimate of the noise variance, sigma^2; default=0, which
-#           estimates sigma^2 from the largest model considered
-#   test :  a character string, "F", "Chisq", or "Cp", specifying which
-#           test statistic to use; default="F"
-#
 # --RETURNED--
 #   an anova object with the analysis of variance table for the considered ergms
 #
 #################################################################################
 
 #' @rdname anova.ergm
-#' @param test a character string specifying the test statistic to be used. Can
-#' be one of \code{"F"}, \code{"Chisq"} or \code{"Cp"}, with partial matching
-#' allowed, or \code{NULL} for no test.
-#' @param scale numeric. An estimate of the noise variance
-#' \eqn{\sigma^2}{sigma^2}. If zero this will be estimated from the largest
-#' model considered.
 #' @export
-anova.ergmlist <- function (object, ..., eval.loglik=FALSE, scale = 0, test = "F") 
-{
+anova.ergmlist <- function(object, ..., eval.loglik = FALSE) {
   objects <- list(object, ...)
   responses <- as.character(lapply(objects, function(x) deparse(x$formula[[2]])))
   sameresp <- responses == responses[1]
@@ -53,10 +39,11 @@ anova.ergmlist <- function (object, ..., eval.loglik=FALSE, scale = 0, test = "F
   logl <- df <- Rdf <- rep(0, nmodels)
   logl.null <- if(is.null(objects[[1]][["null.lik"]])) 0 else objects[[1]][["null.lik"]]
   for (i in 1:nmodels) {
-    n <- nobs(logLik(objects[[i]]))
+    logli <- logLik(objects[[i]], eval.loglik = eval.loglik)
+    n <- nobs(logli)
     df[i] <- nparam(objects[[i]], offset = FALSE) 
     Rdf[i] <- n - df[i]
-    logl[i] <- logLik(objects[[i]])
+    logl[i] <- logli
   }
     df <- c(0, df)
     Rdf <- c(n, Rdf)
