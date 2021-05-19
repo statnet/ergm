@@ -15,7 +15,8 @@
 three nodes have the same value of the attribute. If \code{attr} is specified and \code{diff} is \code{TRUE} , then one statistic is added to the model for each value of \code{attr}, equal to the number of cyclic triples where all
 three nodes have that value of the attribute.}
 
-\item{levels}{specifies the value of \code{attr} to consider if \code{attr} is passed and \code{diff=TRUE}}
+\item{levels}{specifies the value of \code{attr} to consider if \code{attr} is passed and \code{diff=TRUE}. (See Specifying Vertex
+attributes and Levels (\code{\link[=nodal_attributes]{?nodal_attributes}}) for details.)}
 }
 \description{
 Cyclic triples

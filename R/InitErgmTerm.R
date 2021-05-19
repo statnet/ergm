@@ -246,8 +246,8 @@ InitErgmTerm.absdiff <- function(nw, arglist, ..., version=packageVersion("ergm"
 #'
 #' @template ergmTerm-attr
 #' @param base deprecated
-#' @param levels specifies which nonzero difference to include in or exclude from the model (See Specifying Vertex
-#'   attributes and Levels (`?nodal_attributes`) for details.)
+#' @templateVar explain specifies which nonzero difference to include in or exclude from the model.
+#' @template ergmTerm-levels-doco
 #'
 #' @template ergmTerm-args-3.9.4
 #' @template ergmTerm-base-dep
@@ -545,7 +545,8 @@ InitErgmTerm.attrcov <- function (nw, arglist, ..., version=packageVersion("ergm
 #'   It functions just like the `by` argument of the `b1degree` term.
 #'   Without the optional argument, this statistic is equivalent to `b1mindegree(2)` .
 #'
-#' @param levels TODO
+#' @templateVar explain TODO
+#' @template ergmTerm-levels-doco
 #'
 #' @template ergmTerm-general
 #'
@@ -625,7 +626,8 @@ InitErgmTerm.b1concurrent<-function(nw, arglist, ..., version=packageVersion("er
 #'
 #' @template ergmTerm-general
 #'
-#' @param levels TODO
+#' @templateVar explain TODO
+#' @template ergmTerm-levels-doco
 #'
 #' @concept bipartite
 #' @concept undirected
@@ -790,7 +792,8 @@ InitErgmTerm.b1cov<-function (nw, arglist, ..., version=packageVersion("ergm")) 
 #'   then each node's degree is tabulated only with other nodes having the same
 #'   value of the `by` attribute.
 #'
-#' @param levels TODO
+#' @templateVar explain TODO
+#' @template ergmTerm-levels-doco
 #'
 #' @template ergmTerm-general
 #'
@@ -918,8 +921,9 @@ InitErgmTerm.b1dsp<-function(nw, arglist, cache.sp=TRUE, ...) {
 #'
 #' @template ergmTerm-attr
 #' @param base deprecated
-#' @templateVar fn b1factor
-#' @template ergmTerm-levels-explain
+#' @templateVar explain this optional argument controls which levels of the attribute
+#'   should be included and which should be excluded.
+#' @template ergmTerm-levels-doco
 #'
 #' @template ergmTerm-levels-not-first
 #'
@@ -1043,7 +1047,8 @@ InitErgmTerm.b1sociality<-function(nw, arglist, ...) {
 #'
 #' @param k a vector of distinct integers
 #' @template ergmTerm-attr
-#' @param levels TODO
+#' @templateVar explain TODO
+#' @template ergmTerm-levels-doco
 #'
 #' @template ergmTerm-general
 #'
@@ -1432,7 +1437,8 @@ InitErgmTerm.b2cov<-function (nw, arglist, ..., version=packageVersion("ergm")) 
 #'
 #' @template ergmTerm-by
 #'
-#' @param levels TODO
+#' @templateVar explain TODO
+#' @template ergmTerm-levels-doco
 #'
 #' @template ergmTerm-general
 #'
@@ -1669,8 +1675,9 @@ InitErgmTerm.b2dsp<-function(nw, arglist, cache.sp=TRUE, ...) {
 #'
 #' @template ergmTerm-attr
 #' @param base deprecated
-#' @templateVar fn b2factor
-#' @template ergmTerm-levels-explain
+#' @templateVar explain this optional argument controls which levels of the attribute
+#'   should be included and which should be excluded.
+#' @template ergmTerm-levels-doco
 #'
 #' @template ergmTerm-levels-not-first
 #'
@@ -1797,7 +1804,8 @@ InitErgmTerm.b2sociality<-function(nw, arglist, ...) {
 #' @param attr quantitative attribute (see Specifying Vertex attributes and Levels (`?nodal_attributes`) for details.) then the count is over
 #'   the number of \eqn{k} -stars (with center node in the second mode) where all
 #'   nodes have the same value of the attribute. 
-#' @param levels TODO
+#' @templateVar explain TODO
+#' @template ergmTerm-levels-doco
 #'
 #' @template ergmTerm-general
 #'
@@ -2134,7 +2142,8 @@ InitErgmTerm.concurrent<-function(nw, arglist, ..., version=packageVersion("ergm
 #' @param attr,diff quantitative attribute (see Specifying Vertex attributes and Levels (`?nodal_attributes`) for details.) If `attr` is specified and `diff` is `FALSE` , then the statistic is the number of cyclic triples where all
 #'   three nodes have the same value of the attribute. If `attr` is specified and `diff` is `TRUE` , then one statistic is added to the model for each value of `attr`, equal to the number of cyclic triples where all
 #'   three nodes have that value of the attribute.
-#' @param levels specifies the value of `attr` to consider if `attr` is passed and `diff=TRUE`
+#' @templateVar explain specifies the value of `attr` to consider if `attr` is passed and `diff=TRUE`.
+#' @template ergmTerm-levels-doco
 #'
 #' @template ergmTerm-general
 #'
@@ -2357,7 +2366,8 @@ InitErgmTerm.degcrossprod<-function (nw, arglist, ...) {
 #'
 #' @template ergmTerm-by
 #'
-#' @param levels TODO
+#' @templateVar explain TODO
+#' @template ergmTerm-levels-doco
 #'
 #' @template ergmTerm-general
 #'
@@ -2462,7 +2472,8 @@ InitErgmTerm.degrange<-function(nw, arglist, ..., version=packageVersion("ergm")
 #'
 #' @param d vector of distinct integers
 #' @template ergmTerm-by
-#' @param levels TODO
+#' @templateVar explain TODO
+#' @template ergmTerm-levels-doco
 #'
 #' @template ergmTerm-general
 #'
@@ -3014,7 +3025,8 @@ InitErgmTerm.esp<-function(nw, arglist, cache.sp=TRUE, ...) {
 #' @template ergmTerm-attr
 #' @templateVar underlying degree
 #' @template ergmTerm-gw-cutoff
-#' @param levels TODO
+#' @templateVar explain TODO
+#' @template ergmTerm-levels-doco
 #'
 #' @template ergmTerm-general
 #'
@@ -3169,7 +3181,8 @@ InitErgmTerm.gwb1dsp<-function(nw, arglist, cache.sp=TRUE, gw.cutoff=30, ...) {
 #' @template ergmTerm-attr
 #' @templateVar underlying degree
 #' @template ergmTerm-gw-cutoff
-#' @param levels TODO
+#' @templateVar explain TODO
+#' @template ergmTerm-levels-doco
 #'
 #' @template ergmTerm-general
 #'
@@ -3322,7 +3335,8 @@ InitErgmTerm.gwb2dsp<-function(nw, arglist, cache.sp=TRUE, gw.cutoff=30, ...) {
 #' @template ergmTerm-attr
 #' @templateVar underlying degree
 #' @template ergmTerm-gw-cutoff
-#' @param levels TODO
+#' @templateVar explain TODO
+#' @template ergmTerm-levels-doco
 #'
 #' @template ergmTerm-general
 #'
@@ -3549,7 +3563,8 @@ InitErgmTerm.gwesp<-function(nw, arglist, cache.sp=TRUE, gw.cutoff=30, ...) {
 #' @template ergmTerm-attr
 #' @templateVar underlying degree
 #' @template ergmTerm-gw-cutoff
-#' @param levels TODO
+#' @templateVar explain TODO
+#' @template ergmTerm-levels-doco
 #'
 #' @template ergmTerm-general
 #'
@@ -3706,7 +3721,8 @@ InitErgmTerm.gwnsp<-function(nw, arglist, cache.sp=TRUE, gw.cutoff=30, ...) {
 #' @template ergmTerm-attr
 #' @templateVar underlying degree
 #' @template ergmTerm-gw-cutoff
-#' @param levels TODO
+#' @templateVar explain TODO
+#' @template ergmTerm-levels-doco
 #'
 #' @template ergmTerm-general
 #'
@@ -4013,7 +4029,8 @@ InitErgmTerm.hammingmix<-function (nw, arglist, ..., version=packageVersion("erg
 #'
 #' @template ergmTerm-from-to
 #' @template ergmTerm-by
-#' @param levels TODO
+#' @templateVar explain TODO
+#' @template ergmTerm-levels-doco
 #'
 #' @template ergmTerm-general
 #'
@@ -4116,7 +4133,8 @@ InitErgmTerm.idegrange<-function(nw, arglist, ..., version=packageVersion("ergm"
 #'
 #' @param d a vector of distinct integers
 #' @template ergmTerm-by
-#' @param levels TODO
+#' @templateVar explain TODO
+#' @template ergmTerm-levels-doco
 #'
 #' @template ergmTerm-general
 #'
@@ -4366,7 +4384,8 @@ InitErgmTerm.isolates <- function(nw, arglist, ...) {
 #'
 #' @param k a vector of distinct integers
 #' @template ergmTerm-attr
-#' @param levels TODO
+#' @templateVar explain TODO
+#' @template ergmTerm-levels-doco
 #'
 #' @template ergmTerm-general
 #'
@@ -4439,7 +4458,8 @@ InitErgmTerm.istar<-function(nw, arglist, ..., version=packageVersion("ergm")) {
 #'
 #' @param k a vector of distinct integers
 #' @template ergmTerm-attr
-#' @param levels TODO
+#' @templateVar explain TODO
+#' @template ergmTerm-levels-doco
 #'
 #' @template ergmTerm-general
 #'
@@ -4623,7 +4643,8 @@ InitErgmTerm.meandeg<-function(nw, arglist, ...) {
 #' @param attrs a two-sided formula whose LHS gives the attribute or
 #'   attribute function (see Specifying Vertex attributes and Levels (`?nodal_attributes`) for details.) for the rows of the mixing matrix and whose RHS gives
 #'   for its columns. A one-sided formula (e.g., `~A`) is symmetrized (e.g., `A~A`)
-#' @param levels subset of rows and columns to be used
+#' @templateVar explain subset of rows and columns to be used.
+#' @template ergmTerm-levels-doco
 #' @param levels2 which specific cells of the matrix to include
 #'
 #' @template ergmTerm-general
@@ -4786,8 +4807,8 @@ InitErgmTerm.mm<-function (nw, arglist, ..., version=packageVersion("ergm")) {
 #'   will equal twice the standard mutual statistic. Only one of `same` or `by` may be used. If both parameters are used, `by` is 
 #'   ignored. This paramer is not affected by `diff`.
 #' @param keep deprecated
-#' @param levels which statistics should be kept
-#'   whenever the `mutual` term would ordinarily result in multiple statistics (see Specifying Vertex attributes and Levels (`?nodal_attributes`) for details).
+#' @templateVar explain which statistics should be kept whenever the `mutual` term would ordinarily result in multiple statistics.
+#' @template ergmTerm-levels-doco
 #'
 #' @template ergmTerm-general
 #'
@@ -4977,8 +4998,9 @@ InitErgmTerm.nodemain<-InitErgmTerm.nodecov
 #'
 #' @template ergmTerm-attr
 #' @param base deprecated
-#' @templateVar fn nodefactor
-#' @template ergmTerm-levels-explain
+#' @templateVar explain this optional argument controls which levels of the attribute
+#'   should be included and which should be excluded.
+#' @template ergmTerm-levels-doco
 #'
 #' @template ergmTerm-general
 #'
@@ -5106,8 +5128,9 @@ InitErgmTerm.nodeicov<-function (nw, arglist, ..., version=packageVersion("ergm"
 #'
 #' @template ergmTerm-attr
 #' @param base deprecated
-#' @templateVar fn nodeifactor
-#' @template ergmTerm-levels-explain
+#' @templateVar explain this optional argument controls which levels of the attribute
+#'   should be included and which should be excluded.
+#' @template ergmTerm-levels-doco
 #'
 #' @template ergmTerm-levels-not-first
 #'
@@ -5189,8 +5212,9 @@ InitErgmTerm.nodeifactor<-function (nw, arglist, ..., version=packageVersion("er
 #' @template ergmTerm-attr
 #' @param diff specify if the term has uniform or differential homophily
 #' @param keep deprecated
-#' @templateVar fn nodematch
-#' @template ergmTerm-levels-explain
+#' @templateVar explain this optional argument controls which levels of the attribute
+#'   should be included and which should be excluded.
+#' @template ergmTerm-levels-doco
 #'
 #' @template ergmTerm-keep-dep
 #'
@@ -5484,8 +5508,9 @@ InitErgmTerm.nodeocov<-function (nw, arglist, ..., version=packageVersion("ergm"
 #'
 #' @template ergmTerm-attr
 #' @param base deprecated
-#' @templateVar fn nodeofactor
-#' @template ergmTerm-levels-explain
+#' @templateVar explain this optional argument controls which levels of the attribute
+#'   should be included and which should be excluded.
+#' @template ergmTerm-levels-doco
 #'
 #' @template ergmTerm-base-dep
 #'
@@ -5631,7 +5656,8 @@ InitErgmTerm.nsp<-function(nw, arglist, cache.sp=TRUE, ...) {
 #'
 #' @template ergmTerm-from-to
 #' @template ergmTerm-by
-#' @param levels TODO
+#' @templateVar explain TODO
+#' @template ergmTerm-levels-doco
 #'
 #' @template ergmTerm-general
 #'
@@ -5736,7 +5762,8 @@ InitErgmTerm.odegrange<-function(nw, arglist, ..., version=packageVersion("ergm"
 #'
 #' @param d a vector of distinct integers
 #' @template ergmTerm-by
-#' @param levels TODO
+#' @templateVar explain TODO
+#' @template ergmTerm-levels-doco
 #'
 #' @template ergmTerm-general
 #'
@@ -5911,7 +5938,8 @@ InitErgmTerm.opentriad<-function (nw, arglist, ...) {
 #'
 #' @param k a vector of distinct integers
 #' @template ergmTerm-attr
-#' @param levels TODO
+#' @templateVar explain TODO
+#' @template ergmTerm-levels-doco
 #'
 #' @template ergmTerm-general
 #'
@@ -6351,7 +6379,8 @@ InitErgmTerm.threepath <- function(nw, arglist, ..., version=packageVersion("erg
 #' # binary: threetrail(keep=NULL, levels=NULL)
 #'
 #' @param keep deprecated
-#' @param levels specify a subset of the four statistics for directed networks
+#' @templateVar explain specify a subset of the four statistics for directed networks.
+#' @template ergmTerm-levels-doco
 #'
 #' @template ergmTerm-keep-dep
 #'
@@ -6445,9 +6474,9 @@ InitErgmTerm.transitive<-function (nw, arglist, ...) {
 #' @usage
 #' # binary: triadcensus(levels)
 #'
-#' @param levels For directed networks, specify a set of terms to add other than the default value of `1:15`. 
-#'   For undirected networks, specify which of the four types of ties to include. The default is `1:3` where 0 is dropped. (See Specifying Vertex
-#'   attributes and Levels (`?nodal_attributes`) for details.)
+#' @templateVar explain For directed networks, specify a set of terms to add other than the default value of `1:15`. 
+#'   For undirected networks, specify which of the four types of ties to include. The default is `1:3` where 0 is dropped.
+#' @template ergmTerm-levels-doco
 #'
 #' @template ergmTerm-general
 #'
@@ -6539,7 +6568,8 @@ InitErgmTerm.triadcensus<-function (nw, arglist, ..., version=packageVersion("er
 #'   equal values of the vertex attribute specified by `attr` . If `attr` is specified and `diff` is `TRUE` ,
 #'   then one statistic is added for each value of `attr` ,
 #'   equal to the number of triangles where all three nodes have that value of the attribute.
-#' @param levels add one statistic for each value specified if `diff` is `TRUE`
+#' @templateVar explain add one statistic for each value specified if `diff` is `TRUE`.
+#' @template ergmTerm-levels-doco
 #'
 #' @template ergmTerm-general
 #'
@@ -6614,7 +6644,9 @@ InitErgmTerm.triangle<-InitErgmTerm.triangles<-function (nw, arglist, ..., versi
 #'   equal values of the vertex attribute specified by `attr` . If `attr` is specified and `diff` is `TRUE` ,
 #'   then one statistic is added for each value of `attr` ,
 #'   equal to the number of triangles where all three nodes have that value of the attribute.
-#' @param levels add one statistic for each value specified if `diff` is `TRUE`
+#' @templateVar explain add one statistic for each value specified if `diff` is `TRUE`
+#'   should be included and which should be excluded.
+#' @template ergmTerm-levels-doco
 #'
 #' @template ergmTerm-general
 #'
@@ -6682,7 +6714,8 @@ InitErgmTerm.tripercent<-function (nw, arglist, ..., version=packageVersion("erg
 #'   the attribute. If `attr` is specified and `diff` is `TRUE` ,
 #'   then one statistic is added for each value of `attr` ,
 #'   equal to the number of triangles where all three nodes have that value of the attribute.
-#' @param levels add one statistic for each value specified if `diff` is `TRUE`
+#' @templateVar explain add one statistic for each value specified if `diff` is `TRUE`.
+#' @template ergmTerm-levels-doco
 #'
 #' @template ergmTerm-general
 #'

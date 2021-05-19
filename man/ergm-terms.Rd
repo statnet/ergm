@@ -185,9 +185,8 @@
   provides tools for implementing them.
 
   The current recommendation for any package implementing additional
-  terms is to create a help file with a name or
-  alias \code{ergm-terms}, so that \code{help("ergm-terms")} will
-  list ERGM terms available from all loaded packages.
+  terms is to document the term with Roxygen comments and a name in the form termName-ergmTerm. This ensures
+  that \code{help("ergmTerms")} will list ERGM terms available from all loaded packages.
 }
 
 }
@@ -196,7 +195,7 @@
 
   As noted above, a cross-referenced HTML version of the
   term documentation is
-  available via \code{vignette('ergm-term-crossRef')} and terms
+  available via \code{vignette('ergm-term-crossRef')}, \code{\link{ergmTerms}} and terms
   can also be searched via \code{\link{search.ergmTerms}}.
 
 }

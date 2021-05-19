@@ -14,7 +14,8 @@
 the number of \eqn{k} -stars (with center node in the second mode) where all
 nodes have the same value of the attribute.}
 
-\item{levels}{TODO}
+\item{levels}{TODO (See Specifying Vertex
+attributes and Levels (\code{\link[=nodal_attributes]{?nodal_attributes}}) for details.)}
 }
 \description{
 k-Stars for the second mode in a bipartite (aka two-mode) network

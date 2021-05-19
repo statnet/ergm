@@ -21,7 +21,8 @@
 #' @usage
 #' # binary: coincidence(levels=NULL,active=0)
 #'
-#' @param levels specifies which pairs of nodes in mode two to include (see Specifying Vertex attributes and Levels (`?nodal_attributes`) for details.)
+#' @templateVar explain specifies which pairs of nodes in mode two to include.
+#' @template ergmTerm-levels-doco
 #' @param active selects pairs for which the observed count is at least `active` . Ignored if `levels` is
 #'   specified. (Thus, indices passed as `levels` should correspond to indices when `levels` = NULL and `active` = 0.) 
 #'

@@ -12,7 +12,8 @@
 
 \item{attr}{quantitative attribute (see Specifying Vertex attributes and Levels (\code{?nodal_attributes}) for details.)}
 
-\item{levels}{TODO}
+\item{levels}{TODO (See Specifying Vertex
+attributes and Levels (\code{\link[=nodal_attributes]{?nodal_attributes}}) for details.)}
 }
 \description{
 k-Outstars

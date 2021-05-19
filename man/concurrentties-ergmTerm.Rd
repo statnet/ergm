@@ -11,7 +11,8 @@
 \item{by}{a vertex attribute (see Specifying Vertex attributes and Levels (\code{?nodal_attributes}) for details.);
 it functions just like the \code{by} argument of the \code{degree} term}
 
-\item{levels}{TODO}
+\item{levels}{TODO (See Specifying Vertex
+attributes and Levels (\code{\link[=nodal_attributes]{?nodal_attributes}}) for details.)}
 }
 \description{
 Concurrent tie count

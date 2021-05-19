@@ -14,7 +14,8 @@
 then each node's degree is tabulated only with other nodes having the same
 value of the \code{by} attribute.}
 
-\item{levels}{TODO}
+\item{levels}{TODO (See Specifying Vertex
+attributes and Levels (\code{\link[=nodal_attributes]{?nodal_attributes}}) for details.)}
 }
 \description{
 Degree for the first mode in a bipartite (aka two-mode) network

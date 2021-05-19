@@ -22,7 +22,8 @@
 #' # binary: concurrentties(by=NULL, levels=NULL)
 #' @param by a vertex attribute (see Specifying Vertex attributes and Levels (`?nodal_attributes`) for details.);
 #'   it functions just like the `by` argument of the `degree` term
-#' @param levels TODO
+#' @templateVar explain TODO
+#' @template ergmTerm-levels-doco
 #'
 #' @template ergmTerm-general
 #'

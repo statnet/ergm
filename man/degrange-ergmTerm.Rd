@@ -20,7 +20,8 @@ If \code{by} is specified and
 statistics are calculated for nodes having each separate
 value of the attribute.}
 
-\item{levels}{TODO}
+\item{levels}{TODO (See Specifying Vertex
+attributes and Levels (\code{\link[=nodal_attributes]{?nodal_attributes}}) for details.)}
 }
 \description{
 Degree range

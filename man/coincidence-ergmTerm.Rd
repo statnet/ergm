@@ -8,7 +8,8 @@
 # binary: coincidence(levels=NULL,active=0)
 }
 \arguments{
-\item{levels}{specifies which pairs of nodes in mode two to include (see Specifying Vertex attributes and Levels (\code{?nodal_attributes}) for details.)}
+\item{levels}{specifies which pairs of nodes in mode two to include. (See Specifying Vertex
+attributes and Levels (\code{\link[=nodal_attributes]{?nodal_attributes}}) for details.)}
 
 \item{active}{selects pairs for which the observed count is at least \code{active} . Ignored if \code{levels} is
 specified. (Thus, indices passed as \code{levels} should correspond to indices when \code{levels} = NULL and \code{active} = 0.)}

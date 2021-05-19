@@ -23,7 +23,8 @@
 #'
 #' @param attr quantitative attribute (see Specifying Vertex attributes and Levels (`?nodal_attributes`) for details.) If set, all three nodes involved ( \eqn{i} , \eqn{j} , and the node on the two-path) must match
 #'   on this attribute in order for \eqn{i\rightarrow j}{i-->j} to be counted.
-#' @param levels TODO
+#' @templateVar explain TODO
+#' @template ergmTerm-levels-doco
 #'
 #' @template ergmTerm-general
 #'
@@ -89,7 +90,8 @@ InitErgmTerm.transitiveties<-function (nw, arglist, ..., version=packageVersion(
 #' # binary: cyclicalties(attr=NULL, levels=NULL)
 #' @param attr quantitative attribute (see Specifying Vertex attributes and Levels (`?nodal_attributes`) for details.) If set, all three nodes involved ( \eqn{i} , \eqn{j} , and the node on the two-path) must match
 #'   on this attribute in order for \eqn{i\rightarrow j}{i-->j} to be counted.
-#' @param levels TODO
+#' @templateVar explain TODO
+#' @template ergmTerm-levels-doco
 #'
 #' @template ergmTerm-general
 #'

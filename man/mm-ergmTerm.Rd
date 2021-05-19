@@ -15,7 +15,8 @@
 attribute function (see Specifying Vertex attributes and Levels (\code{?nodal_attributes}) for details.) for the rows of the mixing matrix and whose RHS gives
 for its columns. A one-sided formula (e.g., \code{~A}) is symmetrized (e.g., \code{A~A})}
 
-\item{levels}{subset of rows and columns to be used}
+\item{levels}{subset of rows and columns to be used. (See Specifying Vertex
+attributes and Levels (\code{\link[=nodal_attributes]{?nodal_attributes}}) for details.)}
 
 \item{levels2}{which specific cells of the matrix to include}
 

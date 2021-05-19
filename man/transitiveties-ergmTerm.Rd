@@ -11,7 +11,8 @@
 \item{attr}{quantitative attribute (see Specifying Vertex attributes and Levels (\code{?nodal_attributes}) for details.) If set, all three nodes involved ( \eqn{i} , \eqn{j} , and the node on the two-path) must match
 on this attribute in order for \eqn{i\rightarrow j}{i-->j} to be counted.}
 
-\item{levels}{TODO}
+\item{levels}{TODO (See Specifying Vertex
+attributes and Levels (\code{\link[=nodal_attributes]{?nodal_attributes}}) for details.)}
 }
 \description{
 Transitive ties

@@ -27,8 +27,8 @@ ignored. This paramer is not affected by \code{diff}.}
 
 \item{keep}{deprecated}
 
-\item{levels}{which statistics should be kept
-whenever the \code{mutual} term would ordinarily result in multiple statistics (see Specifying Vertex attributes and Levels (\code{?nodal_attributes}) for details).}
+\item{levels}{which statistics should be kept whenever the \code{mutual} term would ordinarily result in multiple statistics. (See Specifying Vertex
+attributes and Levels (\code{\link[=nodal_attributes]{?nodal_attributes}}) for details.)}
 
 \item{form}{character how to aggregate tie values in a valued ERGM}
 }

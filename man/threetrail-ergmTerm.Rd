@@ -13,7 +13,8 @@
 \arguments{
 \item{keep}{deprecated}
 
-\item{levels}{specify a subset of the four statistics for directed networks}
+\item{levels}{specify a subset of the four statistics for directed networks. (See Specifying Vertex
+attributes and Levels (\code{\link[=nodal_attributes]{?nodal_attributes}}) for details.)}
 }
 \description{
 Three-trails

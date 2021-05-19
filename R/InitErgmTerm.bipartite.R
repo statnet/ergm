@@ -52,7 +52,8 @@
 #'   i.e. for example, if `diff` is `FALSE` , then the sum of all the statistics for
 #'   each level of this second-mode attribute will be equal to the original `b1nodematch`
 #'   statistic where `byb2attr` set to `NULL` .
-#' @param levels select a subset of `attr` values to include
+#' @templateVar explain select a subset of `attr` values to include.
+#' @template ergmTerm-levels-doco
 #'
 #' @template ergmTerm-general
 #'
@@ -184,7 +185,8 @@ InitErgmTerm.b1nodematch	<-	function (nw, arglist, ..., version=packageVersion("
 #'   i.e. for example, if `diff` is `FALSE` , then the sum of all the statistics for
 #'   each level of this second-mode attribute will be equal to the original `b1nodematch`
 #'   statistic where `byb2attr` set to `NULL` .
-#' @param levels select a subset of `attr` values to include
+#' @templateVar explain select a subset of `attr` values to include.
+#' @template ergmTerm-levels-doco
 #'
 #' @template ergmTerm-general
 #'

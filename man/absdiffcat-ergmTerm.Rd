@@ -20,8 +20,8 @@
 
 \item{base}{deprecated}
 
-\item{levels}{specifies which nonzero difference to include in or exclude from the model (See Specifying Vertex
-attributes and Levels (\code{?nodal_attributes}) for details.)}
+\item{levels}{specifies which nonzero difference to include in or exclude from the model. (See Specifying Vertex
+attributes and Levels (\code{\link[=nodal_attributes]{?nodal_attributes}}) for details.)}
 
 \item{form}{character how to aggregate tie values in a valued ERGM}
 }

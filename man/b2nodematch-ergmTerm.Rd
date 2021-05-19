@@ -22,7 +22,8 @@ i.e. for example, if \code{diff} is \code{FALSE} , then the sum of all the stati
 each level of this second-mode attribute will be equal to the original \code{b1nodematch}
 statistic where \code{byb2attr} set to \code{NULL} .}
 
-\item{levels}{select a subset of \code{attr} values to include}
+\item{levels}{select a subset of \code{attr} values to include. (See Specifying Vertex
+attributes and Levels (\code{\link[=nodal_attributes]{?nodal_attributes}}) for details.)}
 
 \item{attr}{quantitative attribute (see Specifying Vertex attributes and Levels (\code{?nodal_attributes}) for details.)}
 }

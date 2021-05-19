@@ -21,7 +21,8 @@ to use in computing the statistics when \code{fixed=FALSE}, in order to reduce
 the computational burden.  Its default value can also be controlled by the
 \code{gw.cutoff} term option control parameter. (See \code{?control.ergm}.)}
 
-\item{levels}{TODO}
+\item{levels}{TODO (See Specifying Vertex
+attributes and Levels (\code{\link[=nodal_attributes]{?nodal_attributes}}) for details.)}
 }
 \description{
 Geometrically weighted degree distribution for the second mode in a bipartite (aka two-mode) network
