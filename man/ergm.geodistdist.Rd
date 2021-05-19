@@ -50,3 +50,4 @@ ergm.geodistdist(faux.mesa.high)
 \seealso{
 See also the sna package \code{\link[sna]{geodist}} function
 }
+\keyword{internal}
