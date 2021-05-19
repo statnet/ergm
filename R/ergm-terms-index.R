@@ -80,10 +80,10 @@ ergmTermCache <- local({
 	# Check if new namespaces have been added.
 	checknew <- function() {
 		loaded_packages <- .packages(TRUE)
-		db <- hsearch_db()
-		for (pkg_name in loaded_packages) {
+		db <- hsearch_db()$Base
+		term_packages <- unique(db$Package[endsWith(db$Topic, "-ergmTerm")])
+		for (pkg_name in intersect(loaded_packages, term_packages)) {
 			if (!pkg_name %in% pkglist) {
-				if (!any(endsWith(db$Base$Topic[db$Base$Package == pkg_name], "-ergmTerm"))) next
 				load(pkg_name)
 
 				setHook(packageEvent(pkg_name, "detach"), unload)
