@@ -2574,21 +2574,8 @@ InitErgmTerm.degree1.5<-function (nw, arglist, ...) {
 
 
 ################################################################################
-#' @name degreepopularity-ergmTerm
-#' @title Degree popularity (deprecated)
-#' @description Degree popularity (deprecated)
-#' @details see `degree1.5` .
-#'
-#' @usage
-#' # binary: degreepopularity
-#'
-#' @template ergmTerm-general
-#'
-#' @concept undirected
-#' @concept deprecated
-#'
 #' @include ergm-deprecated.R
-# @describeIn ergm-deprecated Use [`degree1.5`] instead.
+#' @describeIn ergm-deprecated Use [`degree1.5`] instead.
 InitErgmTerm.degreepopularity<-function (nw, arglist, ...) {
   .Deprecated("degree1.5")
   a <- check.ErgmTerm(nw, arglist, directed=FALSE,
@@ -4235,20 +4222,7 @@ InitErgmTerm.idegree1.5<-function (nw, arglist, ...) {
 
 
 ################################################################################
-#' @name idegreepopularity-ergmTerm
-#' @title In-degree popularity (deprecated)
-#' @description In-degree popularity (deprecated)
-#' @details see `idegree1.5` .
-#'
-#' @usage
-#' # binary: idegreepopularity
-#'
-#' @template ergmTerm-general
-#'
-#' @concept directed
-#' @concept deprecated
-#'
-# @describeIn ergm-deprecated Use [`idegree1.5`] instead.
+#' @describeIn ergm-deprecated Use [`idegree1.5`] instead.
 InitErgmTerm.idegreepopularity<-function (nw, arglist, ...) {
   .Deprecated("idegree1.5")
   a <- check.ErgmTerm(nw, arglist, directed=TRUE,
@@ -4742,6 +4716,7 @@ InitErgmTerm.mm<-function (nw, arglist, ..., version=packageVersion("ergm")) {
 
   # Run the table cell list through the cell filter.
   levels2sel <- ergm_attr_levels(a$levels2, list(row=attrval$row$val, col=attrval$col$val), nw, levels=levels2)
+  if(length(levels2sel) == 0) return(NULL)
   levels2codes <- levels2codes[match(levels2sel,levels2, NA)]
   levels2 <- levels2sel; rm(levels2sel)
 
@@ -4752,11 +4727,11 @@ InitErgmTerm.mm<-function (nw, arglist, ..., version=packageVersion("ergm")) {
     map(unlist) %>%
     with(paste0(
       "[",
-      if(length(attrval$row$levels)>1)
+      if(length(attrval$row$unique)>1)
         paste0(attrval$row$name, "=", .$row)
       else ".",
       ",",
-      if(length(attrval$col$levels)>1)
+      if(length(attrval$col$unique)>1)
         paste0(attrval$col$name, "=", .$col)
       else ".",
       "]"))
@@ -5865,20 +5840,7 @@ InitErgmTerm.odegree1.5<-function (nw, arglist, ...) {
 
 
 ################################################################################
-#' @name odegreepopularity-ergmTerm
-#' @title Out-degree popularity (deprecated)
-#' @description Out-degree popularity (deprecated)
-#' @details see `odegree1.5` .
-#'
-#' @usage
-#' # binary: odegreepopularity
-#'
-#' @template ergmTerm-general
-#'
-#' @concept directed
-#' @concept deprecated
-#'
-# @describeIn ergm-deprecated Use [`odegree1.5`] instead.
+#' @describeIn ergm-deprecated Use [`odegree1.5`] instead.
 InitErgmTerm.odegreepopularity<-function (nw, arglist, ...) {
   .Deprecated("odegree1.5")
   a <- check.ErgmTerm(nw, arglist, directed=TRUE,

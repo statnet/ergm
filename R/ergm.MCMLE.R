@@ -128,15 +128,9 @@ ergm.MCMLE <- function(init, nw, model,
   s <- rep(list(s),nthreads(control)) # s is now a list of states.
   
   # Initialize control.obs and other *.obs if there is observation structure
-  
   if(obs){
     control.obs <- control
-    control.obs$MCMC.base.samplesize <- control$obs.MCMC.base.samplesize
-    control.obs$MCMC.base.effectiveSize <- control$obs.MCMC.base.effectiveSize
-    control.obs$MCMC.samplesize <- control$obs.MCMC.samplesize
-    control.obs$MCMC.effectiveSize <- control$obs.MCMC.effectiveSize
-    control.obs$MCMC.interval <- control$obs.MCMC.interval
-    control.obs$MCMC.burnin <- control$obs.MCMC.burnin
+    for(name in OBS_MCMC_CONTROLS) control.obs[[name]] <- control[[paste0("obs.", name)]]
     control0.obs <- control.obs
 
     s.obs <- lapply(s, update, model=NVL(model$obs.model,model), proposal=proposal.obs)
@@ -317,8 +311,8 @@ ergm.MCMLE <- function(init, nw, model,
       control$MCMC.burnin <- round(max(z$final.interval*16,16))
       if(verbose) message("New interval = ",control$MCMC.interval,".")
       if(obs){
-        control$obs.MCMC.interval <- control.obs$MCMC.interval <- round(max(z.obs$final.interval/control$MCMLE.effectiveSize.interval_drop,1))
-        control$obs.MCMC.burnin <- control.obs$MCMC.burnin <- round(max(z.obs$final.interval*16,16))
+        control.obs$MCMC.interval <- round(max(z.obs$final.interval/control$MCMLE.effectiveSize.interval_drop,1))
+        control.obs$MCMC.burnin <- round(max(z.obs$final.interval*16,16))
         if(verbose) message("New constrained interval = ",control.obs$MCMC.interval,".")
       }
     }
@@ -366,42 +360,6 @@ ergm.MCMLE <- function(init, nw, model,
       if(d2<2) last.adequate <- TRUE
     }
 
-    if(control$MCMLE.steplength=="adaptive"){
-      if(verbose){message("Starting adaptive MCMLE Optimization...")}
-      adaptive.steplength <- 2
-      v <- list(loglikelihood=control$MCMLE.adaptive.trustregion*2)
-      while(v$loglikelihood > control$MCMLE.adaptive.trustregion){
-        adaptive.steplength <- adaptive.steplength / 2
-        if(verbose){message("Optimizing with step length ", fixed.pval(adaptive.steplength, 2),".")}
-        #
-        #   If not the last iteration do not compute all the extraneous
-        #   statistics that are not needed until output
-        #
-        v<-ergm.estimate(init=mcmc.init, model=model,
-                         statsmatrices=statsmatrices, 
-                         statsmatrices.obs=statsmatrices.obs, 
-                         epsilon=control$epsilon,
-                         nr.maxit=control$MCMLE.NR.maxit,
-                         nr.reltol=control$MCMLE.NR.reltol,
-                         calc.mcmc.se=control$MCMLE.termination == "precision" || (control$MCMC.addto.se && last.adequate) || iteration == control$MCMLE.maxit, 
-                         hessianflag=control$main.hessian,
-                         trustregion=control$MCMLE.trustregion, method=control$MCMLE.method,
-                         metric=control$MCMLE.metric,
-                         dampening=control$MCMLE.dampening,
-                         dampening.min.ess=control$MCMLE.dampening.min.ess,
-                         dampening.level=control$MCMLE.dampening.level,
-                         steplen=adaptive.steplength,
-                         verbose=verbose,
-                         estimateonly=TRUE)
-      }
-      if(v$loglikelihood < control$MCMLE.trustregion-0.001){
-        message("The log-likelihood improved by ", fixed.pval(v$loglikelihood, 4), ".")
-      }else{
-        message("The log-likelihood did not improve.")
-      }
-      steplen.hist <- c(steplen.hist, adaptive.steplength)
-      steplen <- adaptive.steplength
-    }else{
       if(verbose){message("Starting MCMLE Optimization...")}
 
       if(!is.null(control$MCMLE.steplength.margin)){
@@ -452,7 +410,6 @@ ergm.MCMLE <- function(init, nw, model,
                        nr.reltol=control$MCMLE.NR.reltol,
                        calc.mcmc.se=control$MCMLE.termination == "precision" || (control$MCMC.addto.se && last.adequate) || iteration == control$MCMLE.maxit,
                        hessianflag=control$main.hessian,
-                       trustregion=control$MCMLE.trustregion, 
                        method=control$MCMLE.method,
                        dampening=control$MCMLE.dampening,
                        dampening.min.ess=control$MCMLE.dampening.min.ess,
@@ -461,12 +418,7 @@ ergm.MCMLE <- function(init, nw, model,
                        steplen=steplen, steplen.point.exp=control$MCMLE.steplength.point.exp,
                        verbose=verbose,
                        estimateonly=!calc.MCSE)
-      if(v$loglikelihood < control$MCMLE.trustregion-0.001){
         message("The log-likelihood improved by ", fixed.pval(v$loglikelihood, 4), ".")
-      }else{
-        message("The log-likelihood did not improve.")
-      }
-    }
           
     coef.hist <- rbind(coef.hist, coef(v))
     stats.obs.hist <- NVL3(statsmatrix.obs, rbind(stats.obs.hist, apply(.[], 2, base::mean)))
@@ -661,6 +613,8 @@ ergm.MCMLE <- function(init, nw, model,
   v$steplen.hist <- steplen.hist
   
   v$iterations <- iteration
+
+  if(obs) for(name in OBS_MCMC_CONTROLS) control[[paste0("obs.", name)]] <- control.obs[[name]]
   v$control <- control
   
   v$etamap <- model$etamap

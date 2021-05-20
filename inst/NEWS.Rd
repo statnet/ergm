@@ -74,7 +74,7 @@
       }
 
       \item{
-        A new type of term, an \emph{operator} is introduced, taking one or more \code{\link{ergm}} formulas as arguments and transforming their inputs and outputs allowing a wide variety of models to be specified. These include interactions for dyad-independent effects (\code{TERM1:TERM2} and \code{TERM1*TERM2}), \code{B()}inary terms in valued ERGMs, \code{Label()}, \code{F()}ilter, \code{Offset()}, \code{Symmetrize()}, \code{Sum()}, \code{S()}ubgraph, \code{Curve()}, \code{NodematchFilter()}, and others.
+        A new type of term, an \emph{operator} is introduced, taking one or more \code{\link{ergm}} formulas as arguments and transforming their inputs and outputs allowing a wide variety of models to be specified. These include interactions for dyad-independent effects (\code{TERM1:TERM2} and \code{TERM1*TERM2}), \code{B()}inary terms in valued ERGMs, \code{Label()}, \code{F()}ilter, \code{Offset()}, \code{Symmetrize()}, \code{Sum()}, \code{S()}ubgraph, \code{Curve()}, \code{NodematchFilter()}, \code{Log()}, \code{Exp()}, \code{Prod()}, and others.
       }
 
       \item{
@@ -209,6 +209,10 @@
       \item{
         A number of auxiliaries has been implemented (see \verb{R/InitErgmTerm.auxnet.R}) and a convenient API for evaluating network statistics on auxiliary networks is provided.
       }
+
+      \item{
+        Log-likelihood estimates and derived quantities (deviance, AIC, BIC) now also report their standard errors due to bridge sampling. Setting the \code{bridge.target.se} control option to \code{\link{control.logLik.ergm}} and/or \code{\link{control.ergm.bridge}} will continue sampling and accumulating samples until the estimated standard error due to bridge sampling falls below it.
+      }
     }
   }
 
@@ -216,10 +220,7 @@
   \subsection{BUG FIXES}{
     \itemize{
 
-      \item{A large number of bugs in bridge sampling has been fixed.}
-
-      \item{Miscellaneous fixes to the documentation and
-	robustifications.}
+      \item{Too many to list. See change log and the GitHub repository.}
 
     }
   }
@@ -230,6 +231,10 @@
       \item{
 	\code{\link{enformulate.curved}} family of functions has been
 	deprecated.
+      }
+
+      \item{
+        \code{ergmfit$coef} element has been superseded by \code{ergmfit$coefficients} for consistency with \code{\link{glm}} and others. The former still works, with a deprecation warning. Using \code{coef(ergmfit)} is recommended.
       }
 
       \item{
@@ -303,7 +308,23 @@
       }
 
       \item{
-        \code{blockdiag} constraint has been moved to \pkg{\link[=tergm:tergm-package]{tergm}} package.
+        The \code{InitErgmConstraint} and \code{InitErgmReference} API now has the same calling convention as \code{Init*ErgmTerm}, which enables \code{\link{check.ErgmTerm}} to be used to preprocess and check their arguments.
+      }
+
+      \item{
+        The \code{Init*Ergm*} functions now receive an optional env= argument containing the environment of the formula from which they were called.
+      }
+
+      \item{
+        The \code{InitErgmConstraint} API now allows multiple nested constraints to be returned, to allow a proposal to address either a more general or a more specific one.
+      }
+
+      \item{
+        The \code{do.sim=} aregument to the \code{\link{simulate.ergm}} family of functions has been deprecated in favor of a more consistent \code{return.args=}.
+      }
+
+      \item{
+        Likelihood-change trust region (\code{trustregion}) code has been removed.
       }
     }
   }

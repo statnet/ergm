@@ -132,7 +132,7 @@ predict.formula <- function(object, theta,
     data.frame = as.data.frame(predmat[,c("tail", "head", "p")]),
     matrix = {
       # Get vertex names
-      vnames <- eval_lhs.formula(object) %v% "vertex.names"
+      vnames <- ergm.getnetwork(object) %v% "vertex.names"
       structure(.df_to_matrix(predmat), dimnames = list(vnames, vnames))
     }
   )

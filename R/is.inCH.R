@@ -59,6 +59,8 @@
 #' \item Hummel, R. M., Hunter, D. R., and Handcock, M. S. (2012), Improving
 #' Simulation-Based Algorithms for Fitting ERGMs, Journal of Computational and
 #' Graphical Statistics, 21: 920-939. }
+#'
+#' @keywords internal
 #' @export is.inCH
 is.inCH <- function(p, M, verbose=FALSE, ...) { # Pass extra arguments directly to LP solver
   verbose <- max(0, min(verbose, 4))

@@ -5,12 +5,12 @@
 \alias{InitErgmTerm.F}
 \title{Filtering on arbitrary one-term model.}
 \usage{
-# binary: F(formula, form)
+# binary: F(formula, filter)
 }
 \arguments{
 \item{formula}{formula to be evaluated}
 
-\item{form}{must contain one binary \code{ergm} term, with
+\item{filter}{must contain one binary \code{ergm} term, with
 the following properties:
 \itemize{
 \item dyadic independence;

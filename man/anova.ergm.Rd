@@ -7,7 +7,7 @@
 \usage{
 \method{anova}{ergm}(object, ..., eval.loglik = FALSE)
 
-\method{anova}{ergmlist}(object, ..., eval.loglik = FALSE, scale = 0, test = "F")
+\method{anova}{ergmlist}(object, ..., eval.loglik = FALSE)
 }
 \arguments{
 \item{object, ...}{objects of class \code{\link{ergm}}, usually, a result of a
@@ -15,14 +15,6 @@ call to \code{\link{ergm}}.}
 
 \item{eval.loglik}{a logical specifying whether the log-likelihood will be
 evaluated if missing.}
-
-\item{scale}{numeric. An estimate of the noise variance
-\eqn{\sigma^2}{sigma^2}. If zero this will be estimated from the largest
-model considered.}
-
-\item{test}{a character string specifying the test statistic to be used. Can
-be one of \code{"F"}, \code{"Chisq"} or \code{"Cp"}, with partial matching
-allowed, or \code{NULL} for no test.}
 }
 \value{
 An object of class \code{"anova"} inheriting from class

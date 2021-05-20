@@ -14,7 +14,7 @@ lhs \%ergmlhs\% setting
 
 \method{\%ergmlhs\%}{network}(lhs, setting)
 
-lhs %ergmlhs% setting <- value
+lhs \%ergmlhs\% setting <- value
 
 \method{\%ergmlhs\%}{network}(lhs, setting) <- value
 

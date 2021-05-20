@@ -206,46 +206,6 @@ ergm.CD.fixed <- function(init, nw, model,
       return(structure (l, class="ergm"))
     } 
 
-    if(control$CD.steplength=="adaptive"){
-      if(verbose){message("Calling adaptive CD-MCMLE Optimization...")}
-      adaptive.steplength <- 2
-      v <- list(loglikelihood=control$CD.adaptive.trustregion*2)
-      while(v$loglikelihood > control$CD.adaptive.trustregion){
-        adaptive.steplength <- adaptive.steplength / 2
-        if(verbose){message("Optimizing with step length ",adaptive.steplength,".")}
-        #
-        #   If not the last iteration do not compute all the extraneous
-        #   statistics that are not needed until output
-        #
-        v<-ergm.estimate(init=mcmc.init, model=model,
-                         statsmatrices=statsmatrices, 
-                         statsmatrices.obs=statsmatrices.obs, 
-                         epsilon=control$epsilon,
-                         nr.maxit=control$CD.NR.maxit,
-                         nr.reltol=control$CD.NR.reltol,
-                         calc.mcmc.se=FALSE, 
-                         hessianflag=control$main.hessian,
-                         trustregion=control$CD.trustregion, method=control$CD.method,
-                         metric=control$CD.metric,
-                         dampening=control$CD.dampening,
-                         dampening.min.ess=control$CD.dampening.min.ess,
-                         dampening.level=control$CD.dampening.level,
-                         steplen=adaptive.steplength,
-                         verbose=verbose,
-                         estimateonly=TRUE)
-      }
-      if(v$loglikelihood < control$CD.trustregion-0.001){
-        current.scipen <- options()$scipen
-        options(scipen=3)
-        message("The log-likelihood improved by",
-            format.pval(v$loglikelihood,digits=4,eps=1e-4),".")
-        options(scipen=current.scipen)
-      }else{
-        message("The log-likelihood did not improve.")
-      }
-      steplen.hist <- c(steplen.hist, adaptive.steplength)
-      steplen <- adaptive.steplength
-    }else{
       if(verbose){message("Calling CD-MCMLE Optimization...")}
       steplen <-
         if(!is.null(control$CD.steplength.margin))
@@ -272,7 +232,6 @@ ergm.CD.fixed <- function(init, nw, model,
                        nr.reltol=control$CD.NR.reltol,
                        calc.mcmc.se=FALSE,
                        hessianflag=control$main.hessian,
-                       trustregion=control$CD.trustregion, 
                        method=control$CD.method,
                        dampening=control$CD.dampening,
                        dampening.min.ess=control$CD.dampening.min.ess,
@@ -281,16 +240,11 @@ ergm.CD.fixed <- function(init, nw, model,
                        steplen=steplen,
                        verbose=verbose,
                        estimateonly=!finished)
-      if(v$loglikelihood < control$CD.trustregion-0.001){
         current.scipen <- options()$scipen
         options(scipen=3)
         message("The log-likelihood improved by ",
             format.pval(v$loglikelihood,digits=4,eps=1e-4),".")
         options(scipen=current.scipen)
-      }else{
-        message("The log-likelihood did not improve.")
-      }
-    }
           
     coef.hist <- rbind(coef.hist, coef(v))
     stats.obs.hist <- NVL3(statsmatrix.obs, rbind(stats.obs.hist, apply(.[], 2, base::mean)))

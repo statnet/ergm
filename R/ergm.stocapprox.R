@@ -26,7 +26,7 @@
 #                  'initial_gain'  'nsubphases'  'niterations'
 #                  'nr.maxit'      'nr.reltol'   'calc.mcmc.se'
 #                  'hessian'       'method'      'metric'
-#                  'compress'      'trustregion' 'burnin'
+#                  'compress'      'burnin'
 #                  'interval'
 #               the use of these variables is explained in the
 #               <control.ergm> function header
@@ -127,7 +127,6 @@ ergm.stocapprox <- function(init, nw, model,
                    hessianflag=control$main.hessian,
                    method=control$MCMLE.method,
                    metric=control$MCMLE.metric,
-                   trustregion=control$SA.trustregion,
                    verbose=verbose)
 #
 # Important: Keep R-M (pre-NR) theta

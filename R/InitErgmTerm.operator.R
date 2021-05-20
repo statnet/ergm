@@ -224,9 +224,9 @@ InitErgmTerm..submodel_and_summary <- function(nw, arglist, ...){
 #'   \eqn{f_{i,j}(y_{i,j}) = 0}{f[i,j](y[i,j])=0} .
 #'
 #' @usage
-#' # binary: F(formula, form)
+#' # binary: F(formula, filter)
 #' @param formula formula to be evaluated
-#' @param form must contain one binary `ergm` term, with
+#' @param filter must contain one binary `ergm` term, with
 #'   the following properties:
 #'   - dyadic independence;
 #'   - dyadwise contribution of 0 for a 0-valued dyad.
@@ -240,21 +240,21 @@ InitErgmTerm..submodel_and_summary <- function(nw, arglist, ...){
 #' @concept operator
 InitErgmTerm.F <- function(nw, arglist, ...){
   a <- check.ErgmTerm(nw, arglist,
-                      varnames = c("formula", "form"),
+                      varnames = c("formula", "filter"),
                       vartypes = c("formula", "formula"),
                       defaultvalues = list(NULL, NULL),
                       required = c(TRUE, TRUE))
 
-  form <- a$form
+  filter <- a$filter
   m <- ergm_model(a$formula, nw,...)
   
-  form.name <- despace(deparse(ult(form)))
-  auxiliaries <- trim_env(~.filter.formula.net(form), "form")
+  filter.name <- despace(deparse(ult(filter)))
+  auxiliaries <- trim_env(~.filter.formula.net(filter), "filter")
   
   c(list(name="on_filter_formula_net",
          submodel = m,
          auxiliaries=auxiliaries),
-    wrap.ergm_model(m, nw, ergm_mk_std_op_namewrap("F", form.name)))
+    wrap.ergm_model(m, nw, ergm_mk_std_op_namewrap("F", filter.name)))
 }
 
 InitErgmTerm..filter.formula.net <- function(nw, arglist, ...){

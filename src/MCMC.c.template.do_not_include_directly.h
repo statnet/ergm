@@ -29,15 +29,17 @@ SEXP DISPATCH_MCMC_wrapper(SEXP stateR,
                     SEXP maxedges,
                     SEXP verbose){
   GetRNGstate();  /* R function enabling uniform RNG */
+  unsigned int protected = 0;
+
   DISPATCH_ErgmState *s = DISPATCH_ErgmStateInit(stateR, 0);
   if(asInteger(maxedges) < 0){
-    s->save = PROTECT(allocVector(VECSXP, asInteger(samplesize)));
+    s->save = PROTECT(allocVector(VECSXP, asInteger(samplesize))); protected++;
   }else s->save = NULL;
 
   DISPATCH_Model *m = s->m;
   DISPATCH_MHProposal *MHp = s->MHp;
 
-  SEXP sample = PROTECT(allocVector(REALSXP, asInteger(samplesize)*m->n_stats));
+  SEXP sample = PROTECT(allocVector(REALSXP, asInteger(samplesize)*m->n_stats)); protected++;
   memset(REAL(sample), 0, asInteger(samplesize)*m->n_stats*sizeof(double));
   memcpy(REAL(sample), s->stats, m->n_stats*sizeof(double));
 
@@ -47,12 +49,12 @@ SEXP DISPATCH_MCMC_wrapper(SEXP stateR,
                                                              asInteger(burnin), asInteger(interval), abs(asInteger(maxedges)),
                                                              asInteger(verbose))));
   else status = PROTECT(ScalarInteger(MCMC_MH_FAILED));
+  protected++;
 
   const char *outn[] = {"status", "s", "state", "saved", ""};
-  SEXP outl = PROTECT(mkNamed(VECSXP, outn));
+  SEXP outl = PROTECT(mkNamed(VECSXP, outn)); protected++;
   SET_VECTOR_ELT(outl, 0, status);
   SET_VECTOR_ELT(outl, 1, sample);
-  UNPROTECT(2);
 
   /* record new generated network to pass back to R */
   if(asInteger(status) == MCMC_OK && asInteger(maxedges) != 0){
@@ -60,14 +62,11 @@ SEXP DISPATCH_MCMC_wrapper(SEXP stateR,
     SET_VECTOR_ELT(outl, 2, DISPATCH_ErgmStateRSave(s));
   }
 
-  if(s->save){
-    SET_VECTOR_ELT(outl, 3, s->save);
-    UNPROTECT(1);
-  }
+  if(s->save) SET_VECTOR_ELT(outl, 3, s->save);
 
   DISPATCH_ErgmStateDestroy(s);  
   PutRNGstate();  /* Disable RNG before returning */
-  UNPROTECT(1);
+  UNPROTECT(protected); protected = 0;
   return outl;
 }
 
