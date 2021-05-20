@@ -2,6 +2,7 @@
 % Please edit documentation in R/InitWtErgmTerm.R
 \name{InitWtErgmTerm.nodeosqrtcovar}
 \alias{InitWtErgmTerm.nodeosqrtcovar}
+\alias{nodeosqrtcovar-ergmTerm}
 \alias{nodeocovar-ergmTerm}
 \alias{InitWtErgmTerm.nodeocovar}
 \title{Covariance of out-dyad values incident on each actor}

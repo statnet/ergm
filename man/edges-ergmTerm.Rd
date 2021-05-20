@@ -4,6 +4,7 @@
 \alias{edges-ergmTerm}
 \alias{InitErgmTerm.edges}
 \alias{InitWtErgmTerm.nonzero}
+\alias{nonzero-ergmTerm}
 \alias{InitWtErgmTerm.edges}
 \title{Edges}
 \usage{

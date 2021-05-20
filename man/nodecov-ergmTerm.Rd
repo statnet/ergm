@@ -4,7 +4,9 @@
 \alias{nodecov-ergmTerm}
 \alias{InitErgmTerm.nodecov}
 \alias{InitErgmTerm.nodemain}
+\alias{nodemain-ergmTerm}
 \alias{InitWtErgmTerm.nodecov}
+\alias{InitWtErgmTerm.nodemain}
 \title{Main effect of a covariate}
 \usage{
 # binary: nodecov(attr)
@@ -12,6 +14,8 @@
 # binary: nodemain
 
 # valued: nodecov(attr, form="sum")
+
+# valued: nodemain(attr, form="sum")
 }
 \arguments{
 \item{attr}{quantitative attribute (see Specifying Vertex attributes and Levels (\code{?nodal_attributes}) for details.)}

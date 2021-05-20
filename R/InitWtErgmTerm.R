@@ -484,6 +484,8 @@ InitWtErgmTerm.sum<-function(nw, arglist, ...) {
 #'   \eqn{\sum_{i,j<k} y_{i,j}y_{i,k}/(n-2)} . This can be
 #'   viewed as a valued analog of the `star(2)`
 #'   statistic. 
+#'
+#' @aliases nodesqrtcovar-ergmTerm
 #'   
 #' @usage
 #' # valued: nodecovar(center, transform)
@@ -522,6 +524,7 @@ InitWtErgmTerm.nodecovar<-function (nw, arglist, ...) {
 }
 
 #' @rdname nodeocovar-ergmTerm
+#' @aliases nodeosqrtcovar-ergmTerm
 InitWtErgmTerm.nodeosqrtcovar<-function (nw, arglist, ...) {
   .Deprecated('nodeocovar(transform="sqrt")',
             old = "nodeosqrtcovar")
@@ -529,7 +532,6 @@ InitWtErgmTerm.nodeosqrtcovar<-function (nw, arglist, ...) {
   InitWtErgmTerm.nodeocovar(nw, arglist, ...)
 }
 
-#' @rdname nodeicovar-ergmTerm
 InitWtErgmTerm.nodeisqrtcovar<-function (nw, arglist, ...) {
   .Deprecated('nodeicovar(transform="sqrt")',
             old = "nodeisqrtcovar")
@@ -537,7 +539,6 @@ InitWtErgmTerm.nodeisqrtcovar<-function (nw, arglist, ...) {
   InitWtErgmTerm.nodeicovar(nw, arglist, ...)
 }
 
-#' @rdname nodecovar-ergmTerm
 InitWtErgmTerm.nodesqrtcovar<-function (nw, arglist, ...) {
   .Deprecated('nodecovar(transform="sqrt")',
             old = "nodesqrtcovar")
@@ -689,6 +690,8 @@ InitWtErgmTerm.sender<-function (nw, arglist, ..., version=packageVersion("ergm"
 #'   \eqn{\sum_{i,j,k} y_{j,i}y_{k,i}/(n-2)} . This can be
 #'   viewed as a valued analog of the `istar(2)`
 #'   statistic. 
+#'
+#' @aliases nodeisqrtcovar-ergmTerm
 #'   
 #' @usage
 #' # valued: nodeicovar(center, transform)
@@ -797,6 +800,9 @@ InitWtErgmTerm.nodematch<-function (nw, arglist, ..., version=packageVersion("er
 }
 
 #' @rdname nodematch-ergmTerm
+#' @aliases match-ergmTerm
+#' @usage
+#' # valued: match(attr, diff=FALSE, keep=NULL, levels=NULL, form="sum")
 InitWtErgmTerm.match<-InitWtErgmTerm.nodematch
 
 #' @rdname nodemix-ergmTerm
@@ -826,7 +832,7 @@ InitWtErgmTerm.nodemix<-function (nw, arglist, ..., version=packageVersion("ergm
 #' @usage
 #' # valued: nodecov(attr, form="sum")
 #' @template ergmTerm-form
-InitWtErgmTerm.nodecov<-InitWtErgmTerm.nodemain<-function (nw, arglist, ..., version=packageVersion("ergm")) {
+InitWtErgmTerm.nodecov<-function (nw, arglist, ..., version=packageVersion("ergm")) {
   if(version <= as.package_version("3.9.4")){
     a <- check.ErgmTerm(nw, arglist,
                         varnames = c("attrname","transform","transformname","form"),
@@ -842,6 +848,11 @@ InitWtErgmTerm.nodecov<-InitWtErgmTerm.nodemain<-function (nw, arglist, ..., ver
   }
   binary_dind_wrap("nodecov", nw, a, ..., version=version)
 }
+
+#' @rdname nodecov-ergmTerm
+#' @usage
+#' # valued: nodemain(attr, form="sum")
+InitWtErgmTerm.nodemain<-InitWtErgmTerm.nodecov
 
 #' @rdname nodeicov-ergmTerm
 #' @usage
@@ -889,6 +900,7 @@ InitWtErgmTerm.nodeocov<-function (nw, arglist, ..., version=packageVersion("erg
 
 
 #' @rdname edges-ergmTerm
+#' @aliases nonzero-ergmTerm
 #' @usage
 #' # valued: nonzero
 InitWtErgmTerm.nonzero<-function(nw, arglist, ...) {

@@ -2203,7 +2203,7 @@ InitErgmTerm.ctriple<-function (nw, arglist, ..., version=packageVersion("ergm")
 
 
 #' @rdname ctriple-ergmTerm
-#'
+#' @aliases ctriad-ergmTerm
 #' @usage
 #' # binary: ctriad
 InitErgmTerm.ctriad<-InitErgmTerm.ctriple
@@ -4976,7 +4976,7 @@ InitErgmTerm.nodecov<-function (nw, arglist, ..., version=packageVersion("ergm")
 }
 
 #' @rdname nodecov-ergmTerm
-#'
+#' @aliases nodemain-ergmTerm
 #' @usage
 #' # binary: nodemain
 InitErgmTerm.nodemain<-InitErgmTerm.nodecov
@@ -6310,7 +6310,7 @@ InitErgmTerm.sociality<-function(nw, arglist, ..., version=packageVersion("ergm"
 ################################################################################
 
 #' @rdname threetrail-ergmTerm
-#'
+#' @aliases threepath-ergmTerm
 #' @usage
 #' # binary: threepath
 InitErgmTerm.threepath <- function(nw, arglist, ..., version=packageVersion("ergm")) {
@@ -6767,6 +6767,7 @@ InitErgmTerm.ttriple<-function (nw, arglist, ..., version=packageVersion("ergm")
 }
 
 #' @rdname ttriple-ergmTerm
+#' @aliases ttriad-ergmTerm
 #' @usage
 #' # binary: ttriad
 InitErgmTerm.ttriad<-InitErgmTerm.ttriple

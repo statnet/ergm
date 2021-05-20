@@ -2,6 +2,7 @@
 % Please edit documentation in R/InitErgmTerm.R
 \name{InitErgmTerm.threepath}
 \alias{InitErgmTerm.threepath}
+\alias{threepath-ergmTerm}
 \alias{threetrail-ergmTerm}
 \alias{InitErgmTerm.threetrail}
 \title{Three-trails}

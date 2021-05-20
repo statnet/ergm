@@ -4,6 +4,7 @@
 \alias{ttriple-ergmTerm}
 \alias{InitErgmTerm.ttriple}
 \alias{InitErgmTerm.ttriad}
+\alias{ttriad-ergmTerm}
 \title{Transitive triples}
 \usage{
 # binary: ttriple(attr=NULL, diff=FALSE, levels=NULL)
