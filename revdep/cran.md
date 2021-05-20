@@ -2,7 +2,7 @@
 
 We checked 31 reverse dependencies, comparing R CMD check results across CRAN and dev versions of this package.
 
- * We saw 8 new problems
+ * We saw 7 new problems
  * We failed to check 1 packages
 
 Issues with CRAN packages are summarised below.
@@ -27,9 +27,6 @@ Issues with CRAN packages are summarised below.
 
 * ergm.rank
   checking tests ...
-
-* ergmito
-  checking examples ... ERROR
 
 * gwdegree
   checking whether package ‘gwdegree’ can be installed ... WARNING

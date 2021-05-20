@@ -271,11 +271,6 @@ Run `revdep_details(, "ergm")` for more info
 
 ## In both
 
-*   checking package dependencies ... NOTE
-    ```
-    Package suggested but not available for checking: ‘Rmpi’
-    ```
-
 *   checking installed package size ... NOTE
     ```
       installed size is 10.5Mb
@@ -344,7 +339,7 @@ Run `revdep_details(, "ergm.ego")` for more info
       > stopifnot(all.equal(summary(f.y),summary(f.y.e)))
       Error: summary(f.y) and summary(f.y.e) are not equal:
         Names: 187 string mismatches
-        Numeric: lengths (784, 792) differ
+        Numeric: lengths (786, 794) differ
       Execution halted
     ```
 
@@ -428,38 +423,11 @@ Run `revdep_details(, "ergmito")` for more info
 
 </details>
 
-## Newly broken
-
-*   checking examples ... ERROR
-    ```
-    Running examples in ‘ergmito-Ex.R’ failed
-    The error most likely occurred in:
-    
-    > ### Name: vcov.ergmito
-    > ### Title: Estimation of ERGMs using Maximum Likelihood Estimation (MLE)
-    > ### Aliases: vcov.ergmito ergmito
-    > 
-    > ### ** Examples
-    > 
-    > 
-    ...
-    Starting Monte Carlo maximum likelihood estimation (MCMLE):
-    Iteration 1 of at most 60:
-    Optimizing with step length 1.0000.
-    The log-likelihood improved by 0.0007.
-    Convergence test p-value: 0.0001. Converged with 99% confidence.
-    Finished MCMLE.
-    Evaluating log-likelihood at the estimate. Error in UseMethod("%ergmlhs%") : 
-      no applicable method for '%ergmlhs%' applied to an object of class "c('matrix', 'array', 'double', 'numeric')"
-    Calls: ergm ... ergm.bridge.dindstart.llk -> ergm_preprocess_response -> %ergmlhs%
-    Execution halted
-    ```
-
 ## In both
 
 *   checking installed package size ... NOTE
     ```
-      installed size is  9.7Mb
+      installed size is  9.8Mb
       sub-directories of 1Mb or more:
         R      1.1Mb
         libs   7.9Mb
@@ -569,7 +537,7 @@ Run `revdep_details(, "NetMix")` for more info
 
 *   checking installed package size ... NOTE
     ```
-      installed size is  8.3Mb
+      installed size is  8.2Mb
       sub-directories of 1Mb or more:
         libs   7.9Mb
     ```
