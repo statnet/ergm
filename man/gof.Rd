@@ -28,7 +28,7 @@ gof(object, ...)
   coef = NULL,
   GOF = NULL,
   constraints = ~.,
-  basis = eval_lhs.formula(object),
+  basis = ergm.getnetwork(object),
   control = NULL,
   unconditional = TRUE,
   verbose = FALSE

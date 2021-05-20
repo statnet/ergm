@@ -35,8 +35,9 @@ simulate_formula(object, ..., basis = eval_lhs.formula(object))
   control = control.simulate.formula(),
   verbose = FALSE,
   ...,
-  basis = eval_lhs.formula(object),
-  do.sim = TRUE
+  basis = ergm.getnetwork(object),
+  do.sim = TRUE,
+  return.args = NULL
 )
 
 \method{simulate_formula}{ergm_state}(
@@ -57,8 +58,9 @@ simulate_formula(object, ..., basis = eval_lhs.formula(object))
   control = control.simulate.formula(),
   verbose = FALSE,
   ...,
-  basis = eval_lhs.formula(object),
-  do.sim = TRUE
+  basis = ergm.getnetwork(object),
+  do.sim = TRUE,
+  return.args = NULL
 )
 
 \method{simulate}{ergm_model}(
@@ -78,7 +80,8 @@ simulate_formula(object, ..., basis = eval_lhs.formula(object))
   control = control.simulate.formula(),
   verbose = FALSE,
   ...,
-  do.sim = TRUE
+  do.sim = TRUE,
+  return.args = NULL
 )
 
 \method{simulate}{ergm_state_full}(
@@ -92,7 +95,8 @@ simulate_formula(object, ..., basis = eval_lhs.formula(object))
   sequential = TRUE,
   control = control.simulate.formula(),
   verbose = FALSE,
-  ...
+  ...,
+  return.args = NULL
 )
 
 \method{simulate}{ergm}(
@@ -137,9 +141,10 @@ algorithm.}
 
 \item{basis}{a value (usually a \code{\link{network}}) to override the LHS of the formula.}
 
-\item{coef}{Vector of parameter values for the model from which the sample
-is to be drawn.  If \code{object} is of class \code{ergm}, the default value
-is the vector of estimated coefficients.}
+\item{coef}{Vector of parameter values for the model from which the
+sample is to be drawn.  If \code{object} is of class \code{ergm},
+the default value is the vector of estimated coefficients. Can be
+set to \code{NULL} to bypass, but only if \code{return.args} below is used.}
 
 \item{response}{Either a character string, a formula, or \code{NULL} (the default), to specify the response attributes and whether the ERGM is binary or valued. Interpreted as follows: \describe{
 
@@ -216,13 +221,19 @@ produces minimal output, wit higher values producing more
 detail. Note that very high values (5+) may significantly slow
 down processing.}
 
-\item{do.sim}{Logical: If \code{FALSE}, do not proceed to the simulation
-but rather return a list of arguments that would have been passed
-to the next function down (\code{\link[=simulate.ergm_model]{simulate.ergm_model()}} for formula
-and \code{\link[=simulate.ergm_state]{simulate.ergm_state()}}). This can be useful if, for example,
-one wants to run several simulations with varying coefficients
-and does not want to reinitialize the model and the proposal
-every time.}
+\item{do.sim}{Logical; a deprecated interface superseded by \code{return.args},
+that saves the inputs to the next level of the function.}
+
+\item{return.args}{Character; if not \code{NULL}, the \code{simulate} method
+for that particular class will, instead of proceeding for
+simulation, instead return its arguments as a list that can be
+passed as a second argument to \code{\link[=do.call]{do.call()}} or a lower-level
+function such as \code{\link[=ergm_MCMC_sample]{ergm_MCMC_sample()}}. This can be useful if, for
+example, one wants to run several simulations with varying
+coefficients and does not want to reinitialize the model and the
+proposal every time. Valid inputs at this time are \code{"formula"},
+"ergm_model", and one of the \code{"ergm_state"} classes, for the three
+respective stopping points.}
 }
 \value{
 If \code{output=="stats"} an \code{\link{mcmc}} object containing the
@@ -385,6 +396,7 @@ g.sim <- simulate(gest, nsim=3,
 unclass(g.sim)
 }
 \seealso{
-\code{\link{ergm}}, \code{\link[network]{network}}
+\code{\link{ergm}}, \code{\link[network]{network}},
+\code{\link[=ergm_MCMC_sample]{ergm_MCMC_sample()}} for a demonstration of \verb{return.args=}.
 }
 \keyword{models}

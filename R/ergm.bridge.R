@@ -77,7 +77,7 @@
 #'   networks}, Journal of Computational and Graphical Statistics.
 #' @keywords model
 #' @export
-ergm.bridge.llr<-function(object, response=NULL, reference=~Bernoulli, constraints=~., from, to, obs.constraints=~.-observed, target.stats=NULL, basis=eval_lhs.formula(object), verbose=FALSE, ..., llronly=FALSE, control=control.ergm.bridge()){
+ergm.bridge.llr<-function(object, response=NULL, reference=~Bernoulli, constraints=~., from, to, obs.constraints=~.-observed, target.stats=NULL, basis=ergm.getnetwork(object), verbose=FALSE, ..., llronly=FALSE, control=control.ergm.bridge()){
   check.control.class("ergm.bridge", "ergm.bridge.llr")
   handle.control.toplevel("ergm.bridge", ...)
 
@@ -115,13 +115,13 @@ ergm.bridge.llr<-function(object, response=NULL, reference=~Bernoulli, constrain
 
   ## Obtain simulation setting arguments in terms of ergm_state.
   if(verbose) message("Initializing model and proposals...")
-  sim_settings <- do.call(stats::simulate, c(simulate(object, coef=from, nsim=1, reference=reference, constraints=list(constraints, obs.constraints), observational=FALSE, output="ergm_state", verbose=max(verbose-1,0), basis = basis, control=gen_control(FALSE, "first"), ..., do.sim=FALSE), do.sim=FALSE))
+  sim_settings <- simulate(object, coef=from, nsim=1, reference=reference, constraints=list(constraints, obs.constraints), observational=FALSE, output="ergm_state", verbose=max(verbose-1,0), basis = basis, control=gen_control(FALSE, "first"), ..., return.args = "ergm_state")
   if(verbose) message("Model and proposals initialized.")
   state <- list(sim_settings$object)
 
   if(obs){
     if(verbose) message("Initializing constrained model and proposals...")
-    sim_settings.obs <- do.call(stats::simulate, c(simulate(object, coef=from, nsim=1, reference=reference, constraints=list(constraints, obs.constraints), observational=TRUE, output="ergm_state", verbose=max(verbose-1,0), basis = basis, control=gen_control(TRUE, "first"), ..., do.sim=FALSE), do.sim=FALSE))
+    sim_settings.obs <- simulate(object, coef=from, nsim=1, reference=reference, constraints=list(constraints, obs.constraints), observational=TRUE, output="ergm_state", verbose=max(verbose-1,0), basis = basis, control=gen_control(TRUE, "first"), ..., return.args = "ergm_state")
     if(verbose) message("Constrained model and proposals initialized.")
     state.obs <- list(sim_settings.obs$object)
   }
@@ -205,7 +205,7 @@ ergm.bridge.llr<-function(object, response=NULL, reference=~Bernoulli, constrain
 #' 
 #' 
 #' @export
-ergm.bridge.0.llk<-function(object, response=NULL, reference=~Bernoulli, coef, ..., llkonly=TRUE, control=control.ergm.bridge(), basis=eval_lhs.formula(object)){
+ergm.bridge.0.llk<-function(object, response=NULL, reference=~Bernoulli, coef, ..., llkonly=TRUE, control=control.ergm.bridge(), basis=ergm.getnetwork(object)){
   check.control.class("ergm.bridge", "ergm.bridge.0.llk")
   handle.control.toplevel("ergm.bridge", ...)
   ergm_preprocess_response(basis, response)
@@ -236,7 +236,7 @@ ergm.bridge.0.llk<-function(object, response=NULL, reference=~Bernoulli, coef, .
 #'   dyad-independent model.
 #' 
 #' @export
-ergm.bridge.dindstart.llk<-function(object, response=NULL, constraints=~., coef, obs.constraints=~.-observed, target.stats=NULL, dind=NULL, coef.dind=NULL,  basis=eval_lhs.formula(object), ..., llkonly=TRUE, control=control.ergm.bridge(), verbose=FALSE){
+ergm.bridge.dindstart.llk<-function(object, response=NULL, constraints=~., coef, obs.constraints=~.-observed, target.stats=NULL, dind=NULL, coef.dind=NULL,  basis=ergm.getnetwork(object), ..., llkonly=TRUE, control=control.ergm.bridge(), verbose=FALSE){
   check.control.class("ergm.bridge", "ergm.bridge.dindstart.llk")
   handle.control.toplevel("ergm.bridge", ...)
 

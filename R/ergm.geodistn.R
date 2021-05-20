@@ -43,7 +43,8 @@
 #' 
 #' data(faux.mesa.high)
 #' ergm.geodistdist(faux.mesa.high)
-#' 
+#'
+#' @keywords internal
 #' @export ergm.geodistdist
 ergm.geodistdist<-function(nw, directed=is.directed(nw)){
  ergm.geodistn(edgelist=as.edgelist(nw),

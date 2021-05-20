@@ -47,7 +47,7 @@
 
 #' @rdname ergmlhs
 #'
-#' @usage lhs %ergmlhs% setting <- value
+#' @usage lhs \%ergmlhs\% setting <- value
 #'
 #' @param value value with which to overwrite the setting.
 #' @export

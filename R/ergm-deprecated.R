@@ -18,9 +18,9 @@
 NULL
 
 
-#' @describeIn ergm extracts the `ergm` parameters; may be removed in
-#'   favour of the default method once the number of `ergm` objects
-#'   with `$coef` elements in the wild is sufficiently low.
+#' @describeIn ergm-deprecated extracts the `ergm` parameters; may be
+#'   removed in favour of the default method once the number of `ergm`
+#'   objects with `$coef` elements in the wild is sufficiently low.
 #' @export
 coef.ergm <- function(object, ...) {
   if ("coef" %in% names(object)) unclass(object)$coef
@@ -28,8 +28,8 @@ coef.ergm <- function(object, ...) {
 }
 
 
-#' @describeIn ergm accesses elements of `ergm` objects; needed for
-#'   backwards compatibility when components get renamed.
+#' @describeIn ergm-deprecated accesses elements of `ergm` objects;
+#'   needed for backwards compatibility when components get renamed.
 #' @param name See [Extract].
 #' @export
 `$.ergm` <- function(x, name) {

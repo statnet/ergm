@@ -92,13 +92,11 @@ anova.ergm <- function (object, ..., eval.loglik=FALSE)
   if(inherits(logl,"try-error"))
     stop(NO_LOGLIK_MESSAGE)
 
-  nodes<- network.size(object$newnetwork)
   n<- nobs(logl)
   df <- nparam(object, offset = FALSE)
   Rdf <- n - df
   logl.null <- if(is.null(object$null.lik)) 0 else object$null.lik
 
-  k <- 1 + (length(coef(object$mplefit$glm)) >= 2)
   df <- c(0, df)
   Rdf <- c(n, Rdf)
   logl <- c(logl.null, logl)

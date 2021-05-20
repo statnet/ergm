@@ -173,8 +173,24 @@
       Constrain "blocks" of dyads; any dyad whose toggle would produce a nonzero change statistic for a \code{nodemix} term with the same arguments will be fixed.  Note that the \code{levels2} argument has a different default value for \code{blocks} than it does for \code{nodemix}.
     }
 
-  Not all combinations of the above are supported.
+    \item{\code{blockdiag(attr)} (dyad-independent)}{
+      Force a block-diagonal structure (and its bipartite analogue) on
+      the network. Only dyads \eqn{(i,j)} for which
+      \code{attr(i)==attr(j)} can have edges. See \link[=nodal_attributes]{Specifying Vertex attributes and Levels} (\verb{? nodal_attributes}) for the ways to specify nodal attributes and expressions.
+
+      Note that the current implementation requires that blocks be
+      contiguous for \dQuote{unipartite} graphs, and for bipartite
+      graphs, they must be contiguous within a partition and must have
+      the same ordering in both partitions. (They do not, however,
+      require that all blocks be represented in both partitions, but
+      those that overlap must have the same order.)
+
+      If multiple block-diagonal constraints are given, or if
+      \code{attr} is a vector with multiple attribute names, blocks
+      will be constructed on \emph{all} attributes matching.
+    }
   }
+  Not all combinations of the above are supported.
 }
 \section{Placing Bounds on Degrees:}{
 There are many times when one may wish to condition on the

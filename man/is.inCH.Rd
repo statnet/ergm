@@ -57,3 +57,4 @@ This function is used in the "stepping" algorithm of Hummel et al (2012).
 Simulation-Based Algorithms for Fitting ERGMs, Journal of Computational and
 Graphical Statistics, 21: 920-939. }
 }
+\keyword{internal}
