@@ -186,7 +186,7 @@
 
   The current recommendation for any package implementing additional
   terms is to document the term with Roxygen comments and a name in the form termName-ergmTerm. This ensures
-  that \code{help("ergmTerms")} will list ERGM terms available from all loaded packages.
+  that \code{help("ergmTerm")} will list ERGM terms available from all loaded packages.
 }
 
 }
@@ -195,7 +195,7 @@
 
   As noted above, a cross-referenced HTML version of the
   term documentation is
-  available via \code{vignette('ergm-term-crossRef')}, \code{\link{ergmTerms}} and terms
+  available via \code{vignette('ergm-term-crossRef')}, \code{\link{ergmTerm}} and terms
   can also be searched via \code{\link{search.ergmTerms}}.
 
 }

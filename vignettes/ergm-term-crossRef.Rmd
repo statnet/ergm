@@ -20,10 +20,7 @@ This document is an automatically generated cross reference for the ergm model t
 
 ```{r, include=FALSE}
 library(ergm)
-termBlock<-ergm:::.extractTermBlock()
-items<-ergm:::.extractTags(termBlock,"\\item")
-terms<-lapply(items,ergm:::.extractTerms)
-terms<-unlist(terms,recursive=FALSE)
+terms<-ergm:::ergmTermCache()
 ```
 
 ## Interactive searching

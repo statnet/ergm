@@ -19,7 +19,7 @@ NULL
 #' @title `hamming` (disambiguation)
 #'
 #' @description `hamming` may refer to:
-#' * [An ERGM statistic][hamming-term] (`help("hamming-term")`)
+#' * [An ERGM statistic][hamming-term] (`ergmTerm?hamming`)
 #' * [A ERGM sample space constraint][hamming-constraint] (`help("hamming-constraint")`)
 NULL
 

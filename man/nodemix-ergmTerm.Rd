@@ -8,7 +8,8 @@
 \usage{
 # binary: nodemix(attr, base=NULL, b1levels=NULL, b2levels=NULL, levels=NULL, levels2=-1)
 
-# valued: nodemix(attr, base=NULL, b1levels=NULL, b2levels=NULL, levels=NULL, levels2=-1, form="sum")
+# valued: nodemix(attr, base=NULL, b1levels=NULL, b2levels=NULL, levels=NULL,
+#                 levels2=-1, form="sum")
 }
 \arguments{
 \item{attr}{quantitative attribute (see Specifying Vertex attributes and Levels (\code{?nodal_attributes}) for details.)}

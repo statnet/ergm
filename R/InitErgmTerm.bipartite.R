@@ -39,7 +39,8 @@
 #'   edge in the network.
 #'
 #' @usage
-#' # binary: b1nodematch(attr, diff=FALSE, keep=NULL, alpha=1, beta=1, byb2attr=NULL, levels=NULL)
+#' # binary: b1nodematch(attr, diff=FALSE, keep=NULL, alpha=1, beta=1, byb2attr=NULL,
+#' #                     levels=NULL)
 #'
 #' @template ergmTerm-attr
 #' @param diff by default, one statistic will be added to the model. If `diff` is set to `TRUE`, one statistic will be added for each unique value of the `attr` attribute
@@ -172,7 +173,8 @@ InitErgmTerm.b1nodematch	<-	function (nw, arglist, ..., version=packageVersion("
 #'   edge in the network.
 #'
 #' @usage
-#' # binary: b2nodematch(attr, diff=FALSE, keep=NULL, alpha=1, beta=1, byb1attr=NULL, levels=NULL)
+#' # binary: b2nodematch(attr, diff=FALSE, keep=NULL, alpha=1, beta=1, byb1attr=NULL,
+#' #                     levels=NULL)
 #'
 #' @template ergmTerm-attr
 #' @param diff by default, one statistic will be added to the model. If `diff` is set to `TRUE`, one statistic will be added for each unique value of the `attr` attribute

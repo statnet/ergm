@@ -154,7 +154,7 @@ ergm.MCMC.packagenames <- local({
 #' 
 #' * The more expensive the terms in the model are, the more benefit
 #'   from parallel execution. For example, models with terms like
-#'   [`gwdsp`] will generally get more benefit than models where all
+#'   [`gwdsp`][gwdsp-ergmTerm] will generally get more benefit than models where all
 #'   terms are dyad-independent.
 #'
 #' * Sampling more dense networks will generally get more benefit than

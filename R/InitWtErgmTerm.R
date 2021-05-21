@@ -523,8 +523,6 @@ InitWtErgmTerm.nodecovar<-function (nw, arglist, ...) {
        )
 }
 
-#' @rdname nodeocovar-ergmTerm
-#' @aliases nodeosqrtcovar-ergmTerm
 InitWtErgmTerm.nodeosqrtcovar<-function (nw, arglist, ...) {
   .Deprecated('nodeocovar(transform="sqrt")',
             old = "nodeosqrtcovar")
@@ -807,7 +805,8 @@ InitWtErgmTerm.match<-InitWtErgmTerm.nodematch
 
 #' @rdname nodemix-ergmTerm
 #' @usage
-#' # valued: nodemix(attr, base=NULL, b1levels=NULL, b2levels=NULL, levels=NULL, levels2=-1, form="sum")
+#' # valued: nodemix(attr, base=NULL, b1levels=NULL, b2levels=NULL, levels=NULL,
+#' #                 levels2=-1, form="sum")
 #' @template ergmTerm-form
 InitWtErgmTerm.nodemix<-function (nw, arglist, ..., version=packageVersion("ergm")) {
   if(version <= as.package_version("3.9.4")){

@@ -5,7 +5,8 @@
 \alias{InitErgmTerm.b2nodematch}
 \title{Nodal attribute-based homophily effect for the second mode in a bipartite network}
 \usage{
-# binary: b2nodematch(attr, diff=FALSE, keep=NULL, alpha=1, beta=1, byb1attr=NULL, levels=NULL)
+# binary: b2nodematch(attr, diff=FALSE, keep=NULL, alpha=1, beta=1, byb1attr=NULL,
+#                     levels=NULL)
 }
 \arguments{
 \item{diff}{by default, one statistic will be added to the model. If \code{diff} is set to \code{TRUE}, one statistic will be added for each unique value of the \code{attr} attribute}

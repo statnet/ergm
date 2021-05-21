@@ -5,7 +5,8 @@
 \alias{InitErgmTerm.b1nodematch}
 \title{Nodal attribute-based homophily effect for the first mode in a bipartite network}
 \usage{
-# binary: b1nodematch(attr, diff=FALSE, keep=NULL, alpha=1, beta=1, byb2attr=NULL, levels=NULL)
+# binary: b1nodematch(attr, diff=FALSE, keep=NULL, alpha=1, beta=1, byb2attr=NULL,
+#                     levels=NULL)
 }
 \arguments{
 \item{attr}{quantitative attribute (see Specifying Vertex attributes and Levels (\code{?nodal_attributes}) for details.)}
