@@ -529,7 +529,7 @@ InitErgmTerm.Symmetrize <- function(nw, arglist, ...){
                list(dependence=!is.dyad.independent(m) || rule%in%c("weak","strong"))))
 }
 
-#' @name Sum-ergmTerm
+#' @name Sum-operator-ergmTerm
 #' @title A sum (or an arbitrary linear combination) of one or more formulas
 #' @description A sum (or an arbitrary linear combination) of one or more formulas
 #' @details This operator sums up the RHS statistics of the input formulas elementwise.

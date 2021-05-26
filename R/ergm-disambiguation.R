@@ -19,7 +19,12 @@ NULL
 #' @title `hamming` (disambiguation)
 #'
 #' @description `hamming` may refer to:
-#' * [An ERGM statistic][hamming-term] (`ergmTerm?hamming`)
+#' * [An ERGM statistic][hamming-ergmTerm] (`ergmTerm?hamming`)
 #' * [A ERGM sample space constraint][hamming-constraint] (`help("hamming-constraint")`)
 NULL
 
+#' @name sum
+#' @title `sum` (disambiguation)
+#' @description `sum` may refer to:
+#' * [An ERGM statistic][sum-ergmTerm] (`ergmTerm?sum`)
+#' * [An ERGM statistic operator][Sum-operator-ergmTerm] (`ergmTerm?'Sum-operator'`)

@@ -120,7 +120,7 @@ InitWtErgmTerm..binary.formula.net <- function(nw, arglist, ...){
 }
 
 # Arguments and outputs are identical to the binary version, except for the C routine names.
-#' @rdname Sum-ergmTerm
+#' @rdname Sum-operator-ergmTerm
 #' @usage
 #' # valued: Sum(formulas, label)
 InitWtErgmTerm.Sum <- function(...){

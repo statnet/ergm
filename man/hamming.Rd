@@ -6,7 +6,7 @@
 \description{
 \code{hamming} may refer to:
 \itemize{
-\item \link[=hamming-term]{An ERGM statistic} (\code{ergmTerm?hamming})
+\item \link[=hamming-ergmTerm]{An ERGM statistic} (\code{ergmTerm?hamming})
 \item \link[=hamming-constraint]{A ERGM sample space constraint} (\code{help("hamming-constraint")})
 }
 }

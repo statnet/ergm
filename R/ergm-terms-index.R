@@ -82,7 +82,7 @@ ergmTermCache <- local({
     # Check if new namespaces have been added.
     checknew <- function() {
         loaded_packages <- .packages(TRUE)
-        db <- hsearch_db()$Base
+        db <- utils::hsearch_db()$Base
         term_packages <- unique(db$Package[endsWith(db$Topic, "-ergmTerm")])
         for (pkg_name in intersect(loaded_packages, term_packages)) {
             if (!pkg_name %in% pkglist) {
@@ -111,11 +111,14 @@ ergmTermCache <- local({
         usage <- paste(sprintf('`%s` (%s)',
             sapply(term$usages, "[[", 'usage') %>% gsub('\\$', '\\\\$', .) %>% gsub('`', '', .) %>% gsub(' *=[^,)]*(,|\\)) *', '\\1 ', .) %>% trimws,
             sapply(term$usages, "[[", 'type')), collapse='\n')
-        df <- rbind(df, c(usage, term$package, term$title, paste(term$concepts, collapse='\n')))
+        df <- rbind(df, c(usage, term$package, term$title, paste(term$concepts, collapse='\n'), term$link))
     }
 
     df <- data.frame(df)
-    colnames(df) <- c('Term', 'Package', 'Title', 'Concepts')
+    colnames(df) <- c('Term', 'Package', 'Description', 'Concepts', 'Link')
+    for (c in colnames(df)) {
+        df[[c]] <- as.character(df[[c]])
+	}
 
     df
 }
@@ -129,8 +132,6 @@ ergmTermCache <- local({
 # Format the table for text output
 .formatText <- function(df) {
     df$Term <- gsub('`', '', gsub('valued', 'val', gsub('binary', 'bin', df$Term)))
-    for (c in colnames(df)) {
-        df[[c]] <- as.character(df[[c]]) }
 
     line_wrap <- function(lines, max_width) {
         lines <- unlist(strsplit(sapply(strsplit(lines, '\n'), stringr::str_wrap, max_width), '\n'))
@@ -141,7 +142,7 @@ ergmTermCache <- local({
                 out <- c(out, substr(line, 1, max_width))
                 line <- substr(line, max_width + 1, nchar(line))
             }
-            out <- c(out, line)
+			out <- c(out, line)
         }
         out
     }
@@ -152,17 +153,17 @@ ergmTermCache <- local({
 
     max_widths <- list('Term'=25, 'Pkg'=5, 'Description'=33, 'Concepts'=12)
     colnames(df)[[2]] <- 'Pkg'
-    out <- sprintf('|%s|\n', paste(stringr::str_pad(colnames(df), max_widths, side='right', pad='-'), collapse='|'))
+    out <- sprintf('|%s|\n', paste(stringr::str_pad(names(max_widths), max_widths, side='right', pad='-'), collapse='|'))
     empty_row <- sprintf('|%s|\n', paste(stringr::str_pad(rep('', length(max_widths)), max_widths), collapse='|'))
 
     r <- list()
     for (i in 1:dim(df)[1]) {
-        for (c in colnames(df)) {
+        for (c in names(max_widths)) {
             r[[c]] <- line_wrap(df[i, c], max_widths[[c]])
         }
 
         max_lines <- max(sapply(r, length))
-        for (c in colnames(df)) {
+        for (c in names(max_widths)) {
             r[[c]] <- pad_lines(r[[c]], max_lines)
         }
 
@@ -197,22 +198,11 @@ ergmTermCache <- local({
     # \link[=absdiff-ergmTerm]{test} and check that it works with \out{<a href="../help/absdiff-ergmTerm">test</a>}.
     # This address may change from an upstream R-studio change
 
-    df$Term <- gsub('`([^`(]*)([^`]*)`', '<span class="code"><a href="../help/\\1-ergmTerm">\\1\\2</a></span>', gsub('\n', '<br />', df$Term))
+    df$Term <- sprintf(gsub('`([^`(]*)([^`]*)`', '<span class="code"><a href="../help/%s">\\1\\2</a></span>', gsub('\n', '<br />', df$Term)), df$Link, df$Link, df$Link, df$Link, df$Link, df$Link)
 
     css <- '<style>.striped th,.striped td {padding:3px 10px} .striped tbody tr:nth-child(odd) {background: #eee} .striped .code {font-family: monospace; font-size:75\\%}</style>'
     sprintf('\\out{%s%s}', css, knitr::kable(df, 'html', escape=FALSE, table.attr='class="striped"'))
 }
-
-#' An index of Ergm terms
-#'
-#' @name ergmTerm
-#' @docType package
-#' @section Term index:
-#'
-#' \if{latex}{\Sexpr[results=rd,stage=render]{ergm:::.generateDynamicIndex(ergm:::.formatLatex)}}
-#' \if{text}{\Sexpr[results=rd,stage=render]{ergm:::.generateDynamicIndex(ergm:::.formatText)}}
-#' \if{html}{\Sexpr[results=rd,stage=render]{ergm:::.generateDynamicIndex(ergm:::.formatHtml)}}
-NULL
 
 # function to look up the set of terms applicable for a specific network
 
@@ -347,3 +337,14 @@ search.ergmTerms<-function(keyword,net,categories,name){
   invisible(output)
 }
 
+#' An index of Ergm terms
+#'
+#' @name ergmTerm
+#' @docType package
+#' @section Term index:
+#' @description An index of Ergm terms
+#'
+#' \if{latex}{\Sexpr[results=rd,stage=render]{ergm:::.generateDynamicIndex(ergm:::.formatLatex)}}
+#' \if{text}{\Sexpr[results=rd,stage=render]{ergm:::.generateDynamicIndex(ergm:::.formatText)}}
+#' \if{html}{\Sexpr[results=rd,stage=render]{ergm:::.generateDynamicIndex(ergm:::.formatHtml)}}
+NULL
