@@ -346,10 +346,10 @@ ergm_MCMC_slave <- function(state, eta,control,verbose,..., burnin=NULL, samples
 
 .find_OK_burnin <- function(x, ...){
   n <- nrow(x[[1]])
-  ssr <- function(b,s){
+  ssr <- function(b, s){
     b <- round(b)
-    a <- lm(s~c(seq_len(b), numeric(n-b))+ I(seq_len(n)>b))
-    sum(resid(a)^2)
+    a <- lm(s ~ c(seq_len(b) - 1, rep(b, n - b)))
+    sum(sigma(a)^2)
   }
   geweke <- function(b){
     if(b>0) x <- window(x, start=start(x) + b * thin(x))
