@@ -183,6 +183,7 @@ ergmTermCache <- local({
         strsplit(' ') %>% sapply(., function(x) paste(sprintf('\\code{%s}', x), collapse=' ')) %>%
         gsub('\\\\code\\{\\(([^(]*)\\)\\}', '(\\1)', .) %>% gsub('\\\\code\\{\\\\newline\\}', '\\\\newline', .) %>%
         paste('\\\\raggedright \\\\allowbreak', .)
+	df$Link <- NULL
     latex <- knitr::kable(df, 'latex', escape=FALSE, longtable=TRUE, align=sprintf('p{%.1f\\textwidth}', c(0.35, 0.05, 0.5, 0.1)), vline="") %>%
         gsub(' *\n *', ' ', .) %>%
         gsub('\\\\ ', '\\\\\\\\ ', .)
@@ -199,6 +200,7 @@ ergmTermCache <- local({
     # This address may change from an upstream R-studio change
 
     df$Term <- sprintf(gsub('`([^`(]*)([^`]*)`', '<span class="code"><a href="../help/%s">\\1\\2</a></span>', gsub('\n', '<br />', df$Term)), df$Link, df$Link, df$Link, df$Link, df$Link, df$Link)
+	df$Link <- NULL
 
     css <- '<style>.striped th,.striped td {padding:3px 10px} .striped tbody tr:nth-child(odd) {background: #eee} .striped .code {font-family: monospace; font-size:75\\%}</style>'
     sprintf('\\out{%s%s}', css, knitr::kable(df, 'html', escape=FALSE, table.attr='class="striped"'))
