@@ -34,7 +34,7 @@ library(stringr)
 
     ret <- list(
         link=substr(name, 1, nchar(name) - 3),
-        name=substr(name, 1, nchar(name) - 12),
+        name=gsub('-.*', '', name),
         alias=doc[tags == '\\alias'] %>% unlist,
         package=pkg_name,
         usages=usages,
