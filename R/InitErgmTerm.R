@@ -3090,11 +3090,11 @@ InitErgmTerm.mm<-function (nw, arglist, ..., version=packageVersion("ergm")) {
     map(unlist) %>%
     with(paste0(
       "[",
-      if(length(attrval$row$unique)>1)
+      if(attrval$row$name!=".")
         paste0(attrval$row$name, "=", .$row)
       else ".",
       ",",
-      if(length(attrval$col$unique)>1)
+      if(attrval$col$name!=".")
         paste0(attrval$col$name, "=", .$col)
       else ".",
       "]"))

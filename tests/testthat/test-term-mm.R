@@ -78,7 +78,6 @@ test_that("Undirected mm() summary with expression, levels, and levels2 selector
   expect_equal(s.a, c(`mm[Grade>=10=TRUE,Grade>=10=TRUE]` = 43))
 })
 
-
 test_that("Undirected mm() summary with expression, levels selector, no terms", {
   s.a <- summary(fmh ~ mm(~Grade >= 10, levels=-1))
   expect_equal(s.a, numeric(0))
@@ -250,4 +249,15 @@ test_that("Undirected valued mm() nonzero summary", {
                       `mm.nonzero[Grade=10,Grade=12]` = 5,
                       `mm.nonzero[Grade=11,Grade=12]` = 5,
                       `mm.nonzero[Grade=12,Grade=12]` = 6))
+})
+
+
+test_that("Undirected mm() summary with just one unique attribute level and levels imposed exogenously", {
+  nw2 <- network.initialize(2, directed = FALSE)
+  nw2[1, 2] <- TRUE
+  nw2 %v% "x" <- c("b", "b")
+
+  s.a <- summary(nw2 ~ mm("x", levels = letters[1:3], levels2 = TRUE))
+  expect_equal(s.a, c(`mm[x=a,x=a]` = 0, `mm[x=a,x=b]` = 0, `mm[x=b,x=b]` = 1,
+                      `mm[x=a,x=c]` = 0, `mm[x=b,x=c]` = 0, `mm[x=c,x=c]` = 0))
 })
