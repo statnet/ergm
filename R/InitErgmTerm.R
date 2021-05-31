@@ -2156,7 +2156,6 @@ InitErgmTerm.concurrent<-function(nw, arglist, ..., version=packageVersion("ergm
 #' @concept directed
 #' @concept triad-related
 #' @concept categorical nodal attribute
-#' @concept ctriad
 InitErgmTerm.ctriple<-function (nw, arglist, ..., version=packageVersion("ergm")) {
   if(version <= as.package_version("3.9.4")){
     a <- check.ErgmTerm(nw, arglist, directed=TRUE,
@@ -5200,7 +5199,6 @@ InitErgmTerm.nodeifactor<-function (nw, arglist, ..., version=packageVersion("er
 #' @concept directed
 #' @concept undirected
 #' @concept categorical nodal attribute
-#' @concept match
 InitErgmTerm.nodematch<-InitErgmTerm.match<-function (nw, arglist, ..., version=packageVersion("ergm")) {
   if(version <= as.package_version("3.9.4")){
     ### Check the network and arguments to make sure they are appropriate.
@@ -5435,7 +5433,6 @@ InitErgmTerm.nodemix<-function (nw, arglist, ..., version=packageVersion("ergm")
 #' @concept directed
 #' @concept dyad-independent
 #' @concept quantitative nodal attribute
-#' @concept nodal attribute
 InitErgmTerm.nodeocov<-function (nw, arglist, ..., version=packageVersion("ergm")) {
   if(version <= as.package_version("3.9.4")){
     ### Check the network and arguments to make sure they are appropriate.

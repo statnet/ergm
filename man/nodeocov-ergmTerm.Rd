@@ -30,5 +30,4 @@ term. See \code{\link{ergm-options}} for how to invoke the old behaviour.
 }
 \concept{directed}
 \concept{dyad-independent}
-\concept{nodal attribute}
 \concept{quantitative nodal attribute}

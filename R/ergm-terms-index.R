@@ -14,34 +14,34 @@ library(stringr)
 
 # Return the index entry for a single term in the new format
 .parseTerm <- function(name, pkg, pkg_name) {
-    doc <- pkg[[name]]
-    tags <- sapply(doc, attr, 'Rd_tag')
+  doc <- pkg[[name]]
+  tags <- sapply(doc, attr, 'Rd_tag')
 
-	concepts <- doc[tags == '\\concept'] %>% unlist
+  concepts <- doc[tags == '\\concept'] %>% unlist
 
-    raw_usage <- doc[tags == '\\usage'] %>% 
-        unlist %>% 
-        paste(collapse="") %>%
-        gsub("\n *# *"," ", .) %>%
-        strsplit("\n") %>%
-        .[[1]] %>%
-        trimws()
-    usages <- list()
-    for (usage_line in regmatches(raw_usage, regexec("^(binary|valued): *(.+)$", raw_usage))) {
-        usages[[length(usages) + 1]] <- list('type'=usage_line[2], 'usage'=usage_line[3])
-		concepts <- c(concepts, usage_line[2])
-    }
+  raw_usage <- doc[tags == '\\usage'] %>% 
+    unlist %>% 
+    paste(collapse="") %>%
+    gsub("\n *# *"," ", .) %>%
+    strsplit("\n") %>%
+    .[[1]] %>%
+    trimws()
+  usages <- list()
+  for (usage_line in regmatches(raw_usage, regexec("^(binary|valued): *(.+)$", raw_usage))) {
+    usages[[length(usages) + 1]] <- list('type'=usage_line[2], 'usage'=usage_line[3])
+    concepts <- c(concepts, usage_line[2])
+  }
 
-    ret <- list(
-        link=substr(name, 1, nchar(name) - 3),
-        name=gsub('-.*', '', name),
-        alias=doc[tags == '\\alias'] %>% unlist,
-        package=pkg_name,
-        usages=usages,
-        title=doc[tags == '\\title'] %>% unlist,
-        description=doc[tags == '\\details'] %>% unlist %>% paste(collapse='') %>% trimws(),
-        concepts=unique(concepts),
-        keywords=c())
+  ret <- list(
+    link=substr(name, 1, nchar(name) - 3),
+    name=gsub('-.*', '', name),
+    alias=doc[tags == '\\alias'] %>% unlist,
+    package=pkg_name,
+    usages=usages,
+    title=doc[tags == '\\title'] %>% unlist,
+    description=doc[tags == '\\details'] %>% unlist %>% paste(collapse='') %>% trimws(),
+    concepts=unique(concepts),
+    keywords=c())
 }
 
 #' A simple dictionary to cache loaded terms
@@ -54,156 +54,295 @@ library(stringr)
 #'   containing the function, or `NULL` if not in cache.
 #' @noRd
 ergmTermCache <- local({
-    cache <- list()
-    pkglist <- character(0) # Current list of packages.
+  cache <- list()
+  pkglist <- character(0) # Current list of packages.
 
-    # Reset the cache and update the list of watched packages.
-    unload <- function(pkg_name) {
-        pkglist <<-.packages(TRUE)
+  # Reset the cache and update the list of watched packages.
+  unload <- function(pkg_name) {
+    pkglist <<-.packages(TRUE)
 
-        for (term in names(cache)) {
-            if (cache[[term]]$package == pkg_name) {
-                cache[[term]] <<- NULL
-            }
-        }
+    for (term in names(cache)) {
+      if (cache[[term]]$package == pkg_name) {
+        cache[[term]] <<- NULL
+      }
+    }
+  }
+
+  # Crawl all loaded packages for terms, parse them once and store in the singleton store
+  load <- function(pkg_name) {
+    pkg <- tools::Rd_db(pkg_name)
+    all_doco <- attributes(pkg)$names
+    converted <- all_doco[which(endsWith(all_doco, '-ergmTerm.Rd'))]
+
+    for (term in lapply(converted, .parseTerm, pkg, pkg_name)) {
+      cache[[term$link]] <<- term
+    }
+  }
+
+  # Check if new namespaces have been added.
+  checknew <- function() {
+    loaded_packages <- .packages(TRUE)
+    db <- utils::hsearch_db()$Base
+    term_packages <- unique(db$Package[endsWith(db$Topic, "-ergmTerm")])
+    for (pkg_name in intersect(loaded_packages, term_packages)) {
+      if (!pkg_name %in% pkglist) {
+        load(pkg_name)
+
+        setHook(packageEvent(pkg_name, "detach"), unload)
+        setHook(packageEvent(pkg_name, "onUnload"), unload)
+      }
     }
 
-    # Crawl all loaded packages for terms, parse them once and store in the singleton store
-    load <- function(pkg_name) {
-        pkg <- tools::Rd_db(pkg_name)
-        all_doco <- attributes(pkg)$names
-        converted <- all_doco[which(endsWith(all_doco, '-ergmTerm.Rd'))]
+    cache <<- cache[sort(names(cache))]
 
-        for (term in lapply(converted, .parseTerm, pkg, pkg_name)) {
-            cache[[term$link]] <<- term
-        }
-    }
+    pkglist <<- loaded_packages
+  }
 
-    # Check if new namespaces have been added.
-    checknew <- function() {
-        loaded_packages <- .packages(TRUE)
-        db <- utils::hsearch_db()$Base
-        term_packages <- unique(db$Package[endsWith(db$Topic, "-ergmTerm")])
-        for (pkg_name in intersect(loaded_packages, term_packages)) {
-            if (!pkg_name %in% pkglist) {
-                load(pkg_name)
+  function (name=NULL) {
+    checknew()
 
-                setHook(packageEvent(pkg_name, "detach"), unload)
-                setHook(packageEvent(pkg_name, "onUnload"), unload)
-            }
-        }
-
-        cache <<- cache[sort(names(cache))]
-
-        pkglist <<- loaded_packages
-    }
-
-    function (name=NULL) {
-        checknew()
-
-        if (is.null(name)) (cache) else (cache[[name]])
-    }
+    if (is.null(name)) (cache) else (cache[[name]])
+  }
 })
 
 .buildTermsDataframe <- function(terms) {
-    df <- c()
-    for (term in terms) {
-        usage <- paste(sprintf('`%s` (%s)',
-            sapply(term$usages, "[[", 'usage') %>% gsub('\\$', '\\\\$', .) %>% gsub('`', '', .) %>% gsub(' *=[^,)]*(,|\\)) *', '\\1 ', .) %>% trimws,
-            sapply(term$usages, "[[", 'type')), collapse='\n')
-        df <- rbind(df, c(usage, term$package, term$title, paste(term$concepts, collapse='\n'), term$link))
-    }
+  df <- c()
+  for (term in terms) {
+    usage <- paste(sprintf('`%s` (%s)',
+      sapply(term$usages, "[[", 'usage') %>% gsub('\\$', '\\\\$', .) %>% gsub('`', '', .) %>% gsub(' *=[^,)]*(,|\\)) *', '\\1 ', .) %>% trimws,
+      sapply(term$usages, "[[", 'type')), collapse='\n')
+    df <- rbind(df, c(usage, term$package, term$title, paste(term$concepts, collapse='\n'), term$link))
+  }
 
-    df <- data.frame(df)
-    colnames(df) <- c('Term', 'Package', 'Description', 'Concepts', 'Link')
-    for (c in colnames(df)) {
-        df[[c]] <- as.character(df[[c]])
-	}
+  df <- data.frame(df, stringsAsFactors=FALSE)
+  colnames(df) <- c('Term', 'Package', 'Description', 'Concepts', 'Link')
 
-    df
+  df
+}
+
+# terms : a list structure of the documentation data
+# categores : an optional vector of column names to print and include
+# only.include : an optional vector of categories, only terms that match the category will be printed 
+.termMatrix <- function(terms, categories=NULL, only.include=NULL) {
+  # if list of categories not supplied, generate it
+  # otherwise, use the categories (and column order) provided
+  if (is.null(categories)) {
+    categories <- unique(unlist(sapply(terms,'[[','concepts')))
+  }
+
+  # figure out which terms should be included
+  if (!is.null(only.include)) {
+    included <- sapply(terms, function(term) any(term$concepts %in% only.include))
+    terms <- terms[included]
+  }
+
+  # figure out which terms are members of each cat
+  membership <- lapply(categories, function(cat) {
+    # return true for terms that match cat
+    sapply(terms, function(term) cat %in% term$concepts)
+  })
+
+  df <- data.frame(membership)
+
+  categories <- unlist(list('directed'='dir', 'dyad-independent'='dyad-indep', 'quantitative nodal attribute'='quant nodal attr',
+    'undirected'='undir', 'binary'='bin', 'valued'='val', 'categorical nodal attribute'='cat nodal attr',
+    'curved'='curved', 'triad-related'='triad rel', 'operator'='op', 'bipartite'='bipartite',
+    'frequently-used'='freq', 'non-negative'='non-neg')[categories])
+  colnames(df) <- categories
+  rownames(df) <- NULL
+  df$Link <- sapply(terms,'[[','link')
+  df$Term <- sapply(terms,'[[','name')
+
+  df[c('Term', categories, 'Link')]
+}
+
+# output listings of terms, grouped by category
+.termToc <- function(terms) {
+  cats <- unique(unlist(sapply(terms, '[[', 'concepts')))
+
+  ret <- list()
+  for (cat in cats) {
+    #find ones with matching cats
+    matchingTerms <- terms[sapply(terms, function(term) any(term$concepts==cat))]
+    ret[[cat]] <- list(
+      link=sapply(matchingTerms, '[[', 'link'),
+      name=sapply(matchingTerms, '[[', 'name')
+    )
+  }
+
+  ret
 }
 
 # Generate the dynamic index text
 .generateDynamicIndex <- function(formatter) {
-    df <- .buildTermsDataframe(ergmTermCache())
-    formatter(df)
+  terms <- ergmTermCache()
+  index <- .buildTermsDataframe(terms)
+  m_freq <- .termMatrix(terms, categories=c('binary', 'valued', 'directed', 'undirected', 'bipartite', 'dyad-independent','operator','layer-aware'), only.include='frequently-used')
+  m_op <- .termMatrix(terms, categories=c('binary', 'valued', 'directed', 'undirected', 'bipartite', 'dyad-independent', 'layer-aware'), only.include='operator')
+  m_all <- .termMatrix(terms)
+  toc <- .termToc(terms)
+  
+  formatter(index, m_freq, m_op, m_all, toc)
+}
+
+.formatIndexText <- function(df) {
+  df$Term <- gsub('`', '', gsub('valued', 'val', gsub('binary', 'bin', df$Term)))
+
+  line_wrap <- function(lines, max_width) {
+    lines <- unlist(strsplit(sapply(strsplit(lines, '\n'), stringr::str_wrap, max_width), '\n'))
+
+    out <- c()
+    for (line in lines) {
+      while (nchar(line) > max_width) {
+        out <- c(out, substr(line, 1, max_width))
+        line <- substr(line, max_width + 1, nchar(line))
+      }
+      out <- c(out, line)
+    }
+    out
+  }
+
+  pad_lines <- function(lines, max_lines) {
+    c(lines, rep('', max_lines - length(lines)))
+  }
+
+  max_widths <- list('Term'=25, 'Pkg'=5, 'Description'=33, 'Concepts'=12)
+  colnames(df)[[2]] <- 'Pkg'
+  out <- sprintf('|%s|\n', paste(stringr::str_pad(names(max_widths), max_widths, side='right', pad='-'), collapse='|'))
+  empty_row <- sprintf('|%s|\n', paste(stringr::str_pad(rep('', length(max_widths)), max_widths), collapse='|'))
+
+  r <- list()
+  for (i in 1:dim(df)[1]) {
+    for (c in names(max_widths)) {
+      r[[c]] <- line_wrap(df[i, c], max_widths[[c]])
+    }
+
+    max_lines <- max(sapply(r, length))
+    for (c in names(max_widths)) {
+      r[[c]] <- pad_lines(r[[c]], max_lines)
+    }
+
+    for (j in 1:max_lines) {
+      out <- sprintf('%s|%s|\n', out, paste(stringr::str_pad(sapply(r, "[[", j), max_widths, side='right'), collapse='|'))
+    }
+    out <- paste(out, empty_row, sep='')
+  }
+
+  out
+}
+
+.formatMatrixText <- function(df) {
+  df$Link <- NULL
+  for (c in colnames(df)[-1]) {
+    df[[c]] <- ifelse(df[[c]], 'o', '')
+  }
+
+  paste(knitr::kable(df, 'pipe'), collapse='\n')
+}
+
+.formatTocText <- function(toc) {
+  out <- '**** Term index by category ****'
+  for (cat in names(toc)) {
+    out <- sprintf('%s\n\n%s:\n%s', out, cat,
+#    out <- sprintf('%s\n\n%s\n%s', out, stringr::str_pad(cat, 80),
+      paste(paste('   ', stringr::str_wrap(paste(toc[[cat]]$name, collapse=', '), 80)), collapse='\n'))
+  }
+  out
+}
+
+.formatText <- function(index, m_freq, m_op, m_all, toc) {
+  sprintf('\\preformatted{%s\n%s\n\n%s\n\n%s\n\n%s}',
+    .formatIndexText(index),
+    .formatMatrixText(m_freq),
+    .formatMatrixText(m_op),
+    .formatMatrixText(m_all),
+    .formatTocText(toc))
 }
 
 # Format the table for text output
-.formatText <- function(df) {
-    df$Term <- gsub('`', '', gsub('valued', 'val', gsub('binary', 'bin', df$Term)))
+.formatIndexLatex <- function(df) {
+  df$Term <- gsub('valued', 'val', gsub('binary', 'bin', df$Term))
+  df$Term <- gsub('\n', ' \\\\newline ', df$Term) %>% gsub('`([^`]*)`', '\\1', .) %>%
+    strsplit(' ') %>% sapply(., function(x) paste(sprintf('\\code{%s}', x), collapse=' ')) %>%
+    gsub('\\\\code\\{\\(([^(]*)\\)\\}', '(\\1)', .) %>% gsub('\\\\code\\{\\\\newline\\}', '\\\\newline', .) %>%
+    paste('\\\\raggedright \\\\allowbreak', .)
+  df$Link <- NULL
+  knitr::kable(df, 'latex', escape=FALSE, longtable=TRUE, align=sprintf('p{%.1f\\textwidth}', c(0.35, 0.05, 0.5, 0.1)), vline="") %>%
+    gsub(' *\n *', ' ', .) %>%
+    gsub('\\\\ ', '\\\\\\\\ ', .)
+}
 
-    line_wrap <- function(lines, max_width) {
-        lines <- unlist(strsplit(sapply(strsplit(lines, '\n'), stringr::str_wrap, max_width), '\n'))
+.formatMatrixLatex <- function(df) {
+  df$Link <- NULL
 
-        out <- c()
-        for (line in lines) {
-            while (nchar(line) > max_width) {
-                out <- c(out, substr(line, 1, max_width))
-                line <- substr(line, max_width + 1, nchar(line))
-            }
-			out <- c(out, line)
-        }
-        out
-    }
+  for (c in colnames(df)[-1]) {
+    df[[c]] <- ifelse(df[[c]], 'o', '')
+  }
 
-    pad_lines <- function(lines, max_lines) {
-        c(lines, rep('', max_lines - length(lines)))
-    }
+  knitr::kable(df, 'latex', escape=FALSE, longtable=TRUE, align=sprintf('p{%.1fcm}', c(2.4, rep(.7, dim(df)[2] - 1))), vline="") %>%
+    gsub(' *\n *', ' ', .) %>%
+    gsub('\\\\ ', '\\\\\\\\ ', .)
+}
 
-    max_widths <- list('Term'=25, 'Pkg'=5, 'Description'=33, 'Concepts'=12)
-    colnames(df)[[2]] <- 'Pkg'
-    out <- sprintf('|%s|\n', paste(stringr::str_pad(names(max_widths), max_widths, side='right', pad='-'), collapse='|'))
-    empty_row <- sprintf('|%s|\n', paste(stringr::str_pad(rep('', length(max_widths)), max_widths), collapse='|'))
+.formatTocLatex <- function(toc) {
+  out <- '\\subsection{Terms by concepts}'
+  for (cat in names(toc)) {
+    out <- sprintf('%s\\subsubsection{%s}%s', out, cat, paste(toc[[cat]]$name, collapse=', '))
+  }
+  out
+}
 
-    r <- list()
-    for (i in 1:dim(df)[1]) {
-        for (c in names(max_widths)) {
-            r[[c]] <- line_wrap(df[i, c], max_widths[[c]])
-        }
-
-        max_lines <- max(sapply(r, length))
-        for (c in names(max_widths)) {
-            r[[c]] <- pad_lines(r[[c]], max_lines)
-        }
-
-        for (j in 1:max_lines) {
-            out <- sprintf('%s|%s|\n', out, paste(stringr::str_pad(sapply(r, "[[", j), max_widths, side='right'), collapse='|'))
-        }
-        out <- paste(out, empty_row, sep='')
-    }
-
-    sprintf('\\preformatted{%s}', out)
+.formatLatex <- function(index, m_freq, m_op, m_all, toc) {
+  sprintf('\\out{%s%s%s%s%s}',
+    .formatIndexLatex(index),
+    .formatMatrixLatex(m_freq),
+    .formatMatrixLatex(m_op),
+    .formatMatrixLatex(m_all),
+    .formatTocLatex(toc))
 }
 
 # Format the table for text output
-.formatLatex <- function(df) {
-    df$Term <- gsub('valued', 'val', gsub('binary', 'bin', df$Term))
-    df$Term <- gsub('\n', ' \\\\newline ', df$Term) %>% gsub('`([^`]*)`', '\\1', .) %>%
-        strsplit(' ') %>% sapply(., function(x) paste(sprintf('\\code{%s}', x), collapse=' ')) %>%
-        gsub('\\\\code\\{\\(([^(]*)\\)\\}', '(\\1)', .) %>% gsub('\\\\code\\{\\\\newline\\}', '\\\\newline', .) %>%
-        paste('\\\\raggedright \\\\allowbreak', .)
-	df$Link <- NULL
-    latex <- knitr::kable(df, 'latex', escape=FALSE, longtable=TRUE, align=sprintf('p{%.1f\\textwidth}', c(0.35, 0.05, 0.5, 0.1)), vline="") %>%
-        gsub(' *\n *', ' ', .) %>%
-        gsub('\\\\ ', '\\\\\\\\ ', .)
-    sprintf('\\out{%s}', latex)
+.formatIndexHtml <- function(df) {
+  df$Term <- gsub('valued', 'val', gsub('binary', 'bin', df$Term))
+
+  # Hack! because HTML code has to be wrapped \out{} which prevents \link{} from being parsed, the link has
+  # to be constructed with the actual address. To find the address, generate the correct link with 
+  # \link[=absdiff-ergmTerm]{test} and check that it works with \out{<a href="../help/absdiff-ergmTerm">test</a>}.
+  # This address may change from an upstream R-studio change
+
+  df$Term <- sprintf(gsub('`([^`(]*)([^`]*)`', '<span class="code"><a href="../help/%s" id="%s">\\1\\2</a></span>', gsub('\n', '<br />', df$Term)), df$Link, df$Link, df$Link, df$Link, df$Link, df$Link, df$Link, df$Link)
+  df$Link <- NULL
+
+  knitr::kable(df, 'html', escape=FALSE, table.attr='class="striped"')
 }
 
-# Format the table for text output
-.formatHtml <- function(df) {
-    df$Term <- gsub('valued', 'val', gsub('binary', 'bin', df$Term))
+.formatMatrixHtml <- function(df) {
+  df$Term <- sprintf('<a href="#%s">%s</a>', df$Link, df$Term)
+  df$Link <- NULL
+  for (c in colnames(df)[-1]) {
+    df[[c]] <- ifelse(df[[c]], '&#10004;', '')
+  }
 
-    # Hack! because HTML code has to be wrapped \out{} which prevents \link{} from being parsed, the link has
-    # to be constructed with the actual address. To find the address, generate the correct link with 
-    # \link[=absdiff-ergmTerm]{test} and check that it works with \out{<a href="../help/absdiff-ergmTerm">test</a>}.
-    # This address may change from an upstream R-studio change
+  knitr::kable(df, 'html', escape=FALSE, table.attr='class="matrix"')
+}
 
-    df$Term <- sprintf(gsub('`([^`(]*)([^`]*)`', '<span class="code"><a href="../help/%s">\\1\\2</a></span>', gsub('\n', '<br />', df$Term)), df$Link, df$Link, df$Link, df$Link, df$Link, df$Link)
-	df$Link <- NULL
+.formatTocHtml <- function(toc) {
+  out <- paste('Jump to category:', paste(sprintf('<a href="#cat_%s">%s</a>', names(toc), names(toc)), collapse=' '))
+  for (cat in names(toc)) {
+    out <- sprintf('%s<h3><a id="%s">%s</a></h3>%s', out, cat, cat,
+      paste(sprintf('<a href="#%s">%s</a>', toc[[cat]]$link, toc[[cat]]$name), collapse=' '))
+  }
+  out
+}
 
-    css <- '<style>.striped th,.striped td {padding:3px 10px} .striped tbody tr:nth-child(odd) {background: #eee} .striped .code {font-family: monospace; font-size:75\\%}</style>'
-    sprintf('\\out{%s%s}', css, knitr::kable(df, 'html', escape=FALSE, table.attr='class="striped"'))
+.formatHtml <- function(index, m_freq, m_op, m_all, toc) {
+  css <- '<style>.striped th,.striped td {padding:3px 10px} .striped tbody tr:nth-child(odd) {background: #eee} .striped .code {font-family: monospace; font-size:75\\%} .matrix td {align: center} .matrix th,.matrix td {padding-right:5px; width: 75px}</style>'
+  sprintf('\\out{%s%s%s%s%s%s}', css,
+    .formatIndexHtml(index),
+    .formatMatrixHtml(m_freq),
+    .formatMatrixHtml(m_op),
+    .formatMatrixHtml(m_all),
+    .formatTocHtml(toc))
 }
 
 # function to look up the set of terms applicable for a specific network
@@ -317,10 +456,10 @@ search.ergmTerms<-function(keyword,net,categories,name){
       cat("Definitions for term(s) ",name,":\n")
       for (t in which(found)){
         term<-terms[[t]]
-		output<-c(output, term)
+        output<-c(output, term)
         cat(sprintf('%s\n    %s: %s\n    Categories: %s\n\n',
           term$usages[[1]]$usage,
-		  term$title,
+          term$title,
           term$description,
           paste(term$concepts, collapse=', ')))
       }

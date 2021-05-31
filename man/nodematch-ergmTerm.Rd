@@ -53,5 +53,4 @@ removed in a future version. When both \code{keep} and \code{levels} are passed,
 \concept{directed}
 \concept{dyad-independent}
 \concept{frequently-used}
-\concept{match}
 \concept{undirected}

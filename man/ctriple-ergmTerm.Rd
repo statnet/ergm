@@ -35,6 +35,5 @@ for all directed networks, \code{triangle} is equal to
 model.
 }
 \concept{categorical nodal attribute}
-\concept{ctriad}
 \concept{directed}
 \concept{triad-related}
