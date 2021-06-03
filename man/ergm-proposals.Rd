@@ -108,10 +108,10 @@
         }
 
         \item{InitErgmProposal.BDStratTNT}{Implements a TNT proposal with any subset of the following features: (1) upper
-                    bounds on degree, specified via the \code{\link{bd}} constraint's \code{maxout}, \code{maxin}, and \code{attribs}
+                    bounds on degree, specified via the \code{\link[=bd-ergmConstraint]{bd}} constraint's \code{maxout}, \code{maxin}, and \code{attribs}
                     arguments; (2) stratification of proposals according to mixing type on a vertex attribute, specified via the 
                     \code{\link{strat}} hint; (3) fixation of specified mixing types on a(nother) vertex attribute, specified via 
-                    the \code{\link{blocks}} constraint.
+                    the \code{\link[=block-ergmConstraint]{blocks}} constraint.
         }
 
        }}

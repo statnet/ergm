@@ -12,13 +12,27 @@ library(knitr)
 library(magrittr)
 library(stringr)
 
+SUPPORTED_TERM_TYPES <- c('Term', 'Constraint', 'Reference')
+SUPPORTED_TERM_TYPE_REGEX <- sprintf('-ergm(%s)(.Rd)?', paste(SUPPORTED_TERM_TYPES, collapse='|'))
+CONCEPT_ABBREVIATIONS <- list('directed'='dir', 'dyad-independent'='dyad-indep', 'quantitative nodal attribute'='quant nodal attr',
+    'undirected'='undir', 'binary'='bin', 'valued'='val', 'categorical nodal attribute'='cat nodal attr',
+    'curved'='curved', 'triad-related'='triad rel', 'operator'='op', 'bipartite'='bipartite',
+    'frequently-used'='freq', 'non-negative'='non-neg')
+
+DISPLAY_TEXT_INDEX_MAX_WIDTHS <- list('Term'=25, 'Pkg'=5, 'Description'=33, 'Concepts'=12)
+DISPLAY_TEXT_MAX_WIDTH <- sum(unlist(DISPLAY_TEXT_INDEX_MAX_WIDTHS)) + length(DISPLAY_TEXT_INDEX_MAX_WIDTHS) - 1
+DISPLAY_LATEX_INDEX_PCT_WIDTHS <- c(0.3, 0.05, 0.5, 0.1)
+DISPLAY_LATEX_TOC_PCT_WIDTHS <- function(n_concepts) c(2.4, rep(.7, n_concepts))
+
 # Return the index entry for a single term in the new format
 .parseTerm <- function(name, pkg, pkg_name) {
   doc <- pkg[[name]]
+  name <- substr(name, 1, nchar(name) - 3)
   tags <- sapply(doc, attr, 'Rd_tag')
+  comps <- strsplit(name, '-')[[1]]
 
   concepts <- doc[tags == '\\concept'] %>% unlist
-
+  type <- comps[length(comps)]
   raw_usage <- doc[tags == '\\usage'] %>% 
     unlist %>% 
     paste(collapse="") %>%
@@ -26,19 +40,25 @@ library(stringr)
     strsplit("\n") %>%
     .[[1]] %>%
     trimws()
-  usages <- list()
-  for (usage_line in regmatches(raw_usage, regexec("^(binary|valued): *(.+)$", raw_usage))) {
-    usages[[length(usages) + 1]] <- list('type'=usage_line[2], 'usage'=usage_line[3])
-    concepts <- c(concepts, usage_line[2])
+
+  if (type %in% c('ergmTerm', 'ergmProposal')) {
+    usages <- list()
+    for (usage_line in regmatches(raw_usage, regexec("^(binary|valued): *(.+)$", raw_usage))) {
+      usages[[length(usages) + 1]] <- list('type'=usage_line[2], 'usage'=usage_line[3])
+      concepts <- c(concepts, usage_line[2])
+    }
+  } else {
+    usages <- lapply(raw_usage, function(u) list(type=NULL, usage=u))
   }
 
   ret <- list(
-    link=substr(name, 1, nchar(name) - 3),
-    name=gsub('-.*', '', name),
+    link=name,
+    name=comps[1],
+    type=type,
     alias=doc[tags == '\\alias'] %>% unlist,
     package=pkg_name,
     usages=usages,
-    title=doc[tags == '\\title'] %>% unlist,
+    title=doc[tags == '\\title'] %>% unlist %>% paste(collapse='') %>% trimws(),
     description=doc[tags == '\\details'] %>% unlist %>% paste(collapse='') %>% trimws(),
     concepts=unique(concepts),
     keywords=c())
@@ -54,16 +74,18 @@ library(stringr)
 #'   containing the function, or `NULL` if not in cache.
 #' @noRd
 ergmTermCache <- local({
-  cache <- list()
+  cache <- lapply(SUPPORTED_TERM_TYPES, function(x) list())
   pkglist <- character(0) # Current list of packages.
 
   # Reset the cache and update the list of watched packages.
   unload <- function(pkg_name) {
     pkglist <<-.packages(TRUE)
 
-    for (term in names(cache)) {
-      if (cache[[term]]$package == pkg_name) {
-        cache[[term]] <<- NULL
+    for (term_type in SUPPORTED_TERM_TYPES) {
+      for (term in names(cache[[term_type]])) {
+        if (cache[[term_type]][[term]]$package == pkg_name) {
+          cache[[term_type]][[term]] <<- NULL
+        }
       }
     }
   }
@@ -72,10 +94,10 @@ ergmTermCache <- local({
   load <- function(pkg_name) {
     pkg <- tools::Rd_db(pkg_name)
     all_doco <- attributes(pkg)$names
-    converted <- all_doco[which(endsWith(all_doco, '-ergmTerm.Rd'))]
+    converted <- all_doco[grep(SUPPORTED_TERM_TYPE_REGEX, all_doco)]
 
     for (term in lapply(converted, .parseTerm, pkg, pkg_name)) {
-      cache[[term$link]] <<- term
+      cache[[term$type]][[term$link]] <<- term
     }
   }
 
@@ -83,7 +105,7 @@ ergmTermCache <- local({
   checknew <- function() {
     loaded_packages <- .packages(TRUE)
     db <- utils::hsearch_db()$Base
-    term_packages <- unique(db$Package[endsWith(db$Topic, "-ergmTerm")])
+    term_packages <- unique(db$Package[grep(SUPPORTED_TERM_TYPE_REGEX, db$Topic)])
     for (pkg_name in intersect(loaded_packages, term_packages)) {
       if (!pkg_name %in% pkglist) {
         load(pkg_name)
@@ -93,25 +115,30 @@ ergmTermCache <- local({
       }
     }
 
-    cache <<- cache[sort(names(cache))]
+    cache <<- lapply(cache, function(terms) terms[sort(names(terms))])
 
     pkglist <<- loaded_packages
   }
 
-  function (name=NULL) {
+  function (term_type) {
     checknew()
 
-    if (is.null(name)) (cache) else (cache[[name]])
+    cache[[term_type]]
   }
 })
 
 .buildTermsDataframe <- function(terms) {
   df <- c()
   for (term in terms) {
-    usage <- paste(sprintf('`%s` (%s)',
-      sapply(term$usages, "[[", 'usage') %>% gsub('\\$', '\\\\$', .) %>% gsub('`', '', .) %>% gsub(' *=[^,)]*(,|\\)) *', '\\1 ', .) %>% trimws,
-      sapply(term$usages, "[[", 'type')), collapse='\n')
-    df <- rbind(df, c(usage, term$package, term$title, paste(term$concepts, collapse='\n'), term$link))
+    if (!is.null(term$usages[[1]]$type)) {
+      usage <- paste(sprintf('`%s` (%s)',
+        sapply(term$usages, "[[", 'usage') %>% gsub('\\$', '\\\\$', .) %>% gsub('`', '', .) %>% gsub(' *=[^,)]*(,|\\)) *', '\\1 ', .) %>% trimws,
+        sapply(term$usages, "[[", 'type')), collapse='\n')
+    } else {
+      usage <- paste(sprintf('`%s`', sapply(term$usages, '[[', 'usage')), collapse='\n')
+    }
+
+    df <- rbind(df, c(usage, term$package, term$title, if (length(term$concepts) > 0) paste(term$concepts, collapse='\n') else '', term$link))
   }
 
   df <- data.frame(df, stringsAsFactors=FALSE)
@@ -144,10 +171,7 @@ ergmTermCache <- local({
 
   df <- data.frame(membership)
 
-  categories <- unlist(list('directed'='dir', 'dyad-independent'='dyad-indep', 'quantitative nodal attribute'='quant nodal attr',
-    'undirected'='undir', 'binary'='bin', 'valued'='val', 'categorical nodal attribute'='cat nodal attr',
-    'curved'='curved', 'triad-related'='triad rel', 'operator'='op', 'bipartite'='bipartite',
-    'frequently-used'='freq', 'non-negative'='non-neg')[categories])
+  categories <- unlist(CONCEPT_ABBREVIATIONS[categories])
   colnames(df) <- categories
   rownames(df) <- NULL
   df$Link <- sapply(terms,'[[','link')
@@ -174,13 +198,23 @@ ergmTermCache <- local({
 }
 
 # Generate the dynamic index text
-.generateDynamicIndex <- function(formatter) {
-  terms <- ergmTermCache()
+.generateDynamicIndex <- function(term_type, formatter) {
+  terms <- ergmTermCache(term_type)
+
   index <- .buildTermsDataframe(terms)
-  m_freq <- .termMatrix(terms, categories=c('binary', 'valued', 'directed', 'undirected', 'bipartite', 'dyad-independent','operator','layer-aware'), only.include='frequently-used')
-  m_op <- .termMatrix(terms, categories=c('binary', 'valued', 'directed', 'undirected', 'bipartite', 'dyad-independent', 'layer-aware'), only.include='operator')
-  m_all <- .termMatrix(terms)
-  toc <- .termToc(terms)
+
+  if (term_type == 'ergmTerm') {
+    m_freq <- .termMatrix(terms, categories=c('binary', 'valued', 'directed', 'undirected', 'bipartite', 'dyad-independent','operator','layer-aware'), only.include='frequently-used')
+    m_op <- .termMatrix(terms, categories=c('binary', 'valued', 'directed', 'undirected', 'bipartite', 'dyad-independent', 'layer-aware'), only.include='operator')
+    m_all <- .termMatrix(terms)
+    toc <- .termToc(terms)
+  }
+  else {
+    m_freq <- NULL
+    m_op <- NULL
+    m_all <- NULL
+    toc <- NULL
+  }
   
   formatter(index, m_freq, m_op, m_all, toc)
 }
@@ -206,24 +240,23 @@ ergmTermCache <- local({
     c(lines, rep('', max_lines - length(lines)))
   }
 
-  max_widths <- list('Term'=25, 'Pkg'=5, 'Description'=33, 'Concepts'=12)
   colnames(df)[[2]] <- 'Pkg'
-  out <- sprintf('|%s|\n', paste(stringr::str_pad(names(max_widths), max_widths, side='right', pad='-'), collapse='|'))
-  empty_row <- sprintf('|%s|\n', paste(stringr::str_pad(rep('', length(max_widths)), max_widths), collapse='|'))
+  out <- sprintf('|%s|\n', paste(stringr::str_pad(names(DISPLAY_TEXT_INDEX_MAX_WIDTHS), DISPLAY_TEXT_INDEX_MAX_WIDTHS, side='right', pad='-'), collapse='|'))
+  empty_row <- sprintf('|%s|\n', paste(stringr::str_pad(rep('', length(DISPLAY_TEXT_INDEX_MAX_WIDTHS)), DISPLAY_TEXT_INDEX_MAX_WIDTHS), collapse='|'))
 
   r <- list()
   for (i in 1:dim(df)[1]) {
-    for (c in names(max_widths)) {
-      r[[c]] <- line_wrap(df[i, c], max_widths[[c]])
+    for (c in names(DISPLAY_TEXT_INDEX_MAX_WIDTHS)) {
+      r[[c]] <- if (df[i, c] != '') line_wrap(df[i, c], DISPLAY_TEXT_INDEX_MAX_WIDTHS[[c]]) else c()
     }
 
     max_lines <- max(sapply(r, length))
-    for (c in names(max_widths)) {
+    for (c in names(DISPLAY_TEXT_INDEX_MAX_WIDTHS)) {
       r[[c]] <- pad_lines(r[[c]], max_lines)
     }
 
     for (j in 1:max_lines) {
-      out <- sprintf('%s|%s|\n', out, paste(stringr::str_pad(sapply(r, "[[", j), max_widths, side='right'), collapse='|'))
+      out <- sprintf('%s|%s|\n', out, paste(stringr::str_pad(sapply(r, "[[", j), DISPLAY_TEXT_INDEX_MAX_WIDTHS, side='right'), collapse='|'))
     }
     out <- paste(out, empty_row, sep='')
   }
@@ -244,19 +277,18 @@ ergmTermCache <- local({
   out <- '**** Term index by category ****'
   for (cat in names(toc)) {
     out <- sprintf('%s\n\n%s:\n%s', out, cat,
-#    out <- sprintf('%s\n\n%s\n%s', out, stringr::str_pad(cat, 80),
-      paste(paste('   ', stringr::str_wrap(paste(toc[[cat]]$name, collapse=', '), 80)), collapse='\n'))
+      paste(paste('   ', stringr::str_wrap(paste(toc[[cat]]$name, collapse=', '), DISPLAY_TEXT_MAX_WIDTH)), collapse='\n'))
   }
   out
 }
 
-.formatText <- function(index, m_freq, m_op, m_all, toc) {
+.formatText <- function(index, m_freq=NULL, m_op=NULL, m_all=NULL, toc=NULL) {
   sprintf('\\preformatted{%s\n%s\n\n%s\n\n%s\n\n%s}',
     .formatIndexText(index),
-    .formatMatrixText(m_freq),
-    .formatMatrixText(m_op),
-    .formatMatrixText(m_all),
-    .formatTocText(toc))
+    if (!is.null(m_freq)) .formatMatrixText(m_freq) else '',
+    if (!is.null(m_op)) .formatMatrixText(m_op) else '',
+    if (!is.null(m_all)) .formatMatrixText(m_all) else '',
+    if (!is.null(toc)) .formatTocText(toc) else '')
 }
 
 # Format the table for text output
@@ -267,7 +299,7 @@ ergmTermCache <- local({
     gsub('\\\\code\\{\\(([^(]*)\\)\\}', '(\\1)', .) %>% gsub('\\\\code\\{\\\\newline\\}', '\\\\newline', .) %>%
     paste('\\\\raggedright \\\\allowbreak', .)
   df$Link <- NULL
-  knitr::kable(df, 'latex', escape=FALSE, longtable=TRUE, align=sprintf('p{%.1f\\textwidth}', c(0.35, 0.05, 0.5, 0.1)), vline="") %>%
+  knitr::kable(df, 'latex', escape=FALSE, longtable=TRUE, align=sprintf('p{%.1f\\textwidth}', DISPLAY_LATEX_INDEX_PCT_WIDTHS), vline="") %>%
     gsub(' *\n *', ' ', .) %>%
     gsub('\\\\ ', '\\\\\\\\ ', .)
 }
@@ -279,7 +311,7 @@ ergmTermCache <- local({
     df[[c]] <- ifelse(df[[c]], 'o', '')
   }
 
-  knitr::kable(df, 'latex', escape=FALSE, longtable=TRUE, align=sprintf('p{%.1fcm}', c(2.4, rep(.7, dim(df)[2] - 1))), vline="") %>%
+  knitr::kable(df, 'latex', escape=FALSE, longtable=TRUE, align=sprintf('p{%.1fcm}', DISPLAY_LATEX_TOC_PCT_WIDTHS(dim(df)[2] - 1)), vline="") %>%
     gsub(' *\n *', ' ', .) %>%
     gsub('\\\\ ', '\\\\\\\\ ', .)
 }
@@ -292,13 +324,13 @@ ergmTermCache <- local({
   out
 }
 
-.formatLatex <- function(index, m_freq, m_op, m_all, toc) {
+.formatLatex <- function(index, m_freq=NULL, m_op=NULL, m_all=NULL, toc=NULL) {
   sprintf('\\out{%s%s%s%s%s}',
     .formatIndexLatex(index),
-    .formatMatrixLatex(m_freq),
-    .formatMatrixLatex(m_op),
-    .formatMatrixLatex(m_all),
-    .formatTocLatex(toc))
+    if (!is.null(m_freq)) .formatMatrixLatex(m_freq) else '',
+    if (!is.null(m_op)) .formatMatrixLatex(m_op) else '',
+    if (!is.null(m_all)) .formatMatrixLatex(m_all) else '',
+    if (!is.null(toc)) .formatTocLatex(toc) else '')
 }
 
 # Format the table for text output
@@ -335,14 +367,14 @@ ergmTermCache <- local({
   out
 }
 
-.formatHtml <- function(index, m_freq, m_op, m_all, toc) {
+.formatHtml <- function(index, m_freq=NULL, m_op=NULL, m_all=NULL, toc=NULL) {
   css <- '<style>.striped th,.striped td {padding:3px 10px} .striped tbody tr:nth-child(odd) {background: #eee} .striped .code {font-family: monospace; font-size:75\\%} .matrix td {align: center} .matrix th,.matrix td {padding-right:5px; width: 75px}</style>'
   sprintf('\\out{%s%s%s%s%s%s}', css,
     .formatIndexHtml(index),
-    .formatMatrixHtml(m_freq),
-    .formatMatrixHtml(m_op),
-    .formatMatrixHtml(m_all),
-    .formatTocHtml(toc))
+    if (!is.null(m_freq)) .formatMatrixHtml(m_freq) else '',
+    if (!is.null(m_op)) .formatMatrixHtml(m_op) else '',
+    if (!is.null(m_all)) .formatMatrixHtml(m_all) else '',
+    if (!is.null(toc)) .formatTocHtml(toc) else '')
 }
 
 # function to look up the set of terms applicable for a specific network
@@ -416,7 +448,7 @@ search.ergmTerms<-function(keyword,net,categories,name){
     } 
   }
 
-  terms <- ergmTermCache()
+  terms <- ergmTermCache('ergmTerm')
   
   found<-rep(TRUE,length(terms))
   
@@ -485,7 +517,31 @@ search.ergmTerms<-function(keyword,net,categories,name){
 #' @section Term index:
 #' @description An index of Ergm terms
 #'
-#' \if{latex}{\Sexpr[results=rd,stage=render]{ergm:::.generateDynamicIndex(ergm:::.formatLatex)}}
-#' \if{text}{\Sexpr[results=rd,stage=render]{ergm:::.generateDynamicIndex(ergm:::.formatText)}}
-#' \if{html}{\Sexpr[results=rd,stage=render]{ergm:::.generateDynamicIndex(ergm:::.formatHtml)}}
+#' \if{latex}{\Sexpr[results=rd,stage=render]{ergm:::.generateDynamicIndex("ergmTerm", ergm:::.formatLatex)}}
+#' \if{text}{\Sexpr[results=rd,stage=render]{ergm:::.generateDynamicIndex("ergmTerm", ergm:::.formatText)}}
+#' \if{html}{\Sexpr[results=rd,stage=render]{ergm:::.generateDynamicIndex("ergmTerm", ergm:::.formatHtml)}}
+NULL
+
+#' An index of Ergm constraints
+#'
+#' @name ergmConstraint
+#' @docType package
+#' @section Constraint index:
+#' @description An index of Ergm constraints
+#'
+#' \if{latex}{\Sexpr[results=rd,stage=render]{ergm:::.generateDynamicIndex("ergmConstraint", ergm:::.formatLatex)}}
+#' \if{text}{\Sexpr[results=rd,stage=render]{ergm:::.generateDynamicIndex("ergmConstraint", ergm:::.formatText)}}
+#' \if{html}{\Sexpr[results=rd,stage=render]{ergm:::.generateDynamicIndex("ergmConstraint", ergm:::.formatHtml)}}
+NULL
+
+#' An index of Ergm reference
+#'
+#' @name ergmReference
+#' @docType package
+#' @section Reference index:
+#' @description An index of Ergm references
+#'
+#' \if{latex}{\Sexpr[results=rd,stage=render]{ergm:::.generateDynamicIndex("ergmReference", ergm:::.formatLatex)}}
+#' \if{text}{\Sexpr[results=rd,stage=render]{ergm:::.generateDynamicIndex("ergmReference", ergm:::.formatText)}}
+#' \if{html}{\Sexpr[results=rd,stage=render]{ergm:::.generateDynamicIndex("ergmReference", ergm:::.formatHtml)}}
 NULL

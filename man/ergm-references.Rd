@@ -12,10 +12,6 @@
 \alias{references-ergm}
 \alias{ergm.references}
 \alias{references.ergm}
-\alias{Bernoulli}
-\alias{Unif}
-\alias{DiscUnif}
-\alias{StdNormal}
 %% \alias{InitErgmReference.Bernoulli}
 %% \alias{InitErgmReference.DiscUnif}
 %% \alias{InitErgmReference.Unif}
@@ -42,34 +38,7 @@
 }
 
 \section{Possible reference measures to represent baseline distributions}{
-
-  Reference measures currently available are:
-  \describe{
-    
-    \item{\code{Bernoulli}}{\emph{Bernoulli-reference ERGM:} Specifies each
-      dyad's baseline distribution to be Bernoulli with probability of
-      the tie being \eqn{0.5}. This is the only reference measure used
-      in binary mode. }
-
-    \item{\code{DiscUnif(a,b)}}{\emph{Discrete-Uniform-reference ERGM:}
-      Specifies each dyad's baseline distribution to be discrete uniform
-      between \code{a} and \code{b} (both inclusive): \eqn{h(y)=1}, with
-      the support being
-      \code{a},\code{a}+1,\ldots,\code{b}-1,\code{b}. At this time, both \code{a} and
-      \code{b} must be finite. }
-
-    \item{\code{Unif(a,b)}}{\emph{Coninuous-Uniform-reference ERGM:}
-      Specifies each dyad's baseline distribution to be continuous uniform
-      between \code{a} and \code{b} (both inclusive): \eqn{h(y)=1}, with
-      the support being
-      [\code{a},\code{b}]. At this time, both \code{a} and
-      \code{b} must be finite.  }
-      
-    \item{\code{StdNormal}}{\emph{Standard-Normal-reference ERGM:}
-      Specifies each dyad's baseline distribution to be the normal distribution
-      with mean 0 and variance 1.  }
-
-  }
+  Reference measures currently available can be accessed via \code{\link{ergmReference}}
 }
 
 \references{

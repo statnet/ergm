@@ -13,26 +13,6 @@
 \alias{ergm.constraints}
 \alias{constraints.ergm}
 
-\alias{Dyads}
-\alias{bd}
-\alias{degreedist-constraint}
-\alias{degrees}
-\alias{dyadnoise}
-\alias{odegrees}
-\alias{idegrees}
-\alias{b1degrees}
-\alias{b2degrees}
-\alias{edges-constraint}
-\alias{hamming-constraint}
-\alias{idegreedist}
-\alias{nodedegrees}
-\alias{observed}
-\alias{odegreedist}
-\alias{fixedas}
-\alias{fixallbut}
-\alias{egocentric}
-\alias{blocks}
-
 \docType{methods}
 
 \title{Sample Space Constraints for Exponential-Family Random Graph Models}
@@ -101,96 +81,9 @@
       particular size and type have non-zero probability.
       Cannot be combined with other constraints.
     }
-    \item{\code{Dyads(fix=NULL, vary=NULL)} (dyad-independent)}{
-      This is an \dQuote{operator} constraint that takes one or two \code{\link{ergm}} formulas. These formulas should contaion only dyad-independent terms. For the terms in the \code{fix=} formula, dyads that affect the network statistic (i.e., have nonzero change statistic) for \emph{any} the terms will be fixed at their current values. For the terms in the \code{vary=} formula, only those that change \emph{at least one} of the terms will be allowed to vary, and all others will be fixed. If both formulas are given, the dyads that vary either for one or for the other will be allowed to vary. Note that a formula passed to \code{Dyads} without an argument name will default to \code{fix=}.
-    }
-    \item{\code{bd(attribs,maxout,maxin,minout,minin)}}{
-      Constrain maximum and minimum vertex degree. See
-      \dQuote{Placing Bounds
-        on Degrees} section for more information.
-    }
-    \item{\code{degrees} and \code{nodedegrees}}{
-      Preserve the degree of each vertex of the given network: only networks
-      whose vertex degrees are the same as those in the network passed
-      in the model formula have non-zero probability. If the network is
-      directed, both indegree and outdegree are preserved.
-    }
-    \item{\code{odegrees}, \code{idegrees}, \code{b1degrees}, \code{b2degrees}}{
-      For directed networks, \code{odegrees} preserves the outdegree of each vertex of the given
-      network, while allowing indegree to vary, and conversely for
-      \code{idegrees}. \code{b1degrees} and \code{b2degrees} perform a
-      similar function for bipartite networks.
-    }
-    \item{\code{degreedist}}{
-      Preserve the degree distribution of the given network: only networks
-      whose degree distributions are the same as those in the network passed
-      in the model formula have non-zero probability.
-    }
-    \item{\code{dyadnoise(p01,p10)}}{
-      A soft constraint to adjust the sampled distribution for
-      dyad-level noise with known perturbation probabilities. It is
-      assumed that the observed LHS network is a noisy observation of
-      some unobserved true network, with \code{p01} giving the dyadwise
-      probability of erroneously observing a tie where the true network
-      had a non-tie and \code{p10} giving the dyadwise probability of
-      erroneously observing a nontie where the true network had a tie.
-
-      \code{p01} and \code{p10} can be either both be scalars or or both
-      be adjacency matrices of the same dimension as that of the LHS
-      network giving these probabilities.
-
-      See Karwa et al. (2016) for an application.
-    }
-    \item{\code{idegreedist} and \code{odegreedist}}{
-      Preserve the (respectively) indegree or outdegree distribution of 
-      the given network.
-    }
-    \item{\code{edges}}{
-      Preserve the edge count of the given network: only networks
-      having the same number of edges as the network passed
-      in the model formula have non-zero probability.
-    }
-    \item{\code{observed} (dyad-independent)}{
-      Preserve the observed dyads of the given network.
-    }
-    \item{\code{fixedas(present,absent)} (dyad-independent)}{
-      Preserve the edges in 'present' and preclude the edges in 'absent'. 
-      Both 'present' and 'absent' can take input object as edgelist and 
-      network, the latter will convert to the corresponding edgelist.
- 	}
- 	
- 	\item{\code{fixallbut(free.dyads)} (dyad-independent)}{
-      Preserve the dyad status in all but free.dyads. free.dyads can 
-      take input object as edgelist and network, the latter will 
-      convert to the corresponding edgelist.
-    }
-
-    \item{\code{egocentric(attr = NULL, direction = c("both","out","in"))} (dyad-independent)}{
-      Preserve values of dyads incident on vertices with attribute \code{attr} (see \link[=nodal_attributes]{Specifying Vertex Attributes and Levels} for details) being \code{TRUE} or if \code{attrname} is \code{NULL}, the vertex attribute \code{"na"} being `FALSE`. For directed networks, \code{direction=="out"} only preserves the out-dyads of those actors, and \code{direction=="in"} preserves their in-dyads.
-    }
-
-    \item{\code{blocks(attr = NULL, levels = NULL, levels2 = FALSE, b1levels = NULL, b2levels = NULL)} (dyad-independent)}{
-      Constrain "blocks" of dyads; any dyad whose toggle would produce a nonzero change statistic for a \code{nodemix} term with the same arguments will be fixed.  Note that the \code{levels2} argument has a different default value for \code{blocks} than it does for \code{nodemix}.
-    }
-
-    \item{\code{blockdiag(attr)} (dyad-independent)}{
-      Force a block-diagonal structure (and its bipartite analogue) on
-      the network. Only dyads \eqn{(i,j)} for which
-      \code{attr(i)==attr(j)} can have edges. See \link[=nodal_attributes]{Specifying Vertex attributes and Levels} (\verb{? nodal_attributes}) for the ways to specify nodal attributes and expressions.
-
-      Note that the current implementation requires that blocks be
-      contiguous for \dQuote{unipartite} graphs, and for bipartite
-      graphs, they must be contiguous within a partition and must have
-      the same ordering in both partitions. (They do not, however,
-      require that all blocks be represented in both partitions, but
-      those that overlap must have the same order.)
-
-      If multiple block-diagonal constraints are given, or if
-      \code{attr} is a vector with multiple attribute names, blocks
-      will be constructed on \emph{all} attributes matching.
-    }
   }
-  Not all combinations of the above are supported.
+  Other constraints currently available can be accessed via \code{\link{ergmConstraint}}.  Not all
+  combinations of the above are supported.
 }
 \section{Placing Bounds on Degrees:}{
 There are many times when one may wish to condition on the

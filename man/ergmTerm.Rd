@@ -7,9 +7,9 @@
 \description{
 An index of Ergm terms
 
-\if{latex}{\Sexpr[results=rd,stage=render]{ergm:::.generateDynamicIndex(ergm:::.formatLatex)}}
-\if{text}{\Sexpr[results=rd,stage=render]{ergm:::.generateDynamicIndex(ergm:::.formatText)}}
-\if{html}{\Sexpr[results=rd,stage=render]{ergm:::.generateDynamicIndex(ergm:::.formatHtml)}}
+\if{latex}{\Sexpr[results=rd,stage=render]{ergm:::.generateDynamicIndex("ergmTerm", ergm:::.formatLatex)}}
+\if{text}{\Sexpr[results=rd,stage=render]{ergm:::.generateDynamicIndex("ergmTerm", ergm:::.formatText)}}
+\if{html}{\Sexpr[results=rd,stage=render]{ergm:::.generateDynamicIndex("ergmTerm", ergm:::.formatHtml)}}
 }
 \section{Term index}{
 

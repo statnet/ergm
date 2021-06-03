@@ -12,7 +12,7 @@
 #'
 #' @description `edges` may refer to:
 #' * [An ERGM statistic][edges-ergmTerm] (`ergmTerm?edges`)
-#' * [An ERGM sample space constraint][edges-constraint] (`help("edges-constraint")`)
+#' * [An ERGM sample space constraint][edges-ergmConstraint] (`ergmConstraint?edges`)
 NULL
 
 #' @name hamming
@@ -20,7 +20,7 @@ NULL
 #'
 #' @description `hamming` may refer to:
 #' * [An ERGM statistic][hamming-ergmTerm] (`ergmTerm?hamming`)
-#' * [A ERGM sample space constraint][hamming-constraint] (`help("hamming-constraint")`)
+#' * [A ERGM sample space constraint][hamming-ergmConstraint] (`ergmConstraint?hamming`)
 NULL
 
 #' @name sum
