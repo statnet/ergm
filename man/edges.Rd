@@ -7,6 +7,6 @@
 \code{edges} may refer to:
 \itemize{
 \item \link[=edges-ergmTerm]{An ERGM statistic} (\code{ergmTerm?edges})
-\item \link[=edges-constraint]{An ERGM sample space constraint} (\code{help("edges-constraint")})
+\item \link[=edges-ergmConstraint]{An ERGM sample space constraint} (\code{ergmConstraint?edges})
 }
 }

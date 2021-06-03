@@ -7,6 +7,6 @@
 \code{hamming} may refer to:
 \itemize{
 \item \link[=hamming-ergmTerm]{An ERGM statistic} (\code{ergmTerm?hamming})
-\item \link[=hamming-constraint]{A ERGM sample space constraint} (\code{help("hamming-constraint")})
+\item \link[=hamming-ergmConstraint]{A ERGM sample space constraint} (\code{ergmConstraint?hamming})
 }
 }
