@@ -93,7 +93,7 @@ output format. Partial matching is performed.}
 otherwise, return a \code{\link{network.list}} with \code{nsim} networks.}
 
 \item{control}{A list of control parameters for algorithm tuning,
-typically constructed with \code{\link[=\code{\link[=control.san]{control.san()}}]{jZ9JyhkvmZoo14E0ZG6Vgvng3klnxJ4O-1-()}}. Its documentation
+typically constructed with \code{\link[=control.san()]{control.san()()}}. Its documentation
 gives the the list of recognized control parameters and their
 meaning. The more generic utility \code{\link[=snctrl]{snctrl()}} (StatNet ConTRoL)
 also provides argument completion for the available control

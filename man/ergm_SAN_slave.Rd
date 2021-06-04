@@ -23,7 +23,7 @@ ergm_SAN_slave(
 \item{tau}{a scalar; temperature to use; higher temperature means more proposals that "worsen" the statistics are accepted.}
 
 \item{control}{A list of control parameters for algorithm tuning,
-typically constructed with \code{\link[=\code{\link[=control.san]{control.san()}}]{UFP4Sr2j5JWvpaFwwibUIrzLmBhASXEn-1-()}}. Its documentation
+typically constructed with \code{\link[=control.san()]{control.san()()}}. Its documentation
 gives the the list of recognized control parameters and their
 meaning. The more generic utility \code{\link[=snctrl]{snctrl()}} (StatNet ConTRoL)
 also provides argument completion for the available control

@@ -105,7 +105,7 @@ san.default <- function(object,...)
 #' @param only.last if `TRUE`, only return the last network generated;
 #'   otherwise, return a [`network.list`] with `nsim` networks.
 #'
-#' @templateVar mycontrol [control.san()]
+#' @templateVar mycontrol control.san()
 #' @template control
 #' @template verbose
 #'
@@ -357,14 +357,14 @@ san.ergm_model <- function(object, reference=~Bernoulli, constraints=~., target.
       message("Scaled Mahalanobis distance = ", mahalanobis(stats, 0, invcov, inverted=TRUE))
     }
     
+    out.mat <- z$s
+    attr(out.mat, "W") <- invcov
     if(!only.last){
       out.list[[i]] <- switch(output,
                               ergm_state=state,
                               network=as.network(state),
                               edgelist=as.edgelist(state)
                               )
-      out.mat <- z$s
-      attr(out.mat, "W") <- invcov
     }else{
       if(i<control$SAN.maxit && isTRUE(all.equal(unname(stats), numeric(length(stats))))){
         if(verbose) message("Target statistics matched exactly.")
@@ -382,7 +382,6 @@ san.ergm_model <- function(object, reference=~Bernoulli, constraints=~., target.
              network=as.network(state),
              edgelist=as.edgelist(state)
              ),
-      formula = formula,
       stats = out.mat
     )
   }
@@ -422,7 +421,7 @@ san.ergm <- function(object, formula=object$formula,
 #' 
 #' @param state an [`ergm_state`] representing the sampler state, containing information about the network, the model, the proposal, and current statistics.
 #'
-#' @templateVar mycontrol [control.san()]
+#' @templateVar mycontrol control.san()
 #' @param tau a scalar; temperature to use; higher temperature means more proposals that "worsen" the statistics are accepted.
 #' @param nsteps an integer; number of SAN proposals.
 #' @param samplesize an integer; number of network statistics to return.
