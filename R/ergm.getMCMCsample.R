@@ -13,12 +13,9 @@
 #' This is an internal function, not normally called directly by the
 #' user. The \code{ergm_MCMC_sample} function samples networks and
 #' network statistics using an MCMC algorithm via \code{MCMC_wrapper}
-#' and is caple of running in multiple threads using
+#' and is capable of running in multiple threads using
 #' `ergm_MCMC_slave`.
 #' 
-#' 
-#' Note that unless `stats0` is passed, the returned stats will be relative to the original network, i.e.,
-#' the calling function must shift the statistics if required.
 #' 
 #' @param state an [`ergm_state`] representing the sampler state, containing information about the network, the model, the proposal, and (optionally) initial statistics, or a list thereof.
 #'
@@ -45,12 +42,16 @@
 #' @note `ergm_MCMC_sample` and `ergm_MCMC_slave` replace
 #'   `ergm.getMCMCsample` and `ergm.mcmcslave` respectively. They
 #'   differ slightly in their argument names and in their return
-#'   formats. For example, `ergm_MCMC_sample` expects `proposal`
-#'   rather than `MHproposal` and `theta` or `eta` rather than `eta0`;
+#'   formats. For example, `ergm_MCMC_sample` expects `ergm_state`
+#'   rather than network/model/proposal, and `theta` or `eta` rather than `eta0`;
 #'   and it does not return `statsmatrix` or `newnetwork`
 #'   elements. Rather, if parallel processing is not in effect,
 #'   `stats` is an [`mcmc.list`] with one chain and `networks` is a
 #'   list with one element.
+#'
+#'   Note that unless `stats` is a part of the `ergm_state`, the
+#'   returned stats will be relative to the original network, i.e.,
+#'   the calling function must shift the statistics if required.
 #'
 #'   At this time, repeated calls to `ergm_MCMC_sample` will not
 #'   produce the same sequence of networks as a single long call, even
