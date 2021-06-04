@@ -45,9 +45,9 @@ san(object, ...)
 \item{object}{Either a \code{\link{formula}} or an \code{\link{ergm}} object. The
 \code{\link{formula}} should be of the form \code{y ~ <model terms>}, where
 \code{y} is a network object or a matrix that can be coerced to a
-\code{\link{network}} object.  For the details on the
-possible \code{<model terms>}, see \code{\link{ergm-terms}}.  To
-create a \code{\link[network]{network}} object in , use the
+\code{\link{network}} object.  For the details on the possible \code{<model
+  terms>}, see \code{\link{ergm-terms}}.  To create a
+\code{\link[network]{network}} object in , use the
 \code{network()} function, then add nodal attributes to it using
 the \code{\%v\%} operator if necessary.}
 
@@ -93,7 +93,7 @@ output format. Partial matching is performed.}
 otherwise, return a \code{\link{network.list}} with \code{nsim} networks.}
 
 \item{control}{A list of control parameters for algorithm tuning,
-typically constructed with \code{\link[=control.san]{control.san()}}. Its documentation
+typically constructed with \code{\link[=\code{\link[=control.san]{control.san()}}]{jZ9JyhkvmZoo14E0ZG6Vgvng3klnxJ4O-1-()}}. Its documentation
 gives the the list of recognized control parameters and their
 meaning. The more generic utility \code{\link[=snctrl]{snctrl()}} (StatNet ConTRoL)
 also provides argument completion for the available control
@@ -114,7 +114,8 @@ object.  If a different \code{formula} object is wanted, specify it here.}
 }
 \value{
 A network or list of networks that hopefully have network
-statistics close to the \code{target.stats} vector.
+statistics close to the \code{target.stats} vector. Additionally,
+\code{\link[=attr]{attr()}}-style attributes \code{formula} and \code{stats} are included.
 }
 \description{
 This function attempts to find a network or networks whose statistics match
