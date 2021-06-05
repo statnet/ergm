@@ -12,8 +12,7 @@
   sm <- statnetStartupMessage("ergm", c("statnet","ergm.count","tergm"), TRUE)
   if(!is.null(sm)){
     packageStartupMessage(sm)
-    packageStartupMessage(paste(c(strwrap(paste("NOTE: Versions before 3.6.1 had a bug in the implementation of the bd() constraint which distorted the sampled distribution somewhat. In addition, Sampson's Monks datasets had mislabeled vertices. See the NEWS and the documentation for more details.",sep="")),""),collapse="\n"))
-    packageStartupMessage(paste(c(strwrap(paste("NOTE: Some common term arguments pertaining to vertex attribute and level selection have changed in 3.10.0. See terms help for more details. Use ",sQuote("options(ergm.term=list(version=\"3.9.4\"))")," to use old behavior.",sep="")),""),collapse="\n"))
+    packageStartupMessage(paste(c(strwrap(paste0(sQuote("ergm"), " 4 is a major release that introduces a fair number of backwards-incompatible changes. Please type ",sQuote("news(package=\"ergm\")"), " for a list of major changes.")),""),collapse="\n"))
   }
 }
 
