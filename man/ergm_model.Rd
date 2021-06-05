@@ -37,7 +37,7 @@ as.ergm_model(x, ...)
 
 \method{nparam}{ergm_model}(object, canonical = FALSE, offset = NA, byterm = FALSE, ...)
 
-\method{param_names}{ergm_model}(object, canonical = FALSE, ...)
+\method{param_names}{ergm_model}(object, canonical = FALSE, offset = NA, ...)
 }
 \arguments{
 \item{formula}{An \code{\link[=ergm]{ergm()}}
