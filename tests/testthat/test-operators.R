@@ -1,7 +1,7 @@
 data(florentine)
 
-test_that("Simulation for passthrough() and .submodel() and .summary()", {
-  text <- capture.output(out <- simulate(flomarriage~edges+degree(0)+absdiff("wealth")+passthrough(~edges+degree(0)+absdiff("wealth"))+submodel.test(~edges+degree(0)+absdiff("wealth"))+summary.test(~edges+degree(0)+absdiff("wealth")), output="stats", nsim=20, control=control.simulate.formula(MCMC.burnin=0, MCMC.interval=1), coef=numeric(10)))
+test_that("Simulation for Passthrough() and .submodel() and .summary()", {
+  text <- capture.output(out <- simulate(flomarriage~edges+degree(0)+absdiff("wealth")+Passthrough(~edges+degree(0)+absdiff("wealth"))+submodel.test(~edges+degree(0)+absdiff("wealth"))+summary.test(~edges+degree(0)+absdiff("wealth")), output="stats", nsim=20, control=control.simulate.formula(MCMC.burnin=0, MCMC.interval=1), coef=numeric(10)))
   text.out <- matrix(scan(textConnection(paste(text, collapse="")),quiet=TRUE),byrow=TRUE,ncol=3)
   text.out <- text.out[nrow(text.out)-nrow(out)+seq_len(nrow(out)),]
   

@@ -68,7 +68,7 @@ ergm_mk_std_op_namewrap <- function(opname, opargs=NULL){
 ## it would have done.
 ##
 
-InitErgmTerm.passthrough <- function(nw, arglist, ...){
+InitErgmTerm.Passthrough <- function(nw, arglist, ...){
   a <- check.ErgmTerm(nw, arglist,
                       varnames = c("formula"),
                       vartypes = c("formula"),
@@ -78,7 +78,7 @@ InitErgmTerm.passthrough <- function(nw, arglist, ...){
   m <- ergm_model(a$formula, nw,...)
   
   c(list(name="passthrough_term", submodel=m),
-    wrap.ergm_model(m, nw, ergm_mk_std_op_namewrap('passthrough')))
+    wrap.ergm_model(m, nw, ergm_mk_std_op_namewrap('Passthrough')))
 }
 
 InitErgmTerm.Label <- function(nw, arglist, ...){

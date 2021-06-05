@@ -1,5 +1,5 @@
-InitWtErgmTerm.passthrough <- function(nw, arglist, ...){
-  out <- InitErgmTerm.passthrough(nw, arglist, ...)
+InitWtErgmTerm.Passthrough <- function(nw, arglist, ...){
+  out <- InitErgmTerm.Passthrough(nw, arglist, ...)
   out$name <- "wtpassthrough_term"
   out
 }
