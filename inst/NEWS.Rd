@@ -213,6 +213,10 @@
       \item{
         Log-likelihood estimates and derived quantities (deviance, AIC, BIC) now also report their standard errors due to bridge sampling. Setting the \code{bridge.target.se} control option to \code{\link{control.logLik.ergm}} and/or \code{\link{control.ergm.bridge}} will continue sampling and accumulating samples until the estimated standard error due to bridge sampling falls below it.
       }
+
+      \item{
+        \code{\link{san}} output now includes the sampled statistics of the network.
+      }
     }
   }
 
