@@ -253,7 +253,7 @@ ergm.bridge.dindstart.llk<-function(object, response=NULL, constraints=~., coef,
   m.edges <- ergm_model(~edges, nw, term.options = control$term.options)
 
  if(!is.null(target.stats)){
-   target.stats <- vector.namesmatch(target.stats, param_names(m, canonical=TRUE))
+   target.stats <- vector.namesmatch(target.stats, param_names(m, canonical=TRUE, offset=FALSE))
    target.stats <- unname(na.omit(target.stats))
    if(nparam(m, canonical=TRUE, offset=FALSE)!=length(target.stats)){
      stop("Incorrect length of the target.stats vector: should be ", nparam(m, canonical=TRUE, offset=FALSE), " but is ",length(target.stats),". Note that offset() terms should *not* get target statistics.")
