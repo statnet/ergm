@@ -291,7 +291,7 @@
     \itemize{
 
       \item{
-        The \code{levels2=} argument of \code{\link{nodemix}} and \code{\link{mm}} terms now defaults to \code{-1} (i.e., exclude the first level combination). Old behaviour is available through the \code{version} \link{term option}.
+        \strong{IMPORTANT:} The \code{levels2=} argument of \code{\link{nodemix}} and \code{\link{mm}} terms now defaults to \code{-1} (i.e., exclude the first level combination). Old behaviour is available through the \code{version} \link{term option}.
       }
 
       \item{
