@@ -251,6 +251,14 @@ ergm.bridge.dindstart.llk<-function(object, response=NULL, constraints=~., coef,
 
   m<-ergm_model(object, nw, term.options=control$term.options)
   m.edges <- ergm_model(~edges, nw, term.options = control$term.options)
+
+ if(!is.null(target.stats)){
+   target.stats <- vector.namesmatch(target.stats, param_names(m, canonical=TRUE))
+   target.stats <- unname(na.omit(target.stats))
+   if(nparam(m, canonical=TRUE, offset=FALSE)!=length(target.stats)){
+     stop("Incorrect length of the target.stats vector: should be ", nparam(m, canonical=TRUE, offset=FALSE), " but is ",length(target.stats),". Note that offset() terms should *not* get target statistics.")
+   }
+ }
   
   q.pos.full <- c(0,cumsum(nparam(m, canonical=FALSE, byterm=TRUE, offset=TRUE)))
   p.pos.full <- c(0,cumsum(nparam(m, canonical=TRUE, byterm=TRUE, offset=FALSE)))
@@ -286,7 +294,7 @@ ergm.bridge.dindstart.llk<-function(object, response=NULL, constraints=~., coef,
 
     terms.full <- c(terms.full, list(as.name("edges")))
     dindmap <- c(dindmap, TRUE)
-    if(!is.null(target.stats)) target.stats <- as.vector(c(target.stats, edges = network.edgecount(nw)))
+    if(!is.null(target.stats)) ts.dind <- as.vector(c(ts.dind, edges = network.edgecount(nw)))
 
     # Copy environment and LHS if present.
     dind <- append_rhs.formula(object[-length(object)], compact(terms.full))
@@ -323,7 +331,7 @@ ergm.bridge.dindstart.llk<-function(object, response=NULL, constraints=~., coef,
 
   ## From this point on, target.stats has NAs corresponding to offset
   ## terms.
-  if(!is.null(target.stats)) target.stats <- as.vector(.align.target.stats.offset(c(m,m.edges), target.stats))
+  if(!is.null(target.stats)) target.stats <- as.vector(.align.target.stats.offset(c(m,m.edges), c(target.stats, ult(ts.dind))))
 
   if(!is.null(target.stats) && any(is.na(target.stats))){
     warning("Using target.stats for a model with offset terms may produce an inaccurate estimate of the log-likelihood and derived quantities (deviance, AIC, BIC, etc.), because some of the target stats must be imputed.")
