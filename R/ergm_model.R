@@ -31,6 +31,7 @@
 #' @template term_options
 #' @param extra.aux a list of auxiliary request formulas required elsewhere; if named, the resulting `slots.extra.aux` will also be named.
 #' @param env a throwaway argument needed to prevent conflicts with some usages of `ergm_model`. The initialization environment is *always* taken from the `formula`.
+#' @param offset.decorate logical; whether offset coefficient and parameter names should be enclosed in `"offset()"`. 
 #' @param object An `ergm_model` object.
 #' @return `ergm_model` returns an  `ergm_model` object as a list
 #' containing:
@@ -42,7 +43,7 @@
 #' @seealso [summary.ergm_model()]
 #' @keywords internal
 #' @export
-ergm_model <- function(formula, nw=NULL, silent=FALSE, ..., term.options=list(), extra.aux=list(), env=globalenv()){
+ergm_model <- function(formula, nw=NULL, silent=FALSE, ..., term.options=list(), extra.aux=list(), env=globalenv(), offset.decorate=TRUE){
   if (!is(formula, "formula"))
     stop("Invalid model formula of class ",sQuote(class(formula)),".", call.=FALSE)
   
@@ -85,7 +86,7 @@ ergm_model <- function(formula, nw=NULL, silent=FALSE, ..., term.options=list(),
     }else model$term.skipped <- c(model$term.skipped, FALSE)
 
     # Now it is necessary to add the output to the model formula
-    model <- updatemodel.ErgmTerm(model, outlist, offset=offset)
+    model <- updatemodel.ErgmTerm(model, outlist, offset=offset, offset.decorate=offset.decorate)
   }
 
   model <- ergm.auxstorage(model, nw, term.options=term.options, ..., extra.aux=extra.aux)
@@ -166,7 +167,7 @@ call.ErgmTerm <- function(term, env, nw, ..., term.options=list()){
 #'   is necessary, since terms may be eliminated by giving only 0
 #'   statistics, and consequently returning a NULL `outlist`.)
 #' @noRd
-updatemodel.ErgmTerm <- function(model, outlist, offset=FALSE) {
+updatemodel.ErgmTerm <- function(model, outlist, offset=FALSE, offset.decorate=TRUE) {
   if (!is.null(outlist)) { # Allow for no change if outlist==NULL
     # Update global model properties.
     nstats <- length(outlist$coef.names)
@@ -175,10 +176,12 @@ updatemodel.ErgmTerm <- function(model, outlist, offset=FALSE) {
     if(is.numeric(offset)) offset <- unwhich(offset, npars)
     outlist$offset <- offset <- rep(offset, length.out=npars) | NVL(outlist$offset,FALSE)
 
-    if(is.null(outlist$params)) # Linear
-      outlist$coef.names <- ifelse(offset, paste0("offset(",outlist$coef.names,")"), outlist$coef.names)
-    else # Curved
-      names(outlist$params) <- ifelse(offset, paste0("offset(",names(outlist$params),")"), names(outlist$params))
+    if(offset.decorate){
+      if(is.null(outlist$params)) # Linear
+        outlist$coef.names <- ifelse(offset, paste0("offset(",outlist$coef.names,")"), outlist$coef.names)
+      else # Curved
+        names(outlist$params) <- ifelse(offset, paste0("offset(",names(outlist$params),")"), names(outlist$params))
+    }
 
     model$coef.names <- c(model$coef.names, outlist$coef.names)
     model$minval <- c(model$minval,
