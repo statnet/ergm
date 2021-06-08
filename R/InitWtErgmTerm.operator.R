@@ -15,7 +15,7 @@ InitWtErgmTerm.B <- function(nw, arglist, ...){
 
   nwb <- nw
   nwb %ergmlhs% "response" <- NULL
-  m <- ergm_model(a$formula, nwb,...)
+  m <- ergm_model(a$formula, nwb, ..., offset.decorate=FALSE)
 
   if(!is.dyad.independent(m) && form=="sum") stop("Only dyad-independent binary terms can be imported with form 'sum'.")
   
@@ -55,7 +55,7 @@ InitWtErgmTerm..binary.formula.net <- function(nw, arglist, ...){
                       defaultvalues = list(NULL),
                       required = c(TRUE))
 
-  m <- ergm_model(a$formula, nw,...)
+  m <- ergm_model(a$formula, nw, ..., offset.decorate=FALSE)
 
   if(!is.dyad.independent(m) || nparam(m)!=1) stop("The binary test formula must be dyad-independent and have exactly one statistc.")
 

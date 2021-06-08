@@ -75,7 +75,7 @@ InitErgmTerm.Passthrough <- function(nw, arglist, ...){
                       defaultvalues = list(NULL),
                       required = c(TRUE))
 
-  m <- ergm_model(a$formula, nw,...)
+  m <- ergm_model(a$formula, nw, ..., offset.decorate=FALSE)
   
   c(list(name="passthrough_term", submodel=m),
     wrap.ergm_model(m, nw, ergm_mk_std_op_namewrap('Passthrough')))
@@ -89,7 +89,7 @@ InitErgmTerm.Label <- function(nw, arglist, ...){
                       required = c(TRUE, TRUE, FALSE))
 
 
-  m <- ergm_model(a$formula, nw,...)
+  m <- ergm_model(a$formula, nw, ..., offset.decorate=FALSE)
 
   if(is.character(a$label)){
     pos <- match.arg(a$pos, c("prepend","replace", "(" ,"append"))
@@ -130,7 +130,7 @@ InitErgmTerm..submodel <- function(nw, arglist, ...){
                       defaultvalues = list(NULL),
                       required = c(TRUE))
 
-  m <- ergm_model(a$formula, nw,...)
+  m <- ergm_model(a$formula, nw, ..., offset.decorate=FALSE)
 
   c(list(name="_submodel_term", submodel=m),
     wrap.ergm_model(m, nw, NULL))
@@ -145,7 +145,7 @@ InitErgmTerm.submodel.test <- function(nw, arglist, ...){
                       defaultvalues = list(NULL),
                       required = c(TRUE))
 
-  m <- ergm_model(a$formula, nw,...)
+  m <- ergm_model(a$formula, nw, ..., offset.decorate=FALSE)
 
   af <- a$formula
   c(list(name="submodel_test_term", auxiliaries = trim_env(~.submodel(af),"af")),
@@ -163,7 +163,7 @@ InitErgmTerm..summary <- function(nw, arglist, ...){
                       defaultvalues = list(NULL),
                       required = c(TRUE))
 
-  m <- ergm_model(a$formula, nw,...)
+  m <- ergm_model(a$formula, nw, ..., offset.decorate=FALSE)
 
   list(name="_summary_term", submodel=m,
        wrap.ergm_model(m, nw, NULL))
@@ -179,7 +179,7 @@ InitErgmTerm.summary.test <- function(nw, arglist, ...){
                       defaultvalues = list(NULL),
                       required = c(TRUE))
 
-  m <- ergm_model(a$formula, nw,...)
+  m <- ergm_model(a$formula, nw, ..., offset.decorate=FALSE)
 
   af <- a$formula
   list(name="summary_test_term", coef.names="summ.test", inputs=c(nparam(m)), auxiliaries=trim_env(~.summary(af),"af"),
@@ -197,7 +197,7 @@ InitErgmTerm..submodel_and_summary <- function(nw, arglist, ...){
                       defaultvalues = list(NULL),
                       required = c(TRUE))
 
-  m <- if(is(a$formula, "formula")) ergm_model(a$formula, nw,...) else a$formula
+  m <- if(is(a$formula, "formula")) ergm_model(a$formula, nw, ..., offset.decorate=FALSE) else a$formula
 
   list(name="_submodel_and_summary_term", coef.names = c(), submodel=m, dependence=!is.dyad.independent(m))
 }
@@ -210,7 +210,7 @@ InitErgmTerm.F <- function(nw, arglist, ...){
                       required = c(TRUE, TRUE))
 
   filter <- a$filter
-  m <- ergm_model(a$formula, nw,...)
+  m <- ergm_model(a$formula, nw, ..., offset.decorate=FALSE)
   
   filter.name <- despace(deparse(ult(filter)))
   auxiliaries <- trim_env(~.filter.formula.net(filter), "filter")
@@ -228,7 +228,7 @@ InitErgmTerm..filter.formula.net <- function(nw, arglist, ...){
                       defaultvalues = list(NULL),
                       required = c(TRUE))
 
-  m <- ergm_model(a$formula, nw,...)
+  m <- ergm_model(a$formula, nw, ..., offset.decorate=FALSE)
 
   if(!is.dyad.independent(m) || nparam(m)!=1) ergm_Init_abort("The filter test formula must be dyad-independent and have exactly one statistc.")
 
@@ -247,7 +247,7 @@ InitErgmTerm.Offset <- function(nw, arglist, ...){
                       defaultvalues = list(NULL, 0, TRUE),
                       required = c(TRUE, FALSE, FALSE))
 
-  m <- ergm_model(a$formula, nw,...)
+  m <- ergm_model(a$formula, nw, ..., offset.decorate=FALSE)
 
   parnames <- param_names(m, canonical=FALSE)
   nparams <- nparam(m, canonical=FALSE)
@@ -437,7 +437,7 @@ InitErgmTerm.Symmetrize <- function(nw, arglist, ...){
   rule <- match.arg(a$rule, RULES)
 
   if(is.directed(nw)) nw <- symmetrize(nw, rule)
-  m <- ergm_model(a$formula, nw,...)
+  m <- ergm_model(a$formula, nw, ..., offset.decorate=FALSE)
 
   auxiliaries <- trim_env(~.undir.net(rule), "rule")
   
@@ -578,7 +578,7 @@ InitErgmTerm.S <- function(nw, arglist, ...){
   snw <- get.inducedSubgraph(snw, tailsel, if(type=="bipartite") headsel)
   if(NVL(snw%n%"bipartite", FALSE)) snw %n% "directed" <- FALSE # Need to do this because snw is a "directed bipartite" network. I hope it doesn't break anything.
 
-  m <- ergm_model(a$formula, snw,...)
+  m <- ergm_model(a$formula, snw, ..., offset.decorate=FALSE)
 
   auxiliaries <- trim_env(~.subgraph.net(tailsel, headsel), c("tailsel","headsel"))
 
@@ -598,7 +598,7 @@ InitErgmTerm.Curve <- function(nw, arglist,...){
                       defaultvalues = list(NULL, NULL, NULL, NULL, -Inf, +Inf, NULL),
                       required = c(TRUE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE))
 
-  m <- ergm_model(a$formula, nw=nw, ...)
+  m <- ergm_model(a$formula, nw=nw, ..., offset.decorate=FALSE)
   p <- nparam(m, canonical=FALSE)
 
   params <- if(is.character(a$params)) setNames(rep(list(NULL), length(a$params)), a$params) else a$params
@@ -675,7 +675,7 @@ InitErgmTerm.Log <- function(nw, arglist, ...){
                       defaultvalues = list(NULL, -1/sqrt(.Machine$double.eps)),
                       required = c(TRUE, FALSE))
 
-  m <- ergm_model(a$formula, nw,...)
+  m <- ergm_model(a$formula, nw, ..., offset.decorate=FALSE)
   log0 <- rep_len(a$log0, nparam(m, canonical=TRUE))
 
   wm <- wrap.ergm_model(m, nw, ergm_mk_std_op_namewrap('Log'))
@@ -692,7 +692,7 @@ InitErgmTerm.Exp <- function(nw, arglist, ...){
                       defaultvalues = list(NULL),
                       required = c(TRUE))
 
-  m <- ergm_model(a$formula, nw,...)
+  m <- ergm_model(a$formula, nw, ..., offset.decorate=FALSE)
 
   wm <- wrap.ergm_model(m, nw, ergm_mk_std_op_namewrap('Exp'))
   wm$emptynwstats <- wm$emptynwstats %>% NVL(numeric(nparam(m, canonical=TRUE))) %>% exp

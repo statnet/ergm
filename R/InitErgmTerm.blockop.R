@@ -8,7 +8,7 @@ InitErgmTerm.NodematchFilter <- function(nw, arglist, ...){
                       defaultvalues = list(NULL, NULL),
                       required = c(TRUE, TRUE))
 
-  m <- ergm_model(a$formula, nw,...)
+  m <- ergm_model(a$formula, nw, ..., offset.decorate=FALSE)
 
   attrname <- a$attrname
   c(list(name="on_blockdiag_net", submodel=m, auxiliaries=trim_env(~.blockdiag.net(attrname), "attrname")),

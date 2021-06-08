@@ -25,7 +25,7 @@ check_interact_term <- function(m, dependent_action){
   n2 <- length(e2)
 
   f <- append_rhs.formula(NULL, c(e1, e2), env = env)
-  m <- ergm_model(f, nw, ...)
+  m <- ergm_model(f, nw, ..., offset.decorate=FALSE)
 
   check_interact_term(m, match.arg(interact.dependent))
 
@@ -58,7 +58,7 @@ check_interact_term <- function(m, dependent_action){
   n2 <- length(e2)
 
   f <- append_rhs.formula(NULL, c(e1, e2), env = env)
-  m <- ergm_model(f, nw, ...)
+  m <- ergm_model(f, nw, ..., offset.decorate=FALSE)
 
   check_interact_term(m, match.arg(interact.dependent))
 
