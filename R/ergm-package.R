@@ -11,7 +11,8 @@
 #' When publishing results obtained using this package, please cite the
 #' original authors as described in \code{citation(package="ergm")}.
 #' 
-#' All programs derived from this package must cite it.
+#' All programs derived from this package must cite it. Please see the
+#' file `LICENSE` and [`http://statnet.org/attribution`](http://statnet.org/attribution).
 #' 
 #' Recent advances in the statistical modeling of random networks have had an
 #' impact on the empirical study of social networks. Statistical exponential
@@ -50,15 +51,16 @@
 #' provided there.
 #' 
 #' @name ergm-package
+#' @aliases Getting.Started
 #' @docType package
 #' @author Mark S. Handcock \email{handcock@@stat.ucla.edu},\cr David R. Hunter
 #' \email{dhunter@@stat.psu.edu},\cr Carter T. Butts
 #' \email{buttsc@@uci.edu},\cr Steven M. Goodreau
 #' \email{goodreau@@u.washington.edu},\cr Pavel N. Krivitsky
-#' \email{krivitsky@@stat.psu.edu}, and\cr Martina Morris
+#' \email{pavel@@statnet.org}, and\cr Martina Morris
 #' \email{morrism@@u.washington.edu}
 #' 
-#' Maintainer: Pavel N. Krivitsky \email{krivitsky@@stat.psu.edu}
+#' Maintainer: Pavel N. Krivitsky \email{pavel@@statnet.org}
 #' @references Admiraal R, Handcock MS (2007).  \pkg{networksis}: Simulate
 #' bipartite graphs with fixed marginals through sequential importance
 #' sampling.  Statnet Project, Seattle, WA.  Version 1,
@@ -70,8 +72,8 @@
 #' \url{https://www.jstatsoft.org/v24/i07/}.
 #' 
 #' Besag, J., 1974, Spatial interaction and the statistical analysis of lattice
-#' systems (with discussion), Journal of the Royal Statistical Society, B, 36,
-#' 192-236.
+#' systems (with discussion), \emph{Journal of the Royal Statistical Society,
+#' B}, 36, 192-236.
 #' 
 #' Boer P, Huisman M, Snijders T, Zeggelink E (2003).  StOCNET: an open
 #' software system for the advanced statistical analysis of social networks.
@@ -92,8 +94,8 @@
 #' Project (\url{https://statnet.org}). R package version 1.12.0,
 #' \url{https://cran.r-project.org/package=network}.
 #' 
-#' Frank, O., and Strauss, D.(1986). Markov graphs. Journal of the American
-#' Statistical Association, 81, 832-842.
+#' Frank, O., and Strauss, D.(1986). Markov graphs. \emph{Journal of the
+#' American Statistical Association}, 81, 832-842.
 #' 
 #' Goodreau SM, Handcock MS, Hunter DR, Butts CT, Morris M (2008a).  A
 #' \pkg{statnet} Tutorial.  \emph{Journal of Statistical Software}, 24(8).
@@ -103,9 +105,9 @@
 #' Friend? Using Exponential Random Graph Models to Investigate Adolescent
 #' Social Networks.  \emph{Demography}, 45, in press.
 #' 
-#' Handcock, M. S. (2003) \emph{Assessing Degeneracy in Statistical Models of
-#' Social Networks}, Working Paper \#39, Center for Statistics and the Social
-#' Sciences, University of Washington.
+#' Handcock, M. S. (2003) Assessing Degeneracy in Statistical Models of Social
+#' Networks, Working Paper \#39, Center for Statistics and the Social Sciences,
+#' University of Washington.
 #' \url{https://www.csss.washington.edu/research/working-papers/assessing-degeneracy-statistical-models-social-networks}
 #' 
 #' Handcock MS (2003b).  \pkg{degreenet}: Models for Skewed Count Distributions
@@ -145,7 +147,7 @@
 #' \url{https://www.jstatsoft.org/v24/i04/}.
 #' 
 #' Strauss, D., and Ikeda, M.(1990). Pseudolikelihood estimation for social
-#' networks \emph{Journal of the American Statistical Association}, 85,
+#' networks. \emph{Journal of the American Statistical Association}, 85,
 #' 204-212.
 #' @keywords package models
 NULL

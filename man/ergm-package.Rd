@@ -3,6 +3,7 @@
 \docType{package}
 \name{ergm-package}
 \alias{ergm-package}
+\alias{Getting.Started}
 \title{Fit, Simulate and Diagnose Exponential-Family Models for Networks}
 \description{
 \code{\link[=ergm-package]{ergm}} is a collection of functions to plot, fit,
@@ -17,7 +18,8 @@ read the rest of the manual. For a simple demonstration, use
 When publishing results obtained using this package, please cite the
 original authors as described in \code{citation(package="ergm")}.
 
-All programs derived from this package must cite it.
+All programs derived from this package must cite it. Please see the
+file \code{LICENSE} and \url{http://statnet.org/attribution}.
 
 Recent advances in the statistical modeling of random networks have had an
 impact on the empirical study of social networks. Statistical exponential
@@ -67,8 +69,8 @@ and Animating Longitudinal Network Data: \pkg{dynamicnetwork} and
 \url{https://www.jstatsoft.org/v24/i07/}.
 
 Besag, J., 1974, Spatial interaction and the statistical analysis of lattice
-systems (with discussion), Journal of the Royal Statistical Society, B, 36,
-192-236.
+systems (with discussion), \emph{Journal of the Royal Statistical Society,
+B}, 36, 192-236.
 
 Boer P, Huisman M, Snijders T, Zeggelink E (2003).  StOCNET: an open
 software system for the advanced statistical analysis of social networks.
@@ -89,8 +91,8 @@ Butts C (2015). \pkg{network}: Classes for Relational Data. The Statnet
 Project (\url{https://statnet.org}). R package version 1.12.0,
 \url{https://cran.r-project.org/package=network}.
 
-Frank, O., and Strauss, D.(1986). Markov graphs. Journal of the American
-Statistical Association, 81, 832-842.
+Frank, O., and Strauss, D.(1986). Markov graphs. \emph{Journal of the
+American Statistical Association}, 81, 832-842.
 
 Goodreau SM, Handcock MS, Hunter DR, Butts CT, Morris M (2008a).  A
 \pkg{statnet} Tutorial.  \emph{Journal of Statistical Software}, 24(8).
@@ -100,9 +102,9 @@ Goodreau SM, Kitts J, Morris M (2008b).  Birds of a Feather, or Friend of a
 Friend? Using Exponential Random Graph Models to Investigate Adolescent
 Social Networks.  \emph{Demography}, 45, in press.
 
-Handcock, M. S. (2003) \emph{Assessing Degeneracy in Statistical Models of
-Social Networks}, Working Paper \#39, Center for Statistics and the Social
-Sciences, University of Washington.
+Handcock, M. S. (2003) Assessing Degeneracy in Statistical Models of Social
+Networks, Working Paper \#39, Center for Statistics and the Social Sciences,
+University of Washington.
 \url{https://www.csss.washington.edu/research/working-papers/assessing-degeneracy-statistical-models-social-networks}
 
 Handcock MS (2003b).  \pkg{degreenet}: Models for Skewed Count Distributions
@@ -142,7 +144,7 @@ Exponential-Family Random Graph Models: Terms and Computational Aspects.
 \url{https://www.jstatsoft.org/v24/i04/}.
 
 Strauss, D., and Ikeda, M.(1990). Pseudolikelihood estimation for social
-networks \emph{Journal of the American Statistical Association}, 85,
+networks. \emph{Journal of the American Statistical Association}, 85,
 204-212.
 }
 \author{
@@ -150,10 +152,10 @@ Mark S. Handcock \email{handcock@stat.ucla.edu},\cr David R. Hunter
 \email{dhunter@stat.psu.edu},\cr Carter T. Butts
 \email{buttsc@uci.edu},\cr Steven M. Goodreau
 \email{goodreau@u.washington.edu},\cr Pavel N. Krivitsky
-\email{krivitsky@stat.psu.edu}, and\cr Martina Morris
+\email{pavel@statnet.org}, and\cr Martina Morris
 \email{morrism@u.washington.edu}
 
-Maintainer: Pavel N. Krivitsky \email{krivitsky@stat.psu.edu}
+Maintainer: Pavel N. Krivitsky \email{pavel@statnet.org}
 }
 \keyword{models}
 \keyword{package}
