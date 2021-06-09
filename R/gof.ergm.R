@@ -169,7 +169,7 @@ gof.formula <- function(object, ...,
                         coef=NULL,
                         GOF=NULL,
                         constraints=~.,
-                        basis=ergm.getnetwork(object),
+                        basis=eval_lhs.formula(object),
                         control=NULL,
                         unconditional=TRUE,
                         verbose=FALSE) {
