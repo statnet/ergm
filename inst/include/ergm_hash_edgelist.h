@@ -24,7 +24,7 @@ static inline HashEL *HashELInitialize(unsigned int nedges, Vertex *tails, Verte
     kh_resize(DyadMapUInt, hash->hash, 2*(nedges + 1));
     
     for(unsigned int i = 0; i < nedges; i++) {
-      kh_set(DyadMapUInt, hash->hash, THKey(hash->hash, tails[i], heads[i]), i + 1);
+      kh_set(DyadMapUInt, hash->hash, TH(tails[i], heads[i]), i + 1);
     }
   }
   
@@ -48,16 +48,16 @@ static inline void HashELGetRand(Vertex *tail, Vertex *head, HashEL *hash) {
 
 static inline void HashELInsert(Vertex tail, Vertex head, HashEL *hash) {
   UnsrtELInsert(tail, head, hash->list);
-  kh_set(DyadMapUInt, hash->hash, THKey(hash->hash, tail, head), hash->list->nedges);
+  kh_set(DyadMapUInt, hash->hash, TH(tail, head), hash->list->nedges);
 }
 
 static inline void HashELDelete(Vertex tail, Vertex head, HashEL *hash) {   
-  khint_t i = kh_get(DyadMapUInt, hash->hash, THKey(hash->hash, tail, head));    
+  khint_t i = kh_get(DyadMapUInt, hash->hash, TH(tail, head));
   unsigned int index = kh_value(hash->hash, i);
   kh_del(DyadMapUInt, hash->hash, i);
 
   if(index < hash->list->nedges) {
-    kh_set(DyadMapUInt, hash->hash, THKey(hash->hash, hash->list->tails[hash->list->nedges], hash->list->heads[hash->list->nedges]), index);
+    kh_set(DyadMapUInt, hash->hash, TH(hash->list->tails[hash->list->nedges], hash->list->heads[hash->list->nedges]), index);
   }
   
   UnsrtELDeleteAt(index, hash->list);
@@ -72,7 +72,7 @@ static inline void HashELToggleKnown(Vertex tail, Vertex head, HashEL *hash, int
 }
 
 static inline unsigned int HashELSearch(Vertex tail, Vertex head, HashEL *hash) {
-  return kh_getval(DyadMapUInt, hash->hash, THKey(hash->hash, tail, head), 0);
+  return kh_getval(DyadMapUInt, hash->hash, TH(tail, head), 0);
 }
 
 #endif // _ERGM_HASH_EDGELIST_H_
