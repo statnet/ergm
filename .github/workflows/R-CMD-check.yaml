@@ -64,10 +64,10 @@ jobs:
         run: |
           if [[ "${{ env.IAM }}" == 'public' ]] # Public: full set.
           then
-            echo "::set-output name=matrix::{\"config\":[{\"os\":\"windows-latest\", \"r\":\"release\", \"timeout\":360, \"full\":\"no\", \"covr\":\"no\"}, {\"os\":\"macOS-latest\", \"r\":\"release\", \"timeout\":360, \"full\":\"no\", \"covr\":\"no\"}, {\"os\":\"ubuntu-20.04\", \"r\":\"release\", \"rspm\":\"https://packagemanager.rstudio.com/cran/__linux__/focal/latest\", \"timeout\":360, \"full\":\"yes\", \"covr\":\"no\"}, {\"os\":\"ubuntu-20.04\", \"r\":\"devel\", \"rspm\":\"https://packagemanager.rstudio.com/cran/__linux__/focal/latest\", \"timeout\":360, \"full\":\"no\", \"covr\":\"no\"}, {\"os\":\"ubuntu-20.04\", \"r\":\"release\", \"rspm\":\"https://packagemanager.rstudio.com/cran/__linux__/focal/latest\", \"timeout\":360, \"full\":\"yes\", \"covr\":\"yes\"}]}"
+            echo "::set-output name=matrix::{\"config\":[{\"os\":\"windows-latest\", \"r\":\"release\", \"timeout\":360, \"full\":\"no\", \"covr\":\"no\", \"vignettes\":\"no\"}, {\"os\":\"macOS-latest\", \"r\":\"release\", \"timeout\":360, \"full\":\"no\", \"covr\":\"no\", \"vignettes\":\"no\"}, {\"os\":\"ubuntu-20.04\", \"r\":\"release\", \"rspm\":\"https://packagemanager.rstudio.com/cran/__linux__/focal/latest\", \"timeout\":360, \"full\":\"yes\", \"covr\":\"no\", \"vignettes\":\"no\"}, {\"os\":\"ubuntu-20.04\", \"r\":\"devel\", \"rspm\":\"https://packagemanager.rstudio.com/cran/__linux__/focal/latest\", \"timeout\":360, \"full\":\"no\", \"covr\":\"no\", \"vignettes\":\"yes\"}, {\"os\":\"ubuntu-20.04\", \"r\":\"release\", \"rspm\":\"https://packagemanager.rstudio.com/cran/__linux__/focal/latest\", \"timeout\":360, \"full\":\"yes\", \"covr\":\"yes\", \"vignettes\":\"no\"}]}"
           elif [[ "${{ env.FOUND_PUBLIC }}" != '0' ]] # Private with no public analogue: reduced set.
           then
-            echo "::set-output name=matrix::{\"config\":[{\"os\":\"ubuntu-20.04\", \"r\":\"release\", \"rspm\":\"https://packagemanager.rstudio.com/cran/__linux__/focal/latest\", \"timeout\":10, \"full\":\"no\", \"covr\":\"no\"}]}"
+            echo "::set-output name=matrix::{\"config\":[{\"os\":\"ubuntu-20.04\", \"r\":\"release\", \"rspm\":\"https://packagemanager.rstudio.com/cran/__linux__/focal/latest\", \"timeout\":10, \"full\":\"no\", \"covr\":\"no\", \"vignettes\":\"no\"}]}"
           else
             echo "::set-output name=matrix::" # Private with public analogue: no checking.
           fi
@@ -109,6 +109,10 @@ jobs:
 
       - uses: r-lib/actions/setup-pandoc@v1
 
+      - name: Install tinytex (system)
+        if: matrix.config.vignettes == 'yes'
+        uses: r-lib/actions/setup-tinytex@v1
+
       - name: Query dependencies
         run: |
           install.packages('remotes')
@@ -140,6 +144,13 @@ jobs:
           remotes::install_cran("covr")
         shell: Rscript {0}
 
+      - name: Install tinytex (R)
+        if: matrix.config.vignettes == 'yes'
+        run: |
+          remotes::install_cran("tinytex")
+          tinytex:::install_yihui_pkgs()
+        shell: Rscript {0}
+
       - name: Build
         if: matrix.config.covr == 'no' && runner.os != 'Linux'
         run: |
@@ -166,7 +177,18 @@ jobs:
           _R_CHECK_CRAN_INCOMING_REMOTE_: false
           _R_CHECK_FORCE_SUGGESTS_: ${{ runner.os != 'macOS' }} # Rmpi is not available on macOS.
           ENABLE_statnet_TESTS: ${{ matrix.config.full }}
-        run: rcmdcheck::rcmdcheck(args = c("--no-manual", "--as-cran", "--no-build-vignettes"), build_args = c("--no-manual", "--no-build-vignettes"), error_on = "error", check_dir = "check")
+          R_VIGNETTES: ${{ matrix.config.vignettes }}
+        run: |
+          if(Sys.getenv("R_VIGNETTES") == "yes"){
+            check_args <- c("--as-cran")
+            build_args <- c("--compact-vignettes=gs+qpdf")
+            error_on <- "warning"
+          }else{
+            check_args <- c("--no-manual", "--as-cran", "--no-build-vignettes")
+            build_args <- c("--no-manual", "--no-build-vignettes")
+            error_on <- "error"
+          }
+          rcmdcheck::rcmdcheck(args = check_args, build_args = build_args, error_on = error_on, check_dir = "check")
         shell: Rscript {0}
 
       - name: Upload check results
