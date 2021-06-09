@@ -118,7 +118,7 @@ ergm.allstats <- function(formula, zeroobs = TRUE, force = FALSE,
 
   # Initialization stuff
   nw <- ergm.getnetwork(formula)
-  m <- ergm_model(formula, nw, initialfit=TRUE, ...)
+  m <- ergm_model(formula, nw, ...)
 
   # Check for networks that are too large.  Pretty unsophisticated check for now.
   if ((network.size(nw) > 8 && !is.directed(nw)) || (network.size(nw) > 6 && is.directed(nw))) {
