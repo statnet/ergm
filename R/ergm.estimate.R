@@ -313,12 +313,12 @@ ergm.estimate<-function(init, model, statsmatrices, statsmatrices.obs=NULL,
   names(theta) <- names(init)
   if (estimateonly) {
     # Output results as ergm-class object
-    return(structure(list(coefficients=theta,
-                          MCMCtheta=init,
-                          samplesize=nrow(statsmatrix),
-                          loglikelihood=Lout$value, 
-                          failure=FALSE),
-                        class="ergm"))
+    return(structure(list(coefficients = setNames(theta, names(init)),
+                          MCMCtheta = init,
+                          samplesize = nrow(statsmatrix),
+                          loglikelihood = Lout$value,
+                          failure = FALSE),
+                     class = "ergm"))
   } else {
     gradienttheta <- llik.grad.IS(theta=Lout$par,
                         xsim=xsim,
@@ -352,53 +352,24 @@ ergm.estimate<-function(init, model, statsmatrices, statsmatrices.obs=NULL,
     Lout$hessian <- He
     
     if(calc.mcmc.se){
-      if (verbose) { message("Starting MCMC s.e. computation.") }
-      mc.cov <-
-        if ((metric=="lognormal" || metric=="Likelihood")
-            && length(model$etamap$curved)==0) {
-          ergm.MCMCse.lognormal(theta=theta, init=init, 
-                                statsmatrices=statsmatrices, 
-                                statsmatrices.obs=statsmatrices.obs,
-                                H=V, H.obs=V.obs,
-                                model=model)
-        } else {
-        ergm.MCMCse(theta=theta,init=init, 
-                    statsmatrices=statsmatrices,
-                    statsmatrices.obs=statsmatrices.obs,
-                    model=model)
-      }
+      if (verbose) message("Starting MCMC s.e. computation.")
+      mcse.metric <-
+        if ((metric == "lognormal" || metric == "Likelihood") && length(model$etamap$curved) == 0) "lognormal"
+        else "IS"
+      mc.cov <- ergm.MCMCse(model = model, theta = theta, init = init,
+                            statsmatrices = statsmatrices,
+                            statsmatrices.obs = statsmatrices.obs,
+                            H = V, H.obs = V.obs,
+                            metric = mcse.metric)
     }
-    c0  <- loglikelihoodfn(theta=Lout$par,
-                           xsim=xsim,
-                           xsim.obs=xsim.obs,
-                           varweight=0.5, eta0=eta0, etamap=etamap.no)
-    c01 <- loglikelihoodfn(theta=Lout$par-Lout$par,
-                           xsim=xsim,
-                           xsim.obs=xsim.obs,
-                           varweight=0.5, eta0=eta0, etamap=etamap.no)
-    #
-    # This is the log-likelihood calc from init=0
-    #
-    mcmcloglik <- -abs(c0 - c01)
-    
-    loglikelihood <- Lout$value
-    
-    #
-    # Use the psuedo-likelihood as a base
-    #
-    iteration <- Lout$counts[1]
-    #
-    names(theta) <- names(init)
-    
+
     # Output results as ergm-class object
-    return(structure(list(coefficients=theta, sample=statsmatrices, sample.obs=statsmatrices.obs, 
-                          iterations=iteration, #mcmcloglik=mcmcloglik,
-                          MCMCtheta=init, 
-                          loglikelihood=loglikelihood, gradient=gradient, hessian=Lout$hessian,
-                          covar=covar, failure=FALSE,
-                          mc.cov=mc.cov #, #acf=mcmcacf,
-                          #fullsample=statsmatrix.all
-                          ),
-                        class="ergm"))
+    return(structure(list(
+      coefficients = setNames(theta, names(init)),
+      sample = statsmatrices, sample.obs = statsmatrices.obs,
+      iterations = Lout$counts[1], MCMCtheta = init,
+      loglikelihood = Lout$value, gradient = gradient, hessian = Lout$hessian,
+      covar = covar, failure = FALSE, mc.cov = mc.cov
+    ), class = "ergm"))
   }
 }
