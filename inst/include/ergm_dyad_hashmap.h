@@ -34,7 +34,7 @@ static inline unsigned int kh_scramble_int(unsigned int a){
 }
 /* #define kh_vertexvertex_hash_func(key) (khint32_t)(kh_scramble_int(ROT_INT((key).tail,16) ^ (key).head)) */
 #define kh_vertexvertex_hash_func(key) (khint32_t) (((key).tail<(key).head || h->directed) ? ((key).tail + (key).head*0xd7d4eb2du) : ((key).head + (key).tail*0xd7d4eb2du))
-#define kh_vertexvertex_hash_equal(a,b) (a.tail==b.tail && a.head==b.head || (!h->directed && a.tail==b.head && a.head==b.tail))
+#define kh_vertexvertex_hash_equal(a,b) ((a.tail==b.tail && a.head==b.head) || (!h->directed && a.tail==b.head && a.head==b.tail))
 
 /* Predefined khash type for mapping dyads onto unsigned ints. */
 KHASH_INIT(DyadMapUInt, TailHead, unsigned int, TRUE, kh_vertexvertex_hash_func, kh_vertexvertex_hash_equal, Rboolean directed;)
