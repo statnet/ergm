@@ -295,6 +295,10 @@
       }
 
       \item{
+        \strong{IMPORTANT:} In curved terms such as \code{\link{gwesp}} (with \code{fixed=FALSE}), the decay parameter in the term is now ignored; the initial decay parameter must be specified as a part of \code{\link{control.ergm}(init=...)}. Note that because MPLE for curved ERGMs has been implemented, it is optional in the first place.
+      }
+
+      \item{
         \code{\link{summary_formula}} family of functions now dispatch based on the \code{basis=} argument if present, with the formula being allowed to be one-sided.
       }
 
