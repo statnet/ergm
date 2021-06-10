@@ -86,7 +86,7 @@ ergm_model <- function(formula, nw=NULL, silent=FALSE, ..., term.options=list(),
     }else model$term.skipped <- c(model$term.skipped, FALSE)
 
     # Now it is necessary to add the output to the model formula
-    model <- updatemodel.ErgmTerm(model, outlist, offset=offset, offset.decorate=offset.decorate)
+    model <- updatemodel.ErgmTerm(model, outlist, offset=offset, offset.decorate=offset.decorate, silent=silent)
   }
 
   model <- ergm.auxstorage(model, nw, term.options=term.options, ..., extra.aux=extra.aux)
@@ -161,18 +161,23 @@ call.ErgmTerm <- function(term, env, nw, ..., term.options=list()){
 #'
 #' @param model the pre-existing model, as created by [`ergm_model`]
 #' @param outlist the list describing new term, as returned by `InitErgmTerm.*()`
+#' @param offset a vector indicating which parameters in the term should be offsets
+#' @param offset.decorate a flag indicating whether offset parameters should be enclosed in `"offset()"`
+#' @param silent whether to suppress messages
 #'
 #' @return The updated model (with the obvious changes seen below) if
 #'   `outlist!=NULL`, else the original model. (Note that this return
 #'   is necessary, since terms may be eliminated by giving only 0
 #'   statistics, and consequently returning a NULL `outlist`.)
 #' @noRd
-updatemodel.ErgmTerm <- function(model, outlist, offset=FALSE, offset.decorate=TRUE) {
+updatemodel.ErgmTerm <- function(model, outlist, offset=FALSE, offset.decorate=TRUE, silent=FALSE) {
   if (!is.null(outlist)) { # Allow for no change if outlist==NULL
     # Update global model properties.
     nstats <- length(outlist$coef.names)
     npars <- NVL3(outlist$params, length(.), nstats)
 
+    if(!silent && npars == 0 && ((is.numeric(offset) && length(offset)) || (is.logical(offset) && any(offset))))
+      message(sQuote("offset()"), " decorator used on term ",sQuote(deparse(outlist$call)), " with no free parameters is meaningless and will be ignored.")
     if(is.numeric(offset)) offset <- unwhich(offset, npars)
     outlist$offset <- offset <- rep(offset, length.out=npars) | NVL(outlist$offset,FALSE)
 
