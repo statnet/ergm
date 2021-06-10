@@ -16,6 +16,8 @@
 
 \alias{B}
 \alias{Curve}
+\alias{Parametrize}
+\alias{Parametrise}
 \alias{Exp}
 \alias{F}
 \alias{NodematchFilter}
@@ -441,7 +443,7 @@
       preferred, as it is likely to be faster.
     }
 
-    \item{\code{Curve(formula, params, map, gradient=NULL, minpar=-Inf, maxpar=+Inf, cov=NULL)} (binary) (operator), \code{Curve(formula, params, map, gradient=NULL, minpar=-Inf, maxpar=+Inf, cov=NULL)} (valued) (operator)}{\emph{Impose a curved structure on term parameters.}
+    \item{\code{Parametrize(formula, params, map, gradient=NULL, minpar=-Inf, maxpar=+Inf, cov=NULL)} (binary) (operator), \code{Parametrise(formula, params, map, gradient=NULL, minpar=-Inf, maxpar=+Inf, cov=NULL)} (binary) (operator), \code{Curve(formula, params, map, gradient=NULL, minpar=-Inf, maxpar=+Inf, cov=NULL)} (binary) (operator), \code{Parametrize(formula, params, map, gradient=NULL, minpar=-Inf, maxpar=+Inf, cov=NULL)}, \code{Parametrise(formula, params, map, gradient=NULL, minpar=-Inf, maxpar=+Inf, cov=NULL)} \code{Curve(formula, params, map, gradient=NULL, minpar=-Inf, maxpar=+Inf, cov=NULL)} (valued) (operator)}{\emph{Impose a curved structure on term parameters.}
 
       \code{formula} is an arbitrary formula for a linear or curved ERGM. \code{params}, \code{map}, \code{gradient}, \code{minpar}, \code{maxpar}, and \code{cov} are the curved ERGM term API: a named list whose names are the curved parameter names, the mapping from curved to canonical, its gradient function, the minimum and the maximum allowed curved parameter values, and an optional \dQuote{covariate} object.
 
@@ -475,6 +477,7 @@
 
       If the model in \code{formula} is curved, then the outputs of this operator term's \code{map} argument will be used as inputs to the curved terms of the \code{formula} model.
 
+      \code{Curve} is an obsolete alias and may be deprecated and removed in a future release.
     }
 
     \item{\code{Exp(formula)} (binary) (operator), \code{Exp(formula)} (valued) (operator)}{\emph{Exponentiate a network's statistic}:

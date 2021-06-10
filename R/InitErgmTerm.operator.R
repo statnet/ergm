@@ -591,7 +591,7 @@ InitErgmTerm.S <- function(nw, arglist, ...){
 }
 
 
-InitErgmTerm.Curve <- function(nw, arglist,...){
+InitErgmTerm.Parametrise <- InitErgmTerm.Parametrize <- InitErgmTerm.Curve <- function(nw, arglist,...){
   a <- check.ErgmTerm(nw, arglist,
                       varnames = c("formula", "params", "map", "gradient", "minpar", "maxpar", "cov"),
                       vartypes = c("formula", "character,list", "function,numeric,character", "function,matrix,character", "numeric", "numeric", ""),
