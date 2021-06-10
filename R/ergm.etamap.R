@@ -86,7 +86,11 @@ ergm.etamap <- function(model) {
       etamap$maxtheta <- c(etamap$maxtheta,
                            rep(NVL(mti$maxpar, +Inf), length.out=k))
 
-      etamap$offsetmap <- c(etamap$offsetmap, rep(all(offset),j)) # In a curved model, only set canonical parameters as offsets if *all* model parameters are offsets.
+      # In a curved model, only set canonical parameters as offsets if
+      # *all* model parameters are offsets. offset == logical(0) here
+      # implies a curved term with no free parameters, so offset() is
+      # meaningless and we overrule all(logical(0)) == TRUE.
+      etamap$offsetmap <- c(etamap$offsetmap, rep(length(offset) && all(offset), j))
     }
   }
   etamap$etalength <- to-1L
