@@ -23,7 +23,7 @@ ergm_SAN_slave(
 \item{tau}{a scalar; temperature to use; higher temperature means more proposals that "worsen" the statistics are accepted.}
 
 \item{control}{A list of control parameters for algorithm tuning,
-typically constructed with \code{\link[=control.san()]{control.san()()}}. Its documentation
+typically constructed with \code{\link[=control.san]{control.san()}}. Its documentation
 gives the the list of recognized control parameters and their
 meaning. The more generic utility \code{\link[=snctrl]{snctrl()}} (StatNet ConTRoL)
 also provides argument completion for the available control
@@ -34,6 +34,8 @@ progress and diagnostic information to be printed. \code{FALSE}/\code{0}
 produces minimal output, wit higher values producing more
 detail. Note that very high values (5+) may significantly slow
 down processing.}
+
+\item{...}{additional arguments, currently unused.}
 
 \item{nsteps}{an integer; number of SAN proposals.}
 
@@ -47,3 +49,4 @@ user. The \code{ergm_SAN_slave} function samples networks and
 network statistics using a simulated annealing (SAN) algorithm via
 \code{SAN_wrapper}.
 }
+\keyword{internal}

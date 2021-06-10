@@ -105,7 +105,7 @@ san.default <- function(object,...)
 #' @param only.last if `TRUE`, only return the last network generated;
 #'   otherwise, return a [`network.list`] with `nsim` networks.
 #'
-#' @templateVar mycontrol control.san()
+#' @templateVar mycontrol control.san
 #' @template control
 #' @template verbose
 #'
@@ -422,15 +422,17 @@ san.ergm <- function(object, formula=object$formula,
 #' 
 #' @param state an [`ergm_state`] representing the sampler state, containing information about the network, the model, the proposal, and current statistics.
 #'
-#' @templateVar mycontrol control.san()
+#' @templateVar mycontrol control.san
 #' @param tau a scalar; temperature to use; higher temperature means more proposals that "worsen" the statistics are accepted.
 #' @param nsteps an integer; number of SAN proposals.
 #' @param samplesize an integer; number of network statistics to return.
 #' @param statindices,offsetindices,offsets specification for offset handling; see [san.formula()] implementation.
 #' @template control
 #' @template verbose
+#' @param ... additional arguments, currently unused.
+#' @keywords internal
 #' @export
-ergm_SAN_slave <- function(state, tau,control,verbose,..., nsteps=NULL, samplesize=NULL, statindices=NULL, offsetindices=NULL, offsets=NULL){
+ergm_SAN_slave <- function(state, tau,control,verbose, ..., nsteps=NULL, samplesize=NULL, statindices=NULL, offsetindices=NULL, offsets=NULL){
   on.exit(ergm_Cstate_clear())
 
   state$proposal$flags$SAN <- TRUE
