@@ -64,10 +64,66 @@ ergm_mk_std_op_namewrap <- function(opname, opargs=NULL){
   else function(subterms, subargs=NULL) NVL3(subargs, paste0(opname, "(", paste0(opargs, collapse=","), ",",., ")~", subterms), paste0(opname, "(", paste(opargs, collapse=","), ")~", subterms))
 }
 
+#' Extended states for submodels
+#'
+#' @description `ergm_propagate_ext.encode()` is a convenience
+#'   function to propagate the extended state encoder to submodels if
+#'   they have any.
+#'
+#' @param submodel the [`ergm_model`] to which the encoders should be
+#'   propagated.
+#'
+#' @note `ergm_propagate_ext.encode` should only be used when the
+#'   operator term does not modify the network and provides an
+#'   `x_function` on the C level that does appropriate propagation and
+#'   handles any return values.
+#'
+#' @return `ergm_propagate_ext.encode` returns a list with one
+#'   element, `ext.encode` containing a function that follows the
+#'   extended state encoder API and simply returns a list of the
+#'   subterms extended state encodings.
+#'
+#' @examples
+#' \dontrun{
+#' # Typical usage:
+#' InitErgmTerm.ABC <- function(nw, arglist, ...){
+#'   [... implementation ...]
+#'   m <- ergm_model([... etc. ...])
+#'   c(list(name = "abc", inputs=1:3, submodel=m),
+#'     ergm_propagate_ext.encode(m),
+#'     wrap.ergm_model(nw, m)
+#'   )
+#' }
+#' }
+#'
+#' @keywords internal
+#' @export
+ergm_propagate_ext.encode <- function(submodel) {
+  has_ext <- !sapply(lapply(submodel$terms, `[[`, "ext.encode"), is.null)
+
+  if (any(has_ext)) list(ext.encode = function(el, nw0)
+    lapply(submodel$terms, function(trm) {
+      if (!is.null(trm$ext.encode)) trm$ext.encode(el=el, nw0=nw0)
+    }))
+}
+
+#' @rdname ergm_propagate_ext.encode
+#'
+#' @description `ergm_no_ext.encode()` checks if a submodel contains
+#'   terms that use extended states and stops with an informative
+#'   error message if any do.
+#'
+#' @keywords internal
+#' @export
+ergm_no_ext.encode <- function(submodel) {
+  has_ext <- !sapply(lapply(submodel$terms, `[[`, "ext.encode"), is.null)
+  ext_names <- sapply(lapply(submodel$terms[has_ext], `[[`, "call"), deparse, width.cutoff=500)
+  if (any(has_ext)) ergm_Init_abort(paste0("This operator term is incompatible with subterms ", paste.and(sQuote(ext_names)), " due to their use of the extended state API. This limitation may be removed in the future."))
+}
+
 ## Creates a submodel that does exactly what the model terms passed to
 ## it would have done.
 ##
-
 InitErgmTerm.Passthrough <- function(nw, arglist, ...){
   a <- check.ErgmTerm(nw, arglist,
                       varnames = c("formula"),
@@ -78,6 +134,7 @@ InitErgmTerm.Passthrough <- function(nw, arglist, ...){
   m <- ergm_model(a$formula, nw, ..., offset.decorate=FALSE)
   
   c(list(name="passthrough_term", submodel=m),
+    ergm_propagate_ext.encode(m),
     wrap.ergm_model(m, nw, ergm_mk_std_op_namewrap('Passthrough')))
 }
 
@@ -118,6 +175,7 @@ InitErgmTerm.Label <- function(nw, arglist, ...){
   }
 
   c(list(name="passthrough_term", submodel=m),
+    ergm_propagate_ext.encode(m),
     wrap.ergm_model(m, nw, renamer))
 }
 
@@ -131,6 +189,7 @@ InitErgmTerm..submodel <- function(nw, arglist, ...){
                       required = c(TRUE))
 
   m <- ergm_model(a$formula, nw, ..., offset.decorate=FALSE)
+  ergm_no_ext.encode(m)
 
   c(list(name="_submodel_term", submodel=m),
     wrap.ergm_model(m, nw, NULL))
@@ -146,6 +205,7 @@ InitErgmTerm.submodel.test <- function(nw, arglist, ...){
                       required = c(TRUE))
 
   m <- ergm_model(a$formula, nw, ..., offset.decorate=FALSE)
+  ergm_no_ext.encode(m)
 
   af <- a$formula
   c(list(name="submodel_test_term", auxiliaries = trim_env(~.submodel(af),"af")),
@@ -165,8 +225,9 @@ InitErgmTerm..summary <- function(nw, arglist, ...){
 
   m <- ergm_model(a$formula, nw, ..., offset.decorate=FALSE)
 
-  list(name="_summary_term", submodel=m,
-       wrap.ergm_model(m, nw, NULL))
+  c(list(name="_summary_term", submodel=m),
+    ergm_propagate_ext.encode(m),
+    wrap.ergm_model(m, nw, NULL))
 }
 
 
@@ -198,8 +259,10 @@ InitErgmTerm..submodel_and_summary <- function(nw, arglist, ...){
                       required = c(TRUE))
 
   m <- if(is(a$formula, "formula")) ergm_model(a$formula, nw, ..., offset.decorate=FALSE) else a$formula
+  ergm_no_ext.encode(m)
 
-  list(name="_submodel_and_summary_term", coef.names = c(), submodel=m, dependence=!is.dyad.independent(m))
+  c(list(name="_submodel_and_summary_term", coef.names = c(), submodel=m),
+    wrap.ergm_model(m, nw, NULL))
 }
 
 InitErgmTerm.F <- function(nw, arglist, ...){
@@ -211,10 +274,11 @@ InitErgmTerm.F <- function(nw, arglist, ...){
 
   filter <- a$filter
   m <- ergm_model(a$formula, nw, ..., offset.decorate=FALSE)
-  
+  ergm_no_ext.encode(m)
+
   filter.name <- despace(deparse(ult(filter)))
   auxiliaries <- trim_env(~.filter.formula.net(filter), "filter")
-  
+
   c(list(name="on_filter_formula_net",
          submodel = m,
          auxiliaries=auxiliaries),
@@ -229,6 +293,7 @@ InitErgmTerm..filter.formula.net <- function(nw, arglist, ...){
                       required = c(TRUE))
 
   m <- ergm_model(a$formula, nw, ..., offset.decorate=FALSE)
+  ergm_no_ext.encode(m)
 
   if(!is.dyad.independent(m) || nparam(m)!=1) ergm_Init_abort("The filter test formula must be dyad-independent and have exactly one statistc.")
 
@@ -270,6 +335,7 @@ InitErgmTerm.Offset <- function(nw, arglist, ...){
   names(params) <- parnames[!selection]
 
   c(list(name="passthrough_term", submodel=m),
+    ergm_propagate_ext.encode(m),
     modifyList(wrap.ergm_model(m, nw),
                list(coef.names = coefnames,
                     params=params,
@@ -438,6 +504,7 @@ InitErgmTerm.Symmetrize <- function(nw, arglist, ...){
 
   if(is.directed(nw)) nw <- symmetrize(nw, rule)
   m <- ergm_model(a$formula, nw, ..., offset.decorate=FALSE)
+  ergm_no_ext.encode(m)
 
   auxiliaries <- trim_env(~.undir.net(rule), "rule")
   
@@ -536,7 +603,13 @@ InitErgmTerm.Sum <- function(nw, arglist,...){
 
   if(any(unlist(map(wms, "offsettheta"))) || any(unlist(map(wms, "offsetmap")))) ergm_Init_warn(paste0("Sum operator does not propagate offset() decorators."))
   
-  c(list(name="Sum", coef.names = coef.names, inputs=inputs, submodels=ms, emptynwstats=gs, dependence=dependence),
+  c(list(name="Sum", coef.names = coef.names, inputs=inputs, submodels=ms, emptynwstats=gs, dependence=dependence,
+         ext.encode = if(ms %>% map("terms") %>% unlist(FALSE) %>% map("ext.encode") %>% compact %>% length)
+                        function(el, nw0)
+                          lapply(ms, function(submodel)
+                            lapply(submodel$terms, function(trm){
+                              if(!is.null(trm$ext.encode)) trm$ext.encode(el=el, nw0=nw0)
+                            }))),
     wms[[1L]][c("map", "gradient", "params", "minpar", "maxpar")])
 }
 
@@ -598,6 +671,7 @@ InitErgmTerm.S <- function(nw, arglist, ...){
   if(NVL(snw%n%"bipartite", FALSE)) snw %n% "directed" <- FALSE # Need to do this because snw is a "directed bipartite" network. I hope it doesn't break anything.
 
   m <- ergm_model(a$formula, snw, ..., offset.decorate=FALSE)
+  ergm_no_ext.encode(m)
 
   auxiliaries <- trim_env(~.subgraph.net(tailsel, headsel), c("tailsel","headsel"))
 
@@ -684,7 +758,8 @@ InitErgmTerm.Parametrise <- InitErgmTerm.Parametrize <- InitErgmTerm.Curve <- fu
   wm$maxpar <- maxpar
   wm$offset <- logical(q)
 
-  c(list(name="passthrough_term", submodel=m), wm)
+  c(list(name="passthrough_term", submodel=m), wm,
+    ergm_propagate_ext.encode(m))
 }
 
 InitErgmTerm.Log <- function(nw, arglist, ...){
@@ -695,6 +770,7 @@ InitErgmTerm.Log <- function(nw, arglist, ...){
                       required = c(TRUE, FALSE))
 
   m <- ergm_model(a$formula, nw, ..., offset.decorate=FALSE)
+  ergm_no_ext.encode(m)
   log0 <- rep_len(a$log0, nparam(m, canonical=TRUE))
 
   wm <- wrap.ergm_model(m, nw, ergm_mk_std_op_namewrap('Log'))
@@ -712,6 +788,7 @@ InitErgmTerm.Exp <- function(nw, arglist, ...){
                       required = c(TRUE))
 
   m <- ergm_model(a$formula, nw, ..., offset.decorate=FALSE)
+  ergm_no_ext.encode(m)
 
   wm <- wrap.ergm_model(m, nw, ergm_mk_std_op_namewrap('Exp'))
   wm$emptynwstats <- wm$emptynwstats %>% NVL(numeric(nparam(m, canonical=TRUE))) %>% exp

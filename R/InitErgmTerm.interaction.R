@@ -39,7 +39,9 @@ check_interact_term <- function(m, dependent_action){
   wm <- wrap.ergm_model(m, nw, NULL)
   if(any(wm$offsettheta) || any(wm$offsetmap)) ergm_Init_warn(paste0("The interaction operator does not propagate offset() decorators."))
 
-  list(name="interact", coef.names = cn, inputs=inputs, submodel=m, dependence=wm$dependence)
+  c(list(name="interact", coef.names = cn, inputs=inputs, submodel=m, dependence=wm$dependence),
+    ergm_propagate_ext.encode(m))
+
 }
 
 ## This will always be passed with two arguments in arglist, which
@@ -72,5 +74,6 @@ check_interact_term <- function(m, dependent_action){
   wm <- wrap.ergm_model(m, nw, NULL)
   if(any(wm$offsettheta) || any(wm$offsetmap)) ergm_Init_warn(paste0("The interaction operator does not propagate offset() decorators."))
 
-  list(name="main_interact", coef.names = cn, inputs=inputs, submodel=m, dependence=wm$dependence)
+  c(list(name="main_interact", coef.names = cn, inputs=inputs, submodel=m, dependence=wm$dependence),
+    ergm_propagate_ext.encode(m))
 }

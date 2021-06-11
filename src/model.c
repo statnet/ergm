@@ -273,7 +273,6 @@ Model* ModelInitialize(SEXP mR, SEXP ext_state, Network *nwp, Rboolean noinit_s)
           error("Error in ModelInitialize: term with functions %s::%s is declared to have no statistics but does not appear to have an updater function, so does not do anything. Memory has not been deallocated, so restart R sometime soon.\n",sn,fn+2);
       }
   
-
       fn[0]='w';
       thisterm->w_func =
 	(SEXP (*)(ModelTerm*, Network*)) R_FindSymbol(fn,sn,NULL);
@@ -281,6 +280,8 @@ Model* ModelInitialize(SEXP mR, SEXP ext_state, Network *nwp, Rboolean noinit_s)
       fn[0]='x';
       thisterm->x_func =
 	(void (*)(unsigned int type, void *data, ModelTerm*, Network*)) R_FindSymbol(fn,sn,NULL);
+
+      if(!ext_state && (thisterm->w_func)) error("Error in ModelInitialize: not provided with extended state, but model terms with functions %s::%s requires extended state. This should normally be caught sooner. This limitation may be removed in the future.  Memory has not been deallocated, so restart R sometime soon.\n",sn,fn+2);
 
       /*Clean up by freeing fn*/
       Free(fn);

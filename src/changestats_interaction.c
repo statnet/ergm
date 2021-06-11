@@ -10,8 +10,9 @@ I_CHANGESTAT_FN(i_interact){
 
   store->n_stats_1 = *(inputs++);
   store->n_stats_2 = *(inputs++);
-  store->m = ModelInitialize(getListElement(mtp->R, "submodel"), NULL,  nwp, FALSE);
+  store->m = ModelInitialize(getListElement(mtp->R, "submodel"), mtp->ext_state,  nwp, FALSE);
   DELETE_IF_UNUSED_IN_SUBMODEL(u_func, store->m);
+  DELETE_IF_UNUSED_IN_SUBMODEL(x_func, store->m);
   DELETE_IF_UNUSED_IN_SUBMODEL(z_func, store->m);
 }
 
@@ -29,6 +30,15 @@ C_CHANGESTAT_FN(c_interact){
       CHANGE_STAT[pos++] = m->workspace[i]*w2[j]*change;
     }
   }
+}
+
+X_CHANGESTAT_FN(x_interact){
+  GET_STORAGE(StoreModelAnd2Stats, store);
+  Model *m = store->m;
+
+  // Whatever this returns, it can't be associated with a specific
+  // dyad, so we can at best ignore it.
+  PROPAGATE_X_SIGNAL(nwp, m);
 }
 
 Z_CHANGESTAT_FN(z_interact){
@@ -60,8 +70,9 @@ I_CHANGESTAT_FN(i_main_interact){
 
   store->n_stats_1 = *(inputs++);
   store->n_stats_2 = *(inputs++);
-  store->m = ModelInitialize(getListElement(mtp->R, "submodel"), NULL,  nwp, FALSE);
+  store->m = ModelInitialize(getListElement(mtp->R, "submodel"), mtp->ext_state,  nwp, FALSE);
   DELETE_IF_UNUSED_IN_SUBMODEL(u_func, store->m);
+  DELETE_IF_UNUSED_IN_SUBMODEL(x_func, store->m);
   DELETE_IF_UNUSED_IN_SUBMODEL(z_func, store->m);
 }
 
@@ -86,6 +97,15 @@ C_CHANGESTAT_FN(c_main_interact){
       CHANGE_STAT[pos++] = m->workspace[i]*w2[j] * change;
     }
   }
+}
+
+X_CHANGESTAT_FN(x_main_interact){
+  GET_STORAGE(StoreModelAnd2Stats, store);
+  Model *m = store->m;
+
+  // Whatever this returns, it can't be associated with a specific
+  // dyad, so we can at best ignore it.
+  PROPAGATE_X_SIGNAL(nwp, m);
 }
 
 Z_CHANGESTAT_FN(z_main_interact){

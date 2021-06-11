@@ -6,10 +6,11 @@
 
 WtI_CHANGESTAT_FN(i_wtpassthrough_term){
   // No need to allocate it: we are only storing a pointer to a model.
-  WtModel *m = STORAGE = WtModelInitialize(getListElement(mtp->R, "submodel"), NULL,  nwp, FALSE);
+  WtModel *m = STORAGE = WtModelInitialize(getListElement(mtp->R, "submodel"), mtp->ext_state,  nwp, FALSE);
 
   WtSELECT_C_OR_D_BASED_ON_SUBMODEL(m);
   WtDELETE_IF_UNUSED_IN_SUBMODEL(u_func, m);
+  WtDELETE_IF_UNUSED_IN_SUBMODEL(x_func, m);
   WtDELETE_IF_UNUSED_IN_SUBMODEL(z_func, m);
 }
 
@@ -36,6 +37,8 @@ WtZ_CHANGESTAT_FN(z_wtpassthrough_term){
 
   memcpy(CHANGE_STAT, m->workspace, N_CHANGE_STATS*sizeof(double));
 }
+
+WtX_CHANGESTAT_PROPAGATE_FN(x_wtpassthrough_term, GET_STORAGE(WtModel, m), m);
 
 WtF_CHANGESTAT_FN(f_wtpassthrough_term){
   GET_STORAGE(WtModel, m);
@@ -317,9 +320,10 @@ WtI_CHANGESTAT_FN(i_wtSum){
 
   SEXP submodels = getListElement(mtp->R, "submodels");
   for(unsigned int i=0; i<nms; i++){
-    ms[i] = WtModelInitialize(VECTOR_ELT(submodels,i), NULL, nwp, FALSE);
+    ms[i] = WtModelInitialize(VECTOR_ELT(submodels,i), isNULL(mtp->ext_state) ? NULL : VECTOR_ELT(mtp->ext_state,i), nwp, FALSE);
   }
   WtDELETE_IF_UNUSED_IN_SUBMODELS(u_func, ms, nms);
+  WtDELETE_IF_UNUSED_IN_SUBMODELS(x_func, ms, nms);
   WtDELETE_IF_UNUSED_IN_SUBMODELS(z_func, ms, nms);
 }
 
@@ -349,6 +353,22 @@ WtZ_CHANGESTAT_FN(z_wtSum){
   for(unsigned int i=0; i<nms; i++){
     WtModel *m = ms[i];
     WtZStats(nwp, m, FALSE);
+    for(unsigned int j=0; j<m->n_stats; j++)
+      for(unsigned int k=0; k<N_CHANGE_STATS; k++)
+	CHANGE_STAT[k] += m->workspace[j]* *(wts++);
+  }
+}
+
+WtX_CHANGESTAT_FN(x_wtSum){
+  double *inputs = INPUT_PARAM;
+  GET_STORAGE(WtModel*, ms);
+  unsigned int nms = *(inputs++);
+  inputs++; //  Skip total length of weight matrices.
+  double *wts = inputs;
+
+  for(unsigned int i=0; i<nms; i++){
+    WtModel *m = ms[i];
+    WtPROPAGATE_X_SIGNAL_INTO(nwp, m, m->workspace);
     for(unsigned int j=0; j<m->n_stats; j++)
       for(unsigned int k=0; k<N_CHANGE_STATS; k++)
 	CHANGE_STAT[k] += m->workspace[j]* *(wts++);

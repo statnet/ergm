@@ -16,6 +16,7 @@ InitWtErgmTerm.B <- function(nw, arglist, ...){
   nwb <- nw
   nwb %ergmlhs% "response" <- NULL
   m <- ergm_model(a$formula, nwb, ..., offset.decorate=FALSE)
+  ergm_no_ext.encode(m)
 
   if(!is.dyad.independent(m) && form=="sum") stop("Only dyad-independent binary terms can be imported with form 'sum'.")
   
@@ -64,6 +65,7 @@ InitWtErgmTerm..binary.formula.net <- function(nw, arglist, ...){
   if(gs!=0) stop("At this time, the binary test term must have the property that its dyadwise components are 0 for 0-valued relations. This limitation may be removed in the future.")
   
   c(list(name="_binary_formula_net", submodel=m, depenence=FALSE),
+    ergm_propagate_ext.encode(m),
     wrap.ergm_model(m, nw, NULL))
 }
 
