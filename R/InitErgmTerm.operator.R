@@ -451,7 +451,7 @@ InitErgmTerm.Symmetrize <- function(nw, arglist, ...){
 InitErgmTerm.Sum <- function(nw, arglist,...){
   a <- check.ErgmTerm(nw, arglist,
                       varnames = c("formulas", "label"),
-                      vartypes = c("list,formula", "character"),
+                      vartypes = c("list,formula", "character,function"),
                       defaultvalues = list(NULL, NULL),
                       required = c(TRUE, TRUE))
 
@@ -491,13 +491,32 @@ InitErgmTerm.Sum <- function(nw, arglist,...){
   inputs <- unlist(wl%>%map(t))
   inputs <- c(nf, length(inputs), inputs)
 
-  label <- if(length(a$label)==1L) paste0(a$label, if(nparam>1L)seq_len(nparam)) else a$label
-  coef.names <- ergm_mk_std_op_namewrap("Sum")(label)
+
+  if(is.function(a$label)){
+    cns <- lapply(ms, param_names, canonical=TRUE)
+    if(length(cns) == 1) cns <- cns[[1]]
+    cn <- a$label(cns)
+  }else cn <- a$label
+  cn.asis <- inherits(cn, "AsIs")
+
+  cn <- if(length(cn)==1L && nparam>1L) paste0(cn, seq_len(nparam)) else cn
+  if(length(cn) != nparam) ergm_Init_abort(paste0(sQuote("label="), " argument for statistics has or results in length ", length(cn), ", should be ", nparam, "."))
+  coef.names <- if(cn.asis) cn else ergm_mk_std_op_namewrap("Sum")(cn)
 
   wms <- lapply(ms, wrap.ergm_model, nw)
   if(is.curved(ms[[1L]])){
-    label <- if(length(a$label)==1L) paste0(a$label, if(length(wms[[1L]]$params)>1L)seq_along(wms[[1L]]$params)) else attr(a$label,"curved")
-    names(wms[[1L]]$params) <- ergm_mk_std_op_namewrap("Sum")(label)
+    ncparam <- length(wms[[1L]]$params)
+
+    if(is.function(a$label)){
+      pns <- lapply(ms, param_names, canonical=TRUE)
+      if(length(cns) == 1) pns <- pns[[1]]
+      pn <- a$label(pns)
+    }else pn <- NVL(attr(a$label,"curved"), a$label)
+    pn.asis <- inherits(pn, "AsIs")
+
+    pn <- if(length(pn)==1L && ncparam>1L) paste0(pn, seq_along(ncparam)) else pn
+    if(length(pn) != ncparam) ergm_Init_abort(paste0(sQuote("label="), " argument for curved parameters has or results in length ", length(pn), ", should be ", ncparam, "."))
+    names(wms[[1L]]$params) <- if(pn.asis) pn else ergm_mk_std_op_namewrap("Sum")(pn)
   }
 
   gss <- map(wms, "emptynwstats")
@@ -703,7 +722,7 @@ InitErgmTerm.Exp <- function(nw, arglist, ...){
 InitErgmTerm.Prod <- function(nw, arglist, ..., env=baseenv()){
   a <- check.ErgmTerm(nw, arglist,
                       varnames = c("formulas", "label"),
-                      vartypes = c("list,formula", "character"),
+                      vartypes = c("list,formula", "character,function"),
                       defaultvalues = list(NULL, NULL),
                       required = c(TRUE, TRUE))
   formulas <- if(is(a$formulas, "formula")) list(a$formulas) else a$formulas
