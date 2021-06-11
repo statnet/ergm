@@ -61,7 +61,13 @@
 #' \email{morrism@@u.washington.edu}
 #' 
 #' Maintainer: Pavel N. Krivitsky \email{pavel@@statnet.org}
-#' @references Admiraal R, Handcock MS (2007).  \pkg{networksis}: Simulate
+#' @references
+#'
+#' Krivitsky P. N., Hunter D. R., Morris M., Klumb
+#' C. (2021). \dQuote{ergm 4.0: New features and improvements.}
+#' arXiv:2106.04997. \url{https://arxiv.org/abs/2106.04997}
+#'
+#' Admiraal R, Handcock MS (2007).  \pkg{networksis}: Simulate
 #' bipartite graphs with fixed marginals through sequential importance
 #' sampling.  Statnet Project, Seattle, WA.  Version 1,
 #' \url{https://statnet.org}.

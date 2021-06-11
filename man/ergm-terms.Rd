@@ -2272,6 +2272,8 @@
 }
 \references{
   \itemize{
+    \item Krivitsky P. N., Hunter D. R., Morris M., Klumb C. (2021). \dQuote{ergm 4.0: New features and improvements.}  arXiv:2106.04997. \url{https://arxiv.org/abs/2106.04997}
+
     \item Bomiriya, R. P, Bansal, S., and Hunter, D. R. (2014).  Modeling
     Homophily in ERGMs for Bipartite Networks.  Submitted.
 
