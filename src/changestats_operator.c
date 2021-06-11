@@ -7,10 +7,10 @@
 
 I_CHANGESTAT_FN(i_passthrough_term){
   // No need to allocate it: we are only storing a pointer to a model.
-  Model *m = STORAGE = ModelInitialize(getListElement(mtp->R, "submodel"), NULL,  nwp, FALSE);
+  Model *m = STORAGE = ModelInitialize(getListElement(mtp->R, "submodel"), mtp->ext_state,  nwp, FALSE);
 
   SELECT_C_OR_D_BASED_ON_SUBMODEL(m);
-  DELETE_IF_UNUSED_IN_SUBMODEL(u_func, m);
+  DELETE_IF_UNUSED_IN_SUBMODEL(x_func, m);
   DELETE_IF_UNUSED_IN_SUBMODEL(z_func, m);
 }
 
@@ -30,13 +30,14 @@ C_CHANGESTAT_FN(c_passthrough_term){
   memcpy(CHANGE_STAT, m->workspace, N_CHANGE_STATS*sizeof(double));
 }
 
+X_CHANGESTAT_PROPAGATE_FN(x_passthrough_term, GET_STORAGE(Model, m), m);
+
 Z_CHANGESTAT_FN(z_passthrough_term){
   GET_STORAGE(Model, m);
 
   ZStats(nwp, m, FALSE);
   memcpy(CHANGE_STAT, m->workspace, N_CHANGE_STATS*sizeof(double));
 }
-
 
 F_CHANGESTAT_FN(f_passthrough_term){
   GET_STORAGE(Model, m);
@@ -51,7 +52,6 @@ F_CHANGESTAT_FN(f_passthrough_term){
 I_CHANGESTAT_FN(i__submodel_term){
   // No need to allocate it: we are only storing a pointer to a model.
   Model *m = AUX_STORAGE = ModelInitialize(getListElement(mtp->R, "submodel"), NULL,  nwp, FALSE);
-  DELETE_IF_UNUSED_IN_SUBMODEL(u_func, m);
 }
 
 F_CHANGESTAT_FN(f__submodel_term){
@@ -79,13 +79,20 @@ D_CHANGESTAT_FN(d_submodel_test_term){
 I_CHANGESTAT_FN(i__summary_term){
   GET_STORAGE(Model, m); // No need to allocate, since we just need a pointer.
   // Unpack the submodel.
-  STORAGE = m = ModelInitialize(getListElement(mtp->R, "submodel"), NULL,  nwp, FALSE);
+  STORAGE = m = ModelInitialize(getListElement(mtp->R, "submodel"), mtp->ext_state,  nwp, FALSE);
   ALLOC_AUX_STORAGE(m->n_stats, double, stats);
 
   SummStats(0, NULL, NULL, nwp, m);
   memcpy(stats, m->workspace, m->n_stats*sizeof(double));
 
   DELETE_IF_UNUSED_IN_SUBMODEL(z_func, m);
+}
+
+X_CHANGESTAT_FN(x__summary_term){
+  GET_STORAGE(Model, m);
+  GET_AUX_STORAGE(double, stats);
+
+  PROPAGATE_X_SIGNAL_ADDONTO(nwp, m, stats);
 }
 
 U_CHANGESTAT_FN(u__summary_term){
@@ -177,9 +184,9 @@ I_CHANGESTAT_FN(i_Sum){
 
   SEXP submodels = getListElement(mtp->R, "submodels");
   for(unsigned int i=0; i<nms; i++){
-    ms[i] = ModelInitialize(VECTOR_ELT(submodels, i), NULL, nwp, FALSE);
+    ms[i] = ModelInitialize(VECTOR_ELT(submodels, i), isNULL(mtp->ext_state) ? NULL : VECTOR_ELT(mtp->ext_state,i), nwp, FALSE);
   }
-  DELETE_IF_UNUSED_IN_SUBMODELS(u_func, ms, nms);
+  DELETE_IF_UNUSED_IN_SUBMODELS(x_func, ms, nms);
   DELETE_IF_UNUSED_IN_SUBMODELS(z_func, ms, nms);
 }
 
@@ -209,6 +216,22 @@ Z_CHANGESTAT_FN(z_Sum){
   for(unsigned int i=0; i<nms; i++){
     Model *m = ms[i];
     ZStats(nwp, m, FALSE);
+    for(unsigned int j=0; j<m->n_stats; j++)
+      for(unsigned int k=0; k<N_CHANGE_STATS; k++)
+	CHANGE_STAT[k] += m->workspace[j]* *(wts++);
+  }
+}
+
+X_CHANGESTAT_FN(x_Sum){
+  double *inputs = INPUT_PARAM;
+  GET_STORAGE(Model*, ms);
+  unsigned int nms = *(inputs++);
+  inputs++; //  Skip total length of weight matrices.
+  double *wts = inputs;
+
+  for(unsigned int i=0; i<nms; i++){
+    Model *m = ms[i];
+    PROPAGATE_X_SIGNAL_INTO(nwp, m, m->workspace);
     for(unsigned int j=0; j<m->n_stats; j++)
       for(unsigned int k=0; k<N_CHANGE_STATS; k++)
 	CHANGE_STAT[k] += m->workspace[j]* *(wts++);

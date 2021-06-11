@@ -281,6 +281,8 @@ WtModel* WtModelInitialize (SEXP mR, SEXP ext_state, WtNetwork *nwp, Rboolean no
       thisterm->x_func =
 	(void (*)(unsigned int type, void *data, WtModelTerm*, WtNetwork*)) R_FindSymbol(fn,sn,NULL);
 
+      if(!ext_state && (thisterm->w_func)) error("Error in ModelInitialize: not provided with extended state, but model terms with functions %s::%s requires extended state. This should normally be caught sooner. This limitation may be removed in the future.  Memory has not been deallocated, so restart R sometime soon.\n",sn,fn+2);
+
       /*Clean up by freeing fn*/
       Free(fn);
   }

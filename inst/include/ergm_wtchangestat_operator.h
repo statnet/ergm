@@ -25,4 +25,24 @@
     if(!used) mtp->what=NULL;                                           \
   }
 
+#define WtPROPAGATE_X_SIGNAL(onwp, m) WtSEND_X_SIGNAL_INTO((onwp), (m), NULL, (m)->workspace, type, data);
+
+#define WtPROPAGATE_X_SIGNAL_INTO(onwp, m, output)                      \
+  {                                                                     \
+    memset(output, 0, (m)->n_stats*sizeof(double));                     \
+    WtSEND_X_SIGNAL_INTO((onwp), (m), NULL, (output), type, data);      \
+  }
+
+#define WtPROPAGATE_X_SIGNAL_ADDONTO(onwp, m, output)                   \
+  {                                                                     \
+    WtPROPAGATE_X_SIGNAL_INTO((onwp), (m), (m)->workspace);             \
+    addonto((output), (m)->workspace, (m)->n_stats);                    \
+  }
+
+#define WtX_CHANGESTAT_PROPAGATE_FN(a, getstorage, getm)                \
+  WtX_CHANGESTAT_FN(a) {                                                \
+    getstorage;                                                         \
+    WtSEND_X_SIGNAL_INTO(nwp, (getm), NULL, CHANGE_STAT, type, data);   \
+  }
+
 #endif // _ERGM_WTCHANGESTAT_OPERATOR_H_

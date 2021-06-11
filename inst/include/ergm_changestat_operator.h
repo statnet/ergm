@@ -25,4 +25,24 @@
     if(!used) mtp->what=NULL;                                           \
   }
 
+#define PROPAGATE_X_SIGNAL(onwp, m) SEND_X_SIGNAL_INTO((onwp), (m), NULL, (m)->workspace, type, data);
+
+#define PROPAGATE_X_SIGNAL_INTO(onwp, m, output)                        \
+  {                                                                     \
+    memset(output, 0, (m)->n_stats*sizeof(double));                     \
+    SEND_X_SIGNAL_INTO((onwp), (m), NULL, (output), type, data);        \
+  }
+
+#define PROPAGATE_X_SIGNAL_ADDONTO(onwp, m, output)                     \
+  {                                                                     \
+    PROPAGATE_X_SIGNAL_INTO((onwp), (m), (m)->workspace);               \
+    addonto((output), (m)->workspace, (m)->n_stats);                    \
+  }
+
+#define X_CHANGESTAT_PROPAGATE_FN(a, getstorage, getm)                  \
+  X_CHANGESTAT_FN(a) {                                                  \
+    getstorage;                                                         \
+    SEND_X_SIGNAL_INTO(nwp, (getm), NULL, CHANGE_STAT, type, data);     \
+  }
+
 #endif // _ERGM_CHANGESTAT_OPERATOR_H_

@@ -532,7 +532,7 @@
       A single formula is also permissible. This can be useful if one
       wishes to, say, multiply together the statistics returned by a formula.
 
-      \code{label} is used to specify the names of the elements of the resulting term product vector. If \code{label} is of length 1, it will be recycled with indices appended.
+      \code{label} is used to specify the names of the elements of the resulting term sum vector. If \code{label} is a character vector of length 1, it will be recycled with indices appended. If \code{label} is a function, \code{formulas}' parameter names are extracted and their list of character vectors is passed \code{label}. (For convenience, if only one formula is given, just a character vector is passed. Lastly, if \code{label} or result of its function call is an \code{\link{AsIs}} object, it is not wrapped in \code{Sum~...}.
 
       Curved models are supported, subject to some limitations. In particular, the \emph{first} model's etamap will be used, overwriting the others. If \code{label} is not of length 1, it should have an \code{\link{attr}}-style attribute \code{"curved"} specifying the names for the curved parameters.
 
@@ -569,7 +569,7 @@
       A single formula is also permissible. This can be useful if one
       wishes to, say, sum up the statistics returned by a formula.
 
-      \code{label} is used to specify the names of the elements of the resulting term sum vector. If \code{label} is of length 1, it will be recycled with indices appended.
+      \code{label} is used to specify the names of the elements of the resulting term sum vector. If \code{label} is a character vector of length 1, it will be recycled with indices appended. If \code{label} is a function, \code{formulas}' parameter names are extracted and their list of character vectors is passed \code{label}. (For convenience, if only one formula is given, just a character vector is passed. Lastly, if \code{label} or result of its function call is an \code{\link{AsIs}} object, it is not wrapped in \code{Sum~...}.
 
       Curved models are supported, subject to some limitations. In particular, the \emph{first} model's etamap will be used, overwriting the others. If \code{label} is not of length 1, it should have an \code{\link{attr}}-style attribute \code{"curved"} specifying the names for the curved parameters.
     }
@@ -2272,6 +2272,8 @@
 }
 \references{
   \itemize{
+    \item Krivitsky P. N., Hunter D. R., Morris M., Klumb C. (2021). \dQuote{ergm 4.0: New features and improvements.}  arXiv:2106.04997. \url{https://arxiv.org/abs/2106.04997}
+
     \item Bomiriya, R. P, Bansal, S., and Hunter, D. R. (2014).  Modeling
     Homophily in ERGMs for Bipartite Networks.  Submitted.
 

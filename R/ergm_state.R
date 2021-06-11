@@ -262,22 +262,35 @@ ERGM_STATE_C_CHANGED <- +1L
 ERGM_STATE_RECONCILED <- 0L
 .reconcile_ergm_state <- function(object){
   if(is.null(object$model) || object$ext.flag==ERGM_STATE_RECONCILED) return(object)
-  if(object$ext.flag==ERGM_STATE_R_CHANGED){ # Extended state changed in R; encode.
-    object$ext.state <- lapply(object$model$terms, function(trm){
-      if(!is.null(trm$ext.encode)) trm$ext.encode(el=object$el, nw0=object$nw0)
-    })
-    object$ext.flag <- ERGM_STATE_RECONCILED
-  }
+
+  reencode <- logical(length(object$model$terms))
   if(object$ext.flag==ERGM_STATE_C_CHANGED){ # Extended state changed in C; decode.
     for(i in seq_along(object$model$terms)){
       trm <- object$model$terms[[i]]
-      if(is.null(trm$ext.decode)) next
+
+      # Dual purpose here: if a term doesn't have a decoder (i.e.,
+      # doesn't update ext.state) skip it---but if it has an encoder,
+      # flag it to run later, because whatever changes to nw0 had been
+      # made, they could have invalidated the other term's ext.state.
+      if(is.null(trm$ext.decode)){
+        reencode[i] <- !is.null(trm$ext.encode)
+        next
+      }
+
       o <- trm$ext.decode(object$ext.state[[i]], object$el, object$nw0)
       object$el <- o$el
       object$nw0 <- o$nw0
     }
-    object$ext.flag <- ERGM_STATE_RECONCILED
-  }
+  }else if(object$ext.flag==ERGM_STATE_R_CHANGED) reencode[] <- TRUE
+
+
+  # Extended state changed in R; encode all.
+
+  object$ext.state[reencode] <- lapply(object$model$terms[reencode], function(trm){
+    if(!is.null(trm$ext.encode)) trm$ext.encode(el=object$el, nw0=object$nw0)
+  })
+
+  object$ext.flag <- ERGM_STATE_RECONCILED
   object
 }
 
