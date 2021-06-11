@@ -10,7 +10,6 @@ I_CHANGESTAT_FN(i_passthrough_term){
   Model *m = STORAGE = ModelInitialize(getListElement(mtp->R, "submodel"), mtp->ext_state,  nwp, FALSE);
 
   SELECT_C_OR_D_BASED_ON_SUBMODEL(m);
-  DELETE_IF_UNUSED_IN_SUBMODEL(u_func, m);
   DELETE_IF_UNUSED_IN_SUBMODEL(x_func, m);
   DELETE_IF_UNUSED_IN_SUBMODEL(z_func, m);
 }
@@ -53,7 +52,6 @@ F_CHANGESTAT_FN(f_passthrough_term){
 I_CHANGESTAT_FN(i__submodel_term){
   // No need to allocate it: we are only storing a pointer to a model.
   Model *m = AUX_STORAGE = ModelInitialize(getListElement(mtp->R, "submodel"), NULL,  nwp, FALSE);
-  DELETE_IF_UNUSED_IN_SUBMODEL(u_func, m);
 }
 
 F_CHANGESTAT_FN(f__submodel_term){
@@ -188,7 +186,6 @@ I_CHANGESTAT_FN(i_Sum){
   for(unsigned int i=0; i<nms; i++){
     ms[i] = ModelInitialize(VECTOR_ELT(submodels, i), isNULL(mtp->ext_state) ? NULL : VECTOR_ELT(mtp->ext_state,i), nwp, FALSE);
   }
-  DELETE_IF_UNUSED_IN_SUBMODELS(u_func, ms, nms);
   DELETE_IF_UNUSED_IN_SUBMODELS(x_func, ms, nms);
   DELETE_IF_UNUSED_IN_SUBMODELS(z_func, ms, nms);
 }
