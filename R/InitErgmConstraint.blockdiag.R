@@ -7,29 +7,6 @@
 #
 #  Copyright 2003-2021 Statnet Commons
 ################################################################################
-#============================================================================
-# This file contains the following 12 functions for initializing empty
-# constraint lists (each prependend with "InitErgmConstraint")
-#         <edges>                   <odegreedist>
-#         <degrees>=<nodedegrees>   <bd>
-#         <degreesTetrad>           <idegrees>
-#         <degreesHexad>            <odegrees>
-#         <degreedist>              <hamming>
-#         <idegreedist>            <observed>
-#============================================================================
-
-##########################################################################################
-# Each of the <InitErgmConstraint.X> functions accepts an existing constraint list, 'conlist',
-# and to this adds an empty constraint list for term X; if any arguments are passed besides
-# 'conlist", execution will halt.
-#
-# --PARAMETERS--
-#   conlist: a list, presumably of constraints for other terms
-#
-# --RETURNED--
-#   conlist: updated to include the initialized empty constraint list for term X
-#
-##########################################################################################
 
 ## FIXME: There is almost certainly a better way to do this.
 .consensus.order <- function(x1, x2){
