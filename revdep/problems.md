@@ -57,13 +57,13 @@ Run `revdep_details(, "Bergm")` for more info
 * GitHub: NA
 * Source code: https://github.com/cran/Blaunet
 * Date/Publication: 2020-05-22 08:10:11 UTC
-* Number of recursive dependencies: 84
+* Number of recursive dependencies: 85
 
 Run `revdep_details(, "Blaunet")` for more info
 
 </details>
 
-## Newly broken
+## In both
 
 *   checking examples ... ERROR
     ```
@@ -90,8 +90,6 @@ Run `revdep_details(, "Blaunet")` for more info
     Execution halted
     ```
 
-## In both
-
 *   checking package dependencies ... NOTE
     ```
     Packages suggested but not available for checking:
@@ -114,13 +112,38 @@ Run `revdep_details(, "Blaunet")` for more info
 * GitHub: https://github.com/tidymodels/broom
 * Source code: https://github.com/cran/broom
 * Date/Publication: 2021-04-05 20:30:02 UTC
-* Number of recursive dependencies: 291
+* Number of recursive dependencies: 295
 
 Run `revdep_details(, "broom")` for more info
 
 </details>
 
 ## In both
+
+*   checking examples ... ERROR
+    ```
+    Running examples in ‘broom-Ex.R’ failed
+    The error most likely occurred in:
+    
+    > ### Name: tidy.epi.2by2
+    > ### Title: Tidy a(n) epi.2by2 object
+    > ### Aliases: tidy.epi.2by2 epiR_tidiers
+    > 
+    > ### ** Examples
+    > 
+    > library(epiR)
+    ...
+      7. │   │ └─base::structure(...)
+      8. │   └─dplyr:::tbl_vars_dispatch(x)
+      9. ├─dplyr::select(., keep)
+     10. ├─dplyr::filter(., !is.na(.$est))
+     11. ├─tidyr::unnest(., cols = s)
+     12. └─tidyr:::unnest.data.frame(., cols = s)
+     13.   └─tidyr::unchop(data, any_of(cols), keep_empty = keep_empty, ptype = ptype)
+     14.     └─vctrs::vec_slice(data, slice_loc)
+     15.       └─(function () ...
+    Execution halted
+    ```
 
 *   checking package dependencies ... NOTE
     ```
@@ -278,6 +301,44 @@ Run `revdep_details(, "ergm")` for more info
         doc    3.6Mb
         help   1.5Mb
         libs   3.9Mb
+    ```
+
+# ergm.count
+
+<details>
+
+* Version: 3.4.0
+* GitHub: https://github.com/statnet/ergm.count
+* Source code: https://github.com/cran/ergm.count
+* Date/Publication: 2019-05-15 07:42:59 UTC
+* Number of recursive dependencies: 26
+
+Run `revdep_details(, "ergm.count")` for more info
+
+</details>
+
+## Newly broken
+
+*   checking tests ...
+    ```
+     ERROR
+    Running the tests in ‘tests/valued_fit.R’ failed.
+    Last 13 lines of output:
+      
+           Null Deviance:   0.00  on 20  degrees of freedom
+       Residual Deviance: -17.07  on 19  degrees of freedom
+       
+      Note that the null model likelihood and deviance are defined to be 0.
+      This means that all likelihood-based inference (LRT, Analysis of
+      Deviance, AIC, BIC, etc.) is only valid between models with the same
+      reference distribution and constraints.
+      
+      AIC: -15.07  BIC: -14.07  (Smaller is better. MC Std. Err. = 0.3462)
+      > true.llk <- sum(dpois(na.omit(c(m)), exp(coef(efit)), log=TRUE)) - sum(dpois(na.omit(c(m)), 1, log=TRUE))
+      > 
+      > stopifnot(abs(coef(efit)-truth)<0.02)
+      Error: abs(coef(efit) - truth) < 0.02 is not TRUE
+      Execution halted
     ```
 
 # ergm.ego
@@ -447,15 +508,6 @@ Run `revdep_details(, "gwdegree")` for more info
 
 </details>
 
-## Newly broken
-
-*   checking whether package ‘gwdegree’ can be installed ... WARNING
-    ```
-    Found the following significant warnings:
-      Warning: replacing previous import ‘ergm::symmetrize’ by ‘sna::symmetrize’ when loading ‘gwdegree’
-    See ‘/srv/scratch/z3528859/github/statnet/ergm/revdep/checks/gwdegree/new/gwdegree.Rcheck/00install.out’ for details.
-    ```
-
 ## In both
 
 *   checking R code for possible problems ... NOTE
@@ -464,36 +516,6 @@ Run `revdep_details(, "gwdegree")` for more info
       ‘simulate.formula’
     Undefined global functions or variables:
       simulate.formula
-    ```
-
-# hergm
-
-<details>
-
-* Version: 4.1-7
-* GitHub: NA
-* Source code: https://github.com/cran/hergm
-* Date/Publication: 2021-03-07 00:00:11 UTC
-* Number of recursive dependencies: 66
-
-Run `revdep_details(, "hergm")` for more info
-
-</details>
-
-## Newly broken
-
-*   checking R code for possible problems ... NOTE
-    ```
-    hergm: no visible global function definition for ‘ergm.Cprepare’
-    hergm.getnetwork: no visible global function definition for
-      ‘ergm.Cprepare’
-    hergm.mcmc: no visible global function definition for ‘ergm.Cprepare’
-    hergm.preprocess: no visible global function definition for
-      ‘ergm.Cprepare’
-    hergm.set.mcmc: no visible global function definition for
-      ‘ergm.Cprepare’
-    Undefined global functions or variables:
-      ergm.Cprepare
     ```
 
 # lolog
@@ -511,6 +533,28 @@ Run `revdep_details(, "lolog")` for more info
 </details>
 
 ## In both
+
+*   checking examples ... ERROR
+    ```
+    Running examples in ‘lolog-Ex.R’ failed
+    The error most likely occurred in:
+    
+    > ### Name: as.network.Rcpp_DirectedNet
+    > ### Title: Convert a DirectedNet to a network object
+    > ### Aliases: as.network.Rcpp_DirectedNet
+    > 
+    > ### ** Examples
+    > 
+    > el <- matrix(c(1,2),ncol=2)
+    > 
+    > #make an UndirectedNet with one edge and 5 nodes
+    > net <- new(UndirectedNet, el, 5L)
+    > 
+    > nw <- as.network(net)
+    Error in apply(x[, 1:2], 1, sort) : dim(X) must have a positive length
+    Calls: as.network ... as.network.matrix -> network.edgelist -> t -> apply
+    Execution halted
+    ```
 
 *   checking installed package size ... NOTE
     ```
@@ -537,7 +581,7 @@ Run `revdep_details(, "NetMix")` for more info
 
 *   checking installed package size ... NOTE
     ```
-      installed size is  8.2Mb
+      installed size is  8.3Mb
       sub-directories of 1Mb or more:
         libs   7.9Mb
     ```

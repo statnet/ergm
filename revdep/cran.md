@@ -2,7 +2,7 @@
 
 We checked 31 reverse dependencies, comparing R CMD check results across CRAN and dev versions of this package.
 
- * We saw 7 new problems
+ * We saw 5 new problems
  * We failed to check 1 packages
 
 Issues with CRAN packages are summarised below.
@@ -14,11 +14,11 @@ Issues with CRAN packages are summarised below.
   checking examples ... ERROR
   checking R code for possible problems ... NOTE
 
-* Blaunet
-  checking examples ... ERROR
-
 * EpiModel
   checking examples ... ERROR
+  checking tests ...
+
+* ergm.count
   checking tests ...
 
 * ergm.ego
@@ -27,12 +27,6 @@ Issues with CRAN packages are summarised below.
 
 * ergm.rank
   checking tests ...
-
-* gwdegree
-  checking whether package ‘gwdegree’ can be installed ... WARNING
-
-* hergm
-  checking R code for possible problems ... NOTE
 
 ### Failed to check
 
