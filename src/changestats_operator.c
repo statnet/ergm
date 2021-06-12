@@ -60,7 +60,7 @@ F_CHANGESTAT_FN(f_passthrough_term){
 
 I_CHANGESTAT_FN(i__submodel_term){
   // No need to allocate it: we are only storing a pointer to a model.
-  Model *m = AUX_STORAGE = ModelInitialize(getListElement(mtp->R, "submodel"), NULL,  nwp, FALSE);
+  AUX_STORAGE = ModelInitialize(getListElement(mtp->R, "submodel"), NULL,  nwp, FALSE);
 }
 
 F_CHANGESTAT_FN(f__submodel_term){
