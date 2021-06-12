@@ -1,12 +1,12 @@
-#  File tests/fix.curved.R in package ergm, part of the Statnet suite
-#  of packages for network analysis, https://statnet.org .
+#  File tests/fix.curved.R in package ergm, part of the
+#  Statnet suite of packages for network analysis, https://statnet.org .
 #
 #  This software is distributed under the GPL-3 license.  It is free,
 #  open source, and has the attribution requirements (GPL Section 7) at
-#  https://statnet.org/attribution
+#  https://statnet.org/attribution .
 #
-#  Copyright 2003-2020 Statnet Commons
-#######################################################################
+#  Copyright 2003-2021 Statnet Commons
+################################################################################
 library(ergm)
 data(sampson)
 out<-fix.curved(samplike~edges+gwnsp(decay=.5,fixed=TRUE)+gwesp()+gwodegree()+edges,c(1:7))

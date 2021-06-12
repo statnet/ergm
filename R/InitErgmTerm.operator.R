@@ -1,3 +1,12 @@
+#  File R/InitErgmTerm.operator.R in package ergm, part of the
+#  Statnet suite of packages for network analysis, https://statnet.org .
+#
+#  This software is distributed under the GPL-3 license.  It is free,
+#  open source, and has the attribution requirements (GPL Section 7) at
+#  https://statnet.org/attribution .
+#
+#  Copyright 2003-2021 Statnet Commons
+################################################################################
 #' Wrap a submodel's curved, empty network statistics, and extended
 #' state (read-only) specification (if present) for output from an
 #' `InitErgmTerm` or `InitWtErgmTerm`.
@@ -526,7 +535,7 @@ InitErgmTerm.Sum <- function(nw, arglist,...){
   if(is(fs,"formula")) fs <- list(fs)
   nf <- length(fs)
 
-  ms <- lapply(fs, ergm_model, nw=nw, ...)
+  ms <- lapply(fs, ergm_model, nw=nw, ..., offset.decorate=FALSE)
 
   curved <- ms[[1]]$etamap$curved
   for(i in seq_len(nf-1L)+1L){
@@ -601,9 +610,18 @@ InitErgmTerm.Sum <- function(nw, arglist,...){
 
   dependence <- any(map_lgl(wms, "dependence"))
 
-  if(any(unlist(map(wms, "offsettheta"))) || any(unlist(map(wms, "offsetmap")))) ergm_Init_warn(paste0("Sum operator does not propagate offset() decorators."))
+  if(any(unlist(map(wms, "offset")))){
+    if(length(wl) == 1 && diff(w <- dim(wl[[1]])) == 0 && # There is only one formula, its weights are a square matrix,
+       !any(w[!diag(ncol(w))])) # and all its off-diagonal elements are 0,
+      offset <- wms[[1L]]$offset # then offsets are safe to propagate.
+    else{
+      offset <- FALSE
+      ergm_Init_warn(paste0("Sum operator does not propagate offset() decorators unless there is only one formula and its statistics are simply scaled."))
+    }
+  }else offset <- FALSE
   
-  c(list(name="Sum", coef.names = coef.names, inputs=inputs, submodels=ms, emptynwstats=gs, dependence=dependence,
+  c(list(name="Sum", coef.names = coef.names, inputs=inputs, submodels=ms, emptynwstats=gs,
+         dependence=dependence, offset=offset,
          ext.encode = if(ms %>% map("terms") %>% unlist(FALSE) %>% map("ext.encode") %>% compact %>% length)
                         function(el, nw0)
                           lapply(ms, function(submodel)

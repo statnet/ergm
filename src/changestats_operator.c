@@ -1,3 +1,12 @@
+/*  File src/changestats_operator.c in package ergm, part of the
+ *  Statnet suite of packages for network analysis, https://statnet.org .
+ *
+ *  This software is distributed under the GPL-3 license.  It is free,
+ *  open source, and has the attribution requirements (GPL Section 7) at
+ *  https://statnet.org/attribution .
+ *
+ *  Copyright 2003-2021 Statnet Commons
+ */
 #include "ergm_changestat_operator.h"
 #include "ergm_changestat_auxnet.h"
 #include "ergm_changestats_operator.h"
@@ -51,7 +60,7 @@ F_CHANGESTAT_FN(f_passthrough_term){
 
 I_CHANGESTAT_FN(i__submodel_term){
   // No need to allocate it: we are only storing a pointer to a model.
-  Model *m = AUX_STORAGE = ModelInitialize(getListElement(mtp->R, "submodel"), NULL,  nwp, FALSE);
+  AUX_STORAGE = ModelInitialize(getListElement(mtp->R, "submodel"), NULL,  nwp, FALSE);
 }
 
 F_CHANGESTAT_FN(f__submodel_term){

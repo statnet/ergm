@@ -1,12 +1,12 @@
-#  File tests/testthat/test-bipartite-missing-data.R in package ergm, part of the Statnet suite
-#  of packages for network analysis, https://statnet.org .
+#  File tests/testthat/test-bipartite-missing-data.R in package ergm, part of the
+#  Statnet suite of packages for network analysis, https://statnet.org .
 #
 #  This software is distributed under the GPL-3 license.  It is free,
 #  open source, and has the attribution requirements (GPL Section 7) at
-#  https://statnet.org/attribution
+#  https://statnet.org/attribution .
 #
-#  Copyright 2003-2020 Statnet Commons
-#######################################################################
+#  Copyright 2003-2021 Statnet Commons
+################################################################################
 
 test_that("bipartite terms abort for missing data when they should and not when they shouldn't", {
   nw <- network.initialize(10,bip=4,dir=FALSE)

@@ -1,12 +1,12 @@
-%  File man/ergm-terms.Rd in package ergm, part of the Statnet suite
-%  of packages for network analysis, https://statnet.org .
+%  File man/ergm-terms.Rd in package ergm, part of the
+%  Statnet suite of packages for network analysis, https://statnet.org .
 %
 %  This software is distributed under the GPL-3 license.  It is free,
 %  open source, and has the attribution requirements (GPL Section 7) at
-%  https://statnet.org/attribution
+%  https://statnet.org/attribution .
 %
-%  Copyright 2003-2020 Statnet Commons
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%  Copyright 2003-2021 Statnet Commons
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \name{ergm-terms}
 \alias{ergm-terms}
 \alias{ergm.terms}
@@ -532,6 +532,8 @@
       A single formula is also permissible. This can be useful if one
       wishes to, say, multiply together the statistics returned by a formula.
 
+      Offsets are ignored unless there is only one formula and the transformation only exponentiates the statistics (i.e., the effective transformation matrix is diagonal).
+
       \code{label} is used to specify the names of the elements of the resulting term sum vector. If \code{label} is a character vector of length 1, it will be recycled with indices appended. If \code{label} is a function, \code{formulas}' parameter names are extracted and their list of character vectors is passed \code{label}. (For convenience, if only one formula is given, just a character vector is passed. Lastly, if \code{label} or result of its function call is an \code{\link{AsIs}} object, it is not wrapped in \code{Sum~...}.
 
       Curved models are supported, subject to some limitations. In particular, the \emph{first} model's etamap will be used, overwriting the others. If \code{label} is not of length 1, it should have an \code{\link{attr}}-style attribute \code{"curved"} specifying the names for the curved parameters.
@@ -566,8 +568,10 @@
       statistics or be mapped through a matrix to produce the same
       number of statistics.
 
-      A single formula is also permissible. This can be useful if one
-      wishes to, say, sum up the statistics returned by a formula.
+      A single formula is also permitted. This can be useful if one
+      wishes to, say, scale or sum up the statistics returned by a formula.
+
+      Offsets are ignored unless there is only one formula and the transformation only scales the statistics (i.e., the effective transformation matrix is diagonal).
 
       \code{label} is used to specify the names of the elements of the resulting term sum vector. If \code{label} is a character vector of length 1, it will be recycled with indices appended. If \code{label} is a function, \code{formulas}' parameter names are extracted and their list of character vectors is passed \code{label}. (For convenience, if only one formula is given, just a character vector is passed. Lastly, if \code{label} or result of its function call is an \code{\link{AsIs}} object, it is not wrapped in \code{Sum~...}.
 
