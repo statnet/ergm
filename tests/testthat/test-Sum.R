@@ -2,10 +2,10 @@
 data(florentine)
 baseline <- summary(flomarriage~edges+absdiff("wealth"))
 
-test_that("Sum() summary with one formula, simple weights, and procedural naming", {
+test_that("Sum() summary with one formula, simple weights, procedural naming, and an offset", {
   local_edition(3)
-  test <- summary(flomarriage~Sum(c(1,.5)~edges+absdiff("wealth"), identity))
-  expect_equal(test, setNames(baseline*c(1,.5), c("Sum~edges","Sum~absdiff.wealth")))
+  test <- summary(flomarriage~Sum(c(1,.5)~edges+offset(absdiff("wealth")), identity))
+  expect_equal(test, setNames(baseline*c(1,.5), c("Sum~edges","offset(Sum~absdiff.wealth)")))
 })
 
 test_that("Sum() summary with one formula, simple weights, and procedural naming with AsIs", {
@@ -30,8 +30,8 @@ test_that("Sum() summary with default weights and procedural naming with AsIs", 
   expect_equal(test, setNames(baseline*2, c("edges edges", "absdiff.wealth absdiff.wealth")))
 })
 
-test_that("Sum() summary with differing weights and forced-identical names", {
-  test <- summary(flomarriage~Sum(c(~edges+absdiff("wealth"), 0.5~edges+absdiff("wealth")),c("a","a")))
+test_that("Sum() summary with differing weights, offset (ignored), and forced-identical names", {
+  expect_warning(test <- summary(flomarriage~Sum(c(~edges+offset(absdiff("wealth")), 0.5~edges+absdiff("wealth")),c("a","a"))), ".*does not propagate.*offset().*")
   expect_equivalent(test, setNames(baseline*1.5, c("a","a")))
 })
 
@@ -39,9 +39,10 @@ test_that("Sum() summary with heterogeneous lengths (error)", {
   expect_error(summary(flomarriage~Sum(c(~edges+absdiff("wealth"), ~edges),"")),"differ in length")
 })
 
-test_that("Sum() summary with matrix weights", {
-  test <- summary(flomarriage~Sum(c(~edges+absdiff("wealth"), rbind(.5,0)~edges),""))
-  expect_equivalent(test, baseline*c(1.5,1))
+test_that("Sum() summary with matrix weights and offset (ignored)", {
+  local_edition(3)
+  expect_warning(test <- summary(flomarriage~Sum(c(~edges+offset(absdiff("wealth")), rbind(.5,0)~edges),"")), ".*does not propagate.*offset().*")
+  expect_equal(test, setNames(baseline*c(1.5,1), c("Sum~1", "Sum~2")))
 })
 
 test_that("Sum() summary with keyword weights", {
