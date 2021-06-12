@@ -1,3 +1,12 @@
+#  File R/InitErgmTerm.operator.R in package ergm, part of the
+#  Statnet suite of packages for network analysis, https://statnet.org .
+#
+#  This software is distributed under the GPL-3 license.  It is free,
+#  open source, and has the attribution requirements (GPL Section 7) at
+#  https://statnet.org/attribution .
+#
+#  Copyright 2003-2021 Statnet Commons
+################################################################################
 #' Wrap a submodel's curved, empty network statistics, and extended
 #' state (read-only) specification (if present) for output from an
 #' `InitErgmTerm` or `InitWtErgmTerm`.

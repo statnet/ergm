@@ -1,12 +1,12 @@
-#  File R/approx.hotelling.diff.test.R in package ergm, part of the Statnet suite
-#  of packages for network analysis, https://statnet.org .
+#  File R/approx.hotelling.diff.test.R in package ergm, part of the
+#  Statnet suite of packages for network analysis, https://statnet.org .
 #
 #  This software is distributed under the GPL-3 license.  It is free,
 #  open source, and has the attribution requirements (GPL Section 7) at
-#  https://statnet.org/attribution
+#  https://statnet.org/attribution .
 #
-#  Copyright 2003-2020 Statnet Commons
-#######################################################################
+#  Copyright 2003-2021 Statnet Commons
+################################################################################
 .dtsq <- function(x, param, df, log = FALSE){
   fx <- x*(df - param + 1)/(param*df)
   p <- df(fx, param, df - param + 1, log=log)
