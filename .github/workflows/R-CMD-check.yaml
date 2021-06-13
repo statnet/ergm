@@ -180,7 +180,7 @@ jobs:
         if: matrix.config.covr == 'no'
         timeout-minutes: ${{ matrix.config.timeout }}
         env:
-          _R_CHECK_CRAN_INCOMING_REMOTE_: false
+          _R_CHECK_CRAN_INCOMING_REMOTE_: ${{ matrix.config.vignettes }}
           _R_CHECK_FORCE_SUGGESTS_: false
           ENABLE_statnet_TESTS: ${{ matrix.config.full }}
           R_VIGNETTES: ${{ matrix.config.vignettes }}
