@@ -1,4 +1,4 @@
-#  File tests/utils_tests.R in package ergm, part of the
+#  File tests/testthat/test-update.network.R in package ergm, part of the
 #  Statnet suite of packages for network analysis, https://statnet.org .
 #
 #  This software is distributed under the GPL-3 license.  It is free,
