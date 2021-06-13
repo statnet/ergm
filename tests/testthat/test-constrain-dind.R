@@ -9,6 +9,8 @@
 ################################################################################
 local_edition(3)
 
+logit <- function(p) log(p/(1-p))
+
 mean_mat <- function(Mmin, Mmax){
   Mmin <- statnet.common::NVL(Mmin, Mmax)
   Mmax <- statnet.common::NVL(Mmax, Mmin)
@@ -97,7 +99,6 @@ test_that("Dyads() operator for directed networks", {
   g <- outer(samplike%v%"group",samplike%v%"group",FUN=`==`)
   c <- outer(samplike%v%"cloisterville",samplike%v%"cloisterville",FUN=`==`)
   n <- network.size(samplike)
-  logit <- function(p) log(p/(1-p))
   expect_equal(fix_g,logit(sum((!g)*m)/(sum(!g))),tolerance=0.03,ignore_attr=TRUE)
   expect_equal(vary_g,logit(sum(g*m)/(sum(g)-n)),ignore_attr=TRUE)
   expect_equal(fix_g_and_c,logit(sum((!g&!c)*m)/(sum(!g&!c))),ignore_attr=TRUE)
