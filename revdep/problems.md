@@ -108,10 +108,10 @@ Run `revdep_details(, "Blaunet")` for more info
 
 <details>
 
-* Version: 0.7.6
+* Version: 0.7.7
 * GitHub: https://github.com/tidymodels/broom
 * Source code: https://github.com/cran/broom
-* Date/Publication: 2021-04-05 20:30:02 UTC
+* Date/Publication: 2021-06-13 04:40:17 UTC
 * Number of recursive dependencies: 295
 
 Run `revdep_details(, "broom")` for more info
@@ -119,31 +119,6 @@ Run `revdep_details(, "broom")` for more info
 </details>
 
 ## In both
-
-*   checking examples ... ERROR
-    ```
-    Running examples in ‘broom-Ex.R’ failed
-    The error most likely occurred in:
-    
-    > ### Name: tidy.epi.2by2
-    > ### Title: Tidy a(n) epi.2by2 object
-    > ### Aliases: tidy.epi.2by2 epiR_tidiers
-    > 
-    > ### ** Examples
-    > 
-    > library(epiR)
-    ...
-      7. │   │ └─base::structure(...)
-      8. │   └─dplyr:::tbl_vars_dispatch(x)
-      9. ├─dplyr::select(., keep)
-     10. ├─dplyr::filter(., !is.na(.$est))
-     11. ├─tidyr::unnest(., cols = s)
-     12. └─tidyr:::unnest.data.frame(., cols = s)
-     13.   └─tidyr::unchop(data, any_of(cols), keep_empty = keep_empty, ptype = ptype)
-     14.     └─vctrs::vec_slice(data, slice_loc)
-     15.       └─(function () ...
-    Execution halted
-    ```
 
 *   checking package dependencies ... NOTE
     ```
@@ -341,107 +316,6 @@ Run `revdep_details(, "ergm.count")` for more info
       Execution halted
     ```
 
-# ergm.ego
-
-<details>
-
-* Version: 0.6.1
-* GitHub: https://github.com/statnet/ergm.ego
-* Source code: https://github.com/cran/ergm.ego
-* Date/Publication: 2020-11-19 23:10:05 UTC
-* Number of recursive dependencies: 55
-
-Run `revdep_details(, "ergm.ego")` for more info
-
-</details>
-
-## Newly broken
-
-*   checking examples ... ERROR
-    ```
-    Running examples in ‘ergm.ego-Ex.R’ failed
-    The error most likely occurred in:
-    
-    > ### Name: simulate.ergm.ego
-    > ### Title: Simulate from a 'ergm.ego' fit.
-    > ### Aliases: simulate.ergm.ego
-    > ### Keywords: models
-    > 
-    > ### ** Examples
-    > 
-    ...
-    This model was fit using MCMC.  To examine model diagnostics and check
-    for degeneracy, use the mcmc.diagnostics() function.
-    > colMeans(egosim <- simulate(egofit, popsize=300,nsim=50,
-    +                        output="stats", control=control.simulate.ergm.ego(
-    +                        simulate.control=control.simulate.formula(MCMC.burnin=2e6))))
-    Note: Constructed network has size 205 different from requested 300. Simulated statistics may need to be rescaled.
-    Error in simulate.formula_lhs(object = fmh.ego ~ offset(netsize.adj) +  : 
-      No applicable method for LHS of type ‘ergm_state_full’, ‘ergm_state_send’, ‘ergm_state_receive’, ‘ergm_state’.
-    Calls: colMeans ... eval -> eval -> <Anonymous> -> simulate.formula_lhs
-    Execution halted
-    ```
-
-*   checking tests ...
-    ```
-     ERROR
-    Running the tests in ‘tests/EgoStat.tests.R’ failed.
-    Last 13 lines of output:
-      +   mm("a") + mm("a", levels2=~-1) + mm("a", levels2=-2) + mm("a", levels2=-(2:3)) + mm(~a>7) + mm(a~b) + mm(.~a) + offset(mm(.~a)) + mm("a", levels2 = 1) + 
-      +   mm("b", levels = c("a", "c", "e")) + mm("b", levels = c("a", "c", "e"), levels2 = 3) +
-      + 
-      +   meandeg
-      > 
-      > f.y <- statnet.common::nonsimp_update.formula(f, y~.)
-      > environment(f.y) <- globalenv()
-      > f.y.e <- statnet.common::nonsimp_update.formula(f, y.e~.)
-      > environment(f.y.e) <- globalenv()
-      > 
-      > stopifnot(all.equal(summary(f.y),summary(f.y.e)))
-      Error: summary(f.y) and summary(f.y.e) are not equal:
-        Names: 187 string mismatches
-        Numeric: lengths (786, 794) differ
-      Execution halted
-    ```
-
-# ergm.rank
-
-<details>
-
-* Version: 1.2.0
-* GitHub: https://github.com/statnet/ergm.rank
-* Source code: https://github.com/cran/ergm.rank
-* Date/Publication: 2019-05-15 07:43:03 UTC
-* Number of recursive dependencies: 26
-
-Run `revdep_details(, "ergm.rank")` for more info
-
-</details>
-
-## Newly broken
-
-*   checking tests ...
-    ```
-     ERROR
-    Running the tests in ‘tests/termTests_rank.R’ failed.
-    Last 13 lines of output:
-      +                   rank.nonconformity("local1")+
-      +                   rank.nonconformity("local2")+
-      +                   rank.nonconformity("localAND")+
-      +                   rank.deference+
-      +                   rank.nodeicov("v")+
-      +                   rank.edgecov("m")+
-      +                   rank.inconsistency(nw0,"r",xa),
-      +                 coef=rep(0,8),response="r", reference=~DiscUnif(1, n-1), nsim=S, statsonly=FALSE)
-      Best valid proposal 'DiscUnif' cannot take into account hint(s) 'sparse'.
-      Error in as.list(defaultvalues) : 
-        argument "response" is missing, with no default
-      Calls: simulate ... eval -> eval -> <Anonymous> -> check.ErgmTerm -> as.list
-      In addition: Warning message:
-      Use of 'statsonly=' argument has been deprecated. Use 'output='stats'' instead. 
-      Execution halted
-    ```
-
 # ergMargins
 
 <details>
@@ -470,6 +344,11 @@ Run `revdep_details(, "ergMargins")` for more info
     Package unavailable to check Rd xrefs: ‘margins’
     ```
 
+*   checking LazyData ... NOTE
+    ```
+      'LazyData' is specified without a 'data' directory
+    ```
+
 # ergmito
 
 <details>
@@ -488,10 +367,10 @@ Run `revdep_details(, "ergmito")` for more info
 
 *   checking installed package size ... NOTE
     ```
-      installed size is  9.8Mb
+      installed size is  7.6Mb
       sub-directories of 1Mb or more:
         R      1.1Mb
-        libs   7.9Mb
+        libs   5.7Mb
     ```
 
 # gwdegree
@@ -516,6 +395,11 @@ Run `revdep_details(, "gwdegree")` for more info
       ‘simulate.formula’
     Undefined global functions or variables:
       simulate.formula
+    ```
+
+*   checking LazyData ... NOTE
+    ```
+      'LazyData' is specified without a 'data' directory
     ```
 
 # lolog
@@ -558,32 +442,9 @@ Run `revdep_details(, "lolog")` for more info
 
 *   checking installed package size ... NOTE
     ```
-      installed size is 33.9Mb
+      installed size is 24.9Mb
       sub-directories of 1Mb or more:
-        libs  32.0Mb
-    ```
-
-# NetMix
-
-<details>
-
-* Version: 0.2.0
-* GitHub: https://github.com/solivella/NetMix
-* Source code: https://github.com/cran/NetMix
-* Date/Publication: 2021-03-01 17:40:08 UTC
-* Number of recursive dependencies: 49
-
-Run `revdep_details(, "NetMix")` for more info
-
-</details>
-
-## In both
-
-*   checking installed package size ... NOTE
-    ```
-      installed size is  8.3Mb
-      sub-directories of 1Mb or more:
-        libs   7.9Mb
+        libs  23.1Mb
     ```
 
 # sand
@@ -594,7 +455,7 @@ Run `revdep_details(, "NetMix")` for more info
 * GitHub: https://github.com/kolaczyk/sand
 * Source code: https://github.com/cran/sand
 * Date/Publication: 2020-07-02 07:20:06 UTC
-* Number of recursive dependencies: 156
+* Number of recursive dependencies: 163
 
 Run `revdep_details(, "sand")` for more info
 
@@ -605,6 +466,48 @@ Run `revdep_details(, "sand")` for more info
 *   checking data for non-ASCII characters ... NOTE
     ```
       Note: found 6 marked UTF-8 strings
+    ```
+
+# statnetWeb
+
+<details>
+
+* Version: 0.5.6
+* GitHub: NA
+* Source code: https://github.com/cran/statnetWeb
+* Date/Publication: 2020-08-05 18:00:03 UTC
+* Number of recursive dependencies: 53
+
+Run `revdep_details(, "statnetWeb")` for more info
+
+</details>
+
+## In both
+
+*   checking LazyData ... NOTE
+    ```
+      'LazyData' is specified without a 'data' directory
+    ```
+
+# tergmLite
+
+<details>
+
+* Version: 2.2.1
+* GitHub: NA
+* Source code: https://github.com/cran/tergmLite
+* Date/Publication: 2020-07-22 16:50:03 UTC
+* Number of recursive dependencies: 67
+
+Run `revdep_details(, "tergmLite")` for more info
+
+</details>
+
+## In both
+
+*   checking LazyData ... NOTE
+    ```
+      'LazyData' is specified without a 'data' directory
     ```
 
 # xergm.common
