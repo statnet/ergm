@@ -46,7 +46,7 @@ WtZ_CHANGESTAT_FN(z_wtpassthrough_term){
   memcpy(CHANGE_STAT, m->workspace, N_CHANGE_STATS*sizeof(double));
 }
 
-WtX_CHANGESTAT_PROPAGATE_FN(x_wtpassthrough_term, GET_STORAGE(WtModel, m), m);
+WtX_CHANGESTAT_PROPAGATE_FN(x_wtpassthrough_term, GET_STORAGE(WtModel, m), m)
 
 WtF_CHANGESTAT_FN(f_wtpassthrough_term){
   GET_STORAGE(WtModel, m);

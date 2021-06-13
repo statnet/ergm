@@ -39,7 +39,7 @@ C_CHANGESTAT_FN(c_passthrough_term){
   memcpy(CHANGE_STAT, m->workspace, N_CHANGE_STATS*sizeof(double));
 }
 
-X_CHANGESTAT_PROPAGATE_FN(x_passthrough_term, GET_STORAGE(Model, m), m);
+X_CHANGESTAT_PROPAGATE_FN(x_passthrough_term, GET_STORAGE(Model, m), m)
 
 Z_CHANGESTAT_FN(z_passthrough_term){
   GET_STORAGE(Model, m);

@@ -94,10 +94,6 @@
 #' software system for the advanced statistical analysis of social networks.
 #' Groningen: ProGAMMA / ICS, version 1.4 edition.
 #' 
-#' % commented because server is down so paper can't be found %Butts CT (2006).
-#' % \pkg{netperm}: Permutation Models for Relational Data. % Version 0.2,
-#' \url{https://erzuli.ss.uci.edu/R.stuff}.
-#' 
 #' Butts CT (2007).  \pkg{sna}: Tools for Social Network Analysis.  R package
 #' version 2.3-2. \url{https://cran.r-project.org/package=sna}
 #' 
@@ -123,7 +119,7 @@
 #' Handcock, M. S. (2003) Assessing Degeneracy in Statistical Models of Social
 #' Networks, Working Paper \#39, Center for Statistics and the Social Sciences,
 #' University of Washington.
-#' \url{https://www.csss.washington.edu/research/working-papers/assessing-degeneracy-statistical-models-social-networks}
+#' \url{https://csss.uw.edu/research/working-papers/assessing-degeneracy-statistical-models-social-networks}
 #' 
 #' Handcock MS (2003b).  \pkg{degreenet}: Models for Skewed Count Distributions
 #' Relevant to Networks.  Statnet Project, Seattle, WA.  Version 1.0,
