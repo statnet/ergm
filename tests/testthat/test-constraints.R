@@ -66,7 +66,15 @@ test_that("fixallbut with network input", {
 })
 
 test_that("constraint conflict is detected", {
+  local_edition(3)
   data(florentine)
-  expect_warning(ergm(flomarriage~edges, constraints = ~edges),
-                 "^The specified model's sample space constraint holds statistic\\(s\\) edges  constant. They will be ignored.$")
+  conwarn <- "^The specified model's sample space constraint holds statistic\\(s\\) edges  constant. They will be ignored.$"
+  dyadwarn <- "^The number of observed dyads in this network is ill-defined due to complex constraints on the sample space..*$"
+  
+  expect_warning(ergm(flomarriage~edges, constraints = ~edges), conwarn)
+
+  expect_warning(expect_warning(expect_warning(fit <- ergm(flomarriage~edges + triangle, constraints = ~degrees),
+                                               conwarn), dyadwarn), dyadwarn)
+
+  expect_equal(coef(fit)[1],0, ignore_attr=TRUE)
 })
