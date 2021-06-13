@@ -373,10 +373,10 @@ Hunter DR, Handcock MS, Butts CT, Goodreau SM, Morris M (2008b).
 Karwa V, Krivitsky PN, and Slavkovi\'{c} AB (2016). Sharing Social Network
  Data: Differentially Private Estimation of Exponential-Family Random
  Graph Models. \emph{Journal of the Royal Statistical Society, Series
- C}, to appear. \url{http://arxiv.org/abs/1511.02930}
+ C}, 66(3): 481-500. \doi{10.1111/rssc.12185}
  
 Krivitsky PN (2012). Exponential-Family Random Graph Models for Valued
-Networks. \emph{Electronic Journal of Statistics}, 2012, 6,
+Networks. \emph{Electronic Journal of Statistics}, 6,
 1100-1128. \doi{10.1214/12-EJS696}
  
 Morris M, Handcock MS, Hunter DR (2008).

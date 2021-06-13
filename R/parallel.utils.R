@@ -84,7 +84,7 @@ ergm.MCMC.packagenames <- local({
 #' multiple MCMC chains, it is possible to attempt to accelerate
 #' sampling by evaluating qualified terms' change statistics in
 #' multiple threads run in parallel. This is done using the
-#' [OpenMP](http://www.openmp.org/) API.
+#' [OpenMP](https://www.openmp.org/) API.
 #'
 #' However, this introduces a nontrivial amont of computational
 #' overhead. See below for a list of the major factors affecting
