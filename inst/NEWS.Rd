@@ -1733,7 +1733,7 @@ fixes issue reported by Sebastian Daza}
       has been added for fitting valued ERGMs of Krivitsky (2012). The
       \dQuote{user interface} is subject to change, however. (The
       implementation of reference measures for counts can be found in \R package
-      \code{\link{ergm.count}})
+      \code{\link[=ergm.count:ergm.count-package]{ergm.count}})
 
       \item \code{\link[=ergm-package]{ergm}} itself now includes
       rudimentary implementations for discrete uniform and continuous
