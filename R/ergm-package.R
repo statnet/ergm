@@ -48,7 +48,7 @@
 #' \code{\link[=ergm-package]{ergm}}. These include
 #' \code{\link[tergm:tergm-package]{tergm}} (Temporal ERGM), which provides
 #' extensions for modeling evolution of networks over time;
-#' \code{\link[ergm.count:ergm.count-package]{ergm.count}}, which facilitates
+#' \code{\link[=ergm.count:ergm.count-package]{ergm.count}}, which facilitates
 #' exponential family modeling for networks whose dyadic measurements are
 #' counts; and
 #' \code{\link[ergm.userterms:ergm.userterms-package]{ergm.userterms}}, which

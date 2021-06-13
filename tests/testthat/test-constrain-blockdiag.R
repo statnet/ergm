@@ -7,27 +7,23 @@
 #
 #  Copyright 2003-2021 Statnet Commons
 ################################################################################
-
-library(ergm)
-
-library(statnet.common)
+local_edition(3)
 
 mean_mat <- function(Mmin, Mmax){
-  Mmin <- NVL(Mmin, Mmax)
-  Mmax <- NVL(Mmax, Mmin)
+  Mmin <- statnet.common::NVL(Mmin, Mmax)
+  Mmax <- statnet.common::NVL(Mmax, Mmin)
   matrix(ifelse(rbinom(length(Mmin), 1, .5), Mmin, Mmax), nrow(Mmin), ncol(Mmin))
 }
 
 test_dind_constr <- function(y0, con, Mmin=NULL, Mmax=NULL, response=NULL, ...){
   nn <- network.dyadcount(y0, FALSE)
-  if(!is.null(Mmin)){
-    ymin <- simulate(NVL2(response, y0~sum, y0~edges), coef=-100, constraints=con, control=control.simulate.formula(MCMC.burnin=nn*100), response=response, ...)
-    stopifnot(all(na.omit(c(suppressWarnings(as.matrix(ymin, attrname=response))==Mmin))))
-  }
-  if(!is.null(Mmax)){
-    ymax <- simulate(NVL2(response, y0~sum, y0~edges), coef=+100, constraints=con, control=control.simulate.formula(MCMC.burnin=nn*100), response=response, ...)
-    stopifnot(all(na.omit(c(as.matrix(ymax, attrname=response)==Mmax))))
-  }
+  test_that(paste0("blockdiag constraint with constraint = ", format(con), ", and ", if(is.directed(y0)) "directed " else "undirected ", if(is.bipartite(y0)) "bipartite ", if(!is.null(response)) "valued ", "network"), {
+    ymin <- simulate(statnet.common::NVL2(response, y0~sum, y0~edges), coef=-100, constraints=con, control=control.simulate.formula(MCMC.burnin=nn*100), response=response, ...)
+    expect_true(all(na.omit(c(suppressWarnings(as.matrix(ymin, attrname=response))==Mmin))))
+
+    ymax <- simulate(statnet.common::NVL2(response, y0~sum, y0~edges), coef=+100, constraints=con, control=control.simulate.formula(MCMC.burnin=nn*100), response=response, ...)
+    expect_true(all(na.omit(c(as.matrix(ymax, attrname=response)==Mmax))))
+  })
 }
 
 n <- 10
@@ -153,4 +149,3 @@ y0 <- as.network(mean_mat(Mmin,Mmax), matrix.type="adjacency", directed=TRUE, ig
 y0 %v% "b" <- a
 
 test_dind_constr(y0, ~blockdiag("b"), Mmin, Mmax, response="w", reference=~DiscUnif(0,4))
-
