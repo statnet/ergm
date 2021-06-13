@@ -7,8 +7,8 @@
 #
 #  Copyright 2003-2021 Statnet Commons
 ################################################################################
+local_edition(3)
 
-library(ergm)
 n <- 10
 m <- 7
 
@@ -18,37 +18,37 @@ propw <- "TNT"
 repeat{
   a <- as.logical(rbinom(n, 1, .5))
   Mb <- Mi <- Mo <- matrix(0L,n,n)
-  
+
   Mo[!a,] <- 1L
   Mi[,!a] <- 1L
   Mb <- Mo * Mi
-  
+
   diag(Mo) <- diag(Mi) <- diag(Mb) <-0L
 
   if(any(Mo) && any(Mi) && any(Mb)) break
 }
-#### Directed ####
 
-y0 <- network.initialize(n, directed=TRUE)
-y0 %v% "a" <- a
+test_that("egocentric constraint, directed", {
+  y0 <- network.initialize(n, directed=TRUE)
+  y0 %v% "a" <- a
 
-y <- simulate(y0~edges, coef=100, constraints=~egocentric("a", dir="o"), control=control.simulate.formula(MCMC.burnin=10000,MCMC.prop.weight=propw))
-stopifnot(all(as.matrix(y)==Mo))
+  y <- simulate(y0~edges, coef=100, constraints=~egocentric("a", dir="o"), control=control.simulate.formula(MCMC.burnin=10000,MCMC.prop.weight=propw))
+  expect_equal(as.matrix(y), Mo, ignore_attr=TRUE)
 
-y <- simulate(y0~edges, coef=100, constraints=~egocentric("a", dir="i"), control=control.simulate.formula(MCMC.burnin=10000,MCMC.prop.weight=propw))
-stopifnot(all(as.matrix(y)==Mi))
+  y <- simulate(y0~edges, coef=100, constraints=~egocentric("a", dir="i"), control=control.simulate.formula(MCMC.burnin=10000,MCMC.prop.weight=propw))
+  expect_equal(as.matrix(y), Mi, ignore_attr=TRUE)
 
-y <- simulate(y0~edges, coef=100, constraints=~egocentric("a"), control=control.simulate.formula(MCMC.burnin=10000,MCMC.prop.weight=propw))
-stopifnot(all(as.matrix(y)==Mb))
+  y <- simulate(y0~edges, coef=100, constraints=~egocentric("a"), control=control.simulate.formula(MCMC.burnin=10000,MCMC.prop.weight=propw))
+  expect_equal(as.matrix(y), Mb, ignore_attr=TRUE)
+})
 
+test_that("egocentric constraint, undirected", {
+  y0 <- network.initialize(n, directed=FALSE)
+  y0 %v% "a" <- a
 
-#### Undirected ####
-
-y0 <- network.initialize(n, directed=FALSE)
-y0 %v% "a" <- a
-
-y <- simulate(y0~edges, coef=100, constraints=~egocentric("a"), control=control.simulate.formula(MCMC.burnin=10000,MCMC.prop.weight=propw))
-stopifnot(all(as.matrix(y)==Mb))
+  y <- simulate(y0~edges, coef=100, constraints=~egocentric("a"), control=control.simulate.formula(MCMC.burnin=10000,MCMC.prop.weight=propw))
+  expect_equal(as.matrix(y), Mb, ignore_attr=TRUE)
+})
 
 ## #### Unobserved ####
 
@@ -62,7 +62,7 @@ stopifnot(all(as.matrix(y)==Mb))
 ## M[]<-0
 ## M[2,3]<-1
 
-## stopifnot(all(as.matrix(y)==M))
+## expect_equal(as.matrix(y), M, ignore_attr=TRUE)
 
 #### Bipartite ####
 
@@ -72,19 +72,21 @@ repeat{
   a <- as.logical(rbinom(n, 1L, .5))
   ae <- a[seq_len(m)]
   aa <- a[m+seq_len(n-m)]
-  
+
   M <- matrix(1L,m,n-m)
-  
+
   M[ae,] <- 0L
   M[,aa] <- 0L
-  
+
   if(any(M)) break
 }
 
 y0 %v% "a" <- a
 
-y <- simulate(y0~edges, coef=100, constraints=~egocentric("a"), control=control.simulate.formula(MCMC.burnin=10000,MCMC.prop.weight=propw))
-stopifnot(all(as.matrix(y)==M))
+test_that("egocentric constraint, bipartite undirected", {
+  y <- simulate(y0~edges, coef=100, constraints=~egocentric("a"), control=control.simulate.formula(MCMC.burnin=10000,MCMC.prop.weight=propw))
+  expect_equal(as.matrix(y), M, ignore_attr=TRUE)
+})
 
 ## #### Bipartite Unobserved ####
 
@@ -98,7 +100,7 @@ stopifnot(all(as.matrix(y)==M))
 ## M[]<-0
 ## M[6,2]<-1
 
-## stopifnot(all(as.matrix(y)==M))
+## expect_equal(as.matrix(y), M, ignore_attr=TRUE)
 
 ## #### Multiple ####
 
@@ -126,5 +128,4 @@ stopifnot(all(as.matrix(y)==M))
 
 ## y <- simulate(y0~edges, coef=100, constraints=~blockdiag("b1") + blockdiag("b2"), control=control.simulate.formula(MCMC.burnin=10000,MCMC.prop.weight=propw))
 
-## stopifnot(all(as.matrix(y)==M))
-
+## expect_equal(as.matrix(y), M, ignore_attr=TRUE)
