@@ -243,30 +243,20 @@ probability for all ties,
 which is captured by the coefficient of the `edges` term.  How 
 should we interpret this coefficient? The easiest way is
 to return to the logit form of the ERGM. The log-odds that a tie is present is
-$$
-\small{
-\begin{eqnarray*}
-logit(p(y)) &=& \theta \times \delta(g(y)) \\
-& = & `r round(flomodel.01$coef,2)` \times \mbox{change in the number of ties}\\
-& = & `r round(flomodel.01$coef,2)` \times 1
-\end{eqnarray*}
-}
-$$
+\begin{align*}
+\operatorname{logit}(p(y)) &= \theta \times \delta(g(y)) \\
+& =  `r round(coef(flomodel.01),2)` \times \mbox{change in the number of ties}\\
+& =  `r round(coef(flomodel.01),2)` \times 1
+\end{align*}
 for every tie, since the addition of any tie to the network always increases the total number of ties by 1.
 
 The corresponding probability is obtained by taking the expit, or inverse
 logit, of $\theta$:
-
-$$
-\small{
-\begin{eqnarray*}
-& = & \exp(`r round(flomodel.01$coef,2)`)/
-(1+\exp(`r round(flomodel.01$coef,2)`))\\
-& = & `r round( exp(flomodel.01$coef)/(1 + exp(flomodel.01$coef)), 2)`
-\end{eqnarray*}
-}
-$$
-
+\begin{align*}
+& =  \exp(`r round(coef(flomodel.01),2)`)/
+(1+\exp(`r round(coef(flomodel.01),2)`))\\
+& =  `r round( exp(coef(flomodel.01))/(1 + exp(coef(flomodel.01))), 2)`
+\end{align*}
 This probability corresponds to the density we observe in the 
 flomarriage network: there are $20$ ties and 
 $\binom{16}{2} = (16 \times 15)/2 = `r 16*15/2`$ dyads, 
@@ -298,21 +288,17 @@ Now, how should we interpret coefficients?
 The conditional log-odds of two actors having a tie, keeping the rest of the network
 fixed, is
 $$
-\small{
-`r round(flomodel.02$coef[[1]],2)` \times\mbox{change in the number of ties} + `r round(flomodel.02$coef[[2]],2)` \times\mbox{change in number of triangles.}
-}
+`r round(coef(flomodel.02)[[1]],2)` \times\mbox{change in the number of ties} + `r round(coef(flomodel.02)[[2]],2)` \times\mbox{change in number of triangles.}
 $$
 
-<br>
-
 * For a tie that will create no triangles, the conditional log-odds is:
-$`r round(flomodel.02$coef[[1]],2)`$.
+$`r round(coef(flomodel.02)[[1]],2)`$.
 
 * if one triangle: 
-$`r round(flomodel.02$coef[[1]],2)` + `r round(flomodel.02$coef[[2]],2)` = `r round(flomodel.02$coef[[1]] + flomodel.02$coef[[2]],2)`$
+$`r round(coef(flomodel.02)[[1]],2)` + `r round(coef(flomodel.02)[[2]],2)` = `r round(coef(flomodel.02)[[1]] + coef(flomodel.02)[[2]],2)`$
 
 * if two triangles: 
-$`r round(flomodel.02$coef[[1]],2)` + 2 \times`r round(flomodel.02$coef[[2]],2)` = `r round(flomodel.02$coef[[1]] + 2*flomodel.02$coef[[2]],2)`$
+$`r round(coef(flomodel.02)[[1]],2)` + 2 \times`r round(coef(flomodel.02)[[2]],2)` = `r round(coef(flomodel.02)[[1]] + 2*coef(flomodel.02)[[2]],2)`$
 
 * the corresponding probabilities are 
 0.16, 
@@ -330,7 +316,7 @@ names(flomodel.02) # the ERGM object contains lots of components.
 
 
 ```{r}
-flomodel.02$coef # you can extract/inspect individual components
+coef(flomodel.02) # you can extract/inspect individual components
 ```
 
 #### Nodal covariates: effects on mean degree
@@ -349,26 +335,18 @@ flomodel.03 <- ergm(flomarriage~edges+nodecov('wealth'))
 summary(flomodel.03)
 ```
 
-Question:  What does the value of the **nodecov** statistic represent?
+##### Question:  What does the value of the **nodecov** statistic represent?
 
 And yes, there is a significant positive wealth effect on the probability of a tie.
 
 How do we interpret the coefficients here?  Note that the wealth effect operates on both nodes in a dyad.  The conditional log-odds of a tie between two actors is:
-
-
 $$
-\small{
 -2.59\times\mbox{change in the number of ties} + 0.01\times\mbox{the wealth of node 1} + 0.01\times\mbox{the wealth of node 2}
-}
 $$
-
+or
 $$
-\small{
--2.59\times\mbox{change in the number of ties} + 0.01\times\mbox{the sum of the wealth of the two nodes}
-}
+-2.59\times\mbox{change in the number of ties} + 0.01\times\mbox{the sum of the wealth of the two nodes}.
 $$
-
-
 
 * for a tie between two nodes with minimum wealth, the conditional log-odds is:  
 $-2.59 + 0.01*(3+3) = -2.53$
@@ -627,7 +605,7 @@ plot(flomodel.03.gof)
 ```{r}
 mesamodel.02 <- ergm(mesa~edges)
 mesamodel.02.gof <- gof(mesamodel.02~degree + esp + distance, 
-                        control.gof.formula(nsim=10))
+                        control = control.gof.formula(nsim=10))
 plot(mesamodel.02.gof)
 
 ```
