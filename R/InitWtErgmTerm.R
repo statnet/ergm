@@ -589,7 +589,7 @@ InitWtErgmTerm.nodeocov<-function (nw, arglist, ..., version=packageVersion("erg
 }
 
 
-InitWtErgmTerm.edges<-InitWtErgmTerm.nonzero<-function(nw, arglist, ...) {
+InitWtErgmTerm.edge<-InitWtErgmTerm.edges<-InitWtErgmTerm.nonzero<-function(nw, arglist, ...) {
   a <- check.ErgmTerm(nw, arglist,
                       varnames = NULL,
                       vartypes = NULL,

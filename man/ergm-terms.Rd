@@ -85,6 +85,7 @@
 \alias{dsp}
 \alias{dyadcov}
 \alias{edgecov}
+\alias{edge}
 \alias{edges-term}
 \alias{esp}
 \alias{equalto}
@@ -1357,8 +1358,7 @@
       \code{edgecov} and \code{dyadcov} terms are equivalent for undirected
       networks.}
 
-    \item{\code{edges}  (binary)  (valued)  (dyad-independent)  (directed)  (undirected) (frequently-used)
-      , a.k.a \code{nonzero}  (valued)  (directed)  (undirected) (dyad-independent)
+    \item{\code{edges}  (binary)  (valued)  (dyad-independent)  (directed)  (undirected) (frequently-used), \code{edge}  (binary)  (valued)  (dyad-independent)  (directed)  (undirected) (frequently-used), \code{nonzero}  (valued)  (directed)  (undirected) (dyad-independent)
     }{\emph{Edges:} This term adds one network statistic equal
       to the number of edges (i.e. nonzero values) in the network. For undirected networks, \code{edges}
       is equal to \code{kstar(1)}; for directed networks, \code{edges} is equal to

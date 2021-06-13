@@ -1895,7 +1895,7 @@ InitErgmTerm.edgecov <- function(nw, arglist, ...) {
 }
 
 ################################################################################
-InitErgmTerm.edges<-function(nw, arglist, ...) {
+InitErgmTerm.edge<-InitErgmTerm.edges<-function(nw, arglist, ...) {
   a <- check.ErgmTerm(nw, arglist,
                       varnames = NULL,
                       vartypes = NULL,
