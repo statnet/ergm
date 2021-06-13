@@ -68,7 +68,7 @@ stopifnot(all(sim[,2:4]^2-sim[,5:7]==0))
 
 # Private storage: valued
 
-library(ergm.count)
+if(require(ergm.count) && packageVersion("ergm.count") >= "4.0"){
 nw <- network.initialize(4, dir=TRUE)
 nw[1,2,names.eval="v",add.edges=TRUE] <- 1
 nw[1,3,names.eval="v",add.edges=TRUE] <- 1
@@ -89,3 +89,4 @@ s <- attr(sim, "stats")
 stopifnot(all(abs(s[,1]-5)==s[,2]) && all(abs(s[,1]-5)==s[,3]) && all(abs(s[,1]-5)==s[,4]))
 sim.dyads <- t(sapply(lapply(sim, as.matrix, attrname="v"), c))
 stopifnot(all(sim.dyads==s[,-(1:4)]))
+}

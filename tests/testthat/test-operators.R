@@ -128,8 +128,7 @@ test_that("Binary Label() estimation and offsets in submodels", {
   )
 })
 
-
-library(ergm.count)
+if(require(ergm.count) && packageVersion("ergm.count") >= "4.0"){
 data(zach)
 test_that("Summary for the B() operator with nonzero criteria",{
   summ <- summary(zach~B(~edges+triangles+degree(0:5), "nonzero") + B(~edges+triangles+degree(0:5), ~nonzero), response="contexts")
@@ -172,6 +171,7 @@ test_that("Valued Label() summary", {
     c("edges","absdiff!faction!id")
   )
 })
+}
 
 test_that("Interaction terms", {
   # TODO: Need better tests.
