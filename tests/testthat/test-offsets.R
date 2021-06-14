@@ -12,10 +12,9 @@ o <- options(ergm.eval.loglik=TRUE)
 
 set.seed(0)
 
+data(sampson)
 total.theta <- coef(ergm(samplike~edges))
 offset.theta <- pi
-
-data(sampson)
 
 test_that("Linear ERGM with free parameter before offset", {
   e1 <- ergm(samplike~edges+offset(edges), offset.coef=c(pi))
