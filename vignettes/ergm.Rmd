@@ -335,9 +335,9 @@ flomodel.03 <- ergm(flomarriage~edges+nodecov('wealth'))
 summary(flomodel.03)
 ```
 
-##### Question:  What does the value of the **nodecov** statistic represent?
-
 And yes, there is a significant positive wealth effect on the probability of a tie.
+
+*Question:*  What does the value of the **nodecov** statistic represent?
 
 How do we interpret the coefficients here?  Note that the wealth effect operates on both nodes in a dyad.  The conditional log-odds of a tie between two actors is:
 $$
