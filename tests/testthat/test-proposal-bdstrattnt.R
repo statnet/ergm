@@ -360,6 +360,8 @@ test_that("BDStratTNT simulates reasonably with heterogeneous degree bounds", {
   }
 })
 
+skip("Skipping the rest for time.")
+
 test_that("BDStratTNT simulates reasonably with bipartite heterogeneous degree bounds", {
   for(deg_bound in 1:5) {
     net_size <- 2000L
