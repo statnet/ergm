@@ -717,11 +717,15 @@ How about trying a different model specification: use
 GWESP, the more robust approach to modeling triangles? 
 (For a technical introduction to GWESP see Hunter 2007;
 for a more intuitive description and empirical application see Goodreau
-Kitts and Morris 2009 in the references)
+Kitts and Morris 2009 in the references.)
+
+Note that we are running with a somewhat lower precision than the
+default, to save time.
 
 ```{r eval=FALSE}
-fit <- ergm(magnolia~edges+gwesp(0.5,fixed=T),
- control =  control.ergm(seed=1, MCMLE.MCMC.precision=0.5))
+fit <- ergm(magnolia~edges+gwesp(0.5,fixed=T)+nodematch('Grade')+nodematch('Race')+
+  nodematch('Sex'),
+ control =  control.ergm(seed=1, MCMLE.MCMC.precision=2))
 mcmc.diagnostics(fit)
 ```
 
@@ -733,7 +737,7 @@ One more try...
 ```{r results='hide'}
 fit <- ergm(magnolia~edges+gwesp(0.25,fixed=T)+nodematch('Grade')+nodematch('Race')+
   nodematch('Sex'),
- control = control.ergm(seed=1, MCMLE.MCMC.precision=0.5),
+ control = control.ergm(seed=1, MCMLE.MCMC.precision=2),
  verbose=T)
 ```
 
