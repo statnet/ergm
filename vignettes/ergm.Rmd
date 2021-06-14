@@ -119,7 +119,7 @@ search.ergmTerms(keyword='homophily')
 ```
 
 For more information, see the vignette on `ergm-terms`:
-```{r}
+```{r, eval=FALSE}
 vignette('ergm-term-crossRef')
 ```
 
@@ -193,7 +193,7 @@ lead to poor modeling results.
 Network data can come in many different forms -- as adjacency matrices, edgelists and data frames.  For use with `ergm` these need to be converted into a `network` class object.  The `network` package provides the utilities for this, and more information
 can be found in the examples and vignette there.  
 
-```{r}
+```{r, eval=FALSE}
 vignette("networkVignette")
 ```
 
