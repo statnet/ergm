@@ -1,5 +1,5 @@
 Package: ergm
-Version: 4.0-6459
+Version: 4.0-6470
 Date: 2021-06-14
 Title: Fit, Simulate and Diagnose Exponential-Family Models for Networks
 Authors@R: c(
