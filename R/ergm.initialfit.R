@@ -91,11 +91,12 @@ ergm.initialfit<-function(init, initial.is.final,
 }
 
 .constrain_init <- function(m, init){
-  init.no <- init[!m$etamap$offsettheta]
-  maxtheta <- m$etamap$maxtheta[!m$etamap$offsettheta]
+  if(is(m, "ergm_model")) m <- m$etamap
+  init.no <- init[!m$offsettheta]
+  maxtheta <- m$maxtheta[!m$offsettheta]
   init.no <- pmin(init.no, maxtheta - deInf(pmax(abs(maxtheta),1)*sqrt(.Machine$double.eps)))
-  mintheta <- m$etamap$mintheta[!m$etamap$offsettheta]
+  mintheta <- m$mintheta[!m$offsettheta]
   init.no <- pmax(init.no, mintheta + deInf(pmax(abs(mintheta),1)*sqrt(.Machine$double.eps)))
-  init[!m$etamap$offsettheta] <- init.no
+  init[!m$offsettheta] <- init.no
   init
 }

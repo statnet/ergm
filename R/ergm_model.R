@@ -93,6 +93,17 @@ ergm_model <- function(formula, nw=NULL, silent=FALSE, ..., term.options=list(),
   
   model$etamap <- ergm.etamap(model)
 
+  if(offset.decorate){
+    if(length(model$etamap$offsetmap)) model$coef.names <- ifelse(model$etamap$offsetmap, paste0("offset(",model$coef.names,")"), model$coef.names)
+    if(length(model$etamap$offsettheta)){
+      ol <- split(model$etamap$offsettheta, factor(rep.int(seq_along(model$terms), nparam(model, byterm=TRUE)), levels=seq_along(model$terms)))
+      for(i in seq_along(model$terms)){
+        pn <- names(model$terms[[i]]$params)
+        if(!is.null(pn)) names(model$terms[[i]]$params) <- ifelse(ol[[i]], paste0("offset(",pn,")"), pn)
+      }
+    }
+  }
+
   # I.e., construct a vector of package names associated with the model terms.
   # Note that soname is not the same, since it's not guaranteed to be a loadable package.
   ergm.MCMC.packagenames(unlist(sapply(model$terms, "[[", "pkgname")))
@@ -162,7 +173,6 @@ call.ErgmTerm <- function(term, env, nw, ..., term.options=list()){
 #' @param model the pre-existing model, as created by [`ergm_model`]
 #' @param outlist the list describing new term, as returned by `InitErgmTerm.*()`
 #' @param offset a vector indicating which parameters in the term should be offsets
-#' @param offset.decorate a flag indicating whether offset parameters should be enclosed in `"offset()"`
 #' @param silent whether to suppress messages
 #'
 #' @return The updated model (with the obvious changes seen below) if
@@ -180,13 +190,6 @@ updatemodel.ErgmTerm <- function(model, outlist, offset=FALSE, offset.decorate=T
       message(sQuote("offset()"), " decorator used on term ",sQuote(deparse(outlist$call)), " with no free parameters is meaningless and will be ignored.")
     if(is.numeric(offset)) offset <- unwhich(offset, npars)
     outlist$offset <- offset <- rep(offset, length.out=npars) | NVL(outlist$offset,FALSE)
-
-    if(offset.decorate){
-      if(is.null(outlist$params)) # Linear
-        outlist$coef.names <- ifelse(offset, paste0("offset(",outlist$coef.names,")"), outlist$coef.names)
-      else # Curved
-        names(outlist$params) <- ifelse(offset, paste0("offset(",names(outlist$params),")"), names(outlist$params))
-    }
 
     model$coef.names <- c(model$coef.names, outlist$coef.names)
     model$minval <- c(model$minval,

@@ -590,7 +590,7 @@ InitErgmTerm.Sum <- function(nw, arglist,...){
     }else pn <- NVL(attr(a$label,"curved"), a$label)
     pn.asis <- inherits(pn, "AsIs")
 
-    pn <- if(length(pn)==1L && ncparam>1L) paste0(pn, seq_along(ncparam)) else pn
+    pn <- if(length(pn)==1L && ncparam>1L) paste0(pn, seq_len(ncparam)) else pn
     if(length(pn) != ncparam) ergm_Init_abort(paste0(sQuote("label="), " argument for curved parameters has or results in length ", length(pn), ", should be ", ncparam, "."))
     names(wms[[1L]]$params) <- if(pn.asis) pn else ergm_mk_std_op_namewrap("Sum")(pn)
   }
