@@ -417,9 +417,9 @@
               }
               Formally, this means that it is expressable as
               \deqn{g(y) = \sum_{i,j} f_{i,j}(y_{i,j}),}{sum[i,j]
-		f[i,j](y[i,j]),}, where for all \eqn{i}, \eqn{j}, and \eqn{y},
+		f[i,j] (y[i,j]),}, where for all \eqn{i}, \eqn{j}, and \eqn{y},
               \eqn{f_{i,j}(y_{i,j})} is either 0 or 1 and, in particular,
-              \eqn{f_{i,j}(0)=0}{f[i,j](0)=0}.
+              \eqn{f_{i,j}(0)=0}{f[i,j] (0)=0}.
 
               Examples of such terms include \code{nonzero},
               \code{ininterval()}, \code{atleast()}, \code{atmost()},
@@ -494,9 +494,9 @@
       }
       Formally, this means that it is expressable as
       \deqn{g(y) = \sum_{i,j} f_{i,j}(y_{i,j}),}{sum[i,j]
-	f[i,j](y[i,j]),} where for all \eqn{i}, \eqn{j}, and \eqn{y},
+	f[i,j] (y[i,j]),} where for all \eqn{i}, \eqn{j}, and \eqn{y},
       \eqn{f_{i,j}(y_{i,j})} for which
-      \eqn{f_{i,j}(0)=0}{f[i,j](0)=0}.
+      \eqn{f_{i,j}(0)=0}{f[i,j] (0)=0}.
 
       Examples of such terms include \code{nodemix},
       \code{nodematch}, \code{nodefactor}, and \code{nodecov} and
@@ -504,7 +504,7 @@
 
       \code{formula} will be evaluated on a network constructed by
       taking \eqn{y} and removing any edges for which
-      \eqn{f_{i,j}(y_{i,j}) = 0}{f[i,j](y[i,j])=0}.
+      \eqn{f_{i,j}(y_{i,j}) = 0}{f[i,j] (y[i,j])=0}.
     }
 
     \item{\code{Log(formula, log0=-1/sqrt(.Machine$double.eps))} (binary) (operator), \code{Log(formula, log0=-1/sqrt(.Machine$double.eps))} (valued) (operator)}{\emph{Take a natural logarithm of a network's statistic}:
