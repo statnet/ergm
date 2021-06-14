@@ -10,11 +10,18 @@
 
 data(florentine)
 baseline <- summary(flomarriage~edges+absdiff("wealth"))
+esps <- summary(flomarriage~gwesp(), gw.cutoff=4)
 
-test_that("Sum() summary with one formula, simple weights, procedural naming, and an offset", {
+test_that("Sum() summary with one formula, simple weights, procedural naming, an offset, and a curved term", {
   local_edition(3)
-  test <- summary(flomarriage~Sum(c(1,.5)~edges+offset(absdiff("wealth")), identity))
-  expect_equal(test, setNames(baseline*c(1,.5), c("Sum~edges","offset(Sum~absdiff.wealth)")))
+  test <- summary(flomarriage~Sum(c(1,.5, rep(2,4))~edges+offset(absdiff("wealth"))+gwesp(), identity), gw.cutoff=4)
+  expect_equal(test, setNames(c(baseline,esps)*c(1,.5,rep(2,4)), c("Sum~edges","offset(Sum~absdiff.wealth)", "Sum~esp#1", "Sum~esp#2", "Sum~esp#3", "Sum~esp#4")))
+})
+
+test_that("Sum() summary with one formula, simple weights, fixed naming, an offset, and a curved term", {
+  local_edition(3)
+  test <- summary(flomarriage~Sum(c(1,.5, rep(2,4))~edges+offset(absdiff("wealth"))+gwesp(), "x"), gw.cutoff=4)
+  expect_equal(test, setNames(c(baseline,esps)*c(1,.5,rep(2,4)), replace(paste0("Sum~x",1:6), 2, "offset(Sum~x2)")))
 })
 
 test_that("Sum() summary with one formula, simple weights, and procedural naming with AsIs", {
