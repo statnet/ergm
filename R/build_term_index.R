@@ -129,12 +129,12 @@
       }
       cat('</a><br>')
       cat(capture.output(tools::Rd2HTML(matchedTerms[[1]]$description.rd,fragment=TRUE)),"</p></td>")
-      cat("<td>",paste(unique(unlist(lapply(matchedTerms,'[[','categories'))),collapse=", "),"</td></tr>")
+      cat("<td>",paste(unique(unlist(lapply(matchedTerms,'[[','categories'))),collapse=", "),"</td></tr>\n")
     }
   } else {
     for (term in terms){
       cat("<tr><td><a id='",term$term.id,"'>",term$term.name,"(",ifelse(is.na(term$term.args),'',term$term.args),")</a><br>",sep='')
-      cat(capture.output(tools::Rd2HTML(term$description.rd,fragment=TRUE)),"</p></td><td>",paste(term$categories,collapse=", "),"</td></tr>")
+      cat(capture.output(tools::Rd2HTML(term$description.rd,fragment=TRUE)),"</p></td><td>",paste(term$categories,collapse=", "),"</td></tr>\n")
     }
   }
   cat("</table>")
@@ -194,7 +194,7 @@
     for(c in seq_along(categories)){
       cat("<td align='center'>",membership[[c]][[t]],"</td>")
     }
-    cat("</tr>",sep='')
+    cat("</tr>\n",sep='')
   }
   cat("</table>")
 }
