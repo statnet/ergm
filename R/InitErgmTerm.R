@@ -132,13 +132,13 @@
 GWDECAY <- list(
   map = function(x,n,...) {
     i <- 1:n
-    x[1]*(exp(x[2])*(1-(1-exp(-x[2]))^i))
+    x[1] * ifelse(i==1, 1, (exp(x[2])*(1-(1-exp(-x[2]))^i)))
   },
   gradient = function(x,n,...) {
     i <- 1:n
     e2 <- exp(x[2])
     a <- 1-exp(-x[2])
-    rbind((1-a^i)*e2, x[1] * ( (1-a^i)*e2 - i*a^(i-1) ) )
+    rbind((1-a^i)*e2, ifelse(i==1, 0, x[1] * ( (1-a^i)*e2 - i*a^(i-1) ) ) )
   },
   minpar = c(-Inf, 0)
 )
