@@ -1866,7 +1866,7 @@ fixes issue reported by Sebastian Daza}
       \eqn{\theta} and simulated statistics.
 
       \item \code{\link{ergm}} extreme statistics detection (if
-      \code{\code{\link{control.ergm}}(drop=TRUE)}) can now detect both extremely high
+      \code{\link{control.ergm}(drop=TRUE)}) can now detect both extremely high
       and extremely low values, setting the coefficients to +Inf and
       -Inf respectively. Direction of \dQuote{dropping} is returned.
 
