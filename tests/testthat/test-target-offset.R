@@ -20,11 +20,9 @@ test_that("target+offset in a non-curved ERGM", {
 
 test_that("target+offset in a curved ERGM", {
   set.seed(10)
-  expect_warning(
-    expect_warning(
+  suppressWarnings(expect_warning(
       fit <- ergm(flomarriage~offset(edges)+edges+gwdegree()+degree(0)+offset(degree(1)),target.stats=summary(flomarriage~edges+gwdegree(fix=FALSE)+degree(0)), offset.coef=c(0,-0.25), control=control.ergm(MCMLE.termination="none",MCMLE.maxit=3,MPLE.nonident.tol=0,MCMLE.nonident.tol=0), eval.loglik=TRUE),
-      "^Using target.stats for a model with offset terms may produce an inaccurate estimate of the log-likelihood.*"),
-    "^Approximate Hessian matrix is singular. Standard errors due to MCMC approximation of the likelihood cannot be evaluated..*")
+      "^Using target.stats for a model with offset terms may produce an inaccurate estimate of the log-likelihood.*"))
   expect_warning(expect_error(summary(fit),NA),NA)
   expect_warning(expect_error(mcmc.diagnostics(fit),NA),NA)
 })
