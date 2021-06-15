@@ -23,23 +23,24 @@ typedef struct{
   Edge lindex, nedges, maxedges;
 } UnsrtEL;
 
-
 static inline UnsrtEL *UnsrtELInitialize(Edge nedges, Vertex *tails, Vertex *heads, Rboolean copy){
   UnsrtEL *el = Calloc(1, UnsrtEL);
 
-  Vertex *mytails, *myheads;
-  if(nedges==0) mytails = myheads = NULL; // Realloc will handle this correctly on insertion.
-  else if(copy){
-    mytails = Calloc(nedges, Vertex);
-    memcpy(mytails, tails, nedges*sizeof(Vertex));
-    myheads = Calloc(nedges, Vertex);
-    memcpy(myheads, heads, nedges*sizeof(Vertex));
+  if(nedges == 0){
+    el->tails = el->heads = NULL;
   }else{
-    mytails = tails;
-    myheads = heads;
+    if(copy){
+      el->tails = Calloc(nedges, Vertex);
+      memcpy(el->tails, tails, nedges*sizeof(Vertex));
+      el->heads = Calloc(nedges, Vertex);
+      memcpy(el->heads, heads, nedges*sizeof(Vertex));
+    }else{
+      el->tails = tails;
+      el->heads = heads;
+    }
+    el->tails--; // Index from 1.
+    el->heads--; // Index from 1.
   }
-  el->tails = mytails-1; // Index from 1.
-  el->heads = myheads-1; // Index from 1.
   el->lindex = 0;
   el->nedges = el->maxedges = nedges;
 
@@ -47,8 +48,10 @@ static inline UnsrtEL *UnsrtELInitialize(Edge nedges, Vertex *tails, Vertex *hea
 }
 
 static inline void UnsrtELDestroy(UnsrtEL *el){
-  el->tails++; Free(el->tails);
-  el->heads++; Free(el->heads);
+  if(el->tails){
+    el->tails++; Free(el->tails);
+    el->heads++; Free(el->heads);
+  }
   Free(el);
 }
 
@@ -101,10 +104,14 @@ static inline void UnsrtELDeleteAt(unsigned int at, UnsrtEL *el) {
 }
 
 static inline void UnsrtELInsert(Vertex tail, Vertex head, UnsrtEL *el){
-  if(el->nedges==el->maxedges){
+  if(el->nedges == el->maxedges){
     el->maxedges = MAX(el->maxedges,1) * 2;
-    el->tails = Realloc(el->tails+1, el->maxedges, Vertex) - 1;
-    el->heads = Realloc(el->heads+1, el->maxedges, Vertex) - 1;
+    if(el->tails){
+      el->tails++;
+      el->heads++;
+    }
+    el->tails = Realloc(el->tails, el->maxedges, Vertex) - 1;
+    el->heads = Realloc(el->heads, el->maxedges, Vertex) - 1;
   }
 
 #ifdef DEBUG_UnsrtEL

@@ -173,7 +173,7 @@ WtModel* WtModelInitialize (SEXP mR, SEXP ext_state, WtNetwork *nwp, Rboolean no
 
       tmp = getAttrib(tmp, install("ParamsBeforeCov"));
       unsigned int offset = length(tmp) ? asInteger(tmp): 0;  /* Set offset for attr vector */
-      thisterm->attrib = thisterm->inputparams + offset; /* Ptr to attributes */
+      thisterm->attrib = thisterm->ninputparams ? thisterm->inputparams + offset : NULL; /* Ptr to attributes */
 
       /* Integer input vector with an optional attribute shift. */
       tmp = getListElement(thisterm->R, "iinputs");
@@ -182,7 +182,7 @@ WtModel* WtModelInitialize (SEXP mR, SEXP ext_state, WtNetwork *nwp, Rboolean no
 
       tmp = getAttrib(tmp, install("ParamsBeforeCov"));
       offset = length(tmp) ? asInteger(tmp): 0;  /* Set offset for attr vector */
-      thisterm->iattrib = thisterm->iinputparams + offset; /* Ptr to attributes */
+      thisterm->iattrib = thisterm->niinputparams ? thisterm->iinputparams + offset : NULL; /* Ptr to attributes */
 
       /* Number of statistics. */
       thisterm->nstats = length(getListElement(thisterm->R, "coef.names")); /* If >0, # of statistics returned. If ==0 an auxiliary statistic. */
