@@ -20,8 +20,16 @@ test_that("Sum() summary with one formula, simple weights, procedural naming, an
 
 test_that("Sum() summary with one formula, simple weights, fixed naming, an offset, and a curved term", {
   local_edition(3)
-  test <- summary(flomarriage~Sum(c(1,.5, rep(2,4))~edges+offset(absdiff("wealth"))+gwesp(), "x"), gw.cutoff=4)
-  expect_equal(test, setNames(c(baseline,esps)*c(1,.5,rep(2,4)), replace(paste0("Sum~x",1:6), 2, "offset(Sum~x2)")))
+  m <- ergm_model(flomarriage~Sum(c(1,.5, rep(2,4))~edges+offset(absdiff("wealth"))+gwesp(), "x"), gw.cutoff=4)
+  expect_equal(param_names(m), c("Sum~x1", "offset(Sum~x2)", "Sum~x3", "Sum~x4"))
+  expect_equal(summary(m, flomarriage), setNames(c(baseline,esps)*c(1,.5,rep(2,4)), replace(paste0("Sum~x",1:6), 2, "offset(Sum~x2)")))
+})
+
+test_that("Sum() summary with one formula, simple weights, fixed procedural naming with AsIs, an offset, and a curved term", {
+  local_edition(3)
+  m <- ergm_model(flomarriage~Sum(c(1,.5, rep(2,4))~edges+offset(absdiff("wealth"))+gwesp(), I), gw.cutoff=4)
+  expect_equal(param_names(m), c("edges", "offset(absdiff.wealth)", "gwesp", "gwesp.decay"))
+  expect_equal(summary(m, flomarriage), setNames(c(baseline,esps)*c(1,.5,rep(2,4)), c("edges", "offset(absdiff.wealth)", "esp#1", "esp#2", "esp#3", "esp#4")))
 })
 
 test_that("Sum() summary with one formula, simple weights, and procedural naming with AsIs", {

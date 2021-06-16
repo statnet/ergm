@@ -337,7 +337,7 @@ InitErgmTerm.Offset <- function(nw, arglist, ...){
   
   offset.coef <- rep(a$coef, length.out=sum(selection))
 
-  coef0 <- .constrain_init(m, rep(0, nparams))
+  coef0 <- rep(NA, nparams)
   coef0[selection] <- offset.coef
 
   params <- rep(list(NULL), sum(!selection))
@@ -345,8 +345,9 @@ InitErgmTerm.Offset <- function(nw, arglist, ...){
 
   c(list(name="passthrough_term", submodel=m),
     ergm_propagate_ext.encode(m),
-    modifyList(wrap.ergm_model(m, nw),
-               list(coef.names = coefnames,
+    replace(wrap.ergm_model(m, nw),
+            c("coef.names", "params", "map", "gradient", "offset"),
+            list(coef.names = coefnames,
                     params=params,
                     map = function(x, n, ...){
                       coef0[!selection] <- x
@@ -584,8 +585,8 @@ InitErgmTerm.Sum <- function(nw, arglist,...){
     ncparam <- length(wms[[1L]]$params)
 
     if(is.function(a$label)){
-      pns <- lapply(ms, param_names, canonical=TRUE)
-      if(length(cns) == 1) pns <- pns[[1]]
+      pns <- lapply(ms, param_names, canonical=FALSE)
+      if(length(pns) == 1) pns <- pns[[1]]
       pn <- a$label(pns)
     }else pn <- NVL(attr(a$label,"curved"), a$label)
     pn.asis <- inherits(pn, "AsIs")

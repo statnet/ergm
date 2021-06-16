@@ -5,7 +5,7 @@
 [![Coverage status](https://codecov.io/gh/statnet/ergm/branch/master/graph/badge.svg)](https://codecov.io/github/statnet/ergm?branch=master)
 [![R build status](https://github.com/statnet/ergm/workflows/R-CMD-check/badge.svg)](https://github.com/statnet/ergm/actions)
 
-An integrated set of tools to analyze and simulate networks based on exponential-family random graph models (ERGMs). 'ergm' is a part of the Statnet suite of packages for network analysis.
+An integrated set of tools to analyze and simulate networks based on exponential-family random graph models (ERGMs). 'ergm' is a part of the Statnet suite of packages for network analysis. See Hunter, Handcock, Butts, Goodreau, and Morris (2008) <doi:10.18637/jss.v024.i03> and Krivitsky, Hunter, Morris, and Klumb (2021) <arXiv:2106.04997>.
 
 ## Public and Private repositories
 
@@ -26,4 +26,4 @@ A set of binaries is built after every commit to the repository. We strongly enc
 
 You will need to extract the MacOS `.tgz` or the Windows `.zip` file from the outer `.zip` file before installing. These binaries are usually built under the latest version of R and their operating system and may not work under other versions.
 
-You may also want to install the corresponding latest binaries for packages on which `ergm` depends, in particular [`statnet.common`](https://github.com/statnet/statnet.common), [`rle`](https://github.com/statnet/rle), [`network`](https://github.com/statnet/network), [`tergm`](https://github.com/statnet/tergm), and [`ergm.count`](https://github.com/statnet/ergm.count).
+You may also want to install the corresponding latest binaries for packages on which `ergm` depends, in particular [`tergm`](https://github.com/statnet/tergm) and [`ergm.count`](https://github.com/statnet/ergm.count).

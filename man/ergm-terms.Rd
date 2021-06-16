@@ -618,7 +618,7 @@
       argument can be used to specify which of the \emph{parameters} in
       the formula are fixed. It can be a logical vector (recycled as
       needed), a numeric vector of indices of parameters to be fixed, or
-      the a character vector of parameter names.
+      a character vector of parameter names.
     }
     \item{\code{absdiff(attr, pow=1)}  (binary)  (dyad-independent)  (frequently-used)  (directed)  (undirected) (quantitative nodal attribute),
       \code{absdiff(attr, pow=1, form ="sum")}  (valued)  (dyad-independent) (directed)  (undirected) (quantitative nodal attribute)}{\emph{Absolute difference:}
