@@ -7,9 +7,10 @@
 #
 #  Copyright 2003-2021 Statnet Commons
 ################################################################################
+local_edition(3)
+nw <- network(8, dir = FALSE)
+
 test_that("Estimation with Offset() operator works", {
-  local_edition(3)
-  nw <- network(8, dir = F)
   offset_RE <- ".*offset.* decorator used on term .* with no free parameters is meaningless.*"
 
   expect_message(
@@ -28,4 +29,10 @@ test_that("Estimation with Offset() operator works", {
   (coef(off)[1] - coef(Off)) /
   sqrt(vcov(off, sources = "estimation")[1,1] + vcov(Off, sources = "estimation")),
   qnorm(.9999))
+})
+
+test_that("Offset operator with curved terms works", {
+  m <- ergm_model(nw ~ Offset(~edges + triangle + gwesp(0, fixed = T) + gwesp(fixed = F, cutoff = 3), which = 1, coef = 1))
+  expect_equal(param_names(m), c("triangle", "gwesp.fixed.0", "gwesp", "gwesp.decay"))
+  expect_equal(param_names(m, canonical=TRUE), c("edges", "triangle", "gwesp.fixed.0", "esp#1", "esp#2", "esp#3" ))
 })
