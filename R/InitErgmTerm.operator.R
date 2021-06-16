@@ -585,8 +585,8 @@ InitErgmTerm.Sum <- function(nw, arglist,...){
     ncparam <- length(wms[[1L]]$params)
 
     if(is.function(a$label)){
-      pns <- lapply(ms, param_names, canonical=TRUE)
-      if(length(cns) == 1) pns <- pns[[1]]
+      pns <- lapply(ms, param_names, canonical=FALSE)
+      if(length(pns) == 1) pns <- pns[[1]]
       pn <- a$label(pns)
     }else pn <- NVL(attr(a$label,"curved"), a$label)
     pn.asis <- inherits(pn, "AsIs")
