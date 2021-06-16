@@ -241,7 +241,7 @@ jobs:
       - name: Check UBSAN output
         if: contains(matrix.config.flags, 'ubsan')
         run: |
-          find check/ -name '*.Rout' -print0 | xargs -0 grep -E '\.[hc]:[0-9]+:[0-9]+: +runtime error:' > check/ubsan.err
+          find check/ -name '*.Rout' -print0 | xargs -r -0 grep -E '\.[hc]:[0-9]+:[0-9]+: +runtime error:' > check/ubsan.err || true
           if [ -s check/ubsan.err ]
           then
             echo "UBSAN errors:" >&2
