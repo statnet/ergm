@@ -51,7 +51,8 @@
 #define X_CHANGESTAT_PROPAGATE_FN(a, getstorage, getm)                  \
   X_CHANGESTAT_FN(a) {                                                  \
     getstorage;                                                         \
-    SEND_X_SIGNAL_INTO(nwp, (getm), NULL, CHANGE_STAT, type, data);     \
+    ModelTerm *_mymtp = mtp;                                            \
+    SEND_X_SIGNAL_INTO(nwp, (getm), NULL, _mymtp->dstats, type, data);   \
   }
 
 #endif // _ERGM_CHANGESTAT_OPERATOR_H_

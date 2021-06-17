@@ -257,7 +257,7 @@ test_that("BDStratTNT works with churning", {
 })
 
 test_that("BDStratTNT simulates reasonably", {
-  for(deg_bound in 1:5) {
+  for(deg_bound in c(1,3)) {
     net_size <- 2000L
   
     nw <- network.initialize(net_size, dir = FALSE)
@@ -275,7 +275,7 @@ test_that("BDStratTNT simulates reasonably", {
           
     nw_sim <- nw
     
-    for(i in 1:5) {
+    for(i in 1:2) {
       nw_sim <- simulate(nw_sim ~ edges, 
                          coef = c(0), 
                          constraints = ~bd(maxout = deg_bound) + blocks(attr = "sex", levels2 = levels2) + strat(attr = "vattr", pmat = pmat),
@@ -301,7 +301,7 @@ test_that("BDStratTNT simulates reasonably", {
 })
 
 test_that("BDStratTNT simulates reasonably with heterogeneous degree bounds", {
-  for(deg_bound in 1:5) {
+  for(deg_bound in c(1,3)) {
     net_size <- 2000L
   
     nw <- network.initialize(net_size, dir = FALSE)
@@ -339,7 +339,7 @@ test_that("BDStratTNT simulates reasonably with heterogeneous degree bounds", {
     maxout <- maxout + round(5*(runif(length(maxout)) - 1/2))
     maxout[maxout < 0] <- 0
     
-    for(i in 1:5) {    
+    for(i in 1:2) {    
       nw_sim <- simulate(nw_sim ~ edges, 
                          coef = c(0), 
                          constraints = ~bd(attribs = attribs, maxout = maxout) + blocks(~blocks_attr, levels2 = blocks_levels_2) + strat(attr = "vattr", pmat = pmat),
@@ -360,10 +360,8 @@ test_that("BDStratTNT simulates reasonably with heterogeneous degree bounds", {
   }
 })
 
-skip("Skipping the rest for time.")
-
 test_that("BDStratTNT simulates reasonably with bipartite heterogeneous degree bounds", {
-  for(deg_bound in 1:5) {
+  for(deg_bound in c(1,3)) {
     net_size <- 2000L
     bip <- 700L
     
@@ -401,7 +399,7 @@ test_that("BDStratTNT simulates reasonably with bipartite heterogeneous degree b
     maxout <- maxout + round(5*(runif(length(maxout)) - 1/2))
     maxout[maxout < 0] <- 0
     
-    for(i in 1:5) {    
+    for(i in 1:2) {    
       nw_sim <- simulate(nw_sim ~ edges, 
                          coef = c(0), 
                          constraints = ~bd(attribs = attribs, maxout = maxout) + blocks(~blocks_attr, levels2 = blocks_levels_2) + strat(attr = "vattr", pmat = pmat),
@@ -423,7 +421,7 @@ test_that("BDStratTNT simulates reasonably with bipartite heterogeneous degree b
 })
 
 test_that("BDStratTNT simulates reasonably with directed heterogeneous degree bounds", {
-  for(deg_bound in 1:5) {
+  for(deg_bound in c(1,3)) {
     net_size <- 2000L
   
     nw <- network.initialize(net_size, dir = TRUE)
@@ -463,7 +461,7 @@ test_that("BDStratTNT simulates reasonably with directed heterogeneous degree bo
     maxin <- maxout + round(5*(runif(length(maxout)) - 1/2))
     maxin[maxin < 0] <- 0
     
-    for(i in 1:5) {      
+    for(i in 1:2) {
       nw_sim <- simulate(nw_sim ~ edges, 
                          coef = c(0), 
                          constraints = ~bd(attribs = attribs, maxout = maxout, maxin = maxin) + blocks(~blocks_attr, levels2 = blocks_levels_2) + strat(attr = "vattr", pmat = pmat),
@@ -767,7 +765,7 @@ test_that("BDStratTNT simulates directed reasonably", {
       
   nw_sim <- nw
   
-  for(i in 1:5) {
+  for(i in c(1,3)) {
     nw_sim <- simulate(nw_sim ~ edges, 
                        coef = c(0), 
                        constraints = ~bd(maxout = i, maxin = i + 1) + blocks(attr = "sex", levels2 = matrix(c(TRUE,FALSE,TRUE,FALSE,FALSE,TRUE,FALSE,TRUE,FALSE),3,3)) + strat(attr = "vattr", pmat = pmat),
