@@ -12,7 +12,7 @@
   sm <- statnetStartupMessage("ergm", c("statnet","ergm.count","tergm"), TRUE)
   if(!is.null(sm)){
     packageStartupMessage(sm)
-    packageStartupMessage(paste(c(strwrap(paste0(sQuote("ergm"), " 4 is a major release that introduces a fair number of backwards-incompatible changes. Please type ",sQuote("news(package=\"ergm\")"), " for a list of major changes.")),""),collapse="\n"))
+    packageStartupMessage(paste(c(strwrap(paste0(sQuote("ergm"), " 4 is a major update that introduces some backwards-incompatible changes. Please type ",sQuote("news(package=\"ergm\")"), " for a list of major changes.")),""),collapse="\n"))
   }
 }
 
