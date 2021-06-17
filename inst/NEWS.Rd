@@ -64,6 +64,29 @@
 
 %% }
 
+\section{Changes in version 4.0.1}{
+
+  \subsection{BUG FIXES}{
+    \itemize{
+      \item{
+        Fixes to extended state API propagation in \code{\link{Passthrough}} term.
+      }
+      \item{
+        Fixes to the handling, particularly of curved terms and offsets, in the \code{\link{Sum}()} and \code{\link{Offset}()} operators.
+      }
+    }
+  }
+
+
+  \subsection{OTHER USER-VISIBLE CHANGES}{
+    \itemize{
+      \item{
+      }
+    }
+  }
+}
+
+
 \section{Changes in version 4.0.0}{
 
   \subsection{NEW FEATURES}{
