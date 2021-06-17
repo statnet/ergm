@@ -51,7 +51,8 @@
 #define WtX_CHANGESTAT_PROPAGATE_FN(a, getstorage, getm)                \
   WtX_CHANGESTAT_FN(a) {                                                \
     getstorage;                                                         \
-    WtSEND_X_SIGNAL_INTO(nwp, (getm), NULL, CHANGE_STAT, type, data);   \
+    WtModelTerm *_mymtp = mtp;                                          \
+    WtSEND_X_SIGNAL_INTO(nwp, (getm), NULL, _mymtp->dstats, type, data); \
   }
 
 #endif // _ERGM_WTCHANGESTAT_OPERATOR_H_
