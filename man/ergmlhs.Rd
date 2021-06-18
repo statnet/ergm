@@ -7,6 +7,9 @@
 \alias{\%ergmlhs\%<-}
 \alias{\%ergmlhs\%<-.network}
 \alias{convert_ergmlhs}
+\alias{print.ergm_lhs}
+\alias{summary.ergm_lhs}
+\alias{print.summary.ergm_lhs}
 \title{An API for specifying aspects of an \code{\link{ergm}} model in the
 LHS/basis network.}
 \usage{
@@ -19,6 +22,12 @@ lhs \%ergmlhs\% setting <- value
 \method{\%ergmlhs\%}{network}(lhs, setting) <- value
 
 convert_ergmlhs(lhs)
+
+\method{print}{ergm_lhs}(x, ...)
+
+\method{summary}{ergm_lhs}(object, ...)
+
+\method{print}{summary.ergm_lhs}(x, ...)
 }
 \arguments{
 \item{lhs}{a \code{\link{network}} intended to serve as LHS of a \code{\link{ergm}}
@@ -53,6 +62,12 @@ of \code{\link[=ergm]{ergm()}}, \code{\link[=simulate.formula]{simulate.formula(
 \section{Functions}{
 \itemize{
 \item \code{convert_ergmlhs}: \code{convert_ergmlhs} converts old-style settings to new-style settings.
+
+\item \code{print.ergm_lhs}: a print method.
+
+\item \code{summary.ergm_lhs}: helper method for printing summary.
+
+\item \code{print.summary.ergm_lhs}: helper method for printing summary.
 }}
 
 \keyword{internal}

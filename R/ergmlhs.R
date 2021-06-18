@@ -67,7 +67,7 @@
 #' @rdname ergmlhs
 #' @export
 `%ergmlhs%<-.network` <- function(lhs, setting, value){
-  settings <- NVL(lhs %n% "ergm", list())
+  settings <- NVL(lhs %n% "ergm", structure(list(), class="ergm_lhs"))
   settings[[setting]] <- value
   lhs %n% "ergm" <- settings
   lhs
@@ -81,4 +81,25 @@ convert_ergmlhs <- function(lhs){
     lhs %n% attr <- NULL
   }
   lhs
+}
+
+#' @describeIn ergmlhs a print method.
+#' @export
+print.ergm_lhs <- function(x, ...){
+  for(name in names(x)){
+    cat("    ", name, ": ", sep="")
+    cat(paste(deparse(x[[name]]), collapse=" "),"\n", sep="")
+  }
+}
+
+#' @describeIn ergmlhs helper method for printing summary.
+#' @export
+summary.ergm_lhs <- function(object, ...){
+  structure(object, class="summary.ergm_lhs")
+}
+
+#' @describeIn ergmlhs helper method for printing summary.
+#' @export
+print.summary.ergm_lhs <- function(x, ...){
+  print.ergm_lhs(x)
 }
