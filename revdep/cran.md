@@ -2,25 +2,18 @@
 
 We checked 31 reverse dependencies, comparing R CMD check results across CRAN and dev versions of this package.
 
- * We saw 3 new problems
- * We failed to check 1 packages
+ * We saw 1 new problems
+ * We failed to check 2 packages
 
 Issues with CRAN packages are summarised below.
 
 ### New problems
 (This reports the first line of each new failure)
 
-* Bergm
-  checking examples ... ERROR
-  checking R code for possible problems ... NOTE
-
-* EpiModel
-  checking examples ... ERROR
-  checking tests ...
-
-* ergm.count
-  checking tests ...
+* ergm.ego
+  checking Rd \usage sections ... NOTE
 
 ### Failed to check
 
 * btergm (NA)
+* tergm  (NA)
