@@ -18,3 +18,4 @@ appveyor.yml
 ^codecov\.yml$
 ^vignettes/.*_cache$
 ^vignettes/.*_files$
+^README.md$
