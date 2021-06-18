@@ -369,21 +369,26 @@ InitErgmTerm.Offset <- function(nw, arglist, ...){
 #'   [`network`] method, it can also be a function or a list; see
 #'   Details.
 #' @param ... additional arguments to [sna::symmetrize()].
+#'
+#' @note This was originally exported as a generic to overwrite
+#'   [sna::symmetrize()]. By developer's request, it has been renamed;
+#'   eventually, `sna` or `network` packages will export the generic
+#'   instead.
 #' @export
-symmetrize <- function(x, rule=c("weak","strong","upper","lower"), ...){
-  UseMethod("symmetrize")
+ergm_symmetrize <- function(x, rule=c("weak","strong","upper","lower"), ...){
+  UseMethod("ergm_symmetrize")
 }
 
-#' @describeIn symmetrize
+#' @describeIn ergm_symmetrize
 #'
 #' The default method, passing the input on to [sna::symmetrize()].
 #' 
 #' @export
-symmetrize.default <- function(x, rule=c("weak","strong","upper","lower"), ...){
+ergm_symmetrize.default <- function(x, rule=c("weak","strong","upper","lower"), ...){
   sna::symmetrize(x, rule=rule, ...)
 }
 
-#' @describeIn symmetrize
+#' @describeIn ergm_symmetrize
 #'
 #' A method for [`network`] objects, which preserves network and vertex attributes, and handles edge attributes.
 #'
@@ -421,14 +426,14 @@ symmetrize.default <- function(x, rule=c("weak","strong","upper","lower"), ...){
 #'   mapply(identical, x, y)
 #' }
 #' 
-#' stopifnot(all(tst(as.logical(as.matrix(symmetrize(samplike, "weak"))), sm | t(sm))),
-#'           all(tst(as.logical(as.matrix(symmetrize(samplike, "strong"))), sm & t(sm))),
-#'           all(tst(c(as.matrix(symmetrize(samplike, "upper"))),
+#' stopifnot(all(tst(as.logical(as.matrix(ergm_symmetrize(samplike, "weak"))), sm | t(sm))),
+#'           all(tst(as.logical(as.matrix(ergm_symmetrize(samplike, "strong"))), sm & t(sm))),
+#'           all(tst(c(as.matrix(ergm_symmetrize(samplike, "upper"))),
 #'                   sm[cbind(c(pmin(row(sm),col(sm))),c(pmax(row(sm),col(sm))))])),
-#'           all(tst(c(as.matrix(symmetrize(samplike, "lower"))),
+#'           all(tst(c(as.matrix(ergm_symmetrize(samplike, "lower"))),
 #'                   sm[cbind(c(pmax(row(sm),col(sm))),c(pmin(row(sm),col(sm))))])))
 #' @export
-symmetrize.network <- function(x, rule=c("weak","strong","upper","lower"), ...){
+ergm_symmetrize.network <- function(x, rule=c("weak","strong","upper","lower"), ...){
   if(!is.directed(x)) return(x)
 
   TH <- c(".tail",".head")
@@ -458,7 +463,7 @@ symmetrize.network <- function(x, rule=c("weak","strong","upper","lower"), ...){
   elle <-
     if(is.character(rule.edges)){
       keep <-
-        switch(match.arg(rule.edges, eval(formals(symmetrize.network)$rule)),
+        switch(match.arg(rule.edges, eval(formals(ergm_symmetrize.network)$rule)),
                weak = NAmap(elle$na.th) | NAmap(elle$na.ht),
                strong = NAmap(elle$na.th) & NAmap(elle$na.ht),
                lower = elle$.tail>=elle$.head & NAmap(elle$na.th),
@@ -481,7 +486,7 @@ symmetrize.network <- function(x, rule=c("weak","strong","upper","lower"), ...){
       if(is.character(r)){
         th <- paste0(attr,".th")
         ht <- paste0(attr,".ht")
-        switch(match.arg(r, eval(formals(symmetrize.network)$rule)),
+        switch(match.arg(r, eval(formals(ergm_symmetrize.network)$rule)),
                pmax =,
                max =, 
                weak = pmax(elle[[th]], elle[[ht]], na.rm=TRUE),
@@ -512,7 +517,7 @@ InitErgmTerm.Symmetrize <- function(nw, arglist, ...){
   RULES <- c("weak","strong","upper","lower")
   rule <- match.arg(a$rule, RULES)
 
-  if(is.directed(nw)) nw <- symmetrize(nw, rule)
+  if(is.directed(nw)) nw <- ergm_symmetrize(nw, rule)
   m <- ergm_model(a$formula, nw, ..., offset.decorate=FALSE)
   ergm_no_ext.encode(m)
 
