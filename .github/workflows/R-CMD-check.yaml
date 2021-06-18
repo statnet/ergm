@@ -86,10 +86,10 @@ jobs:
           if [[ "${{ env.IAM }}" == 'public' ]] # Public: full set.
           then
             config='{"config":[
-            {"os":"windows-latest", "r":"release", "timeout":360, "flags":"binaries"},
-            {"os":"macOS-latest", "r":"release", "timeout":360, "flags":"binaries"},
-            {"os":"ubuntu-20.04", "r":"release", "rspm":"https://packagemanager.rstudio.com/cran/__linux__/focal/latest", "timeout":360, "flags":"full, ubsan"},
-            {"os":"ubuntu-20.04", "r":"devel", "rspm":"https://packagemanager.rstudio.com/cran/__linux__/focal/latest", "timeout":360, "flags":"vignettes"},
+            {"os":"windows-latest", "r":"release", "timeout":360, "flags":"binaries, strict"},
+            {"os":"macOS-latest", "r":"release", "timeout":360, "flags":"binaries, strict"},
+            {"os":"ubuntu-20.04", "r":"release", "rspm":"https://packagemanager.rstudio.com/cran/__linux__/focal/latest", "timeout":360, "flags":"full, ubsan, strict"},
+            {"os":"ubuntu-20.04", "r":"devel", "rspm":"https://packagemanager.rstudio.com/cran/__linux__/focal/latest", "timeout":360, "flags":"vignettes, strict"},
             {"os":"ubuntu-20.04", "r":"release", "rspm":"https://packagemanager.rstudio.com/cran/__linux__/focal/latest", "timeout":360, "flags":"full, covr"}]}'
           elif [[ "${{ env.FOUND_PUBLIC }}" != '0' ]] # Private with no public analogue: reduced set.
           then
