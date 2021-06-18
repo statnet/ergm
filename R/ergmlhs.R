@@ -95,7 +95,7 @@ print.ergm_lhs <- function(x, ...){
 #' @describeIn ergmlhs helper method for printing summary.
 #' @export
 summary.ergm_lhs <- function(object, ...){
-  structure(x, class="summary.ergm_lhs")
+  structure(object, class="summary.ergm_lhs")
 }
 
 #' @describeIn ergmlhs helper method for printing summary.
