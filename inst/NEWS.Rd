@@ -83,6 +83,9 @@
       \item{
         Per request of the \pkg{sna} maintainer, \code{\link[=ergm_symmetrize]{symmetrize}()} generic and methods have been renamed to \code{\link{ergm_symmetrize}}.
       }
+      \item{
+        Metadata set by \code{\link{\%ergmlhs\%}} is now pretty-printed.
+      }
     }
   }
 }
