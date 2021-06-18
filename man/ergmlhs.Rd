@@ -25,7 +25,7 @@ convert_ergmlhs(lhs)
 
 \method{print}{ergm_lhs}(x, ...)
 
-\method{summary}{ergm_lhs}(x, ...)
+\method{summary}{ergm_lhs}(object, ...)
 
 \method{print}{summary.ergm_lhs}(x, ...)
 }
