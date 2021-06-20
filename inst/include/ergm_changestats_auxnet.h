@@ -15,27 +15,6 @@
 
 typedef struct{StoreDyadSet *nwp; int *ref_el;} StoreDyadSetAndRefEL;
 
-I_CHANGESTAT_FN(i__isociomatrix);
-U_CHANGESTAT_FN(u__isociomatrix);
-F_CHANGESTAT_FN(f__isociomatrix);
-
-I_CHANGESTAT_FN(i__discord_net_DyadSet);
-U_CHANGESTAT_FN(u__discord_net_DyadSet);
-F_CHANGESTAT_FN(f__discord_net_DyadSet);
-
-I_CHANGESTAT_FN(i__intersect_net_DyadSet);
-U_CHANGESTAT_FN(u__intersect_net_DyadSet);
-F_CHANGESTAT_FN(f__intersect_net_DyadSet);
-
-I_CHANGESTAT_FN(i__intersect_net_toggles_in_list_DyadSet);
-U_CHANGESTAT_FN(u__intersect_net_toggles_in_list_DyadSet);
-F_CHANGESTAT_FN(f__intersect_net_toggles_in_list_DyadSet);
-
-I_CHANGESTAT_FN(i__union_net_DyadSet);
-U_CHANGESTAT_FN(u__union_net_DyadSet);
-F_CHANGESTAT_FN(f__union_net_DyadSet);
-
-
 #define map_toggle_maxtoggles__discord_net_Network 1
 MAP_TOGGLE_FN(map_toggle__discord_net_Network){
   MAP_TOGGLE_PROPAGATE;
@@ -84,7 +63,7 @@ MAP_TOGGLE_FN(map_toggle__blockdiag_net){
 #define map_toggle_maxtoggles__undir_net 1
 MAP_TOGGLE_FN(map_toggle__undir_net){
   ModelTerm *mtp = auxnet->mtp;
-  unsigned int rule = INPUT_PARAM[0];
+  unsigned int rule = IINPUT_PARAM[0];
   Network *nwp = auxnet->inwp;
   __undir_net_totoggle;
   if(totoggle){

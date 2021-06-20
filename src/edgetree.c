@@ -177,6 +177,11 @@ int ToggleEdge (Vertex tail, Vertex head, Network *nwp)
 
 void ToggleKnownEdge (Vertex tail, Vertex head, Network *nwp, Rboolean edgestate)
 {
+#ifdef DEBUG
+  if((EdgetreeSearch(tail, head, nwp->outedges)!=0) != edgestate)
+    error("ToggleKnownEdge() called with an incorrect edgestate. Note that this produces an error only if compiling with DEBUG macro set and silently produces undefined behavior otherwise.");
+#endif // DEBUG
+  ENSURE_TH_ORDER;
   if (edgestate){
     DeleteEdgeFromTrees(tail,head,nwp);
   }else{
@@ -208,7 +213,10 @@ void ToggleKnownEdge (Vertex tail, Vertex head, Network *nwp, Rboolean edgestate
 
 void AddEdgeToTrees(Vertex tail, Vertex head, Network *nwp){
 #ifdef DEBUG
-  if(EdgetreeSearch(tail, head, nwp->outedges)||EdgetreeSearch(head, tail, nwp->inedges)) error("AddEdgeToTrees() called for an extant edge. Note that this produces an error only if compiling with DEBUG macro set and silently produces undefined behavior otherwise.");
+  if(!nwp->directed_flag && tail>head)
+    error("AddEdgeToTrees() called for an undirected network with tail>head. Note that this produces an error only if compiling with DEBUG macro set and silently produces undefined behavior otherwise.");
+  if(EdgetreeSearch(tail, head, nwp->outedges)||EdgetreeSearch(head, tail, nwp->inedges))
+    error("AddEdgeToTrees() called for an extant edge. Note that this produces an error only if compiling with DEBUG macro set and silently produces undefined behavior otherwise.");
 #endif // DEBUG
   for(unsigned int i = 0; i < nwp->n_on_edge_change; i++) nwp->on_edge_change[i](tail, head, nwp->on_edge_change_payload[i], nwp, FALSE);
 

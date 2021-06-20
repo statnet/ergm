@@ -163,16 +163,16 @@ F_CHANGESTAT_FN(f__blockdiag_net){
 I_CHANGESTAT_FN(i__undir_net){
   I_AUXNET(NetworkInitialize(NULL, NULL, 0, N_NODES, FALSE, BIPARTITE, FALSE, 0, NULL));
 
-  unsigned int rule = INPUT_PARAM[0];
+  unsigned int rule = IINPUT_PARAM[0];
   EXEC_THROUGH_NET_EDGES_PRE(tail, head, e, {
       __undir_net_totoggle;
-      if(totoggle) AddEdgeToTrees(MIN(tail,head), MAX(tail,head), auxnet->onwp);
+      if(totoggle && !IS_UNDIRECTED_EDGE(tail,head,auxnet->onwp)) ToggleKnownEdge(tail, head, auxnet->onwp, FALSE);
     });
 }
 
 U_CHANGESTAT_FN(u__undir_net){
   GET_AUX_STORAGE(StoreAuxnet, auxnet);
-  unsigned int rule = INPUT_PARAM[0];
+  unsigned int rule = IINPUT_PARAM[0];
 
   __undir_net_totoggle;
   if(totoggle) ToggleEdge(MIN(tail,head),MAX(tail,head),auxnet->onwp);
