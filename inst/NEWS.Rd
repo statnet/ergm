@@ -94,7 +94,9 @@
 
   \subsection{C-LEVEL FACILITIES}{
     \itemize{
-      In the C API, the \code{ToggleKnownEdge()}, function now ensures that tail < head for undirected networks.
+      \item{
+        In the C API, the \code{ToggleKnownEdge()}, function now ensures that tail < head for undirected networks.
+      }
     }
   }
 }
