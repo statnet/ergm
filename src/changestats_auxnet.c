@@ -166,7 +166,7 @@ I_CHANGESTAT_FN(i__undir_net){
   unsigned int rule = INPUT_PARAM[0];
   EXEC_THROUGH_NET_EDGES_PRE(tail, head, e, {
       __undir_net_totoggle;
-      if(totoggle) AddEdgeToTrees(MIN(tail,head), MAX(tail,head), auxnet->onwp);
+      if(totoggle && !IS_UNDIRECTED_EDGE(tail,head,auxnet->onwp)) AddEdgeToTrees(MIN(tail,head), MAX(tail,head), auxnet->onwp);
     });
 }
 
