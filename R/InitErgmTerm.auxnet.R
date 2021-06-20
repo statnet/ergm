@@ -115,7 +115,7 @@ InitErgmTerm..undir.net <- function(nw, arglist, ...){
   rule <- match.arg(a$rule, RULES)
   ruleID <- which(RULES==rule)
 
-  list(name="_undir_net", coef.names = c(), inputs=ruleID,
+  list(name="_undir_net", coef.names = c(), iinputs=ruleID,
        dependence=rule%in%c("weak","strong")) # Just discarding half the network does not induce dependence.
 }
 

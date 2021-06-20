@@ -84,7 +84,7 @@ MAP_TOGGLE_FN(map_toggle__blockdiag_net){
 #define map_toggle_maxtoggles__undir_net 1
 MAP_TOGGLE_FN(map_toggle__undir_net){
   ModelTerm *mtp = auxnet->mtp;
-  unsigned int rule = INPUT_PARAM[0];
+  unsigned int rule = IINPUT_PARAM[0];
   Network *nwp = auxnet->inwp;
   __undir_net_totoggle;
   if(totoggle){
