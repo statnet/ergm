@@ -74,6 +74,9 @@
       \item{
         Fixes to the handling, particularly of curved terms and offsets, in the \code{\link{Sum}()} and \code{\link{Offset}()} operators.
       }
+      \item{
+        Minor fixes and improvements to some terms' C implementations.
+      }
     }
   }
 
@@ -86,6 +89,12 @@
       \item{
         Metadata set by \code{\link{\%ergmlhs\%}} is now pretty-printed.
       }
+    }
+  }
+
+  \subsection{C-LEVEL FACILITIES}{
+    \itemize{
+      In the C API, the \code{ToggleKnownEdge()}, function now ensures that tail < head for undirected networks.
     }
   }
 }
