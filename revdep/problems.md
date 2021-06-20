@@ -232,56 +232,19 @@ Run `revdep_details(, "ergm")` for more info
        1. └─testthat::expect_warning(...) test-target-offset.R:23:2
        2.   └─testthat:::expect_condition_matching(...)
       
-      [ FAIL 1 | WARN 2 | SKIP 1 | PASS 1284 ]
+      [ FAIL 1 | WARN 2 | SKIP 1 | PASS 1292 ]
       Error: Test failures
       Execution halted
     ```
 
 *   checking installed package size ... NOTE
     ```
-      installed size is  8.3Mb
+      installed size is 10.2Mb
       sub-directories of 1Mb or more:
-        R      1.1Mb
+        R      2.0Mb
         doc    2.2Mb
-        libs   3.8Mb
-    ```
-
-# ergm.count
-
-<details>
-
-* Version: 3.4.0
-* GitHub: https://github.com/statnet/ergm.count
-* Source code: https://github.com/cran/ergm.count
-* Date/Publication: 2019-05-15 07:42:59 UTC
-* Number of recursive dependencies: 29
-
-Run `revdep_details(, "ergm.count")` for more info
-
-</details>
-
-## In both
-
-*   checking tests ...
-    ```
-     ERROR
-    Running the tests in ‘tests/valued_fit.R’ failed.
-    Last 13 lines of output:
-      
-           Null Deviance:   0.00  on 20  degrees of freedom
-       Residual Deviance: -17.07  on 19  degrees of freedom
-       
-      Note that the null model likelihood and deviance are defined to be 0.
-      This means that all likelihood-based inference (LRT, Analysis of
-      Deviance, AIC, BIC, etc.) is only valid between models with the same
-      reference distribution and constraints.
-      
-      AIC: -15.07  BIC: -14.07  (Smaller is better. MC Std. Err. = 0.3462)
-      > true.llk <- sum(dpois(na.omit(c(m)), exp(coef(efit)), log=TRUE)) - sum(dpois(na.omit(c(m)), 1, log=TRUE))
-      > 
-      > stopifnot(abs(coef(efit)-truth)<0.02)
-      Error: abs(coef(efit) - truth) < 0.02 is not TRUE
-      Execution halted
+        help   1.5Mb
+        libs   3.9Mb
     ```
 
 # ergm.ego
@@ -298,25 +261,6 @@ Run `revdep_details(, "ergm.ego")` for more info
 
 </details>
 
-## Newly broken
-
-*   checking Rd \usage sections ... NOTE
-    ```
-    Error: package ‘ergm’ does not have a namespace and should be re-installed
-    Call sequence:
-    4: stop(gettextf("package %s does not have a namespace and should be re-installed", 
-           sQuote(package)), domain = NA)
-    3: library(pkg, character.only = TRUE, logical.return = TRUE, lib.loc = lib.loc, 
-           quietly = quietly)
-    2: .getRequiredPackages2(pkgInfo, quietly = quietly)
-    1: library(package, lib.loc = lib.loc, character.only = TRUE, verbose = FALSE)
-    Execution halted
-    The \usage entries for S3 methods should use the \method markup and not
-    their full name.
-    See chapter ‘Writing R documentation files’ in the ‘Writing R
-    Extensions’ manual.
-    ```
-
 ## In both
 
 *   checking examples ... ERROR
@@ -324,23 +268,20 @@ Run `revdep_details(, "ergm.ego")` for more info
     Running examples in ‘ergm.ego-Ex.R’ failed
     The error most likely occurred in:
     
-    > ### Name: simulate.ergm.ego
-    > ### Title: Simulate from a 'ergm.ego' fit.
-    > ### Aliases: simulate.ergm.ego
-    > ### Keywords: models
+    > ### Name: degreedist.egodata
+    > ### Title: Plotting the degree distribution of an egocentric dataset
+    > ### Aliases: degreedist.egodata degreedist
     > 
     > ### ** Examples
     > 
-    ...
-    This model was fit using MCMC.  To examine model diagnostics and check
-    for degeneracy, use the mcmc.diagnostics() function.
-    > colMeans(egosim <- simulate(egofit, popsize=300,nsim=50,
-    +                        output="stats", control=control.simulate.ergm.ego(
-    +                        simulate.control=control.simulate.formula(MCMC.burnin=2e6))))
-    Note: Constructed network has size 205 different from requested 300. Simulated statistics may need to be rescaled.
-    Error in simulate.formula_lhs(object = fmh.ego ~ offset(netsize.adj) +  : 
-      No applicable method for LHS of type ‘ergm_state_full’, ‘ergm_state_send’, ‘ergm_state_receive’, ‘ergm_state’.
-    Calls: colMeans ... eval -> eval -> <Anonymous> -> simulate.formula_lhs
+    > 
+    > data(faux.mesa.high)
+    > fmh.ego <- as.egodata(faux.mesa.high)
+    Network does not have vertex attribute ‘vertex.names’ to use as ego ID; using 1..N.
+    > 
+    > degreedist(fmh.ego,by="Grade",brgmod=TRUE)
+    Error in packageVersion("ergm") : there is no package called ‘ergm’
+    Calls: degreedist ... withCallingHandlers -> ergm.ego -> ergm -> packageVersion
     Execution halted
     ```
 
@@ -362,7 +303,7 @@ Run `revdep_details(, "ergm.ego")` for more info
       > stopifnot(all.equal(summary(f.y),summary(f.y.e)))
       Error: summary(f.y) and summary(f.y.e) are not equal:
         Names: 187 string mismatches
-        Numeric: lengths (780, 788) differ
+        Numeric: lengths (788, 796) differ
       Execution halted
     ```
 
@@ -455,9 +396,10 @@ Run `revdep_details(, "ergmito")` for more info
 
 *   checking installed package size ... NOTE
     ```
-      installed size is  7.1Mb
+      installed size is  9.8Mb
       sub-directories of 1Mb or more:
-        libs   5.7Mb
+        R      1.1Mb
+        libs   7.9Mb
     ```
 
 # gwdegree
@@ -567,7 +509,7 @@ Run `revdep_details(, "NetMix")` for more info
 
 *   checking installed package size ... NOTE
     ```
-      installed size is  8.2Mb
+      installed size is  8.3Mb
       sub-directories of 1Mb or more:
         libs   7.9Mb
     ```
