@@ -25,6 +25,8 @@
 #
 #   ubsan: compile with -fsanitize=undefined and fail on any errors identified.
 #
+#   debug: compile package with -DDEBUG and -UNDEBUG
+#
 #   covr: run in covr mode may be used with 'full' but probably not with others.
 
 on: [push, pull_request]
@@ -88,7 +90,7 @@ jobs:
             config='{"config":[
             {"os":"windows-latest", "r":"release", "timeout":360, "flags":"binaries"},
             {"os":"macOS-latest", "r":"release", "timeout":360, "flags":"binaries"},
-            {"os":"ubuntu-20.04", "r":"release", "rspm":"https://packagemanager.rstudio.com/cran/__linux__/focal/latest", "timeout":360, "flags":"full, ubsan"},
+            {"os":"ubuntu-20.04", "r":"release", "rspm":"https://packagemanager.rstudio.com/cran/__linux__/focal/latest", "timeout":360, "flags":"full, ubsan, debug"},
             {"os":"ubuntu-20.04", "r":"devel", "rspm":"https://packagemanager.rstudio.com/cran/__linux__/focal/latest", "timeout":360, "flags":"vignettes"},
             {"os":"ubuntu-20.04", "r":"release", "rspm":"https://packagemanager.rstudio.com/cran/__linux__/focal/latest", "timeout":360, "flags":"full, covr"}]}'
           elif [[ "${{ env.FOUND_PUBLIC }}" != '0' ]] # Private with no public analogue: reduced set.
@@ -218,6 +220,7 @@ jobs:
           R_VIGNETTES: ${{ contains(matrix.config.flags, 'vignettes') }}
           FAIL_ON_WARN: ${{ contains(matrix.config.flags, 'strict') }}
           USE_UBSAN: ${{ contains(matrix.config.flags, 'ubsan') }}
+          SET_DEBUG: ${{ contains(matrix.config.flags, 'debug') }}
         run: |
           if(Sys.getenv("R_VIGNETTES") == "true"){
             check_args <- c("--as-cran")
@@ -230,9 +233,16 @@ jobs:
           error_on <- if(Sys.getenv("FAIL_ON_WARN") == "true") "warning" else "error"
 
           if(Sys.getenv("USE_UBSAN") == "true"){
-            Sys.setenv(PKG_LIBS="-fsanitize=undefined",
-                       PKG_CFLAGS="-fsanitize=undefined",
-                       UBSAN_OPTIONS="print_stacktrace=1")
+            Sys.setenv(PKG_LIBS=paste(Sys.getenv("PKG_LIBS"), "-fsanitize=undefined"),
+                       PKG_CFLAGS=paste(Sys.getenv("PKG_CFLAGS"), "-fsanitize=undefined"),
+                       PKG_CXXFLAGS=paste(Sys.getenv("PKG_CXXFLAGS"), "-fsanitize=undefined"),
+                       UBSAN_OPTIONS=paste(Sys.getenv("UBSAN_OPTIONS"), "print_stacktrace=1"))
+          }
+
+          if(Sys.getenv("SET_DEBUG") == "true"){
+            Sys.setenv(PKG_LIBS=paste(Sys.getenv("PKG_LIBS"), "-UNDEBUG -DDEBUG"),
+                       PKG_CXXFLAGS=paste(Sys.getenv("PKG_CXXFLAGS"), "-UNDEBUG -DDEBUG"),
+                       PKG_CFLAGS=paste(Sys.getenv("PKG_CFLAGS"), "-UNDEBUG -DDEBUG"))
           }
 
           rcmdcheck::rcmdcheck(args = check_args, build_args = build_args, error_on = error_on, check_dir = "check")
