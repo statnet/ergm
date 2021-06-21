@@ -89,9 +89,9 @@ jobs:
           then
             config='{"config":[
             {"os":"windows-latest", "r":"release", "timeout":360, "flags":"binaries"},
-            {"os":"macOS-latest", "r":"release", "timeout":360, "flags":"binaries"},
+            {"os":"macOS-latest", "r":"release", "timeout":360, "flags":"binaries, ubsan"},
             {"os":"ubuntu-20.04", "r":"release", "rspm":"https://packagemanager.rstudio.com/cran/__linux__/focal/latest", "timeout":360, "flags":"full, ubsan, debug"},
-            {"os":"ubuntu-20.04", "r":"devel", "rspm":"https://packagemanager.rstudio.com/cran/__linux__/focal/latest", "timeout":360, "flags":"vignettes"},
+            {"os":"ubuntu-20.04", "r":"devel", "rspm":"https://packagemanager.rstudio.com/cran/__linux__/focal/latest", "timeout":360, "flags":"vignettes, remote"},
             {"os":"ubuntu-20.04", "r":"release", "rspm":"https://packagemanager.rstudio.com/cran/__linux__/focal/latest", "timeout":360, "flags":"full, covr"}]}'
           elif [[ "${{ env.FOUND_PUBLIC }}" != '0' ]] # Private with no public analogue: reduced set.
           then
@@ -214,7 +214,7 @@ jobs:
         if: contains(matrix.config.flags, 'covr') == false
         timeout-minutes: ${{ matrix.config.timeout }}
         env:
-          _R_CHECK_CRAN_INCOMING_REMOTE_: false
+          _R_CHECK_CRAN_INCOMING_REMOTE_: ${{ contains(matrix.config.flags, 'remote') }}
           _R_CHECK_FORCE_SUGGESTS_: false
           ENABLE_statnet_TESTS: ${{ contains(matrix.config.flags, 'full') }}
           R_VIGNETTES: ${{ contains(matrix.config.flags, 'vignettes') }}
@@ -228,6 +228,10 @@ jobs:
           }else{
             check_args <- c("--no-manual", "--as-cran", "--ignore-vignettes")
             build_args <- c("--no-manual", "--no-build-vignettes")
+          }
+
+          if(Sys.getenv("ENABLE_statnet_TESTS") == "true"){
+            check_args <- c(check_args, "--run-donttest")
           }
 
           error_on <- if(Sys.getenv("FAIL_ON_WARN") == "true") "warning" else "error"
