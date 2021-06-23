@@ -79,8 +79,9 @@ MAP_TOGGLE_FN(map_toggle__undir_net){
 MAP_TOGGLE_FN(map_toggle__filter_formula_net){
   ModelTerm *mtp = auxnet->mtp;
   GET_STORAGE(Model, m);
+  Rboolean negate = IINPUT_PARAM[0];
   ChangeStats1(tail, head, auxnet->inwp, m, edgestate);
-  MAP_TOGGLE_PROPAGATE_IF(*(m->workspace)!=0);
+  MAP_TOGGLE_PROPAGATE_IF(XOR(*(m->workspace)!=0, negate));
 }
 
 #define map_toggle_maxtoggles__subgraph_net 1

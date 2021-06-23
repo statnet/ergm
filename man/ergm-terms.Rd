@@ -505,6 +505,8 @@
       \code{formula} will be evaluated on a network constructed by
       taking \eqn{y} and removing any edges for which
       \eqn{f_{i,j}(y_{i,j}) = 0}{f[i,j] (y[i,j])=0}.
+
+      For convenience, the term in \code{filter} can have logical negation operator prepended to it (e.g., \code{~!nodematch("A")}), which filters on \eqn{f_{i,j}(y_{i,j}) \ne 0}{f[i,j] (y[i,j])!=0} instead.
     }
 
     \item{\code{Log(formula, log0=-1/sqrt(.Machine$double.eps))} (binary) (operator), \code{Log(formula, log0=-1/sqrt(.Machine$double.eps))} (valued) (operator)}{\emph{Take a natural logarithm of a network's statistic}:

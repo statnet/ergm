@@ -26,10 +26,14 @@ sameg <- outer(g,g,"==")
 test_that("Simulation for NodematchFilter() and F()", {
   out <- simulate(samplike~nodematch("group")+odegree(0:5, by="group", homophily=TRUE)+idegree(0:5, by="group", homophily=TRUE)+localtriangle(sameg)+
                     NodematchFilter(~edges+odegree(0:5)+idegree(0:5)+triangle,"group")+
-                    F(~edges+odegree(0:5)+idegree(0:5)+triangle,~nodematch("group")), output="stats", nsim=20, control=control.simulate.formula(MCMC.burnin=0, MCMC.interval=1), coef=numeric(42))
+                    F(~edges+odegree(0:5)+idegree(0:5)+triangle,~nodematch("group"))+
+                    edges+
+                    F(~edges, ~!nodematch("group")),
+                  output="stats", nsim=20, control=control.simulate.formula(MCMC.burnin=0, MCMC.interval=1), coef=numeric(44))
 
   expect_equivalent(out[,1:14],out[,15:28])
   expect_equivalent(out[,1:14],out[,29:42])
+  expect_equivalent(out[,1]+out[,44],out[,43])
 })
 
 test_that("Symmetrize() summary", {
