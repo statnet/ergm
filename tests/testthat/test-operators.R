@@ -36,6 +36,26 @@ test_that("Simulation for NodematchFilter() and F()", {
   expect_equivalent(out[,1]+out[,44],out[,43])
 })
 
+test_that("Summary for F() with complex form", {
+  m <- abs(outer(w <- flomarriage %v% "wealth", w, FUN="-"))[c(as.matrix(flomarriage))!=0]
+  out <- summary(flomarriage ~
+                   F(~edges + absdiff("wealth"), ~absdiff("wealth") == 93) +
+                   F(~edges + absdiff("wealth"), ~absdiff("wealth") < 5) +
+                   F(~edges + absdiff("wealth"), ~absdiff("wealth") != 5) +
+                   F(~edges + absdiff("wealth"), ~absdiff("wealth") <= 5) +
+                   F(~edges + absdiff("wealth"), ~absdiff("wealth") > 5) +
+                   F(~edges + absdiff("wealth"), ~absdiff("wealth") >= 5))
+
+  expect_equivalent(out,
+                    sapply(list(m==93, m[m==93],
+                                m<5, m[m<5],
+                                m!=5, m[m!=5],
+                                m<=5, m[m<=5],
+                                m>5, m[m>5],
+                                m>=5, m[m>=5]),
+                           sum)/2)
+})
+
 test_that("Symmetrize() summary", {
   m <- as.matrix(samplike)
   expect_equivalent(

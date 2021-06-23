@@ -75,13 +75,30 @@ MAP_TOGGLE_FN(map_toggle__undir_net){
   }
 }
 
+#define __filter_formula_net_totoggle(t, h, nwp, m)                     \
+  Rboolean totoggle;                                                    \
+  {                                                                     \
+    ChangeStats1((t), (h), (nwp), (m), edgestate);                      \
+    double change = edgestate ? -*(m->workspace) : *(m->workspace);     \
+    switch(op){                                                         \
+    case 1: totoggle = change == 0; break;                              \
+    case 2: totoggle = change == INPUT_PARAM[0]; break;                 \
+    case 3: totoggle = change != INPUT_PARAM[0]; break;                 \
+    case 4: totoggle = change > INPUT_PARAM[0]; break;                  \
+    case 5: totoggle = change < INPUT_PARAM[0]; break;                  \
+    case 6: totoggle = change >= INPUT_PARAM[0]; break;                 \
+    case 7: totoggle = change <= INPUT_PARAM[0]; break;                 \
+    default: totoggle = change != 0;                                    \
+    }                                                                   \
+  }
+
 #define map_toggle_maxtoggles__filter_formula_net 1
 MAP_TOGGLE_FN(map_toggle__filter_formula_net){
   ModelTerm *mtp = auxnet->mtp;
+  unsigned int op = IINPUT_PARAM[0];
   GET_STORAGE(Model, m);
-  Rboolean negate = IINPUT_PARAM[0];
-  ChangeStats1(tail, head, auxnet->inwp, m, edgestate);
-  MAP_TOGGLE_PROPAGATE_IF(XOR(*(m->workspace)!=0, negate));
+  __filter_formula_net_totoggle(tail, head, auxnet->inwp, m);
+  MAP_TOGGLE_PROPAGATE_IF(totoggle);
 }
 
 #define map_toggle_maxtoggles__subgraph_net 1

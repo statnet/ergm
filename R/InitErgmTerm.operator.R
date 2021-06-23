@@ -301,7 +301,17 @@ InitErgmTerm..filter.formula.net <- function(nw, arglist, ...){
                       defaultvalues = list(NULL),
                       required = c(TRUE))
 
-  if(negate <- is.call(ult(a$formula)) && ult(a$formula)[[1]]=="!") ult(a$formula) <- ult(a$formula)[[2]]
+  OPS <- c("!", "==", "!=", ">" , "<", ">=" , "<=")
+  UNARY <- c("!")
+  if(is.call(ult(a$formula)) && (op <- as.character(ult(a$formula)[[1]])) %in% OPS){
+    iinputs <- match(op, OPS)
+    inputs <- if(! op%in%UNARY) eval(ult(a$formula)[[3]], environment(a$formula))
+    ult(a$formula) <- ult(a$formula)[[2]]
+  }else{
+    iinputs <- 0L
+    inputs <- NULL
+  }
+
   m <- ergm_model(a$formula, nw, ..., offset.decorate=FALSE)
   ergm_no_ext.encode(m)
 
@@ -311,7 +321,7 @@ InitErgmTerm..filter.formula.net <- function(nw, arglist, ...){
   gs <- summary(m, nw)
   if(gs!=0) ergm_Init_abort("At this time, the filter test term must have the property that its dyadwise components are 0 for 0-valued relations. This limitation may be removed in the future.")
   
-  c(list(name="_filter_formula_net", submodel=m, iinputs=negate),
+  c(list(name="_filter_formula_net", submodel=m, iinputs=iinputs, inputs=inputs),
     wrap.ergm_model(m, nw, NULL))
 }
 
