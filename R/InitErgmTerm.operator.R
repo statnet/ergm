@@ -135,16 +135,16 @@ ergm_no_ext.encode <- function(submodel) {
 ##
 InitErgmTerm.Passthrough <- function(nw, arglist, ...){
   a <- check.ErgmTerm(nw, arglist,
-                      varnames = c("formula"),
-                      vartypes = c("formula"),
-                      defaultvalues = list(NULL),
-                      required = c(TRUE))
+                      varnames = c("formula", "label"),
+                      vartypes = c("formula", "logical"),
+                      defaultvalues = list(NULL, FALSE),
+                      required = c(TRUE, FALSE))
 
   m <- ergm_model(a$formula, nw, ..., offset.decorate=FALSE)
   
   c(list(name="passthrough_term", submodel=m),
     ergm_propagate_ext.encode(m),
-    wrap.ergm_model(m, nw, ergm_mk_std_op_namewrap('Passthrough')))
+    wrap.ergm_model(m, nw, if(a$label) ergm_mk_std_op_namewrap('Passthrough') else identity))
 }
 
 InitErgmTerm.Label <- function(nw, arglist, ...){
