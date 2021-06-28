@@ -231,7 +231,7 @@ MH_I_FN(Mi_BDStratTNT) {
     }
   }
     
-  sto->wtp = WtPopInitialize(sto->nmixtypes, currentprobvec);
+  sto->wtp = WtPopInitialize(sto->nmixtypes, currentprobvec, 'B');
   Free(currentprobvec);
 
   // zero proposal probability is an error

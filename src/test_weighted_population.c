@@ -11,10 +11,10 @@
 #include "ergm_weighted_population.h"
 #include <Rinternals.h>
 
-SEXP test_weighted_population(SEXP weights, SEXP ndraws) {
+SEXP test_weighted_population(SEXP weights, SEXP ndraws, SEXP type) {
   GetRNGstate();  /* R function enabling uniform RNG */
   
-  WtPop *wtp = WtPopInitialize(length(weights), REAL(weights));
+  WtPop *wtp = WtPopInitialize(length(weights), REAL(weights), CHAR(asChar(type))[0]);
   
   int n = asInteger(ndraws);
   
