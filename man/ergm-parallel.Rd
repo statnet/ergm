@@ -112,7 +112,7 @@ Further details on the various cluster types are included below.}
 multiple MCMC chains, it is possible to attempt to accelerate
 sampling by evaluating qualified terms' change statistics in
 multiple threads run in parallel. This is done using the
-\href{http://www.openmp.org/}{OpenMP} API.
+\href{https://www.openmp.org/}{OpenMP} API.
 
 However, this introduces a nontrivial amont of computational
 overhead. See below for a list of the major factors affecting

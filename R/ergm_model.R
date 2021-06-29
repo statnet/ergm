@@ -1,12 +1,12 @@
-#  File R/ergm_model.R in package ergm, part of the Statnet suite
-#  of packages for network analysis, https://statnet.org .
+#  File R/ergm_model.R in package ergm, part of the
+#  Statnet suite of packages for network analysis, https://statnet.org .
 #
 #  This software is distributed under the GPL-3 license.  It is free,
 #  open source, and has the attribution requirements (GPL Section 7) at
-#  https://statnet.org/attribution
+#  https://statnet.org/attribution .
 #
-#  Copyright 2003-2020 Statnet Commons
-#######################################################################
+#  Copyright 2003-2021 Statnet Commons
+################################################################################
 #===================================================================================
 # This file contains the following 2 functions for creating the 'ergm_model' object
 #             <ergm_model>
@@ -31,6 +31,7 @@
 #' @template term_options
 #' @param extra.aux a list of auxiliary request formulas required elsewhere; if named, the resulting `slots.extra.aux` will also be named.
 #' @param env a throwaway argument needed to prevent conflicts with some usages of `ergm_model`. The initialization environment is *always* taken from the `formula`.
+#' @param offset.decorate logical; whether offset coefficient and parameter names should be enclosed in `"offset()"`. 
 #' @param object An `ergm_model` object.
 #' @return `ergm_model` returns an  `ergm_model` object as a list
 #' containing:
@@ -42,7 +43,7 @@
 #' @seealso [summary.ergm_model()]
 #' @keywords internal
 #' @export
-ergm_model <- function(formula, nw=NULL, silent=FALSE, ..., term.options=list(), extra.aux=list(), env=globalenv()){
+ergm_model <- function(formula, nw=NULL, silent=FALSE, ..., term.options=list(), extra.aux=list(), env=globalenv(), offset.decorate=TRUE){
   if (!is(formula, "formula"))
     stop("Invalid model formula of class ",sQuote(class(formula)),".", call.=FALSE)
   
@@ -85,12 +86,23 @@ ergm_model <- function(formula, nw=NULL, silent=FALSE, ..., term.options=list(),
     }else model$term.skipped <- c(model$term.skipped, FALSE)
 
     # Now it is necessary to add the output to the model formula
-    model <- updatemodel.ErgmTerm(model, outlist, offset=offset)
+    model <- updatemodel.ErgmTerm(model, outlist, offset=offset, offset.decorate=offset.decorate, silent=silent)
   }
 
   model <- ergm.auxstorage(model, nw, term.options=term.options, ..., extra.aux=extra.aux)
   
   model$etamap <- ergm.etamap(model)
+
+  if(offset.decorate){
+    if(length(model$etamap$offsetmap)) model$coef.names <- ifelse(model$etamap$offsetmap, paste0("offset(",model$coef.names,")"), model$coef.names)
+    if(length(model$etamap$offsettheta)){
+      ol <- split(model$etamap$offsettheta, factor(rep.int(seq_along(model$terms), nparam(model, byterm=TRUE)), levels=seq_along(model$terms)))
+      for(i in seq_along(model$terms)){
+        pn <- names(model$terms[[i]]$params)
+        if(!is.null(pn)) names(model$terms[[i]]$params) <- ifelse(ol[[i]], paste0("offset(",pn,")"), pn)
+      }
+    }
+  }
 
   # I.e., construct a vector of package names associated with the model terms.
   # Note that soname is not the same, since it's not guaranteed to be a loadable package.
@@ -160,25 +172,24 @@ call.ErgmTerm <- function(term, env, nw, ..., term.options=list()){
 #'
 #' @param model the pre-existing model, as created by [`ergm_model`]
 #' @param outlist the list describing new term, as returned by `InitErgmTerm.*()`
+#' @param offset a vector indicating which parameters in the term should be offsets
+#' @param silent whether to suppress messages
 #'
 #' @return The updated model (with the obvious changes seen below) if
 #'   `outlist!=NULL`, else the original model. (Note that this return
 #'   is necessary, since terms may be eliminated by giving only 0
 #'   statistics, and consequently returning a NULL `outlist`.)
 #' @noRd
-updatemodel.ErgmTerm <- function(model, outlist, offset=FALSE) {
+updatemodel.ErgmTerm <- function(model, outlist, offset=FALSE, offset.decorate=TRUE, silent=FALSE) {
   if (!is.null(outlist)) { # Allow for no change if outlist==NULL
     # Update global model properties.
     nstats <- length(outlist$coef.names)
     npars <- NVL3(outlist$params, length(.), nstats)
 
+    if(!silent && npars == 0 && ((is.numeric(offset) && length(offset)) || (is.logical(offset) && any(offset))))
+      message(sQuote("offset()"), " decorator used on term ",sQuote(deparse(outlist$call)), " with no free parameters is meaningless and will be ignored.")
     if(is.numeric(offset)) offset <- unwhich(offset, npars)
     outlist$offset <- offset <- rep(offset, length.out=npars) | NVL(outlist$offset,FALSE)
-
-    if(is.null(outlist$params)) # Linear
-      outlist$coef.names <- ifelse(offset, paste0("offset(",outlist$coef.names,")"), outlist$coef.names)
-    else # Curved
-      names(outlist$params) <- ifelse(offset, paste0("offset(",names(outlist$params),")"), names(outlist$params))
 
     model$coef.names <- c(model$coef.names, outlist$coef.names)
     model$minval <- c(model$minval,

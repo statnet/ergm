@@ -1,3 +1,12 @@
+#  File R/InitErgmTerm.interaction.R in package ergm, part of the
+#  Statnet suite of packages for network analysis, https://statnet.org .
+#
+#  This software is distributed under the GPL-3 license.  It is free,
+#  open source, and has the attribution requirements (GPL Section 7) at
+#  https://statnet.org/attribution .
+#
+#  Copyright 2003-2021 Statnet Commons
+################################################################################
 check_interact_term <- function(m, dependent_action){
   msg <- paste0("Change statistic interactions are poorly defined for dyad-dependent terms. Use ", sQuote("interact.dependent"), " term option to set the behavior.")
   if(!is.dyad.independent(m))
@@ -25,7 +34,7 @@ check_interact_term <- function(m, dependent_action){
   n2 <- length(e2)
 
   f <- append_rhs.formula(NULL, c(e1, e2), env = env)
-  m <- ergm_model(f, nw, ...)
+  m <- ergm_model(f, nw, ..., offset.decorate=FALSE)
 
   check_interact_term(m, match.arg(interact.dependent))
 
@@ -39,7 +48,9 @@ check_interact_term <- function(m, dependent_action){
   wm <- wrap.ergm_model(m, nw, NULL)
   if(any(wm$offsettheta) || any(wm$offsetmap)) ergm_Init_warn(paste0("The interaction operator does not propagate offset() decorators."))
 
-  list(name="interact", coef.names = cn, inputs=inputs, submodel=m, dependence=wm$dependence)
+  c(list(name="interact", coef.names = cn, inputs=inputs, submodel=m, dependence=wm$dependence),
+    ergm_propagate_ext.encode(m))
+
 }
 
 ## This will always be passed with two arguments in arglist, which
@@ -58,7 +69,7 @@ check_interact_term <- function(m, dependent_action){
   n2 <- length(e2)
 
   f <- append_rhs.formula(NULL, c(e1, e2), env = env)
-  m <- ergm_model(f, nw, ...)
+  m <- ergm_model(f, nw, ..., offset.decorate=FALSE)
 
   check_interact_term(m, match.arg(interact.dependent))
 
@@ -72,5 +83,6 @@ check_interact_term <- function(m, dependent_action){
   wm <- wrap.ergm_model(m, nw, NULL)
   if(any(wm$offsettheta) || any(wm$offsetmap)) ergm_Init_warn(paste0("The interaction operator does not propagate offset() decorators."))
 
-  list(name="main_interact", coef.names = cn, inputs=inputs, submodel=m, dependence=wm$dependence)
+  c(list(name="main_interact", coef.names = cn, inputs=inputs, submodel=m, dependence=wm$dependence),
+    ergm_propagate_ext.encode(m))
 }

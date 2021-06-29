@@ -20,7 +20,8 @@ ergm_model(
   ...,
   term.options = list(),
   extra.aux = list(),
-  env = globalenv()
+  env = globalenv(),
+  offset.decorate = TRUE
 )
 
 \method{c}{ergm_model}(...)
@@ -37,7 +38,7 @@ as.ergm_model(x, ...)
 
 \method{nparam}{ergm_model}(object, canonical = FALSE, offset = NA, byterm = FALSE, ...)
 
-\method{param_names}{ergm_model}(object, canonical = FALSE, ...)
+\method{param_names}{ergm_model}(object, canonical = FALSE, offset = NA, ...)
 }
 \arguments{
 \item{formula}{An \code{\link[=ergm]{ergm()}}
@@ -56,6 +57,8 @@ initialization of each model term.}
 \item{extra.aux}{a list of auxiliary request formulas required elsewhere; if named, the resulting \code{slots.extra.aux} will also be named.}
 
 \item{env}{a throwaway argument needed to prevent conflicts with some usages of \code{ergm_model}. The initialization environment is \emph{always} taken from the \code{formula}.}
+
+\item{offset.decorate}{logical; whether offset coefficient and parameter names should be enclosed in \code{"offset()"}.}
 
 \item{x}{object to be converted to an \code{ergm_model}.}
 

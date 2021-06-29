@@ -1,5 +1,14 @@
-InitWtErgmTerm.passthrough <- function(nw, arglist, ...){
-  out <- InitErgmTerm.passthrough(nw, arglist, ...)
+#  File R/InitWtErgmTerm.operator.R in package ergm, part of the
+#  Statnet suite of packages for network analysis, https://statnet.org .
+#
+#  This software is distributed under the GPL-3 license.  It is free,
+#  open source, and has the attribution requirements (GPL Section 7) at
+#  https://statnet.org/attribution .
+#
+#  Copyright 2003-2021 Statnet Commons
+################################################################################
+InitWtErgmTerm.Passthrough <- function(nw, arglist, ...){
+  out <- InitErgmTerm.Passthrough(nw, arglist, ...)
   out$name <- "wtpassthrough_term"
   out
 }
@@ -38,10 +47,10 @@ InitWtErgmTerm.passthrough <- function(nw, arglist, ...){
 #'     - dyadwise contribution of 0 for a 0-valued dyad.
 #'   
 #'     Formally, this means that it is expressable as
-#'     \deqn{g(y) = \sum_{i,j} f_{i,j}(y_{i,j}),}{sum[i,j] f[i,j](y[i,j]),}
+#'     \deqn{g(y) = \sum_{i,j} f_{i,j}(y_{i,j}),}{sum[i,j] f[i,j] (y[i,j]),}
 #'     where for all \eqn{i}, \eqn{j}, and \eqn{y},
 #'     \eqn{f_{i,j}(y_{i,j})} is either 0 or 1 and, in particular,
-#'     \eqn{f_{i,j}(0)=0}{f[i,j](0)=0}.
+#'     \eqn{f_{i,j}(0)=0}{f[i,j] (0)=0}.
 #'   
 #'     Examples of such terms include `nonzero` ,
 #'     `ininterval()` , `atleast()` , `atmost()` ,
@@ -67,7 +76,8 @@ InitWtErgmTerm.B <- function(nw, arglist, ...){
 
   nwb <- nw
   nwb %ergmlhs% "response" <- NULL
-  m <- ergm_model(a$formula, nwb,...)
+  m <- ergm_model(a$formula, nwb, ..., offset.decorate=FALSE)
+  ergm_no_ext.encode(m)
 
   if(!is.dyad.independent(m) && form=="sum") stop("Only dyad-independent binary terms can be imported with form 'sum'.")
   
@@ -107,7 +117,7 @@ InitWtErgmTerm..binary.formula.net <- function(nw, arglist, ...){
                       defaultvalues = list(NULL),
                       required = c(TRUE))
 
-  m <- ergm_model(a$formula, nw,...)
+  m <- ergm_model(a$formula, nw, ..., offset.decorate=FALSE)
 
   if(!is.dyad.independent(m) || nparam(m)!=1) stop("The binary test formula must be dyad-independent and have exactly one statistc.")
 
@@ -116,6 +126,7 @@ InitWtErgmTerm..binary.formula.net <- function(nw, arglist, ...){
   if(gs!=0) stop("At this time, the binary test term must have the property that its dyadwise components are 0 for 0-valued relations. This limitation may be removed in the future.")
   
   c(list(name="_binary_formula_net", submodel=m, depenence=FALSE),
+    ergm_propagate_ext.encode(m),
     wrap.ergm_model(m, nw, NULL))
 }
 
@@ -156,6 +167,15 @@ InitWtErgmTerm..submodel_and_summary <- function(nw, arglist, ...){
   out
 }
 
+#' @rdname Curve-ergmTerm
+#' @usage
+#' # valued: Parametrise(formula, params, map, gradient=NULL, minpar=-Inf, maxpar=+Inf, cov=NULL)
+InitWtErgmTerm.Parametrise <- InitWtErgmTerm.Curve
+
+#' @rdname Curve-ergmTerm
+#' @usage
+#' # valued: Parametrize(formula, params, map, gradient=NULL, minpar=-Inf, maxpar=+Inf, cov=NULL)
+InitWtErgmTerm.Parametrize <- InitWtErgmTerm.Curve
 
 #' @rdname Exp-ergmTerm
 #' @usage

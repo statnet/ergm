@@ -4,12 +4,26 @@
 \name{Curve-ergmTerm}
 \alias{Curve-ergmTerm}
 \alias{InitErgmTerm.Curve}
+\alias{InitErgmTerm.Parametrise}
+\alias{Parametrise-ergmTerm}
+\alias{InitErgmTerm.Parametrize}
+\alias{Parametrize-ergmTerm}
 \alias{InitWtErgmTerm.Curve}
+\alias{InitWtErgmTerm.Parametrise}
+\alias{InitWtErgmTerm.Parametrize}
 \title{Impose a curved structure on term parameters.}
 \usage{
 # binary: Curve(formula, params, map, gradient=NULL, minpar=-Inf, maxpar=+Inf, cov=NULL)
 
+# binary: Parametrise(formula, params, map, gradient=NULL, minpar=-Inf, maxpar=+Inf, cov=NULL)
+
+# binary: Parametrize(formula, params, map, gradient=NULL, minpar=-Inf, maxpar=+Inf, cov=NULL)
+
 # valued: Curve(formula, params, map, gradient=NULL, minpar=-Inf, maxpar=+Inf, cov=NULL)
+
+# valued: Parametrise(formula, params, map, gradient=NULL, minpar=-Inf, maxpar=+Inf, cov=NULL)
+
+# valued: Parametrize(formula, params, map, gradient=NULL, minpar=-Inf, maxpar=+Inf, cov=NULL)
 }
 \arguments{
 \item{formula}{an arbitrary formula for a linear or curved ERGM}
@@ -47,5 +61,7 @@ Impose a curved structure on term parameters.
 Arguments may have the same forms as in the API, but for convenience, alternative forms are accepted.
 
 If the model in \code{formula} is curved, then the outputs of this operator term's \code{map} argument will be used as inputs to the curved terms of the \code{formula} model.
+
+\code{Curve} is an obsolete alias and may be deprecated and removed in a future release.
 }
 \concept{operator}

@@ -37,12 +37,18 @@ forming the rows of \code{M} if and only if there exists no separating
 hyperplane between \code{p} and the rows of \code{M}.  This condition may be
 reworded as follows:
 
-Letting \eqn{q=(1 p')'} and \eqn{L = (1 M)}, if the minimum value of
-\eqn{z'q} for all \eqn{z} such that \eqn{z'L \le 0} equals zero (the minimum
-must be at most zero since z=0 gives zero), then there is no separating
-hyperplane and so \code{p} is contained in the convex hull of the rows of
-\code{M}.  So the question of interest becomes a constrained optimization
-problem.
+Letting \eqn{q=(1 p')'} and \eqn{L = (1 M)}, if the minimum value
+of \eqn{z'q} for all \eqn{z} such that \eqn{z'L \ge 0} equals zero
+(the minimum must be at most zero since z=0 gives zero), then there
+is no separating hyperplane and so \code{p} is contained in the
+convex hull of the rows of \code{M}. So the question of interest
+becomes a constrained optimization problem.
+
+Lastly, in the event of such a hyperplane existing, one can make
+the objective function arbitrarily low by multiplying \eqn{z} by a
+large positive constant. To prevent it from running away, we
+constrain the elements of \eqn{z} to be between \eqn{-1} and
+\eqn{+1}.
 
 Solving this problem relies on the package \pkg{lpSolveAPI} to solve a linear
 program.

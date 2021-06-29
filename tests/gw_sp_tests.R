@@ -1,12 +1,14 @@
-#  File tests/gw_sp_tests.R in package ergm, part of the Statnet suite
-#  of packages for network analysis, https://statnet.org .
+#  File tests/gw_sp_tests.R in package ergm, part of the
+#  Statnet suite of packages for network analysis, https://statnet.org .
 #
 #  This software is distributed under the GPL-3 license.  It is free,
 #  open source, and has the attribution requirements (GPL Section 7) at
-#  https://statnet.org/attribution
+#  https://statnet.org/attribution .
 #
-#  Copyright 2003-2020 Statnet Commons
-#######################################################################
+#  Copyright 2003-2021 Statnet Commons
+################################################################################
+
+niter <- 20
 
 library(ergm)
 
@@ -44,7 +46,7 @@ net[5,6] <- net[6,8] <- net[8,5] <- 1
 net[10,7] <- net[10,9] <- net[9,7] <- 1
 #plot(net, edge.lwd=2, arrowhead.cex=2, label=1:network.size(net))
 
-for (i in 1:100) {
+for (i in 1:niter) {
   (espcounts <- summary(cache.sp=cache.sp,net ~ dgwdsp(fixed=F, type="OTP")) )
   if (!all(espcounts[1:4]==c(4,1,0,0))) stop("DSP OTP mis-count")
 }
@@ -67,7 +69,7 @@ net[10,7] <- net[10,9] <- net[9,7] <- 1
 
 #plot(net, edge.lwd=2, arrowhead.cex=2, label=1:network.size(net))
 
-for (i in 1:100) {
+for (i in 1:niter) {
   (espcounts <- summary(cache.sp=cache.sp,net ~ dgwdsp(fixed=F, type="ITP")) )
   if (!all(espcounts[1:4]==c(4,1,0,0))) stop("DSP ITP mis-count")
 }
@@ -89,7 +91,7 @@ net[10,7] <-  net[9,7] <- 1
 
 #plot(net, edge.lwd=2, arrowhead.cex=2, label=1:network.size(net))
 
-for (i in 1:100) {
+for (i in 1:niter) {
   (espcounts <- summary(cache.sp=cache.sp,net ~ dgwdsp(fixed=F, type="OSP")) )
   if (!all(espcounts[1:4]==c(4,2,0,0))) stop("DSP_OSP mis-count")
 }
@@ -110,7 +112,7 @@ net[7,10] <-  net[7,9] <- 1
 
 #plot(net, edge.lwd=2, arrowhead.cex=2, label=1:network.size(net))
 
-for (i in 1:100) {
+for (i in 1:niter) {
   (espcounts <- summary(cache.sp=cache.sp,net ~ dgwdsp(fixed=F, type="ISP")) )
   if (!all(espcounts[1:4]==c(4,2,0,0))) stop("DSP ISP mis-count")
 }
@@ -153,7 +155,7 @@ net[5,6] <- net[6,8] <- net[8,5] <- 1
 net[10,7] <- net[10,9] <- net[9,7] <- 1
 #plot(net, edge.lwd=2, arrowhead.cex=2, label=1:network.size(net))
 
-for (i in 1:100) {
+for (i in 1:niter) {
   (espcounts <- summary(cache.sp=cache.sp,net ~ dgwesp(fixed=F, type="OTP")) )
   if (!all(espcounts[1:4]==c(1,1,0,0))) stop("ESP OTP mis-count")
 }
@@ -173,7 +175,7 @@ net[10,7] <- net[10,9] <- net[9,7] <- 1
 
 #plot(net, edge.lwd=2, arrowhead.cex=2, label=1:network.size(net))
 
-for (i in 1:100) {
+for (i in 1:niter) {
   (espcounts <- summary(cache.sp=cache.sp,net ~ dgwesp(fixed=F, type="ITP")) )
   if (!all(espcounts[1:4]==c(7,1,0,0))) stop("ESP ITP mis-count")
 }
@@ -195,7 +197,7 @@ net[10,7] <-  net[9,7] <- 1
 
 #plot(net, edge.lwd=2, arrowhead.cex=2, label=1:network.size(net))
 
-for (i in 1:100) {
+for (i in 1:niter) {
   (espcounts <- summary(cache.sp=cache.sp,net ~ dgwesp(fixed=F, type="OSP")) )
   if (!all(espcounts[1:4]==c(1,1,0,0))) stop("ESP_OSP mis-count")
 }
@@ -216,7 +218,7 @@ net[7,10] <-  net[7,9] <- 1
 
 #plot(net, edge.lwd=2, arrowhead.cex=2, label=1:network.size(net))
 
-for (i in 1:100) {
+for (i in 1:niter) {
   (espcounts <- summary(cache.sp=cache.sp,net ~ dgwesp(fixed=F, type="ISP")) )
   if (!all(espcounts[1:4]==c(1,1,0,0))) stop("ESP ISP mis-count")
 }
@@ -260,7 +262,7 @@ net[5,6] <- net[6,8] <- net[8,5] <- 1
 net[10,7] <- net[10,9] <- net[9,7] <- 1
 #plot(net, edge.lwd=2, arrowhead.cex=2, label=1:network.size(net))
 
-for (i in 1:100) {
+for (i in 1:niter) {
   (espcounts <- summary(cache.sp=cache.sp,net ~ dgwnsp(fixed=F, type="OTP")) )
   if (!all(espcounts[1:4]==c(3,1,0,0))) stop("NSP OTP mis-count")
 }
@@ -282,7 +284,7 @@ net[10,7] <- net[10,9] <- net[9,7] <- 1
 
 #plot(net, edge.lwd=2, arrowhead.cex=2, label=1:network.size(net))
 
-for (i in 1:100) {
+for (i in 1:niter) {
   (espcounts <- summary(cache.sp=cache.sp,net ~ dgwnsp(fixed=F, type="ITP")) )
   if (!all(espcounts[1:4]==c(1,1,0,0))) stop("NSP ITP mis-count")
 }
@@ -304,7 +306,7 @@ net[10,7] <-  net[9,7] <- 1
 
 #plot(net, edge.lwd=2, arrowhead.cex=2, label=1:network.size(net))
 
-for (i in 1:100) {
+for (i in 1:niter) {
   (espcounts <- summary(cache.sp=cache.sp,net ~ dgwnsp(fixed=F, type="OSP")) )
   if (!all(espcounts[1:4]==c(3,2,0,0))) stop("NSP_OSP mis-count")
 }
@@ -325,7 +327,7 @@ net[7,10] <-  net[7,9] <- 1
 
 #plot(net, edge.lwd=2, arrowhead.cex=2, label=1:network.size(net))
 
-for (i in 1:100) {
+for (i in 1:niter) {
   (espcounts <- summary(cache.sp=cache.sp,net ~ dgwnsp(fixed=F, type="ISP")) )
   if (!all(espcounts[1:4]==c(3,2,0,0))) stop("NSP ISP mis-count")
 }

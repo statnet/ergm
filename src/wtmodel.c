@@ -1,11 +1,11 @@
-/*  File src/wtmodel.c in package ergm, part of the Statnet suite
- *  of packages for network analysis, https://statnet.org .
+/*  File src/wtmodel.c in package ergm, part of the
+ *  Statnet suite of packages for network analysis, https://statnet.org .
  *
  *  This software is distributed under the GPL-3 license.  It is free,
  *  open source, and has the attribution requirements (GPL Section 7) at
- *  https://statnet.org/attribution
+ *  https://statnet.org/attribution .
  *
- *  Copyright 2003-2020 Statnet Commons
+ *  Copyright 2003-2021 Statnet Commons
  */
 #include <string.h>
 #include "ergm_wtmodel.h"
@@ -173,7 +173,7 @@ WtModel* WtModelInitialize (SEXP mR, SEXP ext_state, WtNetwork *nwp, Rboolean no
 
       tmp = getAttrib(tmp, install("ParamsBeforeCov"));
       unsigned int offset = length(tmp) ? asInteger(tmp): 0;  /* Set offset for attr vector */
-      thisterm->attrib = thisterm->inputparams + offset; /* Ptr to attributes */
+      thisterm->attrib = thisterm->ninputparams ? thisterm->inputparams + offset : NULL; /* Ptr to attributes */
 
       /* Integer input vector with an optional attribute shift. */
       tmp = getListElement(thisterm->R, "iinputs");
@@ -182,7 +182,7 @@ WtModel* WtModelInitialize (SEXP mR, SEXP ext_state, WtNetwork *nwp, Rboolean no
 
       tmp = getAttrib(tmp, install("ParamsBeforeCov"));
       offset = length(tmp) ? asInteger(tmp): 0;  /* Set offset for attr vector */
-      thisterm->iattrib = thisterm->iinputparams + offset; /* Ptr to attributes */
+      thisterm->iattrib = thisterm->niinputparams ? thisterm->iinputparams + offset : NULL; /* Ptr to attributes */
 
       /* Number of statistics. */
       thisterm->nstats = length(getListElement(thisterm->R, "coef.names")); /* If >0, # of statistics returned. If ==0 an auxiliary statistic. */
@@ -280,6 +280,8 @@ WtModel* WtModelInitialize (SEXP mR, SEXP ext_state, WtNetwork *nwp, Rboolean no
       fn[0]='x';
       thisterm->x_func =
 	(void (*)(unsigned int type, void *data, WtModelTerm*, WtNetwork*)) R_FindSymbol(fn,sn,NULL);
+
+      if(!ext_state && (thisterm->w_func)) error("Error in ModelInitialize: not provided with extended state, but model terms with functions %s::%s requires extended state. This should normally be caught sooner. This limitation may be removed in the future.  Memory has not been deallocated, so restart R sometime soon.\n",sn,fn+2);
 
       /*Clean up by freeing fn*/
       Free(fn);

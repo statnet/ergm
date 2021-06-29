@@ -1,12 +1,12 @@
-#  File R/ergm.bridge.R in package ergm, part of the Statnet suite
-#  of packages for network analysis, https://statnet.org .
+#  File R/ergm.bridge.R in package ergm, part of the
+#  Statnet suite of packages for network analysis, https://statnet.org .
 #
 #  This software is distributed under the GPL-3 license.  It is free,
 #  open source, and has the attribution requirements (GPL Section 7) at
-#  https://statnet.org/attribution
+#  https://statnet.org/attribution .
 #
-#  Copyright 2003-2020 Statnet Commons
-#######################################################################
+#  Copyright 2003-2021 Statnet Commons
+################################################################################
 
 #' Bridge sampling to evaluate ERGM log-likelihoods and log-likelihood ratios
 #' 
@@ -128,7 +128,16 @@ ergm.bridge.llr<-function(object, response=NULL, reference=~Bernoulli, constrain
 
   ## Miscellaneous settings
   Dtheta.Du <- (to-from)[!state[[1]]$model$etamap$offsettheta] / control$bridge.nsteps
-  target.stats <- NVL(target.stats, summary(state[[1]]))
+
+  ## Handle target statistics, if passed.
+  if(!is.null(target.stats)){
+    if(nparam(as.ergm_model(state[[1]]), canonical=TRUE, offset=FALSE)!=length(target.stats)){
+      stop("Incorrect length of the target.stats vector: should be ", nparam(as.ergm_model(state[[1]]), canonical=TRUE, offset=FALSE), " but is ",length(target.stats),". Note that offset() terms should *not* get target statistics.")
+    }
+    target.stats <- .align.target.stats.offset(as.ergm_model(state[[1]]), target.stats)
+    if(any(as.ergm_model(state[[1]])$etamap$offsetmap)) warning("Using target.stats for a model with offset terms may produce an inaccurate estimate of the log-likelihood and derived quantities (deviance, AIC, BIC, etc.), because some of the target stats must be imputed.")
+  }else target.stats <- summary(state[[1]])
+
 
   ## Helper function to calculate Dtheta.Du %*% Deta.Dtheta %*% g(y)
   llrsamp <- function(samp, theta){
@@ -251,7 +260,15 @@ ergm.bridge.dindstart.llk<-function(object, response=NULL, constraints=~., coef,
 
   m<-ergm_model(object, nw, term.options=control$term.options)
   m.edges <- ergm_model(~edges, nw, term.options = control$term.options)
-  
+
+  if(!is.null(target.stats)){
+    if(nparam(m, canonical=TRUE, offset=FALSE)!=length(target.stats)){
+      stop("Incorrect length of the target.stats vector: should be ", nparam(m, canonical=TRUE, offset=FALSE), " but is ",length(target.stats),". Note that offset() terms should *not* get target statistics.")
+    }
+    target.stats <- .align.target.stats.offset(m, target.stats)
+    target.stats[is.na(target.stats) & m$etamap$offsetmap] <- summary(m, nw)[is.na(target.stats) & m$etamap$offsetmap]
+  }
+
   q.pos.full <- c(0,cumsum(nparam(m, canonical=FALSE, byterm=TRUE, offset=TRUE)))
   p.pos.full <- c(0,cumsum(nparam(m, canonical=TRUE, byterm=TRUE, offset=FALSE)))
   rng <- function(x, from, to) if(to>=from) x[from:to]
@@ -286,7 +303,7 @@ ergm.bridge.dindstart.llk<-function(object, response=NULL, constraints=~., coef,
 
     terms.full <- c(terms.full, list(as.name("edges")))
     dindmap <- c(dindmap, TRUE)
-    if(!is.null(target.stats)) target.stats <- as.vector(c(target.stats, edges = network.edgecount(nw)))
+    if(!is.null(target.stats)) ts.dind <- as.vector(c(ts.dind, edges = network.edgecount(nw)))
 
     # Copy environment and LHS if present.
     dind <- append_rhs.formula(object[-length(object)], compact(terms.full))
@@ -323,12 +340,7 @@ ergm.bridge.dindstart.llk<-function(object, response=NULL, constraints=~., coef,
 
   ## From this point on, target.stats has NAs corresponding to offset
   ## terms.
-  if(!is.null(target.stats)) target.stats <- as.vector(.align.target.stats.offset(c(m,m.edges), target.stats))
-
-  if(!is.null(target.stats) && any(is.na(target.stats))){
-    warning("Using target.stats for a model with offset terms may produce an inaccurate estimate of the log-likelihood and derived quantities (deviance, AIC, BIC, etc.), because some of the target stats must be imputed.")
-    target.stats[c(m$etamap$offsetmap, FALSE)] <- summary(m, nw)[m$etamap$offsetmap]
-  }
+  if(!is.null(target.stats)) target.stats <- unname(c(target.stats[!m$etamap$offsetmap], ult(ts.dind)))
 
   if(verbose){
     message("Dyad-independent submodel MLE has likelihood ", format(llk.dind), " at:")

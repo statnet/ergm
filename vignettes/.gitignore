@@ -1,2 +1,5 @@
 *.html
 *.R
+*_cache
+*_files
+ergm.log

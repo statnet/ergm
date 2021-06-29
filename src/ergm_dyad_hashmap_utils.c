@@ -1,3 +1,12 @@
+/*  File src/ergm_dyad_hashmap_utils.c in package ergm, part of the
+ *  Statnet suite of packages for network analysis, https://statnet.org .
+ *
+ *  This software is distributed under the GPL-3 license.  It is free,
+ *  open source, and has the attribution requirements (GPL Section 7) at
+ *  https://statnet.org/attribution .
+ *
+ *  Copyright 2003-2021 Statnet Commons
+ */
 #include "ergm_dyad_hashmap.h"
 #include "ergm_changestat.h"
 #include "ergm_dyad_hashmap_utils.h"
@@ -31,7 +40,7 @@ StoreDyadSet *NetworkToDyadSet(Network *nwp){
   h->directed = DIRECTED;
 
   EXEC_THROUGH_NET_EDGES(tail, head, e, {
-      kh_put(DyadSet, h, THKey(h,tail,head), NULL);
+      kh_put(DyadSet, h, TH(tail,head), NULL);
     });
   return h;
 }

@@ -75,26 +75,26 @@ Metropolis-Hastings proposal failing.}
 This is an internal function, not normally called directly by the
 user. The \code{ergm_MCMC_sample} function samples networks and
 network statistics using an MCMC algorithm via \code{MCMC_wrapper}
-and is caple of running in multiple threads using
+and is capable of running in multiple threads using
 \code{ergm_MCMC_slave}.
 
 The \code{ergm_MCMC_slave} function calls the actual C
 routine and does minimal preprocessing.
 }
-\details{
-Note that unless \code{stats0} is passed, the returned stats will be relative to the original network, i.e.,
-the calling function must shift the statistics if required.
-}
 \note{
 \code{ergm_MCMC_sample} and \code{ergm_MCMC_slave} replace
 \code{ergm.getMCMCsample} and \code{ergm.mcmcslave} respectively. They
 differ slightly in their argument names and in their return
-formats. For example, \code{ergm_MCMC_sample} expects \code{proposal}
-rather than \code{MHproposal} and \code{theta} or \code{eta} rather than \code{eta0};
+formats. For example, \code{ergm_MCMC_sample} expects \code{ergm_state}
+rather than network/model/proposal, and \code{theta} or \code{eta} rather than \code{eta0};
 and it does not return \code{statsmatrix} or \code{newnetwork}
 elements. Rather, if parallel processing is not in effect,
 \code{stats} is an \code{\link{mcmc.list}} with one chain and \code{networks} is a
 list with one element.
+
+Note that unless \code{stats} is a part of the \code{ergm_state}, the
+returned stats will be relative to the original network, i.e.,
+the calling function must shift the statistics if required.
 
 At this time, repeated calls to \code{ergm_MCMC_sample} will not
 produce the same sequence of networks as a single long call, even

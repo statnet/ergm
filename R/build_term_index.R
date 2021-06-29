@@ -1,16 +1,16 @@
-#  File R/build_term_index.R in package ergm, part of the Statnet suite
-#  of packages for network analysis, https://statnet.org .
+#  File R/build_term_index.R in package ergm, part of the
+#  Statnet suite of packages for network analysis, https://statnet.org .
 #
 #  This software is distributed under the GPL-3 license.  It is free,
 #  open source, and has the attribution requirements (GPL Section 7) at
-#  https://statnet.org/attribution
+#  https://statnet.org/attribution .
 #
-#  Copyright 2003-2020 Statnet Commons
-#######################################################################
+#  Copyright 2003-2021 Statnet Commons
+################################################################################
 
 .termTable<-function(terms,merge.names=FALSE){
   cat("<table border=1 cellpadding='8'>\n")
-  cat("<tr>><th>Description</th><th>Categories</th></tr>\n")
+  cat("<tr><th>Description</th><th>Categories</th></tr>\n")
   for (term in terms) {
     u <- sapply(term$usages, '[[', 'usage')
     if (merge.names) {
@@ -23,7 +23,7 @@
     }
 
     for (usage in usages) {
-      cat(sprintf('<tr><td><a id="%s">%s</a><br /><em>%s</em>: %s</p></td><td>%s</td></tr>',
+      cat(sprintf('<tr><td><a id="%s">%s</a><br /><em>%s</em>: %s</p></td><td>%s</td></tr>\n',
         term$link, usage, term$title, term$description, paste(term$concepts, collapse=', ')))
     }
   }

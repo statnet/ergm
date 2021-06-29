@@ -1,12 +1,12 @@
-#  File R/ergm.etamap.R in package ergm, part of the Statnet suite
-#  of packages for network analysis, https://statnet.org .
+#  File R/ergm.etamap.R in package ergm, part of the
+#  Statnet suite of packages for network analysis, https://statnet.org .
 #
 #  This software is distributed under the GPL-3 license.  It is free,
 #  open source, and has the attribution requirements (GPL Section 7) at
-#  https://statnet.org/attribution
+#  https://statnet.org/attribution .
 #
-#  Copyright 2003-2020 Statnet Commons
-#######################################################################
+#  Copyright 2003-2021 Statnet Commons
+################################################################################
 ###########################################################################
 # The <ergm.etamap> function takes a model object and creates a mapping
 # from the model parameters, theta, to the canonical eta parameters;
@@ -69,8 +69,6 @@ ergm.etamap <- function(model) {
                            rep(NVL(mti$minpar, -Inf), length.out=j))
       etamap$maxtheta <- c(etamap$maxtheta,
                            rep(NVL(mti$maxpar, +Inf), length.out=j))
-
-      etamap$offsetmap <- c(etamap$offsetmap, offset)
     } else { # curved parameter
       etamap$canonical <- c(etamap$canonical, rep(0L, k))
       etamap$curved[[a]] <- list(from=from+seq_len(k)-1L,
@@ -85,10 +83,42 @@ ergm.etamap <- function(model) {
                            rep(NVL(mti$minpar, -Inf), length.out=k))
       etamap$maxtheta <- c(etamap$maxtheta,
                            rep(NVL(mti$maxpar, +Inf), length.out=k))
-
-      etamap$offsetmap <- c(etamap$offsetmap, rep(all(offset),j)) # In a curved model, only set canonical parameters as offsets if *all* model parameters are offsets.
     }
   }
+
   etamap$etalength <- to-1L
+  etamap$offsetmap <- ergm.offsetmap(etamap)
   etamap
 } 
+
+
+ergm.offsetmap <- function(etamap){
+  # Figure out which parameters affect which statistics.
+
+  thetas <- list(
+    min = .constrain_init(etamap, deInf(etamap$mintheta)),
+    max = .constrain_init(etamap, deInf(etamap$maxtheta))
+  )
+
+  thetas$mid <- (thetas$min + thetas$max) / 2
+  thetas$minplus <- .constrain_init(etamap, thetas$min + 1/4)
+  thetas$maxminus <- .constrain_init(etamap, thetas$max - 1/4)
+  thetas$zero <- .constrain_init(etamap, rep.int(0, length(thetas$mid)))
+  thetas$zeroplus <- .constrain_init(etamap, thetas$zero + 1/4)
+  thetas$zerominus <- .constrain_init(etamap, thetas$zero - 1/4)
+
+  # Matrix indicating which parameters affect which statistics.
+  nzgrad <- do.call(
+    pmax,
+    c(thetas %>% map(ergm.etagrad, etamap) %>% map(abs), na.rm=TRUE)
+  ) > 0
+
+  # "non-offsetness" propagates through the matrix: if at lest one
+  # parameter affecting a given statistic is nonzero, then the statistic is
+  # not an offset.
+  #
+  # We also need to handle the special case an eta element is not
+  # affected by any theta elements; in that case, we need to set
+  # offset to FALSE, though this may change in the future.
+  apply(nzgrad, 2, any) & c(!((!etamap$offsettheta) %*% nzgrad) != 0)
+}

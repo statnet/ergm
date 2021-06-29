@@ -14,7 +14,8 @@
 \arguments{
 \item{formulas}{a list of formulas to be used}
 
-\item{label}{used to specify the names of the elements of the resulting term sum vector. If \code{label} is of length 1, it will be recycled with indices appended.}
+\item{label}{used to specify the names of the elements of the resulting term sum vector. If \code{label} is a character vector of length 1,
+it will be recycled with indices appended. If a function is specified, \code{formulas} parameter names are extracted and their list of character vectors is passed \code{label}.}
 }
 \description{
 A sum (or an arbitrary linear combination) of one or more formulas
@@ -38,8 +39,10 @@ Note that each formula must either produce the same number of
 statistics or be mapped through a matrix to produce the same
 number of statistics.
 
-A single formula is also permissible. This can be useful if one
-wishes to, say, sum up the statistics returned by a formula.
+A single formula is also permitted. This can be useful if one
+wishes to, say, scale or sum up the statistics returned by a formula.
+
+Offsets are ignored unless there is only one formula and the transformation only scales the statistics (i.e., the effective transformation matrix is diagonal).
 
 Curved models are supported, subject to some limitations. In particular, the first model's etamap will be used, overwriting the others. If \code{label} is not of length 1, it should have an \code{attr} -style attribute \code{"curved"} specifying the names for the curved parameters.
 }

@@ -1,12 +1,12 @@
-#  File R/ergm.initialfit.R in package ergm, part of the Statnet suite
-#  of packages for network analysis, https://statnet.org .
+#  File R/ergm.initialfit.R in package ergm, part of the
+#  Statnet suite of packages for network analysis, https://statnet.org .
 #
 #  This software is distributed under the GPL-3 license.  It is free,
 #  open source, and has the attribution requirements (GPL Section 7) at
-#  https://statnet.org/attribution
+#  https://statnet.org/attribution .
 #
-#  Copyright 2003-2020 Statnet Commons
-#######################################################################
+#  Copyright 2003-2021 Statnet Commons
+################################################################################
 ####################################################################################
 # The <ergm.initialfit> function fits an initial ergm object using either ML or MPL
 # estimation.  If initial parameters are provided in 'init' and 'MLestimate' is 
@@ -91,11 +91,12 @@ ergm.initialfit<-function(init, initial.is.final,
 }
 
 .constrain_init <- function(m, init){
-  init.no <- init[!m$etamap$offsettheta]
-  maxtheta <- m$etamap$maxtheta[!m$etamap$offsettheta]
+  if(is(m, "ergm_model")) m <- m$etamap
+  init.no <- init[!m$offsettheta]
+  maxtheta <- m$maxtheta[!m$offsettheta]
   init.no <- pmin(init.no, maxtheta - deInf(pmax(abs(maxtheta),1)*sqrt(.Machine$double.eps)))
-  mintheta <- m$etamap$mintheta[!m$etamap$offsettheta]
+  mintheta <- m$mintheta[!m$offsettheta]
   init.no <- pmax(init.no, mintheta + deInf(pmax(abs(mintheta),1)*sqrt(.Machine$double.eps)))
-  init[!m$etamap$offsettheta] <- init.no
+  init[!m$offsettheta] <- init.no
   init
 }

@@ -1,6 +1,6 @@
 Package: ergm
-Version: 4.0-6343
-Date: 2021-05-19
+Version: 4.0-6519
+Date: 2021-06-24
 Title: Fit, Simulate and Diagnose Exponential-Family Models for Networks
 Authors@R: c(
              person("Mark S.", "Handcock", role=c("aut"), email="handcock@stat.ucla.edu"),
@@ -52,7 +52,7 @@ Suggests:
     covr
 SystemRequirements: OpenMPI
 BugReports: https://github.com/statnet/ergm/issues
-Description: An integrated set of tools to analyze and simulate networks based on exponential-family random graph models (ERGMs). 'ergm' is a part of the Statnet suite of packages for network analysis.
+Description: An integrated set of tools to analyze and simulate networks based on exponential-family random graph models (ERGMs). 'ergm' is a part of the Statnet suite of packages for network analysis. See Hunter, Handcock, Butts, Goodreau, and Morris (2008) <doi:10.18637/jss.v024.i03> and Krivitsky, Hunter, Morris, and Klumb (2021) <arXiv:2106.04997>.
 License: GPL-3 + file LICENSE
 License_is_FOSS: yes
 License_restricts_use: no
@@ -62,7 +62,6 @@ RoxygenNote: 7.1.1
 Roxygen: list(markdown = TRUE)
 Encoding: UTF-8
 Collate: 
-    'Getting.Started.R'
     'InitErgmConstraint.R'
     'InitErgmConstraint.blockdiag.R'
     'InitErgmConstraint.hints.R'
@@ -110,7 +109,6 @@ Collate:
     'ergm.CD.fixed.R'
     'ergm.Cprepare.R'
     'ergm.MCMCse.R'
-    'ergm.MCMCse.lognormal.R'
     'ergm.MCMLE.R'
     'ergm.R'
     'ergm.allstats.R'
@@ -182,8 +180,5 @@ Collate:
     'vcov.ergm.R'
     'wtd.median.R'
     'zzz.R'
-Remotes: github::statnet/statnet.common@master,
-    github::statnet/rle@master,
-    github::statnet/network@master,
-    github::statnet/tergm@master,
+Remotes: github::statnet/tergm@master,
     github::statnet/ergm.count@master

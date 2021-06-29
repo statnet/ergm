@@ -1,11 +1,11 @@
-/*  File src/MHproposals.c in package ergm, part of the Statnet suite
- *  of packages for network analysis, https://statnet.org .
+/*  File src/MHproposals.c in package ergm, part of the
+ *  Statnet suite of packages for network analysis, https://statnet.org .
  *
  *  This software is distributed under the GPL-3 license.  It is free,
  *  open source, and has the attribution requirements (GPL Section 7) at
- *  https://statnet.org/attribution
+ *  https://statnet.org/attribution .
  *
- *  Copyright 2003-2020 Statnet Commons
+ *  Copyright 2003-2021 Statnet Commons
  */
 #include "MHproposals.h"
 #include "ergm_edgelist.h"
@@ -205,7 +205,7 @@ MH_I_FN(Mi_BDStratTNT) {
 
   sto->hash = Calloc(sto->nmixtypes, HashEL *);
   for(int i = 0; i < sto->nmixtypes; i++) {
-    sto->hash[i] = HashELInitialize(els[i]->nedges, els[i]->tails + 1, els[i]->heads + 1, FALSE, DIRECTED);
+    sto->hash[i] = HashELInitialize(els[i]->nedges, els[i]->tails ? els[i]->tails + 1 : els[i]->tails, els[i]->heads ? els[i]->heads + 1 : els[i]->heads, FALSE, DIRECTED);
   }
   Free(els);
   
@@ -231,7 +231,7 @@ MH_I_FN(Mi_BDStratTNT) {
     }
   }
     
-  sto->wtp = WtPopInitialize(sto->nmixtypes, currentprobvec);
+  sto->wtp = WtPopInitialize(sto->nmixtypes, currentprobvec, 'B');
   Free(currentprobvec);
 
   // zero proposal probability is an error

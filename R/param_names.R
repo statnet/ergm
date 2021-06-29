@@ -1,12 +1,12 @@
-#  File R/param_names.R in package ergm, part of the Statnet suite
-#  of packages for network analysis, https://statnet.org .
+#  File R/param_names.R in package ergm, part of the
+#  Statnet suite of packages for network analysis, https://statnet.org .
 #
 #  This software is distributed under the GPL-3 license.  It is free,
 #  open source, and has the attribution requirements (GPL Section 7) at
-#  https://statnet.org/attribution
+#  https://statnet.org/attribution .
 #
-#  Copyright 2003-2020 Statnet Commons
-#######################################################################
+#  Copyright 2003-2021 Statnet Commons
+################################################################################
 #' Names of the parameters associated with an object.
 #'
 #' This is a generic that returns a vector giving the names of the parameters associated with a model or a model fit. 
@@ -31,7 +31,13 @@ param_names.default <- function(object, ...){
 #'
 #' @template canonical
 #' @export
-param_names.ergm_model <- function(object, canonical=FALSE, ...){
-    if(canonical) object$coef.names
-    else unlist(lapply(object$terms, function(term) NVL(names(term$params),term$coef.names)))
+param_names.ergm_model <- function(object, canonical=FALSE, offset=NA, ...){
+  tocount <- if(canonical) object$etamap$offsetmap else object$etamap$offsettheta
+  tocount <-
+    if(is.na(offset)) rep(TRUE, length(tocount))
+    else if(offset) tocount
+    else if(!offset) !tocount
+
+  if(canonical) object$coef.names[tocount]
+  else unlist(lapply(object$terms, function(term) NVL(names(term$params),term$coef.names)))[tocount]
 }

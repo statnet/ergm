@@ -1,12 +1,12 @@
-#  File tests/testthat/test-ergm-san.R in package ergm, part of the Statnet suite
-#  of packages for network analysis, https://statnet.org .
+#  File tests/testthat/test-ergm-san.R in package ergm, part of the
+#  Statnet suite of packages for network analysis, https://statnet.org .
 #
 #  This software is distributed under the GPL-3 license.  It is free,
 #  open source, and has the attribution requirements (GPL Section 7) at
-#  https://statnet.org/attribution
+#  https://statnet.org/attribution .
 #
-#  Copyright 2003-2020 Statnet Commons
-#######################################################################
+#  Copyright 2003-2021 Statnet Commons
+################################################################################
 
 
 n <- 50
@@ -71,11 +71,11 @@ test_that("SAN works with curved terms", {
     expect_true(z["edges"] >= 98 && z["edges"] <= 102)
     expect_true(z["gwesp.fixed.0"] >= 9 && z["gwesp.fixed.0"] <= 11)
     
-    e <- ergm(x ~ edges + offset(gwesp(0,fixed=T)), offset.coef=c(-Inf), estimate="MPLE")
-    y <- san(e, target.stats=c(250), offset.coef=c(-Inf))
-    z <- summary(y ~ edges + offset(gwesp(0,fixed=T)))
-    expect_true(z["edges"] >= 245 && z["edges"] <= 255)
-    expect_true(z["offset(gwesp.fixed.0)"] == 0)
+    ## e <- ergm(x ~ edges + offset(gwesp(0,fixed=T)), offset.coef=c(-Inf), estimate="MPLE")
+    ## y <- san(e, target.stats=c(250), offset.coef=c(-Inf))
+    ## z <- summary(y ~ edges + offset(gwesp(0,fixed=T)))
+    ## expect_true(z["edges"] >= 245 && z["edges"] <= 255)
+    ## expect_true(z["offset(gwesp.fixed.0)"] == 0)
     
     y <- san(x ~ edges + gwesp(cutoff=2), target.stats=c(500,20,10))
     z <- summary(y ~ edges + gwesp(cutoff=2))
@@ -83,18 +83,18 @@ test_that("SAN works with curved terms", {
     expect_true(z["esp#1"] >= 19 && z["esp#1"] <= 21)
     expect_true(z["esp#2"] >= 9 && z["esp#2"] <= 11)
     
-    e <- ergm(x ~ edges + offset(degree(3)) + gwesp(0,fixed=T), offset.coef=c(-Inf), estimate="MPLE")
-    y <- san(e, target.stats=c(30,9), offset.coef=c(-Inf))
-    z <- summary(y ~ edges + gwesp(0,fixed=T))
-    expect_true(z["edges"] >= 29 && z["edges"] <= 31)
-    expect_true(z["gwesp.fixed.0"] >= 8 && z["gwesp.fixed.0"] <= 10)
+    ## e <- ergm(x ~ edges + offset(degree(3)) + gwesp(0,fixed=T), offset.coef=c(-Inf), estimate="MPLE")
+    ## y <- san(e, target.stats=c(30,9), offset.coef=c(-Inf))
+    ## z <- summary(y ~ edges + gwesp(0,fixed=T))
+    ## expect_true(z["edges"] >= 29 && z["edges"] <= 31)
+    ## expect_true(z["gwesp.fixed.0"] >= 8 && z["gwesp.fixed.0"] <= 10)
     
-    e <- ergm(x ~ edges + offset(degree(3)) + gwesp(cutoff=2), offset.coef=c(-Inf), control=control.ergm(MCMLE.maxit=1, loglik=control.logLik.ergm(bridge.nsteps=1)))
-    y <- san(e, target.stats=c(30,9,0), offset.coef=c(-Inf))
-    z <- summary(y ~ edges + gwesp(cutoff=2))
-    expect_true(z["edges"] >= 29 && z["edges"] <= 31)
-    expect_true(z["esp#1"] >= 8 && z["esp#1"] <= 10)
-    expect_true(z["esp#2"] == 0)
+    ## e <- ergm(x ~ edges + offset(degree(3)) + gwesp(cutoff=2), offset.coef=c(-Inf), control=control.ergm(MCMLE.maxit=1, loglik=control.logLik.ergm(bridge.nsteps=1)))
+    ## y <- san(e, target.stats=c(30,9,0), offset.coef=c(-Inf))
+    ## z <- summary(y ~ edges + gwesp(cutoff=2))
+    ## expect_true(z["edges"] >= 29 && z["edges"] <= 31)
+    ## expect_true(z["esp#1"] >= 8 && z["esp#1"] <= 10)
+    ## expect_true(z["esp#2"] == 0)
 })
 
 test_that("SAN offsets work with curved terms", {

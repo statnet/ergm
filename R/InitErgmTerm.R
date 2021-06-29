@@ -1,12 +1,12 @@
-#  File R/InitErgmTerm.R in package ergm, part of the Statnet suite
-#  of packages for network analysis, https://statnet.org .
+#  File R/InitErgmTerm.R in package ergm, part of the
+#  Statnet suite of packages for network analysis, https://statnet.org .
 #
 #  This software is distributed under the GPL-3 license.  It is free,
 #  open source, and has the attribution requirements (GPL Section 7) at
-#  https://statnet.org/attribution
+#  https://statnet.org/attribution .
 #
-#  Copyright 2003-2020 Statnet Commons
-#######################################################################
+#  Copyright 2003-2021 Statnet Commons
+################################################################################
 
 #NOTE: a number of undocumented terms have been removed from this file
 # the terms still exist on the experimental_terms svn branch
@@ -60,10 +60,6 @@
 # --PARAMETERS--
 #   nw        : the network given in formula F
 #   arglist   : the arguments given with term X in formula F
-#   initialfit: whether the parameters for this term have been initially fit
-#               (T or F); if FALSE, the ergm belongs to the curved exponential
-#               family; if TRUE, the term X does not the ergm to be curved,
-#               though other terms may; default=FALSE
 #
 # --IGNORED PARAMETERS--
 #   ... : ignored, but necessary to accomodate other arguments
@@ -102,12 +98,8 @@
 #                  degree0 = number of nodes for the empty network
 #    minpar      : the vector of minimal valid values for each of the model's parameters
 #    maxpar      : the vector of maximal valid values for each of the model's parameters
-#    params      : a list of parameter values for curved exponential family model
-#                  terms only; each item in the list should be named with the
-#                  corresponding parameter name; those that coincide with the
-#                  coef.names (used when initialfit=TRUE) will have their 'params'
-#                  set by MPLE and their initial values in 'params' are ignored;
-#                  otherwise, parameters should be given an initial value in this list
+#    params      : a list whose names correspond to parameter values for curved exponential family model
+#                  terms only; the items in the list are there for historical reasons and are ignored;
 #    map         : a function taking two arguments, theta and length('params'), which
 #                  gives the map from the canonical parameters, theta, to the curved
 #                  parameters, eta; 'map' is only necessary for curved exponential
@@ -140,13 +132,13 @@
 GWDECAY <- list(
   map = function(x,n,...) {
     i <- 1:n
-    x[1]*(exp(x[2])*(1-(1-exp(-x[2]))^i))
+    x[1] * ifelse(i==1, 1, (exp(x[2])*(1-(1-exp(-x[2]))^i)))
   },
   gradient = function(x,n,...) {
     i <- 1:n
     e2 <- exp(x[2])
     a <- 1-exp(-x[2])
-    rbind((1-a^i)*e2, x[1] * ( (1-a^i)*e2 - i*a^(i-1) ) )
+    rbind((1-a^i)*e2, ifelse(i==1, 0, x[1] * ( (1-a^i)*e2 - i*a^(i-1) ) ) )
   },
   minpar = c(-Inf, 0)
 )
