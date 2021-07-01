@@ -8,10 +8,6 @@
 #  Copyright 2003-2021 Statnet Commons
 #######################################################################
 
-library(knitr)
-library(magrittr)
-library(stringr)
-
 SUPPORTED_TERM_TYPES <- c('Term', 'Constraint', 'Reference')
 SUPPORTED_TERM_TYPE_REGEX <- sprintf('-ergm(%s)(.Rd)?', paste(SUPPORTED_TERM_TYPES, collapse='|'))
 CONCEPT_ABBREVIATIONS <- list('directed'='dir', 'dyad-independent'='dyad-indep', 'quantitative nodal attribute'='quant nodal attr',
@@ -342,7 +338,7 @@ ergmTermCache <- local({
   # \link[=absdiff-ergmTerm]{test} and check that it works with \out{<a href="../help/absdiff-ergmTerm">test</a>}.
   # This address may change from an upstream R-studio change
 
-  df$Term <- sprintf(gsub('`([^`(]*)([^`]*)`', '<span class="code"><a href="../help/%s" id="%s">\\1\\2</a></span>', gsub('\n', '<br />', df$Term)), df$Link, df$Link, df$Link, df$Link, df$Link, df$Link, df$Link, df$Link)
+  df$Term <- sprintf(gsub('`([^`(]*)([^`]*)`', '<span class="code"><a href="../help/%1$s" id="%1$s">\\1\\2</a></span>', gsub('\n', '<br />', df$Term)), df$Link)
   df$Link <- NULL
 
   knitr::kable(df, 'html', escape=FALSE, table.attr='class="striped"')
