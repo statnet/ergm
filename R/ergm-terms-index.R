@@ -202,16 +202,14 @@ ergmTermCache <- local({
   if (term_type == 'ergmTerm') {
     m_freq <- .termMatrix(terms, categories=c('binary', 'valued', 'directed', 'undirected', 'bipartite', 'dyad-independent','operator','layer-aware'), only.include='frequently-used')
     m_op <- .termMatrix(terms, categories=c('binary', 'valued', 'directed', 'undirected', 'bipartite', 'dyad-independent', 'layer-aware'), only.include='operator')
-    m_all <- .termMatrix(terms)
-    toc <- .termToc(terms)
-  }
-  else {
+  } else {
     m_freq <- NULL
     m_op <- NULL
-    m_all <- NULL
-    toc <- NULL
   }
-  
+
+  m_all <- .termMatrix(terms)
+  toc <- .termToc(terms)
+
   formatter(index, m_freq, m_op, m_all, toc)
 }
 
