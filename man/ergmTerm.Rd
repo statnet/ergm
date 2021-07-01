@@ -6,12 +6,11 @@
 \title{An index of Ergm terms}
 \description{
 An index of Ergm terms
+}
+\section{Term index}{
 
 \if{latex}{\Sexpr[results=rd,stage=render]{ergm:::.generateDynamicIndex("ergmTerm", ergm:::.formatLatex)}}
 \if{text}{\Sexpr[results=rd,stage=render]{ergm:::.generateDynamicIndex("ergmTerm", ergm:::.formatText)}}
 \if{html}{\Sexpr[results=rd,stage=render]{ergm:::.generateDynamicIndex("ergmTerm", ergm:::.formatHtml)}}
-}
-\section{Term index}{
-
 }
 

@@ -510,9 +510,9 @@ search.ergmTerms<-function(keyword,net,categories,name){
 #'
 #' @name ergmTerm
 #' @docType package
-#' @section Term index:
 #' @description An index of Ergm terms
 #'
+#' @section Term index:
 #' \if{latex}{\Sexpr[results=rd,stage=render]{ergm:::.generateDynamicIndex("ergmTerm", ergm:::.formatLatex)}}
 #' \if{text}{\Sexpr[results=rd,stage=render]{ergm:::.generateDynamicIndex("ergmTerm", ergm:::.formatText)}}
 #' \if{html}{\Sexpr[results=rd,stage=render]{ergm:::.generateDynamicIndex("ergmTerm", ergm:::.formatHtml)}}
@@ -522,9 +522,9 @@ NULL
 #'
 #' @name ergmConstraint
 #' @docType package
-#' @section Constraint index:
 #' @description An index of Ergm constraints
 #'
+#' @section Constraint index:
 #' \if{latex}{\Sexpr[results=rd,stage=render]{ergm:::.generateDynamicIndex("ergmConstraint", ergm:::.formatLatex)}}
 #' \if{text}{\Sexpr[results=rd,stage=render]{ergm:::.generateDynamicIndex("ergmConstraint", ergm:::.formatText)}}
 #' \if{html}{\Sexpr[results=rd,stage=render]{ergm:::.generateDynamicIndex("ergmConstraint", ergm:::.formatHtml)}}
@@ -534,9 +534,9 @@ NULL
 #'
 #' @name ergmReference
 #' @docType package
-#' @section Reference index:
 #' @description An index of Ergm references
 #'
+#' @section Reference index:
 #' \if{latex}{\Sexpr[results=rd,stage=render]{ergm:::.generateDynamicIndex("ergmReference", ergm:::.formatLatex)}}
 #' \if{text}{\Sexpr[results=rd,stage=render]{ergm:::.generateDynamicIndex("ergmReference", ergm:::.formatText)}}
 #' \if{html}{\Sexpr[results=rd,stage=render]{ergm:::.generateDynamicIndex("ergmReference", ergm:::.formatHtml)}}

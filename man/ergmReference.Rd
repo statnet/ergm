@@ -6,12 +6,11 @@
 \title{An index of Ergm reference}
 \description{
 An index of Ergm references
+}
+\section{Reference index}{
 
 \if{latex}{\Sexpr[results=rd,stage=render]{ergm:::.generateDynamicIndex("ergmReference", ergm:::.formatLatex)}}
 \if{text}{\Sexpr[results=rd,stage=render]{ergm:::.generateDynamicIndex("ergmReference", ergm:::.formatText)}}
 \if{html}{\Sexpr[results=rd,stage=render]{ergm:::.generateDynamicIndex("ergmReference", ergm:::.formatHtml)}}
-}
-\section{Reference index}{
-
 }
 
