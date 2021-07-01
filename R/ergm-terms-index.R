@@ -153,6 +153,8 @@ ergmTermCache <- local({
     categories <- unique(unlist(sapply(terms,'[[','concepts')))
   }
 
+  if(length(categories)==0) return(NULL)
+
   # figure out which terms should be included
   if (!is.null(only.include)) {
     included <- sapply(terms, function(term) any(term$concepts %in% only.include))
@@ -179,6 +181,7 @@ ergmTermCache <- local({
 # output listings of terms, grouped by category
 .termToc <- function(terms) {
   cats <- unique(unlist(sapply(terms, '[[', 'concepts')))
+  if(length(cats)==0) return(NULL)
 
   ret <- list()
   for (cat in cats) {
