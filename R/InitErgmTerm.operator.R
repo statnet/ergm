@@ -307,7 +307,7 @@ InitErgmTerm..submodel_and_summary <- function(nw, arglist, ...){
 #'   f[i,j] (y[i,j]),} where for all \eqn{i}, \eqn{j}, and \eqn{y},
 #'   \eqn{f_{i,j}(y_{i,j})} for which \eqn{f_{i,j}(0)=0}{f[i,j] (0)=0}.
 #'   For convenience, the term in specified can be a part of a simple logical or comparison operation: (e.g., `~!nodematch("A")` or `~abs("X")>3`),
-#'   which filters on \eqn{f_{i,j}(y_{i,j}) \square 0}{f[i,j] (y[i,j]) \%OP\% 0} instead.
+#'   which filters on \eqn{f_{i,j}(y_{i,j}) \bigcirc 0}{f[i,j] (y[i,j]) \%OP\% 0} instead.
 #'
 #' @template ergmTerm-general
 #'
