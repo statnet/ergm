@@ -169,12 +169,14 @@ InitWtErgmTerm..submodel_and_summary <- function(nw, arglist, ...){
 
 #' @rdname Curve-ergmTerm
 #' @usage
-#' # valued: Parametrise(formula, params, map, gradient=NULL, minpar=-Inf, maxpar=+Inf, cov=NULL)
+#' # valued: Parametrise(formula, params, map, gradient=NULL, minpar=-Inf, maxpar=+Inf,
+#' #           cov=NULL)
 InitWtErgmTerm.Parametrise <- InitWtErgmTerm.Curve
 
 #' @rdname Curve-ergmTerm
 #' @usage
-#' # valued: Parametrize(formula, params, map, gradient=NULL, minpar=-Inf, maxpar=+Inf, cov=NULL)
+#' # valued: Parametrize(formula, params, map, gradient=NULL, minpar=-Inf, maxpar=+Inf,
+#' #           cov=NULL)
 InitWtErgmTerm.Parametrize <- InitWtErgmTerm.Curve
 
 #' @rdname Exp-ergmTerm

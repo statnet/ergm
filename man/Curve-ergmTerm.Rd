@@ -15,15 +15,19 @@
 \usage{
 # binary: Curve(formula, params, map, gradient=NULL, minpar=-Inf, maxpar=+Inf, cov=NULL)
 
-# binary: Parametrise(formula, params, map, gradient=NULL, minpar=-Inf, maxpar=+Inf, cov=NULL)
+# binary: Parametrise(formula, params, map, gradient=NULL, minpar=-Inf, maxpar=+Inf,
+#           cov=NULL)
 
-# binary: Parametrize(formula, params, map, gradient=NULL, minpar=-Inf, maxpar=+Inf, cov=NULL)
+# binary: Parametrize(formula, params, map, gradient=NULL, minpar=-Inf, maxpar=+Inf,
+#           cov=NULL)
 
 # valued: Curve(formula, params, map, gradient=NULL, minpar=-Inf, maxpar=+Inf, cov=NULL)
 
-# valued: Parametrise(formula, params, map, gradient=NULL, minpar=-Inf, maxpar=+Inf, cov=NULL)
+# valued: Parametrise(formula, params, map, gradient=NULL, minpar=-Inf, maxpar=+Inf,
+#           cov=NULL)
 
-# valued: Parametrize(formula, params, map, gradient=NULL, minpar=-Inf, maxpar=+Inf, cov=NULL)
+# valued: Parametrize(formula, params, map, gradient=NULL, minpar=-Inf, maxpar=+Inf,
+#           cov=NULL)
 }
 \arguments{
 \item{formula}{an arbitrary formula for a linear or curved ERGM}

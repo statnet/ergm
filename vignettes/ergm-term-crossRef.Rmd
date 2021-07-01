@@ -20,7 +20,7 @@ This document is an automatically generated cross reference for the ergm model t
 
 ```{r, include=FALSE}
 library(ergm)
-terms<-ergm:::ergmTermCache()
+terms<-ergm:::ergmTermCache('ergmTerm')
 ```
 
 ## Interactive searching

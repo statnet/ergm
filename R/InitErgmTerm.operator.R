@@ -961,13 +961,15 @@ InitErgmTerm.Curve <- function(nw, arglist,...){
 #' @rdname Curve-ergmTerm
 #' @aliases Parametrise-ergmTerm
 #' @usage
-#' # binary: Parametrise(formula, params, map, gradient=NULL, minpar=-Inf, maxpar=+Inf, cov=NULL)
+#' # binary: Parametrise(formula, params, map, gradient=NULL, minpar=-Inf, maxpar=+Inf,
+#' #           cov=NULL)
 InitErgmTerm.Parametrise <- InitErgmTerm.Curve
 
 #' @rdname Curve-ergmTerm
 #' @aliases Parametrize-ergmTerm
 #' @usage
-#' # binary: Parametrize(formula, params, map, gradient=NULL, minpar=-Inf, maxpar=+Inf, cov=NULL)
+#' # binary: Parametrize(formula, params, map, gradient=NULL, minpar=-Inf, maxpar=+Inf,
+#' #           cov=NULL)
 InitErgmTerm.Parametrize <- InitErgmTerm.Curve
 
 #' @name Log-ergmTerm
