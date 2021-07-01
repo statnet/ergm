@@ -122,6 +122,11 @@ ergm.CD.fixed <- function(init, nw, model,
   mcmc.init <- init
   finished <- FALSE
 
+  control.llik <- list(MCMLE.metric=control$CD.metric,
+                       MCMLE.varweight=control$MCMLE.varweight, MCMLE.dampening=control$CD.dampening,
+                       MCMLE.dampening.min.ess=control$CD.dampening.min.ess,
+                       MCMLE.dampening.level=control$CD.dampening.level)
+
   for(iteration in 1:control$CD.maxit){
     if(iteration == control$CD.maxit) finished <- TRUE
     if(verbose){
@@ -233,10 +238,8 @@ ergm.CD.fixed <- function(init, nw, model,
                        calc.mcmc.se=FALSE,
                        hessianflag=control$main.hessian,
                        method=control$CD.method,
-                       dampening=control$CD.dampening,
-                       dampening.min.ess=control$CD.dampening.min.ess,
-                       dampening.level=control$CD.dampening.level,
                        metric=control$CD.metric,
+                       control.llik=control.llik,
                        steplen=steplen,
                        verbose=verbose,
                        estimateonly=!finished)

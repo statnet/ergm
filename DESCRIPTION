@@ -48,6 +48,7 @@ Suggests:
     tergm (>= 4.0.0),
     ergm.count (>= 4.0),
     ergm.userterms (>= 3.10.0),
+    ergm.tapered (>= 1.0.0),
     networkDynamic (>= 0.10.1),
     covr
 SystemRequirements: OpenMPI

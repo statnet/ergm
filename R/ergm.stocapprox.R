@@ -57,6 +57,12 @@ ergm.stocapprox <- function(init, nw, model,
     stats <- model$nw.stats - NVL(model$target.stats,model$nw.stats)
     target.stats <- model$target.stats
   })
+
+  control.llik <- list(MCMLE.metric=control$MCMLE.metric, MCMLE.trustregion=control$SA.trustregion,
+                       MCMLE.varweight=control$MCMLE.varweight, MCMLE.dampening=control$MCMLE.dampening,
+                       MCMLE.dampening.min.ess=control$MCMLE.dampening.min.ess,
+                       MCMLE.dampening.level=control$MCMLE.dampening.level)
+
 # message(paste("Phase 1: ",n1,"iterations"))
 # message(paste(" (interval=",control$MCMC.interval,")",sep=""))
   nw.orig <- nw
@@ -127,6 +133,7 @@ ergm.stocapprox <- function(init, nw, model,
                    hessianflag=control$main.hessian,
                    method=control$MCMLE.method,
                    metric=control$MCMLE.metric,
+                   control.llik=control.llik,
                    verbose=verbose)
 #
 # Important: Keep R-M (pre-NR) theta

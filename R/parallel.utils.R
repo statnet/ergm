@@ -86,7 +86,7 @@ ergm.MCMC.packagenames <- local({
 #' multiple threads run in parallel. This is done using the
 #' [OpenMP](https://www.openmp.org/) API.
 #'
-#' However, this introduces a nontrivial amont of computational
+#' However, this introduces a nontrivial amount of computational
 #' overhead. See below for a list of the major factors affecting
 #' whether it is worthwhile.}}
 #'

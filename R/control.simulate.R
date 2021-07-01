@@ -47,6 +47,8 @@
 #' @template term_options
 #' @template control_MCMC_parallel
 #' @template control_MCMC_packagenames
+#' @param MCMC.esteq.exclude.statistics character string pattern. statistics with names that contain this string will be excluded from 
+#' the estimating equations. For example, this supports tapering models which may have terms with non-specific means.
 #' @template control_dots
 #' @return A list with arguments as components.
 #' @seealso \code{\link{simulate.ergm}}, \code{\link{simulate.formula}}.
@@ -73,6 +75,7 @@ control.simulate.formula.ergm<-function(MCMC.burnin=MCMC.interval*16,
                                         
                                         MCMC.maxedges=Inf,
                                         MCMC.packagenames=c(),
+                                        MCMC.esteq.exclude.statistics=NULL,
                                         
                                         MCMC.runtime.traceplot=FALSE,  
                                         network.output="network",
@@ -108,7 +111,7 @@ control.simulate.formula<-control.simulate.formula.ergm
 #' @description While the others supply a full set of simulation
 #'   settings, `control.simulate.ergm` when passed as a control
 #'   parameter to [simulate.ergm()] allows some settings to be
-#'   inherited from the ERGM stimation while overriding others.
+#'   inherited from the ERGM estimation while overriding others.
 #' 
 #' @export control.simulate.ergm
 control.simulate.ergm<-function(MCMC.burnin=NULL,
@@ -128,6 +131,7 @@ control.simulate.ergm<-function(MCMC.burnin=NULL,
                                 
                                 MCMC.maxedges=Inf,
                                 MCMC.packagenames=NULL,
+                                MCMC.esteq.exclude.statistics=NULL,
                                 
                                 MCMC.runtime.traceplot=FALSE,
                                 network.output="network",

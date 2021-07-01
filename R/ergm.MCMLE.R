@@ -211,6 +211,11 @@ ergm.MCMLE <- function(init, nw, model,
     rm(state)
   }
 
+  control.llik <- list()
+  control.transfer <- c(STATIC_MCMLE_CONTROLS, STATIC_TAPERING_CONTROLS)
+  for(arg in control.transfer)
+    if(!is.null(control[[arg]]))
+      control.llik[arg] <- list(control[[arg]])
   
   for(iteration in 1:control$MCMLE.maxit){
     if(verbose){
@@ -292,7 +297,7 @@ ergm.MCMLE <- function(init, nw, model,
     }
 
     # Compute the sample estimating equations and the convergence p-value. 
-    esteqs <- ergm.estfun(statsmatrices, theta=mcmc.init, model=model)
+    esteqs <- ergm.estfun(statsmatrices, theta=mcmc.init, model=model, exclude=control$MCMC.esteq.exclude.statistics)
     esteq <- as.matrix(esteqs)
     if(isTRUE(all.equal(apply(esteq,2,stats::sd), rep(0,ncol(esteq)), check.names=FALSE))&&!all(esteq==0))
       stop("Unconstrained MCMC sampling did not mix at all. Optimization cannot continue.")
@@ -302,7 +307,7 @@ ergm.MCMLE <- function(init, nw, model,
                              nonident_action = control$MCMLE.nonident,
                              nonvar_action = control$MCMLE.nonvar)
 
-    esteqs.obs <- if(obs) ergm.estfun(statsmatrices.obs, theta=mcmc.init, model=model) else NULL
+    esteqs.obs <- if(obs) ergm.estfun(statsmatrices.obs, theta=mcmc.init, model=model, exclude=control$MCMC.esteq.exclude.statistics) else NULL
     esteq.obs <- if(obs) as.matrix(esteqs.obs) else NULL
 
     # Update the interval to be used.
@@ -411,10 +416,8 @@ ergm.MCMLE <- function(init, nw, model,
                        calc.mcmc.se=control$MCMLE.termination == "precision" || (control$MCMC.addto.se && last.adequate) || iteration == control$MCMLE.maxit,
                        hessianflag=control$main.hessian,
                        method=control$MCMLE.method,
-                       dampening=control$MCMLE.dampening,
-                       dampening.min.ess=control$MCMLE.dampening.min.ess,
-                       dampening.level=control$MCMLE.dampening.level,
                        metric=control$MCMLE.metric,
+                       control.llik=control.llik,
                        steplen=steplen, steplen.point.exp=control$MCMLE.steplength.point.exp,
                        verbose=verbose,
                        estimateonly=!calc.MCSE)

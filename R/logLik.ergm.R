@@ -88,7 +88,7 @@ logLik.ergm<-function(object, add=FALSE, force.reeval=FALSE, eval.loglik=add || 
 
   bridge.names <- names(formals(control.ergm.bridge))
   control.bridge <- control[intersect(bridge.names, names(control))]
-  control.transfer <- intersect(c("MCMC.samplesize", SCALABLE_MCMC_CONTROLS, STATIC_MCMC_CONTROLS, PARALLEL_MCMC_CONTROLS, MPLE_CONTROLS), bridge.names)
+  control.transfer <- intersect(c("MCMC.samplesize", SCALABLE_MCMC_CONTROLS, STATIC_MCMC_CONTROLS, PARALLEL_MCMC_CONTROLS, MPLE_CONTROLS, STATIC_MCMLE_CONTROLS), bridge.names)
   for(arg in control.transfer)
     if(is.null(control.bridge[[arg]]))
       control.bridge[[arg]] <- object$control[[arg]]

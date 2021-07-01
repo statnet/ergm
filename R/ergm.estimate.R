@@ -37,10 +37,10 @@
 #   trace           : a non-negative interger specifying how much tracing
 #                     information should be printed by the <optim> routine;
 #                     default=6*'verbose'
-#   dampening       : (logical) should likelihood dampening be used?
-#  dampening.min.ess: effective sample size below which dampening is used
-#   dampening.level : proportional distance from boundary of the convex hull
-#                     move
+#   control.llik    : A list of control values for the log-likelihood functions. These include:
+#     MCMLE.dampening       : (logical) should likelihood dampening be used?
+#    MCMLE.dampening.min.ess: effective sample size below which dampening is used
+#     MCMLE.dampening.level : proportional distance from boundary of the convex hull
 #   estimateonly    : whether only the estimates (vs. the estimates and the
 #                     standard errors) should be calculated; default=FALSE
 #
@@ -61,9 +61,7 @@ ergm.estimate<-function(init, model, statsmatrices, statsmatrices.obs=NULL,
                         method="Nelder-Mead",
                         calc.mcmc.se=TRUE, hessianflag=TRUE,
                         verbose=FALSE, trace=6*verbose,
-                        dampening=FALSE,
-                        dampening.min.ess=100,
-                        dampening.level=0.1,
+                        control.llik=control.logLik.ergm(),
                         steplen=1, steplen.point.exp=1,
                         cov.type="normal",# cov.type="robust", 
                         estimateonly=FALSE, ...) {
@@ -147,9 +145,6 @@ ergm.estimate<-function(init, model, statsmatrices, statsmatrices.obs=NULL,
     
   # Choose appropriate loglikelihood, gradient, and Hessian functions
   # depending on metric chosen and also whether obsprocess==TRUE
-  # Also, choose varweight multiplier for covariance term in loglikelihood
-  # where 0.5 is the "true" value but this can be increased or decreased
-  varweight <- 0.5
   if (verbose) { message("Using ", metric, " metric (see control.ergm function).") }
   if (obsprocess) {
     loglikelihoodfn <- switch(metric,
@@ -158,6 +153,7 @@ ergm.estimate<-function(init, model, statsmatrices, statsmatrices.obs=NULL,
                               logtaylor=llik.fun.obs.lognormal,
                               Median.Likelihood=llik.fun.obs.robust,
                               EF.Likelihood=llik.fun.obs.lognormal,
+                              Kpenalty=ergm.tapered::llik.fun.obs.Kpenalty,
                               llik.fun.obs.IS)
     gradientfn <- switch(metric,
                          Likelihood=llik.grad.obs.IS,
@@ -165,6 +161,7 @@ ergm.estimate<-function(init, model, statsmatrices, statsmatrices.obs=NULL,
                          logtaylor=llik.grad.obs.IS,
                          Median.Likelihood=llik.grad.obs.IS,
                          EF.Likelihood=llik.grad.obs.IS,
+                         Kpenalty=ergm.tapered::llik.grad.obs.Kpenalty.numDeriv,
                          llik.grad.obs.IS)
     Hessianfn <- switch(metric,
                         Likelihood=llik.hessian.obs.IS,
@@ -172,6 +169,7 @@ ergm.estimate<-function(init, model, statsmatrices, statsmatrices.obs=NULL,
                         logtaylor=llik.hessian.obs.IS,
                         Median.Likelihood=llik.hessian.obs.IS,
                         EF.Likelihood=llik.hessian.obs.IS,
+                        Kpenalty=ergm.tapered::llik.hessian.obs.Kpenalty.numDeriv,
                         llik.hessian.obs.IS)
   } else {
     loglikelihoodfn <- switch(metric,
@@ -180,6 +178,7 @@ ergm.estimate<-function(init, model, statsmatrices, statsmatrices.obs=NULL,
                               logtaylor=llik.fun.logtaylor,
                               Median.Likelihood=llik.fun.median,
                               EF.Likelihood=llik.fun.EF,
+                              Kpenalty=ergm.tapered::llik.fun.Kpenalty,
                               llik.fun.IS)
     gradientfn <- switch(metric,
                          Likelihood=llik.grad.IS,
@@ -187,6 +186,7 @@ ergm.estimate<-function(init, model, statsmatrices, statsmatrices.obs=NULL,
                          logtaylor=llik.grad.IS,
                          Median.Likelihood=llik.grad.IS,
                          EF.Likelihood=llik.grad.IS,
+                         Kpenalty=ergm.tapered::llik.grad.Kpenalty.numDeriv,
                          llik.grad.IS)
     Hessianfn <- switch(metric,
                         Likelihood=llik.hessian.IS,
@@ -194,6 +194,7 @@ ergm.estimate<-function(init, model, statsmatrices, statsmatrices.obs=NULL,
                         logtaylor=llik.hessian.IS,
                         Median.Likelihood=llik.hessian.IS,
                         EF.Likelihood=llik.hessian.IS,
+                        Kpenalty=ergm.tapered::llik.hessian.Kpenalty.numDeriv,
                         llik.hessian.IS)
   }
   
@@ -275,11 +276,8 @@ ergm.estimate<-function(init, model, statsmatrices, statsmatrices.obs=NULL,
                       parscale=rep(1,length(guess)), minimize=FALSE,
                       xsim=xsim,
                       xsim.obs=xsim.obs,
-                      varweight=varweight,
-                      dampening=dampening,
-                      dampening.min.ess=dampening.min.ess,
-                      dampening.level=dampening.level,
-                      eta0=eta0, etamap=etamap.no),
+                      eta0=eta0, etamap=etamap.no,
+                      control.llik=control.llik),
             silent=FALSE)
     Lout$par<-Lout$argument
     if(inherits(Lout,"try-error")) {
@@ -292,11 +290,8 @@ ergm.estimate<-function(init, model, statsmatrices, statsmatrices.obs=NULL,
                                      reltol=nr.reltol),
                         xsim=xsim,
                         xsim.obs=xsim.obs,
-                        varweight=varweight,
-                        dampening=dampening,
-                        dampening.min.ess=dampening.min.ess,
-                        dampening.level=dampening.level,
-                        eta0=eta0, etamap=etamap.no),
+                        eta0=eta0, etamap=etamap.no,
+                        control.llik=control.llik),
               silent=FALSE)
       if(inherits(Lout,"try-error")){
         message(paste("No direct MLE exists!"))
@@ -323,8 +318,8 @@ ergm.estimate<-function(init, model, statsmatrices, statsmatrices.obs=NULL,
     gradienttheta <- llik.grad.IS(theta=Lout$par,
                         xsim=xsim,
                         xsim.obs=xsim.obs,
-                        varweight=varweight,
-                        eta0=eta0, etamap=etamap.no)
+                        eta0=eta0, etamap=etamap.no,
+                        control.llik=control.llik)
     gradient <- rep(NA, length=length(init))
     gradient[!model$etamap$offsettheta] <- gradienttheta
     #
@@ -338,9 +333,8 @@ ergm.estimate<-function(init, model, statsmatrices, statsmatrices.obs=NULL,
       Lout$hessian <- Hessianfn(theta=Lout$par,
                         xsim=xsim.orig,
                         xsim.obs=xsim.orig.obs,
-                        varweight=varweight,
-                        eta0=eta0, etamap=etamap.no
-                        )
+                        eta0=eta0, etamap=etamap.no,
+                        control.llik=control.llik)
     }
     
     covar <- matrix(NA, ncol=length(theta), nrow=length(theta))
@@ -354,7 +348,8 @@ ergm.estimate<-function(init, model, statsmatrices, statsmatrices.obs=NULL,
     if(calc.mcmc.se){
       if (verbose) message("Starting MCMC s.e. computation.")
       mcse.metric <-
-        if ((metric == "lognormal" || metric == "Likelihood") && length(model$etamap$curved) == 0) "lognormal"
+        if ((metric %in% c("lognormal", "Likelihood", "Kpenalty")) 
+          && length(model$etamap$curved) == 0) "lognormal"
         else "IS"
       mc.cov <- ergm.MCMCse(model = model, theta = theta, init = init,
                             statsmatrices = statsmatrices,
