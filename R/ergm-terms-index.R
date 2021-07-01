@@ -313,11 +313,11 @@ ergmTermCache <- local({
 }
 
 .formatTocLatex <- function(toc) {
-  out <- '\\subsection{Terms by concepts}'
+  out <- '\\noindent\\textbf{Terms by concepts}\n\n\\begin{description}'
   for (cat in names(toc)) {
-    out <- sprintf('%s\\subsubsection{%s}%s', out, cat, paste(toc[[cat]]$name, collapse=', '))
+    out <- sprintf('%s\n\\item[%s] %s', out, cat, paste(toc[[cat]]$name, collapse=', '))
   }
-  out
+  paste(out, "\n\\end{description}")
 }
 
 .formatLatex <- function(index, m_freq=NULL, m_op=NULL, m_all=NULL, toc=NULL) {
