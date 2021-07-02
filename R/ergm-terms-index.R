@@ -12,7 +12,7 @@ SUPPORTED_TERM_TYPES <- c('Term', 'Constraint', 'Reference')
 SUPPORTED_TERM_TYPE_REGEX <- sprintf('-ergm(%s)(.Rd)?', paste(SUPPORTED_TERM_TYPES, collapse='|'))
 CONCEPT_ABBREVIATIONS <- list('directed'='dir', 'dyad-independent'='dyad-indep', 'quantitative nodal attribute'='quant nodal attr',
     'undirected'='undir', 'binary'='bin', 'valued'='val', 'categorical nodal attribute'='cat nodal attr',
-    'curved'='curved', 'triad-related'='triad rel', 'operator'='op', 'bipartite'='bipartite',
+    'curved'='curved', 'triad-related'='triad rel', 'operator'='op', 'bipartite'='bip',
     'frequently-used'='freq', 'non-negative'='non-neg')
 
 DISPLAY_TEXT_INDEX_MAX_WIDTHS <- list('Term'=25, 'Pkg'=5, 'Description'=33, 'Concepts'=12)
