@@ -222,7 +222,6 @@ ergm(molecule ~ edges + kstar(2:3) + triangle
                       + nodematch("atomic type",diff=TRUE)
                       + triangle + absdiff("atomic type"))
 }
-\% TODO: Write a valued example.
 }
 \references{
 \itemize{

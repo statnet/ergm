@@ -51,6 +51,6 @@ determins whether the constraint further restricts (for \code{+}) or
 potentially relaxes restriction (for \code{-}).
 }
 \seealso{
-\link{ergm-constraints}
+\code{\link{ergmConstraint}}
 }
 \keyword{internal}

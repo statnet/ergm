@@ -55,7 +55,7 @@ ergm_proposal(object, ...)
 }
 \arguments{
 \item{object}{Either a character, a \code{\link{formula}} or an
-\code{\link{ergm}} object.  The \code{\link{formula}} should be of the format documented in the \code{constraints} argument of \code{\link[=ergm]{ergm()}} and in the \link[=ergm-constraints]{ERGM constraints} documentation.}
+\code{\link{ergm}} object.  The \code{\link{formula}} should be of the format documented in the \code{constraints} argument of \code{\link[=ergm]{ergm()}} and in the \link[=ergmConstraint]{ERGM constraints} documentation.}
 
 \item{\dots}{Further arguments passed to other functions.}
 
@@ -83,7 +83,7 @@ and "d" default="c".}
 \item{constraints}{A one-sided formula specifying one or more constraints on
 the support of the distribution of the networks being simulated. See the
 documentation for a similar argument for \code{\link{ergm}} and see
-\link[=ergm-constraints]{list of implemented constraints} for more information.}
+\link[=ergmConstraint]{list of implemented constraints} for more information.}
 }
 \value{
 Returns an ergm_proposal object: a list with class \code{ergm_proposal}

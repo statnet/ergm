@@ -232,7 +232,7 @@ Math.rlebdm <- function(x, ...){
 #'   determins whether the constraint further restricts (for `+`) or
 #'   potentially relaxes restriction (for `-`).
 #'
-#' @seealso [ergm-constraints]
+#' @seealso [`ergmConstraint`]
 #'
 #' @keywords internal
 #' @export

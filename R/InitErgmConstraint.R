@@ -190,7 +190,7 @@ InitErgmConstraint.odegreedist<-function(nw, arglist, ...){
 #' @title Constrain maximum and minimum vertex degree
 #' @description Constrain maximum and minimum vertex degree
 #' @details Condition on the number of inedge or outedges posessed by a node. 
-#' See Placing Bounds on Degrees section for more information. ([`?'ergm-constraints'`][ergm-constraints])
+#' See Placing Bounds on Degrees section for more information. ([`?ergmConstraint`][ergmConstraint])
 #'
 #' @usage
 #' # bd(attribs, maxout, maxin, minout, minin)

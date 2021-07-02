@@ -71,7 +71,7 @@ on the support of the distribution of the networks being modeled,
 using syntax similar to the \code{formula} argument, on the
 right-hand side. Multiple constraints
 may be given, separated by \dQuote{+} and \dQuote{-} operators. (See
-\link[=ergm-constraints]{ERGM constraints} for the explanation of
+\link[=ergmConstraint]{ERGM constraints} for the explanation of
 their semantics.)
 Together with the model terms in the formula and the reference measure, the constraints
 define the distribution of networks being modeled.
@@ -85,7 +85,7 @@ will override the one chosen automatically.
 
 The default is \code{~.}, for an unconstrained model.
 
-See the \link[=ergm-constraints]{ERGM constraints} documentation for
+See the \link[=ergmConstraint]{ERGM constraints} documentation for
 the constraints implemented in the \strong{\link[=ergm-package]{ergm}}
 package. Other packages may add their own constraints.
 
@@ -115,7 +115,7 @@ passing a string with the function's name. In that case,
 arguments to the proposal should be specified through the
 \code{obs.prop.args} argument to \code{\link{control.ergm}}.
 
-See the \link[=ergm-constraints]{ERGM constraints} documentation for
+See the \link[=ergmConstraint]{ERGM constraints} documentation for
 the constraints implemented in the \strong{\link[=ergm-package]{ergm}}
 package. Other packages may add their own constraints.
 

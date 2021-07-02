@@ -740,8 +740,8 @@ search.ergmTerms<-function(keyword,net,categories,name){
 #'                       + nodematch("atomic type",diff=TRUE)
 #'                       + triangle + absdiff("atomic type"))
 #' }
-#' % TODO: Write a valued example.
 NULL
+#TODO: Write a valued example.
 
 #' Sample Space Constraints for Exponential-Family Random Graph Models
 #'
@@ -801,6 +801,7 @@ NULL
 #'      particular size and type have non-zero probability.
 #'      Cannot be combined with other constraints.
 #'    }
+#' }
 #' \if{latex}{\Sexpr[results=rd,stage=render]{ergm:::.formatIndexLatex(ergm:::.buildTermsDataframe("ergmConstraint"))}}
 #' \if{text}{\Sexpr[results=rd,stage=render]{ergm:::.formatIndexText(ergm:::.buildTermsDataframe("ergmConstraint"))}}
 #' \if{html}{\Sexpr[results=rd,stage=render]{ergm:::.formatIndexHtml(ergm:::.buildTermsDataframe("ergmConstraint"))}}
@@ -853,7 +854,7 @@ NULL
 #' \if{text}{\Sexpr[results=rd,stage=render]{ergm:::.formatIndexText(ergm:::.buildTermsDataframe("ergmReference"))}}
 #' \if{html}{\Sexpr[results=rd,stage=render]{ergm:::.formatIndexHtml(ergm:::.buildTermsDataframe("ergmReference"))}}
 #'
-#' @seealso [`ergm`][ergm-package], [`network`], [`sna`], [`summary.ergm`], [`print.ergm`], [`\%v\%`], [`\%n\%`]
+#' @seealso [`ergm`][ergm-package], [`network`], `sna`, [`summary.ergm`], [`print.ergm`], `\%v\%`, `\%n\%`
 #' 
 #' @references
 #' - Hunter DR, Handcock MS, Butts CT, Goodreau SM, Morris M (2008b). \pkg{ergm}:

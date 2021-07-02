@@ -61,7 +61,7 @@
 #'   constraints on the support of the distribution of the networks
 #'   being simulated. See the documentation for a similar argument for
 #'   \code{\link{ergm}} and see [list of implemented
-#'   constraints][ergm-constraints] for more information. For
+#'   constraints][ergmConstraint] for more information. For
 #'   \code{simulate.formula}, defaults to no constraints. For
 #'   \code{simulate.ergm}, defaults to using the same constraints as
 #'   those with which \code{object} was fitted.
