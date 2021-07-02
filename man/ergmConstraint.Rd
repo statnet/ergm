@@ -9,8 +9,8 @@ An index of Ergm constraints
 }
 \section{Constraint index}{
 
-\if{latex}{\Sexpr[results=rd,stage=render]{ergm:::.generateDynamicIndex("ergmConstraint", ergm:::.formatLatex)}}
-\if{text}{\Sexpr[results=rd,stage=render]{ergm:::.generateDynamicIndex("ergmConstraint", ergm:::.formatText)}}
-\if{html}{\Sexpr[results=rd,stage=render]{ergm:::.generateDynamicIndex("ergmConstraint", ergm:::.formatHtml)}}
+\if{latex}{\Sexpr[results=rd,stage=render]{ergm:::.formatIndexLatex(ergm:::.buildTermsDataframe("ergmConstraint"))}}
+\if{text}{\Sexpr[results=rd,stage=render]{ergm:::.formatIndexText(ergm:::.buildTermsDataframe("ergmConstraint"))}}
+\if{html}{\Sexpr[results=rd,stage=render]{ergm:::.formatIndexHtml(ergm:::.buildTermsDataframe("ergmConstraint"))}}
 }
 

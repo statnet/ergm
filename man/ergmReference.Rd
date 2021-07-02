@@ -9,8 +9,8 @@ An index of Ergm references
 }
 \section{Reference index}{
 
-\if{latex}{\Sexpr[results=rd,stage=render]{ergm:::.generateDynamicIndex("ergmReference", ergm:::.formatLatex)}}
-\if{text}{\Sexpr[results=rd,stage=render]{ergm:::.generateDynamicIndex("ergmReference", ergm:::.formatText)}}
-\if{html}{\Sexpr[results=rd,stage=render]{ergm:::.generateDynamicIndex("ergmReference", ergm:::.formatHtml)}}
+\if{latex}{\Sexpr[results=rd,stage=render]{ergm:::.formatIndexLatex(ergm:::.buildTermsDataframe("ergmReference"))}}
+\if{text}{\Sexpr[results=rd,stage=render]{ergm:::.formatIndexText(ergm:::.buildTermsDataframe("ergmReference"))}}
+\if{html}{\Sexpr[results=rd,stage=render]{ergm:::.formatIndexHtml(ergm:::.buildTermsDataframe("ergmReference"))}}
 }
 

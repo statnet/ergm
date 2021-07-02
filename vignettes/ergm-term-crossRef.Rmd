@@ -20,7 +20,6 @@ This document is an automatically generated cross reference for the ergm model t
 
 ```{r, include=FALSE}
 library(ergm)
-terms<-ergm:::ergmTermCache('ergmTerm')
 ```
 
 ## Interactive searching
@@ -43,13 +42,13 @@ search.ergmTerms(categories=c('bipartite','dyad-independent'))
 For convenience, this table lists a subset of the most commonly-used ergm terms and categories.
 
 ```{r,results='asis',echo=FALSE}
-ergm:::.termMatrix(terms,categories=c('binary', 'valued', 'directed', 'undirected', 'bipartite', 'dyad-independent','operator','layer-aware'),only.include='frequently-used')
+ergm:::.termMatrix('ergmTerm',categories=c('binary', 'valued', 'directed', 'undirected', 'bipartite', 'dyad-independent','operator','layer-aware'),only.include='frequently-used')
 ```
 
 For convenience, this table lists operator terms: terms that wrap or modify other terms.
 
 ```{r,results='asis',echo=FALSE}
-ergm:::.termMatrix(terms,categories=c('binary', 'valued', 'directed', 'undirected', 'bipartite', 'dyad-independent','operator','layer-aware'),only.include='operator')
+ergm:::.termMatrix('ergmTerm',categories=c('binary', 'valued', 'directed', 'undirected', 'bipartite', 'dyad-independent','operator','layer-aware'),only.include='operator')
 ```
 
 
@@ -57,7 +56,7 @@ ergm:::.termMatrix(terms,categories=c('binary', 'valued', 'directed', 'undirecte
 This table lists the complete set of terms available in the ergm package. In HTML versions, clicking on a term name will jump to its definition. 
 
 ```{r,results='asis',echo=FALSE}
-ergm:::.termMatrix(terms)
+ergm:::.termMatrix('ergmTerm')
 ```
 
 
@@ -66,6 +65,7 @@ ergm:::.termMatrix(terms)
 This table lists full definitions for all of the terms along with their tags.  Note that some terms may have multiple versions (e.g. valued vs. binary) with slightly different arguments and will be listed more than once with the same definition. 
 
 ```{r,results='asis',echo=FALSE}
+terms<-ergm:::ergmTermCache('ergmTerm')
 ergm:::.termTable(terms)
 ```
 
@@ -74,7 +74,7 @@ ergm:::.termTable(terms)
 Note that currently the categories are somewhat ambiguous in their exclusivity.  For example, a term marked as 'directed' can not be used with an undirected network, but a term not marked with either 'directed' or 'undirected' can be used with both. (rename to 'directed-only' ?)
 
 ```{r,results='asis',echo=FALSE}
-ergm:::.termToc(terms)
+ergm:::.termToc('ergmTerm')
 ```
 
 ------------
