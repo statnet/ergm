@@ -74,6 +74,7 @@ OPERATOR_CATEGORIES <- c('binary', 'valued', 'directed', 'undirected', 'bipartit
 #' @noRd
 ergmTermCache <- local({
   cache <- lapply(SUPPORTED_TERM_TYPES, function(x) list())
+  names(cache) <- paste('ergm', SUPPORTED_TERM_TYPES, sep='')
   pkglist <- character(0) # Current list of packages.
 
   # Reset the cache and update the list of watched packages.
@@ -113,7 +114,6 @@ ergmTermCache <- local({
         setHook(packageEvent(pkg_name, "onUnload"), unload)
       }
     }
-
     cache <<- lapply(cache, function(terms) terms[sort(names(terms))])
 
     pkglist <<- loaded_packages
@@ -128,6 +128,8 @@ ergmTermCache <- local({
 
 .buildTermsDataframe <- function(term_type) {
   terms <- ergmTermCache(term_type)
+
+  if (length(terms) == 0) return(NULL)
 
   df <- c()
   for (term in terms) {
@@ -206,6 +208,8 @@ ergmTermCache <- local({
 }
 
 .formatIndexText <- function(df) {
+  if(is.null(df)) return(NULL)
+
   df$Term <- gsub('`', '', gsub('valued', 'val', gsub('binary', 'bin', df$Term)))
 
   line_wrap <- function(lines, max_width) {
