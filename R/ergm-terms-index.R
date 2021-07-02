@@ -270,7 +270,7 @@ ergmTermCache <- local({
 }
 
 .formatTocText <- function(toc) {
-  if(is.null(df)) return(NULL)
+  if(is.null(toc)) return(NULL)
 
   out <- ''
   for (cat in names(toc)) {
@@ -312,7 +312,7 @@ ergmTermCache <- local({
 }
 
 .formatTocLatex <- function(toc) {
-  if(is.null(df)) return(NULL)
+  if(is.null(toc)) return(NULL)
 
   out <- '\\out{\\noindent\\textbf{Terms by concepts}\n\n\\begin{description}'
   for (cat in names(toc)) {
@@ -352,7 +352,7 @@ ergmTermCache <- local({
 }
 
 .formatTocHtml <- function(toc) {
-  if(is.null(df)) return(NULL)
+  if(is.null(toc)) return(NULL)
 
   out <- paste('Jump to category:', paste(sprintf('<a href="#cat_%s">%s</a>', names(toc), names(toc)), collapse=' '))
   for (cat in names(toc)) {
