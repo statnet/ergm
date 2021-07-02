@@ -14,3 +14,4 @@ Standard Normal reference
 Specifies each dyad's baseline distribution to be the normal distribution
 with mean 0 and variance 1.
 }
+\concept{continuous}

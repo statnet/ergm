@@ -16,3 +16,7 @@ dyad's baseline distribution to be Bernoulli with probability of
 the tie being \eqn{0.5} . This is the only reference measure used
 in binary mode.
 }
+\concept{binary}
+\concept{discrete}
+\concept{finite}
+\concept{positive}

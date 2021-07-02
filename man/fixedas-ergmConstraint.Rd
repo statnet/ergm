@@ -16,4 +16,6 @@ Preserve and preclude edges
 \details{
 Preserve the edges in 'present' and preclude the edges in 'absent'.
 }
+\concept{directed}
 \concept{dyad-independent}
+\concept{undirected}

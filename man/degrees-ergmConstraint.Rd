@@ -20,3 +20,5 @@ whose vertex degrees are the same as those in the network passed
 in the model formula have non-zero probability. If the network is
 directed, both indegree and outdegree are preserved.
 }
+\concept{directed}
+\concept{undirected}

@@ -23,3 +23,5 @@ Constrain maximum and minimum vertex degree
 Condition on the number of inedge or outedges posessed by a node.
 See Placing Bounds on Degrees section for more information. (\code{\link[=ergmConstraint]{?ergmConstraint}})
 }
+\concept{directed}
+\concept{undirected}

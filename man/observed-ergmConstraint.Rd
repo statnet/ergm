@@ -13,4 +13,6 @@ Preserve the observed dyads of the given network
 \details{
 Preserve the observed dyads of the given network.
 }
+\concept{directed}
 \concept{dyad-independent}
+\concept{undirected}

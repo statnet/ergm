@@ -17,3 +17,4 @@ Continuous Uniform reference
 Specifies each dyad's baseline distribution to be continuous uniform
 between \code{a} and \code{b}: \eqn{h(y)=1} , with the support being \verb{[a, b]}.
 }
+\concept{continuous}

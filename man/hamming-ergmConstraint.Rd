@@ -13,3 +13,5 @@ TODO
 \details{
 TODO
 }
+\concept{directed}
+\concept{undirected}

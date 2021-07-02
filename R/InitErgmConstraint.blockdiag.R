@@ -62,6 +62,8 @@
 #' @template ergmTerm-attr
 #'
 #' @concept dyad-independent
+#' @concept directed
+#' @concept undirected
 #' @import rle
 InitErgmConstraint.blockdiag<-function(lhs.nw, attr=NULL, ...){
   if(length(list(...)))

@@ -14,3 +14,4 @@ Preserve the degree distribution for bipartite networks
 For bipartite networks, preserve the degree for the second mode of each vertex of the given
 network, while allowing the degree for the first mode to vary.
 }
+\concept{bipartite}

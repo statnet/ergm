@@ -27,4 +27,6 @@ If multiple block-diagonal constraints are given, or if
 \code{attr} is a vector with multiple attribute names, blocks
 will be constructed on all attributes matching.
 }
+\concept{directed}
 \concept{dyad-independent}
+\concept{undirected}

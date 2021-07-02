@@ -26,3 +26,7 @@ erroneously observing a nontie where the true network had a tie.
 \note{
 See Karwa et al. (2016) for an application.
 }
+\concept{directed}
+\concept{dyad-independent}
+\concept{soft}
+\concept{undirected}

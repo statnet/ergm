@@ -18,4 +18,6 @@ Constrain "blocks" of dyads
 \details{
 Any dyad whose toggle would produce a nonzero change statistic for a \code{nodemix} term with the same arguments will be fixed. Note that the \code{levels2} argument has a different default value for \code{blocks} than it does for \code{nodemix} .
 }
+\concept{directed}
 \concept{dyad-independent}
+\concept{undirected}

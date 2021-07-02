@@ -18,6 +18,10 @@
 #'
 #' @usage
 #' # Bernoulli
+#' @concept discrete
+#' @concept finite
+#' @concept binary
+#' @concept positive
 InitErgmReference.Bernoulli <- function(nw, arglist, ...){
   a <- check.ErgmTerm(nw, arglist)
   list(name="Bernoulli", init_methods=c("MPLE", "CD", "zeros"))
@@ -31,6 +35,7 @@ InitErgmReference.Bernoulli <- function(nw, arglist, ...){
 #'
 #' @usage
 #' # StdNormal
+#' @concept continuous
 InitErgmReference.StdNormal <- function(nw, arglist, ...){
   a <- check.ErgmTerm(nw, arglist)
   list(name="StdNormal", init_methods=c("CD","zeros"))
@@ -45,6 +50,7 @@ InitErgmReference.StdNormal <- function(nw, arglist, ...){
 #' @usage
 #' # Unif(a,b)
 #' @param a,b minimum and maximum to the baseline discrete uniform distribution, both inclusive. Both values must be finite.
+#' @concept continuous
 InitErgmReference.Unif <- function(nw, arglist, ...){
   a <- check.ErgmTerm(nw, arglist,
                       varnames = c("a", "b"),
@@ -65,6 +71,8 @@ InitErgmReference.Unif <- function(nw, arglist, ...){
 #' @usage
 #' # DiscUnif(a,b)
 #' @param a,b minimum and maximum to the baseline discrete uniform distribution, both inclusive. Both values must be finite.
+#' @concept discrete
+#' @concept finite
 InitErgmReference.DiscUnif <- function(nw, arglist, a, b, ...){
   a <- check.ErgmTerm(nw, arglist,
                       varnames = c("a", "b"),

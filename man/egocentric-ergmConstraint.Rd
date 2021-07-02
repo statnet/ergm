@@ -18,4 +18,6 @@ Preserve values of dyads incident on vertices with given attribute
 \details{
 Preserve values of dyads incident on vertices with attribute \code{attr} being \code{TRUE} or if \code{attrname} is \code{NULL} , the vertex attribute \code{"na"} being \code{FALSE}.
 }
+\concept{directed}
 \concept{dyad-independent}
+\concept{undirected}

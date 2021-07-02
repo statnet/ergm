@@ -14,3 +14,4 @@ Preserve outdegree for directed networks
 For directed networks, preserve the outdegree of each vertex of the given
 network, while allowing indegree to vary
 }
+\concept{directed}

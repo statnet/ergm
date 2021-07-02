@@ -16,4 +16,6 @@ Preserve the dyad status in all but the given edges
 \details{
 Preserve the dyad status in all but \code{free.dyads}.
 }
+\concept{directed}
 \concept{dyad-independent}
+\concept{undirected}

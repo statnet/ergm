@@ -15,3 +15,5 @@ Only networks
 whose degree distributions are the same as those in the network passed
 in the model formula have non-zero probability.
 }
+\concept{directed}
+\concept{undirected}

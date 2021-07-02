@@ -85,6 +85,8 @@ InitErgmConstraint.edges<-function(nw, arglist, ...){
 #'
 #' @usage
 #' # degrees
+#' @concept directed
+#' @concept undirected
 InitErgmConstraint.degrees<-function(nw, arglist, ...){
   a <- check.ErgmTerm(nw, arglist)
   list(dependence = TRUE, constrain = "degrees", implies = c("degrees", "edges", "idegrees", "odegrees", "idegreedist", "odegreedist", "degreedist", "bd"))
@@ -104,6 +106,7 @@ InitErgmConstraint.nodedegrees<-InitErgmConstraint.degrees
 #'
 #' @usage
 #' # odegrees
+#' @concept directed
 InitErgmConstraint.odegrees<-function(nw, arglist, ...){
   a <- check.ErgmTerm(nw, arglist, directed=TRUE)
   list(dependence = TRUE, implies = c("odegrees", "edges", "odegreedist"))
@@ -117,6 +120,7 @@ InitErgmConstraint.odegrees<-function(nw, arglist, ...){
 #'
 #' @usage
 #' # idegrees
+#' @concept directed
 InitErgmConstraint.idegrees<-function(nw, arglist, ...){
   a <- check.ErgmTerm(nw, arglist, directed=TRUE)
   list(dependence = TRUE, implies = c("idegrees", "edges", "idegreedist"))
@@ -130,6 +134,7 @@ InitErgmConstraint.idegrees<-function(nw, arglist, ...){
 #'
 #' @usage
 #' # b1degrees
+#' @concept bipartite
 InitErgmConstraint.b1degrees<-function(nw, arglist, ...){
   a <- check.ErgmTerm(nw, arglist, bipartite=TRUE)
   list(dependence = TRUE, implies = c("b1degrees", "edges"))
@@ -143,6 +148,7 @@ InitErgmConstraint.b1degrees<-function(nw, arglist, ...){
 #'
 #' @usage
 #' # b2degrees
+#' @concept bipartite
 InitErgmConstraint.b2degrees<-function(nw, arglist, ...){
   a <- check.ErgmTerm(nw, arglist, bipartite=TRUE)
   list(dependence = TRUE, implies = c("b2degrees", "edges"))
@@ -157,6 +163,8 @@ InitErgmConstraint.b2degrees<-function(nw, arglist, ...){
 #'
 #' @usage
 #' # degreedist
+#' @concept directed
+#' @concept undirected
 InitErgmConstraint.degreedist<-function(nw, arglist, ...){
   a <- check.ErgmTerm(nw, arglist)
   list(dependence = TRUE, implies = c("degreedist", "edges", "idegreedist", "odegreedist"))
@@ -169,6 +177,7 @@ InitErgmConstraint.degreedist<-function(nw, arglist, ...){
 #'
 #' @usage
 #' # idegreedist
+#' @concept directed
 InitErgmConstraint.idegreedist<-function(nw, arglist, ...){
   a <- check.ErgmTerm(nw, arglist, directed=TRUE)
   list(dependence = TRUE, implies = c("idegreedist", "edges"))
@@ -181,6 +190,7 @@ InitErgmConstraint.idegreedist<-function(nw, arglist, ...){
 #'
 #' @usage
 #' # odegreedist
+#' @concept directed
 InitErgmConstraint.odegreedist<-function(nw, arglist, ...){
   a <- check.ErgmTerm(nw, arglist, directed=TRUE)
   list(dependence = TRUE, implies = c("odegreedist", "edges"))
@@ -201,6 +211,8 @@ InitErgmConstraint.odegreedist<-function(nw, arglist, ...){
 #'   in conjunction with `attribs`. Otherwise, vectors of integers specifying the relevant limits.
 #'   If the vector is of length 1, the limit is applied to all nodes. If an individual entry is `NA`,
 #'   then there is no restriction of that kind is applied.
+#' @concept directed
+#' @concept undirected
 InitErgmConstraint.bd<-function(nw, arglist, ...){
   a <- check.ErgmTerm(nw, arglist,
                       varnames = c("attribs", "maxout", "maxin", "minout", "minin"),
@@ -228,6 +240,8 @@ InitErgmConstraint.bd<-function(nw, arglist, ...){
 #' @param b1levels,b2levels,levels,level2 control what statistics are included in the model and the order in which they appear. `levels2` apply to all networks; `levels` applies to unipartite networks; `b1levels` and `b2levels` apply to bipartite networks (see Specifying Vertex attributes and Levels (`?nodal_attributes`) for details)
 #'
 #' @concept dyad-independent
+#' @concept directed
+#' @concept undirected
 InitErgmConstraint.blocks <- function(nw, arglist, ...) {
   a <- check.ErgmTerm(nw, arglist,
                       varnames = c("attr", "b1levels", "b2levels", "levels", "levels2"),
@@ -358,6 +372,8 @@ InitErgmConstraint.blocks <- function(nw, arglist, ...) {
 #'
 #' @usage
 #' # hamming
+#' @concept directed
+#' @concept undirected
 InitErgmConstraint.hamming<-function(nw, arglist, ...){
   a <- check.ErgmTerm(nw, arglist)
   list(dependence = TRUE)
@@ -372,6 +388,8 @@ InitErgmConstraint.hamming<-function(nw, arglist, ...){
 #' # observed
 #'
 #' @concept dyad-independent
+#' @concept directed
+#' @concept undirected
 InitErgmConstraint.observed <- function(nw, arglist, ...){
   a <- check.ErgmTerm(nw, arglist)
   list(free_dyads = as.rlebdm(as.edgelist(is.na(nw))),
@@ -388,6 +406,8 @@ InitErgmConstraint.observed <- function(nw, arglist, ...){
 #' @param present,absent edgelist or network
 #'
 #' @concept dyad-independent
+#' @concept directed
+#' @concept undirected
 InitErgmConstraint.fixedas<-function(nw, arglist,...){
   a <- check.ErgmTerm(nw, arglist,
                       varnames = c("present", "absent"),
@@ -428,6 +448,8 @@ InitErgmConstraint.fixedas<-function(nw, arglist,...){
 #' @param free.dyads edgelist or network. Networks will be converted to the corresponding edgelist.
 #'
 #' @concept dyad-independent
+#' @concept directed
+#' @concept undirected
 InitErgmConstraint.fixallbut<-function(nw, arglist,...){
   a <- check.ErgmTerm(nw, arglist,
                       varnames = c("free.dyads"),
@@ -466,6 +488,10 @@ InitErgmConstraint.fixallbut<-function(nw, arglist,...){
 #'    LHS network giving these probabilities.
 #'
 #' @note See Karwa et al. (2016) for an application.
+#' @concept soft
+#' @concept dyad-independent
+#' @concept directed
+#' @concept undirected
 InitErgmConstraint.dyadnoise<-function(nw, arglist, ...){
   a <- check.ErgmTerm(nw, arglist,
                       varnames = c("p01", "p10"),
@@ -492,6 +518,8 @@ InitErgmConstraint.dyadnoise<-function(nw, arglist, ...){
 #' @param direction one of `"both"`, `"out"` and `"in"`, only applies to directed networks. `"out"` only preserves the out-dyads of those actors and `"in"` preserves their in-dyads.
 #'
 #' @concept dyad-independent
+#' @concept directed
+#' @concept undirected
 InitErgmConstraint.egocentric <- function(nw, arglist, ...){
   a <- check.ErgmTerm(nw, arglist,
                       varnames = c("attr", "direction"),
@@ -536,6 +564,9 @@ InitErgmConstraint.egocentric <- function(nw, arglist, ...){
 #' @param fix,vary formula with only dyad-independent terms
 #'
 #' @concept dyad-independent
+#' @concept operator
+#' @concept directed
+#' @concept undirected
 InitErgmConstraint.Dyads<-function(nw, arglist, ...){
   a <- check.ErgmTerm(nw, arglist,
                       varnames = c("fix", "vary"),
