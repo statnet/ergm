@@ -3,14 +3,40 @@
 \docType{package}
 \name{ergmReference}
 \alias{ergmReference}
-\title{An index of Ergm reference}
+\alias{ergm-references}
+\alias{references-ergm}
+\alias{ergm.references}
+\alias{references.ergm}
+\title{Reference Measures for Exponential-Family Random Graph Models}
 \description{
-An index of Ergm references
+This page describes the possible reference measures (baseline distributions)
+for found in the \code{\link[=ergm-package]{ergm}} package, particularly the
+default (Bernoulli) reference measure for binary ERGMs.
+
+The reference measure is specified on the RHS of a one-sided formula passed
+as the \code{reference} argument to \code{\link{ergm}}.  See the
+\code{\link{ergm}} documentation for a complete description of how
+reference measures are specified.
 }
-\section{Reference index}{
+\section{Possible reference measures to represent baseline distributions}{
 
 \if{latex}{\Sexpr[results=rd,stage=render]{ergm:::.formatIndexLatex(ergm:::.buildTermsDataframe("ergmReference"))}}
 \if{text}{\Sexpr[results=rd,stage=render]{ergm:::.formatIndexText(ergm:::.buildTermsDataframe("ergmReference"))}}
 \if{html}{\Sexpr[results=rd,stage=render]{ergm:::.formatIndexHtml(ergm:::.buildTermsDataframe("ergmReference"))}}
 }
 
+\references{
+\itemize{
+\item Hunter DR, Handcock MS, Butts CT, Goodreau SM, Morris M (2008b). \pkg{ergm}:
+A Package to Fit, Simulate and Diagnose Exponential-Family Models for
+Networks. \emph{Journal of Statistical Software}, 24(3).
+\url{https://www.jstatsoft.org/v24/i03/}.
+\item Krivitsky PN (2012). Exponential-Family Random Graph Models for Valued
+Networks. \emph{Electronic Journal of Statistics}, 2012, 6, 1100-1128.
+\doi{10.1214/12-EJS696}
+}
+}
+\seealso{
+\code{\link[=ergm-package]{ergm}}, \code{\link{network}}, \code{\link{sna}}, \code{\link{summary.ergm}}, \code{\link{print.ergm}}, \code{\link{\\\%v\\\%}}, \code{\link{\\\%n\\\%}}
+}
+\keyword{models}
