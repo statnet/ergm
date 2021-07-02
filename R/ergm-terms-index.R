@@ -156,6 +156,8 @@ ergmTermCache <- local({
 .termMatrix <- function(term_type, categories=NULL, only.include=NULL) {
   terms <- ergmTermCache(term_type)
 
+  if (length(terms) == 0) return(NULL)
+
   # if list of categories not supplied, generate it
   # otherwise, use the categories (and column order) provided
   if (is.null(categories)) {
@@ -190,6 +192,8 @@ ergmTermCache <- local({
 # output listings of terms, grouped by category
 .termToc <- function(term_type) {
   terms <- ergmTermCache(term_type)
+
+  if (length(terms) == 0) return(NULL)
 
   cats <- unique(unlist(sapply(terms, '[[', 'concepts')))
   if(length(cats)==0) return(NULL)
@@ -255,6 +259,8 @@ ergmTermCache <- local({
 }
 
 .formatMatrixText <- function(df) {
+  if(is.null(df)) return(NULL)
+
   df$Link <- NULL
   for (c in colnames(df)[-1]) {
     df[[c]] <- ifelse(df[[c]], 'o', '')
@@ -264,6 +270,8 @@ ergmTermCache <- local({
 }
 
 .formatTocText <- function(toc) {
+  if(is.null(df)) return(NULL)
+
   out <- ''
   for (cat in names(toc)) {
     out <- sprintf('%s\n\n%s:\n%s', out, cat,
@@ -274,6 +282,8 @@ ergmTermCache <- local({
 
 # Format the table for text output
 .formatIndexLatex <- function(df) {
+  if(is.null(df)) return(NULL)
+
   df$Term <- gsub('valued', 'val', gsub('binary', 'bin', df$Term))
   df$Term <- gsub('\n', ' \\\\newline ', df$Term) %>% gsub('`([^`]*)`', '\\1', .) %>%
     strsplit(' ') %>% sapply(., function(x) paste(sprintf('\\code{%s}', x), collapse=' ')) %>%
@@ -287,6 +297,8 @@ ergmTermCache <- local({
 }
 
 .formatMatrixLatex <- function(df) {
+  if(is.null(df)) return(NULL)
+
   df$Link <- NULL
 
   for (c in colnames(df)[-1]) {
@@ -300,6 +312,8 @@ ergmTermCache <- local({
 }
 
 .formatTocLatex <- function(toc) {
+  if(is.null(df)) return(NULL)
+
   out <- '\\out{\\noindent\\textbf{Terms by concepts}\n\n\\begin{description}'
   for (cat in names(toc)) {
     out <- sprintf('%s\n\\item[%s] %s', out, cat, paste(toc[[cat]]$name, collapse=', '))
@@ -309,6 +323,8 @@ ergmTermCache <- local({
 
 # Format the table for text output
 .formatIndexHtml <- function(df) {
+  if(is.null(df)) return(NULL)
+
   df$Term <- gsub('valued', 'val', gsub('binary', 'bin', df$Term))
 
   # Hack! because HTML code has to be wrapped \out{} which prevents \link{} from being parsed, the link has
@@ -324,6 +340,8 @@ ergmTermCache <- local({
 }
 
 .formatMatrixHtml <- function(df) {
+  if(is.null(df)) return(NULL)
+
   df$Term <- sprintf('<a href="#%s">%s</a>', df$Link, df$Term)
   df$Link <- NULL
   for (c in colnames(df)[-1]) {
@@ -334,6 +352,8 @@ ergmTermCache <- local({
 }
 
 .formatTocHtml <- function(toc) {
+  if(is.null(df)) return(NULL)
+
   out <- paste('Jump to category:', paste(sprintf('<a href="#cat_%s">%s</a>', names(toc), names(toc)), collapse=' '))
   for (cat in names(toc)) {
     out <- sprintf('%s<h3><a id="%s">%s</a></h3>%s', out, cat, cat,
