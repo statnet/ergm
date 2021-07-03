@@ -82,10 +82,6 @@ InitErgmConstraint.strat <- function(nw, arglist, ...) {
   nmixingtypes <- length(probvec)
   ncodes <- length(strat_levels)
     
-  # record the nodal indices grouped (and counted) by attr code
-  nodeindicesbycode <- order(strat_nodecov)
-  nodecountsbycode <- tabulate(strat_nodecov, nbins=length(strat_levels))
-  
   ## may wish to add check that if pmat[i,j] > 0 then at least one dyad  
   indmat <- matrix(-1L, nrow=length(strat_levels), ncol=length(strat_levels))
   indmat[cbind(tailattrs, headattrs)] <- seq_along(tailattrs) - 1L  # zero-based for C code
@@ -101,8 +97,6 @@ InitErgmConstraint.strat <- function(nw, arglist, ...) {
        headattrs = headattrs,
        probvec = probvec,
        nlevels = ncodes,
-       nodecountsbycode = nodecountsbycode,
-       nodeindicesbycode = nodeindicesbycode,
        nodecov = strat_nodecov,
        indmat = indmat,
        empirical = empirical,
