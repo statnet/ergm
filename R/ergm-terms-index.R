@@ -104,7 +104,8 @@ ergmTermCache <- local({
   # Check if new namespaces have been added.
   checknew <- function() {
     loaded_packages <- .packages(TRUE)
-    db <- utils::hsearch_db()$Base
+    revdeps <- c("ergm", tools::dependsOnPkgs("ergm", dependencies = "strong"))
+    db <- utils::hsearch_db(package=revdeps)$Base
     term_packages <- unique(db$Package[grep(SUPPORTED_TERM_TYPE_REGEX, db$Topic)])
     for (pkg_name in intersect(loaded_packages, term_packages)) {
       if (!pkg_name %in% pkglist) {
