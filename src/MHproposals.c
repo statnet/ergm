@@ -234,12 +234,6 @@ MH_I_FN(Mi_BDStratTNT) {
   sto->wtp = WtPopInitialize(sto->nmixtypes, currentprobvec, 'B');
   Free(currentprobvec);
 
-  // zero proposal probability is an error
-  if(WtPopSumWts(sto->wtp) == 0) {
-    MHp->ntoggles = MH_FAILED;
-    return;
-  }
-
   for(Vertex vertex = 1; vertex <= N_NODES; vertex++) {
     for(int i = 0; i < sto->nbdlevels; i++) {
       if(DIRECTED ? (sto->indegree[i][vertex] > sto->maxin[i][vertex] || sto->outdegree[i][vertex] > sto->maxout[i][vertex]) : (sto->indegree[i][vertex] + sto->outdegree[i][vertex] > sto->maxout[i][vertex])) {
