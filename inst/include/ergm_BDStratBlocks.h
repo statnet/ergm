@@ -74,11 +74,6 @@ static inline BDStratBlocks *BDStratBlocksInitialize(int **maxout,
   blocks->bd_nlevels = bd_nlevels;
   blocks->bd_vattr = bd_vattr;
 
-  // decrement attribute pointers so node indices line up correctly
-  blocks->strat_vattr--;
-  blocks->blocks_vattr--;
-  blocks->bd_vattr--;
-
   // set up node lists
   blocks->bothpos = Calloc(bd_nlevels, int *);
   blocks->tailpos = DIRECTED ? Calloc(bd_nlevels, int *) : blocks->bothpos;  
