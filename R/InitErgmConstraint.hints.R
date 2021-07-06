@@ -33,27 +33,23 @@ InitErgmConstraint.strat <- function(nw, arglist, ...) {
   if(is.bipartite(nw)) {
     strat_row_nodecov <- NVL2(attr, ergm_get_vattr(attr, nw, bip="b1"), rep(1, nw %n% "bipartite"))
     strat_col_nodecov <- NVL2(attr, ergm_get_vattr(attr, nw, bip="b2"), rep(1, network.size(nw) - (nw %n% "bipartite")))
-
+    
     strat_row_levels <- sort(unique(strat_row_nodecov))
     strat_col_levels <- sort(unique(strat_col_nodecov))
 
+    strat_nodecov <- c(match(strat_row_nodecov, strat_row_levels), 
+                       match(strat_col_nodecov, strat_col_levels) + length(strat_row_levels))
+
     strat_levels <- c(strat_row_levels, strat_col_levels)
-
-    strat_row_nodecov <- match(strat_row_nodecov, strat_row_levels)
-    strat_col_nodecov <- match(strat_col_nodecov, strat_col_levels)
-    strat_nodecov <- c(strat_row_nodecov, strat_col_nodecov + length(strat_row_levels))
   } else {
-    strat_row_nodecov <- NVL2(attr, ergm_get_vattr(attr, nw), rep(1, network.size(nw)))
-    strat_col_nodecov <- strat_row_nodecov
+    strat_nodecov <- NVL2(attr, ergm_get_vattr(attr, nw), rep(1, network.size(nw)))
 
-    strat_row_levels <- sort(unique(strat_row_nodecov))
-    strat_col_levels <- strat_row_levels
+    strat_levels <- sort(unique(strat_nodecov))
 
-    strat_levels <- strat_row_levels
-    
-    strat_row_nodecov <- match(strat_row_nodecov, strat_row_levels)
-    strat_col_nodecov <- strat_row_nodecov
-    strat_nodecov <- strat_row_nodecov
+    strat_nodecov <- match(strat_nodecov, strat_levels)
+
+    strat_row_levels <- strat_levels
+    strat_col_levels <- strat_levels
   }
   
   pmat <- NVL(pmat, matrix(1, nrow = length(strat_row_levels), ncol = length(strat_col_levels)))
@@ -78,27 +74,16 @@ InitErgmConstraint.strat <- function(nw, arglist, ...) {
     headattrs <- headattrs + length(strat_row_levels)
   }
 
-  # record the number of mixing types and the number of unique attr codes
-  nmixingtypes <- length(probvec)
-  ncodes <- length(strat_levels)
-    
-  ## may wish to add check that if pmat[i,j] > 0 then at least one dyad  
-  indmat <- matrix(-1L, nrow=length(strat_levels), ncol=length(strat_levels))
-  indmat[cbind(tailattrs, headattrs)] <- seq_along(tailattrs) - 1L  # zero-based for C code
-  if(!is.bipartite(nw) && !is.directed(nw)) {
-    # symmetrize for undirected unipartite
-    indmat[cbind(headattrs, tailattrs)] <- seq_along(tailattrs) - 1L
-  }
-
+  # record the number of unique attr codes
+  nlevels <- length(strat_levels)
+  
   list(dependence = FALSE, 
        priority = 10, 
-       nmixtypes = nmixingtypes,
        tailattrs = tailattrs,
        headattrs = headattrs,
        probvec = probvec,
-       nlevels = ncodes,
+       nlevels = nlevels,
        nodecov = strat_nodecov,
-       indmat = indmat,
        empirical = empirical,
        constrain = "strat")
 }
