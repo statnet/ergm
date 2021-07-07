@@ -104,7 +104,7 @@ ergmTermCache <- local({
   # Check if new namespaces have been added.
   checknew <- function() {
     loaded_packages <- .packages(TRUE)
-    revdeps <- c("ergm", tools::dependsOnPkgs("ergm", dependencies = "strong"))
+    revdeps <- c("ergm", tools::dependsOnPkgs("ergm"))#, dependencies = "strong"))
     db <- utils::hsearch_db(package=revdeps)$Base
     term_packages <- unique(db$Package[grep(SUPPORTED_TERM_TYPE_REGEX, db$Topic)])
     for (pkg_name in intersect(loaded_packages, term_packages)) {
@@ -357,7 +357,7 @@ ergmTermCache <- local({
 
   out <- paste('Jump to category:', paste(sprintf('<a href="#cat_%s">%s</a>', names(toc), names(toc)), collapse=' '))
   for (cat in names(toc)) {
-    out <- sprintf('%s<h3><a id="%s">%s</a></h3>%s', out, cat, cat,
+    out <- sprintf('%s<h3><a id="cat_%s">%s</a></h3>%s', out, cat, cat,
       paste(sprintf('<a href="#%s">%s</a>', toc[[cat]]$link, toc[[cat]]$name), collapse=' '))
   }
   sprintf('\\out{%s}', out)
