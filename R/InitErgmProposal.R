@@ -101,8 +101,13 @@ InitErgmProposal.BDStratTNT <- function(arguments, nw) {
   
   
   # if blocks has not already been initialized, or if related arguments are passed directly to the proposal, (re)initialize it now
-  if(is.null(arguments$constraints$blocks) || any(!unlist(lapply(arguments[c("blocks_attr", "levels", "levels2", "b1levels", "b2levels")], is.null)))) {
-    arguments$constraints$blocks <- InitErgmConstraint.blocks(nw, list(attr = arguments[["blocks_attr"]], levels = arguments[["levels"]], levels2 = NVL(arguments[["levels2"]], FALSE), b1levels = arguments[["b1levels"]], b2levels = arguments[["b2levels"]]))
+  if(length(intersect(names(arguments), c("blocks_attr", "levels", "levels2", "b1levels", "b2levels"))) > 0) {
+    arglist <- arguments[intersect(names(arguments), c("blocks_attr", "levels", "levels2", "b1levels", "b2levels"))]
+    names(arglist)[names(arglist) == "blocks_attr"] <- "attr"
+    arguments$constraints$blocks <- InitErgmConstraint.blocks(nw, arglist)
+  }
+  if(is.null(arguments$constraints$blocks)) {
+    arguments$constraints$blocks <- InitErgmConstraint.blocks(nw, list(attr = trim_env(~0)))
   }
 
   # check for old name
@@ -111,8 +116,13 @@ InitErgmProposal.BDStratTNT <- function(arguments, nw) {
   }
 
   # if strat has not already been initialized, or if related arguments are passed directly to the proposal, (re)initialize it now
-  if(is.null(arguments$constraints$strat) || any(!unlist(lapply(arguments[c("strat_attr", "pmat", "empirical")], is.null)))) {
-    arguments$constraints$strat <- InitErgmConstraint.strat(nw, list(attr = arguments[["strat_attr"]], pmat = arguments[["pmat"]], empirical = NVL(arguments[["empirical"]],FALSE)))
+  if(length(intersect(names(arguments), c("strat_attr", "pmat", "empirical"))) > 0) {
+    arglist <- arguments[intersect(names(arguments), c("strat_attr", "pmat", "empirical"))]
+    names(arglist)[names(arglist) == "strat_attr"] <- "attr"
+    arguments$constraints$strat <- InitErgmConstraint.strat(nw, arglist)
+  }
+  if(is.null(arguments$constraints$strat)) {
+    arguments$constraints$strat <- InitErgmConstraint.strat(nw, list(attr = trim_env(~0)))
   }
 
   nodecov <- arguments$constraints$blocks$nodecov
