@@ -31,8 +31,8 @@ InitErgmConstraint.strat <- function(nw, arglist, ...) {
   attr <- a$attr; pmat <- a$pmat; empirical <- a$empirical
 
   if(is.bipartite(nw)) {
-    strat_row_nodecov <- NVL2(attr, ergm_get_vattr(attr, nw, bip="b1"), rep(1, nw %n% "bipartite"))
-    strat_col_nodecov <- NVL2(attr, ergm_get_vattr(attr, nw, bip="b2"), rep(1, network.size(nw) - (nw %n% "bipartite")))
+    strat_row_nodecov <- ergm_get_vattr(attr, nw, bip = "b1")
+    strat_col_nodecov <- ergm_get_vattr(attr, nw, bip = "b2")
     
     strat_row_levels <- sort(unique(strat_row_nodecov))
     strat_col_levels <- sort(unique(strat_col_nodecov))
@@ -42,7 +42,7 @@ InitErgmConstraint.strat <- function(nw, arglist, ...) {
 
     strat_levels <- c(strat_row_levels, strat_col_levels)
   } else {
-    strat_nodecov <- NVL2(attr, ergm_get_vattr(attr, nw), rep(1, network.size(nw)))
+    strat_nodecov <- ergm_get_vattr(attr, nw)
 
     strat_levels <- sort(unique(strat_nodecov))
 
