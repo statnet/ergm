@@ -3,6 +3,12 @@
 \docType{package}
 \name{ergmConstraint}
 \alias{ergmConstraint}
+\alias{ergm-constraints}
+\alias{constraints-ergm}
+\alias{ergm.constraints}
+\alias{constraints.ergm}
+\alias{ergm-hints}
+\alias{hints}
 \title{Sample Space Constraints for Exponential-Family Random Graph Models}
 \description{
 \code{\link{ergm}} is used to fit exponential-family random graph models

@@ -104,7 +104,7 @@ ergmTermCache <- local({
   # Check if new namespaces have been added.
   checknew <- function() {
     loaded_packages <- .packages(TRUE)
-    revdeps <- c("ergm", tools::dependsOnPkgs("ergm"))#, dependencies = "strong"))
+    revdeps <- c("ergm", tools::dependsOnPkgs("ergm"))
     db <- utils::hsearch_db(package=revdeps)$Base
     term_packages <- unique(db$Package[grep(SUPPORTED_TERM_TYPE_REGEX, db$Topic)])
     for (pkg_name in intersect(loaded_packages, term_packages)) {
@@ -747,6 +747,7 @@ NULL
 #' Sample Space Constraints for Exponential-Family Random Graph Models
 #'
 #' @name ergmConstraint
+#' @aliases ergm-constraints constraints-ergm ergm.constraints constraints.ergm ergm-hints hints
 #' @docType package
 #' @description [`ergm`] is used to fit exponential-family random graph models
 #' (ERGMs), in which the probability of a given network, \eqn{y}, on a set of
