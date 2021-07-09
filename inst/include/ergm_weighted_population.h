@@ -40,7 +40,7 @@ static inline WtPop *WtPopInitialize(int size, double *weights, char type) {
   }
 
   for(int i = 0; i < size; i++) {
-    if(wtp->weights[i] < 0) {
+    if(weights[i] < 0) {
       error("cannot initialize weighted population with negative weights");
     }
   }
