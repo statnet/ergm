@@ -35,7 +35,6 @@
 #' @param object An `ergm_model` object.
 #' @return `ergm_model` returns an  `ergm_model` object as a list
 #' containing:
-#' \item{coef.names}{a vector of coefficient names}
 #' \item{terms}{a list of terms and 'term components' initialized by the
 #' appropriate \code{InitErgmTerm.X} function.}
 #' \item{etamap}{the theta -> eta mapping as a list returned from
@@ -94,9 +93,15 @@ ergm_model <- function(formula, nw=NULL, silent=FALSE, ..., term.options=list(),
   model$etamap <- ergm.etamap(model)
 
   if(offset.decorate){
-    if(length(model$etamap$offsetmap)) model$coef.names <- ifelse(model$etamap$offsetmap, paste0("offset(",model$coef.names,")"), model$coef.names)
+    if(length(model$etamap$offsetmap)){
+      ol <- split(model$etamap$offsetmap, factor(rep.int(seq_along(model$terms), nparam(model, byterm=TRUE, canonical=TRUE)), levels=seq_along(model$terms)))
+      for(i in seq_along(model$terms)){
+        pn <- model$terms[[i]]$coef.names
+        if(!is.null(pn)) model$terms[[i]]$coef.names <- ifelse(ol[[i]], paste0("offset(",pn,")"), pn)
+      }
+    }
     if(length(model$etamap$offsettheta)){
-      ol <- split(model$etamap$offsettheta, factor(rep.int(seq_along(model$terms), nparam(model, byterm=TRUE)), levels=seq_along(model$terms)))
+      ol <- split(model$etamap$offsettheta, factor(rep.int(seq_along(model$terms), nparam(model, byterm=TRUE, canonical=FALSE)), levels=seq_along(model$terms)))
       for(i in seq_along(model$terms)){
         pn <- names(model$terms[[i]]$params)
         if(!is.null(pn)) names(model$terms[[i]]$params) <- ifelse(ol[[i]], paste0("offset(",pn,")"), pn)
@@ -191,7 +196,6 @@ updatemodel.ErgmTerm <- function(model, outlist, offset=FALSE, offset.decorate=T
     if(is.numeric(offset)) offset <- unwhich(offset, npars)
     outlist$offset <- offset <- rep(offset, length.out=npars) | NVL(outlist$offset,FALSE)
 
-    model$coef.names <- c(model$coef.names, outlist$coef.names)
     model$minval <- c(model$minval,
                       rep(NVL(outlist$minval, -Inf),
                           length.out=nstats))
