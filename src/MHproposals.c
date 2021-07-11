@@ -235,7 +235,7 @@ MH_I_FN(Mi_BDStratTNT) {
     }
   }
     
-  sto->wtp = WtPopInitialize(sto->nmixtypes, currentprobvec, 'B');
+  sto->wtp = WtPopInitialize(sto->nmixtypes, currentprobvec, asInteger(getListElement(MHp->R, "dyad_indep")) ? 'W' : 'B');
   Free(currentprobvec);
 
   for(Vertex vertex = 1; vertex <= N_NODES; vertex++) {
