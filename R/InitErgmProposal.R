@@ -53,8 +53,14 @@ InitErgmProposal.TNT <- function(nw, arguments, ...){
 
 InitErgmProposal.BDStratTNT <- function(arguments, nw) {
   # if bd has not already been initialized, or if related arguments are passed directly to the proposal, (re)initialize it now
-  if(is.null(arguments$constraints$bd) || any(!unlist(lapply(arguments[c("attribs", "maxout", "maxin")], is.null)))) {
+  if(any(!unlist(lapply(arguments[c("attribs", "maxout", "maxin")], is.null)))) {
     arguments$constraints$bd <- InitErgmConstraint.bd(nw, list(attribs = arguments[["attribs"]], maxout = arguments[["maxout"]], maxin = arguments[["maxin"]]))
+  }
+
+  dyad_indep <- is.null(arguments$constraints$bd)
+  
+  if(is.null(arguments$constraints$bd)) {
+    arguments$constraints$bd <- InitErgmConstraint.bd(nw, list())
   }
 
   attribs <- NVL(arguments$constraints$bd$attribs, matrix(TRUE, ncol = 1L, nrow = network.size(nw)))
@@ -189,7 +195,8 @@ InitErgmProposal.BDStratTNT <- function(arguments, nw) {
                    blocks_heads = as.integer(blocks_heads - 1L),
                    blocks_mixtypes = as.integer(blocks_mixtypes),
                    empirical_flag = as.integer(arguments$constraints$strat$empirical),
-                   amat = as.integer(t(pairs_mat)))
+                   amat = as.integer(t(pairs_mat)),
+                   dyad_indep = as.integer(dyad_indep))
 
   proposal
 }
