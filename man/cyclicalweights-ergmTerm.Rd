@@ -31,4 +31,5 @@ conservative, while the second is more sensitive but more likely
 to induce a multimodal distribution of networks.
 }
 \concept{directed}
+\concept{non-negative}
 \concept{undirected}
