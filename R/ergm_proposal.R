@@ -467,6 +467,7 @@ DyadGenType <- list(RandDyadGen=0L, WtRandDyadGen=1L, RLEBDM1DGen=2L, WtRLEBDM1D
 #' @param nw a [`network`].
 #' @param extra_rlebdm an [`rlebdm`] representing any additional constraints.
 #' @return A list understood by the C `DyadGen` API.
+#' @keywords internal
 #' @export
 ergm_dyadgen_select <- function(arguments, nw, extra_rlebdm=NULL){
   valued <- is.valued(nw)

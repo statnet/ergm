@@ -3,7 +3,6 @@
 \docType{package}
 \name{ergm-package}
 \alias{ergm-package}
-\alias{Getting.Started}
 \title{Fit, Simulate and Diagnose Exponential-Family Models for Networks}
 \description{
 \code{\link[=ergm-package]{ergm}} is a collection of functions to plot, fit,
