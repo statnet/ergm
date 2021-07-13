@@ -76,7 +76,6 @@ coefficients for each term.}
 \value{
 \code{ergm_model} returns an  \code{ergm_model} object as a list
 containing:
-\item{coef.names}{a vector of coefficient names}
 \item{terms}{a list of terms and 'term components' initialized by the
 appropriate \code{InitErgmTerm.X} function.}
 \item{etamap}{the theta -> eta mapping as a list returned from
