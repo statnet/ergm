@@ -131,10 +131,11 @@ check.ErgmTerm <- function(nw, arglist, directed=NULL, bipartite=NULL, nonnegati
     val <- out[[m]]
 
     # Check type
+    types <- strsplit(vartypes[m], ",", fixed=TRUE)[[1]]
     if(!is.na(vartypes[m]) && nchar(vartypes[m]) &&
        !(is.null(val) && !required[[m]] && is.null(defaultvalues[[m]])) &&
-       all(sapply(strsplit(vartypes[m],",",fixed=TRUE)[[1]], function(vartype) !is(val, vartype))))
-      ergm_Init_abort(sQuote(name), " argument is not of any of the expected (", vartypes[m], ") types.")
+       all(sapply(types, function(vartype) !is(val, vartype))))
+      ergm_Init_abort(sQuote(name), " argument is not of any of the expected types: ", paste.and(sQuote(types), con="or"), ".")
 
     # Check deprecation (but only if passed explicitly)
     if(!miss){
