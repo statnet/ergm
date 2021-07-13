@@ -348,8 +348,11 @@ ergm_MCMC_slave <- function(state, eta,control,verbose,..., burnin=NULL, samples
 .find_OK_burnin <- function(x, ...){
   n <- nrow(x[[1]])
   ssr <- function(b, s){
+    # b is basically the number of steps corresponding to halving of
+    # the difference in the expected value of the variable at the
+    # current MCMC draw from the ultimate expected value.
     b <- round(b)
-    a <- lm(s ~ c(seq_len(b) - 1, rep(b, n - b)))
+    a <- lm(s ~ 1 + I(2^(-seq_len(n)/b)))
     sum(sigma(a)^2)
   }
   geweke <- function(b){
@@ -362,9 +365,12 @@ ergm_MCMC_slave <- function(state, eta,control,verbose,..., burnin=NULL, samples
   xs <- x %>% map(scale) %>% map(~.[,attr(.,"scaled:scale")>0,drop=FALSE]) %>% discard(~ncol(.)==0)
   if(length(xs)==0) return(FAIL)
 
-  best <- sapply(xs, function(x) optimize(ssr, c(0, n/2), s=x, tol=1)$minimum)
+  bscl <- 10 # I.e., reduce error to about 1/2^10 of the initial value.
+
+  best <- sapply(xs, function(x) optimize(ssr, c(0, n/bscl/4), s=x)$minimum)
   if(all(is.na(best) | is.infinite(best))) return(FAIL)
 
-  best <- max(best, na.rm=TRUE)
+  best <- max(best, na.rm=TRUE) * bscl
+
   list(burnin=round(best), pval=geweke(round(best)))
 }
