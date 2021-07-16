@@ -15,7 +15,8 @@ Authors@R: c(
              person("Chad", "Klumb", role=c("ctb"), email="cklumb@gmail.com"),
              person("Michał", " Bojanowski", role=c("ctb"), email="mbojanowski@kozminski.edu.pl"),
              person("Ben", "Bolker", role=c("ctb"), email="bbolker+lme4@gmail.com"),
-             person("Christian", "Schmid", role=c("ctb"), email="cxs5700@psu.edu"))
+             person("Christian", "Schmid", role=c("ctb"), email="cxs5700@psu.edu"),
+             person("Joyce", "Cheng", role=c("ctb"), email="joyce.cheng@student.unsw.edu.au"))
 Depends:
     R (>= 3.5),
     network (>= 1.17.0)
