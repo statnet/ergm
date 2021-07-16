@@ -61,6 +61,8 @@
 #' # blockdiag(attr)
 #' @template ergmTerm-attr
 #'
+#' @template ergmTerm-general
+#'
 #' @concept dyad-independent
 #' @concept directed
 #' @concept undirected

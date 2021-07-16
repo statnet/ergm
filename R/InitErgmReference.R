@@ -18,6 +18,9 @@
 #'
 #' @usage
 #' # Bernoulli
+#'
+#' @template ergmTerm-general
+#'
 #' @concept discrete
 #' @concept finite
 #' @concept binary
@@ -35,6 +38,9 @@ InitErgmReference.Bernoulli <- function(nw, arglist, ...){
 #'
 #' @usage
 #' # StdNormal
+#'
+#' @template ergmTerm-general
+#'
 #' @concept continuous
 InitErgmReference.StdNormal <- function(nw, arglist, ...){
   a <- check.ErgmTerm(nw, arglist)
@@ -50,6 +56,9 @@ InitErgmReference.StdNormal <- function(nw, arglist, ...){
 #' @usage
 #' # Unif(a,b)
 #' @param a,b minimum and maximum to the baseline discrete uniform distribution, both inclusive. Both values must be finite.
+#'
+#' @template ergmTerm-general
+#'
 #' @concept continuous
 InitErgmReference.Unif <- function(nw, arglist, ...){
   a <- check.ErgmTerm(nw, arglist,
@@ -71,6 +80,9 @@ InitErgmReference.Unif <- function(nw, arglist, ...){
 #' @usage
 #' # DiscUnif(a,b)
 #' @param a,b minimum and maximum to the baseline discrete uniform distribution, both inclusive. Both values must be finite.
+#'
+#' @template ergmTerm-general
+#'
 #' @concept discrete
 #' @concept finite
 InitErgmReference.DiscUnif <- function(nw, arglist, a, b, ...){

@@ -20,6 +20,8 @@ InitErgmConstraint.TNT<-function(nw, arglist, ...){
 #' @usage
 #' # sparse
 #'
+#' @template ergmTerm-general
+#'
 #' @concept dyad-independent
 InitErgmConstraint.sparse<-function(nw, arglist, ...){
   a <- check.ErgmTerm(nw, arglist)
@@ -68,6 +70,8 @@ InitErgmConstraint.Strat<-function(nw, arglist, ...){
 #'
 #' @usage
 #' # strat(attr=NULL, pmat=NULL, empirical=FALSE)
+#'
+#' @template ergmTerm-general
 #'
 #' @concept dyad-independent
 InitErgmConstraint.strat <- function(nw, arglist, ...) {
