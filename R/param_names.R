@@ -38,6 +38,6 @@ param_names.ergm_model <- function(object, canonical=FALSE, offset=NA, ...){
     else if(offset) tocount
     else if(!offset) !tocount
 
-  if(canonical) object$coef.names[tocount]
+  if(canonical) unlist(lapply(object$terms, function(term) term$coef.names))[tocount]
   else unlist(lapply(object$terms, function(term) NVL(names(term$params),term$coef.names)))[tocount]
 }

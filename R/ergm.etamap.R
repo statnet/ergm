@@ -95,6 +95,10 @@ ergm.etamap <- function(model) {
 ergm.offsetmap <- function(etamap){
   # Figure out which parameters affect which statistics.
 
+  # Short-circuit if theta has length 0; output FALSE (for now).
+  if(length(etamap$offsettheta) == 0)
+    return(logical(etamap$etalength))
+
   thetas <- list(
     min = .constrain_init(etamap, deInf(etamap$mintheta)),
     max = .constrain_init(etamap, deInf(etamap$maxtheta))
@@ -113,9 +117,9 @@ ergm.offsetmap <- function(etamap){
     c(thetas %>% map(ergm.etagrad, etamap) %>% map(abs), na.rm=TRUE)
   ) > 0
 
-  # "non-offsetness" propagates through the matrix: if at lest one
-  # parameter affecting a given statistic is nonzero, then the statistic is
-  # not an offset.
+  # "non-offsetness" propagates through the matrix: if at least one
+  # parameter affecting a given statistic is nonzero, then the
+  # statistic is not an offset.
   #
   # We also need to handle the special case an eta element is not
   # affected by any theta elements; in that case, we need to set

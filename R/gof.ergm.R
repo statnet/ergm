@@ -274,7 +274,7 @@ gof.formula <- function(object, ...,
   }
 
   GVMAP <- list(model=list('model', NULL, function(x) summary(object, basis=x, term.options=control$term.options)),
-                distance=list('dist', 1:n, function(x){o <- ergm.geodistdist(nw); o[o==Inf]<-n; o}),
+                distance=list('dist', 1:n, function(x){o <- ergm.geodistdist(x); o[o==Inf]<-n; o}),
                 odegree=list('odeg', 0:(n-1), function(x) summ_form(x, 'odegree', 0:(n-1))),
                 idegree=list('ideg', 0:(n-1), function(x) summ_form(x, 'idegree', 0:(n-1))),
                 degree=list('deg', 0:(n-1), function(x) summ_form(x, 'degree', 0:(n-1))),

@@ -679,7 +679,7 @@ ergm <- function(formula, response=NULL,
       if(verbose){
         message("control$init =")
         message_print(control$init)
-        message("number of statistics is ",length(model$coef.names), "")
+        message("number of statistics is ", nparam(model, canonical=TRUE), "")
       }
       stop(paste("Invalid starting parameter vector control$init:",
                  "wrong number of parameters."))

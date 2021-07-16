@@ -41,7 +41,7 @@ ergm_Init_warn_once <- once(ergm_Init_warn)
 #' @param varnames the vector of names of the possible arguments for
 #'   term X; default=NULL
 #' @param vartypes the vector of types of the possible arguments for
-#'   term X, separated by commas; an empty string (`""`) or `NA` disables the check for that argument; default=NULL
+#'   term X, separated by commas; an empty string (`""`) or `NA` disables the check for that argument, and also see Details; default=NULL
 #' @param defaultvalues the list of default values for the possible
 #'   arguments of term X; default=list()
 #' @param required the logical vector of whether each possible
@@ -57,6 +57,10 @@ ergm_Init_warn_once <- once(ergm_Init_warn)
 #'   otherwise. The list also has an `attr(,"missing")` attribute
 #'   containing a named logical vector indicating whether a particular
 #'   argument had been set to its default.
+#'
+#' @details As a convenience, if an argument is optional *and* its
+#'   default is `NULL`, then `NULL` is assumed to be an acceptable
+#'   argument type as well.
 #'
 #' @import network
 #' @export check.ErgmTerm
@@ -127,9 +131,11 @@ check.ErgmTerm <- function(nw, arglist, directed=NULL, bipartite=NULL, nonnegati
     val <- out[[m]]
 
     # Check type
-    if(!is.na(vartypes[m]) && nchar(vartypes[m])
-       && all(sapply(strsplit(vartypes[m],",",fixed=TRUE)[[1]], function(vartype) !is.null(val) && !is(val, vartype))))
-      ergm_Init_abort(sQuote(name), " argument is not of any of the expected (", vartypes[m], ") types.")
+    types <- strsplit(vartypes[m], ",", fixed=TRUE)[[1]]
+    if(!is.na(vartypes[m]) && nchar(vartypes[m]) &&
+       !(is.null(val) && !required[[m]] && is.null(defaultvalues[[m]])) &&
+       all(sapply(types, function(vartype) !is(val, vartype))))
+      ergm_Init_abort(sQuote(name), " argument is not of any of the expected types: ", paste.and(sQuote(types), con="or"), ".")
 
     # Check deprecation (but only if passed explicitly)
     if(!miss){
