@@ -40,6 +40,16 @@ ergm.estfun.numeric <- function(stats, theta, model, exclude=NULL, ...){
   etamap <- if(is(model, "ergm_model")) model$etamap else model
   estf <- c(ergm.etagradmult(theta,stats,etamap))[!etamap$offsettheta]
   names(estf) <- (if(is(model, "ergm_model")) param_names(model, FALSE) else names(theta))[!etamap$offsettheta]
+  if(is(model, "ergm_model")){
+   names(estf) <- param_names(model, FALSE)[!etamap$offsettheta]
+  }else{
+    if(!is.null(names(theta))){
+      names(estf) <- names(theta)[!etamap$offsettheta]
+    }else{
+      a <- names(stats)[!etamap$offsettheta]
+      if(length(a)==length(estf)) names(estf) <- a
+    }
+  }
   # Exclude statistics that are not expected to have a specific mean
   if(!is.null(exclude)){
     x.exclude <- match(exclude,names(estf))
@@ -55,7 +65,16 @@ ergm.estfun.numeric <- function(stats, theta, model, exclude=NULL, ...){
 ergm.estfun.matrix <- function(stats, theta, model, exclude=NULL, ...){
   etamap <- if(is(model, "ergm_model")) model$etamap else model
   estf <- t(ergm.etagradmult(theta,t(as.matrix(stats)),etamap))[,!etamap$offsettheta,drop=FALSE]
-  colnames(estf) <- (if(is(model, "ergm_model")) param_names(model, FALSE) else names(theta))[!etamap$offsettheta]
+  if(is(model, "ergm_model")){
+   colnames(estf) <- param_names(model, FALSE)[!etamap$offsettheta]
+  }else{
+    if(!is.null(names(theta))){
+      colnames(estf) <- names(theta)[!etamap$offsettheta]
+    }else{
+      a <- colnames(stats)[!etamap$offsettheta]
+      if(length(a)==ncol(estf)) colnames(estf) <- a
+    }
+  }
 # Exclude statistics that are not expected to have a specific mean
   if(!is.null(exclude)){
     x.exclude <- match(exclude,colnames(as.matrix(estf)))

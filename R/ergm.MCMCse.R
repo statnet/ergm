@@ -24,7 +24,7 @@
 #'   latter are always 1 for lognormal metric.
 #' @noRd
 ergm.MCMCse <- function(model, theta, init, statsmatrices, statsmatrices.obs,
-                        H, H.obs, metric = c("IS", "lognormal")) {
+                        H, H.obs, metric = c("IS", "lognormal"), exclude=NULL) {
   metric <- match.arg(metric)
 
   # Transform theta to eta
@@ -39,7 +39,7 @@ ergm.MCMCse <- function(model, theta, init, statsmatrices, statsmatrices.obs,
   av <- colMeans.mcmc.list(statsmatrices)
 # av <- apply(statsmatrices,2,median)
   xsims <- sweep.mcmc.list(statsmatrices, av, "-")
-  gsims <- ergm.estfun(xsims, theta=theta, model=model)
+  gsims <- ergm.estfun(xsims, theta=theta, model=model, exclude=exclude)
   xobs <- -av
   xsims <- xsims[,!offsetmap, drop=FALSE]
   xsim <- as.matrix(xsims)
@@ -49,7 +49,7 @@ ergm.MCMCse <- function(model, theta, init, statsmatrices, statsmatrices.obs,
    av.obs <- colMeans.mcmc.list(statsmatrices.obs)
 #  av.obs <- apply(statsmatrices.obs, 2, median)
    xsims.obs <- sweep.mcmc.list(statsmatrices.obs, av.obs,"-")
-   gsims.obs <- ergm.estfun(xsims.obs, theta=theta, model=model)
+   gsims.obs <- ergm.estfun(xsims.obs, theta=theta, model=model, exclude=exclude)
    xsims.obs <- xsims.obs[,!offsetmap, drop=FALSE]
    xsim.obs <- as.matrix(xsims.obs)
    gsim.obs <- as.matrix(gsims.obs)
@@ -126,6 +126,14 @@ ergm.MCMCse <- function(model, theta, init, statsmatrices, statsmatrices.obs,
     mc.cov0 <- solve(H, t(mc.cov0), tol=1e-20)
     mc.cov[!novar,!novar] <- mc.cov0
   }
+
+  if(!is.null(exclude)){
+    x.exclude <- match(exclude,names(theta))
+    if(!is.na(x.exclude)){
+     offsettheta[x.exclude] <- TRUE
+    }
+  }
+
 
   mc.cov.offset[!offsettheta,!offsettheta] <- mc.cov
 
