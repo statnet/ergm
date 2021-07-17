@@ -186,7 +186,7 @@ ergm.estimate<-function(init, model, statsmatrices, statsmatrices.obs=NULL,
                          logtaylor=llik.grad.IS,
                          Median.Likelihood=llik.grad.IS,
                          EF.Likelihood=llik.grad.IS,
-                         Kpenalty=ergm.tapered::llik.grad.Kpenalty.numDeriv,
+                         Kpenalty=ergm.tapered::llik.grad.Kpenalty,
                          llik.grad.IS)
     Hessianfn <- switch(metric,
                         Likelihood=llik.hessian.IS,
@@ -194,7 +194,7 @@ ergm.estimate<-function(init, model, statsmatrices, statsmatrices.obs=NULL,
                         logtaylor=llik.hessian.IS,
                         Median.Likelihood=llik.hessian.IS,
                         EF.Likelihood=llik.hessian.IS,
-                        Kpenalty=ergm.tapered::llik.hessian.Kpenalty.numDeriv,
+                        Kpenalty=ergm.tapered::llik.hessian.Kpenalty,
                         llik.hessian.IS)
   }
   
@@ -330,7 +330,7 @@ ergm.estimate<-function(init, model, statsmatrices, statsmatrices.obs=NULL,
     mc.cov <- matrix(NA, length(theta), length(theta))
     covar <- NA
     if(!hessianflag || steplen!=1){
-      Lout$hessian <- Hessianfn(theta=Lout$par,
+      Lout$hessian <- llik.hessian.IS(theta=Lout$par,
                         xsim=xsim.orig,
                         xsim.obs=xsim.orig.obs,
                         eta0=eta0, etamap=etamap.no,
