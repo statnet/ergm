@@ -41,10 +41,19 @@ typedef struct {
   
   NodeList *last_tails;
   NodeList *last_heads;
+  
+  int **maxout;
+  int **maxin;
+  int **minout;
+  int **minin;
+  
+  Network *nwp;
 } BDStratBlocks;
 
 static inline BDStratBlocks *BDStratBlocksInitialize(int **maxout, 
                                                      int **maxin, 
+                                                     int **minout, 
+                                                     int **minin,
                                                      int *strat_vattr, 
                                                      int strat_nlevels, 
                                                      int strat_nmixtypes, 
@@ -66,7 +75,14 @@ static inline BDStratBlocks *BDStratBlocksInitialize(int **maxout,
                                                      Network *nwp) {
   BDStratBlocks *blocks = Calloc(1, BDStratBlocks);
 
-  // do some copying  
+  // do some copying
+  blocks->nwp = nwp;
+  
+  blocks->maxout = maxout;
+  blocks->maxin = maxin;
+  blocks->minout = minout;
+  blocks->minin = minin;
+  
   blocks->directed = DIRECTED;
   
   blocks->strat_nlevels = strat_nlevels;
