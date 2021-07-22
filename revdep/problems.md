@@ -6,7 +6,7 @@
 * GitHub: NA
 * Source code: https://github.com/cran/Blaunet
 * Date/Publication: 2020-05-22 08:10:11 UTC
-* Number of recursive dependencies: 86
+* Number of recursive dependencies: 70
 
 Run `revdep_details(, "Blaunet")` for more info
 
@@ -61,7 +61,7 @@ Run `revdep_details(, "Blaunet")` for more info
 * GitHub: https://github.com/tidymodels/broom
 * Source code: https://github.com/cran/broom
 * Date/Publication: 2021-06-24 08:50:02 UTC
-* Number of recursive dependencies: 297
+* Number of recursive dependencies: 300
 
 Run `revdep_details(, "broom")` for more info
 
@@ -78,69 +78,6 @@ Run `revdep_details(, "broom")` for more info
 *   checking Rd cross-references ... NOTE
     ```
     Package unavailable to check Rd xrefs: ‘spatialreg’
-    ```
-
-# EpiModel
-
-<details>
-
-* Version: 2.1.0
-* GitHub: https://github.com/statnet/EpiModel
-* Source code: https://github.com/cran/EpiModel
-* Date/Publication: 2021-06-25 20:20:02 UTC
-* Number of recursive dependencies: 103
-
-Run `revdep_details(, "EpiModel")` for more info
-
-</details>
-
-## Newly broken
-
-*   checking examples ... ERROR
-    ```
-    Running examples in ‘EpiModel-Ex.R’ failed
-    The error most likely occurred in:
-    
-    > ### Name: plot.netsim
-    > ### Title: Plot Data from a Stochastic Network Epidemic Model
-    > ### Aliases: plot.netsim
-    > ### Keywords: plot
-    > 
-    > ### ** Examples
-    > 
-    ...
-    > 
-    > # Plot formation statistics
-    > par(mfrow = c(1,1), mar = c(3,3,1,1), mgp = c(2,1,0))
-    > plot(mod, type = "formation", grid = TRUE)
-    > plot(mod, type = "formation", plots.joined = FALSE)
-    > plot(mod, type = "formation", sims = 2:3)
-    > plot(mod, type = "formation", plots.joined = FALSE,
-    +      stats = c("edges", "concurrent"))
-    Error: One or more requested stats not contained in netsim object
-    Execution halted
-    ```
-
-*   checking tests ...
-    ```
-     ERROR
-    Running the tests in ‘tests/test-all.R’ failed.
-    Last 13 lines of output:
-      ── Failure (test-netstats.R:77:3): nw stats in tergmLite ───────────────────────
-      dim(nws) not equal to c(5, 7).
-      1/2 mismatches
-      [2] 3 - 7 == -4
-      ── Failure (test-netstats.R:88:3): nw stats in tergmLite ───────────────────────
-      names(nws) not equal to c("time", "sim", "edges", "nodefactor.status.s", "nodematch.status").
-      Lengths differ: 3 is not 5
-      ── Failure (test-netstats.R:90:3): nw stats in tergmLite ───────────────────────
-      dim(nws) not equal to c(5, 5).
-      1/2 mismatches
-      [2] 3 - 5 == -2
-      
-      [ FAIL 8 | WARN 159 | SKIP 82 | PASS 392 ]
-      Error: Test failures
-      Execution halted
     ```
 
 # ergm
@@ -309,7 +246,7 @@ Run `revdep_details(, "lolog")` for more info
 * GitHub: https://github.com/kolaczyk/sand
 * Source code: https://github.com/cran/sand
 * Date/Publication: 2020-07-02 07:20:06 UTC
-* Number of recursive dependencies: 164
+* Number of recursive dependencies: 166
 
 Run `revdep_details(, "sand")` for more info
 
