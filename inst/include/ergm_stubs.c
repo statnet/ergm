@@ -1,12 +1,3 @@
-/*  File inst/include/ergm_stubs.c in package ergm, part of the
- *  Statnet suite of packages for network analysis, https://statnet.org .
- *
- *  This software is distributed under the GPL-3 license.  It is free,
- *  open source, and has the attribution requirements (GPL Section 7) at
- *  https://statnet.org/attribution .
- *
- *  Copyright 2003-2021 Statnet Commons
- */
 
 #define STUBFILE
 #include <stddef.h>
@@ -36,86 +27,6 @@ double my_choose(double n, int r){
 static double (*fun)(double,int) = NULL;
 if(fun==NULL) fun = (double (*)(double,int)) R_FindSymbol("my_choose", "ergm", NULL);
 return fun(n,r);
-}
-
-#define STUBFILE
-#include <stddef.h>
-#include <R_ext/Rdynload.h>
-#include "ergm_changestats_auxnet.h"
-void i__isociomatrix(ModelTerm *mtp, Network *nwp){
-static void (*fun)(ModelTerm *,Network *) = NULL;
-if(fun==NULL) fun = (void (*)(ModelTerm *,Network *)) R_FindSymbol("i__isociomatrix", "ergm", NULL);
-fun(mtp,nwp);
-}
-void u__isociomatrix(Vertex tail, Vertex head, ModelTerm *mtp, Network *nwp, Rboolean edgestate){
-static void (*fun)(Vertex,Vertex,ModelTerm *,Network *,Rboolean) = NULL;
-if(fun==NULL) fun = (void (*)(Vertex,Vertex,ModelTerm *,Network *,Rboolean)) R_FindSymbol("u__isociomatrix", "ergm", NULL);
-fun(tail,head,mtp,nwp,edgestate);
-}
-void f__isociomatrix(ModelTerm *mtp, Network *nwp){
-static void (*fun)(ModelTerm *,Network *) = NULL;
-if(fun==NULL) fun = (void (*)(ModelTerm *,Network *)) R_FindSymbol("f__isociomatrix", "ergm", NULL);
-fun(mtp,nwp);
-}
-void i__discord_net_DyadSet(ModelTerm *mtp, Network *nwp){
-static void (*fun)(ModelTerm *,Network *) = NULL;
-if(fun==NULL) fun = (void (*)(ModelTerm *,Network *)) R_FindSymbol("i__discord_net_DyadSet", "ergm", NULL);
-fun(mtp,nwp);
-}
-void u__discord_net_DyadSet(Vertex tail, Vertex head, ModelTerm *mtp, Network *nwp, Rboolean edgestate){
-static void (*fun)(Vertex,Vertex,ModelTerm *,Network *,Rboolean) = NULL;
-if(fun==NULL) fun = (void (*)(Vertex,Vertex,ModelTerm *,Network *,Rboolean)) R_FindSymbol("u__discord_net_DyadSet", "ergm", NULL);
-fun(tail,head,mtp,nwp,edgestate);
-}
-void f__discord_net_DyadSet(ModelTerm *mtp, Network *nwp){
-static void (*fun)(ModelTerm *,Network *) = NULL;
-if(fun==NULL) fun = (void (*)(ModelTerm *,Network *)) R_FindSymbol("f__discord_net_DyadSet", "ergm", NULL);
-fun(mtp,nwp);
-}
-void i__intersect_net_DyadSet(ModelTerm *mtp, Network *nwp){
-static void (*fun)(ModelTerm *,Network *) = NULL;
-if(fun==NULL) fun = (void (*)(ModelTerm *,Network *)) R_FindSymbol("i__intersect_net_DyadSet", "ergm", NULL);
-fun(mtp,nwp);
-}
-void u__intersect_net_DyadSet(Vertex tail, Vertex head, ModelTerm *mtp, Network *nwp, Rboolean edgestate){
-static void (*fun)(Vertex,Vertex,ModelTerm *,Network *,Rboolean) = NULL;
-if(fun==NULL) fun = (void (*)(Vertex,Vertex,ModelTerm *,Network *,Rboolean)) R_FindSymbol("u__intersect_net_DyadSet", "ergm", NULL);
-fun(tail,head,mtp,nwp,edgestate);
-}
-void f__intersect_net_DyadSet(ModelTerm *mtp, Network *nwp){
-static void (*fun)(ModelTerm *,Network *) = NULL;
-if(fun==NULL) fun = (void (*)(ModelTerm *,Network *)) R_FindSymbol("f__intersect_net_DyadSet", "ergm", NULL);
-fun(mtp,nwp);
-}
-void i__intersect_net_toggles_in_list_DyadSet(ModelTerm *mtp, Network *nwp){
-static void (*fun)(ModelTerm *,Network *) = NULL;
-if(fun==NULL) fun = (void (*)(ModelTerm *,Network *)) R_FindSymbol("i__intersect_net_toggles_in_list_DyadSet", "ergm", NULL);
-fun(mtp,nwp);
-}
-void u__intersect_net_toggles_in_list_DyadSet(Vertex tail, Vertex head, ModelTerm *mtp, Network *nwp, Rboolean edgestate){
-static void (*fun)(Vertex,Vertex,ModelTerm *,Network *,Rboolean) = NULL;
-if(fun==NULL) fun = (void (*)(Vertex,Vertex,ModelTerm *,Network *,Rboolean)) R_FindSymbol("u__intersect_net_toggles_in_list_DyadSet", "ergm", NULL);
-fun(tail,head,mtp,nwp,edgestate);
-}
-void f__intersect_net_toggles_in_list_DyadSet(ModelTerm *mtp, Network *nwp){
-static void (*fun)(ModelTerm *,Network *) = NULL;
-if(fun==NULL) fun = (void (*)(ModelTerm *,Network *)) R_FindSymbol("f__intersect_net_toggles_in_list_DyadSet", "ergm", NULL);
-fun(mtp,nwp);
-}
-void i__union_net_DyadSet(ModelTerm *mtp, Network *nwp){
-static void (*fun)(ModelTerm *,Network *) = NULL;
-if(fun==NULL) fun = (void (*)(ModelTerm *,Network *)) R_FindSymbol("i__union_net_DyadSet", "ergm", NULL);
-fun(mtp,nwp);
-}
-void u__union_net_DyadSet(Vertex tail, Vertex head, ModelTerm *mtp, Network *nwp, Rboolean edgestate){
-static void (*fun)(Vertex,Vertex,ModelTerm *,Network *,Rboolean) = NULL;
-if(fun==NULL) fun = (void (*)(Vertex,Vertex,ModelTerm *,Network *,Rboolean)) R_FindSymbol("u__union_net_DyadSet", "ergm", NULL);
-fun(tail,head,mtp,nwp,edgestate);
-}
-void f__union_net_DyadSet(ModelTerm *mtp, Network *nwp){
-static void (*fun)(ModelTerm *,Network *) = NULL;
-if(fun==NULL) fun = (void (*)(ModelTerm *,Network *)) R_FindSymbol("f__union_net_DyadSet", "ergm", NULL);
-fun(mtp,nwp);
 }
 
 #define STUBFILE
