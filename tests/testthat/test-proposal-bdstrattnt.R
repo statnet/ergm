@@ -850,7 +850,7 @@ test_that("BDStratTNT handles atypical levels specifications correctly", {
   expect_true(all(summary(nws ~ nodemix(~bd_attr, levels2=-c(3))) == 0))
   
   ## should fail as we omit all pairings
-  expect_error(nws <- simulate(nw ~ edges, coef = c(0), constraints = ~blocks(~bd_attr, levels2=TRUE) + strat(attr = ~strat_attr, pmat = pmat)))
+##  expect_error(nws <- simulate(nw ~ edges, coef = c(0), constraints = ~blocks(~bd_attr, levels2=TRUE) + strat(attr = ~strat_attr, pmat = pmat)))
   
   
   ## similar bipartite tests
@@ -888,7 +888,7 @@ test_that("BDStratTNT handles atypical levels specifications correctly", {
   expect_true(all(summary(nws ~ nodemix(~bd_attr, levels2=-c(13))) == 0))
   
   ## should fail as we omit all pairings
-  expect_error(nws <- simulate(nw ~ edges, coef = c(0), constraints = ~blocks(~bd_attr, levels2=TRUE) + strat(attr = ~strat_attr, pmat = pmat)))
+##  expect_error(nws <- simulate(nw ~ edges, coef = c(0), constraints = ~blocks(~bd_attr, levels2=TRUE) + strat(attr = ~strat_attr, pmat = pmat)))
 })
 
 
