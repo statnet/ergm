@@ -84,13 +84,16 @@
         In \code{\link{summary.ergm}()} output, the \code{$coefficients} element is now a matrix rather than a dataframe. This fixes some issues with duplicate term names. Also, \code{$coefs} element is no longer attached.
       }
       \item{
-        Documentation corrections, fixes, and clean-ups.
-      }
-      \item{
         \code{\link{check.ErgmTerm}()} no longer skips argument type check if the passed argument is \code{NULL}. For backwards compatibility, the check is skipped if the argument is optional \emph{and} the default value is \code{NULL}. A constant \code{ERGM_VATTR_SPEC_NULL} has been added for when \code{NULL} is a valid (but not default) input for nodal attribute specification.
       }
       \item{
         A serious bug in calculation of geodesic distance distribution in \code{\link{gof.formula}()} has been fixed. (Thanks to Jeffrey Alan Smith (University of Nebraska at Lincoln) for reporting it.)
+      }
+      \item{
+        Documentation corrections, fixes, and clean-ups.
+      }
+      \item{
+        A number of memory leaks have been fixed.
       }
     }
   }
