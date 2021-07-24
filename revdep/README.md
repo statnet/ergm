@@ -10,7 +10,7 @@
 |collate  |en_US.UTF-8                  |
 |ctype    |en_US.UTF-8                  |
 |tz       |Australia/Sydney             |
-|date     |2021-07-22                   |
+|date     |2021-07-24                   |
 
 # Dependencies
 
@@ -26,10 +26,10 @@
 |:---------------------------------------|:-------|:-----|:-------|:----|
 |Bergm                                   |5.0.3   |      |        |     |
 |[Blaunet](problems.md#blaunet)          |2.1.0   |1     |        |2    |
-|[broom](problems.md#broom)              |0.7.8   |      |        |2    |
+|[broom](problems.md#broom)              |0.7.8   |1     |1       |2    |
 |btergm                                  |1.10.3  |      |        |     |
 |dnr                                     |0.3.5   |      |        |     |
-|EpiModel                                |2.1.0   |-1    |        |     |
+|EpiModel                                |2.1.0   |      |        |     |
 |[ergm](problems.md#ergm)                |4.0.1   |      |        |1    |
 |ergm.count                              |4.0.2   |      |        |     |
 |ergm.ego                                |1.0.0   |      |        |     |

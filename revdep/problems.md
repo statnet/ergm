@@ -61,13 +61,43 @@ Run `revdep_details(, "Blaunet")` for more info
 * GitHub: https://github.com/tidymodels/broom
 * Source code: https://github.com/cran/broom
 * Date/Publication: 2021-06-24 08:50:02 UTC
-* Number of recursive dependencies: 300
+* Number of recursive dependencies: 302
 
 Run `revdep_details(, "broom")` for more info
 
 </details>
 
 ## In both
+
+*   checking examples ... ERROR
+    ```
+    Running examples in ‘broom-Ex.R’ failed
+    The error most likely occurred in:
+    
+    > ### Name: glance.Rchoice
+    > ### Title: Glance at a(n) Rchoice object
+    > ### Aliases: glance.Rchoice
+    > 
+    > ### ** Examples
+    > 
+    > library(Rchoice)
+    ...
+      term         estimate std.error statistic p.value
+      <chr>           <dbl>     <dbl>     <dbl>   <dbl>
+    1 constant       6.01      4.64     1.30      0.195
+    2 mpg           -0.0957    0.134   -0.716     0.474
+    3 hp            -0.0244    0.0214  -1.14      0.253
+    4 factor(cyl)6  -0.980     1.23    -0.797     0.426
+    5 factor(cyl)8  -6.39    938.      -0.00682   0.995
+    > glance(mod)
+    Error: 'getSummary.Rchoice' is not an exported object from 'namespace:Rchoice'
+    Execution halted
+    ```
+
+*   checking dependencies in R code ... WARNING
+    ```
+    Missing or unexported object: ‘Rchoice::getSummary.Rchoice’
+    ```
 
 *   checking package dependencies ... NOTE
     ```
