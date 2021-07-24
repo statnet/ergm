@@ -35,6 +35,7 @@
 #' @param object An `ergm_model` object.
 #' @return `ergm_model` returns an  `ergm_model` object as a list
 #' containing:
+#' \item{coef.names}{a vector of coefficient names (deprecated: use [param_names( , canonical=TRUE)] instead)}
 #' \item{terms}{a list of terms and 'term components' initialized by the
 #' appropriate \code{InitErgmTerm.X} function.}
 #' \item{etamap}{the theta -> eta mapping as a list returned from
@@ -94,6 +95,8 @@ ergm_model <- function(formula, nw=NULL, silent=FALSE, ..., term.options=list(),
 
   if(offset.decorate){
     if(length(model$etamap$offsetmap)){
+      model$coef.names <- ifelse(model$etamap$offsetmap, paste0("offset(",model$coef.names,")"), model$coef.names)
+
       ol <- split(model$etamap$offsetmap, factor(rep.int(seq_along(model$terms), nparam(model, byterm=TRUE, canonical=TRUE)), levels=seq_along(model$terms)))
       for(i in seq_along(model$terms)){
         pn <- model$terms[[i]]$coef.names
@@ -196,6 +199,7 @@ updatemodel.ErgmTerm <- function(model, outlist, offset=FALSE, offset.decorate=T
     if(is.numeric(offset)) offset <- unwhich(offset, npars)
     outlist$offset <- offset <- rep(offset, length.out=npars) | NVL(outlist$offset,FALSE)
 
+    model$coef.names <- c(model$coef.names, outlist$coef.names)
     model$minval <- c(model$minval,
                       rep(NVL(outlist$minval, -Inf),
                           length.out=nstats))
