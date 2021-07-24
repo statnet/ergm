@@ -166,6 +166,7 @@ summary.ergm <- function (object, ...,
     ans$null.lik <- ERRVL(null.lik, NA)
   }else ans$devtable <- NA
 
+  ans$coefs <- as.data.frame(coefmat)[,-3] # For backwards compatibility.
   ans$coefficients <- coefmat
   ans$asycov <- asycov
   ans$asyse <- asyse
