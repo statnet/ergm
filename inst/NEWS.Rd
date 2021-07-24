@@ -102,9 +102,6 @@
   \subsection{OTHER USER-VISIBLE CHANGES}{
     \itemize{
       \item{
-        API change: \code{\link{ergm_model}()} no longer sets an element \code{$coef.names}, and \code{offset()} decorator is set on each term's \code{coef.names}.
-      }
-      \item{
         Miscellaneous improvements to the \code{BDStrat*} family of proposals.
       }
       \item{
