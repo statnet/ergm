@@ -142,6 +142,4 @@ F_CHANGESTAT_FN(f_main_interact){
   Model *m = store->m;
 
   ModelDestroy(nwp, m);
-
-  STORAGE=NULL;
 }
