@@ -137,7 +137,7 @@ InitErgmTerm.Passthrough <- function(nw, arglist, ...){
   a <- check.ErgmTerm(nw, arglist,
                       varnames = c("formula", "label"),
                       vartypes = c("formula", "logical"),
-                      defaultvalues = list(NULL, FALSE),
+                      defaultvalues = list(NULL, TRUE),
                       required = c(TRUE, FALSE))
 
   m <- ergm_model(a$formula, nw, ..., offset.decorate=FALSE)
