@@ -64,7 +64,7 @@
 
 %% }
 
-\section{Changes in version 4.1.1}{
+\section{Changes in version 4.1.2}{
 
   \subsection{NEW FEATURES}{
     \itemize{
@@ -72,7 +72,7 @@
         \code{\link{F}()} operator's filter formula can now be a simple logical or comparison expression.
       }
       \item{
-        \code{\link{Passthrough}()} operator now takes an optional boolean label= argument, which controls whether Passthrough~ will be prepended to the coefficient name; it defaults to \code{FALSE}.
+        \code{\link{Passthrough}()} operator now takes an optional boolean label= argument, which controls whether Passthrough~ will be prepended to the coefficient name; it defaults to \code{TRUE} for backwards compatibility, though this may change in the future.
       }
     }
   }
