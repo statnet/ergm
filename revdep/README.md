@@ -10,13 +10,13 @@
 |collate  |en_US.UTF-8                  |
 |ctype    |en_US.UTF-8                  |
 |tz       |Australia/Sydney             |
-|date     |2021-07-24                   |
+|date     |2021-07-26                   |
 
 # Dependencies
 
 |package |old   |new   |Δ  |
 |:-------|:-----|:-----|:--|
-|ergm    |4.0.1 |4.1.0 |*  |
+|ergm    |4.0.1 |4.1.2 |*  |
 
 # Revdeps
 
