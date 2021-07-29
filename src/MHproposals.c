@@ -110,49 +110,48 @@ MH_I_FN(Mi_BDStratTNT) {
 
   sto->CD = getListElement(getListElement(MHp->R, "flags"), "CD") != R_NilValue;
 
-  int nbdlevels = asInteger(getListElement(MHp->R, "bd_nlevels"));
-  sto->nbdlevels = nbdlevels;
+  sto->nbdlevels = asInteger(getListElement(MHp->R, "bd_nlevels"));
    
-  sto->maxout = Calloc(nbdlevels, int *);
-  sto->maxin = DIRECTED ? Calloc(nbdlevels, int *) : sto->maxout;
+  sto->maxout = Calloc(sto->nbdlevels, int *);
+  sto->maxin = DIRECTED ? Calloc(sto->nbdlevels, int *) : sto->maxout;
   sto->maxout[0] = INTEGER(getListElement(MHp->R, "maxout")) - 1;
   if(DIRECTED) {
     sto->maxin[0] = INTEGER(getListElement(MHp->R, "maxin")) - 1;
   }
-  for(int i = 1; i < nbdlevels; i++) {
+  for(int i = 1; i < sto->nbdlevels; i++) {
     sto->maxout[i] = sto->maxout[i - 1] + N_NODES;
     if(DIRECTED) {
       sto->maxin[i] = sto->maxin[i - 1] + N_NODES;
     }
   }  
     
-  sto->nmixtypes = asInteger(getListElement(MHp->R, "nmixtypes"));
+  sto->nmixtypes = length(getListElement(MHp->R, "probvec"));
   sto->nstratlevels = asInteger(getListElement(MHp->R, "nattrcodes"));
   int nblockslevels = asInteger(getListElement(MHp->R, "blocks_levels"));
   
   sto->mixtypestoupdate = Calloc(sto->nmixtypes, int);
   
-  sto->strat_vattr = INTEGER(getListElement(MHp->R, "strat_vattr"));
-  sto->blocks_vattr = INTEGER(getListElement(MHp->R, "blocks_vattr"));
-  sto->bd_vattr = INTEGER(getListElement(MHp->R, "bd_vattr"));
-  
-  sto->indegree = Calloc(nbdlevels, int *);
-  sto->outdegree = Calloc(nbdlevels, int *);
-  for(int i = 0; i < nbdlevels; i++) {
+  // decrement so nodal indices line up correctly
+  sto->strat_vattr = INTEGER(getListElement(MHp->R, "strat_vattr")) - 1;
+  sto->blocks_vattr = INTEGER(getListElement(MHp->R, "blocks_vattr")) - 1;
+  sto->bd_vattr = INTEGER(getListElement(MHp->R, "bd_vattr")) - 1;
+    
+  sto->indegree = Calloc(sto->nbdlevels, int *);
+  sto->outdegree = Calloc(sto->nbdlevels, int *);
+  for(int i = 0; i < sto->nbdlevels; i++) {
     sto->indegree[i] = Calloc(N_NODES + 1, int);
     sto->outdegree[i] = Calloc(N_NODES + 1, int);    
   }
-  sto->bd_vattr--;
-  EXEC_THROUGH_NET_EDGES(tail, head, e, {
-    int tailattr = sto->bd_vattr[tail];
-    int headattr = sto->bd_vattr[head];
-    sto->indegree[tailattr][head]++;
-    sto->outdegree[headattr][tail]++;
-  });
-  sto->bd_vattr++;
   
+  EXEC_THROUGH_NET_EDGES(tail, head, e, {
+    sto->indegree[sto->bd_vattr[tail]][head]++;
+    sto->outdegree[sto->bd_vattr[head]][tail]++;
+  });
+    
   sto->blocks = BDStratBlocksInitialize(sto->maxout, 
                                         sto->maxin,
+                                        NULL,
+                                        NULL,
                                         sto->strat_vattr, 
                                         sto->nstratlevels, 
                                         sto->nmixtypes, 
@@ -164,7 +163,7 @@ MH_I_FN(Mi_BDStratTNT) {
                                         INTEGER(getListElement(MHp->R, "blocks_tails")), 
                                         INTEGER(getListElement(MHp->R, "blocks_heads")),
                                         sto->bd_vattr,
-                                        nbdlevels,
+                                        sto->nbdlevels,
                                         INTEGER(getListElement(MHp->R, "bd_nmixtypes")), 
                                         INTEGER(getListElement(MHp->R, "bd_tails")), 
                                         INTEGER(getListElement(MHp->R, "bd_heads")),                                        
@@ -172,22 +171,29 @@ MH_I_FN(Mi_BDStratTNT) {
                                         sto->indegree,
                                         sto->outdegree,
                                         nwp);
-
-  sto->strat_vattr--; // so node indices line up correctly
-  sto->blocks_vattr--; // so node indices line up correctly  
-  sto->bd_vattr--; // so node indices line up correctly
     
   UnsrtEL **els = Calloc(sto->nmixtypes, UnsrtEL *);
   for(int i = 0; i < sto->nmixtypes; i++) {
     els[i] = UnsrtELInitialize(0, NULL, NULL, FALSE);
   }
       
-  sto->indmat = Calloc(sto->nstratlevels, int *);
-  sto->indmat[0] = INTEGER(getListElement(MHp->R, "indmat"));
-  for(int i = 1; i < sto->nstratlevels; i++) {
-    sto->indmat[i] = sto->indmat[i - 1] + sto->nstratlevels;
-  }
+  int *strattailattrs = INTEGER(getListElement(MHp->R, "strattailattrs"));
+  int *stratheadattrs = INTEGER(getListElement(MHp->R, "stratheadattrs"));
 
+  sto->indmat = Calloc(sto->nstratlevels, int *);
+  for(int i = 0; i < sto->nstratlevels; i++) {
+    sto->indmat[i] = Calloc(sto->nstratlevels, int);
+    for(int j = 0; j < sto->nstratlevels; j++) {
+      sto->indmat[i][j] = -1;
+    }
+  }
+  for(int i = 0; i < sto->nmixtypes; i++) {
+    sto->indmat[strattailattrs[i]][stratheadattrs[i]] = i;
+    if(!DIRECTED && !BIPARTITE) {
+      sto->indmat[stratheadattrs[i]][strattailattrs[i]] = i;        
+    }
+  }
+  
   int **amat = Calloc(nblockslevels, int *);
   amat[0] = INTEGER(getListElement(MHp->R, "amat"));
   for(int i = 1; i < nblockslevels; i++) {
@@ -205,7 +211,8 @@ MH_I_FN(Mi_BDStratTNT) {
 
   sto->hash = Calloc(sto->nmixtypes, HashEL *);
   for(int i = 0; i < sto->nmixtypes; i++) {
-    sto->hash[i] = HashELInitialize(els[i]->nedges, els[i]->tails + 1, els[i]->heads + 1, FALSE, DIRECTED);
+    sto->hash[i] = HashELInitialize(els[i]->nedges, els[i]->tails ? els[i]->tails + 1 : els[i]->tails, els[i]->heads ? els[i]->heads + 1 : els[i]->heads, FALSE, DIRECTED);
+    Free(els[i]);
   }
   Free(els);
   
@@ -231,14 +238,8 @@ MH_I_FN(Mi_BDStratTNT) {
     }
   }
     
-  sto->wtp = WtPopInitialize(sto->nmixtypes, currentprobvec);
+  sto->wtp = WtPopInitialize(sto->nmixtypes, currentprobvec, asInteger(getListElement(MHp->R, "dyad_indep")) ? 'W' : 'B');
   Free(currentprobvec);
-
-  // zero proposal probability is an error
-  if(WtPopSumWts(sto->wtp) == 0) {
-    MHp->ntoggles = MH_FAILED;
-    return;
-  }
 
   for(Vertex vertex = 1; vertex <= N_NODES; vertex++) {
     for(int i = 0; i < sto->nbdlevels; i++) {
@@ -350,6 +351,9 @@ MH_F_FN(Mf_BDStratTNT) {
   }
   Free(sto->hash);
 
+  for(int i = 0; i < sto->nstratlevels; i++) {
+    Free(sto->indmat[i]);      
+  }
   Free(sto->indmat);
 
   Free(sto->originalprobvec);

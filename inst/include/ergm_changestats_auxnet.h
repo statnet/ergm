@@ -15,27 +15,6 @@
 
 typedef struct{StoreDyadSet *nwp; int *ref_el;} StoreDyadSetAndRefEL;
 
-I_CHANGESTAT_FN(i__isociomatrix);
-U_CHANGESTAT_FN(u__isociomatrix);
-F_CHANGESTAT_FN(f__isociomatrix);
-
-I_CHANGESTAT_FN(i__discord_net_DyadSet);
-U_CHANGESTAT_FN(u__discord_net_DyadSet);
-F_CHANGESTAT_FN(f__discord_net_DyadSet);
-
-I_CHANGESTAT_FN(i__intersect_net_DyadSet);
-U_CHANGESTAT_FN(u__intersect_net_DyadSet);
-F_CHANGESTAT_FN(f__intersect_net_DyadSet);
-
-I_CHANGESTAT_FN(i__intersect_net_toggles_in_list_DyadSet);
-U_CHANGESTAT_FN(u__intersect_net_toggles_in_list_DyadSet);
-F_CHANGESTAT_FN(f__intersect_net_toggles_in_list_DyadSet);
-
-I_CHANGESTAT_FN(i__union_net_DyadSet);
-U_CHANGESTAT_FN(u__union_net_DyadSet);
-F_CHANGESTAT_FN(f__union_net_DyadSet);
-
-
 #define map_toggle_maxtoggles__discord_net_Network 1
 MAP_TOGGLE_FN(map_toggle__discord_net_Network){
   MAP_TOGGLE_PROPAGATE;
@@ -84,7 +63,7 @@ MAP_TOGGLE_FN(map_toggle__blockdiag_net){
 #define map_toggle_maxtoggles__undir_net 1
 MAP_TOGGLE_FN(map_toggle__undir_net){
   ModelTerm *mtp = auxnet->mtp;
-  unsigned int rule = INPUT_PARAM[0];
+  unsigned int rule = IINPUT_PARAM[0];
   Network *nwp = auxnet->inwp;
   __undir_net_totoggle;
   if(totoggle){
@@ -96,12 +75,30 @@ MAP_TOGGLE_FN(map_toggle__undir_net){
   }
 }
 
+#define __filter_formula_net_totoggle(t, h, nwp, m)                     \
+  Rboolean totoggle;                                                    \
+  {                                                                     \
+    ChangeStats1((t), (h), (nwp), (m), edgestate);                      \
+    double change = edgestate ? -*(m->workspace) : *(m->workspace);     \
+    switch(op){                                                         \
+    case 1: totoggle = change == 0; break;                              \
+    case 2: totoggle = change == INPUT_PARAM[0]; break;                 \
+    case 3: totoggle = change != INPUT_PARAM[0]; break;                 \
+    case 4: totoggle = change > INPUT_PARAM[0]; break;                  \
+    case 5: totoggle = change < INPUT_PARAM[0]; break;                  \
+    case 6: totoggle = change >= INPUT_PARAM[0]; break;                 \
+    case 7: totoggle = change <= INPUT_PARAM[0]; break;                 \
+    default: totoggle = change != 0;                                    \
+    }                                                                   \
+  }
+
 #define map_toggle_maxtoggles__filter_formula_net 1
 MAP_TOGGLE_FN(map_toggle__filter_formula_net){
   ModelTerm *mtp = auxnet->mtp;
+  unsigned int op = IINPUT_PARAM[0];
   GET_STORAGE(Model, m);
-  ChangeStats1(tail, head, auxnet->inwp, m, edgestate);
-  MAP_TOGGLE_PROPAGATE_IF(*(m->workspace)!=0);
+  __filter_formula_net_totoggle(tail, head, auxnet->inwp, m);
+  MAP_TOGGLE_PROPAGATE_IF(totoggle);
 }
 
 #define map_toggle_maxtoggles__subgraph_net 1

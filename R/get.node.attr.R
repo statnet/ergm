@@ -646,6 +646,10 @@ ERGM_VATTR_SPEC <- "function,formula,character,AsIs"
 
 #' @rdname nodal_attributes-API
 #' @export
+ERGM_VATTR_SPEC_NULL <- "function,formula,character,AsIs,NULL"
+
+#' @rdname nodal_attributes-API
+#' @export
 ERGM_LEVELS_SPEC <- "function,formula,character,numeric,logical,AsIs,NULL,matrix"
 
 #' @rdname nodal_attributes

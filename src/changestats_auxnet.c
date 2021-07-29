@@ -163,16 +163,16 @@ F_CHANGESTAT_FN(f__blockdiag_net){
 I_CHANGESTAT_FN(i__undir_net){
   I_AUXNET(NetworkInitialize(NULL, NULL, 0, N_NODES, FALSE, BIPARTITE, FALSE, 0, NULL));
 
-  unsigned int rule = INPUT_PARAM[0];
+  unsigned int rule = IINPUT_PARAM[0];
   EXEC_THROUGH_NET_EDGES_PRE(tail, head, e, {
       __undir_net_totoggle;
-      if(totoggle) AddEdgeToTrees(MIN(tail,head), MAX(tail,head), auxnet->onwp);
+      if(totoggle && !IS_UNDIRECTED_EDGE(tail,head,auxnet->onwp)) ToggleKnownEdge(tail, head, auxnet->onwp, FALSE);
     });
 }
 
 U_CHANGESTAT_FN(u__undir_net){
   GET_AUX_STORAGE(StoreAuxnet, auxnet);
-  unsigned int rule = INPUT_PARAM[0];
+  unsigned int rule = IINPUT_PARAM[0];
 
   __undir_net_totoggle;
   if(totoggle) ToggleEdge(MIN(tail,head),MAX(tail,head),auxnet->onwp);
@@ -194,24 +194,24 @@ F_CHANGESTAT_FN(f__undir_net){
 I_CHANGESTAT_FN(i__filter_formula_net){
   I_AUXNET(NetworkInitialize(NULL, NULL, 0, N_NODES, DIRECTED, BIPARTITE, FALSE, 0, NULL));
   GET_STORAGE(Model, m);
+  unsigned int op = IINPUT_PARAM[0];
 
   STORAGE = m = ModelInitialize(getListElement(mtp->R, "submodel"), NULL, nwp, FALSE);
 
   EXEC_THROUGH_NET_EDGES_PRE(t, h, e, {
-      ChangeStats1(t, h, nwp, m, TRUE); // We know the edge is present in nwp.
-      // I.e., if toggling the dyad changes the statistic, add
-      // edge to the filter network.
-      if(*(m->workspace)!=0) 
-	AddEdgeToTrees(t, h, auxnet->onwp);
+      Rboolean edgestate = TRUE; // We know the edge is present in nwp.
+      __filter_formula_net_totoggle(t, h, nwp, m);
+      if(totoggle) AddEdgeToTrees(t, h, auxnet->onwp);
     });
 }
 
 U_CHANGESTAT_FN(u__filter_formula_net){
   GET_AUX_STORAGE(StoreAuxnet, auxnet);
-  Model *m = STORAGE;
+  GET_STORAGE(Model, m);
+  unsigned int op = IINPUT_PARAM[0];
 
-  ChangeStats1(tail, head, nwp, m, edgestate);
-  if(*(m->workspace)!=0){
+  __filter_formula_net_totoggle(tail, head, nwp, m);
+  if(totoggle){
     if(edgestate) DeleteEdgeFromTrees(tail,head,auxnet->onwp);
     else AddEdgeToTrees(tail,head,auxnet->onwp);
   }

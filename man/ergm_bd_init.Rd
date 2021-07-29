@@ -58,3 +58,4 @@ returns an error message if any bound is violated by the observed network.
 \seealso{
 \code{\link{ergm-proposals}}
 }
+\keyword{internal}

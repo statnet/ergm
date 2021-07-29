@@ -41,6 +41,7 @@ extern SEXP MPLE_wrapper(SEXP, SEXP, SEXP, SEXP);
 extern SEXP network_stats_wrapper(SEXP);
 extern SEXP SAN_wrapper(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
 extern SEXP set_ergm_omp_terms(SEXP);
+extern SEXP test_weighted_population(SEXP, SEXP, SEXP);
 extern SEXP wt_network_stats_wrapper(SEXP);
 extern SEXP WtCD_wrapper(SEXP, SEXP, SEXP, SEXP, SEXP);
 extern SEXP WtGodfather_wrapper(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
@@ -70,6 +71,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"network_stats_wrapper",    (DL_FUNC) &network_stats_wrapper,     1},
     {"SAN_wrapper",              (DL_FUNC) &SAN_wrapper,               9},
     {"set_ergm_omp_terms",       (DL_FUNC) &set_ergm_omp_terms,        1},
+    {"test_weighted_population", (DL_FUNC) &test_weighted_population,  3},
     {"wt_network_stats_wrapper", (DL_FUNC) &wt_network_stats_wrapper,  1},
     {"WtCD_wrapper",             (DL_FUNC) &WtCD_wrapper,              5},
     {"WtGodfather_wrapper",      (DL_FUNC) &WtGodfather_wrapper,       6},

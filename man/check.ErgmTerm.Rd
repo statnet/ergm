@@ -36,7 +36,7 @@ nonnegative weights; default=FALSE}
 term X; default=NULL}
 
 \item{vartypes}{the vector of types of the possible arguments for
-term X, separated by commas; an empty string (\code{""}) or \code{NA} disables the check for that argument; default=NULL}
+term X, separated by commas; an empty string (\code{""}) or \code{NA} disables the check for that argument, and also see Details; default=NULL}
 
 \item{defaultvalues}{the list of default values for the possible
 arguments of term X; default=list()}
@@ -76,4 +76,8 @@ network \item has an appropiate number of arguments \item has
 correct argument types if arguments where provided \item has
 default values assigned if defaults are available } by halting
 execution if any of the first 3 criteria are not met.
+
+As a convenience, if an argument is optional \emph{and} its
+default is \code{NULL}, then \code{NULL} is assumed to be an acceptable
+argument type as well.
 }

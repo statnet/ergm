@@ -60,7 +60,6 @@
 #' provided there.
 #' 
 #' @name ergm-package
-#' @aliases Getting.Started
 #' @docType package
 #' @author Mark S. Handcock \email{handcock@@stat.ucla.edu},\cr David R. Hunter
 #' \email{dhunter@@stat.psu.edu},\cr Carter T. Butts

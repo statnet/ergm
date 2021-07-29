@@ -131,8 +131,8 @@ InitErgmConstraint.blocks <- function(nw, arglist, ...) {
   attr <- a$attr; b1levels <- a$b1levels; b2levels <- a$b2levels; levels <- a$levels; levels2 <- a$levels2
 
   if(is.bipartite(nw)) {
-    b1nodecov <- NVL2(attr, ergm_get_vattr(attr, nw, bip = "b1"), rep(1, nw %n% "bipartite"))
-    b2nodecov <- NVL2(attr, ergm_get_vattr(attr, nw, bip = "b2"), rep(1, network.size(nw) - (nw %n% "bipartite")))
+    b1nodecov <- ergm_get_vattr(attr, nw, bip = "b1")
+    b2nodecov <- ergm_get_vattr(attr, nw, bip = "b2")
     
     b1namescov <- ergm_attr_levels(b1levels, b1nodecov, nw, sort(unique(b1nodecov)))
     b2namescov <- ergm_attr_levels(b2levels, b2nodecov, nw, sort(unique(b2nodecov)))
@@ -163,7 +163,7 @@ InitErgmConstraint.blocks <- function(nw, arglist, ...) {
     col_nodecov <- b2nodecov
     
   } else {
-    nodecov <- NVL2(attr, ergm_get_vattr(attr, nw), rep(1, network.size(nw)))
+    nodecov <- ergm_get_vattr(attr, nw)
   
     u <- ergm_attr_levels(levels, nodecov, nw, sort(unique(nodecov)))
     namescov <- u 

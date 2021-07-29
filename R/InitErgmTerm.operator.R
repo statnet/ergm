@@ -135,16 +135,16 @@ ergm_no_ext.encode <- function(submodel) {
 ##
 InitErgmTerm.Passthrough <- function(nw, arglist, ...){
   a <- check.ErgmTerm(nw, arglist,
-                      varnames = c("formula"),
-                      vartypes = c("formula"),
-                      defaultvalues = list(NULL),
-                      required = c(TRUE))
+                      varnames = c("formula", "label"),
+                      vartypes = c("formula", "logical"),
+                      defaultvalues = list(NULL, FALSE),
+                      required = c(TRUE, FALSE))
 
   m <- ergm_model(a$formula, nw, ..., offset.decorate=FALSE)
   
   c(list(name="passthrough_term", submodel=m),
     ergm_propagate_ext.encode(m),
-    wrap.ergm_model(m, nw, ergm_mk_std_op_namewrap('Passthrough')))
+    wrap.ergm_model(m, nw, if(a$label) ergm_mk_std_op_namewrap('Passthrough') else identity))
 }
 
 InitErgmTerm.Label <- function(nw, arglist, ...){
@@ -301,6 +301,17 @@ InitErgmTerm..filter.formula.net <- function(nw, arglist, ...){
                       defaultvalues = list(NULL),
                       required = c(TRUE))
 
+  OPS <- c("!", "==", "!=", ">" , "<", ">=" , "<=")
+  UNARY <- c("!")
+  if(is.call(ult(a$formula)) && (op <- as.character(ult(a$formula)[[1]])) %in% OPS){
+    iinputs <- match(op, OPS)
+    inputs <- if(! op%in%UNARY) eval(ult(a$formula)[[3]], environment(a$formula))
+    ult(a$formula) <- ult(a$formula)[[2]]
+  }else{
+    iinputs <- 0L
+    inputs <- NULL
+  }
+
   m <- ergm_model(a$formula, nw, ..., offset.decorate=FALSE)
   ergm_no_ext.encode(m)
 
@@ -310,7 +321,7 @@ InitErgmTerm..filter.formula.net <- function(nw, arglist, ...){
   gs <- summary(m, nw)
   if(gs!=0) ergm_Init_abort("At this time, the filter test term must have the property that its dyadwise components are 0 for 0-valued relations. This limitation may be removed in the future.")
   
-  c(list(name="_filter_formula_net", submodel=m),
+  c(list(name="_filter_formula_net", submodel=m, iinputs=iinputs, inputs=inputs),
     wrap.ergm_model(m, nw, NULL))
 }
 
@@ -369,21 +380,26 @@ InitErgmTerm.Offset <- function(nw, arglist, ...){
 #'   [`network`] method, it can also be a function or a list; see
 #'   Details.
 #' @param ... additional arguments to [sna::symmetrize()].
+#'
+#' @note This was originally exported as a generic to overwrite
+#'   [sna::symmetrize()]. By developer's request, it has been renamed;
+#'   eventually, `sna` or `network` packages will export the generic
+#'   instead.
 #' @export
-symmetrize <- function(x, rule=c("weak","strong","upper","lower"), ...){
-  UseMethod("symmetrize")
+ergm_symmetrize <- function(x, rule=c("weak","strong","upper","lower"), ...){
+  UseMethod("ergm_symmetrize")
 }
 
-#' @describeIn symmetrize
+#' @describeIn ergm_symmetrize
 #'
 #' The default method, passing the input on to [sna::symmetrize()].
 #' 
 #' @export
-symmetrize.default <- function(x, rule=c("weak","strong","upper","lower"), ...){
+ergm_symmetrize.default <- function(x, rule=c("weak","strong","upper","lower"), ...){
   sna::symmetrize(x, rule=rule, ...)
 }
 
-#' @describeIn symmetrize
+#' @describeIn ergm_symmetrize
 #'
 #' A method for [`network`] objects, which preserves network and vertex attributes, and handles edge attributes.
 #'
@@ -421,14 +437,14 @@ symmetrize.default <- function(x, rule=c("weak","strong","upper","lower"), ...){
 #'   mapply(identical, x, y)
 #' }
 #' 
-#' stopifnot(all(tst(as.logical(as.matrix(symmetrize(samplike, "weak"))), sm | t(sm))),
-#'           all(tst(as.logical(as.matrix(symmetrize(samplike, "strong"))), sm & t(sm))),
-#'           all(tst(c(as.matrix(symmetrize(samplike, "upper"))),
+#' stopifnot(all(tst(as.logical(as.matrix(ergm_symmetrize(samplike, "weak"))), sm | t(sm))),
+#'           all(tst(as.logical(as.matrix(ergm_symmetrize(samplike, "strong"))), sm & t(sm))),
+#'           all(tst(c(as.matrix(ergm_symmetrize(samplike, "upper"))),
 #'                   sm[cbind(c(pmin(row(sm),col(sm))),c(pmax(row(sm),col(sm))))])),
-#'           all(tst(c(as.matrix(symmetrize(samplike, "lower"))),
+#'           all(tst(c(as.matrix(ergm_symmetrize(samplike, "lower"))),
 #'                   sm[cbind(c(pmax(row(sm),col(sm))),c(pmin(row(sm),col(sm))))])))
 #' @export
-symmetrize.network <- function(x, rule=c("weak","strong","upper","lower"), ...){
+ergm_symmetrize.network <- function(x, rule=c("weak","strong","upper","lower"), ...){
   if(!is.directed(x)) return(x)
 
   TH <- c(".tail",".head")
@@ -458,7 +474,7 @@ symmetrize.network <- function(x, rule=c("weak","strong","upper","lower"), ...){
   elle <-
     if(is.character(rule.edges)){
       keep <-
-        switch(match.arg(rule.edges, eval(formals(symmetrize.network)$rule)),
+        switch(match.arg(rule.edges, eval(formals(ergm_symmetrize.network)$rule)),
                weak = NAmap(elle$na.th) | NAmap(elle$na.ht),
                strong = NAmap(elle$na.th) & NAmap(elle$na.ht),
                lower = elle$.tail>=elle$.head & NAmap(elle$na.th),
@@ -481,7 +497,7 @@ symmetrize.network <- function(x, rule=c("weak","strong","upper","lower"), ...){
       if(is.character(r)){
         th <- paste0(attr,".th")
         ht <- paste0(attr,".ht")
-        switch(match.arg(r, eval(formals(symmetrize.network)$rule)),
+        switch(match.arg(r, eval(formals(ergm_symmetrize.network)$rule)),
                pmax =,
                max =, 
                weak = pmax(elle[[th]], elle[[ht]], na.rm=TRUE),
@@ -512,7 +528,7 @@ InitErgmTerm.Symmetrize <- function(nw, arglist, ...){
   RULES <- c("weak","strong","upper","lower")
   rule <- match.arg(a$rule, RULES)
 
-  if(is.directed(nw)) nw <- symmetrize(nw, rule)
+  if(is.directed(nw)) nw <- ergm_symmetrize(nw, rule)
   m <- ergm_model(a$formula, nw, ..., offset.decorate=FALSE)
   ergm_no_ext.encode(m)
 

@@ -41,7 +41,7 @@ test_that("Linear ERGM with partial offsets", {
 test_that("Curved ERGM with partial offsets", {
   e4 <- ergm(samplike~edges+gwesp(0.25, fix=TRUE), control=control.ergm(seed=0,MCMLE.maxit=2))
   e4a <- ergm(samplike~edges+offset(gwesp(),c(FALSE,TRUE)), offset.coef=0.25, control=control.ergm(seed=0,MCMLE.maxit=2))
-  expect_equal(coef(e4a)[-3], coef(e4), tolerance=0.03, ignore_attr=TRUE)
+  expect_equal(coef(e4a)[-3], coef(e4), tolerance=0.06, ignore_attr=TRUE)
   expect_equal(logLik(e4a), logLik(e4), tolerance=0.01, ignore_attr=TRUE)
 })
 
