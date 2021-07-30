@@ -3493,25 +3493,40 @@ InitErgmTerm.nodemix<-function (nw, arglist, ..., version=packageVersion("ergm")
         uun <- uun[rowleqcol]
     }    
    
-    levels2.sel <- if((!hasName(attr(a,"missing"), "levels2") || attr(a,"missing")["levels2"]) && any(NVL(a$base,0)!=0)) levels2.list[-a$base]
-                   else ergm_attr_levels(a$levels2, list(row = nodecov, col = nodecov), nw, levels2.list)
-    
-    rows2keep <- match(levels2.sel,levels2.list, NA)
-    rows2keep <- rows2keep[!is.na(rows2keep)]
-  
-    u <- indices2.grid[rows2keep,]
-    uun <- uun[rows2keep]
+    if (!hasName(attr(a,"missing"), "levels2") || attr(a,"missing")["levels2"] || !is.matrix(a$levels2)) {
+      levels2.sel <- if ((!hasName(attr(a,"missing"), "levels2") || attr(a,"missing")["levels2"]) && any(NVL(a$base,0)!=0)) levels2.list[-a$base]
+                     else ergm_attr_levels(a$levels2, list(row = nodecov, col = nodecov), nw, levels2.list)
+      rows2keep <- match(levels2.sel,levels2.list, NA)
+      rows2keep <- rows2keep[!is.na(rows2keep)]
+
+      u <- indices2.grid[rows2keep,]
+      uun <- uun[rows2keep]
+
+      cn <- paste("mix", paste(attrname,collapse="."), uun, sep=".")
+
+      ## the +1 for nrow and ncol are needed by the way we code non-included b1 and b2 levels above
+      indmat <- matrix(0L, nrow = nr + 1, ncol = nc + 1)
+      indmat[as.matrix(u)] <- seq_len(NROW(u))
+      if(!is.directed(nw)) indmat <- indmat + t(indmat) - diag(diag(indmat))
+      indmat <- indmat - 1L
+    } else {
+      levels2.sel <- which(!is.na(a$levels2))
+      rows2keep <- match(levels2.sel,levels2.list, NA)
+      rows2keep <- rows2keep[!is.na(rows2keep)]
+
+      u <- unique(as.vector(a$levels2[!is.na(a$levels2)]))
+      a$levels2[is.na(a$levels2)] <- ''
+
+      indmat <- matrix(rowSums(sapply(1:length(u), function(i) (as.vector(a$levels2) == u[i]) * i)), nrow=nr)
+      if(!is.directed(nw)) indmat <- indmat + t(indmat) - diag(diag(indmat))
+      indmat <- rbind(cbind(indmat, 0), 0) - 1L
+
+      cn <- paste("mix", paste(attrname, collapse="."), u, sep=".")
+    }
 
     nodecov <- match(nodecov,namescov,nomatch=length(namescov)+1)
-    
-    cn <- paste("mix", paste(attrname,collapse="."), uun, sep=".")
-
-    ## the +1 for nrow and ncol are needed by the way we code non-included b1 and b2 levels above
-    indmat <- matrix(0L, nrow = nr + 1, ncol = nc + 1)
-    indmat[as.matrix(u)] <- seq_len(NROW(u))
-    if(!is.directed(nw)) indmat <- indmat + t(indmat) - diag(diag(indmat))
-    indmat <- indmat - 1L
   }
+
   ### Construct the list to return
   list(name = "nodemix", coef.names = cn, # required
        dependence = FALSE, # So we don't use MCMC if not necessary
