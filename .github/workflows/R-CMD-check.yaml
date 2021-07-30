@@ -189,6 +189,7 @@ jobs:
         run: |
           remotes::install_cran("tinytex")
           tinytex:::install_yihui_pkgs()
+          tinytex::tlmgr_install("makeindex")
         shell: Rscript {0}
 
       - name: Build
