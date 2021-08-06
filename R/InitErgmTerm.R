@@ -3451,30 +3451,50 @@ InitErgmTerm.nodemix<-function (nw, arglist, ..., version=packageVersion("ergm")
     levels2.list <- transpose(expand.grid(row = b1namescov, col = b2namescov, stringsAsFactors=FALSE))
     indices2.grid <- expand.grid(row = 1:nr, col = nr + 1:nc)
    
-    levels2.sel <- if((!hasName(attr(a,"missing"), "levels2") || attr(a,"missing")["levels2"]) && any(NVL(a$base,0)!=0)) levels2.list[-a$base]
+    if (!hasName(attr(a,"missing"), "levels2") || attr(a,"missing")["levels2"] || !is.matrix(a$levels2)) {
+      levels2.sel <- if((!hasName(attr(a,"missing"), "levels2") || attr(a,"missing")["levels2"]) && any(NVL(a$base,0)!=0)) levels2.list[-a$base]
                    else ergm_attr_levels(a$levels2, list(row = b1nodecov, col = b2nodecov), nw, levels2.list)
     
-    rows2keep <- match(levels2.sel,levels2.list, NA)
-    rows2keep <- rows2keep[!is.na(rows2keep)]
+      rows2keep <- match(levels2.sel,levels2.list, NA)
+      rows2keep <- rows2keep[!is.na(rows2keep)]
+
+      u <- indices2.grid[rows2keep,]
   
-    u <- indices2.grid[rows2keep,]
+      # Recode to numeric
+      b1nodecov <- match(b1nodecov,b1namescov,nomatch=length(b1namescov)+1)
+      b2nodecov <- match(b2nodecov,b2namescov,nomatch=length(b2namescov)+1)
   
-    # Recode to numeric
-    b1nodecov <- match(b1nodecov,b1namescov,nomatch=length(b1namescov)+1)
-    b2nodecov <- match(b2nodecov,b2namescov,nomatch=length(b2namescov)+1)
-  
-    namescov <- c(b1namescov, b2namescov)
+      namescov <- c(b1namescov, b2namescov)
     
-    nodecov <- c(b1nodecov, b2nodecov)
+      nodecov <- c(b1nodecov, b2nodecov)
     
-    cn <- paste("mix", paste(attrname,collapse="."), apply(matrix(namescov[as.matrix(u)],ncol=2),
-                                       1,paste,collapse="."), sep=".")
+      cn <- paste("mix", paste(attrname,collapse="."), apply(matrix(namescov[as.matrix(u)],ncol=2),
+                                         1,paste,collapse="."), sep=".")
                                        
-    ## the +1 for nrow and ncol are needed by the way we code non-included b1 and b2 levels above
-    indmat <- matrix(0L, nrow = nr + 1, ncol = nc + 1)
-    u[,2L] <- u[,2L] - nr
-    indmat[as.matrix(u)] <- seq_len(NROW(u))
-    indmat <- indmat - 1L
+      ## the +1 for nrow and ncol are needed by the way we code non-included b1 and b2 levels above
+      indmat <- matrix(0L, nrow = nr + 1, ncol = nc + 1)
+      u[,2L] <- u[,2L] - nr
+      indmat[as.matrix(u)] <- seq_len(NROW(u))
+      indmat <- indmat - 1L
+    } else {
+      levels2.sel <- which(!is.na(a$levels2))
+      rows2keep <- match(levels2.sel,levels2.list, NA)
+      rows2keep <- rows2keep[!is.na(rows2keep)]
+
+      u <- unique(as.vector(a$levels2[!is.na(a$levels2)]))
+      a$levels2[is.na(a$levels2)] <- ''
+
+      # Recode to numeric
+      b1nodecov <- match(b1nodecov,b1namescov,nomatch=length(b1namescov)+1)
+      b2nodecov <- match(b2nodecov,b2namescov,nomatch=length(b2namescov)+1)
+      nodecov <- c(b1nodecov, b2nodecov)
+
+      cn <- paste("mix", paste(attrname, collapse="."), u, sep=".")
+
+      ## the +1 for nrow and ncol are needed by the way we code non-included b1 and b2 levels above
+      indmat <- matrix(rowSums(sapply(1:length(u), function(i) (as.vector(a$levels2) == u[i]) * i)), nrow=nr)
+      indmat <- rbind(cbind(indmat, 0), 0) - 1L
+    }
   } else { # So one mode, but could be directed or undirected
     u <- ergm_attr_levels(a$levels, nodecov, nw, sort(unique(nodecov)))
     namescov <- u 
