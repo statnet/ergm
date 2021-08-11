@@ -64,6 +64,57 @@
 
 %% }
 
+\section{Changes in version 4.1.0}{
+
+  \subsection{NEW FEATURES}{
+    \itemize{
+      \item{
+        \code{\link{F}()} operator's filter formula can now be a simple logical or comparison expression.
+      }
+      \item{
+        \code{\link{Passthrough}()} operator now takes an optional boolean label= argument, which controls whether Passthrough~ will be prepended to the coefficient name; it defaults to \code{FALSE}.
+      }
+    }
+  }
+
+
+  \subsection{BUG FIXES}{
+    \itemize{
+      \item{
+        In \code{\link{summary.ergm}()} output, the \code{$coefficients} element is now a matrix rather than a dataframe. This fixes some issues with duplicate term names. Also, \code{$coefs} element is no longer attached.
+      }
+      \item{
+        \code{\link{check.ErgmTerm}()} no longer skips argument type check if the passed argument is \code{NULL}. For backwards compatibility, the check is skipped if the argument is optional \emph{and} the default value is \code{NULL}. A constant \code{ERGM_VATTR_SPEC_NULL} has been added for when \code{NULL} is a valid (but not default) input for nodal attribute specification.
+      }
+      \item{
+        A serious bug in calculation of geodesic distance distribution in \code{\link{gof.formula}()} has been fixed. (Thanks to Jeffrey Alan Smith (University of Nebraska at Lincoln) for reporting it.)
+      }
+      \item{
+        Documentation corrections, fixes, and clean-ups.
+      }
+      \item{
+        A number of memory leaks have been fixed.
+      }
+    }
+  }
+
+
+  \subsection{OTHER USER-VISIBLE CHANGES}{
+    \itemize{
+      \item{
+        API change: \code{\link{ergm_model}()} no longer sets an element \code{$coef.names}, and \code{offset()} decorator is set on each term's \code{coef.names}.
+      }
+      \item{
+        Miscellaneous improvements to the \code{BDStrat*} family of proposals.
+      }
+      \item{
+        In adaptive MCMC, burn-in detection now fits an exponential decay rather than a broken stick model.
+      }
+    }
+  }
+}
+
+
 \section{Changes in version 4.0.1}{
 
   \subsection{BUG FIXES}{
@@ -303,7 +354,7 @@
         Term initialization traceback printing has been robustified.
       }
       \item{
-        Term \code{\link{nodeisqrtcovar}} now initializes without error. Thanks to Yu-Lun Chen (NYU) for reporting the issue.
+        Term \code{\link{nodeisqrtcovar}} now initializes without error. (Thanks to Yu-Lun Chen (NYU) for reporting the issue.)
       }
       \item{
         The MPLE code has been robustified for some corner cases (e.g., a model with 0 free parameters).

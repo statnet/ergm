@@ -1,7 +1,7 @@
 ---
 title: "ERGM terms cross-reference"
 author: "statnet.org"
-date: "07/28/2014"
+date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteEngine{knitr::rmarkdown}
