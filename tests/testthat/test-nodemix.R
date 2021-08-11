@@ -386,3 +386,53 @@ expect_equal(stats[sort(unique(c(m_ind[b1levs,b2levs])))], ergm.godfather(nw ~ n
 expect_equal(stats[sort(unique(c(m_ind[b1levs,b2levs])))[levs2withblevs]], ergm.godfather(nw ~ nodemix("vattr", b1levels = b1levs, b2levels = b2levs, levels2 = levs2withblevs),changes=changes_godfather), ignore_attr = TRUE)
 
 })
+
+
+data(faux.mesa.high)
+fmh <- faux.mesa.high
+set.seed(7)
+set.edge.attribute(fmh, "GradeMet", rbinom(203, 6, .5))
+
+fmh.mm.Race <-
+  c(mix.Race.Black.Black = 0, mix.Race.Black.Hisp = 8,
+    mix.Race.Hisp.Hisp = 53, mix.Race.Black.NatAm = 13,
+    mix.Race.Hisp.NatAm = 41, mix.Race.NatAm.NatAm = 46,
+    mix.Race.Black.Other = 0, mix.Race.Hisp.Other = 1,
+    mix.Race.NatAm.Other = 0, mix.Race.Other.Other = 0,
+    mix.Race.Black.White = 5, mix.Race.Hisp.White = 22,
+    mix.Race.NatAm.White = 10, mix.Race.Other.White = 0,
+    mix.Race.White.White = 4)
+
+
+test_that("Undirected nodemix() summary with level2 filter by logical matrix", {
+  M <- matrix(TRUE, 5, 5)
+  M[1,1] <- M[3,2] <- M[2,3] <- FALSE
+  s.ab2 <- summary(fmh ~ nodemix("Race", levels2=M))
+  expect_equivalent(s.ab2, fmh.mm.Race[M[upper.tri(M, TRUE)]])
+})
+
+test_that("Undirected nodemix() summary with level2 filter by numeric matrix", {
+  M <- cbind(2,3)
+  s.ab2 <- summary(fmh ~ nodemix("Race", levels2=M))
+  expect_equivalent(s.ab2, fmh.mm.Race[5])
+})
+
+
+data(sampson)
+set.seed(42)
+set.edge.attribute(samplike, "YearsTrusted", rbinom(88, 4, .5))
+set.seed(296)
+set.vertex.attribute(samplike, "YearsServed", rbinom(18, 10, .5))
+samplike %v% "Trinity" <- c("F", "S", "H")
+
+samp.mm.Trinity <- c(
+  Trinity.F.F = 8, Trinity.H.F = 12, Trinity.S.F = 12,
+  Trinity.F.H = 8, Trinity.H.H = 5, Trinity.S.H = 9,
+  Trinity.F.S = 13, Trinity.H.S = 12, Trinity.S.S = 9)
+
+test_that("Directed nodemix() summary with level2 matrix filter", {
+  M <- matrix(FALSE, 3, 3)
+  M[1,2] <- M[1,3] <- TRUE
+  s.ab2 <- summary(samplike ~ nodemix("Trinity", levels2=M))
+  expect_equivalent(s.ab2, samp.mm.Trinity[c(M)])
+})
