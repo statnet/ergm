@@ -436,3 +436,30 @@ test_that("Directed nodemix() summary with level2 matrix filter", {
   s.ab2 <- summary(samplike ~ nodemix("Trinity", levels2=M))
   expect_equivalent(s.ab2, samp.mm.Trinity[c(M)])
 })
+
+test_that("Undirected nodemix() with level2 character matrix", {
+  M <- matrix(NA, 6, 6)
+  M[] <- letters[c(abs(row(M) - col(M)))+1]
+  M[lower.tri(M,TRUE)] <- NA
+  M[which(M == 'b')] <- 'g'
+
+  s <- summary(faux.mesa.high~nodemix("Grade", levels2=M))
+  expect_equal(s, c(mix.Grade.c=15, mix.Grade.d=7, mix.Grade.e=2, mix.Grade.f=1, mix.Grade.g=15))
+})
+
+test_that("Directed nodemix() with level2 character matrix", {
+  M <- matrix(NA, 6, 6)
+  M[] <- c(abs(row(M) - col(M)))+1
+  M[lower.tri(M, T)] <- M[lower.tri(M, T)]+6
+  M[] <- letters[M]
+
+  s <- summary(samplike~nodemix("Trinity", levels2=M))
+  expect_equal(s, c(mix.Trinity.b=22, mix.Trinity.c=12, mix.Trinity.d=12, mix.Trinity.e=12, mix.Trinity.f=9, mix.Trinity.g=8, mix.Trinity.h=5, mix.Trinity.i=0, mix.Trinity.j=8, mix.Trinity.k=0, mix.Trinity.l=0))
+})
+
+test_that("Bipartite nodemix() with level2 character matrix", {
+  M <- matrix(c('d', 'b', 'b', 'c'), 2, 2)
+
+  s <- summary(mynw~nodemix("names", levels2=M))
+  expect_equal(s, c(mix.names.b=13, mix.names.c=1, mix.names.d=9))
+})

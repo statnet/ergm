@@ -3451,7 +3451,7 @@ InitErgmTerm.nodemix<-function (nw, arglist, ..., version=packageVersion("ergm")
     levels2.list <- transpose(expand.grid(row = b1namescov, col = b2namescov, stringsAsFactors=FALSE))
     indices2.grid <- expand.grid(row = 1:nr, col = nr + 1:nc)
    
-    if (!hasName(attr(a,"missing"), "levels2") || attr(a,"missing")["levels2"] || !is.matrix(a$levels2)) {
+    if (!hasName(attr(a,"missing"), "levels2") || attr(a,"missing")["levels2"] || !is.matrix(a$levels2) || !is.character(a$levels2)) {
       levels2.sel <- if((!hasName(attr(a,"missing"), "levels2") || attr(a,"missing")["levels2"]) && any(NVL(a$base,0)!=0)) levels2.list[-a$base]
                    else ergm_attr_levels(a$levels2, list(row = b1nodecov, col = b2nodecov), nw, levels2.list)
     
@@ -3481,7 +3481,7 @@ InitErgmTerm.nodemix<-function (nw, arglist, ..., version=packageVersion("ergm")
       rows2keep <- match(levels2.sel,levels2.list, NA)
       rows2keep <- rows2keep[!is.na(rows2keep)]
 
-      u <- unique(as.vector(a$levels2[!is.na(a$levels2)]))
+      u <- sort(unique(as.vector(a$levels2[!is.na(a$levels2)])))
       a$levels2[is.na(a$levels2)] <- ''
 
       # Recode to numeric
@@ -3513,7 +3513,7 @@ InitErgmTerm.nodemix<-function (nw, arglist, ..., version=packageVersion("ergm")
         uun <- uun[rowleqcol]
     }    
    
-    if (!hasName(attr(a,"missing"), "levels2") || attr(a,"missing")["levels2"] || !is.matrix(a$levels2)) {
+    if (!hasName(attr(a,"missing"), "levels2") || attr(a,"missing")["levels2"] || !is.matrix(a$levels2) || !is.character(a$levels2)) {
       levels2.sel <- if ((!hasName(attr(a,"missing"), "levels2") || attr(a,"missing")["levels2"]) && any(NVL(a$base,0)!=0)) levels2.list[-a$base]
                      else ergm_attr_levels(a$levels2, list(row = nodecov, col = nodecov), nw, levels2.list)
       rows2keep <- match(levels2.sel,levels2.list, NA)
@@ -3534,7 +3534,7 @@ InitErgmTerm.nodemix<-function (nw, arglist, ..., version=packageVersion("ergm")
       rows2keep <- match(levels2.sel,levels2.list, NA)
       rows2keep <- rows2keep[!is.na(rows2keep)]
 
-      u <- unique(as.vector(a$levels2[!is.na(a$levels2)]))
+      u <- sort(unique(as.vector(a$levels2[!is.na(a$levels2)])))
       a$levels2[is.na(a$levels2)] <- ''
 
       indmat <- matrix(rowSums(sapply(1:length(u), function(i) (as.vector(a$levels2) == u[i]) * i)), nrow=nr)
