@@ -436,3 +436,73 @@ test_that("Directed nodemix() summary with level2 matrix filter", {
   s.ab2 <- summary(samplike ~ nodemix("Trinity", levels2=M))
   expect_equivalent(s.ab2, samp.mm.Trinity[c(M)])
 })
+
+test_that("Undirected nodemix() with level2 character matrix", {
+  M <- matrix(NA, 6, 6)
+  M[] <- letters[c(abs(row(M) - col(M)))+1]
+  M[lower.tri(M,TRUE)] <- NA
+  M[which(M == 'b')] <- 'g'
+
+  s <- summary(faux.mesa.high~nodemix("Grade", levels2=M))
+  expect_equal(s, c(mix.Grade.c=15, mix.Grade.d=7, mix.Grade.e=2, mix.Grade.f=1, mix.Grade.g=15))
+})
+
+test_that("Directed nodemix() with level2 character matrix", {
+  M <- matrix(NA, 3, 3)
+  M[] <- c(abs(row(M) - col(M)))+1
+  M[lower.tri(M, T)] <- M[lower.tri(M, T)]+3
+  M[] <- letters[M]
+
+  s <- summary(samplike~nodemix("Trinity", levels2=M))
+  expect_equal(s, c(mix.Trinity.b=20, mix.Trinity.c=13, mix.Trinity.d=22, mix.Trinity.e=21, mix.Trinity.f=12))
+})
+
+test_that("Bipartite nodemix() with levels2 character matrix", {
+  M <- matrix(c('d', 'b', 'b', 'c'), 2, 2)
+
+  s <- summary(mynw~nodemix("names", levels2=M))
+  expect_equal(s, c(mix.names.b=13, mix.names.c=1, mix.names.d=9))
+})
+
+test_that("Undirected nodemix() with levels2 character matrix with both grouped and ungrouped elements", {
+  M <- matrix(NA, 6, 6)
+  M[] <- letters[c(abs(row(M)-col(M)))+1]
+  M[lower.tri(M,TRUE)] <- NA
+  M[1,2] <- M[2,3] <- M[3,4] <- M[1,6] <- ""
+
+  s <- summary(faux.mesa.high~nodemix("Grade", levels2=M))
+
+  ## Expected output constructed as follows;
+  M[1,2] <- M[2,3] <- M[3,4] <- M[1,6] <- NA
+  grouped <- summary(faux.mesa.high~nodemix("Grade", levels2=M))
+  M <- matrix(FALSE, 6,6)
+  M[1,2] <- M[2,3] <- M[3,4] <- M[1,6] <- TRUE
+  ungrouped <- summary(faux.mesa.high~nodemix("Grade", levels2=M))
+  ref <- c(grouped, ungrouped)
+
+  expect_equal(s, ref)
+})
+
+test_that("Directed nodemix() with levels2 character matrix with both grouped and ungrouped elements", {
+  M <- matrix(c(
+    'a', 'b', 'c',
+    'd', '', 'b',
+    'c', 'd', ''), nrow=3, byrow=TRUE)
+  s <- summary(samplike~nodemix("Trinity", levels2=M))
+
+  M[which(M == '')] <- NA
+  grouped <- summary(samplike~nodemix("Trinity", levels2=M))
+  ungrouped <- summary(samplike~nodemix("Trinity", levels2=is.na(M)))
+  expect_equal(s, c(grouped, ungrouped))
+})
+
+test_that("Bipartite nodemix() with levels2 character matrix with both grouped and ungrouped elements", {
+  M <- matrix(c('', 'b', 'b', ''), 2, 2)
+
+  s <- summary(mynw~nodemix("names", levels2=M))
+
+  M[which(M == '')] <- NA
+  grouped <- summary(mynw~nodemix("names", levels2=M))
+  ungrouped <- summary(mynw~nodemix("names", levels2=is.na(M)))
+  expect_equal(s, c(grouped, ungrouped))
+})
