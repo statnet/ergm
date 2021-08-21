@@ -105,8 +105,15 @@ ergmTermCache <- local({
   checknew <- function() {
     loaded_packages <- .packages(TRUE)
     revdeps <- c("ergm", tools::dependsOnPkgs("ergm"))
-    db <- utils::hsearch_db(package=revdeps)$Base
-    term_packages <- unique(db$Package[grep(SUPPORTED_TERM_TYPE_REGEX, db$Topic)])
+
+    term_packages <- tryCatch({
+      db <- utils::hsearch_db(package=revdeps)$Base
+      unique(db$Package[grep(SUPPORTED_TERM_TYPE_REGEX, db$Topic)])
+    }, error = function(e) {
+      message("Error querying the list of term packages when indexing: ", sQuote(toString(e)), ";  skipping.")
+      character(0)
+    })
+
     for (pkg_name in intersect(loaded_packages, term_packages)) {
       if (!pkg_name %in% pkglist) {
         load(pkg_name)
