@@ -1,4 +1,4 @@
-#  File tests/miss_tests.CD.R in package ergm, part of the
+#  File tests/testthat/test-miss.CD.R in package ergm, part of the
 #  Statnet suite of packages for network analysis, https://statnet.org .
 #
 #  This software is distributed under the GPL-3 license.  It is free,
@@ -56,46 +56,51 @@ run.miss.test<-function(y){
   cd2OK<-all.equal(truth, coef(cd2fit), check.attributes=FALSE, tolerance=tolerance.CD)
   cat("CD2 estimate =", coef(cd2fit), if(isTRUE(cd2OK)) "OK" else cd2OK,"\n")
 
-  
+
   return(
-      ## isTRUE(cdOK) &&                   
+      ## isTRUE(cdOK) &&
       isTRUE(cd2OK))
 }
 
 # Directed
-cat("\n\nDirected Network\n")
-set.seed(123)
-y<-mk.missnet(n, d, m, TRUE, FALSE)
-stopifnot(run.miss.test(y))
+test_that("directed network", {
+  set.seed(123)
+  y<-mk.missnet(n, d, m, TRUE, FALSE)
+  expect_true(run.miss.test(y))
+})
 
 # Undirected
-cat("\n\nUndirected Network\n")
-set.seed(456)
-y<-mk.missnet(n, d, m, FALSE, FALSE)
-stopifnot(run.miss.test(y))  
+test_that("undirected network", {
+  set.seed(456)
+  y<-mk.missnet(n, d, m, FALSE, FALSE)
+  expect_true(run.miss.test(y))
+})
 
 # Bipartite Undirected
-cat("\n\nBipartite Undirected Network\n")
-set.seed(789)
-y<-mk.missnet(n, d, m, FALSE, b)
-stopifnot(run.miss.test(y))
+test_that("bipartite undirected network", {
+  set.seed(789)
+  y<-mk.missnet(n, d, m, FALSE, b)
+  expect_true(run.miss.test(y))
+})
 
 # Add the curved+missing test here for now
+test_that("curved+missing", {
+  set.seed(321)
+  n <- 50
+  y <- network.initialize(n, directed=FALSE) # Create an empty network
+  y <- simulate(y~edges, coef=logit(0.12), control=control.simulate(MCMC.burnin=2*n^2))
+  y.miss <- simulate(y~edges, coef=logit(0.01))
+  y[as.edgelist(y.miss)] <- NA
 
-set.seed(321)
-n <- 50
-y <- network.initialize(n, directed=FALSE) # Create an empty network
-y <- simulate(y~edges, coef=logit(0.12), control=control.simulate(MCMC.burnin=2*n^2))
-y.miss <- simulate(y~edges, coef=logit(0.01))
-y[as.edgelist(y.miss)] <- NA
+  cat("Network statistics:\n")
+  print(summary(y~edges+gwesp()))
+  truth<-correct.edges.theta(y)
+  cat("Correct estimate =",truth,"\n")
 
-cat("Network statistics:\n")
-print(summary(y~edges+gwesp()))
-truth<-correct.edges.theta(y)
-cat("Correct estimate =",truth,"\n")
+  set.seed(654)
+  cdfit<-ergm(y~edges+gwesp(), estimate="CD", control=control.ergm(CD.nsteps=50, MCMC.samplesize=100))
+  summary(cdfit)
+  expect_lt(abs(coef(cdfit)[1]-truth)/sqrt(cdfit$covar[1]), 2)
+})
 
-set.seed(654)
-cdfit<-ergm(y~edges+gwesp(), estimate="CD", control=control.ergm(CD.nsteps=50, MCMC.samplesize=100))
-summary(cdfit)
-stopifnot(abs(coef(cdfit)[1]-truth)/sqrt(cdfit$covar[1])<2)
 }, "CD missing data")

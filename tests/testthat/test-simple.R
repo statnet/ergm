@@ -1,4 +1,4 @@
-#  File tests/mple_offset.R in package ergm, part of the
+#  File tests/testthat/test-simple.R in package ergm, part of the
 #  Statnet suite of packages for network analysis, https://statnet.org .
 #
 #  This software is distributed under the GPL-3 license.  It is free,
@@ -7,18 +7,16 @@
 #
 #  Copyright 2003-2021 Statnet Commons
 ################################################################################
+# Simulate a network with a high number of nodes with outdegree=3 and a low number with indegree=3:
 library(statnet.common)
 opttest({
-library(ergm)
 
-set.seed(0)
+data(sampson)
 
-options(ergm.eval.loglik=FALSE)
-data(florentine)
-boo<-flomarriage
-boo[1:3,]<-0
-foo <- suppressWarnings(
-  ergm(flomarriage~edges+offset(edgecov(boo))+gwesp(0.25,fixed=T),offset.coef=20))
-if (max(abs(coef(foo)), na.rm=T) > 20) stop("MPLE + offset error")
+test_that("extreme outdegree and indegree simulation test", {
+  m <- simulate(samplike~odegree(3)+idegree(3), coef=c(100,-100))
+  s <- summary(m~odegree(3)+idegree(3))
+  expect_lt(diff(s), 0)
+})
 
-}, "MPLE + offset")
+}, "")

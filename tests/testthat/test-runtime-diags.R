@@ -9,10 +9,13 @@
 ################################################################################
 library(statnet.common)
 opttest({
-library(ergm)
+
 options(ergm.eval.loglik=FALSE)
 data(florentine)
 
-gest <- ergm(flomarriage ~ kstar(1:2) + absdiff("wealth") + triangle,
-             control=control.ergm(MCMC.runtime.traceplot=TRUE))
+test_that("runtime diagnostics", {
+  expect_error(ergm(flomarriage ~ kstar(1:2) + absdiff("wealth") + triangle,
+               control=control.ergm(MCMC.runtime.traceplot=TRUE)), NA)
+})
+
 }, "runtime diagnostics")
