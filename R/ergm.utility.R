@@ -55,7 +55,7 @@ is.ergm <- function(object)
 #' distribution (number of vertices in the network with each degree
 #' value) for a given network. This help page documents the
 #' function. For help about [the ERGM sample space constraint with
-#' that name][degreedist-constraint], try
+#' that name][degreedist-ergmConstraint], try
 #' `help("degreedist-constraint")`.
 #' 
 #' @param object a \code{network} object or some other object for

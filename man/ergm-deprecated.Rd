@@ -60,11 +60,11 @@ objects with \verb{$coef} elements in the wild is sufficiently low.
 \item \code{$.ergm}: accesses elements of \code{ergm} objects;
 needed for backwards compatibility when components get renamed.
 
-\item \code{InitErgmTerm.degreepopularity}: Use \code{\link{degree1.5}} instead.
+\item \code{InitErgmTerm.degreepopularity}: Use \code{\link[=degree1.5-ergmTerm]{degree1.5}} instead.
 
-\item \code{InitErgmTerm.idegreepopularity}: Use \code{\link{idegree1.5}} instead.
+\item \code{InitErgmTerm.idegreepopularity}: Use \code{\link[=idegree1.5-ergmTerm]{idegree1.5}} instead.
 
-\item \code{InitErgmTerm.odegreepopularity}: Use \code{\link{odegree1.5}} instead.
+\item \code{InitErgmTerm.odegreepopularity}: Use \code{\link[=odegree1.5-ergmTerm]{odegree1.5}} instead.
 
 \item \code{san.ergm}: The developers are not aware of a use case for this function. Please contact them if you would like to prevent its removal.
 

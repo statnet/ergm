@@ -274,6 +274,11 @@ jobs:
             check
             !check/*/00_pkg_src
 
+      - name: Preinstall package to test coverage
+        if: contains(matrix.config.flags, 'covr')
+        run: R CMD INSTALL .
+        shell: bash
+
       - name: Test coverage
         if: contains(matrix.config.flags, 'covr')
         timeout-minutes: ${{ matrix.config.timeout }}

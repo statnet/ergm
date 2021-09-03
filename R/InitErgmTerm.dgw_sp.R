@@ -136,7 +136,25 @@
 #the original behavior of esp/gwesp.  In the undirected case, the UTP
 #routine is used (since it is safe for undirected graphs), irrespective of
 #the user's selection.  UTP cannot be chosen otherwise, since it won't work.
-#
+
+#' @name desp-ergmTerm
+#' @title Directed edgewise shared partners
+#' @description Directed edgewise shared partners
+#' @details This term adds one network statistic to the model for each element in `d` where the \eqn{i} th such statistic equals the number of edges in the network with exactly `d[i]` shared partners.
+#'   
+#' @usage
+#' # binary: desp(d, type="OTP")
+#'
+#' @param d a vector of distinct integers
+#' @param type one of `c("OTP", "ITP", "RTP", "OSP", "ISP")`.
+#'
+#' @template ergmTerm-general
+#'
+#' @template ergmTerm-directed
+#'
+#' @template ergmTerm-sp-types
+#'
+#' @concept directed
 InitErgmTerm.desp<-function(nw, arglist, cache.sp=TRUE, ...) {
   a <- check.ErgmTerm(nw, arglist,
                       varnames = c("d","type"),
@@ -185,7 +203,29 @@ InitErgmTerm.desp<-function(nw, arglist, cache.sp=TRUE, ...) {
 #the original behavior of esp/gwesp.  In the undirected case, UTP is
 #always used (since it is directedness-safe), and the user's input is
 #overridden.  UTP cannot be chosen otherwise, since it won't work.
-#
+
+#' @name dgwesp-ergmTerm
+#' @title Geometrically weighted edgewise shared partner distribution
+#' @description Geometrically weighted edgewise shared partner distribution
+#' @details This term adds a statistic equal to the geometrically weighted edgewise (not dyadwise) shared partner distribution with decay parameter `decay` parameter.
+#'   
+#' @usage
+#' # binary: dgwesp(decay, fixed=FALSE, cutoff=30, type="OTP")
+#'
+#' @param decay Decay parameter to the model. This parameter was called `alpha` prior to `ergm 3.7` and should be non-negative.
+#' @param fixed optional argument indicating
+#'   whether the `decay` parameter is fixed at the given value, or is to be fit as a curved
+#'   exponential-family model (see Hunter and Handcock, 2006). The
+#'   default is `FALSE` , which means the scale parameter is not
+#'   fixed and thus the model is a CEF model. 
+#' @templateVar underlying ESP
+#' @template ergmTerm-gw-cutoff
+#' @param type one of `c("OTP", "ITP", "RTP", "OSP", "ISP")`.
+#' @template ergmTerm-general
+#'
+#' @template ergmTerm-sp-types
+#'
+#' @concept directed
 InitErgmTerm.dgwesp<-function(nw, arglist, cache.sp=TRUE, gw.cutoff=30, ...) {
   a <- check.ErgmTerm(nw, arglist,
                       varnames = c("decay","fixed","cutoff","type", "alpha"),
@@ -260,6 +300,25 @@ InitErgmTerm.dgwesp<-function(nw, arglist, cache.sp=TRUE, gw.cutoff=30, ...) {
 #routine is used (since it is safe for undirected graphs), irrespective of
 #the user's selection.  UTP cannot be chosen otherwise, since it won't work.
 #
+
+#' @name ddsp-ergmTerm
+#' @title Directed dyadwise shared partners
+#' @description Directed dyadwise shared partners
+#' @details This term adds one network statistic to the model for each element in `d` where the \eqn{i} th such statistic equals the number of dyads in the network with exactly `d[i]` shared partners.
+#'   
+#' @usage
+#' # binary: ddsp(d, type="OTP")
+#'
+#' @param d a vector of distinct integers
+#' @param type one of `c("OTP", "ITP", "RTP", "OSP", "ISP")`
+#'
+#' @template ergmTerm-general
+#'
+#' @template ergmTerm-directed
+#'
+#' @template ergmTerm-sp-types
+#'
+#' @concept directed
 InitErgmTerm.ddsp<-function(nw, arglist, cache.sp=TRUE, ...) {
   a <- check.ErgmTerm(nw, arglist,
                       varnames = c("d","type"),
@@ -304,6 +363,31 @@ InitErgmTerm.ddsp<-function(nw, arglist, cache.sp=TRUE, ...) {
 
 
 ################################################################################
+
+#' @name dgwdsp-ergmTerm
+#' @title Geometrically weighted dyadwise shared partner distribution
+#' @description Geometrically weighted dyadwise shared partner distribution
+#' @details This term adds one network statistic to the model equal to the geometrically weighted dyadwise shared partner distribution with decay parameter `decay` parameter.
+#'   
+#' @usage
+#' # binary: dgwdsp(decay, fixed=FALSE, cutoff=30, type="OTP")
+#' @param decay Decay parameter to the model. This parameter was called `alpha` prior to `ergm 3.7` and should be non-negative.
+#' @param fixed optional argument indicating
+#'   whether the `decay` parameter is fixed at the given value, or is to be fit as a curved
+#'   exponential-family model (see Hunter and Handcock, 2006). The
+#'   default is `FALSE` , which means the scale parameter is not
+#'   fixed and thus the model is a CEF model. 
+#' @templateVar underlying DSP
+#' @template ergmTerm-gw-cutoff
+#' @param type one of `c("OTP", "ITP", "RTP", "OSP", "ISP")`
+#'
+#' @template ergmTerm-general
+#'
+#' @template ergmTerm-sp-types
+#'
+#' @note The GWDSP statistic is equal to the sum of GWNSP plus GWESP.
+#'
+#' @concept directed
 InitErgmTerm.dgwdsp<-function(nw, arglist, cache.sp=TRUE, gw.cutoff=30, ...) {
   a <- check.ErgmTerm(nw, arglist,
                       varnames = c("decay","fixed","cutoff","type", "alpha"),
@@ -382,6 +466,25 @@ InitErgmTerm.dgwdsp<-function(nw, arglist, cache.sp=TRUE, gw.cutoff=30, ...) {
 #routine is used (since it is safe for undirected graphs), irrespective of
 #the user's selection.  UTP cannot be chosen otherwise, since it won't work.
 #
+
+#' @name dnsp-ergmTerm
+#' @title Directed non-edgewise shared partners
+#' @description Directed non-edgewise shared partners
+#' @details This term adds one network statistic to the model for each element in `d` where the \eqn{i} th such statistic equals the number of non-edges in the network with exactly `d[i]` shared partners.
+#'   
+#' @usage
+#' # binary: dnsp(d, type="OTP")
+#'
+#' @param d a vector of distinct integers
+#' @param type one of `c("OTP", "ITP", "RTP", "OSP", "ISP")`.
+#'
+#' @template ergmTerm-general
+#'
+#' @template ergmTerm-directed
+#'
+#' @template ergmTerm-sp-types
+#'
+#' @concept directed
 InitErgmTerm.dnsp<-function(nw, arglist, cache.sp=TRUE, ...) {
   a <- check.ErgmTerm(nw, arglist,
                       varnames = c("d","type"),
@@ -425,6 +528,29 @@ InitErgmTerm.dnsp<-function(nw, arglist, cache.sp=TRUE, ...) {
 
 
 ################################################################################
+
+#' @name dgwnsp-ergmTerm
+#' @title Geometrically weighted non-edgewise shared partner distribution
+#' @description Geometrically weighted non-edgewise shared partner distribution
+#' @details This term is just like gwesp and gwdsp except it adds a statistic equal to the geometrically weighted nonedgewise (that is, over dyads that do not have an edge) shared partner distribution with decay parameter `decay` parameter.
+#'   
+#' @usage
+#' # binary: dgwnsp(decay, fixed=FALSE, cutoff=30, type="OTP")
+##' @param decay Decay parameter to the model. This parameter was called `alpha` prior to `ergm 3.7` and should be non-negative.
+#' @param fixed optional argument indicating
+#'   whether the `decay` parameter is fixed at the given value, or is to be fit as a curved
+#'   exponential-family model (see Hunter and Handcock, 2006). The
+#'   default is `FALSE` , which means the scale parameter is not
+#'   fixed and thus the model is a CEF model. 
+#' @templateVar underlying NSP
+#' @template ergmTerm-gw-cutoff
+#' @param type one of `c("OTP", "ITP", "RTP", "OSP", "ISP")`
+#'
+#' @template ergmTerm-general
+#'
+#' @template ergmTerm-sp-types
+#'
+#' @concept directed
 InitErgmTerm.dgwnsp<-function(nw, arglist, cache.sp=TRUE, gw.cutoff=30, ...) {
   a <- check.ErgmTerm(nw, arglist,
                       varnames = c("decay","fixed","cutoff","type", "alpha"),

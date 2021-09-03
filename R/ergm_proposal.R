@@ -33,10 +33,10 @@
 #' 
 #' @param Class default to "c"
 #' @param Reference The reference measure used in the model. For the list of
-#' reference measures, see \code{\link{ergm-references}}
+#' reference measures, see \code{\link{ergmReference}}
 #'
 #' @param Constraints The constraints used in the model. For the list
-#'   of constraints, see \code{\link{ergm-constraints}}. They are
+#'   of constraints, see \code{\link{ergmConstraint}}. They are
 #'   specified as a single string of text, with each contrast prefixed
 #'   by either `&` for constraints that the proposal *always* enforces
 #'   or `|` for constraints that the proposal *can* enforce if needed.
@@ -121,7 +121,7 @@ prune.ergm_conlist <- function(conlist){
 #' 
 #' @aliases ergm_proposal.NULL ergm_proposal.ergm_proposal
 #' @param object Either a character, a \code{\link{formula}} or an
-#' \code{\link{ergm}} object.  The \code{\link{formula}} should be of the format documented in the `constraints` argument of [ergm()] and in the [ERGM constraints][ergm-constraints] documentation.
+#' \code{\link{ergm}} object.  The \code{\link{formula}} should be of the format documented in the `constraints` argument of [ergm()] and in the [ERGM constraints][ergmConstraint] documentation.
 #' @param \dots Further arguments passed to other functions.
 #' @return Returns an ergm_proposal object: a list with class `ergm_proposal`
 #' containing the following named elements:
@@ -395,7 +395,7 @@ ergm_reference.formula <- function(object, nw, ..., term.options=list()) {
 #' @param constraints A one-sided formula specifying one or more constraints on
 #' the support of the distribution of the networks being simulated. See the
 #' documentation for a similar argument for \code{\link{ergm}} and see
-#' [list of implemented constraints][ergm-constraints] for more information.
+#' [list of implemented constraints][ergmConstraint] for more information.
 #' @export
 ergm_proposal.formula <- function(object, arguments, nw, hints=trim_env(~sparse), ..., term.options=list()) {
   NVL(hints) <- trim_env(~sparse)

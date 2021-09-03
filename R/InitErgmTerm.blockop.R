@@ -10,6 +10,21 @@
 ## Creates a submodel that ignores any edges not within the
 ## blocks.
 
+#' @name NodematchFilter-ergmTerm
+#' @title Filtering on nodematch
+#' @description Filtering on nodematch
+#' @details Evaluates the terms specified in `formula` on a network
+#'   constructed by taking \eqn{y} and removing any edges for which
+#'   `attrname(i)!=attrname(j)` .
+#'
+#' @usage
+#' # binary: NodematchFilter(formula, attrname)
+#' @param formula formula to be evaluated
+#' @param attrname a character vector giving one or more names of attributes in the network's vertex attribute list.
+#'
+#' @template ergmTerm-general
+#'
+#' @concept operator
 InitErgmTerm.NodematchFilter <- function(nw, arglist, ...){
   a <- check.ErgmTerm(nw, arglist,
                       varnames = c("formula", "attrname"),

@@ -145,7 +145,7 @@
 #' using syntax similar to the \code{formula} argument, on the
 #' right-hand side. Multiple constraints
 #' may be given, separated by \dQuote{+} and \dQuote{-} operators. (See
-#' [ERGM constraints][ergm-constraints] for the explanation of
+#' [ERGM constraints][ergmConstraint] for the explanation of
 #' their semantics.)
 #' Together with the model terms in the formula and the reference measure, the constraints
 #' define the distribution of networks being modeled.
@@ -159,7 +159,7 @@
 #' 
 #' The default is \code{~.}, for an unconstrained model.
 #' 
-#' See the [ERGM constraints][ergm-constraints] documentation for
+#' See the [ERGM constraints][ergmConstraint] documentation for
 #' the constraints implemented in the **[ergm][ergm-package]**
 #' package. Other packages may add their own constraints.
 #' 
@@ -189,7 +189,7 @@
 #'   arguments to the proposal should be specified through the
 #'   \code{obs.prop.args} argument to \code{\link{control.ergm}}.
 #' 
-#'   See the [ERGM constraints][ergm-constraints] documentation for
+#'   See the [ERGM constraints][ergmConstraint] documentation for
 #'   the constraints implemented in the **[ergm][ergm-package]**
 #'   package. Other packages may add their own constraints.
 #'     
