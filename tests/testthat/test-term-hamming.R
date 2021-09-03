@@ -8,6 +8,8 @@
 #  Copyright 2003-2021 Statnet Commons
 ################################################################################
 
+local_edition(3)
+
 # Create test bipartite network (from SMG)
 gmat <- cbind(
 c(1, 1, 11, 13, 13, 16, 17, 18, 21, 21, 22, 24, 25, 26, 26, 28, 28,
@@ -115,29 +117,29 @@ test_that("hamming", {
   en <- matrix(0, 1006, 994)
   en[1,2:5] <- 1
   en <- as.network(en,bipartite=T)
-  expect_equal(summary(g~hamming(en)), 629, check.attributes=FALSE)
-  expect_equal(summary(en~hamming(g)), 629, check.attributes=FALSE)
+  expect_equal(summary(g~hamming(en)), 629, ignore_attr=TRUE)
+  expect_equal(summary(en~hamming(g)), 629, ignore_attr=TRUE)
 
   bn <- matrix(0, 1006, 994)
   bn <- as.network(bn,bipartite=T)
-  expect_equal(summary(g~hamming(bn)), 625, check.attributes=FALSE)
-  expect_equal(summary(bn~hamming(g)), 625, check.attributes=FALSE)
+  expect_equal(summary(g~hamming(bn)), 625, ignore_attr=TRUE)
+  expect_equal(summary(bn~hamming(g)), 625, ignore_attr=TRUE)
 
   sn <- matrix(0, 1006, 994)
   sn[1,2] <- 1
   sn <- as.network(sn,bipartite=T)
-  expect_equal(summary(g~hamming(sn)), 626, check.attributes=FALSE)
-  expect_equal(summary(sn~hamming(g)), 626, check.attributes=FALSE)
+  expect_equal(summary(g~hamming(sn)), 626, ignore_attr=TRUE)
+  expect_equal(summary(sn~hamming(g)), 626, ignore_attr=TRUE)
 
   sn %e% "weight3" <- 3
 
-  expect_equal(summary(g~hamming(en,cov=sn)), 1, check.attributes=FALSE)
-  expect_equal(summary(sn~hamming(g,cov=g)), 625, check.attributes=FALSE)
-  expect_equal(summary(sn~hamming(g,cov=sn)), 1, check.attributes=FALSE)
-  expect_equal(summary(sn~hamming(g,cov=en)), 1, check.attributes=FALSE)
+  expect_equal(summary(g~hamming(en,cov=sn)), 1, ignore_attr=TRUE)
+  expect_equal(summary(sn~hamming(g,cov=g)), 625, ignore_attr=TRUE)
+  expect_equal(summary(sn~hamming(g,cov=sn)), 1, ignore_attr=TRUE)
+  expect_equal(summary(sn~hamming(g,cov=en)), 1, ignore_attr=TRUE)
 
-  expect_equal(summary(g~hamming(en,cov=sn,attrname="weight3")), 3, check.attributes=FALSE)
-  expect_equal(summary(g~hamming(en,sn,"weight3")), 3, check.attributes=FALSE)
+  expect_equal(summary(g~hamming(en,cov=sn,attrname="weight3")), 3, ignore_attr=TRUE)
+  expect_equal(summary(g~hamming(en,sn,"weight3")), 3, ignore_attr=TRUE)
 
   net1 <- matrix(0,5,5)
   net2 <- matrix(0,5,5)
@@ -151,5 +153,5 @@ test_that("hamming", {
   net2[2,5] <- 1
   net1 <- network(net1, directed=T)
   net2 <- network(net2, directed=T)
-  expect_equal(summary(net1~hamming(net2)), 2, check.attributes=FALSE)
+  expect_equal(summary(net1~hamming(net2)), 2, ignore_attr=TRUE)
 })

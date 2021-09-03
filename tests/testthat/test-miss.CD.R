@@ -7,6 +7,8 @@
 #
 #  Copyright 2003-2021 Statnet Commons
 ################################################################################
+local_edition(3)
+
 library(statnet.common)
 opttest({
 library(ergm)
@@ -49,11 +51,11 @@ run.miss.test<-function(y){
 
   ### Needs more work.
   ## cdfit<-ergm(y~edges, estimate="CD")
-  ## cdOK<-all.equal(truth, coef(cdfit), check.attributes=FALSE, tolerance=tolerance.CD)
+  ## cdOK<-all.equal(truth, coef(cdfit), ignore_attr=TRUE, tolerance=tolerance.CD)
   ## cat("CD estimate =", coef(cdfit), if(isTRUE(cdOK)) "OK" else cdOK,"\n")
 
   cd2fit<-ergm(y~edges, control=control.ergm(CD.nsteps=50, MCMC.samplesize=100), estimate="CD")
-  cd2OK<-all.equal(truth, coef(cd2fit), check.attributes=FALSE, tolerance=tolerance.CD)
+  cd2OK<-all.equal(truth, coef(cd2fit), ignore_attr=TRUE, tolerance=tolerance.CD)
   cat("CD2 estimate =", coef(cd2fit), if(isTRUE(cd2OK)) "OK" else cd2OK,"\n")
 
 

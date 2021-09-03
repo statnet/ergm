@@ -1,4 +1,4 @@
-#  File tests/gw_sp_tests.R in package ergm, part of the
+#  File tests/testthat/test-gw-sp.R in package ergm, part of the
 #  Statnet suite of packages for network analysis, https://statnet.org .
 #
 #  This software is distributed under the GPL-3 license.  It is free,
@@ -7,6 +7,8 @@
 #
 #  Copyright 2003-2021 Statnet Commons
 ################################################################################
+
+local_edition(3)
 
 niter <- 20
 
@@ -23,16 +25,16 @@ run.tests <- function(cache.sp){
     # testing on a larger network (comparing with functions in the ergm package)
     net <- faux.dixon.high
 
-    expect_equal(summary(cache.sp=cache.sp,net ~ dgwdsp(fixed=F, type='OTP'))[1:5], c(4871, 1077, 228, 53, 17), check.attributes=FALSE) # DSP OTP count
+    expect_equal(summary(cache.sp=cache.sp,net ~ dgwdsp(fixed=F, type='OTP'))[1:5], c(4871, 1077, 228, 53, 17), ignore_attr=TRUE) # DSP OTP count
     test.approx(summary(cache.sp=cache.sp,net ~ dgwdsp(fixed=T, type='OTP', decay=0.1)), 6379.609, tol=1e-3) # GWDSP summary
     test.approx(coef(ergm(control=ctrl,net ~ edges + dgwdsp(fixed=T, decay=0.1, type="OTP"), estimate = "MPLE"))[2], 0.006467) # MPLE estimate on larger nw
 
     # OTP and ITP are the same for dyadwise SP
-    expect_equal(summary(cache.sp=cache.sp,net ~ ddsp(type="OTP", d=2)), 1077, check.attributes=FALSE) # ddsp OTP count error
-    expect_equal(summary(cache.sp=cache.sp,net ~ ddsp(type="ITP", d=2)), 1077, check.attributes=FALSE) # ddsp ITP count error
-    expect_equal(summary(cache.sp=cache.sp,net ~ ddsp(type="OSP", d=2)), 948, check.attributes=FALSE) # ddsp OSP count error
-    expect_equal(summary(cache.sp=cache.sp,net ~ ddsp(type="ISP", d=2)), 1132, check.attributes=FALSE) # ddsp ISP count error
-    expect_equal(summary(cache.sp=cache.sp,net ~ ddsp(type="RTP", d=1:2)), c(1096,96), check.attributes=FALSE) # ddsp RTP count error
+    expect_equal(summary(cache.sp=cache.sp,net ~ ddsp(type="OTP", d=2)), 1077, ignore_attr=TRUE) # ddsp OTP count error
+    expect_equal(summary(cache.sp=cache.sp,net ~ ddsp(type="ITP", d=2)), 1077, ignore_attr=TRUE) # ddsp ITP count error
+    expect_equal(summary(cache.sp=cache.sp,net ~ ddsp(type="OSP", d=2)), 948, ignore_attr=TRUE) # ddsp OSP count error
+    expect_equal(summary(cache.sp=cache.sp,net ~ ddsp(type="ISP", d=2)), 1132, ignore_attr=TRUE) # ddsp ISP count error
+    expect_equal(summary(cache.sp=cache.sp,net ~ ddsp(type="RTP", d=1:2)), c(1096,96), ignore_attr=TRUE) # ddsp RTP count error
   })
 
   test_that(paste0("GWDSP OTP test with shared partner cache ", if(cache.sp)"enabled"else"disabled"), {
@@ -44,7 +46,7 @@ run.tests <- function(cache.sp){
 
     for (i in 1:niter) {
       (espcounts <- summary(cache.sp=cache.sp,net ~ dgwdsp(fixed=F, type="OTP")) )
-      expect_equal(espcounts[1:4], c(4,1,0,0), check.attributes=FALSE) # DSP OTP mis-count
+      expect_equal(espcounts[1:4], c(4,1,0,0), ignore_attr=TRUE) # DSP OTP mis-count
     }
     # espcounts
 
@@ -62,7 +64,7 @@ run.tests <- function(cache.sp){
 
     for (i in 1:niter) {
       (espcounts <- summary(cache.sp=cache.sp,net ~ dgwdsp(fixed=F, type="ITP")) )
-      expect_equal(espcounts[1:4], c(4,1,0,0), check.attributes=FALSE) # DSP ITP mis-count
+      expect_equal(espcounts[1:4], c(4,1,0,0), ignore_attr=TRUE) # DSP ITP mis-count
     }
     espcounts
 
@@ -80,7 +82,7 @@ run.tests <- function(cache.sp){
 
     for (i in 1:niter) {
       (espcounts <- summary(cache.sp=cache.sp,net ~ dgwdsp(fixed=F, type="OSP")) )
-      expect_equal(espcounts[1:4], c(4,2,0,0), check.attributes=FALSE) # DSP_OSP mis-count
+      expect_equal(espcounts[1:4], c(4,2,0,0), ignore_attr=TRUE) # DSP_OSP mis-count
     }
     espcounts
 
@@ -98,7 +100,7 @@ run.tests <- function(cache.sp){
 
     for (i in 1:niter) {
       (espcounts <- summary(cache.sp=cache.sp,net ~ dgwdsp(fixed=F, type="ISP")) )
-      expect_equal(espcounts[1:4], c(4,2,0,0), check.attributes=FALSE) # DSP ISP mis-count
+      expect_equal(espcounts[1:4], c(4,2,0,0), ignore_attr=TRUE) # DSP ISP mis-count
     }
     espcounts
 
@@ -112,14 +114,14 @@ run.tests <- function(cache.sp){
   test_that(paste0("ESP with shared partner cache ", if(cache.sp)"enabled"else"disabled"), {
     # testing on a larger network (comparing with functions in the ergm package)
     net <- faux.dixon.high
-    expect_equal(summary(cache.sp=cache.sp,net ~ dgwesp(fixed=F, type='OTP'))[1:5], c(516, 222, 65, 21, 3), check.attributes=FALSE) # ESP OTP count
+    expect_equal(summary(cache.sp=cache.sp,net ~ dgwesp(fixed=F, type='OTP'))[1:5], c(516, 222, 65, 21, 3), ignore_attr=TRUE) # ESP OTP count
     test.approx(summary(cache.sp=cache.sp,net ~ dgwesp(fixed=T, type='OTP', decay=0.1)), 857.4225, tol=1e-3) # GWESP summary
     test.approx(coef(ergm(control=ctrl,net ~ edges + dgwesp(fixed=T, decay=0.1, type="OTP"), estimate = "MPLE"))[2], 1.807995) # MPLE estimate on larger nw
 
-    expect_equal(summary(cache.sp=cache.sp,net ~ desp(type="OTP", d=2)), 222, check.attributes=FALSE) # desp OTP count error
-    expect_equal(summary(cache.sp=cache.sp,net ~ desp(type="ITP", d=2)), 185, check.attributes=FALSE) # desp ITP count error
-    expect_equal(summary(cache.sp=cache.sp,net ~ desp(type="OSP", d=2)), 215, check.attributes=FALSE) # desp OSP count error
-    expect_equal(summary(cache.sp=cache.sp,net ~ desp(type="ISP", d=2)), 228, check.attributes=FALSE) # desp ISP count error
+    expect_equal(summary(cache.sp=cache.sp,net ~ desp(type="OTP", d=2)), 222, ignore_attr=TRUE) # desp OTP count error
+    expect_equal(summary(cache.sp=cache.sp,net ~ desp(type="ITP", d=2)), 185, ignore_attr=TRUE) # desp ITP count error
+    expect_equal(summary(cache.sp=cache.sp,net ~ desp(type="OSP", d=2)), 215, ignore_attr=TRUE) # desp OSP count error
+    expect_equal(summary(cache.sp=cache.sp,net ~ desp(type="ISP", d=2)), 228, ignore_attr=TRUE) # desp ISP count error
   })
 
   test_that(paste0("GWESP OTP test with shared partner cache ", if(cache.sp)"enabled"else"disabled"), {
@@ -131,7 +133,7 @@ run.tests <- function(cache.sp){
 
     for (i in 1:niter) {
       (espcounts <- summary(cache.sp=cache.sp,net ~ dgwesp(fixed=F, type="OTP")) )
-      expect_equal(espcounts[1:4], c(1,1,0,0), check.attributes=FALSE) # ESP OTP mis-count
+      expect_equal(espcounts[1:4], c(1,1,0,0), ignore_attr=TRUE) # ESP OTP mis-count
     }
     espcounts
 
@@ -149,7 +151,7 @@ run.tests <- function(cache.sp){
 
     for (i in 1:niter) {
       (espcounts <- summary(cache.sp=cache.sp,net ~ dgwesp(fixed=F, type="ITP")) )
-      expect_equal(espcounts[1:4], c(7,1,0,0), check.attributes=FALSE) # ESP ITP mis-count
+      expect_equal(espcounts[1:4], c(7,1,0,0), ignore_attr=TRUE) # ESP ITP mis-count
     }
     espcounts
 
@@ -167,7 +169,7 @@ run.tests <- function(cache.sp){
 
     for (i in 1:niter) {
       (espcounts <- summary(cache.sp=cache.sp,net ~ dgwesp(fixed=F, type="OSP")) )
-      expect_equal(espcounts[1:4], c(1,1,0,0), check.attributes=FALSE) # ESP_OSP mis-count
+      expect_equal(espcounts[1:4], c(1,1,0,0), ignore_attr=TRUE) # ESP_OSP mis-count
     }
     espcounts
 
@@ -185,7 +187,7 @@ run.tests <- function(cache.sp){
 
     for (i in 1:niter) {
       (espcounts <- summary(cache.sp=cache.sp,net ~ dgwesp(fixed=F, type="ISP")) )
-      expect_equal(espcounts[1:4], c(1,1,0,0), check.attributes=FALSE) # ESP ISP mis-count
+      expect_equal(espcounts[1:4], c(1,1,0,0), ignore_attr=TRUE) # ESP ISP mis-count
     }
     espcounts
 
@@ -200,16 +202,16 @@ run.tests <- function(cache.sp){
     # testing on a larger network (comparing with functions in the ergm package)
     net <- faux.dixon.high
 
-    expect_equal(summary(cache.sp=cache.sp,net ~ dgwnsp(fixed=F, type='OTP'))[1:5], c(4355, 855,163,32,14), check.attributes=FALSE) # NSP OTP count
+    expect_equal(summary(cache.sp=cache.sp,net ~ dgwnsp(fixed=F, type='OTP'))[1:5], c(4355, 855,163,32,14), ignore_attr=TRUE) # NSP OTP count
     test.approx(summary(cache.sp=cache.sp,net ~ dgwnsp(fixed=T, type='OTP', decay=0.1)), 5522.186 , tol=1e-3) # GWNSP summary
     test.approx(coef(ergm(control=ctrl,net ~ edges + dgwnsp(fixed=T, decay=0.1, type="OTP"), estimate = "MPLE"))[2], -0.07421213) # MPLE estimate on larger nw
 
     test.approx(summary(cache.sp=cache.sp,net ~ dgwdsp(fixed=T, type='OTP', decay=0.1)), summary(cache.sp=cache.sp,net ~ dgwesp(fixed=T, type='OTP', decay=0.1)) + summary(cache.sp=cache.sp,net ~ dgwnsp(fixed=T, type='OTP', decay=0.1))) # GWDSP should equal GWESP + GWNSP
 
-    expect_equal(summary(cache.sp=cache.sp,net ~ dnsp(type="OTP", d=2)), 855, check.attributes=FALSE) # dnsp OTP count error
-    expect_equal(summary(cache.sp=cache.sp,net ~ dnsp(type="ITP", d=2)), 892, check.attributes=FALSE) # dnsp ITP count error
-    expect_equal(summary(cache.sp=cache.sp,net ~ dnsp(type="OSP", d=2)), 733, check.attributes=FALSE) # dnsp OSP count error
-    expect_equal(summary(cache.sp=cache.sp,net ~ dnsp(type="ISP", d=2)), 904, check.attributes=FALSE) # dnsp ISP count error
+    expect_equal(summary(cache.sp=cache.sp,net ~ dnsp(type="OTP", d=2)), 855, ignore_attr=TRUE) # dnsp OTP count error
+    expect_equal(summary(cache.sp=cache.sp,net ~ dnsp(type="ITP", d=2)), 892, ignore_attr=TRUE) # dnsp ITP count error
+    expect_equal(summary(cache.sp=cache.sp,net ~ dnsp(type="OSP", d=2)), 733, ignore_attr=TRUE) # dnsp OSP count error
+    expect_equal(summary(cache.sp=cache.sp,net ~ dnsp(type="ISP", d=2)), 904, ignore_attr=TRUE) # dnsp ISP count error
   })
 
   test_that(paste0("GWNSP OTP test with shared partner cache ", if(cache.sp)"enabled"else"disabled"), {
@@ -221,7 +223,7 @@ run.tests <- function(cache.sp){
 
     for (i in 1:niter) {
       (espcounts <- summary(cache.sp=cache.sp,net ~ dgwnsp(fixed=F, type="OTP")) )
-      expect_equal(espcounts[1:4], c(3,1,0,0), check.attributes=FALSE) # NSP OTP mis-count
+      expect_equal(espcounts[1:4], c(3,1,0,0), ignore_attr=TRUE) # NSP OTP mis-count
     }
     espcounts
 
@@ -239,7 +241,7 @@ run.tests <- function(cache.sp){
 
     for (i in 1:niter) {
       (espcounts <- summary(cache.sp=cache.sp,net ~ dgwnsp(fixed=F, type="ITP")) )
-      expect_equal(espcounts[1:4], c(1,1,0,0), check.attributes=FALSE) # NSP ITP mis-count
+      expect_equal(espcounts[1:4], c(1,1,0,0), ignore_attr=TRUE) # NSP ITP mis-count
     }
     espcounts
 
@@ -257,7 +259,7 @@ run.tests <- function(cache.sp){
 
     for (i in 1:niter) {
       (espcounts <- summary(cache.sp=cache.sp,net ~ dgwnsp(fixed=F, type="OSP")) )
-      expect_equal(espcounts[1:4], c(3,2,0,0), check.attributes=FALSE) # NSP_OSP mis-count
+      expect_equal(espcounts[1:4], c(3,2,0,0), ignore_attr=TRUE) # NSP_OSP mis-count
     }
     espcounts
 
@@ -275,7 +277,7 @@ run.tests <- function(cache.sp){
 
     for (i in 1:niter) {
       (espcounts <- summary(cache.sp=cache.sp,net ~ dgwnsp(fixed=F, type="ISP")) )
-      expect_equal(espcounts[1:4], c(3,2,0,0), check.attributes=FALSE) # NSP ISP mis-count
+      expect_equal(espcounts[1:4], c(3,2,0,0), ignore_attr=TRUE) # NSP ISP mis-count
     }
     espcounts
 
@@ -287,7 +289,7 @@ run.tests <- function(cache.sp){
   test_that(paste0("DSP Undirect tests ", if(cache.sp)"enabled"else"disabled"), {
     net <- faux.mesa.high
 
-    expect_equal(summary(cache.sp=cache.sp,net ~ dgwdsp(fixed=F)), summary(cache.sp=cache.sp,net ~ gwdsp(fixed=F)), check.attributes=FALSE) # DSP OTP count
+    expect_equal(summary(cache.sp=cache.sp,net ~ dgwdsp(fixed=F)), summary(cache.sp=cache.sp,net ~ gwdsp(fixed=F)), ignore_attr=TRUE) # DSP OTP count
     test.approx(summary(cache.sp=cache.sp,net ~ dgwdsp(fixed=T, decay=0.1)), summary(cache.sp=cache.sp,net ~ gwdsp(fixed=T, decay=0.1)), tol=1e-3) # GWDSP summary
 
     test.approx(coef(ergm(control=ctrl,net ~ edges + dgwdsp(fixed=T, decay=0.1), estimate = "MPLE"))[2], coef(ergm(control=ctrl,net ~ edges + gwdsp(fixed=T, decay=0.1), estimate = "MPLE"))[2]) # MPLE estimate on larger nw

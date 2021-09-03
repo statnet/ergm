@@ -7,6 +7,7 @@
 #
 #  Copyright 2003-2021 Statnet Commons
 ################################################################################
+local_edition(3)
 
 n <- 4
 
@@ -18,14 +19,14 @@ test_that("Private storage, auxiliaries, and auxiliaries of auxiliaries", {
 
   s <- summary(nw~edges+test.abs.edges.minus.5+test.abs.edges.minus.5(FALSE)+sociomatrix+discord.sociomatrix+discord.inter.union.net(nw, implementation="Network"))
   expect_true(all(abs(s[1]-5)==s[2]) && all(abs(s[1]-5)==s[3]))
-  expect_equal(s[3+seq_len(n^2)], c(as.matrix(nw)))
-  expect_equal(s[3+n^2+seq_len(n^2)], 0)
+  expect_equal(s[3+seq_len(n^2)], c(as.matrix(nw)), ignore_attr=TRUE)
+  expect_true(all(s[3+n^2+seq_len(n^2)]==0))
   sim <- simulate(nw~edges,monitor=~test.abs.edges.minus.5+test.abs.edges.minus.5(FALSE)+sociomatrix+discord.sociomatrix+discord.inter.union.net(nw, implementation="Network"), coef=0, nsim=20, control=control.simulate.formula(MCMC.burnin=0,MCMC.interval=1))
   s <- attr(sim, "stats")
   expect_true(all(abs(s[,1]-5)==s[,2]) && all(abs(s[,1]-5)==s[,3]))
   sim.dyads <- t(sapply(lapply(sim, as.matrix), c))
-  expect_equal(sim.dyads, s[,3+seq_len(n^2)])
-  expect_equal(t(t(sim.dyads)!=c(as.matrix(nw))), s[,3+n^2+seq_len(n^2)])
+  expect_equal(sim.dyads, s[,3+seq_len(n^2)], ignore_attr=TRUE)
+  expect_true(all(t(t(sim.dyads)!=c(as.matrix(nw)))==s[,3+n^2+seq_len(n^2)]))
 })
 
 test_that("Multiple auxiliaries in one term", {
@@ -34,22 +35,22 @@ test_that("Multiple auxiliaries in one term", {
   floempty[,] <- 0
 
   sim <- simulate(flomarriage~edges,monitor=~discord.inter.union.net(floempty, implementation="Network"), coef=0, nsim=100, control=control.simulate.formula(MCMC.burnin=0,MCMC.interval=1), output="stats")
-  expect_equal(sim[,2:4]^2-sim[,5:7], 0)
+  expect_true(all(sim[,2:4]^2-sim[,5:7]==0))
 
   sim <- simulate(flomarriage~edges,monitor=~discord.inter.union.net(flomarriage, implementation="Network"), coef=0, nsim=100, control=control.simulate.formula(MCMC.burnin=0,MCMC.interval=1), output="stats")
-  expect_equal(sim[,2:4]^2-sim[,5:7], 0)
+  expect_true(all(sim[,2:4]^2-sim[,5:7]==0))
 
   sim <- simulate(flomarriage~edges,monitor=~discord.inter.union.net(flobusiness, implementation="Network"), coef=0, nsim=100, control=control.simulate.formula(MCMC.burnin=0,MCMC.interval=1), output="stats")
-  expect_equal(sim[,2:4]^2-sim[,5:7], 0)
+  expect_true(all(sim[,2:4]^2-sim[,5:7]==0))
 
   sim <- simulate(flomarriage~edges,monitor=~discord.inter.union.net(floempty, implementation="DyadSet"), coef=0, nsim=100, control=control.simulate.formula(MCMC.burnin=0,MCMC.interval=1), output="stats")
-  expect_equal(sim[,2:4]^2-sim[,5:7], 0)
+  expect_true(all(sim[,2:4]^2-sim[,5:7]==0))
 
   sim <- simulate(flomarriage~edges,monitor=~discord.inter.union.net(flomarriage, implementation="DyadSet"), coef=0, nsim=100, control=control.simulate.formula(MCMC.burnin=0,MCMC.interval=1), output="stats")
-  expect_equal(sim[,2:4]^2-sim[,5:7], 0)
+  expect_true(all(sim[,2:4]^2-sim[,5:7]==0))
 
   sim <- simulate(flomarriage~edges,monitor=~discord.inter.union.net(flobusiness, implementation="DyadSet"), coef=0, nsim=100, control=control.simulate.formula(MCMC.burnin=0,MCMC.interval=1), output="stats")
-  expect_equal(sim[,2:4]^2-sim[,5:7], 0)
+  expect_true(all(sim[,2:4]^2-sim[,5:7]==0))
 })
 
 test_that("multiple auxiliaries in one term: multiplicitous proposal", {
@@ -58,13 +59,13 @@ test_that("multiple auxiliaries in one term: multiplicitous proposal", {
   floempty[,] <- 0
 
   sim <- simulate(flomarriage~edges,monitor=~discord.inter.union.net(floempty), coef=0, nsim=100, control=control.simulate.formula(MCMC.burnin=0,MCMC.interval=1), output="stats", constraints=~degrees)
-  expect_equal(sim[,2:4]^2-sim[,5:7], 0)
+  expect_true(all(sim[,2:4]^2-sim[,5:7]==0))
 
   sim <- simulate(flomarriage~edges,monitor=~discord.inter.union.net(flomarriage), coef=0, nsim=100, control=control.simulate.formula(MCMC.burnin=0,MCMC.interval=1), output="stats", constraints=~degrees)
-  expect_equal(sim[,2:4]^2-sim[,5:7], 0)
+  expect_true(all(sim[,2:4]^2-sim[,5:7]==0))
 
   sim <- simulate(flomarriage~edges,monitor=~discord.inter.union.net(flobusiness), coef=0, nsim=100, control=control.simulate.formula(MCMC.burnin=0,MCMC.interval=1), output="stats", constraints=~degrees)
-  expect_equal(sim[,2:4]^2-sim[,5:7], 0)
+  expect_true(all(sim[,2:4]^2-sim[,5:7]==0))
 })
 
 test_that("Multiplicitous proposal", {
@@ -78,5 +79,5 @@ test_that("Multiplicitous proposal", {
   s <- attr(sim, "stats")
   expect_true(all(abs(s[,1]-5)==s[,2]) && all(abs(s[,1]-5)==s[,3]) && all(abs(s[,1]-5)==s[,4]))
   sim.dyads <- t(sapply(lapply(sim, as.matrix, attrname="v"), c))
-  expect_equal(sim.dyads, s[,-(1:4)])
+  expect_true(all(sim.dyads==s[,-(1:4)]))
 })

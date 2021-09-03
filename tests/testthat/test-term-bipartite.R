@@ -7,10 +7,11 @@
 #
 #  Copyright 2003-2021 Statnet Commons
 ################################################################################
+local_edition(3)
 
 expect_summary <- function(s, e, value, coefficients, tolerance=0.001) {
-  expect_equal(s, value, tolerance=tolerance, check.attributes=FALSE)
-  expect_equal(coef(e), coefficients, tolerance=tolerance, check.attributes=FALSE)
+  expect_equal(s, value, tolerance=tolerance, ignore_attr=TRUE)
+  expect_equal(coef(e)[1:length(coefficients)], coefficients, tolerance=tolerance, ignore_attr=TRUE)
 }
 
 # a bipartite nw
@@ -49,7 +50,7 @@ test_that("b1cov, bipartite, undirected", {
   e.a <- ergm(bipnw~b1cov(~Cost), estimate="MPLE")
   s.at <- summary(bipnw~b1cov(~poly(Cost,2,raw=TRUE)))
   expect_summary(s.a, e.a, 121, -2.212)
-  expect_equal(s.at, c(121, 283), check.attributes=FALSE)
+  expect_equal(s.at, c(121, 283), ignore_attr=TRUE)
 })
 
 test_that("b1degrange, bipartite, undirected", {
@@ -159,7 +160,7 @@ test_that("b2cov, bipartite, undirected", {
   e.a <- ergm(bipnw~b2cov(~Cost), estimate="MPLE")
   s.at <- summary(bipnw~b2cov(~poly(Cost,2,raw=TRUE)))
   expect_summary(s.a, e.a, c(129), -c(2.191))
-  expect_equal(s.at, c(129,317), check.attributes=FALSE)
+  expect_equal(s.at, c(129,317), ignore_attr=TRUE)
 })
 
 test_that("b2degrange, bipartite, undirected", {
@@ -269,9 +270,9 @@ test_that("gwb1degree, bipartite", {
   e.da <- ergm(bipnw~gwb1degree(.1, attr=function(x) x %v% "Letter", fixed=TRUE), estimate="MPLE")
   s.dfa <- summary(bipnw~gwb1degree(.1, TRUE, ~Letter))
   e.dfa <- ergm(bipnw~gwb1degree(.1, TRUE, "Letter"), estimate="MPLE")
-  expect_equal(coef(e.d), -6.979, tolerance=0.001, check.attributes=FALSE)
+  expect_equal(coef(e.d), -6.979, tolerance=0.001, ignore_attr=TRUE)
   expect_summary(s.df, e.df, 45.4137, -8.057)
-  expect_equal(coef(e.da), -c(6.729, 6.762, 6.418), check.attributes=FALSE, tolerance=0.001)
+  expect_equal(coef(e.da), -c(6.729, 6.762, 6.418), ignore_attr=TRUE, tolerance=0.001)
   expect_summary(s.dfa, e.dfa, c(13.39962, 13.49479, 16.28549), -c(6.729, 6.762, 6.418))
 })
 
@@ -283,8 +284,8 @@ test_that("gwb1dsp, bipartite", {
   s.d3 <- summary(bipnw~gwb1dsp(.3, TRUE, 1))
   e.d3 <- ergm(bipnw~gwb1dsp(.3, TRUE, 1), estimate="MPLE")
 
-  expect_equal(s.d0, c(49,1,rep(0,27)), check.attributes=FALSE)
-  expect_equal(s.d1, c(49,1,rep(0,27)), check.attributes=FALSE)
+  expect_equal(s.d0, c(49,1,rep(0,27)), ignore_attr=TRUE)
+  expect_equal(s.d1, c(49,1,rep(0,27)), ignore_attr=TRUE)
   expect_summary(s.d2, e.d2, 50.25918, -2.105815)
   expect_summary(s.d3, e.d3, 49, -2.072566)
 })
@@ -298,10 +299,10 @@ test_that("gwb2degree, bipartite", {
   e.da <- ergm(bipnw~gwb2degree(.1, attr=function(x) x %v% "Letter", fixed=TRUE), estimate="MPLE")
   s.dfa <- summary(bipnw~gwb2degree(.1, TRUE, ~Letter))
   e.dfa <- ergm(bipnw~gwb2degree(.1, TRUE, "Letter"), estimate="MPLE")
-  expect_equal(summary(bipnw~gwb2degree()), summary(bipnw~b2degree(1:30)), check.attributes=FALSE)
-  expect_equal(coef(e.d), -25.99385, tolerance=0.001, check.attributes=FALSE)
+  expect_equal(summary(bipnw~gwb2degree()), summary(bipnw~b2degree(1:30)), ignore_attr=TRUE)
+  expect_equal(coef(e.d), -25.99385, tolerance=0.001, ignore_attr=TRUE)
   expect_summary(s.df, e.df, 31.97479, -32.78813)
-  expect_equal(coef(e.da), -c(33.82191, 24.76756, 34.28992), check.attributes=FALSE, tolerance=0.001)
+  expect_equal(coef(e.da), -c(33.82191, 24.76756, 34.28992), ignore_attr=TRUE, tolerance=0.001)
   expect_summary(s.dfa, e.dfa, c(9.809166, 10.598143, 7.598143), -c(33.82191, 24.76756, 34.28992))
 })
 
@@ -313,8 +314,8 @@ test_that("gwb2dsp, bipartite", {
   s.d3 <- summary(bipnw~gwb2dsp(.3, TRUE, 1))
   e.d3 <- ergm(bipnw~gwb2dsp(.3, TRUE, 1), estimate="MPLE")
 
-  expect_equal(s.d0, c(24,1,rep(0,28)), check.attributes=FALSE)
-  expect_equal(s.d1, c(24,1,rep(0,28)), check.attributes=FALSE)
+  expect_equal(s.d0, c(24,1,rep(0,28)), ignore_attr=TRUE)
+  expect_equal(s.d1, c(24,1,rep(0,28)), ignore_attr=TRUE)
   expect_summary(s.d2, e.d2, 25.25918, -2.875923)
   expect_summary(s.d3, e.d3, 24, -2.220758)
 })

@@ -7,6 +7,8 @@
 #
 #  Copyright 2003-2021 Statnet Commons
 ################################################################################
+local_edition(3)
+
 library(statnet.common)
 opttest({
 
@@ -19,7 +21,7 @@ test_that("MPLE + offset", {
   boo[1:3,]<-0
   foo <- suppressWarnings(
     ergm(flomarriage~edges+offset(edgecov(boo))+gwesp(0.25,fixed=T),offset.coef=20))
-  expect_ltq(max(abs(coef(foo)), na.rm=T), 20)
+  expect_lte(max(abs(coef(foo)), na.rm=T), 20)
 })
 
 }, "MPLE + offset")

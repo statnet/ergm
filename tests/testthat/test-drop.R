@@ -7,6 +7,9 @@
 #
 #  Copyright 2003-2021 Statnet Commons
 ################################################################################
+
+local_edition(3)
+
 library(statnet.common)
 opttest({
 logit <- function(p) log(p/(1-p))
@@ -56,12 +59,16 @@ test_that("multiple covariates", {
 
 # This is mainly to make sure it doesn't crash for dyad-dependent
 # and curved terms.
-test_that("doesn't crash for dyad-dependent and curved terms", {
+crash.test <- function() {
   set.seed(1)
   y <- network.initialize(10, directed=FALSE)
   y[1,2]<-y[2,3]<-y[3,4]<-1
   dummy <- ergm(y~edges+triangles+degree(2)+kstar(2)+kstar(5)+gwdegree,
                 control=control.ergm(MCMLE.maxit=3), verbose=TRUE) # It doesn't seem to stop for a while.
+}
+
+test_that("doesn't crash for dyad-dependent and curved terms", {
+  expect_error(crash.test(), NA)
 })
 
 }, "drop")

@@ -7,6 +7,8 @@
 #
 #  Copyright 2003-2021 Statnet Commons
 ################################################################################
+local_edition(3)
+
 library(statnet.common)
 opttest({
 library(ergm)
@@ -54,8 +56,8 @@ run.miss.test<-function(y){
   cat("Correct estimate =",theta,"with log-likelihood",llk,".\n")
 
   mplefit<-ergm(y~edges)
-  mple.theta.OK<-all.equal(theta,coef(mplefit),check.attributes=FALSE)
-  mple.llk.OK<-all.equal(llk,as.vector(logLik(mplefit)),check.attributes=FALSE)
+  mple.theta.OK<-all.equal(theta,coef(mplefit),ignore_attr=TRUE)
+  mple.llk.OK<-all.equal(llk,as.vector(logLik(mplefit)),ignore_attr=TRUE)
   cat("MPLE estimate =", coef(mplefit),"with log-likelihood",logLik(mplefit), if(isTRUE(mple.theta.OK)&&isTRUE(mple.llk.OK)) "OK.","\n")
 
   mcmcfit<-ergm(y~edges, control=snctrl(force.main=TRUE, init=theta+theta0err, bridge.target.se=bridge.target.se), verbose=TRUE)

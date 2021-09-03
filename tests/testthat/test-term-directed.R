@@ -7,9 +7,11 @@
 # #  Copyright 2003-2021 Statnet Commons
 ################################################################################
 
+local_edition(3)
+
 expect_summary <- function(s, e, value, coefficients, tolerance=0.001) {
-  expect_equal(s, value, tolerance=tolerance, check.attributes=FALSE)
-  expect_equal(coef(e), coefficients, tolerance=tolerance, check.attributes=FALSE)
+  expect_equal(s, value, tolerance=tolerance, ignore_attr=TRUE)
+  expect_equal(coef(e), coefficients, tolerance=tolerance, ignore_attr=TRUE)
 }
 
 # a directed nw
@@ -166,7 +168,7 @@ test_that("nodeicov, directed", {
   s.att <- summary(samplike~nodeicov(~poly(YearsServed,2,raw=TRUE)))
   expect_summary(s.a, e.a, 439, -.1739)
   expect_summary(s.at, e.at, 2345, -.02805)
-  expect_equal(s.att, c(439,2345), check.attributes=FALSE)
+  expect_equal(s.att, c(439,2345), ignore_attr=TRUE)
 })
 
 test_that("nodeifactor, directed", {
@@ -186,7 +188,7 @@ test_that("nodeocov, directed", {
   s.att <- summary(samplike~nodeocov(~poly(YearsServed,2,raw=TRUE)))
   expect_summary(s.a, e.a, 467, -.1581)
   expect_summary(s.at, e.at, 2691, -.02243)
-  expect_equal(s.att, c(467, 2691), check.attributes=FALSE)
+  expect_equal(s.att, c(467, 2691), ignore_attr=TRUE)
 })
 
 test_that("nodeofactor, directed", {

@@ -7,6 +7,8 @@
 #
 #  Copyright 2003-2021 Statnet Commons
 ################################################################################
+local_edition(3)
+
 library(statnet.common)
 opttest({
 
