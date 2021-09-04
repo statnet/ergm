@@ -134,8 +134,19 @@ ergmTermCache <- local({
   }
 })
 
-.buildTermsDataframe <- function(term_type) {
+.filterTerms <- function(terms, categories = NULL, ...) {
+  if (!is.null(categories)) {
+    categories <- as_mapper(categories)
+    keep <- terms %>% map("concepts") %>% map_lgl(categories)
+    terms <- terms[keep]
+  }
+  terms
+}
+
+.buildTermsDataframe <- function(term_type, ...) {
   terms <- ergmTermCache(term_type)
+
+  terms <- .filterTerms(terms, ...)
 
   if (length(terms) == 0) return(NULL)
 

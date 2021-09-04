@@ -178,11 +178,18 @@ terms available from all loaded packages.
 As noted above, a cross-referenced HTML version of the term documentation is
 also available via \code{vignette('ergm-term-crossRef')} and terms
 can also be searched via \code{\link{search.ergmTerms}}.
-\subsection{Term index}{
+\subsection{Term index (plain)}{
 
-\if{latex}{\Sexpr[results=rd,stage=render]{ergm:::.formatIndexLatex(ergm:::.buildTermsDataframe("ergmTerm"))}}
-\if{text}{\Sexpr[results=rd,stage=render]{ergm:::.formatIndexText(ergm:::.buildTermsDataframe("ergmTerm"))}}
-\if{html}{\Sexpr[results=rd,stage=render]{ergm:::.formatIndexHtml(ergm:::.buildTermsDataframe("ergmTerm"))}}
+\if{latex}{\Sexpr[results=rd,stage=render]{ergm:::.formatIndexLatex(ergm:::.buildTermsDataframe("ergmTerm", categories = ~!"operator"\%in\%.))}}
+\if{text}{\Sexpr[results=rd,stage=render]{ergm:::.formatIndexText(ergm:::.buildTermsDataframe("ergmTerm", categories = ~!"operator"\%in\%.))}}
+\if{html}{\Sexpr[results=rd,stage=render]{ergm:::.formatIndexHtml(ergm:::.buildTermsDataframe("ergmTerm", categories = ~!"operator"\%in\%.))}}
+}
+
+\subsection{Term index (operator)}{
+
+\if{latex}{\Sexpr[results=rd,stage=render]{ergm:::.formatIndexLatex(ergm:::.buildTermsDataframe("ergmTerm", categories = ~"operator"\%in\%.))}}
+\if{text}{\Sexpr[results=rd,stage=render]{ergm:::.formatIndexText(ergm:::.buildTermsDataframe("ergmTerm", categories = ~"operator"\%in\%.))}}
+\if{html}{\Sexpr[results=rd,stage=render]{ergm:::.formatIndexHtml(ergm:::.buildTermsDataframe("ergmTerm", categories = ~"operator"\%in\%.))}}
 }
 
 \subsection{Frequently-used terms}{
