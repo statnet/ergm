@@ -31,6 +31,9 @@ the mean correlation coefficient. This term can only be
 used with undirected networks; for directed networks, it is difficult to
 define the numerator and denominator in a consistent and meaningful way.
 }
+\seealso{
+\code{\link{ergmTerm}} for index of model terms currently visible to the package.
+}
 \concept{categorical nodal attribute}
 \concept{triad-related}
 \concept{undirected}

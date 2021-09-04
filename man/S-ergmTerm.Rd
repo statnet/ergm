@@ -20,4 +20,7 @@ This operator takes a two-sided forumla \code{attrs} whose LHS gives the attribu
 
 When the two sets are identical, the induced subgraph retains the directedness of the original graph. Otherwise, an undirected bipartite graph is induced.
 }
+\seealso{
+\code{\link{ergmTerm}} for index of model terms currently visible to the package.
+}
 \concept{operator}

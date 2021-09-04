@@ -54,4 +54,7 @@ define closely related statistics to several of the above, using slightly differ
 
 The GWDSP statistic is equal to the sum of GWNSP plus GWESP.
 }
+\seealso{
+\code{\link{ergmTerm}} for index of model terms currently visible to the package.
+}
 \concept{directed}

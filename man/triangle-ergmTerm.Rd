@@ -31,6 +31,9 @@ triple" and the latter is called a "cyclic triple", so in the case of a
 directed network, \code{triangle} equals \code{ttriple} plus \code{ctriple}
 --- thus at most two of these three terms can be in a model.
 }
+\seealso{
+\code{\link{ergmTerm}} for index of model terms currently visible to the package.
+}
 \concept{categorical nodal attribute}
 \concept{directed}
 \concept{frequently-used}

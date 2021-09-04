@@ -21,5 +21,8 @@ For undirected networks a twopath is defined as a pair of edges
 \eqn{\{i,j\}, \{j,k\}} . That is, it is an undirected path of length 2 from
 \eqn{i} to \eqn{k} via \eqn{j} , also known as a 2-star.
 }
+\seealso{
+\code{\link{ergmTerm}} for index of model terms currently visible to the package.
+}
 \concept{directed}
 \concept{undirected}

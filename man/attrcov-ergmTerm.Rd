@@ -24,6 +24,9 @@ in that case.
 This term can be useful for simulating large networks with many mixing types, where \code{nodemix} would be slow due to
 the large number of statistics, and \code{edgecov} cannot be used because an adjacency matrix would be too big.
 }
+\seealso{
+\code{\link{ergmTerm}} for index of model terms currently visible to the package.
+}
 \concept{directed}
 \concept{dyad-independent}
 \concept{undirected}

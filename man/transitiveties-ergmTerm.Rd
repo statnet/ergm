@@ -22,6 +22,9 @@ This term adds one statistic, equal to the number of ties
 \eqn{i\rightarrow j}{i-->j} such that there exists a two-path from
 \eqn{i} to \eqn{j} . (Related to the \code{ttriple} term.)
 }
+\seealso{
+\code{\link{ergmTerm}} for index of model terms currently visible to the package.
+}
 \concept{categorical nodal attribute}
 \concept{directed}
 \concept{triad-related}

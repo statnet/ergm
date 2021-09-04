@@ -31,6 +31,9 @@ distance is computed instead, where each pair \eqn{(i,j)} contributes a
 pre-specified weight toward the distance when the two networks differ on
 that pair.
 }
+\seealso{
+\code{\link{ergmTerm}} for index of model terms currently visible to the package.
+}
 \concept{directed}
 \concept{dyad-independent}
 \concept{undirected}

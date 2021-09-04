@@ -26,5 +26,8 @@ This term adds one statistic, equal to the number of ties
 \eqn{i\rightarrow j}{i-->j} such that there exists a two-path from
 \eqn{j} to \eqn{i} . (Related to the \code{ttriple} term.)
 }
+\seealso{
+\code{\link{ergmTerm}} for index of model terms currently visible to the package.
+}
 \concept{directed}
 \concept{undirected}

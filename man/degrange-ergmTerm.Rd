@@ -40,5 +40,8 @@ with bipartite networks, and will count nodes of both first and second mode in
 the specified degree range. To count only nodes of the first mode ("actors"), use \code{b1degrange}
 and to count only those fo the second mode ("events"), use \code{b2degrange} .
 }
+\seealso{
+\code{\link{ergmTerm}} for index of model terms currently visible to the package.
+}
 \concept{categorical nodal attribute}
 \concept{undirected}

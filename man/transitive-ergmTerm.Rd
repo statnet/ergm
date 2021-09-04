@@ -19,5 +19,8 @@ see \code{?triad.classify} in the \code{sna} package.
 Note the distinction from the \code{ttriple} term. This term can only be
 used with directed networks.
 }
+\seealso{
+\code{\link{ergmTerm}} for index of model terms currently visible to the package.
+}
 \concept{directed}
 \concept{triad-related}

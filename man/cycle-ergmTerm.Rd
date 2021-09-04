@@ -29,5 +29,8 @@ in the graph.
 
 This term can be used with either directed or undirected networks.
 }
+\seealso{
+\code{\link{ergmTerm}} for index of model terms currently visible to the package.
+}
 \concept{directed}
 \concept{undirected}

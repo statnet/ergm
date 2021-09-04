@@ -19,5 +19,8 @@ between \code{a} and \code{b} (both inclusive): \eqn{h(y)=1} , with
 the support being
 \code{a}, \code{a+1}, \ldots, \code{b-1}, \code{b}.
 }
+\seealso{
+\code{\link{ergmReference}} for index of reference distributions currently visible to the package.
+}
 \concept{discrete}
 \concept{finite}

@@ -29,6 +29,9 @@ the first (and the default) is more stable but also more
 conservative, while the second is more sensitive but more likely
 to induce a multimodal distribution of networks.
 }
+\seealso{
+\code{\link{ergmTerm}} for index of model terms currently visible to the package.
+}
 \concept{directed}
 \concept{non-negative}
 \concept{triad-related}

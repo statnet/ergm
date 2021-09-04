@@ -24,4 +24,7 @@ Modify terms' coefficient names
 \details{
 This operator evaluates \code{formula} without modification, but modifies its coefficient and/or parameter names based on \code{label} and \code{pos} .
 }
+\seealso{
+\code{\link{ergmTerm}} for index of model terms currently visible to the package.
+}
 \concept{operator}

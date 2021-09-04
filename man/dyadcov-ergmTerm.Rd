@@ -31,6 +31,9 @@ the covariate values for each edge appearing in the network. The
 \code{edgecov} and \code{dyadcov} terms are equivalent for undirected
 networks.
 }
+\seealso{
+\code{\link{ergmTerm}} for index of model terms currently visible to the package.
+}
 \concept{categorical nodal attribute}
 \concept{directed}
 \concept{dyad-independent}

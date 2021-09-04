@@ -34,6 +34,9 @@ such statistic equals the number of nodes in the network of degree
 This term can only be used with undirected networks; for directed networks
 see \code{idegree} and \code{odegree} .
 }
+\seealso{
+\code{\link{ergmTerm}} for index of model terms currently visible to the package.
+}
 \concept{categorical nodal attribute}
 \concept{frequently-used}
 \concept{undirected}

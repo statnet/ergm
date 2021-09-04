@@ -28,6 +28,9 @@ in the \code{sna} package, on which this code is based. For an undirected
 network, the triad census is over the four types defined by the number of
 ties (i.e., 0, 1, 2, and 3).
 }
+\seealso{
+\code{\link{ergmTerm}} for index of model terms currently visible to the package.
+}
 \concept{directed}
 \concept{triad-related}
 \concept{undirected}

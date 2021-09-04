@@ -45,6 +45,9 @@ attribute level. To include all levels, pass either \code{levels=TRUE}
 
 This term can only be used with directed networks.
 }
+\seealso{
+\code{\link{ergmTerm}} for index of model terms currently visible to the package.
+}
 \concept{categorical nodal attribute}
 \concept{directed}
 \concept{dyad-independent}

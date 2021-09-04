@@ -22,6 +22,9 @@ actors' attribute values differ less than \code{cutoff} ; that is,
 number of edges between \code{i} to \code{j} such that
 \code{abs(attr[i]-attr[j])<cutoff} .
 }
+\seealso{
+\code{\link{ergmTerm}} for index of model terms currently visible to the package.
+}
 \concept{directed}
 \concept{dyad-independent}
 \concept{quantitative nodal attribute}

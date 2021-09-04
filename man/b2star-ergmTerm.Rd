@@ -33,6 +33,9 @@ undirected bipartite networks.
 \note{
 \code{b2star(1)} is equal to \code{b1star(1)} and to \code{edges} .
 }
+\seealso{
+\code{\link{ergmTerm}} for index of model terms currently visible to the package.
+}
 \concept{bipartite}
 \concept{categorical nodal attribute}
 \concept{undirected}

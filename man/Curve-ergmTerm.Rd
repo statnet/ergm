@@ -68,4 +68,7 @@ If the model in \code{formula} is curved, then the outputs of this operator term
 
 \code{Curve} is an obsolete alias and may be deprecated and removed in a future release.
 }
+\seealso{
+\code{\link{ergmTerm}} for index of model terms currently visible to the package.
+}
 \concept{operator}

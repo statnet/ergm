@@ -54,6 +54,9 @@ removed in a future version. When both \code{keep} and \code{levels} are passed,
 This term used to be (inaccurately) called \code{threepath} . That
 name has been deprecated and may be removed in a future version.
 }
+\seealso{
+\code{\link{ergmTerm}} for index of model terms currently visible to the package.
+}
 \concept{directed}
 \concept{triad-related}
 \concept{undirected}

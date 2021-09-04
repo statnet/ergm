@@ -19,5 +19,8 @@ three.
 \note{
 This term can only be used with directed networks.
 }
+\seealso{
+\code{\link{ergmTerm}} for index of model terms currently visible to the package.
+}
 \concept{directed}
 \concept{triad-related}

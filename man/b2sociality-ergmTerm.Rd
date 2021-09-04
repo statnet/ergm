@@ -32,6 +32,9 @@ ties of that node. For directed networks, see \code{sender} and
 \note{
 This term can only be used with undirected bipartite networks.
 }
+\seealso{
+\code{\link{ergmTerm}} for index of model terms currently visible to the package.
+}
 \concept{bipartite}
 \concept{dyad-independent}
 \concept{undirected}

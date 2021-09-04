@@ -17,4 +17,7 @@ Continuous Uniform reference
 Specifies each dyad's baseline distribution to be continuous uniform
 between \code{a} and \code{b}: \eqn{h(y)=1} , with the support being \verb{[a, b]}.
 }
+\seealso{
+\code{\link{ergmReference}} for index of reference distributions currently visible to the package.
+}
 \concept{continuous}

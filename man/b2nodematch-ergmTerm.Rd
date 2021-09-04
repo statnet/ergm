@@ -54,6 +54,9 @@ The argument \code{keep} is retained for backwards compatibility and may be
 removed in a future version. When both \code{keep} and \code{levels} are passed,
 \code{levels} overrides \code{keep}.
 }
+\seealso{
+\code{\link{ergmTerm}} for index of model terms currently visible to the package.
+}
 \concept{bipartite}
 \concept{categorical nodal attribute}
 \concept{dyad-independent}

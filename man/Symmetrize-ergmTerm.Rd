@@ -34,5 +34,8 @@ network if the LHS network has tie \eqn{(\max(i,j),\min(i,j))} :
 the lower triangle of the LHS network.
 }
 }
+\seealso{
+\code{\link{ergmTerm}} for index of model terms currently visible to the package.
+}
 \concept{directed}
 \concept{operator}

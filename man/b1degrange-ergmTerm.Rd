@@ -39,5 +39,8 @@ see \code{idegrange} and \code{odegrange} . For undirected networks,
 see \code{degrange} , and see \code{b2degrange}
 for degrees of the second mode ("events").
 }
+\seealso{
+\code{\link{ergmTerm}} for index of model terms currently visible to the package.
+}
 \concept{bipartite}
 \concept{undirected}

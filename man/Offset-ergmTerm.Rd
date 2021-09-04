@@ -22,4 +22,7 @@ This operator is analogous to the \code{offset()} wrapper, but the
 coefficients are specified within the term and the curved ERGM
 mechanism is used internally.
 }
+\seealso{
+\code{\link{ergmTerm}} for index of model terms currently visible to the package.
+}
 \concept{operator}

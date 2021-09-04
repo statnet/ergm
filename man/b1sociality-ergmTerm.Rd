@@ -29,6 +29,9 @@ This term adds one network statistic for each node in the first bipartition, equ
 ties of that node. This term can only be used with bipartite networks. For directed networks, see \code{sender} and
 \code{receiver}. For unipartite networks, see \code{sociality}.
 }
+\seealso{
+\code{\link{ergmTerm}} for index of model terms currently visible to the package.
+}
 \concept{bipartite}
 \concept{dyad-independent}
 \concept{undirected}

@@ -21,4 +21,7 @@ the focus is usually on the midpoint \eqn{j} . This term can only be used
 with directed networks; for undirected networks see \code{kstar(2)} . See
 also \code{twopath} .
 }
+\seealso{
+\code{\link{ergmTerm}} for index of model terms currently visible to the package.
+}
 \concept{directed}

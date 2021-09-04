@@ -46,4 +46,7 @@ Offsets are ignored unless there is only one formula and the transformation only
 
 Curved models are supported, subject to some limitations. In particular, the first model's etamap will be used, overwriting the others. If \code{label} is not of length 1, it should have an \code{attr} -style attribute \code{"curved"} specifying the names for the curved parameters.
 }
+\seealso{
+\code{\link{ergmTerm}} for index of model terms currently visible to the package.
+}
 \concept{operator}

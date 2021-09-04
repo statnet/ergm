@@ -14,4 +14,7 @@ Standard Normal reference
 Specifies each dyad's baseline distribution to be the normal distribution
 with mean 0 and variance 1.
 }
+\seealso{
+\code{\link{ergmReference}} for index of reference distributions currently visible to the package.
+}
 \concept{continuous}

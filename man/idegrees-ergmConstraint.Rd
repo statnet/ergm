@@ -14,4 +14,7 @@ Preserve indegree for directed networks
 For directed networks, preserve the indegree of each vertex of the given
 network, while allowing outdegree to vary
 }
+\seealso{
+\code{\link{ergmConstraint}} for index of constraints and hints currently visible to the package.
+}
 \concept{directed}

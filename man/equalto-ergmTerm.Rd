@@ -20,6 +20,9 @@ Adds one statistic equal to the number of dyads whose values
 are within \code{tolerance} of \code{value} , i.e., between
 \code{value-tolerance} and \code{value+tolerance} , inclusive.
 }
+\seealso{
+\code{\link{ergmTerm}} for index of model terms currently visible to the package.
+}
 \concept{directed}
 \concept{dyad-independent}
 \concept{undirected}

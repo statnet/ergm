@@ -19,5 +19,8 @@ such statistic equals the number of dyads in the second bipartition with exactly
 \code{d[i]} shared partners. (Those shared partners, of course, must be members
 of the first bipartition.) This term can only be used with bipartite networks.
 }
+\seealso{
+\code{\link{ergmTerm}} for index of model terms currently visible to the package.
+}
 \concept{bipartite}
 \concept{undirected}

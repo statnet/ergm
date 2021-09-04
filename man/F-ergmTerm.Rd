@@ -31,4 +31,7 @@ Evaluates the given \code{formula} on a network constructed by
 taking \eqn{y} and removing any edges for which
 \eqn{f_{i,j}(y_{i,j}) = 0}{f[i,j] (y[i,j])=0} .
 }
+\seealso{
+\code{\link{ergmTerm}} for index of model terms currently visible to the package.
+}
 \concept{operator}

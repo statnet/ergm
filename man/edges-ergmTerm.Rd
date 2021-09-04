@@ -23,6 +23,9 @@ edges (i.e. nonzero values) in the network. For undirected networks, \code{edges
 is equal to \code{kstar(1)}; for directed networks, edges is equal to both
 \code{ostar(1)} and \code{istar(1)}.
 }
+\seealso{
+\code{\link{ergmTerm}} for index of model terms currently visible to the package.
+}
 \concept{directed}
 \concept{dyad-independent}
 \concept{undirected}

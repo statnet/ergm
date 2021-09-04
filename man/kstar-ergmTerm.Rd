@@ -30,5 +30,8 @@ attribute. This term can only be used for undirected networks; for directed
 networks, see \code{istar} , \code{ostar} , \code{twopath} and \code{m2star} .
 Note that \code{kstar(1)} is equal to \code{edges} .
 }
+\seealso{
+\code{\link{ergmTerm}} for index of model terms currently visible to the package.
+}
 \concept{categorical nodal attribute}
 \concept{undirected}

@@ -34,6 +34,9 @@ for all directed networks, \code{triangle} is equal to
 \code{ttriple+ctriple} , so at most two of these three terms can be in a
 model.
 }
+\seealso{
+\code{\link{ergmTerm}} for index of model terms currently visible to the package.
+}
 \concept{categorical nodal attribute}
 \concept{directed}
 \concept{triad-related}

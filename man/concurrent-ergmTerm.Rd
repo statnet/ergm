@@ -20,5 +20,8 @@ nodes in the network with degree 2 or higher.
 This term can only be used with undirected
 networks.
 }
+\seealso{
+\code{\link{ergmTerm}} for index of model terms currently visible to the package.
+}
 \concept{categorical nodal attribute}
 \concept{undirected}

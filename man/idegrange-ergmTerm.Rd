@@ -39,5 +39,8 @@ see \code{degrange} . For degrees of specific modes of bipartite
 networks, see \code{b1degrange} and \code{b2degrange} . For
 in-degrees, see \code{idegrange} .
 }
+\seealso{
+\code{\link{ergmTerm}} for index of model terms currently visible to the package.
+}
 \concept{categorical nodal attribute}
 \concept{directed}

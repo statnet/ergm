@@ -16,5 +16,8 @@ adds one statistic to the model equal to the number of 2-stars minus
 three times the number of triangles in the network. It is currently
 only implemented for undirected networks.
 }
+\seealso{
+\code{\link{ergmTerm}} for index of model terms currently visible to the package.
+}
 \concept{triad-related}
 \concept{undirected}

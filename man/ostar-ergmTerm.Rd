@@ -32,5 +32,8 @@ networks; for undirected networks see \code{kstar} .
 \note{
 \code{ostar(1)} is equal to both \code{istar(1)} and \code{edges} .
 }
+\seealso{
+\code{\link{ergmTerm}} for index of model terms currently visible to the package.
+}
 \concept{categorical nodal attribute}
 \concept{directed}

@@ -41,6 +41,9 @@ removed in a future version. When both \code{base} and \code{nodes} are passed,
 
 This term can only be used with undirected networks.
 }
+\seealso{
+\code{\link{ergmTerm}} for index of model terms currently visible to the package.
+}
 \concept{categorical nodal attribute}
 \concept{dyad-independent}
 \concept{undirected}

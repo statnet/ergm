@@ -16,6 +16,9 @@ dyad's baseline distribution to be Bernoulli with probability of
 the tie being \eqn{0.5} . This is the only reference measure used
 in binary mode.
 }
+\seealso{
+\code{\link{ergmReference}} for index of reference distributions currently visible to the package.
+}
 \concept{binary}
 \concept{discrete}
 \concept{finite}

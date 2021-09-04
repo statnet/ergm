@@ -37,5 +37,8 @@ The argument \code{base} is retained for backwards compatibility and may be
 removed in a future version. When both \code{base} and \code{nodes} are passed,
 \code{nodes} overrides \code{base}.
 }
+\seealso{
+\code{\link{ergmTerm}} for index of model terms currently visible to the package.
+}
 \concept{directed}
 \concept{dyad-independent}

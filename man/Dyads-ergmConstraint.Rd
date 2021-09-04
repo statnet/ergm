@@ -16,6 +16,9 @@ Constrain fixed or varying dyad-independent terms
 \details{
 This is an "operator" constraint that takes one or two \link{ergm} formulas. For the terms in the \verb{vary=} formula, only those that change at least one of the terms will be allowed to vary, and all others will be fixed. If both formulas are given, the dyads that vary either for one or for the other will be allowed to vary. Note that a formula passed to \code{Dyads} without an argument name will default to \verb{fix=} .
 }
+\seealso{
+\code{\link{ergmConstraint}} for index of constraints and hints currently visible to the package.
+}
 \concept{directed}
 \concept{dyad-independent}
 \concept{operator}

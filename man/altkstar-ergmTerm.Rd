@@ -32,6 +32,9 @@ of Hunter (2007) for details.
 \note{
 This term can only be used with undirected networks.
 }
+\seealso{
+\code{\link{ergmTerm}} for index of model terms currently visible to the package.
+}
 \concept{categorical nodal attribute}
 \concept{curved}
 \concept{undirected}

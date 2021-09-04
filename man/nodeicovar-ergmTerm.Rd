@@ -33,4 +33,7 @@ statistic.
 Note that this term replaces \code{nodeisqrtcovar} , which has been
 deprecated in favor of \code{nodeicovar(transform="sqrt")} .
 }
+\seealso{
+\code{\link{ergmTerm}} for index of model terms currently visible to the package.
+}
 \concept{directed}

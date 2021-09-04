@@ -18,6 +18,9 @@ type \code{102} or \code{300} in the categorization of Davis and Leinhardt (1972
 network, the balanced triads are those with an odd number of ties (i.e., 1
 and 3).
 }
+\seealso{
+\code{\link{ergmTerm}} for index of model terms currently visible to the package.
+}
 \concept{directed}
 \concept{triad-related}
 \concept{undirected}

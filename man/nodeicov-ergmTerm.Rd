@@ -28,6 +28,9 @@ see \code{nodeifactor} .
 \pkg{ergm} versions 3.9.4 and earlier used different arguments for this
 term. See \code{\link{ergm-options}} for how to invoke the old behaviour.
 }
+\seealso{
+\code{\link{ergmTerm}} for index of model terms currently visible to the package.
+}
 \concept{directed}
 \concept{frequently-used}
 \concept{quantitative nodal attribute}

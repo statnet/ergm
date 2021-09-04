@@ -37,6 +37,9 @@ shared partners counted by \code{gwdsp} is the number of nodes \code{k} that hav
 \code{i -> k -> j}.  (These may also be called homogeneous shared partners.)  To
 count other types of shared partners instead, see \code{dgwdsp}.
 }
+\seealso{
+\code{\link{ergmTerm}} for index of model terms currently visible to the package.
+}
 \concept{curved}
 \concept{directed}
 \concept{undirected}

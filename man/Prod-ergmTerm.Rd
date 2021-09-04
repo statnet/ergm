@@ -50,4 +50,7 @@ Curved models are supported, subject to some limitations. In particular, the fir
 \note{
 The current implementation piggybacks on the \code{Log} , \code{Exp} , and \code{Sum} operators, essentially \code{Exp(~Sum(~Log(formula), label))} . This may result in loss of precision, particularly for extremely large or small statistics. The implementation may change in the future.
 }
+\seealso{
+\code{\link{ergmTerm}} for index of model terms currently visible to the package.
+}
 \concept{operator}

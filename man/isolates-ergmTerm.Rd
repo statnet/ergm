@@ -17,6 +17,9 @@ network, an isolate is defined to be any node with degree zero. For a
 directed network, an isolate is any node with both in-degree and out-degree
 equal to zero.
 }
+\seealso{
+\code{\link{ergmTerm}} for index of model terms currently visible to the package.
+}
 \concept{directed}
 \concept{frequently-used}
 \concept{undirected}

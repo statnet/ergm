@@ -43,4 +43,7 @@ By default, outgoing two-paths (\code{"OTP"}) are calculated. Note that Robins e
 define closely related statistics to several of the above, using slightly different terminology.
 }
 }
+\seealso{
+\code{\link{ergmTerm}} for index of model terms currently visible to the package.
+}
 \concept{directed}

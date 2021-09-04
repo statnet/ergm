@@ -34,6 +34,9 @@ of nodes with exactly \code{d[i]} in-edges.
 This term can only be used with directed networks; for undirected networks
 see \code{degree} .
 }
+\seealso{
+\code{\link{ergmTerm}} for index of model terms currently visible to the package.
+}
 \concept{categorical nodal attribute}
 \concept{directed}
 \concept{frequently-used}

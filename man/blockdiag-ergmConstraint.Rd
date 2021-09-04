@@ -27,6 +27,9 @@ If multiple block-diagonal constraints are given, or if
 \code{attr} is a vector with multiple attribute names, blocks
 will be constructed on all attributes matching.
 }
+\seealso{
+\code{\link{ergmConstraint}} for index of constraints and hints currently visible to the package.
+}
 \concept{directed}
 \concept{dyad-independent}
 \concept{undirected}

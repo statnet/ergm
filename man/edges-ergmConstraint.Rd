@@ -15,3 +15,6 @@ Only networks
 having the same number of edges as the network passed
 in the model formula have non-zero probability.
 }
+\seealso{
+\code{\link{ergmConstraint}} for index of constraints and hints currently visible to the package.
+}

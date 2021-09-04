@@ -31,6 +31,9 @@ undirected networks the covariates are also assumed to be undirected. The
 \code{edgecov} and \code{dyadcov} terms are equivalent for undirected
 networks.
 }
+\seealso{
+\code{\link{ergmTerm}} for index of model terms currently visible to the package.
+}
 \concept{directed}
 \concept{dyad-independent}
 \concept{frequently-used}

@@ -17,6 +17,9 @@ For undirected networks, \code{density} equals \code{kstar(1)} or
 \code{density} equals \code{edges} or \code{istar(1)} or \code{ostar(1)}
 divided by \eqn{n(n-1)} .
 }
+\seealso{
+\code{\link{ergmTerm}} for index of model terms currently visible to the package.
+}
 \concept{directed}
 \concept{dyad-independent}
 \concept{undirected}

@@ -33,6 +33,9 @@ calculates the margins of the mixing matrix, analogously to \code{nodefactor} , 
 \code{A~.} calculating the row/sender/b1 margins and \code{.~A}
 calculating the column/receiver/b2 margins.
 }
+\seealso{
+\code{\link{ergmTerm}} for index of model terms currently visible to the package.
+}
 \concept{categorical nodal attribute}
 \concept{directed}
 \concept{dyad-independent}

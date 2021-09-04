@@ -17,4 +17,7 @@ over the actors of each actor's indegree taken to the 3/2 power
 analogous to the term of Snijders et al. (2010), equation (12). This
 term can only be used with directed networks.
 }
+\seealso{
+\code{\link{ergmTerm}} for index of model terms currently visible to the package.
+}
 \concept{directed}

@@ -20,4 +20,7 @@ Exponentiate a network's statistic
 \details{
 Evaluate the terms specified in \code{formula} and exponentiates them with base \eqn{e} .
 }
+\seealso{
+\code{\link{ergmTerm}} for index of model terms currently visible to the package.
+}
 \concept{operator}

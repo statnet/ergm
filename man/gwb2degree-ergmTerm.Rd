@@ -34,6 +34,9 @@ for nodes in the
 second mode of a bipartite network. The second mode of a bipartite network
 object is sometimes known as the "event" mode.
 }
+\seealso{
+\code{\link{ergmTerm}} for index of model terms currently visible to the package.
+}
 \concept{bipartite}
 \concept{curved}
 \concept{undirected}

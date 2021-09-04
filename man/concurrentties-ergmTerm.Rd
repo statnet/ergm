@@ -22,5 +22,8 @@ This term adds one network statistic to the model, equal to the number of
 ties incident on each actor beyond the first.
 This term can only be used with undirected networks.
 }
+\seealso{
+\code{\link{ergmTerm}} for index of model terms currently visible to the package.
+}
 \concept{categorical nodal attribute}
 \concept{undirected}

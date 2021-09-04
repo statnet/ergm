@@ -61,4 +61,7 @@ For example, \code{B(~nodecov("a"), form="sum")} is equivalent to
 When a valued implementation is available, it should be
 preferred, as it is likely to be faster.
 }
+\seealso{
+\code{\link{ergmTerm}} for index of model terms currently visible to the package.
+}
 \concept{operator}

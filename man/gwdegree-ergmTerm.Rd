@@ -33,6 +33,9 @@ Geometrically weighted degree distribution
 This term adds one network statistic to the model equal to the weighted
 degree distribution with decay controlled by the \code{decay} parameter, which should be non-negative.
 }
+\seealso{
+\code{\link{ergmTerm}} for index of model terms currently visible to the package.
+}
 \concept{curved}
 \concept{frequently-used}
 \concept{undirected}

@@ -26,6 +26,9 @@ For a directed network, a triangle is defined as any set of three edges
 \eqn{(k{\rightarrow}i)} or \eqn{(k{\leftarrow}i)} where again all nodes are
 within the same neighborhood.
 }
+\seealso{
+\code{\link{ergmTerm}} for index of model terms currently visible to the package.
+}
 \concept{directed}
 \concept{triad-related}
 \concept{undirected}

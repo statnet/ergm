@@ -20,4 +20,7 @@ Evaluates the terms specified in \code{formula} on a network
 constructed by taking \eqn{y} and removing any edges for which
 \code{attrname(i)!=attrname(j)} .
 }
+\seealso{
+\code{\link{ergmTerm}} for index of model terms currently visible to the package.
+}
 \concept{operator}

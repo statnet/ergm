@@ -27,5 +27,8 @@ shared partners counted by \code{esp} is the number of nodes \code{k} that have 
 \code{i -> k -> j}.  (These may also be called homogeneous shared partners.)  To
 count other types of shared partners instead, see \code{desp}.
 }
+\seealso{
+\code{\link{ergmTerm}} for index of model terms currently visible to the package.
+}
 \concept{directed}
 \concept{undirected}

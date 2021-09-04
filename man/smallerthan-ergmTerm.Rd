@@ -19,6 +19,9 @@ statistics equal to the length of \code{threshold}
 equaling to the number of dyads whose values are exceeded by the
 corresponding element of \code{threshold} .
 }
+\seealso{
+\code{\link{ergmTerm}} for index of model terms currently visible to the package.
+}
 \concept{directed}
 \concept{dyad-independent}
 \concept{undirected}

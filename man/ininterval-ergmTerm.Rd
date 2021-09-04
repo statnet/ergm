@@ -25,6 +25,9 @@ Adds one statistic equaling to the number of dyads whose values
 are between \code{lower} and
 \code{upper} .
 }
+\seealso{
+\code{\link{ergmTerm}} for index of model terms currently visible to the package.
+}
 \concept{directed}
 \concept{dyad-independent}
 \concept{undirected}

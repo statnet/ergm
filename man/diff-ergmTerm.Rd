@@ -60,6 +60,9 @@ networks unless \code{sign.action=="abs"} . When used on such a
 network, it behaves as if all edges were directed, going from the
 lower-indexed vertex to the higher-indexed vertex.
 }
+\seealso{
+\code{\link{ergmTerm}} for index of model terms currently visible to the package.
+}
 \concept{bipartite}
 \concept{directed}
 \concept{dyad-independent}

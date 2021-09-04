@@ -17,4 +17,7 @@ equivalently, multiplied by its square root). This term is an
 undirected analog to the terms of Snijders et al. (2010), equations
 (11) and (12). This term can only be used with undirected networks.
 }
+\seealso{
+\code{\link{ergmTerm}} for index of model terms currently visible to the package.
+}
 \concept{undirected}

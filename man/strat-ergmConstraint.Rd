@@ -43,4 +43,7 @@ While some mixing types may be assigned zero proposal probability
 this will not be recognized as a constraint by all components of \code{ergm} ,
 and should be used with caution.
 }
+\seealso{
+\code{\link{ergmConstraint}} for index of constraints and hints currently visible to the package.
+}
 \concept{dyad-independent}

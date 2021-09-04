@@ -17,5 +17,8 @@ Sum of dyad values (optionally taken to a power)
 This term adds one statistic equal to the sum of
 dyad values taken to the power \code{pow}.
 }
+\seealso{
+\code{\link{ergmTerm}} for index of model terms currently visible to the package.
+}
 \concept{directed}
 \concept{undirected}
