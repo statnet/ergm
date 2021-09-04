@@ -134,6 +134,14 @@ ergmTermCache <- local({
   }
 })
 
+#' Filter a list of terms, currently by categories
+#'
+#' @param terms a term list returned by `ergmTermCache()`
+#' @param categories a function with one argument or a formula understood by [purrr::as_mapper()] that takes a character vector containing a term's categories and returns `TRUE` or `FALSE`
+#' @param ... additional arguments, currently unused
+#'
+#' @return a filtered term list
+#' @noRd
 .filterTerms <- function(terms, categories = NULL, ...) {
   if (!is.null(categories)) {
     categories <- as_mapper(categories)
@@ -143,7 +151,16 @@ ergmTermCache <- local({
   terms
 }
 
-.buildTermsDataframe <- function(term_type, ...) {
+
+#' Constructs a data frame containing term information, suitable for typesetting in help files and vignettes
+#'
+#' @param term_type character string giving the type of term, currently `"ergmTerm"`, `"ergmConstraint"`, or `"ergmReference"`
+#' @param ... further arguments passed to `.filterTerms()`
+#' @param omit.categories categories to not put into the table column (usually because they are redundant)
+#'
+#' @return a data frame with columns for usage, package, title, concepts, and link
+#' @noRd
+.buildTermsDataframe <- function(term_type, ..., omit.categories = c("binary","valued")) {
   terms <- ergmTermCache(term_type)
 
   terms <- .filterTerms(terms, ...)
@@ -159,6 +176,8 @@ ergmTermCache <- local({
     } else {
       usage <- paste(sprintf('`%s`', sapply(term$usages, '[[', 'usage')), collapse='\n')
     }
+
+    term$concepts <- setdiff(term$concepts, omit.categories)
 
     df <- rbind(df, c(usage, term$package, term$title, if (length(term$concepts) > 0) paste(term$concepts, collapse='\n') else '', term$link))
   }
