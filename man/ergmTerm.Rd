@@ -13,8 +13,8 @@
 \description{
 The function \code{\link{ergm}} is used to fit exponential random graph
 models, in which the probability of a given network, \eqn{y}, on a set of
-nodes is \deqn{h(y) \exp\{\eta(\theta) \cdot }{h(y) exp{eta(theta).g(y)} /
-c(theta),}\deqn{ g(y)\}/c(\theta)}{h(y) exp{eta(theta).g(y)} / c(theta),}
+nodes is
+\deqn{h(y) \exp\{\eta(\theta) \cdot g(y)\} / c(\theta),}{h(y) exp{eta(theta).g(y)} / c(theta),}
 where \eqn{h(y)} is the reference measure (for valued network models),
 \eqn{g(y)} is a vector of network statistics for \eqn{y}, \eqn{\eta(\theta)}
 is a natural parameter vector of the same length (with
