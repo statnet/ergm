@@ -55,12 +55,12 @@ run.miss.test<-function(y){
   llk <- correct.edges.llk(y)
   cat("Correct estimate =",theta,"with log-likelihood",llk,".\n")
 
-  mplefit<-ergm(y~edges)
-  mple.theta.OK<-all.equal(theta,coef(mplefit),ignore_attr=TRUE)
-  mple.llk.OK<-all.equal(llk,as.vector(logLik(mplefit)),ignore_attr=TRUE)
+  mplefit<-ergm(y~edges, eval.loglik=TRUE)
+  mple.theta.OK<-all.equal(theta,coef(mplefit),check.attributes=FALSE)
+  mple.llk.OK<-all.equal(llk,as.vector(logLik(mplefit)),check.attributes=FALSE)
   cat("MPLE estimate =", coef(mplefit),"with log-likelihood",logLik(mplefit), if(isTRUE(mple.theta.OK)&&isTRUE(mple.llk.OK)) "OK.","\n")
 
-  mcmcfit<-ergm(y~edges, control=snctrl(force.main=TRUE, init=theta+theta0err, bridge.target.se=bridge.target.se), verbose=TRUE)
+  mcmcfit<-ergm(y~edges, control=snctrl(force.main=TRUE, init=theta+theta0err, bridge.target.se=bridge.target.se), verbose=TRUE, eval.loglik=TRUE)
   mcmc.diagnostics(mcmcfit)
   mcmc.theta.OK<-abs(theta-coef(mcmcfit))/sqrt(diag(vcov(mcmcfit, source="estimation")))
   mcmc.llk.OK<-abs(llk-logLik(mcmcfit))/bridge.target.se
