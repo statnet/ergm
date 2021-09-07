@@ -151,6 +151,24 @@ ergmTermCache <- local({
   terms
 }
 
+# Parse a usage string and remove the default arguments from the string
+.removeDefaultArguments <- function(usage) {
+  if (stringr::str_count(usage, '\\(') != stringr::str_count(usage, '\\)')) {
+    return('INVALID USAGE')
+  }
+
+  # extract the function name and remove the outer brackets
+  function_name <- gsub('\\(.*', '', usage)
+  usage <- gsub('\\) *$', '', gsub(paste0(function_name, ' *\\('), '', usage))
+
+  # recursively replace terms with brackets
+  while(stringr::str_count(usage, '\\(') > 0) {
+    usage <- gsub('\\([^)]*\\)', 'x', usage)
+  }
+
+  usage <- gsub(' *=[^,]*(, *|$)', '\\1', usage)
+  paste0(function_name, '(', usage, ')')
+}
 
 #' Constructs a data frame containing term information, suitable for typesetting in help files and vignettes
 #'
@@ -171,7 +189,7 @@ ergmTermCache <- local({
   for (term in terms) {
     if (!is.null(term$usages[[1]]$type)) {
       usage <- paste(sprintf('`%s` (%s)',
-        sapply(term$usages, "[[", 'usage') %>% gsub('\\$', '\\\\$', .) %>% gsub('`', '', .) %>% gsub(' *=[^,)]*(,|\\)) *', '\\1 ', .) %>% trimws,
+        sapply(term$usages, "[[", 'usage') %>% gsub('\\$', '\\\\$', .) %>% gsub('`', '', .) %>% sapply(., .removeDefaultArguments) %>% trimws,
         sapply(term$usages, "[[", 'type')), collapse='\n')
     } else {
       usage <- paste(sprintf('`%s`', sapply(term$usages, '[[', 'usage')), collapse='\n')

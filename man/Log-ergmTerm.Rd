@@ -9,7 +9,7 @@
 \usage{
 # binary: Log(formula, log0=-1/sqrt(.Machine$double.eps))
 
-# valued: Log(formula, log0=-1/sqrt(.Machine$double.eps)
+# valued: Log(formula, log0=-1/sqrt(.Machine$double.eps))
 }
 \arguments{
 \item{formula}{formula to be evaluated}
