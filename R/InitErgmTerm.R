@@ -5261,7 +5261,8 @@ InitErgmTerm.nodematch<-InitErgmTerm.match<-function (nw, arglist, ..., version=
 #'
 #' @template ergmTerm-attr
 #' @param base deprecated
-#' @param b1levels,b2levels,levels,level2 control what statistics are included in the model and the order in which they appear. `levels2` apply to all networks; `levels` applies to unipartite networks; `b1levels` and `b2levels` apply to bipartite networks (see Specifying Vertex attributes and Levels (`?nodal_attributes`) for details)
+#' @param b1levels,b2levels,levels control what statistics are included in the model and the order in which they appear. `levels` applies to unipartite networks; `b1levels` and `b2levels` apply to bipartite networks (see Specifying Vertex attributes and Levels (`?nodal_attributes`) for details)
+#' @param levels2 similar to the other levels arguments above and applies to all networks. Optionally allows a factor or character matrix to be specified to group certain levels. `levels2=matrix(c('A', '', NA, 'A'), 2, 2, byrow=TRUE)` on an undirected matrix will group homophilous ties while leaving ties between 1 and 2 ungrouped.
 #'
 #' @template ergmTerm-general
 #'
