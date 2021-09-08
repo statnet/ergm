@@ -194,8 +194,6 @@ ergmTermCache <- local({
 .termMatrix <- function(term_type, categories=NULL, only.include=NULL) {
   terms <- ergmTermCache(term_type)
 
-  if (length(terms) == 0) return(NULL)
-
   # if list of categories not supplied, generate it
   # otherwise, use the categories (and column order) provided
   if (is.null(categories)) {
@@ -206,9 +204,11 @@ ergmTermCache <- local({
 
   # figure out which terms should be included
   if (!is.null(only.include)) {
-    included <- sapply(terms, function(term) any(term$concepts %in% only.include))
+    included <- vapply(terms, function(term) any(term$concepts %in% only.include), logical(1))
     terms <- terms[included]
   }
+
+  if (length(terms) == 0) return(NULL)
 
   # figure out which terms are members of each cat
   membership <- lapply(categories, function(cat) {
