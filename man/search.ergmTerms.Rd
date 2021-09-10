@@ -4,20 +4,20 @@
 \alias{search.ergmTerms}
 \title{Search the ergm-terms documentation for appropriate terms}
 \usage{
-search.ergmTerms(keyword, net, categories, name)
+search.ergmTerms(search.term, net, keywords, name)
 }
 \arguments{
-\item{keyword}{optional character keyword to search for in the text of the
-term descriptions. Only matching terms will be returned. Matching is case
-insensitive.}
-
 \item{net}{a network object that the term would be applied to, used as
 template to determine directedness, bipartite, etc}
 
-\item{categories}{optional character vector of category tags to use to
+\item{keywords}{optional character vector of keyword tags to use to
 restrict the results (i.e. 'curved', 'triad-related')}
 
 \item{name}{optional character name of a specific term to return}
+
+\item{search.terms}{optional character search term to search for in the text of the
+term descriptions. Only matching terms will be returned. Matching is case
+insensitive.}
 }
 \value{
 prints out the name and short description of matching terms, and
@@ -27,13 +27,13 @@ the full definition for the named term.
 \description{
 Searches through the \code{\link{ergm.terms}} help page and prints out a
 list of terms appropriate for the specified network's structural
-constraints, optionally restricting by additional categories and keyword
+constraints, optionally restricting by additional keywords and search term
 matches.
 }
 \details{
-Uses \code{\link{grep}} internally to match keywords against the term
-description, so \code{keywords} is currently matched as a single phrase.
-Category tags will only return a match if all of the specified tags are
+Uses \code{\link{grep}} internally to match the search terms against the term
+description, so \code{search.term} is currently matched as a single phrase.
+Keyword tags will only return a match if all of the specified tags are
 included in the term.
 }
 \examples{
@@ -47,11 +47,11 @@ search.ergmTerms('triangle')
 myNet<-network.initialize(5,bipartite=3)
 search.ergmTerms(net=myNet)
 
-# or request the bipartite category
-search.ergmTerms(categories='bipartite')
+# or request the bipartite keyword
+search.ergmTerms(keywords='bipartite')
 
-# search on multiple categories
-search.ergmTerms(categories=c('bipartite','dyad-independent'))
+# search on multiple keywords
+search.ergmTerms(keywords=c('bipartite','dyad-independent'))
 
 # print out the content for a specific term
 search.ergmTerms(name='b2factor')

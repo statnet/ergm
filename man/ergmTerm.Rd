@@ -213,7 +213,7 @@ can also be searched via \code{\link{search.ergmTerms}}.
 \if{html}{\Sexpr[results=rd,stage=render]{ergm:::.formatMatrixHtml(ergm:::.termMatrix("ergmTerm"))}}
 }
 
-\subsection{Terms by concept}{
+\subsection{Terms by keywords}{
 
 \if{latex}{\Sexpr[results=rd,stage=render]{ergm:::.formatTocLatex(ergm:::.termToc("ergmTerm"))}}
 \if{text}{\Sexpr[results=rd,stage=render]{ergm:::.formatTocText(ergm:::.termToc("ergmTerm"))}}
