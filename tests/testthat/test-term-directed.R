@@ -232,7 +232,7 @@ test_that("odegrange, directed", {
   e.0 <- ergm(samplike~odegrange(5:8), estimate="MPLE")
   s.h <- summary(samplike~odegrange(5:8, by=function(x) x %v% "group", homophily=TRUE))
   e.h <- ergm(samplike~odegrange(5:8, by="group", homophily=TRUE), estimate="MPLE")
-  expect_summary(s.0, e.0, c(12, 5, 0, 0), -c(0.619, -1.030, Inf, Inf))
+  expect_summary(s.0, e.0, c(12, 5, 0, 0), -c(0.619, 1.030, Inf, Inf))
   expect_summary(s.h, e.h, c(3, 0, 0, 0), -c(-0.2231, Inf , Inf, Inf ))
 })
 
