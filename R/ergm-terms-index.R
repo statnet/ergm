@@ -182,7 +182,7 @@ ergmTermCache <- local({
   for (term in terms) {
     if (!is.null(term$usages[[1]]$type)) {
       usage <- paste(sprintf('`%s` (%s)',
-        sapply(term$usages, "[[", 'usage') %>% gsub('\\$', '\\\\$', .) %>% gsub('`', '', .) %>% sapply(., .removeDefaultArguments) %>% trimws,
+        sapply(term$usages, "[[", 'usage') %>% sapply(., .removeDefaultArguments) %>% trimws,
         sapply(term$usages, "[[", 'type')), collapse='\n')
     } else {
       usage <- paste(sprintf('`%s`', sapply(term$usages, '[[', 'usage')), collapse='\n')
