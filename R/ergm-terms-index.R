@@ -153,21 +153,14 @@ ergmTermCache <- local({
 
 # Parse a usage string and remove the default arguments from the string
 .removeDefaultArguments <- function(usage) {
-  if (stringr::str_count(usage, '\\(') != stringr::str_count(usage, '\\)')) {
-    return('INVALID USAGE')
+  expr <- str2lang(usage)
+
+  if (class(expr) != 'call') {
+    return(usage)
+  } else {
+    expr <- ifelse(names(expr) != "", names(expr), as.character(expr))
+    return(sprintf("%s(%s)", expr[1], paste(expr[2:length(expr)], collapse=", ")))
   }
-
-  # extract the function name and remove the outer brackets
-  function_name <- gsub('\\(.*', '', usage)
-  usage <- gsub('\\) *$', '', gsub(paste0(function_name, ' *\\('), '', usage))
-
-  # recursively replace terms with brackets
-  while(stringr::str_count(usage, '\\(') > 0) {
-    usage <- gsub('\\([^)]*\\)', 'x', usage)
-  }
-
-  usage <- gsub(' *=[^,]*(, *|$)', '\\1', usage)
-  paste0(function_name, '(', usage, ')')
 }
 
 #' Constructs a data frame containing term information, suitable for typesetting in help files and vignettes
