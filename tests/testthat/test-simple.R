@@ -1,4 +1,4 @@
-#  File tests/runtime_diags.R in package ergm, part of the
+#  File tests/testthat/test-simple.R in package ergm, part of the
 #  Statnet suite of packages for network analysis, https://statnet.org .
 #
 #  This software is distributed under the GPL-3 license.  It is free,
@@ -7,12 +7,18 @@
 #
 #  Copyright 2003-2021 Statnet Commons
 ################################################################################
+# Simulate a network with a high number of nodes with outdegree=3 and a low number with indegree=3:
+local_edition(3)
+
 library(statnet.common)
 opttest({
-library(ergm)
-options(ergm.eval.loglik=FALSE)
-data(florentine)
 
-gest <- ergm(flomarriage ~ kstar(1:2) + absdiff("wealth") + triangle,
-             control=control.ergm(MCMC.runtime.traceplot=TRUE))
-}, "runtime diagnostics")
+data(sampson)
+
+test_that("extreme outdegree and indegree simulation test", {
+  m <- simulate(samplike~odegree(3)+idegree(3), coef=c(100,-100))
+  s <- summary(m~odegree(3)+idegree(3))
+  expect_lt(diff(s), 0)
+})
+
+}, "")

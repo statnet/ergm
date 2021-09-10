@@ -1,4 +1,4 @@
-#  File tests/mple_offset.R in package ergm, part of the
+#  File tests/runtime_diags.R in package ergm, part of the
 #  Statnet suite of packages for network analysis, https://statnet.org .
 #
 #  This software is distributed under the GPL-3 license.  It is free,
@@ -7,18 +7,17 @@
 #
 #  Copyright 2003-2021 Statnet Commons
 ################################################################################
+local_edition(3)
+
 library(statnet.common)
 opttest({
-library(ergm)
-
-set.seed(0)
 
 options(ergm.eval.loglik=FALSE)
 data(florentine)
-boo<-flomarriage
-boo[1:3,]<-0
-foo <- suppressWarnings(
-  ergm(flomarriage~edges+offset(edgecov(boo))+gwesp(0.25,fixed=T),offset.coef=20))
-if (max(abs(coef(foo)), na.rm=T) > 20) stop("MPLE + offset error")
 
-}, "MPLE + offset")
+test_that("runtime diagnostics", {
+  expect_error(ergm(flomarriage ~ kstar(1:2) + absdiff("wealth") + triangle,
+               control=control.ergm(MCMC.runtime.traceplot=TRUE)), NA)
+})
+
+}, "runtime diagnostics")
