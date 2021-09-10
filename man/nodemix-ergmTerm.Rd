@@ -18,7 +18,7 @@
 
 \item{b1levels, b2levels, levels}{control what statistics are included in the model and the order in which they appear. \code{levels} applies to unipartite networks; \code{b1levels} and \code{b2levels} apply to bipartite networks (see Specifying Vertex attributes and Levels (\code{?nodal_attributes}) for details)}
 
-\item{levels2}{similar to the other levels arguments above and applies to all networks. Optionally allows a factor or character matrix to be specified to group certain levels. Ties specified by the same character or level will be grouped together and summarised by the same statistic. If an empty string is specified, the tie will be ungrouped. Only the upper triangle needs to be specified for undirected networks. \code{levels2=matrix(c('A', '', NA, 'A'), 2, 2, byrow=TRUE)} on an undirected matrix will group homophilous ties while leaving ties between 1 and 2 ungrouped.}
+\item{levels2}{similar to the other levels arguments above and applies to all networks. Optionally allows a factor or character matrix to be specified to group certain levels. Level combinations corresponding to \code{NA} are excluded. Combinations specified by the same character or level will be grouped together and summarised by the same statistic. If an empty string is specified, the level combinations will be ungrouped. Only the upper triangle needs to be specified for undirected networks. For example, \code{levels2=matrix(c('A', '', NA, 'A'), 2, 2, byrow=TRUE)} on an undirected matrix will group homophilous ties while leaving ties between 1 and 2 ungrouped.}
 
 \item{form}{character how to aggregate tie values in a valued ERGM}
 }
