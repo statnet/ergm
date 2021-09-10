@@ -151,6 +151,17 @@ ergmTermCache <- local({
   terms
 }
 
+# Parse a usage string and remove the default arguments from the string
+.removeDefaultArguments <- function(usage) {
+  expr <- str2lang(usage)
+
+  if (class(expr) != 'call') {
+    return(usage)
+  } else {
+    expr <- NVL3(names(expr), ifelse(. != "", ., as.character(expr)), as.character(expr))
+    return(sprintf("%s(%s)", expr[1], paste(expr[2:length(expr)], collapse=", ")))
+  }
+}
 
 #' Constructs a data frame containing term information, suitable for typesetting in help files and vignettes
 #'
@@ -171,7 +182,7 @@ ergmTermCache <- local({
   for (term in terms) {
     if (!is.null(term$usages[[1]]$type)) {
       usage <- paste(sprintf('`%s` (%s)',
-        sapply(term$usages, "[[", 'usage') %>% gsub('\\$', '\\\\$', .) %>% gsub('`', '', .) %>% gsub(' *=[^,)]*(,|\\)) *', '\\1 ', .) %>% trimws,
+        sapply(term$usages, "[[", 'usage') %>% sapply(., .removeDefaultArguments) %>% trimws,
         sapply(term$usages, "[[", 'type')), collapse='\n')
     } else {
       usage <- paste(sprintf('`%s`', sapply(term$usages, '[[', 'usage')), collapse='\n')

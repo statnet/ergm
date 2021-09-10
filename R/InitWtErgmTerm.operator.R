@@ -190,7 +190,7 @@ InitWtErgmTerm.Exp <- function(nw, arglist, ...){
 
 #' @rdname Log-ergmTerm
 #' @usage
-#' # valued: Log(formula, log0=-1/sqrt(.Machine$double.eps)
+#' # valued: Log(formula, log0=-1/sqrt(.Machine$double.eps))
 InitWtErgmTerm.Log <- function(nw, arglist, ...){
   out <- InitErgmTerm.Log(nw, arglist, ...)
   out$name <- "wtLog"
