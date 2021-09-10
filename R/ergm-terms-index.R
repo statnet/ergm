@@ -178,8 +178,7 @@ ergmTermCache <- local({
 
   if (length(terms) == 0) return(NULL)
 
-  df <- c()
-  for (term in terms) {
+  sapply(terms, function(term) {
     if (!is.null(term$usages[[1]]$type)) {
       usage <- paste(sprintf('`%s` (%s)',
         sapply(term$usages, "[[", 'usage') %>% sapply(., .removeDefaultArguments) %>% trimws,
@@ -190,14 +189,10 @@ ergmTermCache <- local({
 
     term$concepts <- setdiff(term$concepts, omit.categories)
 
-    df <- rbind(df, c(usage, term$package, term$title, if (length(term$concepts) > 0) paste(term$concepts, collapse='\n') else '', term$link))
-  }
-
-  df <- data.frame(df, stringsAsFactors=FALSE)
-  colnames(df) <- c('Term', 'Package', 'Description', 'Concepts', 'Link')
-
-  df
+    c(Term = usage, Package = term$package, Description = term$title, Concepts = if (length(term$concepts) > 0) paste(term$concepts, collapse='\n') else '', Link = term$link)
+  }) %>% t() %>% as.data.frame(stringsAsFactors=FALSE)
 }
+
 
 # terms : a list structure of the documentation data
 # categores : an optional vector of column names to print and include
