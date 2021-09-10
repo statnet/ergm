@@ -158,7 +158,7 @@ ergmTermCache <- local({
   if (class(expr) != 'call') {
     return(usage)
   } else {
-    expr <- ifelse(names(expr) != "", names(expr), as.character(expr))
+    expr <- NVL3(names(expr), ifelse(. != "", ., as.character(expr)), as.character(expr))
     return(sprintf("%s(%s)", expr[1], paste(expr[2:length(expr)], collapse=", ")))
   }
 }
