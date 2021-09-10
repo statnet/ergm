@@ -196,7 +196,7 @@ ergmTermCache <- local({
 
 # terms : a list structure of the documentation data
 # categores : an optional vector of column names to print and include
-# only.include : an optional vector of categories, only terms that match the category will be printed 
+# only.include : an optional vector of categories, only terms that match the keywords will be printed
 .termMatrix <- function(term_type, categories=NULL, only.include=NULL) {
   terms <- ergmTermCache(term_type)
 
@@ -233,7 +233,7 @@ ergmTermCache <- local({
   df[c('Term', categories, 'Link')]
 }
 
-# output listings of terms, grouped by category
+# output listings of terms, grouped by keywords
 .termToc <- function(term_type) {
   terms <- ergmTermCache(term_type)
 
@@ -398,7 +398,7 @@ ergmTermCache <- local({
 .formatTocHtml <- function(toc) {
   if(is.null(toc)) return(NULL)
 
-  out <- paste('Jump to category:', paste(sprintf('<a href="#cat_%s">%s</a>', names(toc), names(toc)), collapse=' '))
+  out <- paste('Jump to keyword:', paste(sprintf('<a href="#cat_%s">%s</a>', names(toc), names(toc)), collapse=' '))
   for (cat in names(toc)) {
     out <- sprintf('%s<h3><a id="cat_%s">%s</a></h3>%s', out, cat, cat,
       paste(sprintf('<a href="#%s">%s</a>', toc[[cat]]$link, toc[[cat]]$name), collapse=' '))
@@ -412,20 +412,20 @@ ergmTermCache <- local({
 #' 
 #' Searches through the \code{\link{ergm.terms}} help page and prints out a
 #' list of terms appropriate for the specified network's structural
-#' constraints, optionally restricting by additional categories and keyword
+#' constraints, optionally restricting by additional keywords and search term
 #' matches.
 #' 
-#' Uses \code{\link{grep}} internally to match keywords against the term
-#' description, so \code{keywords} is currently matched as a single phrase.
-#' Category tags will only return a match if all of the specified tags are
+#' Uses \code{\link{grep}} internally to match the search terms against the term
+#' description, so \code{search.term} is currently matched as a single phrase.
+#' Keyword tags will only return a match if all of the specified tags are
 #' included in the term.
 #' 
-#' @param keyword optional character keyword to search for in the text of the
+#' @param search.terms optional character search term to search for in the text of the
 #' term descriptions. Only matching terms will be returned. Matching is case
 #' insensitive.
 #' @param net a network object that the term would be applied to, used as
 #' template to determine directedness, bipartite, etc
-#' @param categories optional character vector of category tags to use to
+#' @param keywords optional character vector of keyword tags to use to
 #' restrict the results (i.e. 'curved', 'triad-related')
 #' @param name optional character name of a specific term to return
 #' @return prints out the name and short description of matching terms, and
@@ -444,18 +444,18 @@ ergmTermCache <- local({
 #' myNet<-network.initialize(5,bipartite=3)
 #' search.ergmTerms(net=myNet)
 #' 
-#' # or request the bipartite category
-#' search.ergmTerms(categories='bipartite')
+#' # or request the bipartite keyword
+#' search.ergmTerms(keywords='bipartite')
 #' 
-#' # search on multiple categories
-#' search.ergmTerms(categories=c('bipartite','dyad-independent'))
+#' # search on multiple keywords
+#' search.ergmTerms(keywords=c('bipartite','dyad-independent'))
 #' 
 #' # print out the content for a specific term
 #' search.ergmTerms(name='b2factor')
 #' 
 #' @importFrom utils capture.output
 #' @export search.ergmTerms
-search.ergmTerms<-function(keyword,net,categories,name){
+search.ergmTerms<-function(search.term,net,keywords,name){
   
   if (!missing(net)){
     if(!is.network(net)){
@@ -463,17 +463,17 @@ search.ergmTerms<-function(keyword,net,categories,name){
     }
   }
   
-  if(missing(categories)){
-    categories<-character(0)
+  if(missing(keywords)){
+    keywords<-character(0)
   }
   if (!missing(net)){
     if(is.directed(net)){
-      categories<-c(categories,'directed')
+      keywords<-c(keywords,'directed')
     } else {
-      categories<-c(categories,'undirected')
+      keywords<-c(keywords,'undirected')
     }
     if(is.bipartite(net)){
-      categories<-c(categories,'bipartite')
+      keywords<-c(keywords,'bipartite')
     } 
   }
 
@@ -489,19 +489,19 @@ search.ergmTerms<-function(keyword,net,categories,name){
     }
   }
   
-  # restrict by categories
+  # restrict by keywords
   for (t in which(found)){
     term<-terms[[t]]
-    if(!all(categories%in%term$concepts)){
+    if(!all(keywords%in%term$concepts)){
       found[t]<-FALSE }
   }
   
-  # next (optionally) restrict by keyword matches
-  if (!missing(keyword)){
+  # next (optionally) restrict by search.term matches
+  if (!missing(search.term)){
     for (t in which(found)){
       term<-terms[[t]]
-      # if we don't find the keyword in the text grep, mark it as false
-      if(length(grep(keyword,c(term$description, term$title),ignore.case=TRUE))==0){
+      # if we don't find the search.term in the text grep, mark it as false
+      if(length(grep(search.term,c(term$description, term$title),ignore.case=TRUE))==0){
         found[t]<-FALSE
       } 
     }
@@ -512,13 +512,13 @@ search.ergmTerms<-function(keyword,net,categories,name){
   output<-list()
   if(!missing(name)){
     if(sum(found)==0){
-      cat("No terms named '",name,"' were found. Try searching with keyword='",name,"'instead.",sep='')
+      cat("No terms named '",name,"' were found. Try searching with search.term='",name,"'instead.",sep='')
     } else {
       cat("Definitions for term(s) ",name,":\n")
       for (t in which(found)){
         term<-terms[[t]]
         output<-c(output, term)
-        cat(sprintf('%s\n    %s: %s\n    Categories: %s\n\n',
+        cat(sprintf('%s\n    %s: %s\n    Keywords: %s\n\n',
           term$usages[[1]]$usage,
           term$title,
           term$description,
