@@ -25,7 +25,7 @@ if(length(found)<8){
   stop(' search.ergmTerms unexpectly found less than 8 terms mentioning triangles')
 }
 
-found<-search.ergmTerms(categories = 'bipartite')
+found<-search.ergmTerms(keywords = 'bipartite')
 if(length(found)<20){
-  stop(' search.ergmTerms unexpectly found less than 20 terms with the category "bipartite"')
+  stop(' search.ergmTerms unexpectly found less than 20 terms with the keyword "bipartite"')
 }
