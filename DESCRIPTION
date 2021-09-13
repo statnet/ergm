@@ -141,6 +141,7 @@ Collate:
     'ergm.stocapprox.R'
     'ergm.utility.R'
     'ergmMPLE.R'
+    'ergm_concept.R'
     'ergm_estfun.R'
     'ergm_model.R'
     'ergm_model.utils.R'

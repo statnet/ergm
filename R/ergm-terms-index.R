@@ -10,10 +10,6 @@
 
 SUPPORTED_TERM_TYPES <- c('Term', 'Constraint', 'Reference')
 SUPPORTED_TERM_TYPE_REGEX <- sprintf('-ergm(%s)(.Rd)?', paste(SUPPORTED_TERM_TYPES, collapse='|'))
-CONCEPT_ABBREVIATIONS <- list('directed'='dir', 'dyad-independent'='dyad-indep', 'quantitative nodal attribute'='quant nodal attr',
-    'undirected'='undir', 'binary'='bin', 'valued'='val', 'categorical nodal attribute'='cat nodal attr',
-    'curved'='curved', 'triad-related'='triad rel', 'operator'='op', 'bipartite'='bip',
-    'frequently-used'='freq', 'non-negative'='non-neg')
 
 DISPLAY_TEXT_INDEX_MAX_WIDTHS <- list('Term'=25, 'Pkg'=5, 'Description'=33, 'Concepts'=12)
 DISPLAY_TEXT_MAX_WIDTH <- sum(unlist(DISPLAY_TEXT_INDEX_MAX_WIDTHS)) + length(DISPLAY_TEXT_INDEX_MAX_WIDTHS) - 1
@@ -224,8 +220,9 @@ ergmTermCache <- local({
 
   df <- data.frame(membership)
 
-  keywords <- unlist(CONCEPT_ABBREVIATIONS[keywords])
-  colnames(df) <- keywords
+  keywords <- ergm_concept()
+  categories <- keywords[keywords$name %in% categories, 'short']
+  colnames(df) <- categories
   rownames(df) <- NULL
   df$Link <- sapply(terms,'[[','link')
   df$Term <- sapply(terms,'[[','name')
