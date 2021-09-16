@@ -29,3 +29,8 @@ found<-search.ergmTerms(keywords = 'bipartite')
 if(length(found)<20){
   stop(' search.ergmTerms unexpectly found less than 20 terms with the keyword "bipartite"')
 }
+
+ergm_found<-search.ergmTerms(keywords = 'bipartite', packages=c('ergm', 'base'))
+if(length(ergm_found)>length(found)){
+  stop(' search.ergmTerms unexpectly found more terms when restricted by package')
+}
