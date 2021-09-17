@@ -4,7 +4,7 @@
 \alias{search.ergmTerms}
 \title{Search the ergm-terms documentation for appropriate terms}
 \usage{
-search.ergmTerms(search.term, net, keywords, name)
+search.ergmTerms(search.term, net, keywords, name, packages)
 }
 \arguments{
 \item{net}{a network object that the term would be applied to, used as
@@ -14,6 +14,8 @@ template to determine directedness, bipartite, etc}
 restrict the results (i.e. 'curved', 'triad-related')}
 
 \item{name}{optional character name of a specific term to return}
+
+\item{packages}{optional character vector indicating the subset of packages in which to search}
 
 \item{search.terms}{optional character search term to search for in the text of the
 term descriptions. Only matching terms will be returned. Matching is case
@@ -55,6 +57,9 @@ search.ergmTerms(keywords=c('bipartite','dyad-independent'))
 
 # print out the content for a specific term
 search.ergmTerms(name='b2factor')
+
+# request the bipartite keyword in the ergm package
+search.ergmTerms(keywords='bipartite', packages='ergm')
 
 }
 \seealso{

@@ -428,6 +428,7 @@ ergmTermCache <- local({
 #' @param keywords optional character vector of keyword tags to use to
 #' restrict the results (i.e. 'curved', 'triad-related')
 #' @param name optional character name of a specific term to return
+#' @param packages optional character vector indicating the subset of packages in which to search
 #' @return prints out the name and short description of matching terms, and
 #' invisibly returns them as a list.  If \code{name} is specified, prints out
 #' the full definition for the named term.
@@ -452,10 +453,13 @@ ergmTermCache <- local({
 #' 
 #' # print out the content for a specific term
 #' search.ergmTerms(name='b2factor')
+#'
+#' # request the bipartite keyword in the ergm package
+#' search.ergmTerms(keywords='bipartite', packages='ergm')
 #' 
 #' @importFrom utils capture.output
 #' @export search.ergmTerms
-search.ergmTerms<-function(search.term,net,keywords,name){
+search.ergmTerms<-function(search.term,net,keywords,name,packages){
   
   if (!missing(net)){
     if(!is.network(net)){
@@ -504,6 +508,16 @@ search.ergmTerms<-function(search.term,net,keywords,name){
       if(length(grep(search.term,c(term$description, term$title),ignore.case=TRUE))==0){
         found[t]<-FALSE
       } 
+    }
+  }
+
+  # optionally restrict by package
+  if (!missing(packages)) {
+    for (t in which(found)) {
+      term <- terms[[t]]
+      if (!term$package %in% packages) {
+        found[t] <- FALSE
+      }
     }
   }
   
