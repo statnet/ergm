@@ -1,3 +1,12 @@
+/*  File src/ergm_wtstate.c in package ergm, part of the
+ *  Statnet suite of packages for network analysis, https://statnet.org .
+ *
+ *  This software is distributed under the GPL-3 license.  It is free,
+ *  open source, and has the attribution requirements (GPL Section 7) at
+ *  https://statnet.org/attribution .
+ *
+ *  Copyright 2003-2021 Statnet Commons
+ */
 #include "ergm_wtstate.h"
 #include "ergm_constants.h"
 
@@ -8,6 +17,9 @@ static unsigned int ergm_wtstate_array_maxlen = 0;
 WtErgmState *WtErgmStateInit(SEXP stateR,
                              unsigned int flags){
   WtErgmState *s = Calloc(1, WtErgmState);
+
+  /* Save a reference to the corresponding R object */
+  s->R = stateR;
 
   /* Extract stats vector */
   SEXP tmp = getListElement(stateR, "stats");
@@ -38,7 +50,9 @@ WtErgmState *WtErgmStateInit(SEXP stateR,
   return s;
 }
 
-SEXP WtErgmStateRSave(SEXP startR, WtErgmState *s){
+SEXP WtErgmStateRSave(WtErgmState *s){
+  SEXP startR = s->R;
+
   // Duplicate state
   SEXP outl = PROTECT(allocVector(VECSXP, length(startR)));
   setAttrib(outl, R_NamesSymbol, getAttrib(startR, R_NamesSymbol));

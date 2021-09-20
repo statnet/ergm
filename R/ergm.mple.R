@@ -1,12 +1,12 @@
-#  File R/ergm.mple.R in package ergm, part of the Statnet suite
-#  of packages for network analysis, https://statnet.org .
+#  File R/ergm.mple.R in package ergm, part of the
+#  Statnet suite of packages for network analysis, https://statnet.org .
 #
 #  This software is distributed under the GPL-3 license.  It is free,
 #  open source, and has the attribution requirements (GPL Section 7) at
-#  https://statnet.org/attribution
+#  https://statnet.org/attribution .
 #
-#  Copyright 2003-2020 Statnet Commons
-#######################################################################
+#  Copyright 2003-2021 Statnet Commons
+################################################################################
 
 #' Find a maximizer to the psuedolikelihood function
 #' 
@@ -139,7 +139,7 @@ ergm.mple<-function(nw, fd, m, init=NULL,
       stop(glm.result$error)
     } else if (!is.null(glm.result$warnings)) {
       # if the glm results are crazy, redo it with 0 starting values
-      if (max(abs(glm.result$value$coef), na.rm=T) > 1e6) {
+      if (max(abs(coef(glm.result$value)), na.rm=T) > 1e6) {
         warning("GLM model may be separable; restarting glm with zeros.\n")
         mplefit <- glm(pl$zy ~ .-1 + offset(pl$foffset), 
                        data=data.frame(pl$xmat),
@@ -161,8 +161,8 @@ ergm.mple<-function(nw, fd, m, init=NULL,
 
    }
   }
-  real.coef <- mplefit$coef
-  
+  real.coef <- coef(mplefit)
+
   if(!is.dyad.independent(m) && control$MPLE.covariance.method=="Godambe" ||
      control$MPLE.covariance.method=="bootstrap" ){ 
     real.cov <- mple.cov
@@ -209,7 +209,7 @@ ergm.mple<-function(nw, fd, m, init=NULL,
     mplefit.null <- try(glm(pl$zy ~ -1 + offset(pl$foffset), family=family, weights=pl$wend),
                         silent = TRUE)
     if (inherits(mplefit.null, "try-error")) {
-      mplefit.null <- list(coef=0, deviance=0, null.deviance=0,
+      mplefit.null <- list(coefficients=0, deviance=0, null.deviance=0,
                            cov.unscaled=diag(1))
     }
   }
@@ -223,7 +223,7 @@ ergm.mple<-function(nw, fd, m, init=NULL,
   }
   message("Finished MPLE.")
   # Output results as ergm-class object
-  structure(list(coef=theta,
+  structure(list(coefficients=theta,
       iterations=iteration, 
       MCMCtheta=theta, gradient=gradient,
       hessian=NULL, covar=covar, failure=FALSE,

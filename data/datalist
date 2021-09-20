@@ -1,10 +1,9 @@
+cohab: cohab_MixMat cohab_PopWts cohab_TargetStats
 ecoli: ecoli1 ecoli2
 faux.desert.high
 faux.dixon.high
 faux.magnolia.high
-faux.magnolia.high.withnumericattributes: faux.magnolia.high
 faux.mesa.high
-faux.mesa.high.withnumericattributes: faux.mesa.high
 florentine: flobusiness flomarriage
 g4
 kapferer: kapferer kapferer2

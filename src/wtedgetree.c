@@ -1,11 +1,11 @@
-/*  File src/wtedgetree.c in package ergm, part of the Statnet suite
- *  of packages for network analysis, https://statnet.org .
+/*  File src/wtedgetree.c in package ergm, part of the
+ *  Statnet suite of packages for network analysis, https://statnet.org .
  *
  *  This software is distributed under the GPL-3 license.  It is free,
  *  open source, and has the attribution requirements (GPL Section 7) at
- *  https://statnet.org/attribution
+ *  https://statnet.org/attribution .
  *
- *  Copyright 2003-2020 Statnet Commons
+ *  Copyright 2003-2021 Statnet Commons
  */
 #include "ergm_wtedgetree.h"
 #include "ergm_Rutil.h"
@@ -243,11 +243,9 @@ void AddOnWtNetworkEdgeChange(WtNetwork *nwp, OnWtNetworkEdgeChange callback, vo
 
   pos = MIN(pos, nwp->n_on_edge_change); // Last position.
   // Move everything down the list.
-  for(unsigned int i = nwp->n_on_edge_change; i>pos ; i--){
-    nwp->on_edge_change[i] = nwp->on_edge_change[i-1];
-    nwp->on_edge_change_payload[i] = nwp->on_edge_change_payload[i-1];
-  }
-  
+  memmove(nwp->on_edge_change+pos+1, nwp->on_edge_change+pos, (nwp->n_on_edge_change-pos)*sizeof(OnWtNetworkEdgeChange));
+  memmove(nwp->on_edge_change_payload+pos+1, nwp->on_edge_change_payload+pos, (nwp->n_on_edge_change-pos)*sizeof(void*));
+
   nwp->on_edge_change[pos] = callback;
   nwp->on_edge_change_payload[pos] = payload;
   
@@ -268,10 +266,8 @@ void DeleteOnWtNetworkEdgeChange(WtNetwork *nwp, OnWtNetworkEdgeChange callback,
 
   if(i==nwp->n_on_edge_change) error("Attempting to delete a nonexistent callback.");
 
-  for(; i+1 < nwp->n_on_edge_change; i++){
-    nwp->on_edge_change[i] = nwp->on_edge_change[i+1];
-    nwp->on_edge_change_payload[i] = nwp->on_edge_change_payload[i+1];
-  }
+  memmove(nwp->on_edge_change+i, nwp->on_edge_change+i+1, (nwp->n_on_edge_change-i-1)*sizeof(OnWtNetworkEdgeChange));
+  memmove(nwp->on_edge_change_payload+i, nwp->on_edge_change_payload+i+1, (nwp->n_on_edge_change-i-1)*sizeof(void*));
 
   nwp->n_on_edge_change--;
 }

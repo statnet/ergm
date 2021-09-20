@@ -1,12 +1,12 @@
-#  File R/mcmc.diagnostics.ergm.R in package ergm, part of the Statnet suite
-#  of packages for network analysis, https://statnet.org .
+#  File R/mcmc.diagnostics.ergm.R in package ergm, part of the
+#  Statnet suite of packages for network analysis, https://statnet.org .
 #
 #  This software is distributed under the GPL-3 license.  It is free,
 #  open source, and has the attribution requirements (GPL Section 7) at
-#  https://statnet.org/attribution
+#  https://statnet.org/attribution .
 #
-#  Copyright 2003-2020 Statnet Commons
-#######################################################################
+#  Copyright 2003-2021 Statnet Commons
+################################################################################
 #=================================================================================
 # This file contains the following 10 diagnostic tools and their helper functions
 #      <mcmc.diagnostics>            <traceplot.ergm>
@@ -206,7 +206,7 @@ mcmc.diagnostics.ergm <- function(object,
   }
 
   if(esteq){
-    if (!is.null(object$coef) && !is.null(object$etamap)) {
+    if (!is.null(coef(object)) && !is.null(object$etamap)) {
       sm <- ergm.estfun(sm, theta=coef(object), model=object$etamap) %>% lapply.mcmc.list(`-`)
       if(!is.null(sm.obs)) sm.obs <- ergm.estfun(sm.obs, theta=coef(object), model=object$etamap) %>% lapply.mcmc.list(`-`)
     }

@@ -1,12 +1,12 @@
-#  File R/ergm.R in package ergm, part of the Statnet suite
-#  of packages for network analysis, https://statnet.org .
+#  File R/ergm.R in package ergm, part of the
+#  Statnet suite of packages for network analysis, https://statnet.org .
 #
 #  This software is distributed under the GPL-3 license.  It is free,
 #  open source, and has the attribution requirements (GPL Section 7) at
-#  https://statnet.org/attribution
+#  https://statnet.org/attribution .
 #
-#  Copyright 2003-2020 Statnet Commons
-#######################################################################
+#  Copyright 2003-2021 Statnet Commons
+################################################################################
 ###############################################################################
 # The <ergm> function fits ergms from a specified formula returning either
 # MPLEs or approximate MLE's based on MCMC estimation.
@@ -145,7 +145,7 @@
 #' using syntax similar to the \code{formula} argument, on the
 #' right-hand side. Multiple constraints
 #' may be given, separated by \dQuote{+} and \dQuote{-} operators. (See
-#' [ERGM constraints][ergm-constraints] for the explanation of
+#' [ERGM constraints][ergmConstraint] for the explanation of
 #' their semantics.)
 #' Together with the model terms in the formula and the reference measure, the constraints
 #' define the distribution of networks being modeled.
@@ -159,7 +159,7 @@
 #' 
 #' The default is \code{~.}, for an unconstrained model.
 #' 
-#' See the [ERGM constraints][ergm-constraints] documentation for
+#' See the [ERGM constraints][ergmConstraint] documentation for
 #' the constraints implemented in the **[ergm][ergm-package]**
 #' package. Other packages may add their own constraints.
 #' 
@@ -189,7 +189,7 @@
 #'   arguments to the proposal should be specified through the
 #'   \code{obs.prop.args} argument to \code{\link{control.ergm}}.
 #' 
-#'   See the [ERGM constraints][ergm-constraints] documentation for
+#'   See the [ERGM constraints][ergmConstraint] documentation for
 #'   the constraints implemented in the **[ergm][ergm-package]**
 #'   package. Other packages may add their own constraints.
 #'     
@@ -379,7 +379,7 @@
 #' Working Paper \#39, 
 #' Center for Statistics and the Social Sciences,
 #' University of Washington.
-#' \url{https://www.csss.washington.edu/research/working-papers/assessing-degeneracy-statistical-models-social-networks}
+#' \url{https://csss.uw.edu/research/working-papers/assessing-degeneracy-statistical-models-social-networks}
 #' 
 #' Handcock MS (2003b).
 #' \pkg{degreenet}: Models for Skewed Count Distributions Relevant
@@ -647,8 +647,6 @@ ergm <- function(formula, response=NULL,
   if(!is.directed(nw) && ("degrees" %in% names(proposal$arguments$constraints) ||
                                            all(c("b1degrees","b2degrees") %in% names(proposal$arguments$constraints)))) message("Note that degree-conditional MPLE has been removed in version 4.0, having been superceded by Contrastive Divergence.")  
   
-  # Construct the initial model.
-  
   # The following kludge knocks out MPLE if the sample space
   # constraints are not dyad-independent. For example, ~observed
   # constraint is dyad-independent, while ~edges is not.
@@ -681,12 +679,10 @@ ergm <- function(formula, response=NULL,
       if(verbose){
         message("control$init =")
         message_print(control$init)
-        message("number of statistics is ",length(model$coef.names), "")
+        message("number of statistics is ", nparam(model, canonical=TRUE), "")
       }
       stop(paste("Invalid starting parameter vector control$init:",
-                 "wrong number of parameters.",
-                 "If you are passing output from another ergm run as control$init,",
-                 "in a model with curved terms, see help(enformulate.curved)."))
+                 "wrong number of parameters."))
     }
   }else control$init <- rep(NA, length(model$etamap$offsettheta)) # Set the default value of control$init.
   
@@ -738,7 +734,7 @@ ergm <- function(formula, response=NULL,
   if(all(model$etamap$offsettheta)){
     # Note that this cannot be overridden with control$force.main.
     message("All terms are either offsets or extreme values. No optimization is performed.")
-    return(structure(list(coef=control$init,
+    return(structure(list(coefficients=control$init,
                           call=ergm_call,
                           iterations=0,
                           loglikelihood=NA,
@@ -783,11 +779,11 @@ ergm <- function(formula, response=NULL,
                                 ...)
 
   switch(control$init.method,
-         MPLE = NVL3(initialfit$xmat.full, check_nonidentifiability(., initialfit$coef, model,
+         MPLE = NVL3(initialfit$xmat.full, check_nonidentifiability(., coef(initialfit), model,
                                                                     tol = control$MPLE.nonident.tol, type="covariates",
                                                                     nonident_action = control$MPLE.nonident,
                                                                     nonvar_action = control$MPLE.nonvar)),
-         CD = NVL3(initialfit$sample, check_nonidentifiability(as.matrix(.), initialfit$coef, model,
+         CD = NVL3(initialfit$sample, check_nonidentifiability(as.matrix(.), coef(initialfit), model,
                                                                tol = control$MPLE.nonident.tol, type="statistics",
                                                                nonident_action = control$MPLE.nonident,
                                                                nonvar_action = control$MPLE.nonvar))
@@ -824,7 +820,7 @@ ergm <- function(formula, response=NULL,
     initialfit$target.stats <- suppressWarnings(na.omit(model$target.stats))
     initialfit$nw.stats <- model$nw.stats
       initialfit$etamap <- model$etamap
-    initialfit$target.esteq <- suppressWarnings(na.omit(if(!is.null(model$target.stats)) ergm.estfun(rbind(model$target.stats), initialfit$coef, model)))
+    initialfit$target.esteq <- suppressWarnings(na.omit(if(!is.null(model$target.stats)) ergm.estfun(rbind(model$target.stats), coef(initialfit), model)))
     initialfit$estimate <- estimate
     initialfit$estimate.desc <- estimate.desc
 
@@ -843,7 +839,7 @@ ergm <- function(formula, response=NULL,
   ergm.getCluster(control, max(verbose-1,0))
   
   # Revise the initial value, if necessary:
-  init <- initialfit$coef
+  init <- coef(initialfit)
   init[is.na(init)] <- 0
   names(init) <- param_names(model, FALSE)
   
@@ -885,7 +881,7 @@ ergm <- function(formula, response=NULL,
   mainfit$formula <- formula
   mainfit$target.stats <- suppressWarnings(na.omit(model$target.stats))
   mainfit$nw.stats <- model$nw.stats
-  mainfit$target.esteq <- suppressWarnings(na.omit(if(!is.null(model$target.stats)) ergm.estfun(rbind(model$target.stats), mainfit$coef, model)))
+  mainfit$target.esteq <- suppressWarnings(na.omit(if(!is.null(model$target.stats)) ergm.estfun(rbind(model$target.stats), coef(mainfit), model)))
   
   mainfit$constrained <- proposal$arguments$constraints
   mainfit$constrained.obs <- proposal.obs$arguments$constraints

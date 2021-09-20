@@ -1,12 +1,12 @@
-#  File R/ergm.logitreg.R in package ergm, part of the Statnet suite
-#  of packages for network analysis, https://statnet.org .
+#  File R/ergm.logitreg.R in package ergm, part of the
+#  Statnet suite of packages for network analysis, https://statnet.org .
 #
 #  This software is distributed under the GPL-3 license.  It is free,
 #  open source, and has the attribution requirements (GPL Section 7) at
-#  https://statnet.org/attribution
+#  https://statnet.org/attribution .
 #
-#  Copyright 2003-2020 Statnet Commons
-#######################################################################
+#  Copyright 2003-2021 Statnet Commons
+################################################################################
 #============================================================================
 # This file contains the following 2 functions for logistic regression
 #        <ergm.logitreg>
@@ -135,8 +135,8 @@ ergm.logitreg <- function(x, y, wt = rep(1, length(y)),
                rmax=100, 
                parscale=rep(1,length(init)), iterlim=maxit, minimize=FALSE,
                X = x, y = y, w = wt, offset=offset, etamap=etamap, etagrad=etagrad)
-  fit$coef <- fit$argument
-  names(fit$coef) <- dn[if(!is.null(m)) !m$etamap$offsettheta else TRUE]
+  fit$coefficients <- fit$argument
+  names(fit$coefficients) <- dn[if(!is.null(m)) !m$etamap$offsettheta else TRUE]
   fit$deviance <- -2*fit$value
   fit$iter <- fit$iterations
   asycov <- ginv(-fit$hessian)

@@ -1,0 +1,872 @@
+---
+title: "Introduction to Exponential-family Random Graph Models with `ergm`"
+author: "The Statnet Development Team"
+date: "`ergm` version `r packageVersion('ergm')` (`r Sys.Date()`)"
+output:
+  pdf_document:
+    number_sections: true
+    toc: true
+    toc_depth: 2
+
+vignette: >
+  %\VignetteIndexEntry{Introduction to Exponential-family Random Graph Models with ergm}
+  %\VignetteEngine{knitr::rmarkdown}
+  \usepackage[utf8]{inputenc}
+---
+
+```{r setup, include=FALSE}
+library(knitr)
+opts_chunk$set(
+cache=TRUE,
+autodep=TRUE,
+concordance=TRUE,
+error=FALSE,
+width=6,fig.height=6
+)
+options(width=75)
+```
+
+## Introduction 
+
+This vignette provides an introduction to statistical modeling of
+network data with *Exponential family Random Graph Models* (ERGMs)
+using `ergm` package.  It is based on the `ergm` tutorial used in the
+`statnet` workshops, but covers a subset of that material.  
+The complete tutorial can be found on the [`statnet` workshop wiki](https://github.com/statnet/Workshops/wiki/).
+
+A more complete overview of the advanced functionality available in the
+`ergm` package can be found in [this preprint](http://arxiv.org/abs/2106.04997).
+
+
+### Software installation
+
+If you are reading this, you have probably already installed the `ergm` package.  But in case you need to do that:
+
+```{r,eval=FALSE}
+install.packages('ergm')
+```
+
+```{r}
+library(ergm)
+```
+
+Set a seed for simulations -- this is not necessary, but it ensures that 
+you will get the same results as this vignette (if you execute the same commands in the same order).
+```{r}
+set.seed(0)
+```
+
+## 1. Statistical network modeling with ERGMs
+
+This is a *very brief* overview of the modeling framework, as the primary purpose of this tutorial is to show how to implement statistical analysis of network data with ERGMs using the `ergm` package.  For more detail (and to really understand ERGMs) please see the [references](ergm_tutorial.html#references) at the end of this tutorial.
+
+Exponential-family random graph models (ERGMs) are a 
+general class of models based on exponential-family theory 
+for specifying the tie probability distribution 
+for a set of random graphs or networks. Within this framework, one can---among other tasks:
+
+* Define a model for a network that includes covariates representing features like nodal attribute homophily, mutuality, triad effects, and a wide range of other structural features of interest;
+
+* Obtain maximum-likehood estimates for the parameters of the specified model for a given data set; 
+
+* Test the statistical significance of individual coefficients, assess models for convergence and goodness-of-fit and perform various types of model comparison; and 
+
+* Simulate new networks from the underlying probability distribution implied by the fitted model.
+
+### The general form for an ERGM 
+
+ERGMs are a class of models, like linear regression or GLMs.  The general form of the model specifies the probability of the entire network (on the left hand side), as a function of terms that represent network features we hypothesize may occur more or less likely than expected by chance (on the right hand side).  The general form of the model can be written as:
+
+$$
+P(Y=y)=\frac{\exp(\theta'g(y))}{k(\theta)}
+$$
+
+
+where 
+
+* $Y$ is the random variable for the state of the network (with realization $y$), 
+
+* $g(y)$ is a vector of model statistics ("ERGM terms") for network $y$, 
+
+* $\theta$ is the vector of coefficients for those statistics, and 
+* $k(\theta)$ represents the quantity in the numerator summed over all possible networks (typically constrained to be all networks with the same node set as $y$).
+
+If you're not familiar with the compact notation here, note that the numerator represents a formula that is linear in the log form:
+
+$$
+\log({\exp(\theta'g(y))}) = \theta_1g_1(y) + \theta_2g_2(y)+ ... + \theta_pg_p(y)
+$$
+where $p$ is the number of terms in the model.  From this one can more easily observe the analogy to a traditional statistical model:  the coefficients $\theta$ represent the size and direction of the effects of the covariates $g(y)$ on the overall probability of the network.
+
+#### The model statistics $g(y)$:  ERGM terms
+
+The statistics $g(y)$ can be thought of as the "covariates" in the model.  In the network modeling context, these represent network features like density, homophily, triads, etc.  In one sense, they are like covariates you might use in other statistical models.  But they are different in one important respect:  these $g(y)$ statistics are functions of the network itself -- each is defined by the frequency of a specific configuration of dyads observed in the network -- so they are not measured by a question you include in a survey (e.g., the income of a node), but instead need to be computed on the specific network you have, after you have collected the data.
+
+As a result, every term in an ERGM must have an associated algorithm for computing its value for your network.  The `ergm` package in `statnet` includes about 150 term-computing algorithms.  We will explore some of these terms in this 
+tutorial, and links to more information are provided in 
+[section 3.](#model-terms-available-for-ergm-estimation-and-simulation).
+
+You can get the list of all available terms, and the syntax for using them, by typing:
+
+```{r, eval=FALSE}
+?'ergm-terms'
+```
+
+You can also search for terms with keywords:
+
+```{r}
+search.ergmTerms(keyword='homophily')
+```
+
+For more information, see the vignette on `ergm-terms`:
+```{r, eval=FALSE}
+vignette('ergm-term-crossRef')
+```
+
+One key distinction in model terms is worth keeping in mind:  terms are either _dyad independent_ or _dyad dependent_.  
+
+* Dyad _independent_ terms (like nodal homophily terms) imply no dependence between dyads---the presence or absence of a tie may depend on nodal attributes, but not on the state of other ties.  
+
+* Dyad _dependent_ terms (like degree terms, or triad terms), by contrast, imply dependence between dyads.  Such terms have very different effects, and much of what is different about network models comes from these terms.  They introduce complex cascading effects that can often lead to counter-intuitive and highly non-linear outcomes.  In addition, a model with dyad dependent terms requires a different estimation algorithm, so when we use them below you will see some different components in the output.
+
+An overview and discussion of many of these terms can be found in
+the 'Specifications'
+paper in the [*Journal of Statistical Software v24(4)*](http://www.jstatsoft.org/v24/i04)
+
+#### ERGM probabilities: at the tie-level
+
+The ERGM expression for the probability of the entire graph shown above can be re-expressed in terms of the conditional log-odds of a single tie between two actors:
+
+$$
+\operatorname{logit}{(Y_{ij}=1|y^{c}_{ij})=\theta'\delta(y_{ij})}
+$$
+
+where 
+
+* $Y_{ij}$ is the random variable for the state of the actor pair $i,j$ (with realization $y_{ij}$), and 
+
+* $y^{c}_{ij}$ signifies the complement of $y_{ij}$, i.e. all dyads in the network other than $y_{ij}$. 
+
+* $\delta(y_{ij})$ is a vector of the "change statistics" for each model term.  The change statistic records how the $g(y)$ term changes if the $y_{ij}$ tie is toggled on or off.  So:
+
+$$
+\delta(y_{ij}) = g(y^{+}_{ij})-g(y^{-}_{ij})
+$$
+
+where 
+
+* $y^{+}_{ij}$ is defined as $y^{c}_{ij}$ along with $y_{ij}$ set to 1, and 
+* $y^{-}_{ij}$ is defined as $y^{c}_{ij}$ along with $y_{ij}$ set to 0.  
+
+So $\delta(y_{ij})$ equals the value of $g(y)$ when $y_{ij}=1$ minus the value of $g(y)$ when $y_{ij}=0$, but all other dyads are as in $y$.  
+
+This expression shows that the coefficient $\theta$ can be interpreted as that term's contribution to the log-odds of an individual tie, conditional on all other dyads remaining the same.  The coefficient for each term in the model is multiplied by the number of configurations that tie will create (or remove) for that specific term.
+
+
+
+
+#### The `summary` and `ergm` functions, and supporting functions
+
+We'll start by running some simple models to demonstrate the most
+commonly used functions for ERG modeling.
+
+The syntax for specifying a model in the `ergm` package follows **R**'s
+formula convention:
+
+$$ my.network \sim my.vector.of.model.terms $$
+
+This syntax is used for both the `summary` and `ergm` functions.  The
+`summary` function simply returns the numerical values of the
+network statistics in the model.  The `ergm` function estimates
+the model with those statistics.  
+
+---
+
+It is good practice to always
+run a `summmary` command on a model before fitting it with `ergm`.  This is the ERGM equivalent of performing some descriptive analysis on your covariates.  This can help you make sure you understand what the term represents, and it can help to flag potential problems that will
+lead to poor modeling results.
+
+---
+
+### Network data
+
+Network data can come in many different forms -- as adjacency matrices, edgelists and data frames.  For use with `ergm` these need to be converted into a `network` class object.  The `network` package provides the utilities for this, and more information
+can be found in the examples and vignette there.  
+
+```{r, eval=FALSE}
+vignette("networkVignette")
+```
+
+Here, we will use some of the network objects included with the `ergm` package.  
+
+```{r, eval=FALSE}
+data(package='ergm') # tells us the datasets in our packages
+```
+
+
+### Model specification
+
+We'll start with Padgett's data on Renaissance Florentine families for our first example.  As with all data analysis, we start by looking at our data using graphical and numerical descriptives.
+
+```{r}
+data(florentine) # loads flomarriage and flobusiness data
+flomarriage # Look at the flomarriage network properties (uses `network`), esp. the vertex attributes
+par(mfrow=c(1,2)) # Setup a 2 panel plot
+plot(flomarriage, 
+     main="Florentine Marriage", 
+     cex.main=0.8, 
+     label = network.vertex.names(flomarriage)) # Plot the network
+wealth <- flomarriage %v% 'wealth' # %v% references vertex attributes
+wealth
+plot(flomarriage, 
+     vertex.cex=wealth/25, 
+     main="Florentine marriage by wealth", cex.main=0.8) # Plot the network with vertex size proportional to wealth
+```
+
+
+#### A simple Bernoulli ("Erdos/Renyi") model
+
+We begin with a simple model, 
+containing only one term that represents the total number of
+edges in the network, $\sum{y_{ij}}$. The name of this ergm-term is `edges`, 
+and when included in an ERGM its 
+coefficient controls the overall density of the network.
+
+```{r}
+summary(flomarriage ~ edges) # Look at the $g(y)$ statistic for this model
+flomodel.01 <- ergm(flomarriage ~ edges) # Estimate the model 
+summary(flomodel.01) # Look at the fitted model object
+```
+
+This simple model specifies a single homogeneous 
+probability for all ties,
+which is captured by the coefficient of the `edges` term.  How 
+should we interpret this coefficient? The easiest way is
+to return to the logit form of the ERGM. The log-odds that a tie is present is
+\begin{align*}
+\operatorname{logit}(p(y)) &= \theta \times \delta(g(y)) \\
+& =  `r round(coef(flomodel.01),2)` \times \mbox{change in the number of ties}\\
+& =  `r round(coef(flomodel.01),2)` \times 1
+\end{align*}
+for every tie, since the addition of any tie to the network always increases the total number of ties by 1.
+
+The corresponding probability is obtained by taking the expit, or inverse
+logit, of $\theta$:
+\begin{align*}
+& =  \exp(`r round(coef(flomodel.01),2)`)/
+(1+\exp(`r round(coef(flomodel.01),2)`))\\
+& =  `r round( exp(coef(flomodel.01))/(1 + exp(coef(flomodel.01))), 2)`
+\end{align*}
+This probability corresponds to the density we observe in the 
+flomarriage network: there are $20$ ties and 
+$\binom{16}{2} = (16 \times 15)/2 = `r 16*15/2`$ dyads, 
+so the probability of a tie
+is $20/`r 16*15/2` = `r round(20/(16*15/2),2)`$.
+
+#### Triad formation
+
+Let's add a term often thought to be a measure of
+"clustering": the number of completed triangles in the network, or $\sum{y_{ij}y_{ik}y_{jk}} \div 3$.  
+The name for this ergm-term is `triangle`.
+
+This is an example of a dyad dependent term: The status of any triangle containing
+dyad $y_{ij}$ depends on the status of dyads of the form $y_{ik}$ and $y_{jk}$.
+This means that any model containing the ergm-term `triangle` has the property
+that dyads are not probabilistically independent of one another.
+As a result, the estimation algorithm automatically changes to MCMC, and because this 
+is a form of stochastic estimation your results may differ slightly.
+
+```{r, message = FALSE}
+summary(flomarriage~edges+triangle) # Look at the g(y) stats for this model
+flomodel.02 <- ergm(flomarriage~edges+triangle) 
+summary(flomodel.02)
+```
+
+
+Now, how should we interpret coefficients?
+
+The conditional log-odds of two actors having a tie, keeping the rest of the network
+fixed, is
+$$
+`r round(coef(flomodel.02)[[1]],2)` \times\mbox{change in the number of ties} + `r round(coef(flomodel.02)[[2]],2)` \times\mbox{change in number of triangles.}
+$$
+
+* For a tie that will create no triangles, the conditional log-odds is:
+$`r round(coef(flomodel.02)[[1]],2)`$.
+
+* if one triangle: 
+$`r round(coef(flomodel.02)[[1]],2)` + `r round(coef(flomodel.02)[[2]],2)` = `r round(coef(flomodel.02)[[1]] + coef(flomodel.02)[[2]],2)`$
+
+* if two triangles: 
+$`r round(coef(flomodel.02)[[1]],2)` + 2 \times`r round(coef(flomodel.02)[[2]],2)` = `r round(coef(flomodel.02)[[1]] + 2*coef(flomodel.02)[[2]],2)`$
+
+* the corresponding probabilities are 
+0.16, 
+0.18, and 
+0.20.
+
+Let's take a closer look at the ergm object that the function
+outputs:
+
+```{r}
+class(flomodel.02) # this has the class ergm
+
+names(flomodel.02) # the ERGM object contains lots of components.
+```
+
+
+```{r}
+coef(flomodel.02) # you can extract/inspect individual components
+```
+
+#### Nodal covariates: effects on mean degree
+
+We saw earlier that wealth appeared to be associated with higher
+degree in this network.  We can use `ergm` to test this.  Wealth is a nodal covariate, so we use the ergm-term **nodecov**.
+
+```{r}
+summary(wealth) # summarize the distribution of wealth
+# plot(flomarriage, 
+#      vertex.cex=wealth/25, 
+#      main="Florentine marriage by wealth", 
+#      cex.main=0.8) # network plot with vertex size proportional to wealth
+summary(flomarriage~edges+nodecov('wealth')) # observed statistics for the model
+flomodel.03 <- ergm(flomarriage~edges+nodecov('wealth'))
+summary(flomodel.03)
+```
+
+And yes, there is a significant positive wealth effect on the probability of a tie.
+
+*Question:*  What does the value of the **nodecov** statistic represent?
+
+How do we interpret the coefficients here?  Note that the wealth effect operates on both nodes in a dyad.  The conditional log-odds of a tie between two actors is:
+$$
+-2.59\times\mbox{change in the number of ties} + 0.01\times\mbox{the wealth of node 1} + 0.01\times\mbox{the wealth of node 2}
+$$
+or
+$$
+-2.59\times\mbox{change in the number of ties} + 0.01\times\mbox{the sum of the wealth of the two nodes}.
+$$
+
+* for a tie between two nodes with minimum wealth, the conditional log-odds is:  
+$-2.59 + 0.01*(3+3) = -2.53$
+* for a tie between two nodes with maximum wealth:  
+$-2.59 + 0.01*(146+146) = 0.33$
+* for a tie between the node with maximum wealth and the node with minimum wealth:  
+$-2.59 + 0.01*(146+3) = -1.1$
+* The corresponding probabilities are 0.07, 0.58, and 0.25.
+
+This model specification does not include a term for homophily by wealth, i.e., a term accounting for similarity in wealth of the two end nodes of a potential tie.  It just specifies a relation between wealth and mean degree.  To specify homophily on wealth, you could use the ergm-term ***absdiff***. [See section 3 below for more information on ergm-terms.?faux](ergm_tutorial.html#model-terms-available-for-ergm-estimation-and-simulation)
+
+#### Nodal covariates:  Homophily
+
+Let's try a larger network, a simulated mutual friendship network based on one of the schools from the AddHealth study.  Here, we'll examine the homophily in friendships by grade and race.  Both are discrete attributes so we use the ergm-term ***nodematch***.
+
+```{r}
+data(faux.mesa.high) 
+mesa <- faux.mesa.high
+```
+
+```{r}
+mesa
+par(mfrow=c(1,1)) # Back to 1-panel plots
+plot(mesa, vertex.col='Grade')
+legend('bottomleft',fill=7:12,
+       legend=paste('Grade',7:12),cex=0.75)
+```
+
+```{r}
+fauxmodel.01 <- ergm(mesa ~edges + 
+                       nodefactor('Grade') + nodematch('Grade',diff=T) +
+                       nodefactor('Race') + nodematch('Race',diff=T))
+summary(fauxmodel.01)
+```
+
+Note that two of the coefficients are estimated as -Inf
+(the nodematch coefficients for race Black and Other). Why is this?
+
+```{r}
+table(mesa %v% 'Race') # Frequencies of race
+mixingmatrix(mesa, "Race")
+```
+
+The problem is that there are very few students in the Black and
+Other race categories, and these few students form 
+no within-group ties. The empty cells are what produce the -Inf estimates.
+
+Note that we would have caught this earlier if we had looked at the $g(y)$ stats at the beginning:
+
+```{r}
+summary(mesa ~edges  + 
+          nodefactor('Grade') + nodematch('Grade',diff=T) +
+          nodefactor('Race') + nodematch('Race',diff=T))
+```
+**Moral**:  It's important to check the descriptive statistics of a model in the observed network before fitting the model.
+
+See also the ergm-terms ***nodemix*** and ***mm*** for fitting mixing patterns other than homophily on discrete nodal attributes.
+
+#### Directed ties
+
+Let's try a model for a directed network, and examine the tendency for ties to be reciprocated ("mutuality").  The ergm-term for this is ***mutual***.  We'll fit this model to the third wave of the classic Sampson Monastery data, and we'll start by taking a look at the network.
+
+```{r}
+data(samplk) 
+ls() # directed data: Sampson's Monks
+samplk3
+plot(samplk3)
+summary(samplk3~edges+mutual)
+```
+The plot now shows the direction of a tie, and the $g(y)$ statistics for this model in this network are 56 total ties and 15 mutual dyads.  This means 30 of the 56 ties are reciprocated, i.e., they are part of dyads in which both directional ties are present. 
+```{r, message = F}
+sampmodel.01 <- ergm(samplk3~edges+mutual)
+summary(sampmodel.01)
+```
+There is a strong and significant mutuality effect.  The coefficients for the edges and mutual terms roughly cancel for a mutual tie, so the conditional log-odds of a mutual tie are about zero, which means the probability is about 50%.  (Do you see why a log-odds of zero corresponds to a probability of 50%?)  By contrast, a non-mutual tie has a conditional log-odds of -2.16, or 10% probability.
+
+Triangle terms in directed networks can have many different configurations, given the directional ties.  Many of these configurations are coded as ergm-terms (and we'll talk about these more below).
+
+## 2. Missing data
+It is important to distinguish between the absence of a tie and the absence of data on whether a tie exists.  The former is an observed zero, whereas the latter is unobserved.  You should not code both of these as "0".  The `ergm` package recognizes and handles missing data appropriately, as long as you identify the data as missing.  Let's explore this with a simple example.
+
+Start by estimating an ergm on a network with two missing ties, where both ties are identified as missing.
+
+```{r}
+missnet <- network.initialize(10,directed=F) # initialize an empty net with 10 nodes
+missnet[1,2] <- missnet[2,7] <- missnet[3,6] <- 1 # add a few ties
+missnet[4,6] <- missnet[4,9] <- missnet[5,6] <- NA # mark a few dyads missing
+summary(missnet)
+
+# plot missnet with missing dyads colored red. 
+tempnet <- missnet
+tempnet[4,6] <- tempnet[4,9] <- tempnet[5,6] <- 1
+missnetmat <- as.matrix(missnet)
+missnetmat[is.na(missnetmat)] <- 2
+plot(tempnet,label = network.vertex.names(tempnet),
+     edge.col = missnetmat)
+
+# fit an ergm to the network with missing data identified
+summary(missnet~edges)
+summary(ergm(missnet~edges))
+```
+
+The coefficient equals -2.56, which corresponds to a probability of
+7.14%. Our network has 3 ties, out of the 42 non-missing nodal
+pairs (10 choose 2 minus 3): 3/42 = 7.14%.  So our estimate represents
+the probability of a tie in the observed sample.
+
+Now let's assign those missing ties the (observed) value "0" and check how 
+the value of the coefficient will change.  Can you predict whether it will
+get bigger or smaller?  Can you calculate it
+directly before checking the output of an `ergm` fit?  Let's see what happens.
+
+```{r}
+missnet_bad <- missnet # create network with missing dyads set to 0
+missnet_bad[4,6] <- missnet_bad[4,9] <- missnet_bad[5,6] <- 0
+
+# fit an ergm to the network with missing dyads set to 0
+summary(missnet_bad)
+summary(ergm(missnet_bad~edges))
+```
+The coefficient is smaller now because the missing ties are counted as "0", and this translates to a conditional tie probability of 6.67%.  
+It's a small difference in this case (and a small network, with little missing data).
+
+
+MORAL:  If you have missing data on ties, be sure to identify them by assigning the "NA" code.  This is particularly important if you're reading in data as an edgelist, as all dyads without edges are implicitly set to "0" in this case.
+
+
+## 3. Model terms available for *ergm* estimation and simulation
+
+Model terms are the expressions (e.g. "triangle")
+used to represent predictors on the right-hand size of equations used
+in:
+
+* calls to `summary` (to obtain measurements of network statistics
+on a dataset)
+* calls to `ergm` (to estimate an ergm model)
+* calls to `simulate` (to simulate networks from an ergm model
+fit)
+
+Because these terms are not exogeneous measures, but functions of
+the dyad states in the network, they must be calculated for
+the network that is being modeled.
+Many ERGM terms are simple counts of configurations (e.g., edges, nodal degrees, stars, triangles), but others are more complex functions of these configurations (e.g., geometrically weighted degrees and shared partners).  In theory, any configuration (or function of configurations) can be a term in an ERGM.  In practice, however, these terms have to be constructed before they can be used---that is, one has to explicitly write an algorithm that defines and calculates the network statistic of interest.  This is another key way that ERGMs differ from traditional linear and general linear models.
+
+The terms that can be used in a model also depend on the type of network being analyzed:  directed or undirected, one-mode or two-mode ("bipartite"), binary or valued edges.
+
+
+### Coding new ergm-terms
+
+There is a `statnet` package --- `ergm.userterms` ---
+that facilitates the writing of new
+ergm-terms. The package is available on CRAN, and installing it will 
+include the tutorial (ergmuserterms.pdf).  The tutorial can 
+also be found in the 
+[*Journal of Statistical Software 52(2)*](http://www.jstatsoft.org/v52/i02), 
+and some introductory slides and installation instructions from the workshop 
+we teach on coding ergm-terms can be found
+[here](https://github.com/statnet/Workshops/tree/master/ergm.userterms).
+
+Note that writing up new `ergm` terms requires some knowledge of 
+C and the ability
+to build R from source.  While the latter is covered in the tutorial, 
+the many environments for building R and the rapid changes in 
+these environments make these instructions obsolete quickly. 
+ 
+## 4. Assessing convergence for dyad dependent models: MCMC Diagnostics
+
+When dyad dependent terms are in the model, the 
+computational algorithms in `ergm` use MCMC (with a
+Metropolis-Hastings sampler) to estimate
+the parameters. 
+
+For these models, it is important to assess model convergence 
+before interpreting the model results -- before evaluating 
+statistical significance, interpreting coefficients, or assessing goodness of fit.  
+To do this, we use the function `mcmc.diagnostics`.
+
+Below we show a simple example of a model that converges, and how to use the MCMC diagnostics to identify this.
+
+### What it looks like when a model converges properly
+
+We will first consider a simple dyadic dependent model where the algorithm works using the program defaults, with a degree(1) term that captures
+whether there are more (or less) degree 1 nodes than we would expect,
+given the density.
+
+```{r, message = F}
+summary(flobusiness~edges+degree(1))
+fit <- ergm(flobusiness~edges+degree(1))
+summary(fit)
+mcmc.diagnostics(fit)
+```
+
+What this shows is statistics from the final iteration of the MCMC chain, on the left as a "traceplot" (the deviation of the statistic value in each sampled network from the observed value), and on the right as the distribution of the sample statistic deviations.
+
+This is what you want to see in the MCMC diagnostics:  a "fuzzy caterpillar".
+In the last section we'll look at some models that don't converge properly, and how to use
+MCMC diagnostics to identify and address this.  There are many control parameters 
+for the MCMC algorithm ("help(control.ergm)"), to improve model convergence.
+
+## 5. Network simulation: the *simulate* command and *network.list* objects
+
+Once we have estimated the coefficients of an ERGM, the model is completely
+specified. It defines a probability distribution across all networks
+of this size. If the model is a good fit to the observed data, then
+networks drawn from this distribution will be more likely to "resemble"
+the observed data.
+
+```{r}
+flomodel.03.sim <- simulate(flomodel.03,nsim=10)
+
+class(flomodel.03.sim) # what does this produce?
+summary(flomodel.03.sim) # quick summary
+attributes(flomodel.03.sim) # what's in this object?
+
+# are the simulated stats centered on the observed stats?
+rbind("obs"=summary(flomarriage~edges+nodecov("wealth")),
+      "sim mean"=colMeans(attr(flomodel.03.sim, "stats"))) 
+
+# we can also plot individual simulations
+flomodel.03.sim[[1]]
+plot(flomodel.03.sim[[1]], 
+     label= flomodel.03.sim[[1]] %v% "vertex.names",
+     vertex.cex = (flomodel.03.sim[[1]] %v% "wealth")/25)
+```
+
+Voila. Of course, yours will look somewhat different.
+
+
+## 6. Examining the quality of model fit -- GOF
+
+ERGMs can be seen as generative models when they represent
+the process that governs the global patterns of tie prevalence 
+from a local perspective:  the perspective of the nodes involved 
+in the particular micro-configurations represented by the ergm-terms in the model.
+The locally generated
+processes in turn aggregate up to produce characteristic global network
+properties, even though these global properties are not explicit terms
+in the model. 
+
+One test of whether a local model "fits the
+data" is therefore how well it reproduces the observed global network
+properties *that are not in the model*. 
+We do this by choosing a network statistic that is not
+in the model, and comparing the value of this statistic observed in
+the original network to the distribution of values we get in simulated networks from our model, using the **gof** function.
+
+The **gof** function is a bit different than the **summary**, **ergm**, and **simulate** functions, in that it currently only takes 3 ergm-terms as arguments:  degree, esp (edgwise share partners), and distance (geodesic distances).  Each of these terms captures an aggregate network distribution, at either the node level (degree), the edge level (esp), or the dyad level (distance).
+
+
+```{r}
+flomodel.03.gof <- gof(flomodel.03)
+flomodel.03.gof
+plot(flomodel.03.gof)
+```
+
+```{r}
+mesamodel.02 <- ergm(mesa~edges)
+mesamodel.02.gof <- gof(mesamodel.02~degree + esp + distance, 
+                        control = control.gof.formula(nsim=10))
+plot(mesamodel.02.gof)
+
+```
+
+For a good example of model exploration and fitting for the Add Health
+Friendship networks, see [Goodreau, Kitts & Morris, *Demography* 2009](http://link.springer.com/article/10.1353/dem.0.0045).  
+For more technical details on the approach, see 
+[Hunter, Goodreau and Handcock *JASA* 2008](http://amstat.tandfonline.com/doi/abs/10.1198/016214507000000446?journalCode=uasa20#.U7HZgPldWSo)
+
+
+## 7. Diagnostics: troubleshooting and checking for model degeneracy
+
+When a model is not a good representation of the observed network, the
+simulated networks produced in the MCMC chains may be far enough 
+away from the observed network that
+the estimation process is affected. In the worst case scenario,
+the simulated networks will be so different
+that the algorithm fails altogether.   When this happens, it
+basically means the model you specified would not have produced the
+network you observed.  Some models, we now know, would almost
+never produce an interesting network with this density -- this 
+is what we call "model degneracy."
+
+For more detailed discussion of model degeneracy in the ERGM context,
+see the papers by Mark Handcock referenced [below.](ergm_tutorial.html#References)
+
+In that worst case scenario, we end up not being able to obtain coefficent estimates, so we can't use the GOF function to identify how the model simulations deviate from the observed data.  We can, however, still use the MCMC diagnostics to observe what is happening with the simulation algorithm, and this (plus some experience and intuition about the behavior of ergm-terms) can help us improve the model specification.
+
+
+The computational algorithms in `ergm` use MCMC to estimate
+the likelihood function. Part of this process involves simulating
+a set of networks to approximate unknown components of the likelihood. 
+
+When a model is not a good representation of the observed network
+the estimation process may be affected. In the worst case scenario,
+the simulated networks will be so different from the observed network
+that the algorithm fails altogether. This can occur for two general
+reasons. First, the simulation algorithm may fail to converge, and
+the sampled networks are thus not from the specified distribution.
+Second, the model parameters used to simulate the networks are too
+different from the MLE, so even though the simulation algorithm is
+producing a representative sample of networks, this is not the sample
+that would be produced under the MLE.
+
+For more detailed discussions of model degeneracy in the ERGM context,
+see the papers in *J Stat Software* v. 24. (link is available
+online at (www.statnet.org))
+
+We can use diagnostics to see what is happening with the simulation
+algorithm, and these can lead us to ways to improve it.
+
+We will first consider a simulation where the algorithm works. To
+understand the algorithm, consider
+
+```{r eval=FALSE}
+fit <- ergm(flobusiness~edges+degree(1), 
+  control=control.ergm(MCMC.interval=1, MCMC.burnin=1000, seed=1))
+```
+
+This runs a version with every network returned. Let us look at the
+diagnostics produced:
+
+```{r eval=FALSE}
+mcmc.diagnostics(fit, center=F)
+```
+
+Let's look more carefully at a default model fit:
+
+```{r eval=FALSE}
+fit <- ergm(flobusiness~edges+degree(1))
+mcmc.diagnostics(fit, center=F)
+```
+
+Now let us look at a more interesting case, using a larger network: 
+
+```{r }
+data('faux.magnolia.high')
+magnolia <- faux.magnolia.high
+plot(magnolia, vertex.cex=.5)
+```
+
+
+```{r error=TRUE}
+fit <- ergm(magnolia~edges+triangle, control=control.ergm(seed=1))
+```
+
+Very interesting. This model produced degenerate networks.
+You could have gotten some more feedback about this
+during the fitting, by using:
+
+```{r eval=FALSE}
+fit <- ergm(magnolia~edges+triangle, control=control.ergm(seed=1), verbose=T)
+```
+
+One approach to solving model degeneracy would be to modify the parameters of
+MCMC algorithm.  As one example, increasing the MCMC sample size can sometimes help:
+
+```{r eval=FALSE}
+fit <- ergm(magnolia~edges+triangle,seed=1,
+ control = control.ergm(seed=1, MCMC.samplesize=20000),
+ verbose=T)
+mcmc.diagnostics(fit, center=F)
+```
+
+But it does not solve the problem in this case, and in general this type
+of degeneracy is unlikely to be fixed by tuning the MCMC parameters.
+
+How about trying a different model specification: use
+GWESP, the more robust approach to modeling triangles? 
+(For a technical introduction to GWESP see Hunter 2007;
+for a more intuitive description and empirical application see Goodreau
+Kitts and Morris 2009 in the references.)
+
+Note that we are running with a somewhat lower precision than the
+default, to save time.
+
+```{r eval=FALSE}
+fit <- ergm(magnolia~edges+gwesp(0.5,fixed=T)+nodematch('Grade')+nodematch('Race')+
+  nodematch('Sex'),
+ control =  control.ergm(seed=1, MCMLE.MCMC.precision=2))
+mcmc.diagnostics(fit)
+```
+
+Still degenerate, though a bit better.  Let's try adding some 
+dyad-independent terms that can help to restrict the effects of
+the tie dependence.
+
+One more try...
+```{r results='hide'}
+fit <- ergm(magnolia~edges+gwesp(0.25,fixed=T)+nodematch('Grade')+nodematch('Race')+
+  nodematch('Sex'),
+ control = control.ergm(seed=1, MCMLE.MCMC.precision=2),
+ verbose=T)
+```
+
+```{r fig1}
+mcmc.diagnostics(fit)
+```
+
+Success! Of course, in real life one might have a lot more trial and
+error.
+
+Degeneracy is often an indicator of a poorly specified model.  It is not a property of all ERGMs, but it is associated with some dyadic-dependent terms, in particular, the reduced homogenous Markov specifications (e.g., 2-stars and triangle terms).  For a good technical discussion of unstable terms see [Schweinberger 2012.](http://www.tandfonline.com/doi/abs/10.1198/jasa.2011.tm10747#.U6R2FvldWSo)  For a discussion of  alternative terms that exhibit more stable behavior see [Snijders et al. 2006.](http://onlinelibrary.wiley.com/doi/10.1111/j.1467-9531.2006.00176.x/abstract) and for the gwesp term (and the curved exponential family terms in general) see [Hunter and Handcock 2006.](http://amstat.tandfonline.com/doi/abs/10.1198/106186006X133069#.U7MxWPldWSo)
+
+
+
+## 8. Working with egocentrically sampled network data
+
+One of the most powerful features of ERGMs is that they can be used to estimate models from from egocentrically sampled data, and the fitted models can then be used to simulate complete networks (of any size) that will have the properties of the original network that are observed and represented in the model.
+
+The egocentric estimation/simulation framework extends to temporal ERGMs ("TERGMs") as well, with the minimal addition of an estimate of partnership duration. This makes it possible to simulate complete dynamic networks from a single cross-sectional egocentrically sampled network.  For an example of what you can do with this, check out the network movie we developed to explore the impact of dynamic network structure on HIV transmission, see http://statnet.org/movies
+
+While the `ergm` package can be used with egocentric data, we recommend instead to use the
+package `ergm.ego`.  This package includes accurate statistical inference and many utilities that simplify the task of reading in the data, conducting exploratory analyses, calculating the sample "target statistics", and specifying model options.
+
+We have a workshop/tutorial for `ergm.ego` at the [statnet Workshops wiki](https://github.com/statnet/Workshops/wiki).
+
+
+## 9. Additional functionality in statnet and other package
+
+`statnet` is a suite of packages that are designed to work together, and provide tools for a wide range of different types of network data analysis.  Examples include temporal network models and dynamic network vizualizations, multilevel network modeling, latent cluster models and network diffusion and epidemic models.  Development is ongoing, and there are new packages, and new functionality added to existing packages on a regular basis. 
+
+All of these packages can be downloaded from CRAN.
+For more detailed information, please visit the `statnet`
+webpage [www.statnet.org](http://statnet.org).  
+
+
+### Current statnet packages
+
+Packages developed by statnet team that are not covered in this tutorial:
+
+* `sna` -- classical social network analysis utilities
+* `tsna` -- descriptive statistics for temporal network data
+* `tergm` -- temporal ergms for dynamic networks
+* `ergm.ego`-- estimation/simulation of ergms from egocentrically sampled data 
+* `ergm.count` -- models for tie count network data
+* `ergm.rank` -- models for tie rank network data
+* `relevent` -- relational event models for networks
+* `latentnet` -- latent space and latent cluster analysis
+* `degreenet` -- MLE estimation for degree distributions (negative binomial, Poisson, scale-free, etc.) 
+* `networksis` -- simulation of bipartite networks with given degree distributions 
+* `ndtv` package -- network movie maker
+* `EpiModel` -- network modeling of infectious disease and social diffusion processes  
+
+
+### Additional functionality in base `ergm`
+
+* ERGMs for valued ties
+
+
+### Extensions by other developers
+
+There are now a number of excellent packages developed by others that extend 
+the functionality of statnet.  The easiest way to find these is to
+look at the "reverse depends" of the `ergm` package on 
+[CRAN](https://cran.org/packages).  Examples include:
+
+* `Bergm` -- Bayesian Exponential Random Graph Models
+* `btergm` -- Temporal Exponential Random Graph Models by Bootstrapped Pseudolikelihood
+* `hergm` -- hierarchical ERGMs for multi-level network data
+* `xergm` -- extensions to ERGM modeling
+
+### The `statnet` development team
+
+Pavel N. Krivitsky pavel@uow.edu.au 
+Martina Morris morrism@u.washington.edu  
+Mark S. Handcock handcock@stat.ucla.edu  
+David R. Hunter dhunter@stat.psu.edu  
+Carter T. Butts buttsc@uci.edu  
+Steven M. Goodreau goodreau@u.washington.edu  
+Skye Bender-deMoll skyebend@skyeome.net  
+Samuel M. Jenness samuel.m.jenness@emory.edu
+
+
+## References
+
+The best place to start is the special issue of the *Journal of Statistical Software* (JSS) devoted to `statnet`:  [link](https://www.jstatsoft.org/issue/view/v024)
+
+The nine papers in this issue cover a wide range of theoretical and practical topics related to ERGMs, and their implementation in `statnet`.
+
+HOWEVER:  Note that this issue was written in 2008.  The statnet code base has evolved considerably since that time, so some of the syntax specified in the articles may no longer work (in most cases because it has been replace with something better).
+
+An overview of most recent update, `ergm 4`, can be found in here: [link](http://arxiv.org/abs/2106.04997).
+
+For social scientists, a good introductory application paper is:
+
+Goodreau, S., J. Kitts and M. Morris (2009).
+Birds of a Feather, or Friend of a Friend? Using Statistical Network Analysis to Investigate Adolescent Social Networks.
+*Demography* 46(1): 103-125. [link](http://link.springer.com/article/10.1353/dem.0.0045)
+
+
+**Dealing with Model Degeneracy**
+
+Handcock MS (2003a). 
+"Assessing Degeneracy in Statistical Models of Social Networks."
+Working Paper 39, Center for Statistics and the Social Sciences, University of Washington. [link](https://csss.uw.edu/research/working-papers/assessing-degeneracy-statistical-models-social-networks)
+
+Schweinberger, Michael (2011)  Instability, Sensitivity, and Degeneracy of Discrete Exponential Families  *JASA* 106(496): 1361-1370.  [link](http://www.tandfonline.com/doi/abs/10.1198/jasa.2011.tm10747#.U7M4A_ldWSo)
+
+Snijders, TAB et al (2006) 
+New Specifications For Exponential Random Graph Models  
+*Sociological Methodology* 36(1): 99-153  [link](http://onlinelibrary.wiley.com/doi/10.1111/j.1467-9531.2006.00176.x/abstract)
+
+Hunter, D. R. (2007). 
+Curved Exponential Family Models for Social Networks. 
+*Social Networks*, 29(2), 216-230.[link](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC2031865/)
+
+
+**Temporal ERGMs**
+
+Krivitsky, P.N., Handcock, M.S,(2014).
+A separable model for dynamic networks
+*JRSS Series B-Statistical Methodology*, 76(1):29-46; 10.1111/rssb.12014 JAN 2014 [link](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3891677/)
+
+Krivitsky, P. N., M. S. Handcock and M. Morris (2011). 
+Adjusting for Network Size and Composition Effects in Exponential-family Random Graph Models,
+*Statistical Methodology* 8(4): 319-339, ISSN 1572-3127  [link](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3117581/)
+
+**Egocentric ERGMS**
+
+Krivitsky, P. N., & Morris, M. (2017). 
+Inference for social network models from egocentrically sampled data, with application to understanding persistent racial disparities in HIV prevalence in the US. 
+*Annals of Applied Statistics*, 11(1), 427-455.[link](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5737754/)
+

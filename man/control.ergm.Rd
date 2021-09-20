@@ -79,7 +79,6 @@ control.ergm(
   MCMLE.metric = c("lognormal", "logtaylor", "Median.Likelihood", "EF.Likelihood",
     "naive"),
   MCMLE.method = c("BFGS", "Nelder-Mead"),
-  MCMLE.trustregion = 20,
   MCMLE.dampening = FALSE,
   MCMLE.dampening.min.ess = 20,
   MCMLE.dampening.level = 0.1,
@@ -89,7 +88,6 @@ control.ergm(
   MCMLE.steplength = NVL2(MCMLE.steplength.margin, 1, 0.5),
   MCMLE.steplength.parallel = c("observational", "always", "never"),
   MCMLE.steplength.precision = 0.25,
-  MCMLE.adaptive.trustregion = 3,
   MCMLE.sequential = TRUE,
   MCMLE.density.guard.min = 10000,
   MCMLE.density.guard = exp(3),
@@ -109,7 +107,7 @@ control.ergm(
   MCMLE.last.boost = 4,
   MCMLE.steplength.esteq = TRUE,
   MCMLE.steplength.miss.sample = function(x1) ceiling(sqrt(ncol(rbind(x1)))),
-  MCMLE.steplength.maxit = if (MCMLE.steplength.margin < 0) 5 else 25,
+  MCMLE.steplength.maxit = NVL3(MCMLE.steplength.margin, if (. < 0) 5 else 25),
   MCMLE.steplength.min = 1e-04,
   MCMLE.effectiveSize.interval_drop = 2,
   MCMLE.save_intermediates = NULL,
@@ -121,7 +119,6 @@ control.ergm(
   SA.nsubphases = 4,
   SA.niterations = NULL,
   SA.phase3_n = NULL,
-  SA.trustregion = 0.5,
   SA.interval = 1024,
   SA.burnin = SA.interval * 16,
   SA.samplesize = 1024,
@@ -151,13 +148,11 @@ control.ergm(
   CD.metric = c("naive", "lognormal", "logtaylor", "Median.Likelihood",
     "EF.Likelihood"),
   CD.method = c("BFGS", "Nelder-Mead"),
-  CD.trustregion = 20,
   CD.dampening = FALSE,
   CD.dampening.min.ess = 20,
   CD.dampening.level = 0.1,
   CD.steplength.margin = 0.5,
   CD.steplength = 1,
-  CD.adaptive.trustregion = 3,
   CD.adaptive.epsilon = 0.01,
   CD.steplength.esteq = TRUE,
   CD.steplength.miss.sample = function(x1) ceiling(sqrt(ncol(rbind(x1)))),
@@ -200,9 +195,9 @@ are used as starting values in the estimation.
 \item Initial values for the elements that are \code{NA} are fit using the
 method specified by \code{\link[=control.ergm]{control$init.method}}.
 
-} Passing \code{control.ergm(init=coef(prev.fit))} can be used to ``resume''
-an uncoverged \code{\link[=ergm]{ergm()}} run, but see
-\code{\link{enformulate.curved}}.}
+} Passing \code{control.ergm(init=coef(prev.fit))} can be used to
+``resume'' an uncoverged \code{\link[=ergm]{ergm()}} run, though \code{checkpoint} and
+`resume` would be better under most circumstances.}
 
 \item{init.method}{A chatacter vector or \code{NULL}. The default
 method depends on the reference measure used. For the binary
@@ -387,7 +382,7 @@ convergence.}
 \item{MCMC.runtime.traceplot}{Logical: If \code{TRUE}, plot traceplots of the MCMC
 sample after every MCMC MLE iteration.}
 
-\item{MCMC.maxedges}{The maximum number of edges that may occur during the MCMC sampling.}
+\item{MCMC.maxedges}{The maximum number of edges that may occur during the MCMC sampling. If this number is exceeded at any time, sampling is stopped immediately.}
 
 \item{MCMC.addto.se}{Whether to add the standard errors induced by the MCMC
 algorithm to the estimates' standard errors.}
@@ -512,12 +507,6 @@ See Hummel et al (2010) for an explanation of "lognormal" and "naive".}
 \item{MCMLE.method}{Deprecated. By default, ergm uses \code{trust}, and
 falls back to \code{optim} with Nelder-Mead method when \code{trust} fails.}
 
-\item{MCMLE.trustregion}{Maximum increase the algorithm will allow for the
-approximated likelihood at a given iteration.  See Snijders (2002) for
-details.
-
-Note that not all metrics abide by it.}
-
 \item{MCMLE.dampening}{(logical) Should likelihood dampening be used?}
 
 \item{MCMLE.dampening.min.ess}{The effective sample size below which
@@ -543,16 +532,15 @@ pre-filtering of target and test points in the Hummel step length
 calculation. May improve performance for large MCMC sample sizes
 with missing data MLE.}
 
-\item{MCMLE.steplength}{Multiplier for step length, which may (for values
-less than one) make fitting more stable at the cost of computational
-efficiency.  Can be set to "adaptive"; see
-\code{MCMLE.adaptive.trustregion}.
+\item{MCMLE.steplength}{Multiplier for step length (on the
+mean-value parameter scale), which may (for values less than one)
+make fitting more stable at the cost of computational efficiency.
 
-If \code{MCMLE.steplength.margin} is not \code{NULL}, the step length will
-be set using the algorithm of Hummel et al. (2010). In that case, it will
-serve as the maximum step length considered. However, setting it to anything
-other than 1 will preclude using Hummel or precision as termination
-criteria.}
+If \code{MCMLE.steplength.margin} is not \code{NULL}, the step
+length will be set using the algorithm of Hummel et
+al. (2010). In that case, it will serve as the maximum step
+length considered. However, setting it to anything other than 1
+will preclude using Hummel or precision as termination criteria.}
 
 \item{MCMLE.steplength.parallel}{Whether parallel multisection
 search (as opposed to a bisection search) for the Hummel step
@@ -563,10 +551,6 @@ used).}
 
 \item{MCMLE.steplength.precision}{Required relative precision of the step
 length calculation: \eqn{(u-l)/l}.}
-
-\item{MCMLE.adaptive.trustregion}{Maximum increase the algorithm will allow
-for the approximated loglikelihood at a given iteration when
-\code{MCMLE.steplength="adaptive"}.}
 
 \item{MCMLE.sequential}{Logical: If TRUE, the next iteration of the fit uses
 the last network sampled as the starting network.  If FALSE, always use the
@@ -641,9 +625,6 @@ in the model.  See Snijders (2002) for details.}
 \item{SA.phase3_n}{Sample size for the MCMC sample in Phase 3 of the
 stochastic approximation algorithm.  See Snijders (2002) for details.}
 
-\item{SA.trustregion}{The trust region parameter for the likelihood
-functions, used in the stochastic approximation algorithm.}
-
 \item{SA.burnin, SA.interval, SA.samplesize}{Sets the corresponding
 \verb{MCMC.*} parameters when \code{main.method="Stochastic-Approximation"}.}
 
@@ -662,7 +643,7 @@ optimization chooses a step length equal to the largest possible multiple of
 \item{Step.burnin, Step.interval, Step.samplesize}{Sets the corresponding
 \verb{MCMC.*} parameters when \code{main.method="Stepping"}.}
 
-\item{CD.samplesize.per_theta, obs.CD.samplesize.per_theta, CD.maxit, CD.conv.min.pval, CD.NR.maxit, CD.NR.reltol, CD.metric, CD.method, CD.trustregion, CD.dampening, CD.dampening.min.ess, CD.dampening.level, CD.steplength.margin, CD.steplength, CD.steplength.parallel, CD.adaptive.trustregion, CD.adaptive.epsilon, CD.steplength.esteq, CD.steplength.miss.sample, CD.steplength.maxit, CD.steplength.min}{Miscellaneous tuning parameters of the CD sampler and
+\item{CD.samplesize.per_theta, obs.CD.samplesize.per_theta, CD.maxit, CD.conv.min.pval, CD.NR.maxit, CD.NR.reltol, CD.metric, CD.method, CD.dampening, CD.dampening.min.ess, CD.dampening.level, CD.steplength.margin, CD.steplength, CD.steplength.parallel, CD.adaptive.epsilon, CD.steplength.esteq, CD.steplength.miss.sample, CD.steplength.maxit, CD.steplength.min}{Miscellaneous tuning parameters of the CD sampler and
 optimizer. These have the same meaning as their \verb{MCMLE.*} and
 \verb{MCMC.*} counterparts.
 
@@ -715,9 +696,7 @@ that running on the master node.}
 \item{parallel.inherit.MT}{Logical: If TRUE, slave nodes and
 processes inherit the \code{\link[=set.MT_terms]{set.MT_terms()}} setting.}
 
-\item{\dots}{Additional arguments, passed to other functions This argument
-is helpful because it collects any control parameters that have been
-deprecated; a warning message is printed in case of deprecated arguments.}
+\item{\dots}{A dummy argument to catch deprecated or mistyped control parameters.}
 }
 \value{
 A list with arguments as components.

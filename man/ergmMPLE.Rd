@@ -13,7 +13,8 @@ ergmMPLE(
   expand.bipartite = FALSE,
   control = control.ergm(),
   verbose = FALSE,
-  ...
+  ...,
+  basis = ergm.getnetwork(formula)
 )
 }
 \arguments{
@@ -40,6 +41,8 @@ detail. Note that very high values (5+) may significantly slow
 down processing.}
 
 \item{\dots}{Additional arguments, to be passed to lower-level functions.}
+
+\item{basis}{a value (usually a \code{\link{network}}) to override the LHS of the formula.}
 }
 \value{
 If \code{output=="matrix"} (the default), then only the response, predictor,
@@ -110,11 +113,11 @@ formula <- faux.mesa.high ~ edges + nodematch("Sex") + nodefactor("Grade")
 mplesetup <- ergmMPLE(formula)
 
 # Obtain MPLE coefficients "by hand":
-glm(mplesetup$response ~ . - 1, data = data.frame(mplesetup$predictor), 
-    weights = mplesetup$weights, family="binomial")$coefficients
+coef(glm(mplesetup$response ~ . - 1, data = data.frame(mplesetup$predictor),
+         weights = mplesetup$weights, family="binomial"))
 
 # Check that the coefficients agree with the output of the ergm function:
-ergmMPLE(formula, output="fit")$coef
+coef(ergmMPLE(formula, output="fit"))
 
 # We can also format the predictor matrix into an array:
 mplearray <- ergmMPLE(formula, output="array")

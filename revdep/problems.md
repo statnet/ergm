@@ -1,123 +1,94 @@
+# Blaunet
+
+<details>
+
+* Version: 2.1.0
+* GitHub: NA
+* Source code: https://github.com/cran/Blaunet
+* Date/Publication: 2020-05-22 08:10:11 UTC
+* Number of recursive dependencies: 86
+
+Run `revdep_details(, "Blaunet")` for more info
+
+</details>
+
+## In both
+
+*   checking examples ... ERROR
+    ```
+    Running examples in ‘Blaunet-Ex.R’ failed
+    The error most likely occurred in:
+    
+    > ### Name: blau
+    > ### Title: Converts raw data into an object for Blau status analysis
+    > ### Aliases: blau
+    > 
+    > ### ** Examples
+    > 
+    > ##simple example
+    ...
+    > ##example with relational data
+    > data(BSANet)
+    > square.data <- BSANet$square.data
+    > el <- BSANet$el
+    > 
+    > b <- blau(square.data, node.ids = 'person', ecology.ids = 'city', graph = el)
+    Error in Ops.factor(sources, targets) : 
+      level sets of factors are different
+    Calls: blau ... as.network.data.frame -> .validate_edge_df -> which -> Ops.factor
+    Execution halted
+    ```
+
+*   checking package dependencies ... NOTE
+    ```
+    Packages suggested but not available for checking:
+      'gWidgets', 'gWidgetsRGtk2'
+    ```
+
+*   checking dependencies in R code ... NOTE
+    ```
+    Namespaces in Imports field not imported from:
+      ‘RGtk2’ ‘cairoDevice’ ‘ergm’ ‘foreign’ ‘haven’ ‘plot3D’ ‘plot3Drgl’
+      ‘rgl’ ‘sna’ ‘statnet.common’
+      All declared Imports should be used.
+    ```
+
 # broom
 
 <details>
 
-* Version: 0.7.0
+* Version: 0.7.8
 * GitHub: https://github.com/tidymodels/broom
 * Source code: https://github.com/cran/broom
-* Date/Publication: 2020-07-09 12:30:09 UTC
-* Number of recursive dependencies: 277
+* Date/Publication: 2021-06-24 08:50:02 UTC
+* Number of recursive dependencies: 297
 
 Run `revdep_details(, "broom")` for more info
 
 </details>
 
-## Newly broken
+## In both
 
-*   checking examples ... ERROR
+*   checking package dependencies ... NOTE
     ```
-    ...
-    NOTE: Versions before 3.6.1 had a bug in the implementation of the bd()
-    constraint which distorted the sampled distribution somewhat. In
-    addition, Sampson's Monks datasets had mislabeled vertices. See the
-    NEWS and the documentation for more details.
-    
-    NOTE: Some common term arguments pertaining to vertex attribute and
-    level selection have changed in 3.10.0. See terms help for more
-    details. Use ‘options(ergm.term=list(version="3.9.4"))’ to use old
-    behavior.
-    
-    
-    Attaching package: ‘xergm.common’
-    
-    The following object is masked from ‘package:ergm’:
-    
-        gof
-    
-    Loading required package: ggplot2
-    Error: package or namespace load failed for ‘btergm’:
-     object ‘remove.offset.formula’ is not exported by 'namespace:ergm'
-    Execution halted
+    Packages suggested but not available for checking:
+      'rgeos', 'spdep', 'spatialreg'
     ```
 
-# btergm
-
-<details>
-
-* Version: 1.9.9
-* GitHub: https://github.com/leifeld/btergm
-* Source code: https://github.com/cran/btergm
-* Date/Publication: 2020-06-18 05:00:06 UTC
-* Number of recursive dependencies: 73
-
-Run `revdep_details(, "btergm")` for more info
-
-</details>
-
-## Newly broken
-
-*   checking whether package ‘btergm’ can be installed ... ERROR
+*   checking Rd cross-references ... NOTE
     ```
-    Installation failed.
-    See ‘/homes/morrism/GitHub/StatnetOrganization/ergm/revdep/checks/btergm/new/btergm.Rcheck/00install.out’ for details.
+    Package unavailable to check Rd xrefs: ‘spatialreg’
     ```
 
-## Newly fixed
-
-*   checking whether package ‘btergm’ can be installed ... WARNING
-    ```
-    Found the following significant warnings:
-      Warning: no DISPLAY variable so Tk is not available
-    See ‘/homes/morrism/GitHub/StatnetOrganization/ergm/revdep/checks/btergm/old/btergm.Rcheck/00install.out’ for details.
-    ```
-
-## Installation
-
-### Devel
-
-```
-* installing *source* package ‘btergm’ ...
-** package ‘btergm’ successfully unpacked and MD5 sums checked
-** using staged installation
-** R
-** inst
-** byte-compile and prepare package for lazy loading
-Error: object ‘remove.offset.formula’ is not exported by 'namespace:ergm'
-Execution halted
-ERROR: lazy loading failed for package ‘btergm’
-* removing ‘/homes/morrism/GitHub/StatnetOrganization/ergm/revdep/checks/btergm/new/btergm.Rcheck/btergm’
-
-```
-### CRAN
-
-```
-* installing *source* package ‘btergm’ ...
-** package ‘btergm’ successfully unpacked and MD5 sums checked
-** using staged installation
-** R
-** inst
-** byte-compile and prepare package for lazy loading
-Warning: no DISPLAY variable so Tk is not available
-** help
-*** installing help indices
-** building package indices
-** testing if installed package can be loaded from temporary location
-Warning: no DISPLAY variable so Tk is not available
-** testing if installed package can be loaded from final location
-Warning: no DISPLAY variable so Tk is not available
-** testing if installed package keeps a record of temporary installation path
-* DONE (btergm)
-
-```
 # EpiModel
 
 <details>
 
-* Version: 2.0.2
+* Version: 2.1.0
 * GitHub: https://github.com/statnet/EpiModel
 * Source code: https://github.com/cran/EpiModel
-* Date/Publication: 2020-08-05 09:52:19 UTC
-* Number of recursive dependencies: 99
+* Date/Publication: 2021-06-25 20:20:02 UTC
+* Number of recursive dependencies: 103
 
 Run `revdep_details(, "EpiModel")` for more info
 
@@ -125,97 +96,28 @@ Run `revdep_details(, "EpiModel")` for more info
 
 ## Newly broken
 
-*   checking for missing documentation entries ... WARNING
-    ```
-    Error: package ‘ergm’ required by ‘tergm’ could not be found
-    Call sequence:
-    5: stop(gettextf("package %s required by %s could not be found", 
-           sQuote(pkg), sQuote(pkgname)), call. = FALSE, domain = NA)
-    4: .getRequiredPackages2(pkgInfo, quietly = quietly)
-    3: library(pkg, character.only = TRUE, logical.return = TRUE, lib.loc = lib.loc, 
-           quietly = quietly)
-    2: .getRequiredPackages2(pkgInfo, quietly = quietly)
-    1: library(package, lib.loc = lib.loc, character.only = TRUE, verbose = FALSE)
-    Execution halted
-    All user-level objects in a package should have documentation entries.
-    See chapter ‘Writing R documentation files’ in the ‘Writing R
-    Extensions’ manual.
-    ```
-
-*   checking for code/documentation mismatches ... WARNING
-    ```
-    ...
-    Execution halted
-    Error: package ‘ergm’ required by ‘tergm’ could not be found
-    Call sequence:
-    5: stop(gettextf("package %s required by %s could not be found", 
-           sQuote(pkg), sQuote(pkgname)), call. = FALSE, domain = NA)
-    4: .getRequiredPackages2(pkgInfo, quietly = quietly)
-    3: library(pkg, character.only = TRUE, logical.return = TRUE, lib.loc = lib.loc, 
-           quietly = quietly)
-    2: .getRequiredPackages2(pkgInfo, quietly = quietly)
-    1: library(package, lib.loc = lib.loc, character.only = TRUE, verbose = FALSE)
-    Execution halted
-    Error: package ‘ergm’ required by ‘tergm’ could not be found
-    Call sequence:
-    5: stop(gettextf("package %s required by %s could not be found", 
-           sQuote(pkg), sQuote(pkgname)), call. = FALSE, domain = NA)
-    4: .getRequiredPackages2(pkgInfo, quietly = quietly)
-    3: library(pkg, character.only = TRUE, logical.return = TRUE, lib.loc = lib.loc, 
-           quietly = quietly)
-    2: .getRequiredPackages2(pkgInfo, quietly = quietly)
-    1: library(package, lib.loc = lib.loc, character.only = TRUE, verbose = FALSE)
-    Execution halted
-    ```
-
-*   checking Rd cross-references ... NOTE
-    ```
-    Package unavailable to check Rd xrefs: ‘ergm’
-    ```
-
-*   checking Rd \usage sections ... NOTE
-    ```
-    Error: package ‘ergm’ required by ‘tergm’ could not be found
-    Call sequence:
-    5: stop(gettextf("package %s required by %s could not be found", 
-           sQuote(pkg), sQuote(pkgname)), call. = FALSE, domain = NA)
-    4: .getRequiredPackages2(pkgInfo, quietly = quietly)
-    3: library(pkg, character.only = TRUE, logical.return = TRUE, lib.loc = lib.loc, 
-           quietly = quietly)
-    2: .getRequiredPackages2(pkgInfo, quietly = quietly)
-    1: library(package, lib.loc = lib.loc, character.only = TRUE, verbose = FALSE)
-    Execution halted
-    The \usage entries for S3 methods should use the \method markup and not
-    their full name.
-    See chapter ‘Writing R documentation files’ in the ‘Writing R
-    Extensions’ manual.
-    ```
-
-## In both
-
 *   checking examples ... ERROR
     ```
+    Running examples in ‘EpiModel-Ex.R’ failed
+    The error most likely occurred in:
+    
+    > ### Name: plot.netsim
+    > ### Title: Plot Data from a Stochastic Network Epidemic Model
+    > ### Aliases: plot.netsim
+    > ### Keywords: plot
+    > 
+    > ### ** Examples
+    > 
     ...
-    
-    networkDynamic: version 0.10.1, created on 2020-01-16
-    Copyright (c) 2020, Carter T. Butts, University of California -- Irvine
-                        Ayn Leslie-Cook, University of Washington
-                        Pavel N. Krivitsky, University of Wollongong
-                        Skye Bender-deMoll, University of Washington
-                        with contributions from
-                        Zack Almquist, University of California -- Irvine
-                        David R. Hunter, Penn State University
-                        Li Wang
-                        Kirk Li, University of Washington
-                        Steven M. Goodreau, University of Washington
-                        Jeffrey Horner
-                        Martina Morris, University of Washington
-    Based on "statnet" project software (statnet.org).
-    For license and citation information see statnet.org/attribution
-    or type citation("networkDynamic").
-    
-    Loading required package: tergm
-    Error: package ‘ergm’ required by ‘tergm’ could not be found
+    > 
+    > # Plot formation statistics
+    > par(mfrow = c(1,1), mar = c(3,3,1,1), mgp = c(2,1,0))
+    > plot(mod, type = "formation", grid = TRUE)
+    > plot(mod, type = "formation", plots.joined = FALSE)
+    > plot(mod, type = "formation", sims = 2:3)
+    > plot(mod, type = "formation", plots.joined = FALSE,
+    +      stats = c("edges", "concurrent"))
+    Error: One or more requested stats not contained in netsim object
     Execution halted
     ```
 
@@ -224,107 +126,241 @@ Run `revdep_details(, "EpiModel")` for more info
      ERROR
     Running the tests in ‘tests/test-all.R’ failed.
     Last 13 lines of output:
-                          Li Wang
-                          Kirk Li, University of Washington
-                          Steven M. Goodreau, University of Washington
-                          Jeffrey Horner
-                          Martina Morris, University of Washington
-      Based on "statnet" project software (statnet.org).
-      For license and citation information see statnet.org/attribution
-      or type citation("networkDynamic").
+      ── Failure (test-netstats.R:77:3): nw stats in tergmLite ───────────────────────
+      dim(nws) not equal to c(5, 7).
+      1/2 mismatches
+      [2] 3 - 7 == -4
+      ── Failure (test-netstats.R:88:3): nw stats in tergmLite ───────────────────────
+      names(nws) not equal to c("time", "sim", "edges", "nodefactor.status.s", "nodematch.status").
+      Lengths differ: 3 is not 5
+      ── Failure (test-netstats.R:90:3): nw stats in tergmLite ───────────────────────
+      dim(nws) not equal to c(5, 5).
+      1/2 mismatches
+      [2] 3 - 5 == -2
       
-      Loading required package: tergm
-      Failed with error:  'package 'ergm' required by 'tergm' could not be found'
-      Error in loadNamespace(i, c(lib.loc, .libPaths()), versionCheck = vI[[i]]) : 
-        there is no package called 'ergm'
-      Calls: test_check ... loadNamespace -> withRestarts -> withOneRestart -> doWithOneRestart
+      [ FAIL 8 | WARN 159 | SKIP 82 | PASS 392 ]
+      Error: Test failures
       Execution halted
-    ```
-
-*   checking package dependencies ... NOTE
-    ```
-    Package suggested but not available for checking: ‘ndtv’
     ```
 
 # ergm
 
 <details>
 
-* Version: 3.10.4
+* Version: 4.0.1
 * GitHub: https://github.com/statnet/ergm
 * Source code: https://github.com/cran/ergm
-* Date/Publication: 2019-06-10 05:30:07 UTC
-* Number of recursive dependencies: 71
+* Date/Publication: 2021-06-21 07:20:02 UTC
+* Number of recursive dependencies: 81
 
 Run `revdep_details(, "ergm")` for more info
 
 </details>
 
-## Newly broken
+## In both
 
-*   checking examples ... ERROR
+*   checking installed package size ... NOTE
     ```
-    ...
-    Running examples in ‘ergm-Ex.R’ failed
-    The error most likely occurred in:
-    
-    > ### Name: ergmMPLE
-    > ### Title: ERGM Predictors and response for logistic regression calculation
-    > ###   of MPLE
-    > ### Aliases: ergmMPLE
-    > ### Keywords: models regression
-    > 
-    > ### ** Examples
-    > 
-    > 
-    > data(faux.mesa.high)
-    > formula <- faux.mesa.high ~ edges + nodematch("Sex") + nodefactor("Grade")
-    > mplesetup <- ergmMPLE(formula)
-    Warning: 'compact.rle' is deprecated.
-    Use 'compress' instead.
-    See help("Deprecated")
-    Error in as.rle(x) : could not find function "as.rle"
-    Calls: ergmMPLE ... ergm_conlist -> eval -> eval -> <Anonymous> -> rlebdm
-    Execution halted
+      installed size is  8.3Mb
+      sub-directories of 1Mb or more:
+        R      1.1Mb
+        doc    2.2Mb
+        libs   3.8Mb
     ```
 
-*   checking tests ...
+# ergMargins
+
+<details>
+
+* Version: 0.1.3
+* GitHub: NA
+* Source code: https://github.com/cran/ergMargins
+* Date/Publication: 2021-06-30 07:40:02 UTC
+* Number of recursive dependencies: 56
+
+Run `revdep_details(, "ergMargins")` for more info
+
+</details>
+
+## In both
+
+*   checking dependencies in R code ... NOTE
     ```
-     ERROR
-    Running the tests in ‘tests/constrain_degrees_edges.R’ failed.
-    Last 13 lines of output:
-      > id <- function(nw) apply(as.matrix(nw, matrix.type="adjacency"), 2, sum)
-      > e <- function(nw) network.edgecount(nw)
-      > 
-      > ###### Directed
-      > y0 <- as.network(n, density=d, directed=TRUE)
-      > 
-      > ### Outdegrees
-      > ys <- simulate(y0~sender(nodes=TRUE)+receiver(nodes=TRUE), constraints=~odegrees, coef=rep(0,n*2), nsim=nsim, output="stats")
-      Error in as.rle(x) : could not find function "as.rle"
-      Calls: simulate ... ergm_conlist -> eval -> eval -> <Anonymous> -> rlebdm
-      In addition: Warning message:
-      'compact.rle' is deprecated.
-      Use 'compress' instead.
-      See help("Deprecated") 
-      Execution halted
+    Namespaces in Imports field not imported from:
+      ‘methods’ ‘sna’ ‘statnet.common’
+      All declared Imports should be used.
     ```
 
-*   checking R code for possible problems ... NOTE
+*   checking Rd cross-references ... NOTE
     ```
-    rlebdm: no visible global function definition for ‘as.rle’
-    Undefined global functions or variables:
-      as.rle
+    Package unavailable to check Rd xrefs: ‘margins’
     ```
+
+# ergmito
+
+<details>
+
+* Version: 0.3-0
+* GitHub: https://github.com/muriteams/ergmito
+* Source code: https://github.com/cran/ergmito
+* Date/Publication: 2020-08-10 21:40:02 UTC
+* Number of recursive dependencies: 62
+
+Run `revdep_details(, "ergmito")` for more info
+
+</details>
 
 ## In both
 
 *   checking installed package size ... NOTE
     ```
-      installed size is  6.5Mb
+      installed size is  7.1Mb
       sub-directories of 1Mb or more:
-        R      1.2Mb
-        doc    1.7Mb
-        libs   2.5Mb
+        libs   5.7Mb
+    ```
+
+# gwdegree
+
+<details>
+
+* Version: 0.1.1
+* GitHub: https://github.com/michaellevy/gwdegree
+* Source code: https://github.com/cran/gwdegree
+* Date/Publication: 2016-07-09 10:46:45
+* Number of recursive dependencies: 83
+
+Run `revdep_details(, "gwdegree")` for more info
+
+</details>
+
+## In both
+
+*   checking R code for possible problems ... NOTE
+    ```
+    simCCCent : <anonymous>: no visible global function definition for
+      ‘simulate.formula’
+    Undefined global functions or variables:
+      simulate.formula
+    ```
+
+*   checking LazyData ... NOTE
+    ```
+      'LazyData' is specified without a 'data' directory
+    ```
+
+# hergm
+
+<details>
+
+* Version: 4.1-7
+* GitHub: NA
+* Source code: https://github.com/cran/hergm
+* Date/Publication: 2021-03-07 00:00:11 UTC
+* Number of recursive dependencies: 70
+
+Run `revdep_details(, "hergm")` for more info
+
+</details>
+
+## In both
+
+*   checking R code for possible problems ... NOTE
+    ```
+    hergm: no visible global function definition for ‘ergm.Cprepare’
+    hergm.getnetwork: no visible global function definition for
+      ‘ergm.Cprepare’
+    hergm.mcmc: no visible global function definition for ‘ergm.Cprepare’
+    hergm.preprocess: no visible global function definition for
+      ‘ergm.Cprepare’
+    hergm.set.mcmc: no visible global function definition for
+      ‘ergm.Cprepare’
+    Undefined global functions or variables:
+      ergm.Cprepare
+    ```
+
+# lolog
+
+<details>
+
+* Version: 1.3
+* GitHub: https://github.com/statnet/lolog
+* Source code: https://github.com/cran/lolog
+* Date/Publication: 2021-07-01 07:50:06 UTC
+* Number of recursive dependencies: 78
+
+Run `revdep_details(, "lolog")` for more info
+
+</details>
+
+## In both
+
+*   checking installed package size ... NOTE
+    ```
+      installed size is 24.8Mb
+      sub-directories of 1Mb or more:
+        libs  23.1Mb
+    ```
+
+# sand
+
+<details>
+
+* Version: 2.0.0
+* GitHub: https://github.com/kolaczyk/sand
+* Source code: https://github.com/cran/sand
+* Date/Publication: 2020-07-02 07:20:06 UTC
+* Number of recursive dependencies: 164
+
+Run `revdep_details(, "sand")` for more info
+
+</details>
+
+## In both
+
+*   checking data for non-ASCII characters ... NOTE
+    ```
+      Note: found 6 marked UTF-8 strings
+    ```
+
+# statnetWeb
+
+<details>
+
+* Version: 0.5.6
+* GitHub: NA
+* Source code: https://github.com/cran/statnetWeb
+* Date/Publication: 2020-08-05 18:00:03 UTC
+* Number of recursive dependencies: 54
+
+Run `revdep_details(, "statnetWeb")` for more info
+
+</details>
+
+## In both
+
+*   checking LazyData ... NOTE
+    ```
+      'LazyData' is specified without a 'data' directory
+    ```
+
+# xergm.common
+
+<details>
+
+* Version: 1.7.8
+* GitHub: https://github.com/leifeld/xergm.common
+* Source code: https://github.com/cran/xergm.common
+* Date/Publication: 2020-04-07 09:50:02 UTC
+* Number of recursive dependencies: 29
+
+Run `revdep_details(, "xergm.common")` for more info
+
+</details>
+
+## In both
+
+*   checking Rd cross-references ... NOTE
+    ```
+    Package unavailable to check Rd xrefs: ‘RSiena’
     ```
 

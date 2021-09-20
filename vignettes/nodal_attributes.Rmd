@@ -6,7 +6,7 @@ output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{Nodal Attribute Specification in ERGM Terms}
   %\VignetteEngine{knitr::rmarkdown}
-  \usepackage[utf8]{inputenc}
+  %\VignetteEncoding{UTF-8}
 ---
 
 This document provides some examples of how to specify nodal attributes and their transformations in `ergm` terms. For the R help on the topic, see `?nodal_attributes` and for help on implementing terms that use this interface, see `API?nodal_attributes`.

@@ -1,12 +1,12 @@
-#  File R/logLik.ergm.R in package ergm, part of the Statnet suite
-#  of packages for network analysis, https://statnet.org .
+#  File R/logLik.ergm.R in package ergm, part of the
+#  Statnet suite of packages for network analysis, https://statnet.org .
 #
 #  This software is distributed under the GPL-3 license.  It is free,
 #  open source, and has the attribution requirements (GPL Section 7) at
-#  https://statnet.org/attribution
+#  https://statnet.org/attribution .
 #
-#  Copyright 2003-2020 Statnet Commons
-#######################################################################
+#  Copyright 2003-2021 Statnet Commons
+################################################################################
 ## A function to compute and return the log-likelihood of an ERGM MLE.
 
 
@@ -26,6 +26,7 @@
 #'   log-likelihood even if \code{object} already has an estiamte.
 #' @param eval.loglik Logical: If `TRUE`, evaluate the log-likelihood
 #'   if not set on \code{object}.
+#' @param k see help for [AIC()].
 #'
 #' @templateVar mycontrol control.logLik.ergm
 #' @template control
@@ -68,7 +69,7 @@
 #' # for speed's sake.
 #' gest.logLik <- logLik(gest, add=TRUE)
 #' 
-#' gest.logLik <- logLik(gest, add=TRUE, control=control.logLik.ergm(nsteps=3))
+#' gest.logLik <- logLik(gest, add=TRUE, control=control.logLik.ergm(bridge.nsteps=3))
 #' # Deviances, AIC, and BIC are now shown:
 #' summary(gest.logLik)
 #' # Null model likelihood can also be evaluated, but not for all constraints:
@@ -104,7 +105,7 @@ logLik.ergm<-function(object, add=FALSE, force.reeval=FALSE, eval.loglik=add || 
        || (is.dyad.independent(object, term.options=control$term.options)
          && is.null(object$sample)
          && !is.valued(object)))
-      -glm$deviance/2 - -glm.null$deviance/2
+      structure(-glm$deviance/2 - -glm.null$deviance/2, vcov = 0)
     ## If dyad-dependent but not valued and has a dyad-independent constraint, bridge from a dyad-independent model.
     else if(is.dyad.independent(object$constrained, object$constrained.obs)
                    && !is.valued(object))
@@ -122,6 +123,7 @@ logLik.ergm<-function(object, add=FALSE, force.reeval=FALSE, eval.loglik=add || 
     llk<-out
   }else{
     llk<-out$llk
+    attr(llk,"vcov") <- out$vcov.llr
     attr(llk,"br")<-out
   }
   if(!inherits(llk,"logLik")){
@@ -207,3 +209,28 @@ nobs.ergm <- function(object, ...){
 }
 
 NO_NULL_IMPLICATION <- "This means that all likelihood-based inference (LRT, Analysis of Deviance, AIC, BIC, etc.) is only valid between models with the same reference distribution and constraints."
+
+#' @describeIn logLik.ergm A [deviance()] method.
+#' @export
+deviance.ergm <- function(object, ...){
+  llk <- logLik(object, ...)
+  structure(-2*as.vector(llk), vcov = EVL(4*attr(llk,"vcov"), NA))
+}
+
+#' @describeIn logLik.ergm An [AIC()] method.
+#' @export
+AIC.ergm <- function(object, ..., k = 2){
+  if(...length()==0){
+    llk <- logLik(object)
+    structure(AIC(llk, k=k), vcov = EVL(4*attr(llk,"vcov"), NA))
+  }else NextMethod()
+}
+
+#' @describeIn logLik.ergm A [BIC()] method.
+#' @export
+BIC.ergm <- function(object, ...){
+  if(...length()==0){
+    llk <- logLik(object)
+    structure(BIC(llk), vcov = EVL(4*attr(llk,"vcov"), NA))
+  }else NextMethod()
+}

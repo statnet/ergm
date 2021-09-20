@@ -1,11 +1,11 @@
-/*  File src/edgetree.c in package ergm, part of the Statnet suite
- *  of packages for network analysis, https://statnet.org .
+/*  File src/edgetree.c in package ergm, part of the
+ *  Statnet suite of packages for network analysis, https://statnet.org .
  *
  *  This software is distributed under the GPL-3 license.  It is free,
  *  open source, and has the attribution requirements (GPL Section 7) at
- *  https://statnet.org/attribution
+ *  https://statnet.org/attribution .
  *
- *  Copyright 2003-2020 Statnet Commons
+ *  Copyright 2003-2021 Statnet Commons
  */
 #include "ergm_edgetree.h"
 #include "ergm_Rutil.h"
@@ -177,6 +177,11 @@ int ToggleEdge (Vertex tail, Vertex head, Network *nwp)
 
 void ToggleKnownEdge (Vertex tail, Vertex head, Network *nwp, Rboolean edgestate)
 {
+#ifdef DEBUG
+  if((EdgetreeSearch(tail, head, nwp->outedges)!=0) != edgestate)
+    error("ToggleKnownEdge() called with an incorrect edgestate. Note that this produces an error only if compiling with DEBUG macro set and silently produces undefined behavior otherwise.");
+#endif // DEBUG
+  ENSURE_TH_ORDER;
   if (edgestate){
     DeleteEdgeFromTrees(tail,head,nwp);
   }else{
@@ -208,7 +213,10 @@ void ToggleKnownEdge (Vertex tail, Vertex head, Network *nwp, Rboolean edgestate
 
 void AddEdgeToTrees(Vertex tail, Vertex head, Network *nwp){
 #ifdef DEBUG
-  if(EdgetreeSearch(tail, head, nwp->outedges)||EdgetreeSearch(head, tail, nwp->inedges)) error("AddEdgeToTrees() called for an extant edge. Note that this produces an error only if compiling with DEBUG macro set and silently produces undefined behavior otherwise.");
+  if(!nwp->directed_flag && tail>head)
+    error("AddEdgeToTrees() called for an undirected network with tail>head. Note that this produces an error only if compiling with DEBUG macro set and silently produces undefined behavior otherwise.");
+  if(EdgetreeSearch(tail, head, nwp->outedges)||EdgetreeSearch(head, tail, nwp->inedges))
+    error("AddEdgeToTrees() called for an extant edge. Note that this produces an error only if compiling with DEBUG macro set and silently produces undefined behavior otherwise.");
 #endif // DEBUG
   for(unsigned int i = 0; i < nwp->n_on_edge_change; i++) nwp->on_edge_change[i](tail, head, nwp->on_edge_change_payload[i], nwp, FALSE);
 
@@ -265,11 +273,9 @@ void AddOnNetworkEdgeChange(Network *nwp, OnNetworkEdgeChange callback, void *pa
 
   pos = MIN(pos, nwp->n_on_edge_change); // Last position.
   // Move everything down the list.
-  for(unsigned int i = nwp->n_on_edge_change; i>pos ; i--){
-    nwp->on_edge_change[i] = nwp->on_edge_change[i-1];
-    nwp->on_edge_change_payload[i] = nwp->on_edge_change_payload[i-1];
-  }
-  
+  memmove(nwp->on_edge_change+pos+1, nwp->on_edge_change+pos, (nwp->n_on_edge_change-pos)*sizeof(OnNetworkEdgeChange));
+  memmove(nwp->on_edge_change_payload+pos+1, nwp->on_edge_change_payload+pos, (nwp->n_on_edge_change-pos)*sizeof(void*));
+
   nwp->on_edge_change[pos] = callback;
   nwp->on_edge_change_payload[pos] = payload;
   
@@ -290,10 +296,8 @@ void DeleteOnNetworkEdgeChange(Network *nwp, OnNetworkEdgeChange callback, void 
 
   if(i==nwp->n_on_edge_change) error("Attempting to delete a nonexistent callback.");
 
-  for(; i+1 < nwp->n_on_edge_change; i++){
-    nwp->on_edge_change[i] = nwp->on_edge_change[i+1];
-    nwp->on_edge_change_payload[i] = nwp->on_edge_change_payload[i+1];
-  }
+  memmove(nwp->on_edge_change+i, nwp->on_edge_change+i+1, (nwp->n_on_edge_change-i-1)*sizeof(OnNetworkEdgeChange));
+  memmove(nwp->on_edge_change_payload+i, nwp->on_edge_change_payload+i+1, (nwp->n_on_edge_change-i-1)*sizeof(void*));
 
   nwp->n_on_edge_change--;
 }

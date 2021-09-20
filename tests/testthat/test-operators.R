@@ -1,7 +1,16 @@
+#  File tests/testthat/test-operators.R in package ergm, part of the
+#  Statnet suite of packages for network analysis, https://statnet.org .
+#
+#  This software is distributed under the GPL-3 license.  It is free,
+#  open source, and has the attribution requirements (GPL Section 7) at
+#  https://statnet.org/attribution .
+#
+#  Copyright 2003-2021 Statnet Commons
+################################################################################
 data(florentine)
 
-test_that("Simulation for passthrough() and .submodel() and .summary()", {
-  text <- capture.output(out <- simulate(flomarriage~edges+degree(0)+absdiff("wealth")+passthrough(~edges+degree(0)+absdiff("wealth"))+submodel.test(~edges+degree(0)+absdiff("wealth"))+summary.test(~edges+degree(0)+absdiff("wealth")), output="stats", nsim=20, control=control.simulate.formula(MCMC.burnin=0, MCMC.interval=1), coef=numeric(10)))
+test_that("Simulation for Passthrough() and .submodel() and .summary()", {
+  text <- capture.output(out <- simulate(flomarriage~edges+degree(0)+absdiff("wealth")+Passthrough(~edges+degree(0)+absdiff("wealth"))+submodel.test(~edges+degree(0)+absdiff("wealth"))+summary.test(~edges+degree(0)+absdiff("wealth")), output="stats", nsim=20, control=control.simulate.formula(MCMC.burnin=0, MCMC.interval=1), coef=numeric(10)))
   text.out <- matrix(scan(textConnection(paste(text, collapse="")),quiet=TRUE),byrow=TRUE,ncol=3)
   text.out <- text.out[nrow(text.out)-nrow(out)+seq_len(nrow(out)),]
   
@@ -17,17 +26,41 @@ sameg <- outer(g,g,"==")
 test_that("Simulation for NodematchFilter() and F()", {
   out <- simulate(samplike~nodematch("group")+odegree(0:5, by="group", homophily=TRUE)+idegree(0:5, by="group", homophily=TRUE)+localtriangle(sameg)+
                     NodematchFilter(~edges+odegree(0:5)+idegree(0:5)+triangle,"group")+
-                    F(~edges+odegree(0:5)+idegree(0:5)+triangle,~nodematch("group")), output="stats", nsim=20, control=control.simulate.formula(MCMC.burnin=0, MCMC.interval=1), coef=numeric(42))
+                    F(~edges+odegree(0:5)+idegree(0:5)+triangle,~nodematch("group"))+
+                    edges+
+                    F(~edges, ~!nodematch("group")),
+                  output="stats", nsim=20, control=control.simulate.formula(MCMC.burnin=0, MCMC.interval=1), coef=numeric(44))
 
   expect_equivalent(out[,1:14],out[,15:28])
   expect_equivalent(out[,1:14],out[,29:42])
+  expect_equivalent(out[,1]+out[,44],out[,43])
 })
 
-test_that("Undir() summary", {
+test_that("Summary for F() with complex form", {
+  m <- abs(outer(w <- flomarriage %v% "wealth", w, FUN="-"))[c(as.matrix(flomarriage))!=0]
+  out <- summary(flomarriage ~
+                   F(~edges + absdiff("wealth"), ~absdiff("wealth") == 93) +
+                   F(~edges + absdiff("wealth"), ~absdiff("wealth") < 5) +
+                   F(~edges + absdiff("wealth"), ~absdiff("wealth") != 5) +
+                   F(~edges + absdiff("wealth"), ~absdiff("wealth") <= 5) +
+                   F(~edges + absdiff("wealth"), ~absdiff("wealth") > 5) +
+                   F(~edges + absdiff("wealth"), ~absdiff("wealth") >= 5))
+
+  expect_equivalent(out,
+                    sapply(list(m==93, m[m==93],
+                                m<5, m[m<5],
+                                m!=5, m[m!=5],
+                                m<=5, m[m<=5],
+                                m>5, m[m>5],
+                                m>=5, m[m>=5]),
+                           sum)/2)
+})
+
+test_that("Symmetrize() summary", {
   m <- as.matrix(samplike)
   expect_equivalent(
     c(sum(m*t(m))/2, sum(m+t(m)>0)/2, sum(m[lower.tri(m)]), sum(m[upper.tri(m)])),
-    summary(samplike ~ Undir(~edges,"strong") + Undir(~edges,"weak") + Undir(~edges,"lower") + Undir(~edges,"upper"))
+    summary(samplike ~ Symmetrize(~edges,"strong") + Symmetrize(~edges,"weak") + Symmetrize(~edges,"lower") + Symmetrize(~edges,"upper"))
   )
 })
 
@@ -162,4 +195,18 @@ test_that("Valued Label() summary", {
     summary(zach ~ Label(~edges+absdiff("faction.id"), ~gsub(".","!",.,fixed=TRUE))),
     c("edges","absdiff!faction!id")
   )
+})
+
+test_that("Interaction terms", {
+  # TODO: Need better tests.
+  local_edition(3)
+  expect_equal(summary(flomarriage~edges:absdiff("wealth") + absdiff("wealth"):edges), summary(flomarriage~absdiff("wealth") + absdiff("wealth")), ignore_attr = TRUE)
+  expect_equal(summary(flomarriage~edges*absdiff("wealth") + absdiff("wealth")*edges), summary(flomarriage~edges + absdiff("wealth")+ absdiff("wealth") + absdiff("wealth") + edges + absdiff("wealth")), ignore_attr = TRUE)
+})
+
+test_that("Interaction terms handling of interact.dependent", {
+  local_edition(3)
+  expect_error(summary(flomarriage~triangles:absdiff("wealth")), ".*poorly defined.*")
+  expect_warning(summary(flomarriage~triangles:absdiff("wealth"), interact.dependent = "warning"), ".*poorly defined.*")
+  expect_message(summary(flomarriage~triangles:absdiff("wealth"), interact.dependent = "message"), ".*poorly defined.*")
 })

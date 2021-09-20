@@ -1,18 +1,17 @@
-/*  File src/MHProposals_dyadnoise.c in package ergm, part of the Statnet suite
- *  of packages for network analysis, http://statnet.org .
+/*  File src/MHproposals_dyadnoise.c in package ergm, part of the
+ *  Statnet suite of packages for network analysis, https://statnet.org .
  *
  *  This software is distributed under the GPL-3 license.  It is free,
  *  open source, and has the attribution requirements (GPL Section 7) at
- *  http://statnet.org/attribution
+ *  https://statnet.org/attribution .
  *
- *  Copyright 2003-2017 Statnet Commons
+ *  Copyright 2003-2021 Statnet Commons
  */
-#include "MHproposals_dyadnoise.h" 
+#include "ergm_MHproposal.h"
+#include "ergm_MHproposal_bd.h"
 #include "ergm_changestat.h"
 #include "ergm_edgelist.h"
-/* Shorthand. */
-#define Mtail (MHp->toggletail)
-#define Mhead (MHp->togglehead)
+#include "ergm_MHstorage.h"
 
 /********************
    void MH_dyadnoiseTNT
@@ -28,6 +27,11 @@
    TODO: Proposals could almost certainly be more efficient.
 
 ***********************/
+MH_I_FN(Mi_dyadnoiseTNT){
+  MH_STORAGE = DegreeBoundInitializeR(MHp->R, nwp);
+  MHp->ntoggles = 1;
+}
+
 MH_P_FN(MH_dyadnoiseTNT)
 {
   /* *** don't forget tail-> head now */
@@ -45,7 +49,7 @@ MH_P_FN(MH_dyadnoiseTNT)
     return;
   }
   
-  BD_LOOP({
+  BD_LOOP(MH_STORAGE, {
       if (unif_rand() < comp && N_EDGES > 0) { /* Select a tie at random */
 	GetRandEdge(Mtail, Mhead, nwp);
 	/* Thanks to Robert Goudie for pointing out an error in the previous 
@@ -76,6 +80,11 @@ MH_P_FN(MH_dyadnoiseTNT)
     });
 }
 
+MH_F_FN(Mf_dyadnoiseTNT){
+  DegreeBoundDestroy(MH_STORAGE);
+}
+
+
 /********************
    void MH_dyadnoisemTNT
    Tie/no tie:  Gives at least 50% chance of
@@ -90,6 +99,11 @@ MH_P_FN(MH_dyadnoiseTNT)
    TODO: Proposals could almost certainly be more efficient.
 
 ***********************/
+MH_I_FN(Mi_dyadnoisemTNT){
+  MH_STORAGE = DegreeBoundInitializeR(MHp->R, nwp);
+  MHp->ntoggles = 1;
+}
+
 MH_P_FN(MH_dyadnoisemTNT)
 {
   /* *** don't forget tail-> head now */  
@@ -111,7 +125,7 @@ MH_P_FN(MH_dyadnoisemTNT)
     return;
   }
   
-  BD_LOOP({
+  BD_LOOP(MH_STORAGE, {
       if (unif_rand() < comp && N_EDGES > 0) { /* Select a tie at random */
 	GetRandEdge(Mtail, Mhead, nwp);
 	/* Thanks to Robert Goudie for pointing out an error in the previous 
@@ -142,6 +156,10 @@ MH_P_FN(MH_dyadnoisemTNT)
     });
 }
 
+MH_F_FN(Mf_dyadnoisemTNT){
+  DegreeBoundDestroy(MH_STORAGE);
+}
+
 
 /********************
    void MH_dyadnoise
@@ -153,6 +171,11 @@ MH_P_FN(MH_dyadnoisemTNT)
    TODO: Proposals could almost certainly be more efficient.
 
 ***********************/
+MH_I_FN(Mi_dyadnoise){
+  MH_STORAGE = DegreeBoundInitializeR(MHp->R, nwp);
+  MHp->ntoggles = 1;
+}
+
 MH_P_FN(MH_dyadnoise)
 {
   /* *** don't forget tail-> head now */
@@ -167,7 +190,7 @@ MH_P_FN(MH_dyadnoise)
     return;
   }
   
-  BD_LOOP({
+  BD_LOOP(MH_STORAGE, {
       GetRandDyad(Mtail, Mhead, nwp);
       
       int obs = dEdgeListSearch(Mtail[0],Mhead[0],MHp->inputs+4)!=0;	
@@ -180,6 +203,11 @@ MH_P_FN(MH_dyadnoise)
     });
 }
 
+MH_F_FN(Mf_dyadnoise){
+  DegreeBoundDestroy(MH_STORAGE);
+}
+
+
 /********************
    void MH_dyadnoisem
 
@@ -190,6 +218,11 @@ MH_P_FN(MH_dyadnoise)
    TODO: Proposals could almost certainly be more efficient.
 
 ***********************/
+MH_I_FN(Mi_dyadnoisem){
+  MH_STORAGE = DegreeBoundInitializeR(MHp->R, nwp);
+  MHp->ntoggles = 1;
+}
+
 MH_P_FN(MH_dyadnoisem)
 {
   /* *** don't forget tail-> head now */
@@ -208,7 +241,7 @@ MH_P_FN(MH_dyadnoisem)
     return;
   }
   
-  BD_LOOP({
+  BD_LOOP(MH_STORAGE, {
       GetRandDyad(Mtail, Mhead, nwp);
 
       int obs = dEdgeListSearch(Mtail[0],Mhead[0],onwp)!=0;	
@@ -219,4 +252,8 @@ MH_P_FN(MH_dyadnoisem)
 	MHp->logratio += (obs?o1s0:o0s0)[(Mtail[0]-1) + (Mhead[0]-1)*ntails]; // R matrix serialization is column-major.
       }
     });
+}
+
+MH_F_FN(Mf_dyadnoisem){
+  DegreeBoundDestroy(MH_STORAGE);
 }

@@ -1,12 +1,12 @@
-#  File tests/testthat/test-predict.ergm.R in package ergm, part of the Statnet suite
-#  of packages for network analysis, https://statnet.org .
+#  File tests/testthat/test-predict.ergm.R in package ergm, part of the
+#  Statnet suite of packages for network analysis, https://statnet.org .
 #
 #  This software is distributed under the GPL-3 license.  It is free,
 #  open source, and has the attribution requirements (GPL Section 7) at
-#  https://statnet.org/attribution
+#  https://statnet.org/attribution .
 #
-#  Copyright 2003-2020 Statnet Commons
-#######################################################################
+#  Copyright 2003-2021 Statnet Commons
+################################################################################
 
 library(ergm)
 
@@ -171,15 +171,15 @@ test_that("predict.formula(net ~ edges + degree(1)", {
 
 
 
-test_that("it works for offsets and non-finite offset coefs", {
+test_that("it works for offsets and non-finite offset coefs (and MPLE existence check works)", {
   data("faux.mesa.high")
-  fit <- ergm(
-    faux.mesa.high ~ edges 
+  expect_warning(fit <- ergm(
+    faux.mesa.high ~ edges
     + nodefactor("Grade")
     + nodematch("Grade", diff=T)
     + offset(nodematch("Sex", diff = TRUE, levels = c(1, 2))),
     offset.coef = rep(-Inf, 2)
-  )
+  ), "^The MPLE does not exist!$")
   expect_silent(
     p <- predict(fit)
   )

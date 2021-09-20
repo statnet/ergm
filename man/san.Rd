@@ -45,9 +45,9 @@ san(object, ...)
 \item{object}{Either a \code{\link{formula}} or an \code{\link{ergm}} object. The
 \code{\link{formula}} should be of the form \code{y ~ <model terms>}, where
 \code{y} is a network object or a matrix that can be coerced to a
-\code{\link{network}} object.  For the details on the
-possible \code{<model terms>}, see \code{\link{ergm-terms}}.  To
-create a \code{\link[network]{network}} object in , use the
+\code{\link{network}} object.  For the details on the possible \code{<model
+  terms>}, see \code{\link{ergm-terms}}.  To create a
+\code{\link[network]{network}} object in , use the
 \code{network()} function, then add nodal attributes to it using
 the \code{\%v\%} operator if necessary.}
 
@@ -71,7 +71,7 @@ See help for \link[=ergm-references]{ERGM reference measures} implemented in the
 \item{constraints}{A one-sided formula specifying one or more constraints on
 the support of the distribution of the networks being simulated. See the
 documentation for a similar argument for \code{\link{ergm}} and see
-\link[=ergm-constraints]{list of implemented constraints} for more information. For
+\link[=ergmConstraint]{list of implemented constraints} for more information. For
 \code{simulate.formula}, defaults to no constraints. For
 \code{simulate.ergm}, defaults to using the same constraints as those with
 which \code{object} was fitted.}
@@ -114,7 +114,8 @@ object.  If a different \code{formula} object is wanted, specify it here.}
 }
 \value{
 A network or list of networks that hopefully have network
-statistics close to the \code{target.stats} vector.
+statistics close to the \code{target.stats} vector. Additionally,
+\code{\link[=attr]{attr()}}-style attributes \code{formula} and \code{stats} are included.
 }
 \description{
 This function attempts to find a network or networks whose statistics match

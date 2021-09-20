@@ -3,6 +3,8 @@
 %   R/ergm.san.R, R/formula.utils.R
 \name{ergm-deprecated}
 \alias{ergm-deprecated}
+\alias{coef.ergm}
+\alias{$.ergm}
 \alias{InitErgmTerm.degreepopularity}
 \alias{InitErgmTerm.hammingmix}
 \alias{hammingmix}
@@ -12,6 +14,10 @@
 \alias{offset.info.formula}
 \title{Functions that will no longer be supported in future releases of the package}
 \usage{
+\method{coef}{ergm}(object, ...)
+
+\method{$}{ergm}(x, name)
+
 InitErgmTerm.degreepopularity(nw, arglist, ...)
 
 InitErgmTerm.hammingmix(nw, arglist, ..., version = packageVersion("ergm"))
@@ -38,6 +44,8 @@ InitErgmTerm.odegreepopularity(nw, arglist, ...)
 offset.info.formula(object, ...)
 }
 \arguments{
+\item{name}{See \link{Extract}.}
+
 \item{nw, arglist, ..., fname, varnames, vartypes, defaultvalues, required, nw.bipartiteflag, requirement, extramessage, nw.directedflag, m, response, formula, object, new, from.new, x, model, proposal, eta0, control, verbose, update.nws, Clist, prev.run, burnin, samplesize, interval, maxedges, attrname, label, coord, jitter, thresh, usearrows, mode, displayisolates, interactive, xlab, ylab, xlim, ylim, pad, label.pad, displaylabels, boxed.labels, label.pos, label.bg, vertex.sides, vertex.rot, arrowhead.cex, label.cex, loop.cex, vertex.cex, edge.col, label.col, vertex.col, label.border, vertex.border, edge.lty, label.lty, vertex.lty, edge.lwd, label.lwd, edge.len, edge.curve, edge.steps, loop.steps, object.scale, uselen, usecurve, suppress.axes, vertices.last, layout.par, cex.main, cex.sub, seed, latent.control, colornames, latent, preserve.eattr}{Arguments to deprecated functions.}
 }
 \description{
@@ -45,11 +53,18 @@ Functions that have been superceed, were never documented, or will be removed fr
 }
 \section{Functions}{
 \itemize{
-\item \code{InitErgmTerm.degreepopularity}: Use \code{\link{degree1.5}} instead.
+\item \code{coef.ergm}: extracts the \code{ergm} parameters; may be
+removed in favour of the default method once the number of \code{ergm}
+objects with \verb{$coef} elements in the wild is sufficiently low.
 
-\item \code{InitErgmTerm.idegreepopularity}: Use \code{\link{idegree1.5}} instead.
+\item \code{$.ergm}: accesses elements of \code{ergm} objects;
+needed for backwards compatibility when components get renamed.
 
-\item \code{InitErgmTerm.odegreepopularity}: Use \code{\link{odegree1.5}} instead.
+\item \code{InitErgmTerm.degreepopularity}: Use \code{\link[=degree1.5-ergmTerm]{degree1.5}} instead.
+
+\item \code{InitErgmTerm.idegreepopularity}: Use \code{\link[=idegree1.5-ergmTerm]{idegree1.5}} instead.
+
+\item \code{InitErgmTerm.odegreepopularity}: Use \code{\link[=odegree1.5-ergmTerm]{odegree1.5}} instead.
 
 \item \code{san.ergm}: The developers are not aware of a use case for this function. Please contact them if you would like to prevent its removal.
 

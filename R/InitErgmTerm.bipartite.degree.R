@@ -1,12 +1,12 @@
-#  File R/InitErgmTerm.bipartite.degree.R in package ergm, part of the Statnet suite
-#  of packages for network analysis, https://statnet.org .
+#  File R/InitErgmTerm.bipartite.degree.R in package ergm, part of the
+#  Statnet suite of packages for network analysis, https://statnet.org .
 #
 #  This software is distributed under the GPL-3 license.  It is free,
 #  open source, and has the attribution requirements (GPL Section 7) at
-#  https://statnet.org/attribution
+#  https://statnet.org/attribution .
 #
-#  Copyright 2003-2020 Statnet Commons
-#######################################################################
+#  Copyright 2003-2021 Statnet Commons
+################################################################################
 
 #NOTE: a number of undocumented terms have been removed from this file
 # the terms still exist on the experimental_terms svn branch
@@ -16,6 +16,25 @@
 
 ###########  InitErgmTerm.b1mindegree  ###################
 
+#' @name b1mindegree-ergmTerm
+#' @title Minimum degree for the first mode in a bipartite network
+#' @description Minimum degree for the first mode in a bipartite (aka two-mode) network
+#' @details This term adds one network statistic to the model for
+#'   each element in `d` ; the \eqn{i} th such statistic equals the number of
+#'   nodes in the first mode of a bipartite network with at least degree `d[i]` .
+#'   The first mode of a bipartite network object is sometimes known as the "actor" mode.
+#'   
+#' @usage
+#' # binary: b1mindegree(d)
+#'
+#' @param d a vector of distinct integers. 
+#'
+#' @template ergmTerm-general
+#'
+#' @template ergmTerm-bipartite
+#'
+#' @concept bipartite
+#' @concept undirected
 InitErgmTerm.b1mindegree <- function(nw, arglist, ...) {
   ### Check the network and arguments to make sure they are appropriate.
   a <- check.ErgmTerm (nw, arglist, directed=FALSE, bipartite=TRUE,
@@ -41,6 +60,25 @@ InitErgmTerm.b1mindegree <- function(nw, arglist, ...) {
 
 ###########  InitErgmTerm.b2mindegree  ###################
 
+#' @name b2mindegree-ergmTerm
+#' @title Minimum degree for the second mode in a bipartite network
+#' @description Minimum degree for the second mode in a bipartite (aka two-mode) network
+#' @details This term adds one network statistic to the model for
+#'   each element in `d` ; the \eqn{i} th such statistic equals the number of
+#'   nodes in the second mode of a bipartite network with at least degree `d[i]` .
+#'   The second mode of a bipartite network object is sometimes known as the "event" mode.
+#'   
+#' @usage
+#' # binary: b2mindegree(d)
+#'
+#' @param d a vector of distinct integers
+#'
+#' @template ergmTerm-general
+#'
+#' @template ergmTerm-bipartite
+#'
+#' @concept bipartite
+#' @concept undirected
 InitErgmTerm.b2mindegree <- function(nw, arglist, ...) {
   ### Check the network and arguments to make sure they are appropriate.
   a <- check.ErgmTerm (nw, arglist, directed=FALSE, bipartite=TRUE,

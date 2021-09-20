@@ -80,3 +80,4 @@ dkms.conf
 *~
 *.bak
 .Rproj.user
+inst/doc

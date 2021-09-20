@@ -1,11 +1,11 @@
-/*  File src/changestats.c in package ergm, part of the Statnet suite
- *  of packages for network analysis, https://statnet.org .
+/*  File src/changestats.c in package ergm, part of the
+ *  Statnet suite of packages for network analysis, https://statnet.org .
  *
  *  This software is distributed under the GPL-3 license.  It is free,
  *  open source, and has the attribution requirements (GPL Section 7) at
- *  https://statnet.org/attribution
+ *  https://statnet.org/attribution .
  *
- *  Copyright 2003-2020 Statnet Commons
+ *  Copyright 2003-2021 Statnet Commons
  */
 #include "changestats.h"
 #include "ergm_storage.h"
@@ -1477,7 +1477,7 @@ C_CHANGESTAT_FN(c_ctriple) {
 *****************/
 I_CHANGESTAT_FN(i_cycle) {
   ALLOC_STORAGE(INPUT_PARAM[1], double, dummy);
-  dummy=dummy;
+  (void)(dummy); // Suppress unused warning.
 }
 
 C_CHANGESTAT_FN(c_cycle) {
@@ -5416,8 +5416,8 @@ C_CHANGESTAT_FN(c_tripercent) {
     attr = INPUT_PARAM + (ninputs-1); /* ptr to vertex attributes */
  
   /* *** don't forget tail -> head */    
-    if (!edgestate) TOGGLE(tail, head); /* turn on the edge if it's missing */
-    for (j=0; j < MAX(1, ninputs); j++) {
+  if (!edgestate) TOGGLE(tail, head); /* turn on the edge if it's missing */
+  for (j=0; j < MAX(1, ninputs); j++) {
       /* Count triangles with and without proposed edge */
       /* Simultaneously, find degree (use matching if necessary) with and without */ 
       triwith = triwithout = twostarwith = twostarwithout = 0;

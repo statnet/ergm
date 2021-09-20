@@ -1,12 +1,12 @@
-#  File R/ergm.llik.R in package ergm, part of the Statnet suite
-#  of packages for network analysis, https://statnet.org .
+#  File R/ergm.llik.R in package ergm, part of the
+#  Statnet suite of packages for network analysis, https://statnet.org .
 #
 #  This software is distributed under the GPL-3 license.  It is free,
 #  open source, and has the attribution requirements (GPL Section 7) at
-#  https://statnet.org/attribution
+#  https://statnet.org/attribution .
 #
-#  Copyright 2003-2020 Statnet Commons
-#######################################################################
+#  Copyright 2003-2021 Statnet Commons
+################################################################################
 #=================================================================================
 # This file contains the following 14 functions for computing log likelihoods,
 # gradients, hessians, and such:
@@ -38,8 +38,6 @@
 #                "true"  weight, in the sense that the lognormal approximation is
 #                given by
 #                           - mb - 0.5*vb 
-#   trustregion: the maximum value of the log-likelihood ratio that is trusted;
-#                default=20
 #   eta0       : the initial eta vector
 #   etamap     : the theta -> eta mapping, as returned by <ergm.etamap>
 #
@@ -62,7 +60,7 @@
 #####################################################################################
 
 llik.fun.lognormal <- function(theta, xsim, xsim.obs=NULL,
-                     varweight=0.5, trustregion=20, 
+                     varweight=0.5,
                      dampening=FALSE,dampening.min.ess=100, dampening.level=0.1,
                      eta0, etamap){
   # Convert theta to eta
@@ -74,19 +72,7 @@ llik.fun.lognormal <- function(theta, xsim, xsim.obs=NULL,
   basepred <- xsim %*% etaparam
   mb <- lweighted.mean(basepred,lrowweights(xsim))
   vb <- lweighted.var(basepred,lrowweights(xsim))
-  llr <- - mb - varweight*vb
-  #
-
-  # Simplistic error control;  -800 is effectively like -Inf:
-  if(is.infinite(llr) | is.na(llr)){llr <- -800}
-
-  # trustregion is the maximum value of llr that we actually trust.
-  # So if llr>trustregion, return a value less than trustregion instead.
-  if (is.numeric(trustregion) && llr>trustregion) {
-    return(2*trustregion - llr)
-  } else {
-    return(llr)
-  }
+  - mb - varweight*vb
 }
 
 
@@ -96,7 +82,7 @@ llik.fun.lognormal <- function(theta, xsim, xsim.obs=NULL,
 #####################################################################################
 
 llik.grad.IS <- function(theta, xsim,  xsim.obs=NULL,
-                     varweight=0.5, trustregion=20, 
+                     varweight=0.5,
                      dampening=FALSE,dampening.min.ess=100, dampening.level=0.1,
                      eta0, etamap){
 
@@ -128,7 +114,7 @@ llik.grad.IS <- function(theta, xsim,  xsim.obs=NULL,
 #       this is equation (3.5) of Hunter & Handcock (2006)
 #####################################################################################
 llik.hessian.IS <- function(theta, xsim, xsim.obs=NULL,
-                     varweight=0.5, trustregion=20, 
+                     varweight=0.5,
                      dampening=FALSE,dampening.min.ess=100, dampening.level=0.1,
                      eta0, etamap){
   # Obtain canonical parameters incl. offsets and difference from sampled-from
@@ -155,29 +141,14 @@ llik.hessian.IS <- function(theta, xsim, xsim.obs=NULL,
 #####################################################################################
 
 llik.fun.EF <- function(theta, xsim, xsim.obs=NULL,
-                     varweight=0.5, trustregion=20,
+                     varweight=0.5,
                      dampening=FALSE,dampening.min.ess=100, dampening.level=0.1,
                      eta0, etamap){
   eta <- ergm.eta(theta, etamap)
   etaparam <- eta-eta0
   basepred <- xsim %*% etaparam
   maxbase <- max(basepred)
-  llr <- - maxbase - log(sum(rowweights(xsim)*exp(basepred-maxbase)))
-  if(is.infinite(llr) | is.na(llr)){llr <- -800}
-#
-# Penalize changes to trustregion
-#
-  if (is.numeric(trustregion) && llr>trustregion) {
-    return(2*trustregion - llr)
-  } else {
-    return(llr)
-  }
-#
-# cat(paste("max, log-lik",maxbase,llr,"\n"))
-# aaa <- - log(sum(exp(lprobs)*exp(xsim %*% etaparam)))
-# cat(paste("log-lik",llr,aaa,"\n"))
-# aaa
-  llr
+  - maxbase - log(sum(rowweights(xsim)*exp(basepred-maxbase)))
 }
 
 
@@ -190,7 +161,7 @@ llik.fun.EF <- function(theta, xsim, xsim.obs=NULL,
 #####################################################################################
 
 llik.fun.IS <- function(theta, xsim, xsim.obs=NULL, 
-                     varweight=0.5, trustregion=20,
+                     varweight=0.5,
                      dampening=FALSE,dampening.min.ess=100, dampening.level=0.1,
                      eta0, etamap){
   # Obtain canonical parameters incl. offsets and difference from sampled-from
@@ -199,14 +170,7 @@ llik.fun.IS <- function(theta, xsim, xsim.obs=NULL,
 
   # Calculate log-importance-weights and the likelihood ratio
   basepred <- xsim %*% etaparam + lrowweights(xsim)
-  llr <- - log_sum_exp(basepred)
-  # trustregion is the maximum value of llr that we actually trust.
-  # So if llr>trustregion, return a value less than trustregion instead.
-  if (is.numeric(trustregion) && llr>trustregion) {
-    return(2*trustregion - llr)
-  } else {
-    return(llr)
-  }
+  - log_sum_exp(basepred)
 }
 
 #####################################################################################
@@ -215,7 +179,7 @@ llik.fun.IS <- function(theta, xsim, xsim.obs=NULL,
 #####################################################################################
 
 llik.fun.median <- function(theta, xsim, xsim.obs=NULL,
-                     varweight=0.5, trustregion=20,
+                     varweight=0.5,
                      dampening=FALSE,dampening.min.ess=100, dampening.level=0.1,
                      eta0, etamap){
   # Convert theta to eta
@@ -237,26 +201,11 @@ llik.fun.median <- function(theta, xsim, xsim.obs=NULL,
 # 
 # This is the log-likelihood ratio (and not its negative)
 #
-  llr <- - (mb + varweight*sdb*sdb)
-  if(is.infinite(llr) | is.na(llr)){llr <- -800}
-#
-# Penalize changes to trustregion
-#
-  if (is.numeric(trustregion) && llr>trustregion) {
-    return(2*trustregion - llr)
-  } else {
-    return(llr)
-  }
-#
-# cat(paste("max, log-lik",maxbase,llr,"\n"))
-# aaa <- - log(sum(exp(lprobs)*exp(xsim %*% etaparam)))
-# cat(paste("log-lik",llr,aaa,"\n"))
-# aaa
-  llr
+  - (mb + varweight*sdb*sdb)
 }
 
 llik.fun.logtaylor <- function(theta, xsim, xsim.obs=NULL, 
-	 	                     varweight=0.5, trustregion=20,  
+		                     varweight=0.5,
 	 	                     dampening=FALSE,dampening.min.ess=100, dampening.level=0.1, 
 	 	                     eta0, etamap){ 
 	 	  # Convert theta to eta 
@@ -282,19 +231,7 @@ llik.fun.logtaylor <- function(theta, xsim, xsim.obs=NULL,
 	 	  skew <- sqrt(ns*(ns-1))*sum(((basepred-mb)^3)*rowweights(xsim))/(vb^(3/2)*(ns-2)) 
 	 	  if(!is.finite(skew) | is.na(skew)){skew <- 0} 
 	 	  part <- mb+vb/2 + sum(((basepred-mb)^3)*rowweights(xsim))/6 
-	 	  llr <- - part 
-	 	  # 
-	 	 
-	 	  # Simplistic error control;  -800 is effectively like -Inf: 
-	 	  if(is.infinite(llr) | is.na(llr)){llr <- -800} 
-	 	 
-	 	  # trustregion is the maximum value of llr that we actually trust. 
-	 	  # So if llr>trustregion, return a value less than trustregion instead. 
-	 	  if (is.numeric(trustregion) && llr>trustregion) { 
-	 	    return(2*trustregion - llr) 
-	 	  } else { 
-	 	    return(llr) 
-	 	  } 
+		  return(- part)
 	 	} 
 
 	 	ergm.llik.wins <- function(x,trim=.05, na.rm=TRUE) { 

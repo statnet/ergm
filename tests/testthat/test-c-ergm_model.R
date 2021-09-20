@@ -1,19 +1,19 @@
-#  File tests/testthat/test-c-ergm_model.R in package ergm, part of the Statnet suite
-#  of packages for network analysis, https://statnet.org .
+#  File tests/testthat/test-c-ergm_model.R in package ergm, part of the
+#  Statnet suite of packages for network analysis, https://statnet.org .
 #
 #  This software is distributed under the GPL-3 license.  It is free,
 #  open source, and has the attribution requirements (GPL Section 7) at
-#  https://statnet.org/attribution
+#  https://statnet.org/attribution .
 #
-#  Copyright 2003-2020 Statnet Commons
-#######################################################################
+#  Copyright 2003-2021 Statnet Commons
+################################################################################
 
 data(florentine)
 
 test_that("concatenation of ergm_models works", {
-  ergm_model(~edges+offset(kstar(2))+absdiff("priorates")+gwesp(0,fixed=FALSE)+triangles+offset(gwdsp(0,fixed=FALSE))+absdiff("wealth"),flobusiness) -> m12
-  ergm_model(~edges+offset(kstar(2))+absdiff("priorates")+gwesp(0,fixed=FALSE),flobusiness) -> m1
-  ergm_model(~triangles+offset(gwdsp(0,fixed=FALSE))+absdiff("wealth"),flobusiness) -> m2
+  ergm_model(~edges+offset(kstar(2))+absdiff("priorates")+gwesp()+triangles+offset(gwdsp())+absdiff("wealth"),flobusiness) -> m12
+  ergm_model(~edges+offset(kstar(2))+absdiff("priorates")+gwesp(),flobusiness) -> m1
+  ergm_model(~triangles+offset(gwdsp())+absdiff("wealth"),flobusiness) -> m2
   expect_equal(c(m1,m2),m12)
 })
 

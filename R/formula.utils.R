@@ -1,12 +1,12 @@
-#  File R/formula.utils.R in package ergm, part of the Statnet suite
-#  of packages for network analysis, https://statnet.org .
+#  File R/formula.utils.R in package ergm, part of the
+#  Statnet suite of packages for network analysis, https://statnet.org .
 #
 #  This software is distributed under the GPL-3 license.  It is free,
 #  open source, and has the attribution requirements (GPL Section 7) at
-#  https://statnet.org/attribution
+#  https://statnet.org/attribution .
 #
-#  Copyright 2003-2020 Statnet Commons
-#######################################################################
+#  Copyright 2003-2021 Statnet Commons
+################################################################################
 ###################################################################
 ## This file has utilities whose primary purpose is examining or ##
 ## manipulating ERGM formulas.                                   ##
@@ -143,11 +143,11 @@ model.transform.formula <- function(object, theta, recipes, ...){
 #' parameters are fixed. Note that each term has to be treated as a special
 #' case.
 #' 
-#' Some ERGM terms such as \code{\link{gwesp}} and \code{\link{gwdegree}} have
+#' Some ERGM terms such as [`gwesp`][gwesp-ergmTerm] and [`gwdegree`][gwdegree-ergmTerm] have
 #' two forms: a curved form, for which their decay or similar parameters are to
 #' be estimated, and whose canonical statistics is a vector of the term's
-#' components (\code{\link{esp}(1)}, \code{\link{esp}(2)}, \dots{} and
-#' \code{\link{degree}(1)}, \code{\link{degree}(2)}, \dots{}, respectively) and
+#' components ([`esp(1)`][esp-ergmTerm], [`esp(2)`][esp-ergmTerm], \dots{} and
+#' [`degree(1)`][degree-ergmTerm], [`degree(2)`][degree-ergmTerm], \dots{}, respectively) and
 #' a "fixed" form where the decay or similar parameters are fixed, and whose
 #' canonical statistic is just the term itself. It is often desirable to fit a
 #' model estimating the curved parameters but simulate the "fixed" statistic.
@@ -282,28 +282,6 @@ enformulate.curved.formula <- function(object, theta, ...){
     list(filter=is.fixed.1, tocoef=1, toarg=list(decay=2))
 
   model.transform.formula(object, theta, recipes, ...)
-}
-
-set.offset.formula <- function(object, which, ...){
-  nw <- ergm.getnetwork(object)
-  m<-ergm_model(object, nw, ...)
-  to_offset <-unique(rep(seq_along(m$terms),nparam(m, byterm=TRUE))[which]) # Figure out which terms correspond to the coefficients to be offset.
-  terms <- list_rhs.formula(object)
-  for(i in to_offset)
-    if(!inherits(terms[[i]],"call") || terms[[i]][[1]]!="offset") # Don't offset terms already offset.
-      terms[[i]]<-call("offset", terms[[i]]) # Enclose the term in an offset.
-  nonsimp_update.formula(object, append_rhs.formula(~.,terms)) # append_rhs.formula call returns a formula of the form .~terms[[1]] + terms[[2]], etc.
-}
-
-unset.offset.formula <- function(object, which=TRUE, ...){
-  nw <- ergm.getnetwork(object)
-  m<-ergm_model(object, nw, ...)
-  to_unoffset <-unique(rep(seq_along(m$terms),nparam(m, byterm=TRUE))[which]) # Figure out which terms correspond to the coefficients to be un offset.
-  terms <- list_rhs.formula(object)
-  for(i in to_unoffset)
-    if(inherits(terms[[i]],"call") && terms[[i]][[1]]=="offset") # Is the term an offset?
-      terms[[i]]<-terms[[i]][[2]] # Grab the term inside the offset.
-  nonsimp_update.formula(object, append_rhs.formula(~.,terms)) # append_rhs.formula call returns a formula of the form .~terms[[1]] + terms[[2]], etc.
 }
 
 #' @describeIn ergm-deprecated \code{offset.info.formula} returns the offset

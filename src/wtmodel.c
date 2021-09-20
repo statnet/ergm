@@ -1,11 +1,11 @@
-/*  File src/wtmodel.c in package ergm, part of the Statnet suite
- *  of packages for network analysis, https://statnet.org .
+/*  File src/wtmodel.c in package ergm, part of the
+ *  Statnet suite of packages for network analysis, https://statnet.org .
  *
  *  This software is distributed under the GPL-3 license.  It is free,
  *  open source, and has the attribution requirements (GPL Section 7) at
- *  https://statnet.org/attribution
+ *  https://statnet.org/attribution .
  *
- *  Copyright 2003-2020 Statnet Commons
+ *  Copyright 2003-2021 Statnet Commons
  */
 #include <string.h>
 #include "ergm_wtmodel.h"
@@ -17,6 +17,32 @@
   A helper's helper function to initialize storage for functions that use it.
 */
 static inline void WtInitStats(WtNetwork *nwp, WtModel *m){
+
+  /* This function must do things in very specific order:
+
+   1. Since dependent terms go before the dependency, the
+      initialization must be performed in reverse order.
+
+   2. Since a dependt term relies on the pre-toggle state of the
+      dependency, the updating must be performed in forward order.
+
+   3. Since an i_function can choose to delete its own u_function, we
+      can't add callbacks until after the i_functions have been
+      called.
+
+   4. Some terms may have subterms that add callbacks to the same
+      network, and the subterms' u_functions must be called *after*
+      the u_functions of the terms that depend on them (per rule 2).
+
+   Therefore, this code first stores the current position in the
+   callback list, then initializes the terms, then adds callbacks in
+   front of the new callbacks, i.e., at the then-current
+   position. Repeatedly adding the terms at that position in reverse
+   order is slightly inefficient, but it has to be done infrequently.
+
+   */
+  unsigned int on_edge_change_pos = nwp->n_on_edge_change; // Save the current position.
+
   // Iterate in reverse, so that auxliary terms get initialized first.
   WtEXEC_THROUGH_TERMS_INREVERSE(m, {
       if(!m->noinit_s || !mtp->s_func){ // Skip if noinit_s is set and s_func is present.
@@ -28,12 +54,9 @@ static inline void WtInitStats(WtNetwork *nwp, WtModel *m){
           (*(mtp->u_func))(0, 0, 0, mtp, nwp, 0);  /* Call u_??? function */
         mtp->dstats = dstats;
       }
-    });
-
-  // Now, bind the terms to the network through the callback API.
-  WtEXEC_THROUGH_TERMS(m, {
+      // Now, bind the term to the network through the callback API.
       if(mtp->u_func && (!m->noinit_s || !mtp->s_func)) // Skip if noinit_s is set and s_func is present.
-        AddOnWtNetworkEdgeChange(nwp, (OnWtNetworkEdgeChange) mtp->u_func, mtp, INT_MAX);
+        AddOnWtNetworkEdgeChange(nwp, (OnWtNetworkEdgeChange) mtp->u_func, mtp, on_edge_change_pos);
     });
 }
 
@@ -150,7 +173,7 @@ WtModel* WtModelInitialize (SEXP mR, SEXP ext_state, WtNetwork *nwp, Rboolean no
 
       tmp = getAttrib(tmp, install("ParamsBeforeCov"));
       unsigned int offset = length(tmp) ? asInteger(tmp): 0;  /* Set offset for attr vector */
-      thisterm->attrib = thisterm->inputparams + offset; /* Ptr to attributes */
+      thisterm->attrib = thisterm->ninputparams ? thisterm->inputparams + offset : NULL; /* Ptr to attributes */
 
       /* Integer input vector with an optional attribute shift. */
       tmp = getListElement(thisterm->R, "iinputs");
@@ -159,7 +182,7 @@ WtModel* WtModelInitialize (SEXP mR, SEXP ext_state, WtNetwork *nwp, Rboolean no
 
       tmp = getAttrib(tmp, install("ParamsBeforeCov"));
       offset = length(tmp) ? asInteger(tmp): 0;  /* Set offset for attr vector */
-      thisterm->iattrib = thisterm->iinputparams + offset; /* Ptr to attributes */
+      thisterm->iattrib = thisterm->niinputparams ? thisterm->iinputparams + offset : NULL; /* Ptr to attributes */
 
       /* Number of statistics. */
       thisterm->nstats = length(getListElement(thisterm->R, "coef.names")); /* If >0, # of statistics returned. If ==0 an auxiliary statistic. */
@@ -257,6 +280,8 @@ WtModel* WtModelInitialize (SEXP mR, SEXP ext_state, WtNetwork *nwp, Rboolean no
       fn[0]='x';
       thisterm->x_func =
 	(void (*)(unsigned int type, void *data, WtModelTerm*, WtNetwork*)) R_FindSymbol(fn,sn,NULL);
+
+      if(!ext_state && (thisterm->w_func)) error("Error in ModelInitialize: not provided with extended state, but model terms with functions %s::%s requires extended state. This should normally be caught sooner. This limitation may be removed in the future.  Memory has not been deallocated, so restart R sometime soon.\n",sn,fn+2);
 
       /*Clean up by freeing fn*/
       Free(fn);

@@ -1,12 +1,179 @@
-#  File tests/testthat/test-proposal-bdstrattnt.R in package ergm, part of the Statnet suite
-#  of packages for network analysis, https://statnet.org .
+#  File tests/testthat/test-proposal-bdstrattnt.R in package ergm, part of the
+#  Statnet suite of packages for network analysis, https://statnet.org .
 #
 #  This software is distributed under the GPL-3 license.  It is free,
 #  open source, and has the attribution requirements (GPL Section 7) at
-#  https://statnet.org/attribution
+#  https://statnet.org/attribution .
 #
-#  Copyright 2003-2019 Statnet Commons
-#######################################################################
+#  Copyright 2003-2021 Statnet Commons
+################################################################################
+
+test_that("BDStratTNT works with undirected unipartite networks and bd/blocks only", {
+  nw <- network.initialize(1000, dir=FALSE)
+
+  target.stats <- c(500)
+  nws <- san(nw ~ edges , target.stats = target.stats, constraints = ~bd(maxout=1), control=control.san(SAN.maxit = 1, SAN.nsteps=2e3))
+  sr <- summary(nws ~ edges + concurrent)  
+  
+  expect_equal(unname(sr), c(500,0))
+  
+  
+  
+  target.stats <- c(1000)
+  nws2 <- san(nws ~ edges , target.stats = target.stats, constraints = ~bd(maxout=2), control=control.san(SAN.maxit = 1, SAN.nsteps=2e3))
+  sr2 <- summary(nws2 ~ edges + degree(2) + degrange(3))  
+  
+  expect_true(all(abs(sr2 - c(1000,1000, 0)) <= c(1,2,0)))
+  
+  
+  
+  target.stats <- c(1500)
+  nws22 <- san(nws2 ~ edges , target.stats = target.stats, constraints = ~bd(maxout=3), control=control.san(SAN.maxit = 1, SAN.nsteps=2e3))
+  sr22 <- summary(nws22 ~ edges + degree(3) + degrange(4))  
+  
+  expect_true(all(abs(sr22 - c(1500,1000, 0)) <= c(2,2,0)))
+  
+  
+
+  ## may be off by small amount  
+  target.stats <- c(1000)
+  nws2a <- san(nw ~ edges , target.stats = target.stats, constraints = ~bd(maxout=2), control=control.san(SAN.maxit = 1, SAN.nsteps=4e3))
+  sr2a <- summary(nws2a ~ edges + degree(2) + degrange(3))  
+  
+  expect_true(all(abs(sr2a - c(1000,1000, 0)) <= c(1,2,0)))
+  
+  
+  ## may be off by small amount  
+  target.stats <- c(1500)
+  nws22a <- san(nw ~ edges , target.stats = target.stats, constraints = ~bd(maxout=3), control=control.san(SAN.maxit = 1, SAN.nsteps=6e3))
+  sr22a <- summary(nws22a ~ edges + degree(3) + degrange(4))  
+  
+  expect_true(all(abs(sr22a - c(1500,1000, 0)) <= c(2,2,0)))
+  
+    
+  
+  
+  nw %v% "sex" <- rep(c("A","B"), 500)
+  target.stats <- c(500)
+  nws <- san(nw ~ edges , target.stats = target.stats, constraints = ~bd(maxout = 1) + blocks(attr = "sex", levels2 = diag(TRUE, 2)), control=control.san(SAN.maxit = 1, SAN.nsteps=2e3))
+  sr3 <- summary(nws ~ edges + concurrent + nodematch("sex"))  
+  
+  expect_equal(unname(sr3), c(500,0, 0))
+  
+
+  target.stats <- c(500)
+  nws <- san(nw ~ edges , target.stats = target.stats, constraints = ~bd(maxout = 1) + blocks(attr = "sex", levels2 = !diag(TRUE, 2)), control=control.san(SAN.maxit = 1, SAN.nsteps=2e3))
+  sr4 <- summary(nws ~ edges + concurrent + nodematch("sex"))  
+  
+  expect_equal(unname(sr4), c(500,0, 500))
+  
+  ## may be off by small amount
+  target.stats <- c(1500)
+  nws <- san(nw ~ edges , target.stats = target.stats, constraints = ~bd(maxout = 3) + blocks(attr = "sex", levels2 = diag(TRUE, 2)), control=control.san(SAN.maxit = 1, SAN.nsteps=6e3))
+  sr5 <- summary(nws ~ edges + degree(3) + degrange(4) + nodematch("sex"))  
+  
+  expect_true(all(abs(sr5 - c(1500, 1000, 0, 0)) <= c(2,4,0,2)))
+  
+  ## may be off by small amount
+  target.stats <- c(1500)
+  nws <- san(nw ~ edges , target.stats = target.stats, constraints = ~bd(maxout = 3) + blocks(attr = "sex", levels2 = !diag(TRUE, 2)), control=control.san(SAN.maxit = 1, SAN.nsteps=6e3))
+  sr6 <- summary(nws ~ edges + degree(3) + degrange(4) + nodematch("sex"))  
+  
+  expect_true(all(abs(sr6 - c(1500, 1000, 0, 1500)) <= c(4,4,0,4)))
+  
+
+  target.stats <- c(1000)
+  nws <- san(nw ~ edges , target.stats = target.stats, constraints = ~bd(maxout = 3) + blocks(attr = "sex", levels2 = diag(TRUE, 2)), control=control.san(SAN.maxit = 1, SAN.nsteps=4e3))
+  sr7 <- summary(nws ~ edges + degrange(4) + nodematch("sex"))  
+  
+  expect_equal(unname(sr7), c(1000,0, 0))
+  
+
+  target.stats <- c(1000)
+  nws <- san(nw ~ edges , target.stats = target.stats, constraints = ~bd(maxout = 3) + blocks(attr = "sex", levels2 = !diag(TRUE, 2)), control=control.san(SAN.maxit = 1, SAN.nsteps=4e3))
+  sr8 <- summary(nws ~ edges + degrange(4) + nodematch("sex"))  
+  
+  expect_equal(unname(sr8), c(1000,0, 1000))
+
+
+})
+
+test_that("BDStratTNT works with bipartite networks and bd/blocks only", {
+  nw <- network.initialize(900, bip = 100, dir=FALSE)
+
+  target.stats <- c(100)
+  nws <- san(nw ~ edges , target.stats = target.stats, constraints = ~bd(maxout=1), control=control.san(SAN.maxit = 1, SAN.nsteps=4e2))
+  sr <- summary(nws ~ edges + b1degree(1) + degrange(2))  
+  
+  expect_equal(unname(sr), c(100,100, 0))
+  
+  target.stats <- c(200)
+  nws2 <- san(nws ~ edges , target.stats = target.stats, constraints = ~bd(maxout=2), control=control.san(SAN.maxit = 1, SAN.nsteps=4e2))
+  sr2 <- summary(nws2 ~ edges + b1degree(2) + degrange(3))  
+  
+  expect_true(all(abs(sr2 - c(200,100, 0)) <= c(0,0,0)))
+  
+  target.stats <- c(300)
+  nws22 <- san(nws2 ~ edges , target.stats = target.stats, constraints = ~bd(maxout=3), control=control.san(SAN.maxit = 1, SAN.nsteps=4e2))
+  sr22 <- summary(nws22 ~ edges + b1degree(3) + degrange(4))  
+  
+  expect_true(all(abs(sr22 - c(300,100, 0)) <= c(0,0,0)))
+  
+  target.stats <- c(200)
+  nws2a <- san(nw ~ edges , target.stats = target.stats, constraints = ~bd(maxout=2), control=control.san(SAN.maxit = 1, SAN.nsteps=8e2))
+  sr2a <- summary(nws2a ~ edges + b1degree(2) + degrange(3))  
+  
+  expect_true(all(abs(sr2a - c(200,100, 0)) <= c(0,0,0)))
+  
+  target.stats <- c(300)
+  nws22a <- san(nw ~ edges , target.stats = target.stats, constraints = ~bd(maxout=3), control=control.san(SAN.maxit = 1, SAN.nsteps=1.2e3))
+  sr22a <- summary(nws22a ~ edges + b1degree(3) + degrange(4))  
+  
+  expect_true(all(abs(sr22a - c(300,100, 0)) <= c(0,0,0)))
+  
+    
+  
+  
+  nw %v% "sex" <- c(rep(c("A","B"), 50), rep(c("A","B"), 450))
+  target.stats <- c(100)
+  nws <- san(nw ~ edges , target.stats = target.stats, constraints = ~bd(maxout = 1) + blocks(attr = "sex", levels2 = diag(TRUE, 2)), control=control.san(SAN.maxit = 1, SAN.nsteps=4e2))
+  sr3 <- summary(nws ~ edges + concurrent + nodematch("sex"))  
+  
+  expect_equal(unname(sr3), c(100,0, 0))
+  
+  target.stats <- c(100)
+  nws <- san(nw ~ edges , target.stats = target.stats, constraints = ~bd(maxout = 1) + blocks(attr = "sex", levels2 = !diag(TRUE, 2)), control=control.san(SAN.maxit = 1, SAN.nsteps=4e2))
+  sr4 <- summary(nws ~ edges + concurrent + nodematch("sex"))  
+  
+  expect_equal(unname(sr4), c(100,0, 100))
+  
+  target.stats <- c(300)
+  nws <- san(nw ~ edges , target.stats = target.stats, constraints = ~bd(maxout = 3) + blocks(attr = "sex", levels2 = diag(TRUE, 2)), control=control.san(SAN.maxit = 1, SAN.nsteps=1.2e3))
+  sr5 <- summary(nws ~ edges + b1degree(3) + degrange(4) + nodematch("sex"))  
+  
+  expect_true(all(abs(sr5 - c(300, 100, 0, 0)) <= c(0,0,0,0)))
+  
+  target.stats <- c(300)
+  nws <- san(nw ~ edges , target.stats = target.stats, constraints = ~bd(maxout = 3) + blocks(attr = "sex", levels2 = !diag(TRUE, 2)), control=control.san(SAN.maxit = 1, SAN.nsteps=1.2e3))
+  sr6 <- summary(nws ~ edges + b1degree(3) + degrange(4) + nodematch("sex"))  
+  
+  expect_true(all(abs(sr6 - c(300, 100, 0, 300)) <= c(0,0,0,0)))
+  
+
+  target.stats <- c(200)
+  nws <- san(nw ~ edges , target.stats = target.stats, constraints = ~bd(maxout = 3) + blocks(attr = "sex", levels2 = diag(TRUE, 2)), control=control.san(SAN.maxit = 1, SAN.nsteps=8e2))
+  sr7 <- summary(nws ~ edges + degrange(4) + nodematch("sex"))  
+  
+  expect_equal(unname(sr7), c(200,0, 0))
+  
+
+  target.stats <- c(200)
+  nws <- san(nw ~ edges , target.stats = target.stats, constraints = ~bd(maxout = 3) + blocks(attr = "sex", levels2 = !diag(TRUE, 2)), control=control.san(SAN.maxit = 1, SAN.nsteps=8e2))
+  sr8 <- summary(nws ~ edges + degrange(4) + nodematch("sex"))  
+  
+  expect_equal(unname(sr8), c(200,0, 200))
+
+})
 
 
 test_that("BDStratTNT works with undirected unipartite networks", {
@@ -18,7 +185,7 @@ test_that("BDStratTNT works with undirected unipartite networks", {
   diag(pmat) <- c(2,2,30)
 
   target.stats <- c(1000, 50, 50, 800)
-  nws <- san(nw ~ edges + nodematch("race",levels=NULL, diff=TRUE), target.stats = target.stats, control=control.san(SAN.maxit = 1, SAN.nsteps=5e3), constraints = ~bd + strat(attr = "race", pmat = pmat))
+  nws <- san(nw ~ edges + nodematch("race",levels=NULL, diff=TRUE), target.stats = target.stats, control=control.san(SAN.maxit = 1, SAN.nsteps=5e3), constraints = ~strat(attr = "race", pmat = pmat))
   sr <- summary(nws ~ edges + nodematch("race",levels=NULL, diff=TRUE))  
   
   expect_true(all(abs(sr - target.stats) <= 0.05*target.stats))
@@ -28,7 +195,7 @@ test_that("BDStratTNT works with undirected unipartite networks", {
   diag(pmat) <- c(7,7,20)
 
   target.stats <- c(1000, 125, 125, 350)
-  nws2 <- san(nws ~ edges + nodematch("race",levels=NULL, diff=TRUE), target.stats = target.stats, control=control.san(SAN.maxit = 1, SAN.nsteps=1e4), constraints = ~bd + strat(attr = "race", pmat = pmat))
+  nws2 <- san(nws ~ edges + nodematch("race",levels=NULL, diff=TRUE), target.stats = target.stats, control=control.san(SAN.maxit = 1, SAN.nsteps=1e4), constraints = ~strat(attr = "race", pmat = pmat))
   sr <- summary(nws2 ~ edges + nodematch("race",levels=NULL, diff=TRUE))
   
   expect_true(all(abs(sr - target.stats) <= 0.05*target.stats))
@@ -130,7 +297,7 @@ test_that("BDStratTNT works with bipartite networks", {
   pmat <- matrix(c(0, 100, 2, 2, 0, 2, 100, 100, 0),3,3,byrow=TRUE)
 
   target.stats <- c(0, 2, 100, 100, 0, 100, 2, 2, 0)
-  nws <- san(nw ~ nodemix("race",levels2=TRUE), target.stats = target.stats, control=control.san(SAN.maxit = 1, SAN.nsteps=5e3), constraints = ~bd + strat(attr = "race", pmat = pmat))
+  nws <- san(nw ~ nodemix("race",levels2=TRUE), target.stats = target.stats, control=control.san(SAN.maxit = 1, SAN.nsteps=5e3), constraints = ~strat(attr = "race", pmat = pmat))
   sr <- summary(nws ~ nodemix("race",levels2=TRUE))
 
   expect_true(all(abs(sr - target.stats) <= 0.05*target.stats))
@@ -141,7 +308,7 @@ test_that("BDStratTNT works with bipartite networks", {
   pmat3 <- (pmat + pmat2)/2
 
   target.stats <- c(pmat2)  
-  nws2 <- san(nws ~ nodemix("race",levels2=TRUE), target.stats = target.stats, control=control.san(SAN.maxit = 1, SAN.nsteps=1e4), constraints = ~bd + strat(attr = "race", pmat = pmat3))
+  nws2 <- san(nws ~ nodemix("race",levels2=TRUE), target.stats = target.stats, control=control.san(SAN.maxit = 1, SAN.nsteps=1e4), constraints = ~strat(attr = "race", pmat = pmat3))
   sr <- summary(nws2 ~ nodemix("race",levels2=TRUE))
 
   expect_true(all(abs(sr - target.stats) <= 0.05*target.stats))
@@ -257,7 +424,7 @@ test_that("BDStratTNT works with churning", {
 })
 
 test_that("BDStratTNT simulates reasonably", {
-  for(deg_bound in 1:5) {
+  for(deg_bound in c(1,3)) {
     net_size <- 2000L
   
     nw <- network.initialize(net_size, dir = FALSE)
@@ -275,7 +442,7 @@ test_that("BDStratTNT simulates reasonably", {
           
     nw_sim <- nw
     
-    for(i in 1:5) {
+    for(i in 1:2) {
       nw_sim <- simulate(nw_sim ~ edges, 
                          coef = c(0), 
                          constraints = ~bd(maxout = deg_bound) + blocks(attr = "sex", levels2 = levels2) + strat(attr = "vattr", pmat = pmat),
@@ -299,6 +466,191 @@ test_that("BDStratTNT simulates reasonably", {
     }  
   }
 })
+
+test_that("BDStratTNT simulates reasonably with heterogeneous degree bounds", {
+  for(deg_bound in c(1,3)) {
+    net_size <- 2000L
+  
+    nw <- network.initialize(net_size, dir = FALSE)
+  
+    vattr <- sample(c("A","B","C"), net_size, TRUE)
+    sex <- sample(c(1,2,3), net_size, TRUE)
+    
+    attribs <- matrix(FALSE, nrow = net_size, ncol = 3)
+    attribs[cbind(seq_len(net_size), sex)] <- TRUE    
+    
+    nw %v% "vattr" <- vattr
+    nw %v% "sex" <-  sex
+    nw %v% "blocks_attr" <- sample(1:6, net_size, TRUE)
+    
+    blocks_levels_2 <- matrix(FALSE, 6, 6)
+    blocks_levels_2[cbind(c(1,2,2,4), c(5,2,3,4))] <- TRUE
+    blocks_levels_2 <- blocks_levels_2 | t(blocks_levels_2)
+    
+    levels2 <- matrix(c(1,0,1,0,0,0,1,0,0),3,3)
+    levels2 <- levels2 > 0
+    
+    pmat <- 1 - matrix(c(1,0,0,0,1,0,0,0,0),3,3)
+          
+    nw_sim <- nw
+
+    maxout <- matrix(0, nrow = net_size, ncol = 3)
+
+    for(row_index in 1:3) {
+      for(col_index in 1:3) {
+        if(!levels2[row_index, col_index]) {
+          maxout[sex == row_index, col_index] <- deg_bound
+        }
+      }
+    }
+    maxout <- maxout + round(5*(runif(length(maxout)) - 1/2))
+    maxout[maxout < 0] <- 0
+    
+    for(i in 1:2) {    
+      nw_sim <- simulate(nw_sim ~ edges, 
+                         coef = c(0), 
+                         constraints = ~bd(attribs = attribs, maxout = maxout) + blocks(~blocks_attr, levels2 = blocks_levels_2) + strat(attr = "vattr", pmat = pmat),
+                         output = "network")
+      
+      summ_stats_vattr <- summary(nw_sim ~ nodemix("vattr",levels2=TRUE))
+      expect_true(all(summ_stats_vattr[c(1,3)] == 0))
+      expect_true(all(summ_stats_vattr[-c(1,3)] > 0))
+  
+      summ_stats_blocks_attr <- summary(nw_sim ~ nodemix("blocks_attr",levels2=TRUE))
+      expect_true(all(summ_stats_blocks_attr[c(3,5,10,11)] == 0))
+      expect_true(all(summ_stats_blocks_attr[-c(3,5,10,11)] > 0))
+      
+      el <- as.edgelist(nw_sim)
+      degs <- table(from = factor(c(el), levels = seq_len(net_size)), to = factor(sex[c(el[,c(2,1)])], levels = seq_len(3)))
+      expect_true(all(degs <= maxout))
+    }  
+  }
+})
+
+test_that("BDStratTNT simulates reasonably with bipartite heterogeneous degree bounds", {
+  for(deg_bound in c(1,3)) {
+    net_size <- 2000L
+    bip <- 700L
+    
+    nw <- network.initialize(net_size, dir = FALSE, bip = bip)
+  
+    vattr <- c(sample(c("A","B","C","D"), bip, TRUE), sample(c("X","Y","Z"), net_size - bip, TRUE))
+    sex <- c(sample(c(1,2,3,4,5), bip, TRUE), sample(c(6,7,8,9,10,11), net_size - bip, TRUE))
+    
+    attribs <- matrix(FALSE, nrow = net_size, ncol = length(unique(sex)))
+    attribs[cbind(seq_len(net_size), sex)] <- TRUE    
+    
+    nw %v% "vattr" <- vattr
+    nw %v% "sex" <-  sex
+    nw %v% "blocks_attr" <- c(sample(c(1,2,3), bip, TRUE), sample(c(4,5,6,7), net_size - bip, TRUE))
+    
+    blocks_levels_2 <- matrix(FALSE, nrow = 3, 4)
+    blocks_levels_2[cbind(c(3,2,2), c(1,2,3))] <- TRUE
+    
+    levels2 <- matrix(as.logical(round(runif(11*11))), nrow = 11, ncol = 11)
+    levels2 <- levels2 | t(levels2)
+    
+    pmat <- 1 - matrix(c(1,0,0,0,1,0,1,0,0,0,0,1),nrow = 4, ncol = 3)
+          
+    nw_sim <- nw
+
+    maxout <- matrix(0, nrow = net_size, ncol = 11)
+
+    for(row_index in 1:11) {
+      for(col_index in 1:11) {
+        if(!levels2[row_index, col_index]) {
+          maxout[sex == row_index, col_index] <- deg_bound
+        }
+      }
+    }
+    maxout <- maxout + round(5*(runif(length(maxout)) - 1/2))
+    maxout[maxout < 0] <- 0
+    
+    for(i in 1:2) {    
+      nw_sim <- simulate(nw_sim ~ edges, 
+                         coef = c(0), 
+                         constraints = ~bd(attribs = attribs, maxout = maxout) + blocks(~blocks_attr, levels2 = blocks_levels_2) + strat(attr = "vattr", pmat = pmat),
+                         output = "network")
+      
+      summ_stats_vattr <- summary(nw_sim ~ nodemix("vattr",levels2=TRUE))
+      expect_true(all(summ_stats_vattr[c(1,5,7,12)] == 0))
+      expect_true(all(summ_stats_vattr[-c(1,5,7,12)] > 0))
+  
+      summ_stats_blocks_attr <- summary(nw_sim ~ nodemix("blocks_attr",levels2=TRUE))
+      expect_true(all(summ_stats_blocks_attr[c(3,5,8)] == 0))
+      expect_true(all(summ_stats_blocks_attr[-c(3,5,8)] > 0))
+      
+      el <- as.edgelist(nw_sim)
+      degs <- table(from = factor(c(el), levels = seq_len(net_size)), to = factor(sex[c(el[,c(2,1)])], levels = seq_len(11)))
+      expect_true(all(degs <= maxout))
+    }  
+  }
+})
+
+test_that("BDStratTNT simulates reasonably with directed heterogeneous degree bounds", {
+  for(deg_bound in c(1,3)) {
+    net_size <- 2000L
+  
+    nw <- network.initialize(net_size, dir = TRUE)
+  
+    vattr <- sample(c("A","B","C"), net_size, TRUE)
+    sex <- sample(c(1,2,3), net_size, TRUE)
+    
+    attribs <- matrix(FALSE, nrow = net_size, ncol = 3)
+    attribs[cbind(seq_len(net_size), sex)] <- TRUE    
+    
+    nw %v% "vattr" <- vattr
+    nw %v% "sex" <-  sex
+    nw %v% "blocks_attr" <- sample(1:6, net_size, TRUE)
+    
+    blocks_levels_2 <- matrix(FALSE, 6, 6)
+    blocks_levels_2[cbind(c(5,2,2,4), c(1,2,3,4))] <- TRUE
+    
+    levels2 <- matrix(c(1,0,0,0,0,1,1,0,0),3,3)
+    levels2 <- levels2 > 0
+    
+    pmat <- 1 - matrix(c(1,0,0,0,0,0,0,1,0),3,3)
+          
+    nw_sim <- nw
+    
+    maxout <- matrix(0, nrow = net_size, ncol = 3)
+
+    for(row_index in 1:3) {
+      for(col_index in 1:3) {
+        if(!levels2[row_index, col_index]) {
+          maxout[sex == row_index, col_index] <- deg_bound
+        }
+      }
+    }
+    maxout <- maxout + round(5*(runif(length(maxout)) - 1/2))
+    maxout[maxout < 0] <- 0
+    
+    maxin <- maxout + round(5*(runif(length(maxout)) - 1/2))
+    maxin[maxin < 0] <- 0
+    
+    for(i in 1:2) {
+      nw_sim <- simulate(nw_sim ~ edges, 
+                         coef = c(0), 
+                         constraints = ~bd(attribs = attribs, maxout = maxout, maxin = maxin) + blocks(~blocks_attr, levels2 = blocks_levels_2) + strat(attr = "vattr", pmat = pmat),
+                         output = "network")
+      
+      summ_stats_vattr <- summary(nw_sim ~ nodemix("vattr",levels2=TRUE))
+      expect_true(all(summ_stats_vattr[c(1,8)] == 0))
+      expect_true(all(summ_stats_vattr[-c(1,8)] > 0))
+  
+      summ_stats_blocks_attr <- summary(nw_sim ~ nodemix("blocks_attr",levels2=TRUE))
+      expect_true(all(summ_stats_blocks_attr[c(5,8,14,22)] == 0))
+      expect_true(all(summ_stats_blocks_attr[-c(5,8,14,22)] > 0))
+      
+      el <- as.edgelist(nw_sim)
+      out_degs <- table(from = factor(c(el[,1]), levels = seq_len(net_size)), to = factor(sex[c(el[,2])], levels = seq_len(3)))
+      in_degs <- table(from = factor(c(el[,2]), levels = seq_len(net_size)), to = factor(sex[c(el[,1])], levels = seq_len(3)))
+      expect_true(all(out_degs <= maxout))
+      expect_true(all(in_degs <= maxin))      
+    }  
+  }
+})
+
 
 test_that("BDStratTNT works with degree bound saturation", {
   nw <- network.initialize(900, dir=FALSE)
@@ -498,7 +850,7 @@ test_that("BDStratTNT handles atypical levels specifications correctly", {
   expect_true(all(summary(nws ~ nodemix(~bd_attr, levels2=-c(3))) == 0))
   
   ## should fail as we omit all pairings
-  expect_error(nws <- simulate(nw ~ edges, coef = c(0), constraints = ~blocks(~bd_attr, levels2=TRUE) + strat(attr = ~strat_attr, pmat = pmat)))
+##  expect_error(nws <- simulate(nw ~ edges, coef = c(0), constraints = ~blocks(~bd_attr, levels2=TRUE) + strat(attr = ~strat_attr, pmat = pmat)))
   
   
   ## similar bipartite tests
@@ -536,7 +888,7 @@ test_that("BDStratTNT handles atypical levels specifications correctly", {
   expect_true(all(summary(nws ~ nodemix(~bd_attr, levels2=-c(13))) == 0))
   
   ## should fail as we omit all pairings
-  expect_error(nws <- simulate(nw ~ edges, coef = c(0), constraints = ~blocks(~bd_attr, levels2=TRUE) + strat(attr = ~strat_attr, pmat = pmat)))
+##  expect_error(nws <- simulate(nw ~ edges, coef = c(0), constraints = ~blocks(~bd_attr, levels2=TRUE) + strat(attr = ~strat_attr, pmat = pmat)))
 })
 
 
@@ -580,7 +932,7 @@ test_that("BDStratTNT simulates directed reasonably", {
       
   nw_sim <- nw
   
-  for(i in 1:5) {
+  for(i in c(1,3)) {
     nw_sim <- simulate(nw_sim ~ edges, 
                        coef = c(0), 
                        constraints = ~bd(maxout = i, maxin = i + 1) + blocks(attr = "sex", levels2 = matrix(c(TRUE,FALSE,TRUE,FALSE,FALSE,TRUE,FALSE,TRUE,FALSE),3,3)) + strat(attr = "vattr", pmat = pmat),

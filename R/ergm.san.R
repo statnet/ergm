@@ -1,12 +1,12 @@
-#  File R/ergm.san.R in package ergm, part of the Statnet suite
-#  of packages for network analysis, https://statnet.org .
+#  File R/ergm.san.R in package ergm, part of the
+#  Statnet suite of packages for network analysis, https://statnet.org .
 #
 #  This software is distributed under the GPL-3 license.  It is free,
 #  open source, and has the attribution requirements (GPL Section 7) at
-#  https://statnet.org/attribution
+#  https://statnet.org/attribution .
 #
-#  Copyright 2003-2020 Statnet Commons
-#######################################################################
+#  Copyright 2003-2021 Statnet Commons
+################################################################################
 
 #' Use Simulated Annealing to attempt to match a network to a vector of mean
 #' statistics
@@ -58,13 +58,14 @@
 #' @param object Either a [`formula`] or an [`ergm`] object. The
 #'   [`formula`] should be of the form \code{y ~ <model terms>}, where
 #'   \code{y} is a network object or a matrix that can be coerced to a
-#'   [`network`] object.  For the details on the
-#'   possible \code{<model terms>}, see \code{\link{ergm-terms}}.  To
-#'   create a \code{\link[network]{network}} object in , use the
+#'   [`network`] object.  For the details on the possible \code{<model
+#'   terms>}, see \code{\link{ergm-terms}}.  To create a
+#'   \code{\link[network]{network}} object in , use the
 #'   \code{network()} function, then add nodal attributes to it using
 #'   the \code{\%v\%} operator if necessary.
 #' @return A network or list of networks that hopefully have network
-#'   statistics close to the \code{target.stats} vector.
+#'   statistics close to the \code{target.stats} vector. Additionally,
+#'   [attr()]-style attributes `formula` and `stats` are included.
 #' @keywords models
 #' @aliases san.default
 #' @export
@@ -87,7 +88,7 @@ san.default <- function(object,...)
 #' @param constraints A one-sided formula specifying one or more constraints on
 #' the support of the distribution of the networks being simulated. See the
 #' documentation for a similar argument for \code{\link{ergm}} and see
-#' [list of implemented constraints][ergm-constraints] for more information. For
+#' [list of implemented constraints][ergmConstraint] for more information. For
 #' \code{simulate.formula}, defaults to no constraints. For
 #' \code{simulate.ergm}, defaults to using the same constraints as those with
 #' which \code{object} was fitted.
@@ -356,14 +357,14 @@ san.ergm_model <- function(object, reference=~Bernoulli, constraints=~., target.
       message("Scaled Mahalanobis distance = ", mahalanobis(stats, 0, invcov, inverted=TRUE))
     }
     
+    out.mat <- z$s
+    attr(out.mat, "W") <- invcov
     if(!only.last){
       out.list[[i]] <- switch(output,
                               ergm_state=state,
                               network=as.network(state),
                               edgelist=as.edgelist(state)
                               )
-      out.mat <- z$s
-      attr(out.mat, "W") <- invcov
     }else{
       if(i<control$SAN.maxit && isTRUE(all.equal(unname(stats), numeric(length(stats))))){
         if(verbose) message("Target statistics matched exactly.")
@@ -372,14 +373,17 @@ san.ergm_model <- function(object, reference=~Bernoulli, constraints=~., target.
     }
   }
   if(control$SAN.maxit > 1 && !only.last){
-    structure(out.list, formula = formula, networks = out.list, 
+    structure(out.list, formula = formula,
               stats = out.mat, class="network.list")
   }else{
-    switch(output,
-           ergm_state=state,
-           network=as.network(state),
-           edgelist=as.edgelist(state)
-           )    
+    structure(
+      switch(output,
+             ergm_state=state,
+             network=as.network(state),
+             edgelist=as.edgelist(state)
+             ),
+      stats = out.mat
+    )
   }
 }
 
@@ -402,13 +406,33 @@ san.ergm <- function(object, formula=object$formula,
               basis=basis,
               reference = object$reference,
               output=output,
+              only.last=only.last,
               constraints=constraints,
               control=control,
               verbose=verbose, 
               offset.coef=offset.coef, ...)
 }
 
-ergm_SAN_slave <- function(state, tau,control,verbose,..., nsteps=NULL, samplesize=NULL, statindices=NULL, offsetindices=NULL, offsets=NULL){
+#' Internal Function to Perform Simulated Annealing
+#'
+#' This is an internal function, not normally called directly by the
+#' user. The \code{ergm_SAN_slave} function samples networks and
+#' network statistics using a simulated annealing (SAN) algorithm via
+#' \code{SAN_wrapper}.
+#' 
+#' @param state an [`ergm_state`] representing the sampler state, containing information about the network, the model, the proposal, and current statistics.
+#'
+#' @templateVar mycontrol control.san
+#' @param tau a scalar; temperature to use; higher temperature means more proposals that "worsen" the statistics are accepted.
+#' @param nsteps an integer; number of SAN proposals.
+#' @param samplesize an integer; number of network statistics to return.
+#' @param statindices,offsetindices,offsets specification for offset handling; see [san.formula()] implementation.
+#' @template control
+#' @template verbose
+#' @param ... additional arguments, currently unused.
+#' @keywords internal
+#' @export
+ergm_SAN_slave <- function(state, tau,control,verbose, ..., nsteps=NULL, samplesize=NULL, statindices=NULL, offsetindices=NULL, offsets=NULL){
   on.exit(ergm_Cstate_clear())
 
   state$proposal$flags$SAN <- TRUE

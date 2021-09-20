@@ -1,12 +1,12 @@
-#  File R/InitErgmTerm.test.R in package ergm, part of the Statnet suite
-#  of packages for network analysis, http://statnet.org .
+#  File R/InitErgmTerm.auxnet.R in package ergm, part of the
+#  Statnet suite of packages for network analysis, https://statnet.org .
 #
 #  This software is distributed under the GPL-3 license.  It is free,
 #  open source, and has the attribution requirements (GPL Section 7) at
-#  http://statnet.org/attribution
+#  https://statnet.org/attribution .
 #
-#  Copyright 2003-2017 Statnet Commons
-#######################################################################
+#  Copyright 2003-2021 Statnet Commons
+################################################################################
 InitErgmTerm..sociomatrix<-function(nw, arglist, ...) {
   a <- check.ErgmTerm(nw, arglist,
                       varnames = c("mode"),
@@ -115,7 +115,7 @@ InitErgmTerm..undir.net <- function(nw, arglist, ...){
   rule <- match.arg(a$rule, RULES)
   ruleID <- which(RULES==rule)
 
-  list(name="_undir_net", coef.names = c(), inputs=ruleID,
+  list(name="_undir_net", coef.names = c(), iinputs=ruleID,
        dependence=rule%in%c("weak","strong")) # Just discarding half the network does not induce dependence.
 }
 

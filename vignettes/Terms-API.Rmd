@@ -1,17 +1,16 @@
 ---
 title: "API for `ergm` Terms"
 author: Pavel N. Krivitsky
-output: 
-  html_document:
-    toc: true
-    mathjax: null
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+  %\VignetteIndexEntry{API for ergm Terms}
 ---
 
-<!-- 
-%\VignetteEngine{knitr::knitr} 
-%\VignetteIndexEntry{API for ergm Terms}
--->
-<!-- to render out this file for preview when not using RStudio:  rmarkdown::render('vignettes/Terms-API.Rmd') -->
+```{r, cache=FALSE}
+options(rmarkdown.html_vignette.check_title = FALSE)
+```
 
 # Summary
 
@@ -21,7 +20,7 @@ This document seeks to be the most up-to-date API documentation for `ergm` terms
 
 ## Types of storage and types of term
 
-The storage API defines two types of storage: *private storage*, which is attached the `ModelTerm` structure and is specific to each `ergm` term, and *public storage*, which is attached to the `Network` and can be accessed by all terms.
+The storage API defines two types of storage: *private storage*, which is attached the `ModelTerm` structure and is specific to each `ergm` term, and *public storage*, which is attached to the `Model` and can be accessed by all terms.
 
 A *statistic* is a familiar `ergm` term like "`edges`" or "`nodefactor`": it adds at least one sufficient statistic to the model. Every statistic can have private storage, and it can read from public storage, but it cannot write to public storage.
 
@@ -40,24 +39,24 @@ For the purposes of this overview, the following information is relevant, and is
 
 1. The user passes a formula to the procedure (`ergm`, `summary`, etc.); this formula may only have statistics.
 1. `ergm_model()` is called.
-    1. It iterates through the formula terms, calling `InitErgmTerm.<NAME>()` functions in turn, adding their output to the model term list. Some terms include `auxiliaries` formulas in their list.
-    1. `update.ErgmTerm()` when it finds that a term has requested auxiliaries, attaches an integer vector `model$aux.slots` with an element for each auxiliary term requested in the requesting term's input vector.
+    1. It iterates through the formula terms, calling `InitErgmTerm.<NAME>()` functions in turn (or `InitWtErgmTerm.<NAME>()` for valued ERGMs), adding their output to the model term list. Some terms include `auxiliaries` formulas in their list.
+    1. `call.ErgmTerm()` when it finds that a term has requested auxiliaries, attaches an attribute `attr(., "aux.slots")` containing an integer vector for the model's own and/or requested auxiliaries' positions on the `aux_storage` vector.
     1. It calls `ergm.auxstorage()` with the complete model.
         1. It iterates through initialized model terms, looking at their `auxiliaries` element for a one-sided formula listing their requested auxiliaries.
         1. It iterates through the auxiliary formulas, calling term initialization on them.
 		1. It iterates through the `auxiliaries` elements of auxiliary terms and initialises those, etc..
         1. It constructs a list of unique initialized auxilariy terms (that is, when two or more terms had requested an identical auxiliary).
-        1. It insets the initialized unique auxiliary terms in `model$terms` and the index (in the unique list) of the auxiliary requested by each statistic in the `model$aux.slots` of the requesting statistic.
-        1. For auxiliary itself, the first element of `model$aux.slots` is set to the position of the auxiliary itself.
+        1. It inserts the initialized unique auxiliary terms in `model$terms` and the index (in the unique list) of the auxiliary requested by each statistic in the `aux.slots` of the requesting statistic.
+        1. For auxiliary itself, the first element of `aux.slots` is set to the position of the auxiliary itself.
 1. The `ergm_state` is constructed from an edgelist (`state$el`), an empty network (`state$nw0`), a model (`state$model`), and (optionally) a proposal (`state$proposal`) and a statistics vector (`state$stats`).
 1. `update.ergm_state()` is called.
     1. It iterates through the formula terms, calling `term$ext.encode()` (if defined) to construct a vector `state$ext.state`. `state$ext.flag` is set to reconciled.
 1. The `ergm_state` is passed to the C code.
 1. `Redgelist2Network()` initializes the network.
 1. `ModelInitialize()` is called:
-    1. `ModelInitialize()` initializes all terms (statistic and auxiliaries), also counting up the number of auxiliaries (distinguished by having no `c_`, `d_`, or `s_` functions). If a term exports a `c_` function, a `d_` function is not looked up.
+    1. `ModelInitialize()` initializes all terms (statistic and auxiliaries), also counting up the number of auxiliaries (distinguished by having no `c_`, `d_`, or `s_` functions). A term can export both a `c_` function and a `d_` function. In that case, it is responsible for deleting one of them when its `i_` function is called.
     1. It counts up the number of auxiliaries and allocates an array of `void *`s, one for each auxiliary. The `mtp->aux_storage` pointer for each term is set to point to that (one) array.
-    1. It assigns `model$terms[[i]]aux.slotes` to `mtp->aux_slots`.
+    1. It assigns `attr(model$terms[[i]], "aux.slotes")` to `mtp->aux_slots`.
     1. It assigns the `ergm_model` `SEXP` to `model->R`, in case it's needed.
     1. It assigns the `ergm_model$terms[[i]]` `SEXP` to `mtp->R`, in case it's needed.
     1. It calls `InitStats()` is called, calling the initializer (`i_` function) of each term or, if not found, an updater (`u_` function) with invalid input (i.e., toggle $(0,0)$) is called in case the term developer prefers a one-function implementation.
@@ -255,7 +254,7 @@ This interface is intended to be used by packages extending `ergm` to send arbit
 
 Binary: `void x_<NAME>(unsigned int type, void *data, Model *mtp, Network *nwp)`
 
-Valued: `void x_<NAME>(unsigned int type, void *data, double weight, Model *mtp, Network *nwp)`
+Valued: `void x_<NAME>(unsigned int type, void *data, Model *mtp, Network *nwp)`
 
 ##### Expects
 ###### Parameters
@@ -272,6 +271,8 @@ There are no restrictions on side-effects. It is up to the extension writer to e
 The following helper macros have been defined to date, and can be found in `storage.h`.
 
 ## Memory management
+
+These functions are defined in `ergm_storage.h` and exported.
 
 `ALLOC_STORAGE(nmemb, stored_type, store_into)`: Allocate a vector of `nmemb` elements of type `stored_type`, save its pointer to private storage and also to a `stored_type *store_into` which is also declared. Should be used by the `i_` function, but may also be used by the `u_` function.
 
@@ -296,7 +297,7 @@ Note that this term assumes that the private and the public storage of the calli
 
 ## Auxiliaries
 
-MHproposals may also request auxiliary terms. An `InitMHp.` with an `auxiliaries` formula will similarly receive the positions of its auxiliaries' slots in the network. However, this appears to have a slight cost in speed and a potentially significant cost in memory, since the auxiliary may need to duplicate the information in the `MH_` function.
+MHproposals may also request auxiliary terms. An `InitErgmProposal.<NAME>()` or  `InitWtErgmProposal.<NAME>()`with an `auxiliaries` formula will similarly receive the positions of its auxiliaries' slots in the network. However, this appears to have a slight cost in speed and a potentially significant cost in memory, since the auxiliary may need to duplicate the information in the `MH_` function.
 
 ## Private storage
 

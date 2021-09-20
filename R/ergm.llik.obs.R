@@ -1,12 +1,12 @@
-#  File R/ergm.llik.obs.R in package ergm, part of the Statnet suite
-#  of packages for network analysis, https://statnet.org .
+#  File R/ergm.llik.obs.R in package ergm, part of the
+#  Statnet suite of packages for network analysis, https://statnet.org .
 #
 #  This software is distributed under the GPL-3 license.  It is free,
 #  open source, and has the attribution requirements (GPL Section 7) at
-#  https://statnet.org/attribution
+#  https://statnet.org/attribution .
 #
-#  Copyright 2003-2020 Statnet Commons
-#######################################################################
+#  Copyright 2003-2021 Statnet Commons
+################################################################################
 #==========================================================================
 # This file contains the following 14 functions for computing log likelihoods,
 # gradients, hessians, and such for networks with observation process
@@ -39,8 +39,6 @@
 #                "true"  weight, in the sense that the lognormal approximation is
 #                given by
 #                           - mb - 0.5*vb
-#   trustregion: the maximum value of the log-likelihood ratio that is trusted;
-#                default=20
 #   eta0       : the initial eta vector
 #   etamap     : the theta -> eta mapping, as returned by <ergm.etamap>
 #
@@ -60,7 +58,7 @@
 #        normally  distributed so that exp(eta * stats) is lognormal
 #####################################################################################                           
 llik.fun.obs.lognormal <- function(theta, xsim, xsim.obs=NULL,
-                     varweight=0.5, trustregion=20,
+                     varweight=0.5,
                      dampening=FALSE,dampening.min.ess=100, dampening.level=0.1,
                      eta0, etamap){
   eta <- ergm.eta(theta, etamap)
@@ -80,16 +78,7 @@ llik.fun.obs.lognormal <- function(theta, xsim, xsim.obs=NULL,
 # 
 # This is the log-likelihood ratio (and not its negative)
 #
-  llr <- (mm + varweight*vm) - (mb + varweight*vb)
-  if(is.infinite(llr) | is.na(llr)){llr <- -800}
-#
-# Penalize changes to trustregion
-#
-  if (is.numeric(trustregion) && llr>trustregion) {
-    return(2*trustregion - llr)
-  } else {
-    return(llr)
-  }
+  (mm + varweight*vm) - (mb + varweight*vb)
 }
 
 
@@ -99,7 +88,7 @@ llik.fun.obs.lognormal <- function(theta, xsim, xsim.obs=NULL,
 #   llg: the gradient of the not-offset eta parameters with ??
 #####################################################################################
 llik.grad.obs.IS <- function(theta, xsim,  xsim.obs=NULL,
-                      varweight=0.5, trustregion=20,
+                      varweight=0.5,
                       dampening=FALSE,dampening.min.ess=100, dampening.level=0.1,
                       eta0, etamap){
   # Obtain canonical parameters incl. offsets and difference from sampled-from
@@ -128,7 +117,7 @@ llik.grad.obs.IS <- function(theta, xsim,  xsim.obs=NULL,
 #####################################################################################
 
 llik.hessian.obs.IS <- function(theta, xsim, xsim.obs=NULL,
-                     varweight=0.5, trustregion=20,
+                     varweight=0.5,
                      dampening=FALSE,dampening.min.ess=100, dampening.level=0.1,
                      eta0, etamap){
   # Obtain canonical parameters incl. offsets and difference from sampled-from
@@ -160,7 +149,7 @@ llik.hessian.obs.IS <- function(theta, xsim, xsim.obs=NULL,
 #####################################################################################
 
 llik.fun.obs.IS <- function(theta, xsim, xsim.obs=NULL, 
-                     varweight=0.5, trustregion=20,
+                     varweight=0.5,
                      dampening=FALSE,dampening.min.ess=100, dampening.level=0.1,
                      eta0, etamap){
   # Obtain canonical parameters incl. offsets and difference from sampled-from
@@ -170,15 +159,7 @@ llik.fun.obs.IS <- function(theta, xsim, xsim.obs=NULL,
   # Calculate log-importance-weights and the likelihood ratio
   basepred <- xsim %*% etaparam + lrowweights(xsim)
   obspred <- xsim.obs %*% etaparam + lrowweights(xsim.obs)
-  llr <- log_sum_exp(obspred) - log_sum_exp(basepred)
-  
-  # trustregion is the maximum value of llr that we actually trust.
-  # So if llr>trustregion, return a value less than trustregion instead.
-  if (is.numeric(trustregion) && llr>trustregion) {
-    return(2*trustregion - llr)
-  } else {
-    return(llr)
-  }
+  log_sum_exp(obspred) - log_sum_exp(basepred)
 }
 
 
@@ -189,7 +170,7 @@ llik.fun.obs.IS <- function(theta, xsim, xsim.obs=NULL,
 #####################################################################################
 
 llik.fun.obs.robust<- function(theta, xsim, xsim.obs=NULL,
-                     varweight=0.5, trustregion=20,
+                     varweight=0.5,
                      dampening=FALSE,dampening.min.ess=100, dampening.level=0.1,
                      eta0, etamap){
   eta <- ergm.eta(theta, etamap)
@@ -210,16 +191,7 @@ llik.fun.obs.robust<- function(theta, xsim, xsim.obs=NULL,
 # 
 # This is the log-likelihood ratio (and not its negative)
 #
-  llr <- (mm + varweight*vm*vm) - (mb + varweight*vb*vb)
-  if(is.infinite(llr) | is.na(llr)){llr <- -800}
-#
-# Penalize changes to trustregion
-#
-  if (is.numeric(trustregion) && llr>trustregion) {
-    return(2*trustregion - llr)
-  } else {
-    return(llr)
-  }
+  (mm + varweight*vm*vm) - (mb + varweight*vb*vb)
 }
 
 llik.fun.obs.robust<- llik.fun.obs.IS 

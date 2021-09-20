@@ -1,12 +1,12 @@
-%  File inst/NEWS.Rd in package ergm, part of the Statnet suite
-%  of packages for network analysis, https://statnet.org .
+%  File inst/NEWS.Rd in package ergm, part of the
+%  Statnet suite of packages for network analysis, https://statnet.org .
 %
 %  This software is distributed under the GPL-3 license.  It is free,
 %  open source, and has the attribution requirements (GPL Section 7) at
-%  https://statnet.org/attribution
+%  https://statnet.org/attribution .
 %
-%  Copyright 2003-2020 Statnet Commons
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%  Copyright 2003-2021 Statnet Commons
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \name{NEWS}
 \title{NEWS file for the \code{\link[=ergm-package]{ergm}} package}
 \encoding{UTF-8}
@@ -64,17 +64,137 @@
 
 %% }
 
+\section{Changes in version 4.1.0}{
+
+  \subsection{NEW FEATURES}{
+    \itemize{
+      \item{
+        \code{\link{F}()} operator's filter formula can now be a simple logical or comparison expression.
+      }
+      \item{
+        \code{\link{Passthrough}()} operator now takes an optional boolean label= argument, which controls whether Passthrough~ will be prepended to the coefficient name; it defaults to \code{FALSE}.
+      }
+    }
+  }
+
+
+  \subsection{BUG FIXES}{
+    \itemize{
+      \item{
+        In \code{\link{summary.ergm}()} output, the \code{$coefficients} element is now a matrix rather than a dataframe. This fixes some issues with duplicate term names. Also, \code{$coefs} element is no longer attached.
+      }
+      \item{
+        \code{\link{check.ErgmTerm}()} no longer skips argument type check if the passed argument is \code{NULL}. For backwards compatibility, the check is skipped if the argument is optional \emph{and} the default value is \code{NULL}. A constant \code{ERGM_VATTR_SPEC_NULL} has been added for when \code{NULL} is a valid (but not default) input for nodal attribute specification.
+      }
+      \item{
+        A serious bug in calculation of geodesic distance distribution in \code{\link{gof.formula}()} has been fixed. (Thanks to Jeffrey Alan Smith (University of Nebraska at Lincoln) for reporting it.)
+      }
+      \item{
+        Documentation corrections, fixes, and clean-ups.
+      }
+      \item{
+        A number of memory leaks have been fixed.
+      }
+    }
+  }
+
+
+  \subsection{OTHER USER-VISIBLE CHANGES}{
+    \itemize{
+      \item{
+        API change: \code{\link{ergm_model}()} no longer sets an element \code{$coef.names}, and \code{offset()} decorator is set on each term's \code{coef.names}.
+      }
+      \item{
+        Miscellaneous improvements to the \code{BDStrat*} family of proposals.
+      }
+      \item{
+        In adaptive MCMC, burn-in detection now fits an exponential decay rather than a broken stick model.
+      }
+    }
+  }
+}
+
+
+\section{Changes in version 4.0.1}{
+
+  \subsection{BUG FIXES}{
+    \itemize{
+      \item{
+        Fixes to extended state API propagation in \code{\link{Passthrough}} term.
+      }
+      \item{
+        Fixes to the handling, particularly of curved terms and offsets, in the \code{\link{Sum}()} and \code{\link{Offset}()} operators.
+      }
+      \item{
+        Minor fixes and improvements to some terms' C implementations.
+      }
+    }
+  }
+
+
+  \subsection{OTHER USER-VISIBLE CHANGES}{
+    \itemize{
+      \item{
+        Per request of the \pkg{sna} maintainer, \code{\link[=ergm_symmetrize]{symmetrize}()} generic and methods have been renamed to \code{\link{ergm_symmetrize}}.
+      }
+      \item{
+        Metadata set by \code{\link{\%ergmlhs\%}} is now pretty-printed.
+      }
+    }
+  }
+
+  \subsection{C-LEVEL FACILITIES}{
+    \itemize{
+      \item{
+        In the C API, the \code{ToggleKnownEdge()}, function now ensures that tail < head for undirected networks.
+      }
+    }
+  }
+}
+
+
 \section{Changes in version 4.0.0}{
 
   \subsection{NEW FEATURES}{
     \itemize{
+      \item{
+        Terms, such as \code{\link{nodecov}}, that take matrix-valued functions of nodal attributes now generate coefficient names from the matrix column names more sensibly.
+      }
+      \item{
+        The \code{levels2} argument in terms \code{\link{mm}} and \code{\link{nodemix}} now accepts an argument in the form of a logical mixing matrix, selecting which mixing matrix cells should be included.
+      }
+      \item{
+        \code{\link{ergmMPLE}()} now has an \code{expand.bipartite=} argument, which, for \code{output='array'}, controls whether bipartite networks' adjacency matrices are represented as rectangular or as square. Other behaviors under \code{output='array'} have also been made more consistent.
+      }
+      \item{
+        In \code{\link{gof}} functions, bipartite networks now have their own goodness-of-fit statistics, \code{\link{b1degree}} and \code{\link{b2degree}}.
+      }
+      \item{
+        Formula or function-type nodal attribute specifications can now be more complex. In particular, \code{\link{magrittr-package}}'s \code{\link{\%>\%}} operator can now be used on one of the sides of an \code{\link{mm}} formula.
+      }
+      \item{
+        \code{\link{nodal_attributes}} documentation and vignette now have more examples.
+      }
+      \item{
+        Nonidentifiability detection code now checks for nonvarying statistics first and handles them appropriately. See \code{\link{control.ergm}} for the parameters that control this handling.
+      }
+      \item{
+        Control lists can now be specified as plain lists with sublists allocated by argument name. Function \code{\link{snctrl}} can provide completion in base \R, RStudio, and elsewhere.
+      }
+      \item{
+        ERGM now checks for whether an MPLE exists and warns the user if not. (Thanks to Christian Schmidt (PSU).)
+      }
+      \item{
+        Arguments to \code{\link{ergm}} terms can now be specified a little bit more flexibly; e.g., one can specify an unnamed argument after a named argument, as one can in an R function call.
+      }
+
       \item{
 	Curved ERGMs are no longer \dQuote{second class citizens}. Curved parameters can now be passed via
 	\code{coef=} and \code{init=} arguments rather than embedded in the formula.
       }
 
       \item{
-        A new type of term, an \emph{operator} is introduced, taking one or more \code{\link{ergm}} formulas as arguments and transforming their inputs and outputs allowing a wide variety of models to be specified. These include interactions for dyad-independent effects (\code{TERM1:TERM2} and \code{TERM1*TERM2}), \code{B()}inary terms in valued ERGMs, \code{Label()}, \code{F()}ilter, \code{Offset()}, \code{Undir()}, \code{Sum()}, \code{S()}ubgraph, \code{Curve()}, \code{NodematchFilter()}, \code{Undir()}ected, and others.
+        A new type of term, an \emph{operator} is introduced, taking one or more \code{\link{ergm}} formulas as arguments and transforming their inputs and outputs allowing a wide variety of models to be specified. These include interactions for dyad-independent effects (\code{TERM1:TERM2} and \code{TERM1*TERM2}), \code{B()}inary terms in valued ERGMs, \code{Label()}, \code{F()}ilter, \code{Offset()}, \code{Symmetrize()}, \code{Sum()}, \code{S()}ubgraph, \code{Curve()}, \code{NodematchFilter()}, \code{Log()}, \code{Exp()}, \code{Prod()}, and others.
       }
 
       \item{
@@ -209,6 +329,14 @@
       \item{
         A number of auxiliaries has been implemented (see \verb{R/InitErgmTerm.auxnet.R}) and a convenient API for evaluating network statistics on auxiliary networks is provided.
       }
+
+      \item{
+        Log-likelihood estimates and derived quantities (deviance, AIC, BIC) now also report their standard errors due to bridge sampling. Setting the \code{bridge.target.se} control option to \code{\link{control.logLik.ergm}} and/or \code{\link{control.ergm.bridge}} will continue sampling and accumulating samples until the estimated standard error due to bridge sampling falls below it.
+      }
+
+      \item{
+        \code{\link{san}} output now includes the sampled statistics of the network.
+      }
     }
   }
 
@@ -216,10 +344,33 @@
   \subsection{BUG FIXES}{
     \itemize{
 
-      \item{A large number of bugs in bridge sampling has been fixed.}
-
-      \item{Miscellaneous fixes to the documentation and
-	robustifications.}
+      \item{
+        The package functions now work more reliably when loaded but not attached but rather invoked via \code{::}.
+      }
+      \item{
+        The \code{\link{Dyads}} operator constraint now works correctly on undirected networks.
+      }
+      \item{
+        Term initialization traceback printing has been robustified.
+      }
+      \item{
+        Term \code{\link{nodeisqrtcovar}} now initializes without error. (Thanks to Yu-Lun Chen (NYU) for reporting the issue.)
+      }
+      \item{
+        The MPLE code has been robustified for some corner cases (e.g., a model with 0 free parameters).
+      }
+      \item{
+        Various fixes to \code{\link{predict.ergm}}. (Thanks to Michal Bojanowski.)
+      }
+      \item{
+        In \code{\link{ddsp}}, \code{\link{dnsp}}, \code{\link{dgwdsp}}, and \code{\link{dgwnsp}}, the \code{"RTP"} (reciprocated transitive partners) implementation has been fixed.
+      }
+      \item{
+        Term initialization error messages are now somewhat cleaner and more informative.
+      }
+      \item{
+        Miscellaneous documentation fixes and CRAN warning fixes.
+      }
 
     }
   }
@@ -227,9 +378,42 @@
 
   \subsection{OTHER USER-VISIBLE CHANGES}{
     \itemize{
+
+      \item{
+        \strong{IMPORTANT:} The \code{levels2=} argument of \code{\link{nodemix}} and \code{\link{mm}} terms now defaults to \code{-1} (i.e., exclude the first level combination). Old behaviour is available through the \code{version} \link{term option}.
+      }
+
+      \item{
+        \strong{IMPORTANT:} In curved terms such as \code{\link{gwesp}} (with \code{fixed=FALSE}), the decay parameter in the term is now ignored; the initial decay parameter must be specified as a part of \code{\link{control.ergm}(init=...)}. Note that because MPLE for curved ERGMs has been implemented, it is optional in the first place.
+      }
+
+      \item{
+        \code{\link{summary_formula}} family of functions now dispatch based on the \code{basis=} argument if present, with the formula being allowed to be one-sided.
+      }
+
+      \item{
+        In \code{\link{control.ergm}}, arguments \code{SAN.control=} and \code{loglik.control=} have been shortened to \code{SAN=} and \code{loglik=}, respectively.
+      }
+
+      \item{
+        Global ERGM options and ERGM term options are now properly documented in \code{\link[=ergm-options]{options?ergm}}.
+      }
+
+      \item{
+        The \code{hammingmix} term has been deprecaed.
+      }
+
+      \item{
+        The convex hull testing now uses the \code{\link{lpSolveAPI-package}} and is faster and more robust as a result. (Thanks to Christian Schmid (PSU).)
+      }
+      
       \item{
 	\code{\link{enformulate.curved}} family of functions has been
 	deprecated.
+      }
+
+      \item{
+        \code{ergmfit$coef} element has been superseded by \code{ergmfit$coefficients} for consistency with \code{\link{glm}} and others. The former still works, with a deprecation warning. Using \code{coef(ergmfit)} is recommended.
       }
 
       \item{
@@ -303,7 +487,23 @@
       }
 
       \item{
-        \code{blockdiag} constraint has been moved to \pkg{\link[=tergm:tergm-package]{tergm}} package.
+        The \code{InitErgmConstraint} and \code{InitErgmReference} API now has the same calling convention as \code{Init*ErgmTerm}, which enables \code{\link{check.ErgmTerm}} to be used to preprocess and check their arguments.
+      }
+
+      \item{
+        The \code{Init*Ergm*} functions now receive an optional env= argument containing the environment of the formula from which they were called.
+      }
+
+      \item{
+        The \code{InitErgmConstraint} API now allows multiple nested constraints to be returned, to allow a proposal to address either a more general or a more specific one.
+      }
+
+      \item{
+        The \code{do.sim=} aregument to the \code{\link{simulate.ergm}} family of functions has been deprecated in favor of a more consistent \code{return.args=}.
+      }
+
+      \item{
+        Likelihood-change trust region (\code{trustregion}) code has been removed.
       }
     }
   }
@@ -355,101 +555,6 @@
       }
     }
   }
-}
-
-\section{Changes in version 3.12.0}{
-
-  \subsection{NEW FEATURES}{
-    \itemize{
-      \item{
-        Terms, such as \code{\link{nodecov}}, that take matrix-valued functions of nodal attributes now generate coefficient names from the matrix column names more sensibly.
-      }
-      \item{
-        The \code{levels2} argument in terms \code{\link{mm}} and \code{\link{nodemix}} now accepts an argument in the form of a logical mixing matrix, selecting which mixing matrix cells should be included.
-      }
-      \item{
-        \code{\link{ergmMPLE}()} now has an \code{expand.bipartite=} argument, which, for \code{output='array'}, controls whether bipartite networks' adjacency matrices are represented as rectangular or as square. Other behaviors under \code{output='array'} have also been made more consistent.
-      }
-      \item{
-        In \code{\link{gof}} functions, bipartite networks now have their own goodness-of-fit statistics, \code{\link{b1degree}} and \code{\link{b2degree}}.
-      }
-      \item{
-        Formula or function-type nodal attribute specifications can now be more complex. In particular, \code{\link{magrittr-package}}'s \code{\link{\%>\%}} operator can now be used on one of the sides of an \code{\link{mm}} formula.
-      }
-      \item{
-        \code{\link{nodal_attributes}} documentation and vignette now have more examples.
-      }
-      \item{
-        Nonidentifiability detection code now checks for nonvarying statistics first and handles them appropriately. See \code{\link{control.ergm}} for the parameters that control this handling.
-      }
-      \item{
-        Control lists can now be specified as plain lists with sublists allocated by argument name. Function \code{\link{snctrl}} can provide completion in base \R, RStudio, and elsewhere.
-      }
-      \item{
-        ERGM now checks for whether an MPLE exists and warns the user if not. (Thanks to Christian Schmidt (PSU).)
-      }
-      \item{
-        Arguments to \code{\link{ergm}} terms can now be specified a little bit more flexibly; e.g., one can specify an unnamed argument after a named argument, as one can in an R function call.
-      }
-    }
-  }
-
-
-  \subsection{BUG FIXES}{
-    \itemize{
-      \item{
-        The package functions now work more reliably when loaded but not attached but rather invoked via \code{::}.
-      }
-      \item{
-        The \code{\link{Dyads}} operator constraint now works correctly on undirected networks.
-      }
-      \item{
-        Term initialization traceback printing has been robustified.
-      }
-      \item{
-        Term \code{\link{nodeisqrtcovar}} now initializes without error. Thanks to Yu-Lun Chen (NYU) for reporting the issue.
-      }
-      \item{
-        The MPLE code has been robustified for some corner cases (e.g., a model with 0 free parameters).
-      }
-      \item{
-        Various fixes to \code{\link{predict.ergm}}. (Thanks to Michal Bojanowski.)
-      }
-      \item{
-        In \code{\link{ddsp}}, \code{\link{dnsp}}, \code{\link{dgwdsp}}, and \code{\link{dgwnsp}}, the \code{"RTP"} (reciprocated transitive partners) implementation has been fixed.
-      }
-      \item{
-        Term initialization error messages are now somewhat cleaner and more informative.
-      }
-      \item{
-        Miscellaneous documentation fixes and CRAN warning fixes.
-      }
-    }
-  }
-
-
-  \subsection{OTHER USER-VISIBLE CHANGES}{
-    \itemize{
-      \item{
-        The \code{levels2=} argument of \code{\link{nodemix}} and \code{\link{mm}} terms now defaults to \code{-1} (i.e., exclude the first level combination). Old behaviour is available through the \code{version} \link{term option}.
-      }
-      \item{
-        \code{\link{summary_formula}} family of functions now dispatch based on the \code{basis=} argument if present, with the formula being allowed to be one-sided.
-      }
-      \item{
-        In \code{\link{control.ergm}}, arguments \code{SAN.control=} and \code{loglik.control=} have been shortened to \code{SAN=} and \code{loglik=}, respectively.
-      }
-      \item{
-        Global ERGM options and ERGM term options are now properly documented in \code{\link[=ergm-options]{options?ergm}}.}
-      \item{
-        The \code{hammingmix} term has been deprecaed.
-      }
-      \item{
-        The convex hull testing now uses the \code{\link{lpSolveAPI-package}} and is faster and more robust as a result. (Thanks to Christian Schmid (PSU).)
-      }
-    }
-  }
-
 }
 
 \section{Changes in version 3.11.0}{
@@ -1717,7 +1822,7 @@ fixes issue reported by Sebastian Daza}
       has been added for fitting valued ERGMs of Krivitsky (2012). The
       \dQuote{user interface} is subject to change, however. (The
       implementation of reference measures for counts can be found in \R package
-      \code{\link{ergm.count}})
+      \code{\link[ergm.count:ergm.count-package]{ergm.count}})
 
       \item \code{\link[=ergm-package]{ergm}} itself now includes
       rudimentary implementations for discrete uniform and continuous
@@ -1850,7 +1955,7 @@ fixes issue reported by Sebastian Daza}
       \eqn{\theta} and simulated statistics.
 
       \item \code{\link{ergm}} extreme statistics detection (if
-      \code{\code{\link{control.ergm}}(drop=TRUE)}) can now detect both extremely high
+      \code{\link{control.ergm}(drop=TRUE)}) can now detect both extremely high
       and extremely low values, setting the coefficients to +Inf and
       -Inf respectively. Direction of \dQuote{dropping} is returned.
 

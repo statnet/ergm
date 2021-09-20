@@ -1,11 +1,11 @@
-/*  File src/wtSAN.c in package ergm, part of the Statnet suite
- *  of packages for network analysis, https://statnet.org .
+/*  File src/SAN.c.template.do_not_include_directly.h in package ergm, part of the
+ *  Statnet suite of packages for network analysis, https://statnet.org .
  *
  *  This software is distributed under the GPL-3 license.  It is free,
  *  open source, and has the attribution requirements (GPL Section 7) at
- *  https://statnet.org/attribution
+ *  https://statnet.org/attribution .
  *
- *  Copyright 2003-2019 Statnet Commons
+ *  Copyright 2003-2021 Statnet Commons
  */
 
 /*****************
@@ -58,7 +58,7 @@ SEXP DISPATCH_SAN_wrapper(SEXP stateR,
   /* record new generated network to pass back to R */
   if(asInteger(status) == MCMC_OK){
     s->stats = REAL(sample) + (asInteger(samplesize)-1)*nstats;
-    SET_VECTOR_ELT(outl, 3, DISPATCH_ErgmStateRSave(stateR, s));
+    SET_VECTOR_ELT(outl, 3, DISPATCH_ErgmStateRSave(s));
   }
 
   DISPATCH_ErgmStateDestroy(s);

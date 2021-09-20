@@ -1,3 +1,17 @@
+/*  File inst/include/ergm_stubs.c in package ergm, part of the
+ *  Statnet suite of packages for network analysis, https://statnet.org .
+ *
+ *  This software is distributed under the GPL-3 license.  It is free,
+ *  open source, and has the attribution requirements (GPL Section 7) at
+ *  https://statnet.org/attribution .
+ *
+ *  Copyright 2003-2021 Statnet Commons
+ */
+
+#define STUBFILE
+#include <stddef.h>
+#include <R_ext/Rdynload.h>
+#include "ergm_BDStratBlocks.h"
 
 #define STUBFILE
 #include <stddef.h>
@@ -22,86 +36,6 @@ double my_choose(double n, int r){
 static double (*fun)(double,int) = NULL;
 if(fun==NULL) fun = (double (*)(double,int)) R_FindSymbol("my_choose", "ergm", NULL);
 return fun(n,r);
-}
-
-#define STUBFILE
-#include <stddef.h>
-#include <R_ext/Rdynload.h>
-#include "ergm_changestats_auxnet.h"
-void i__isociomatrix(ModelTerm *mtp, Network *nwp){
-static void (*fun)(ModelTerm *,Network *) = NULL;
-if(fun==NULL) fun = (void (*)(ModelTerm *,Network *)) R_FindSymbol("i__isociomatrix", "ergm", NULL);
-fun(mtp,nwp);
-}
-void u__isociomatrix(Vertex tail, Vertex head, ModelTerm *mtp, Network *nwp, Rboolean edgestate){
-static void (*fun)(Vertex,Vertex,ModelTerm *,Network *,Rboolean) = NULL;
-if(fun==NULL) fun = (void (*)(Vertex,Vertex,ModelTerm *,Network *,Rboolean)) R_FindSymbol("u__isociomatrix", "ergm", NULL);
-fun(tail,head,mtp,nwp,edgestate);
-}
-void f__isociomatrix(ModelTerm *mtp, Network *nwp){
-static void (*fun)(ModelTerm *,Network *) = NULL;
-if(fun==NULL) fun = (void (*)(ModelTerm *,Network *)) R_FindSymbol("f__isociomatrix", "ergm", NULL);
-fun(mtp,nwp);
-}
-void i__discord_net_DyadSet(ModelTerm *mtp, Network *nwp){
-static void (*fun)(ModelTerm *,Network *) = NULL;
-if(fun==NULL) fun = (void (*)(ModelTerm *,Network *)) R_FindSymbol("i__discord_net_DyadSet", "ergm", NULL);
-fun(mtp,nwp);
-}
-void u__discord_net_DyadSet(Vertex tail, Vertex head, ModelTerm *mtp, Network *nwp, Rboolean edgestate){
-static void (*fun)(Vertex,Vertex,ModelTerm *,Network *,Rboolean) = NULL;
-if(fun==NULL) fun = (void (*)(Vertex,Vertex,ModelTerm *,Network *,Rboolean)) R_FindSymbol("u__discord_net_DyadSet", "ergm", NULL);
-fun(tail,head,mtp,nwp,edgestate);
-}
-void f__discord_net_DyadSet(ModelTerm *mtp, Network *nwp){
-static void (*fun)(ModelTerm *,Network *) = NULL;
-if(fun==NULL) fun = (void (*)(ModelTerm *,Network *)) R_FindSymbol("f__discord_net_DyadSet", "ergm", NULL);
-fun(mtp,nwp);
-}
-void i__intersect_net_DyadSet(ModelTerm *mtp, Network *nwp){
-static void (*fun)(ModelTerm *,Network *) = NULL;
-if(fun==NULL) fun = (void (*)(ModelTerm *,Network *)) R_FindSymbol("i__intersect_net_DyadSet", "ergm", NULL);
-fun(mtp,nwp);
-}
-void u__intersect_net_DyadSet(Vertex tail, Vertex head, ModelTerm *mtp, Network *nwp, Rboolean edgestate){
-static void (*fun)(Vertex,Vertex,ModelTerm *,Network *,Rboolean) = NULL;
-if(fun==NULL) fun = (void (*)(Vertex,Vertex,ModelTerm *,Network *,Rboolean)) R_FindSymbol("u__intersect_net_DyadSet", "ergm", NULL);
-fun(tail,head,mtp,nwp,edgestate);
-}
-void f__intersect_net_DyadSet(ModelTerm *mtp, Network *nwp){
-static void (*fun)(ModelTerm *,Network *) = NULL;
-if(fun==NULL) fun = (void (*)(ModelTerm *,Network *)) R_FindSymbol("f__intersect_net_DyadSet", "ergm", NULL);
-fun(mtp,nwp);
-}
-void i__intersect_net_toggles_in_list_DyadSet(ModelTerm *mtp, Network *nwp){
-static void (*fun)(ModelTerm *,Network *) = NULL;
-if(fun==NULL) fun = (void (*)(ModelTerm *,Network *)) R_FindSymbol("i__intersect_net_toggles_in_list_DyadSet", "ergm", NULL);
-fun(mtp,nwp);
-}
-void u__intersect_net_toggles_in_list_DyadSet(Vertex tail, Vertex head, ModelTerm *mtp, Network *nwp, Rboolean edgestate){
-static void (*fun)(Vertex,Vertex,ModelTerm *,Network *,Rboolean) = NULL;
-if(fun==NULL) fun = (void (*)(Vertex,Vertex,ModelTerm *,Network *,Rboolean)) R_FindSymbol("u__intersect_net_toggles_in_list_DyadSet", "ergm", NULL);
-fun(tail,head,mtp,nwp,edgestate);
-}
-void f__intersect_net_toggles_in_list_DyadSet(ModelTerm *mtp, Network *nwp){
-static void (*fun)(ModelTerm *,Network *) = NULL;
-if(fun==NULL) fun = (void (*)(ModelTerm *,Network *)) R_FindSymbol("f__intersect_net_toggles_in_list_DyadSet", "ergm", NULL);
-fun(mtp,nwp);
-}
-void i__union_net_DyadSet(ModelTerm *mtp, Network *nwp){
-static void (*fun)(ModelTerm *,Network *) = NULL;
-if(fun==NULL) fun = (void (*)(ModelTerm *,Network *)) R_FindSymbol("i__union_net_DyadSet", "ergm", NULL);
-fun(mtp,nwp);
-}
-void u__union_net_DyadSet(Vertex tail, Vertex head, ModelTerm *mtp, Network *nwp, Rboolean edgestate){
-static void (*fun)(Vertex,Vertex,ModelTerm *,Network *,Rboolean) = NULL;
-if(fun==NULL) fun = (void (*)(Vertex,Vertex,ModelTerm *,Network *,Rboolean)) R_FindSymbol("u__union_net_DyadSet", "ergm", NULL);
-fun(tail,head,mtp,nwp,edgestate);
-}
-void f__union_net_DyadSet(ModelTerm *mtp, Network *nwp){
-static void (*fun)(ModelTerm *,Network *) = NULL;
-if(fun==NULL) fun = (void (*)(ModelTerm *,Network *)) R_FindSymbol("f__union_net_DyadSet", "ergm", NULL);
-fun(mtp,nwp);
 }
 
 #define STUBFILE
@@ -327,7 +261,12 @@ fun(theta,v,nv,etamap,ans);
 #define STUBFILE
 #include <stddef.h>
 #include <R_ext/Rdynload.h>
-#include "ergm_MHproposal.h"
+#include "ergm_MHproposal_bd.h"
+DegreeBound* DegreeBoundInitializeR(SEXP MHpR, Network *nwp){
+static DegreeBound* (*fun)(SEXP,Network *) = NULL;
+if(fun==NULL) fun = (DegreeBound* (*)(SEXP,Network *)) R_FindSymbol("DegreeBoundInitializeR", "ergm", NULL);
+return fun(MHpR,nwp);
+}
 DegreeBound* DegreeBoundInitialize(int *attribs, int *maxout, int *maxin,int *minout, int *minin, int condAllDegExact,int attriblength, Network *nwp){
 static DegreeBound* (*fun)(int *,int *,int *,int *,int *,int,int,Network *) = NULL;
 if(fun==NULL) fun = (DegreeBound* (*)(int *,int *,int *,int *,int *,int,int,Network *)) R_FindSymbol("DegreeBoundInitialize", "ergm", NULL);
@@ -338,6 +277,21 @@ static void (*fun)(DegreeBound *) = NULL;
 if(fun==NULL) fun = (void (*)(DegreeBound *)) R_FindSymbol("DegreeBoundDestroy", "ergm", NULL);
 fun(bd);
 }
+int CheckTogglesValid(DegreeBound *bd, MHProposal *MHp, Network *nwp){
+static int (*fun)(DegreeBound *,MHProposal *,Network *) = NULL;
+if(fun==NULL) fun = (int (*)(DegreeBound *,MHProposal *,Network *)) R_FindSymbol("CheckTogglesValid", "ergm", NULL);
+return fun(bd,MHp,nwp);
+}
+int CheckConstrainedTogglesValid(DegreeBound *bd, MHProposal *MHp, Network *nwp){
+static int (*fun)(DegreeBound *,MHProposal *,Network *) = NULL;
+if(fun==NULL) fun = (int (*)(DegreeBound *,MHProposal *,Network *)) R_FindSymbol("CheckConstrainedTogglesValid", "ergm", NULL);
+return fun(bd,MHp,nwp);
+}
+
+#define STUBFILE
+#include <stddef.h>
+#include <R_ext/Rdynload.h>
+#include "ergm_MHproposal.h"
 MHProposal * MHProposalInitialize(SEXP pR, Network *nwp, void **aux_storage){
 static MHProposal * (*fun)(SEXP,Network *,void **) = NULL;
 if(fun==NULL) fun = (MHProposal * (*)(SEXP,Network *,void **)) R_FindSymbol("MHProposalInitialize", "ergm", NULL);
@@ -347,16 +301,6 @@ void MHProposalDestroy(MHProposal *MHp, Network *nwp){
 static void (*fun)(MHProposal *,Network *) = NULL;
 if(fun==NULL) fun = (void (*)(MHProposal *,Network *)) R_FindSymbol("MHProposalDestroy", "ergm", NULL);
 fun(MHp,nwp);
-}
-int CheckTogglesValid(MHProposal *MHp, Network *nwp){
-static int (*fun)(MHProposal *,Network *) = NULL;
-if(fun==NULL) fun = (int (*)(MHProposal *,Network *)) R_FindSymbol("CheckTogglesValid", "ergm", NULL);
-return fun(MHp,nwp);
-}
-int CheckConstrainedTogglesValid(MHProposal *MHp, Network *nwp){
-static int (*fun)(MHProposal *,Network *) = NULL;
-if(fun==NULL) fun = (int (*)(MHProposal *,Network *)) R_FindSymbol("CheckConstrainedTogglesValid", "ergm", NULL);
-return fun(MHp,nwp);
 }
 
 #define STUBFILE
@@ -423,10 +367,10 @@ static ErgmState * (*fun)(SEXP,unsigned int) = NULL;
 if(fun==NULL) fun = (ErgmState * (*)(SEXP,unsigned int)) R_FindSymbol("ErgmStateInit", "ergm", NULL);
 return fun(stateR,flags);
 }
-SEXP ErgmStateRSave(SEXP startR, ErgmState *s){
-static SEXP (*fun)(SEXP,ErgmState *) = NULL;
-if(fun==NULL) fun = (SEXP (*)(SEXP,ErgmState *)) R_FindSymbol("ErgmStateRSave", "ergm", NULL);
-return fun(startR,s);
+SEXP ErgmStateRSave(ErgmState *s){
+static SEXP (*fun)(ErgmState *) = NULL;
+if(fun==NULL) fun = (SEXP (*)(ErgmState *)) R_FindSymbol("ErgmStateRSave", "ergm", NULL);
+return fun(s);
 }
 void ErgmStateDestroy(ErgmState *s){
 static void (*fun)(ErgmState *) = NULL;
@@ -628,13 +572,18 @@ static WtErgmState * (*fun)(SEXP,unsigned int) = NULL;
 if(fun==NULL) fun = (WtErgmState * (*)(SEXP,unsigned int)) R_FindSymbol("WtErgmStateInit", "ergm", NULL);
 return fun(stateR,flags);
 }
-SEXP WtErgmStateRSave(SEXP startR, WtErgmState *s){
-static SEXP (*fun)(SEXP,WtErgmState *) = NULL;
-if(fun==NULL) fun = (SEXP (*)(SEXP,WtErgmState *)) R_FindSymbol("WtErgmStateRSave", "ergm", NULL);
-return fun(startR,s);
+SEXP WtErgmStateRSave(WtErgmState *s){
+static SEXP (*fun)(WtErgmState *) = NULL;
+if(fun==NULL) fun = (SEXP (*)(WtErgmState *)) R_FindSymbol("WtErgmStateRSave", "ergm", NULL);
+return fun(s);
 }
 void WtErgmStateDestroy(WtErgmState *s){
 static void (*fun)(WtErgmState *) = NULL;
 if(fun==NULL) fun = (void (*)(WtErgmState *)) R_FindSymbol("WtErgmStateDestroy", "ergm", NULL);
 fun(s);
+}
+SEXP WtErgmStateArrayClear(){
+static SEXP (*fun)() = NULL;
+if(fun==NULL) fun = (SEXP (*)()) R_FindSymbol("WtErgmStateArrayClear", "ergm", NULL);
+return fun();
 }

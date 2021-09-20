@@ -1,12 +1,12 @@
-#  File R/anova.ergm.R in package ergm, part of the Statnet suite
-#  of packages for network analysis, https://statnet.org .
+#  File R/anova.ergm.R in package ergm, part of the
+#  Statnet suite of packages for network analysis, https://statnet.org .
 #
 #  This software is distributed under the GPL-3 license.  It is free,
 #  open source, and has the attribution requirements (GPL Section 7) at
-#  https://statnet.org/attribution
+#  https://statnet.org/attribution .
 #
-#  Copyright 2003-2020 Statnet Commons
-#######################################################################
+#  Copyright 2003-2021 Statnet Commons
+################################################################################
 ################################################################################
 # The <anova.ergm> function computes an analysis of variance table for a
 # single model fit
@@ -70,7 +70,6 @@
 #' @keywords regression models
 #' @examples
 #' 
-#' \donttest{
 #' data(molecule)
 #' molecule %v% "atomic type" <- c(1,1,1,1,1,1,2,2,2,2,2,2,2,3,3,3,3,3,3,3)
 #' fit0 <- ergm(molecule ~ edges)
@@ -82,7 +81,6 @@
 #'   fixed=TRUE), eval.loglik=TRUE) # Note the eval.loglik argument.
 #' anova(fit0, fit1)
 #' anova(fit0, fit1, fit2)
-#' }
 #' 
 #' @export
 anova.ergm <- function (object, ..., eval.loglik=FALSE) 
@@ -94,13 +92,11 @@ anova.ergm <- function (object, ..., eval.loglik=FALSE)
   if(inherits(logl,"try-error"))
     stop(NO_LOGLIK_MESSAGE)
 
-  nodes<- network.size(object$newnetwork)
   n<- nobs(logl)
-  df <- length(object$coef)
+  df <- nparam(object, offset = FALSE)
   Rdf <- n - df
   logl.null <- if(is.null(object$null.lik)) 0 else object$null.lik
 
-  k <- 1 + (length(object$mplefit$glm$coef) >= 2)
   df <- c(0, df)
   Rdf <- c(n, Rdf)
   logl <- c(logl.null, logl)

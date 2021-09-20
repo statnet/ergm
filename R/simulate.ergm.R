@@ -1,12 +1,12 @@
-#  File R/simulate.ergm.R in package ergm, part of the Statnet suite
-#  of packages for network analysis, https://statnet.org .
+#  File R/simulate.ergm.R in package ergm, part of the
+#  Statnet suite of packages for network analysis, https://statnet.org .
 #
 #  This software is distributed under the GPL-3 license.  It is free,
 #  open source, and has the attribution requirements (GPL Section 7) at
-#  https://statnet.org/attribution
+#  https://statnet.org/attribution .
 #
-#  Copyright 2003-2020 Statnet Commons
-#######################################################################
+#  Copyright 2003-2021 Statnet Commons
+################################################################################
 #========================================================================
 # This file contains the following 2 functions for simulating ergms
 #           <simulate.ergm>
@@ -49,16 +49,19 @@
 #' distribution on the set of all networks, returned by the Metropolis-Hastings
 #' algorithm.
 #' @template seed
-#' @param coef Vector of parameter values for the model from which the sample
-#' is to be drawn.  If \code{object} is of class \code{ergm}, the default value
-#' is the vector of estimated coefficients.
+#' 
+#' @param coef Vector of parameter values for the model from which the
+#'   sample is to be drawn.  If \code{object} is of class \code{ergm},
+#'   the default value is the vector of estimated coefficients. Can be
+#'   set to `NULL` to bypass, but only if `return.args` below is used.
+#' 
 #' @template response
 #' @template reference
 #' @param constraints A one-sided formula specifying one or more
 #'   constraints on the support of the distribution of the networks
 #'   being simulated. See the documentation for a similar argument for
 #'   \code{\link{ergm}} and see [list of implemented
-#'   constraints][ergm-constraints] for more information. For
+#'   constraints][ergmConstraint] for more information. For
 #'   \code{simulate.formula}, defaults to no constraints. For
 #'   \code{simulate.ergm}, defaults to using the same constraints as
 #'   those with which \code{object} was fitted.
@@ -108,14 +111,20 @@
 #'
 #' @param \dots Further arguments passed to or used by methods.
 #' 
-#' @param do.sim Logical: If `FALSE`, do not proceed to the simulation
-#'   but rather return a list of arguments that would have been passed
-#'   to the next function down ([simulate.ergm_model()] for formula
-#'   and [simulate.ergm_state()]). This can be useful if, for example,
-#'   one wants to run several simulations with varying coefficients
-#'   and does not want to reinitialize the model and the proposal
-#'   every time.
-#' 
+#' @param return.args Character; if not `NULL`, the `simulate` method
+#'   for that particular class will, instead of proceeding for
+#'   simulation, instead return its arguments as a list that can be
+#'   passed as a second argument to [do.call()] or a lower-level
+#'   function such as [ergm_MCMC_sample()]. This can be useful if, for
+#'   example, one wants to run several simulations with varying
+#'   coefficients and does not want to reinitialize the model and the
+#'   proposal every time. Valid inputs at this time are `"formula"`,
+#'   "ergm_model", and one of the `"ergm_state"` classes, for the three
+#'   respective stopping points.
+#'
+#' @param do.sim Logical; a deprecated interface superseded by `return.args`,
+#'   that saves the inputs to the next level of the function.
+#'
 #' @return If \code{output=="stats"} an [`mcmc`] object containing the
 #'   simulated network statistics. If \code{control$parallel>0}, an
 #'   [`mcmc.list`] object. If `simplify=TRUE` (the default), these
@@ -170,7 +179,8 @@
 #' concatenated, and if a total of one network had been simulated, the
 #' network itself will be returned.
 #'
-#' @seealso \code{\link{ergm}}, \code{\link[network]{network}}
+#' @seealso \code{\link{ergm}}, \code{\link[network]{network}},
+#'   [ergm_MCMC_sample()] for a demonstration of `return.args=`.
 #' @keywords models
 #' @examples
 #' \dontshow{
@@ -266,7 +276,15 @@ simulate_formula <- function(object, ..., basis=eval_lhs.formula(object)) {
                              simplify=TRUE,
                              sequential=TRUE,
                                control=control.simulate.formula(),
-                             verbose=FALSE, ..., basis=eval_lhs.formula(object), do.sim=TRUE) {
+                             verbose=FALSE, ..., basis=ergm.getnetwork(object), do.sim=TRUE,
+                             return.args = NULL){
+  if(!missing(do.sim)){
+    .Deprecate_once(msg=paste0("Use of ",sQuote("do.sim=")," argument has been deprecated. Use ",sQuote("return.args=")," instead."))
+    if(!do.sim) return.args <- "ergm_model"
+  }
+  if(!is.null(return.args) && is(object, return.args))
+    return(c(as.list(environment()), list(...)))
+
   #' @importFrom statnet.common check.control.class
   check.control.class("simulate.formula", myname="ERGM simulate.formula")
   handle.control.toplevel("simulate.formula", ...)
@@ -298,7 +316,6 @@ simulate_formula <- function(object, ..., basis=eval_lhs.formula(object)) {
   m <- ergm_model(object, nw, extra.aux=list(proposal=proposal$auxiliaries), term.options=control$term.options)
   proposal$aux.slots <- m$slots.extra.aux$proposal
 
-  if(do.sim){
     out <- simulate(m, nsim=nsim, seed=seed,
                     coef=coef,
                     constraints=proposal,
@@ -309,7 +326,9 @@ simulate_formula <- function(object, ..., basis=eval_lhs.formula(object)) {
                     simplify=simplify,
                     sequential=sequential,
                     control=control,
-                    verbose=verbose, ...)
+                    verbose=verbose,
+                    return.args=return.args,
+                    ...)
     
     if(statsonly || nsim==1) # Then out is either a matrix or a single
                            # network. Return it.
@@ -321,19 +340,6 @@ simulate_formula <- function(object, ..., basis=eval_lhs.formula(object)) {
     attributes(out) <- c(attributes(out),
                          list(formula=object, monitor=monitor, constraints=constraints, reference=reference))
     out
-  }else{
-    list(object=m, nsim=nsim, seed=seed,
-         coef=coef,
-         constraints=proposal,
-         monitor=mon.m,
-         basis=nw,
-         esteq=esteq,
-         output=output,
-         simplify=simplify,
-         sequential=sequential,
-         control=control,
-         verbose=verbose, ...)
-  }
 }
 
 #' @rdname simulate.ergm
@@ -360,7 +366,14 @@ simulate.ergm_model <- function(object, nsim=1, seed=NULL,
                                 simplify=TRUE,
                                 sequential=TRUE,
                                 control=control.simulate.formula(),
-                                verbose=FALSE, ..., do.sim=TRUE){
+                                verbose=FALSE, ..., do.sim=TRUE,
+                                return.args = NULL){
+  if(!missing(do.sim)){
+    .Deprecate_once(msg=paste0("Use of ",sQuote("do.sim=")," argument has been deprecated. Use ",sQuote("return.args=")," instead."))
+    if(!do.sim) return.args <- "ergm_state"
+  }
+  if(!is.null(return.args) && is(object, return.args))
+    return(c(as.list(environment()), list(...)))
 
   check.control.class(c("simulate.formula", "simulate.ergm_model"), myname="simulate.ergm_model")
   handle.control.toplevel("simulate.formula", ...)
@@ -396,9 +409,10 @@ simulate.ergm_model <- function(object, nsim=1, seed=NULL,
     warning("No parameter values given, using Bernouli network.")
   }
 
-  coef <- c(coef, rep(0, nparam(monitor)))
-  
-  if(nparam(m)!=length(coef)) stop("coef has ", length(coef) - nparam(monitor), " elements, while the model requires ",nparam(m) - nparam(monitor)," parameters.")
+  if(!is.null(coef)){
+    coef <- c(coef, rep(0, nparam(monitor)))
+    if(nparam(m)!=length(coef)) stop("coef has ", length(coef) - nparam(monitor), " elements, while the model requires ",nparam(m) - nparam(monitor)," parameters.")
+  }
 
   proposal <- if(inherits(constraints, "ergm_proposal")) constraints
               else{
@@ -415,16 +429,12 @@ simulate.ergm_model <- function(object, nsim=1, seed=NULL,
   if(length(proposal$auxiliaries) && !length(m$slots.extra.aux$proposal))
     stop("The proposal appears to be requesting auxiliaries, but the initialized model does not export any proposal auxiliaries.")
   
-  if (any(is.nan(coef) | is.na(coef)))
-    stop("Illegal value of coef passed to simulate.formula")
-  
   # Create vector of current statistics
   curstats<-summary(m, nw, term.options=control$term.options)
   names(curstats) <- param_names(m, canonical=TRUE)
 
   state <- ergm_state(nw, model=m, proposal=proposal, stats=curstats)
 
-  if(do.sim){
     o <- simulate(state, nsim=nsim, seed=seed,
                   coef,
                   esteq=esteq,
@@ -432,20 +442,12 @@ simulate.ergm_model <- function(object, nsim=1, seed=NULL,
                   simplify=simplify,
                   sequential=sequential,
                   control=control,
-                  verbose=verbose, ...)
-  }else{
-    o <- list(object=state, nsim=nsim, seed=seed,
-              coef=coef,
-              esteq=esteq,
-              output=if(output=="function") output.f else output,
-              simplify=simplify,
-              sequential=sequential,
-              control=control,
-              verbose=verbose, ...)
-  }
+                  verbose=verbose,
+                  return.args=return.args,
+                  ...)
 
   mon <- rep(c(FALSE,TRUE), c(nparam(m,canonical=!esteq) - NVL3(monitor, nparam(.,canonical=!esteq), 0), NVL3(monitor, nparam(.,canonical=!esteq), 0)))
-  if(output=="stats" || !do.sim) attr(o, "monitored") <- mon
+  if(output=="stats" || is.null(attr(o, "stats"))) attr(o, "monitored") <- mon
   else attr(attr(o, "stats"), "monitored") <- mon
   o
 }
@@ -460,7 +462,15 @@ simulate.ergm_state_full <- function(object, nsim=1, seed=NULL,
                                 simplify=TRUE,
                                 sequential=TRUE,
                                 control=control.simulate.formula(),
-                                verbose=FALSE, ...){
+                                verbose=FALSE, ..., return.args=NULL){
+  if(!is.null(return.args)){
+    if(is(object, return.args)) return(c(as.list(environment()), list(...)))
+    else stop("return.args= is not NULL yet the code has arrived at the actual simulation stage; this likely means an incorrect value had been passed to return.args=")
+  }
+
+  if (any(is.nan(coef) | is.na(coef)))
+    stop("Illegal value of coef passed to simulate functions")
+
   if(is.character(output))
     output <- match.arg(output)
   else{
@@ -472,10 +482,8 @@ simulate.ergm_state_full <- function(object, nsim=1, seed=NULL,
   m <- as.ergm_model(state)
 
   # Explain how many iterations and steps will ensue if verbose==TRUE
-  if (verbose) {
-    message(paste ("Starting MCMC iterations to generate ", nsim,
-                " network", ifelse(nsim>1,"s","")))
-  }
+  if (verbose) message(paste0("Starting MCMC iterations to generate ", nsim,
+                              " network", if (nsim > 1) "s"))
 
   if (nsim > 1) {
     # Only start the cluster if needed. We don't actually need it
@@ -486,51 +494,63 @@ simulate.ergm_state_full <- function(object, nsim=1, seed=NULL,
 
   #########################
   ## Main part of function:
-  if(sequential && output=="stats"){
+
+  convert_output <-
+    switch(output,
+           ergm_state = function(states, ...) states,
+           network = function(states, ...) lapply(states, as.network),
+           edgelist = function(states, ...) lapply(states, as.edgelist),
+           "function" = function(states, chain, ...) mapply(output.f, states, chain = chain, iter = seq_along(states), SIMPLIFY = FALSE)
+           )
+
+  if(output != "stats") control$MCMC.save_networks <- TRUE
+  if(!sequential) control$MCMC.batch <- 1
+  else NVL(control$MCMC.batch) <- 0
+
+  if(control$MCMC.batch == 0 || control$MCMC.batch >= nsim){ # also implies sequential==TRUE
     # In this case, we can make one parallelized run of
     # ergm_MCMC_sample.
     control$MCMC.samplesize <- nsim
     z <- ergm_MCMC_sample(state, control, theta=coef, verbose=max(verbose-1,0))
     stats <- z$stats
+    if(output != "stats") # then store the returned network:
+      nw.list <- mapply(convert_output, z$sampnetworks, chain=seq_along(z$sampnetworks), SIMPLIFY=FALSE)
   }else{
     # Create objects to store output
-    if (output!="stats") { 
+    if (output!="stats") {
       nw.list <- rep(list(list()),nthreads(control))
     }
     stats <- rep(list(matrix(nrow=0, ncol=nparam(state,canonical=TRUE), 
                              dimnames = list(NULL, param_names(m,canonical=TRUE)))),nthreads(control))
     
-    # Call ergm_MCMC_sample once for each network desired.  This is
-    # much slower than when sequential==TRUE and output=="stats", but
+    # Call ergm_MCMC_sample once for each batch desired.  This is
+    # much slower than when sequential==TRUE and MCMC.batch==0, but
     # here we have a more complicated situation: Either we want a
-    # network for each MCMC iteration (output="network") or we want to
+    # multiple runs (MCMC.batch!=0) or we want to
     # restart each chain at the original network (sequential=FALSE).
-    for(i in 1:ceiling(nsim/nthreads(control))){
+
+    batch_size <- max(control$MCMC.batch, nthreads(control))
+
+    for(i in seq_len(ceiling(nsim/batch_size))){
 
       control.parallel <- modifyList(control,
-                                     list(MCMC.samplesize = nthreads(control),
+                                     list(MCMC.samplesize = batch_size,
                                           MCMC.burnin = if(i==1 || sequential==FALSE) control$MCMC.burnin else control$MCMC.interval))
       z <- ergm_MCMC_sample(state, control.parallel, theta=coef, verbose=max(verbose-1,0))
       
       stats <- mapply(function(s, os) rbind(s, os), stats, z$stats, SIMPLIFY=FALSE)
       
-      if(output!="stats") # then store the returned network:
+      if(output != "stats"){ # then store the returned network:
         # Concatenate the following...
-        nw.list <- mapply(function(nwl, newnw){nwl[[length(nwl)+1]] <- newnw; nwl}, nw.list,
-                          # Extract into a list of network representations, one for each thread:
-                          switch(output,
-                                 ergm_state=z$networks,
-                                 network=lapply(z$networks, as.network),
-                                 edgelist=lapply(z$networks, as.edgelist),
-                                 "function"=mapply(output.f, z$networks, chain=seq_along(z$networks), iter=i, SIMPLIFY=FALSE)
-                                 ),
-                          SIMPLIFY=FALSE)
-      
-      if(sequential){ # then update the network state:
-        state <- z$networks
+        newnw <- mapply(convert_output, z$sampnetworks, chain=seq_along(z$sampnetworks), SIMPLIFY=FALSE)
+        nw.list <- mapply(c, nw.list, newnw, SIMPLIFY=FALSE)
+
+        if(sequential){ # then update the network state:
+          state <- z$networks
+        }
       }
 
-      if(verbose){message(sprintf("Finished simulation %d of %d.",i, nsim))}
+      if (verbose) message(sprintf("Finished simulation %d of %d.", i * control$MCMC.batch, nsim))
     }
   }
 
@@ -551,7 +571,7 @@ simulate.ergm_state_full <- function(object, nsim=1, seed=NULL,
   if(length(nw.list)==1&&simplify){
     nw.list <- nw.list[[1]] # Just one network.
   }else{
-    attributes(nw.list) <- list(coef=coef,
+    attributes(nw.list) <- list(coefficients=coef,
                                 control=control,
                                 response=names(as.edgelist(
                                   if(is.ergm_state(state)) state
@@ -560,7 +580,8 @@ simulate.ergm_state_full <- function(object, nsim=1, seed=NULL,
     class(nw.list) <- "network.list"
   }
   attr(nw.list, "stats") <- stats
-  return(nw.list)
+
+  nw.list
 }
 
 #' @rdname simulate.ergm
@@ -574,7 +595,7 @@ simulate.ergm_state_full <- function(object, nsim=1, seed=NULL,
 #' 
 #' @export
 simulate.ergm <- function(object, nsim=1, seed=NULL, 
-                          coef=object$coef,
+                          coef=coefficients(object),
                           response=object$network%ergmlhs%"response",
                           reference=object$reference,
                           constraints=list(object$constraints, object$obs.constraints),

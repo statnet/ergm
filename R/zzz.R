@@ -1,19 +1,18 @@
-#  File R/zzz.R in package ergm, part of the Statnet suite
-#  of packages for network analysis, https://statnet.org .
+#  File R/zzz.R in package ergm, part of the
+#  Statnet suite of packages for network analysis, https://statnet.org .
 #
 #  This software is distributed under the GPL-3 license.  It is free,
 #  open source, and has the attribution requirements (GPL Section 7) at
-#  https://statnet.org/attribution
+#  https://statnet.org/attribution .
 #
-#  Copyright 2003-2020 Statnet Commons
-#######################################################################
-.onAttach <- function(lib, pkg){
+#  Copyright 2003-2021 Statnet Commons
+################################################################################
+.onAttach <- function(libname, pkgname){
   #' @importFrom statnet.common statnetStartupMessage
   sm <- statnetStartupMessage("ergm", c("statnet","ergm.count","tergm"), TRUE)
   if(!is.null(sm)){
     packageStartupMessage(sm)
-    packageStartupMessage(paste(c(strwrap(paste("NOTE: Versions before 3.6.1 had a bug in the implementation of the bd() constraint which distorted the sampled distribution somewhat. In addition, Sampson's Monks datasets had mislabeled vertices. See the NEWS and the documentation for more details.",sep="")),""),collapse="\n"))
-    packageStartupMessage(paste(c(strwrap(paste("NOTE: Some common term arguments pertaining to vertex attribute and level selection have changed in 3.10.0. See terms help for more details. Use ",sQuote("options(ergm.term=list(version=\"3.9.4\"))")," to use old behavior.",sep="")),""),collapse="\n"))
+    packageStartupMessage(paste(c(strwrap(paste0(sQuote("ergm"), " 4 is a major update that introduces some backwards-incompatible changes. Please type ",sQuote("news(package=\"ergm\")"), " for a list of major changes.")),""),collapse="\n"))
   }
 }
 
@@ -71,8 +70,8 @@ eval(UPDATE_MY_SCTRL_EXPR)
   ergm_proposal_table("c", "Bernoulli", "|bd&edges",  0, "random", "ConstantEdges")
   ergm_proposal_table("c", "Bernoulli", "&edges&hamming",  0, "random", "HammingConstantEdges")
   ergm_proposal_table("c", "Bernoulli", "&hamming&sparse",  0, "random", "HammingTNT")
-  ergm_proposal_table("c", "Bernoulli", "dyadnoise",  1, "TNT", "dyadnoiseTNT")
-  ergm_proposal_table("c", "Bernoulli", "dyadnoise",  0, "random", "dyadnoise")
+  ergm_proposal_table("c", "Bernoulli", "&dyadnoise&sparse",  1, "TNT", "dyadnoiseTNT")
+  ergm_proposal_table("c", "Bernoulli", "&dyadnoise",  0, "random", "dyadnoise")
 
   ergm_proposal_table("c", "StdNormal", "",  0, "random", "StdNormal")
   ergm_proposal_table("c", "StdNormal", "|.dyads",  0, "random", "DistRLE")

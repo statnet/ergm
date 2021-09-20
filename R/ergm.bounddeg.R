@@ -1,12 +1,12 @@
-#  File R/ergm.bounddeg.R in package ergm, part of the Statnet suite
-#  of packages for network analysis, https://statnet.org .
+#  File R/ergm.bounddeg.R in package ergm, part of the
+#  Statnet suite of packages for network analysis, https://statnet.org .
 #
 #  This software is distributed under the GPL-3 license.  It is free,
 #  open source, and has the attribution requirements (GPL Section 7) at
-#  https://statnet.org/attribution
+#  https://statnet.org/attribution .
 #
-#  Copyright 2003-2020 Statnet Commons
-#######################################################################
+#  Copyright 2003-2021 Statnet Commons
+################################################################################
 
 
 
@@ -36,7 +36,7 @@
 #' it must satisfy all of the degree constraints itself; thus, this function
 #' returns an error message if any bound is violated by the observed network.
 #' 
-#' @param bounddeg a list of parameters which may contain the following for a
+#' @param arguments the `arguments` argument passed to the `InitErgmProposal.*()` function; the sub-sublist `arguments$constraints$bd` should be a list of parameters which may contain the following for a
 #' network of size n nodes: \itemize{ \item attribs: an nxp matrix, where entry
 #' ij is TRUE if node i has attribute j, and FALSE otherwise; default=an nx1
 #' matrix of 1's \item maxout : an nxp matrix, where entry ij is the maximum
@@ -55,17 +55,14 @@
 #' \item{minout}{ as defined above}
 #' \item{minin}{ as defined above}
 #' @seealso \code{\link{ergm-proposals}}
-ergm.bounddeg <- function(bounddeg,nw){    
+#' @keywords internal
+#' @export
+ergm_bd_init <- function(arguments,nw){
+  bounddeg <- arguments$constraints$bd
   nnodes=network.size(nw)
   if(is.null(bounddeg) ||
      all(sapply(bounddeg,function(x){length(x)==1 && is.na(x)}))) {
-    attribs <- NULL
-    maxout <- NULL
-    maxin <- NULL
-    minout <- NULL
-    minin <- NULL
-    dependence <- FALSE
-    constrains <- character(0)
+    return(NULL)
   } else {
     attribs <- bounddeg$attribs
     maxout <- bounddeg$maxout

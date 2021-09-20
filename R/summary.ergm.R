@@ -1,12 +1,12 @@
-#  File R/summary.ergm.R in package ergm, part of the Statnet suite
-#  of packages for network analysis, https://statnet.org .
+#  File R/summary.ergm.R in package ergm, part of the
+#  Statnet suite of packages for network analysis, https://statnet.org .
 #
 #  This software is distributed under the GPL-3 license.  It is free,
 #  open source, and has the attribution requirements (GPL Section 7) at
-#  https://statnet.org/attribution
+#  https://statnet.org/attribution .
 #
-#  Copyright 2003-2020 Statnet Commons
-#######################################################################
+#  Copyright 2003-2021 Statnet Commons
+################################################################################
 
 
 
@@ -160,14 +160,13 @@ summary.ergm <- function (object, ...,
                                                                 c("Resid. Dev", "Resid. Df")))
     ans$devtext <- devtext
         
-    ans$aic <- AIC(mle.lik)
-    ans$bic <- BIC(mle.lik)
+    ans$aic <- AIC(object)
+    ans$bic <- BIC(object)
     ans$mle.lik <- ERRVL(mle.lik, NA)
     ans$null.lik <- ERRVL(null.lik, NA)
   }else ans$devtable <- NA
 
-  ans$coefs <- as.data.frame(coefmat)[,-3] # For backwards compatibility.
-  ans$coefficients <- as.data.frame(coefmat)
+  ans$coefficients <- coefmat
   ans$asycov <- asycov
   ans$asyse <- asyse
   class(ans) <- "summary.ergm"

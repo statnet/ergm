@@ -15,7 +15,7 @@ ergm.bridge.llr(
   to,
   obs.constraints = ~. - observed,
   target.stats = NULL,
-  basis = eval_lhs.formula(object),
+  basis = ergm.getnetwork(object),
   verbose = FALSE,
   ...,
   llronly = FALSE,
@@ -30,7 +30,7 @@ ergm.bridge.0.llk(
   ...,
   llkonly = TRUE,
   control = control.ergm.bridge(),
-  basis = eval_lhs.formula(object)
+  basis = ergm.getnetwork(object)
 )
 
 ergm.bridge.dindstart.llk(
@@ -42,7 +42,7 @@ ergm.bridge.dindstart.llk(
   target.stats = NULL,
   dind = NULL,
   coef.dind = NULL,
-  basis = eval_lhs.formula(object),
+  basis = ergm.getnetwork(object),
   ...,
   llkonly = TRUE,
   control = control.ergm.bridge(),
@@ -119,12 +119,25 @@ point. Defaults to the MLE of \code{dind}.}
 If \code{llronly=TRUE} or \code{llkonly=TRUE}, these functions return
 the scalar log-likelihood-ratio or the log-likelihood.
 Otherwise, they return a list with the following components:
-\item{llr}{The estimated log-ratio.}  \item{llrs}{The estimated
-log-ratios for each of the \code{nsteps} bridges.}  \item{path}{A
-numeric matrix with nsteps rows, with each row being the
-respective bridge's parameter configuration.}  \item{stats}{A
-numeric matrix with nsteps rows, with each row being the
-respective bridge's vector of simulated statistics.}
+
+\item{llr}{The estimated log-ratio.}
+
+\item{llr.vcov}{The estimated variance of the log-ratio due to
+MCMC approximation.}
+
+\item{llrs}{A list of lists (1 per attempt) of the estimated
+log-ratios for each of the \code{bridge.nsteps} bridges.}
+
+\item{llrs.vcov}{A list of lists (1 per attempt) of the estimated
+variances of the estimated log-ratios for each of the
+\code{bridge.nsteps} bridges.}
+
+\item{paths}{A list of lists (1 per attempt) with two elements:
+\code{theta}, a numeric matrix with \code{bridge.nsteps} rows, with each
+row being the respective bridge's parameter configuration; and
+\code{weight}, a vector of length \code{bridge.nsteps} containing its
+weight.}
+
 \item{Dtheta.Du}{The gradient vector of the parameter values with
 respect to position of the bridge.}
 

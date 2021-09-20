@@ -29,7 +29,7 @@ distribution
 The \code{degreedist} generic computes and returns the degree
 distribution (number of vertices in the network with each degree
 value) for a given network. This help page documents the
-function. For help about \link[=degreedist-constraint]{the ERGM sample space constraint with that name}, try
+function. For help about \link[=degreedist-ergmConstraint]{the ERGM sample space constraint with that name}, try
 \code{help("degreedist-constraint")}.
 }
 \section{Methods (by class)}{

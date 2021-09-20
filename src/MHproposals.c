@@ -1,11 +1,11 @@
-/*  File src/MHproposals.c in package ergm, part of the Statnet suite
- *  of packages for network analysis, https://statnet.org .
+/*  File src/MHproposals.c in package ergm, part of the
+ *  Statnet suite of packages for network analysis, https://statnet.org .
  *
  *  This software is distributed under the GPL-3 license.  It is free,
  *  open source, and has the attribution requirements (GPL Section 7) at
- *  https://statnet.org/attribution
+ *  https://statnet.org/attribution .
  *
- *  Copyright 2003-2020 Statnet Commons
+ *  Copyright 2003-2021 Statnet Commons
  */
 #include "MHproposals.h"
 #include "ergm_edgelist.h"
@@ -14,7 +14,6 @@
 #include "ergm_MHstorage.h"
 #include "ergm_unsorted_edgelist.h"
 #include "ergm_weighted_population.h"
-#include "ergm_dyadgen.h"
 #include "ergm_Rutil.h"
 #include "ergm_BDStrat_proposals.h"
 #include "ergm_hash_edgelist.h"
@@ -25,24 +24,24 @@
 
  Default MH algorithm
 *********************/
-MH_P_FN(MH_randomtoggle){  
+MH_I_FN(Mi_randomtoggle){
+  ALLOC_STORAGE(1, StoreDyadGenAndDegreeBound, storage);
+  storage->gen = DyadGenInitializeR(MHp->R, nwp, FALSE);
+  storage->bd = DegreeBoundInitializeR(MHp->R, nwp);
+  MHp->ntoggles=1;
+}
 
-  /* *** don't forget tail-> head now */
-
-  if(MHp->ntoggles == 0) { /* Initialize randomtoggle */
-    MH_STORAGE = DyadGenInitializeR(MHp->R, nwp, FALSE);
-    MHp->ntoggles=1;
-    return;
-  }
-  
-  BD_LOOP({
-      DyadGenRandDyad(Mtail, Mhead, MH_STORAGE);
+MH_P_FN(MH_randomtoggle){
+  GET_STORAGE(StoreDyadGenAndDegreeBound, storage);
+  BD_LOOP(storage->bd, {
+      DyadGenRandDyad(Mtail, Mhead, storage->gen);
     });
 }
 
 MH_F_FN(Mf_randomtoggle){
-  DyadGenDestroy(MH_STORAGE);
-  MH_STORAGE = NULL;
+  GET_STORAGE(StoreDyadGenAndDegreeBound, storage);
+  DyadGenDestroy(storage->gen);
+  DegreeBoundDestroy(storage->bd);
 }
 
 /********************
@@ -58,24 +57,27 @@ MH_F_FN(Mf_randomtoggle){
    network for the ties is the ties in the discord network.
 ***********************/
 
+MH_I_FN(Mi_TNT){
+  ALLOC_STORAGE(1, StoreDyadGenAndDegreeBound, storage);
+  storage->gen = DyadGenInitializeR(MHp->R, nwp, TRUE);
+  storage->bd = DegreeBoundInitializeR(MHp->R, nwp);
+  MHp->ntoggles=1;
+}
+
 MH_P_FN(Mp_TNT){
-  if(MHp->ntoggles == 0) { /* Initialize randomtoggle */
-    MH_STORAGE = DyadGenInitializeR(MHp->R, nwp, TRUE);
-    MHp->ntoggles=1;
-    return;
-  }
+  GET_STORAGE(StoreDyadGenAndDegreeBound, storage);
 
   const double P=0.5, Q=1-P;
-  double DP = P*((DyadGen *)MH_STORAGE)->ndyads, DO = DP/Q;
+  double DP = P*storage->gen->ndyads, DO = DP/Q;
 
-  Edge nedges = DyadGenEdgecount(MH_STORAGE);
+  Edge nedges = DyadGenEdgecount(storage->gen);
   double logratio=0;
-  BD_LOOP({
+  BD_LOOP(storage->bd, {
       if (unif_rand() < P && nedges > 0) { /* Select a tie at random from the network of eligibles */
-        DyadGenRandEdge(Mtail, Mhead, MH_STORAGE);
+        DyadGenRandEdge(Mtail, Mhead, storage->gen);
 	logratio = TNT_LR_E(nedges, Q, DP, DO);
       }else{ /* Select a dyad at random from the list */
-	DyadGenRandDyad(Mtail, Mhead, MH_STORAGE);
+	DyadGenRandDyad(Mtail, Mhead, storage->gen);
 	
 	if(IS_OUTEDGE(Mtail[0],Mhead[0])){
 	  logratio = TNT_LR_DE(nedges, Q, DP, DO);
@@ -87,11 +89,12 @@ MH_P_FN(Mp_TNT){
   MHp->logratio += logratio;
 }
 
-MH_F_FN(Mf_TNT){
-  DyadGenDestroy(MH_STORAGE);
-  MH_STORAGE = NULL;
-}
 
+MH_F_FN(Mf_TNT){
+  GET_STORAGE(StoreDyadGenAndDegreeBound, storage);
+  DyadGenDestroy(storage->gen);
+  DegreeBoundDestroy(storage->bd);
+}
 
 /********************
     MH_BDStratTNT
@@ -106,58 +109,100 @@ MH_I_FN(Mi_BDStratTNT) {
   ALLOC_STORAGE(1, BDStratTNTStorage, sto);
 
   sto->CD = getListElement(getListElement(MHp->R, "flags"), "CD") != R_NilValue;
-  
-  sto->maxout = asInteger(getListElement(MHp->R, "maxout"));
-  sto->maxin = asInteger(getListElement(MHp->R, "maxin"));  
-  if(!DIRECTED) sto->maxin = sto->maxout;
-  
-  sto->nmixtypes = asInteger(getListElement(MHp->R, "nmixtypes"));
-  sto->nstratlevels = asInteger(getListElement(MHp->R, "nattrcodes"));
-  int nbdlevels = asInteger(getListElement(MHp->R, "bd_levels"));
 
+  sto->nbdlevels = asInteger(getListElement(MHp->R, "bd_nlevels"));
+   
+  sto->maxout = Calloc(sto->nbdlevels, int *);
+  sto->maxin = DIRECTED ? Calloc(sto->nbdlevels, int *) : sto->maxout;
+  sto->maxout[0] = INTEGER(getListElement(MHp->R, "maxout")) - 1;
+  if(DIRECTED) {
+    sto->maxin[0] = INTEGER(getListElement(MHp->R, "maxin")) - 1;
+  }
+  for(int i = 1; i < sto->nbdlevels; i++) {
+    sto->maxout[i] = sto->maxout[i - 1] + N_NODES;
+    if(DIRECTED) {
+      sto->maxin[i] = sto->maxin[i - 1] + N_NODES;
+    }
+  }  
+    
+  sto->nmixtypes = length(getListElement(MHp->R, "probvec"));
+  sto->nstratlevels = asInteger(getListElement(MHp->R, "nattrcodes"));
+  int nblockslevels = asInteger(getListElement(MHp->R, "blocks_levels"));
+  
   sto->mixtypestoupdate = Calloc(sto->nmixtypes, int);
   
-  sto->strat_vattr = INTEGER(getListElement(MHp->R, "strat_vattr"));
-  sto->bd_vattr = INTEGER(getListElement(MHp->R, "bd_vattr"));
+  // decrement so nodal indices line up correctly
+  sto->strat_vattr = INTEGER(getListElement(MHp->R, "strat_vattr")) - 1;
+  sto->blocks_vattr = INTEGER(getListElement(MHp->R, "blocks_vattr")) - 1;
+  sto->bd_vattr = INTEGER(getListElement(MHp->R, "bd_vattr")) - 1;
+    
+  sto->indegree = Calloc(sto->nbdlevels, int *);
+  sto->outdegree = Calloc(sto->nbdlevels, int *);
+  for(int i = 0; i < sto->nbdlevels; i++) {
+    sto->indegree[i] = Calloc(N_NODES + 1, int);
+    sto->outdegree[i] = Calloc(N_NODES + 1, int);    
+  }
+  
+  EXEC_THROUGH_NET_EDGES(tail, head, e, {
+    sto->indegree[sto->bd_vattr[tail]][head]++;
+    sto->outdegree[sto->bd_vattr[head]][tail]++;
+  });
     
   sto->blocks = BDStratBlocksInitialize(sto->maxout, 
                                         sto->maxin,
+                                        NULL,
+                                        NULL,
                                         sto->strat_vattr, 
                                         sto->nstratlevels, 
                                         sto->nmixtypes, 
                                         INTEGER(getListElement(MHp->R, "strattailattrs")), 
                                         INTEGER(getListElement(MHp->R, "stratheadattrs")), 
-                                        sto->bd_vattr, 
-                                        nbdlevels, 
-                                        INTEGER(getListElement(MHp->R, "bd_mixtypes")), 
+                                        sto->blocks_vattr, 
+                                        nblockslevels, 
+                                        INTEGER(getListElement(MHp->R, "blocks_mixtypes")), 
+                                        INTEGER(getListElement(MHp->R, "blocks_tails")), 
+                                        INTEGER(getListElement(MHp->R, "blocks_heads")),
+                                        sto->bd_vattr,
+                                        sto->nbdlevels,
+                                        INTEGER(getListElement(MHp->R, "bd_nmixtypes")), 
                                         INTEGER(getListElement(MHp->R, "bd_tails")), 
-                                        INTEGER(getListElement(MHp->R, "bd_heads")), 
-                                        INTEGER(getListElement(MHp->R, "nodecountsbypairedcode")), 
+                                        INTEGER(getListElement(MHp->R, "bd_heads")),                                        
+                                        INTEGER(getListElement(MHp->R, "nodecountsbyjointcode")), 
+                                        sto->indegree,
+                                        sto->outdegree,
                                         nwp);
-    
-  sto->strat_vattr--; // so node indices line up correctly
-  sto->bd_vattr--; // so node indices line up correctly  
     
   UnsrtEL **els = Calloc(sto->nmixtypes, UnsrtEL *);
   for(int i = 0; i < sto->nmixtypes; i++) {
     els[i] = UnsrtELInitialize(0, NULL, NULL, FALSE);
   }
       
-  sto->indmat = Calloc(sto->nstratlevels, int *);
-  sto->indmat[0] = INTEGER(getListElement(MHp->R, "indmat"));
-  for(int i = 1; i < sto->nstratlevels; i++) {
-    sto->indmat[i] = sto->indmat[i - 1] + sto->nstratlevels;
-  }
+  int *strattailattrs = INTEGER(getListElement(MHp->R, "strattailattrs"));
+  int *stratheadattrs = INTEGER(getListElement(MHp->R, "stratheadattrs"));
 
-  int **amat = Calloc(nbdlevels, int *);
+  sto->indmat = Calloc(sto->nstratlevels, int *);
+  for(int i = 0; i < sto->nstratlevels; i++) {
+    sto->indmat[i] = Calloc(sto->nstratlevels, int);
+    for(int j = 0; j < sto->nstratlevels; j++) {
+      sto->indmat[i][j] = -1;
+    }
+  }
+  for(int i = 0; i < sto->nmixtypes; i++) {
+    sto->indmat[strattailattrs[i]][stratheadattrs[i]] = i;
+    if(!DIRECTED && !BIPARTITE) {
+      sto->indmat[stratheadattrs[i]][strattailattrs[i]] = i;        
+    }
+  }
+  
+  int **amat = Calloc(nblockslevels, int *);
   amat[0] = INTEGER(getListElement(MHp->R, "amat"));
-  for(int i = 1; i < nbdlevels; i++) {
-    amat[i] = amat[i - 1] + nbdlevels;
+  for(int i = 1; i < nblockslevels; i++) {
+    amat[i] = amat[i - 1] + nblockslevels;
   }
   
   EXEC_THROUGH_NET_EDGES(tail, head, e, {
     int index = sto->indmat[sto->strat_vattr[tail]][sto->strat_vattr[head]];
-    int allowed = amat[sto->bd_vattr[tail]][sto->bd_vattr[head]];
+    int allowed = amat[sto->blocks_vattr[tail]][sto->blocks_vattr[head]];
     if(index >= 0 && allowed) {
       UnsrtELInsert(tail, head, els[index]);
     }  
@@ -166,9 +211,11 @@ MH_I_FN(Mi_BDStratTNT) {
 
   sto->hash = Calloc(sto->nmixtypes, HashEL *);
   for(int i = 0; i < sto->nmixtypes; i++) {
-    sto->hash[i] = HashELInitialize(els[i]->nedges, els[i]->tails + 1, els[i]->heads + 1, FALSE, DIRECTED);
+    sto->hash[i] = HashELInitialize(els[i]->nedges, els[i]->tails ? els[i]->tails + 1 : els[i]->tails, els[i]->heads ? els[i]->heads + 1 : els[i]->heads, FALSE, DIRECTED);
+    Free(els[i]);
   }
-
+  Free(els);
+  
   sto->originalprobvec = Calloc(sto->nmixtypes, double);
   int empirical_flag = asInteger(getListElement(MHp->R, "empirical_flag"));
   if(empirical_flag) {
@@ -191,18 +238,14 @@ MH_I_FN(Mi_BDStratTNT) {
     }
   }
     
-  sto->wtp = WtPopInitialize(sto->nmixtypes, currentprobvec);
+  sto->wtp = WtPopInitialize(sto->nmixtypes, currentprobvec, asInteger(getListElement(MHp->R, "dyad_indep")) ? 'W' : 'B');
   Free(currentprobvec);
 
-  // zero proposal probability is an error
-  if(WtPopSumWts(sto->wtp) == 0) {
-    MHp->ntoggles = MH_FAILED;
-    return;
-  }
-
   for(Vertex vertex = 1; vertex <= N_NODES; vertex++) {
-    if(DIRECTED ? (IN_DEG[vertex] > sto->maxin || OUT_DEG[vertex] > sto->maxout) : (IN_DEG[vertex] + OUT_DEG[vertex] > sto->maxout)) {
-      error("degree bound is violated by initial network; proposal cannot proceed");
+    for(int i = 0; i < sto->nbdlevels; i++) {
+      if(DIRECTED ? (sto->indegree[i][vertex] > sto->maxin[i][vertex] || sto->outdegree[i][vertex] > sto->maxout[i][vertex]) : (sto->indegree[i][vertex] + sto->outdegree[i][vertex] > sto->maxout[i][vertex])) {
+        error("degree bound is violated by initial network; proposal cannot proceed");
+      }        
     }
   }
 }
@@ -215,11 +258,11 @@ MH_P_FN(MH_BDStratTNT) {
   
   // number of edges of this mixing type
   int nedgestype = sto->hash[sto->stratmixingtype]->list->nedges;
-  
+
   Dyad ndyadstype = BDStratBlocksDyadCount(sto->blocks, sto->stratmixingtype);
-  
+
   int edgestate;
-  
+
   if((unif_rand() < 0.5 && nedgestype > 0) || ndyadstype == 0) {
     // propose toggling off an existing edge of strat mixing type sto->stratmixingtype
     HashELGetRand(Mtail, Mhead, sto->hash[sto->stratmixingtype]);    
@@ -228,16 +271,21 @@ MH_P_FN(MH_BDStratTNT) {
     // select a random BD toggleable dyad of strat mixing type sto->stratmixingtype and propose toggling it
     BDStratBlocksGetRandWithCount(Mtail, Mhead, sto->blocks, sto->stratmixingtype, ndyadstype);
     edgestate = IS_OUTEDGE(*Mtail, *Mhead);
-  }
-  
-  sto->tailmaxl = (DIRECTED ? OUT_DEG[*Mtail] : IN_DEG[*Mtail] + OUT_DEG[*Mtail]) == sto->maxout - 1 + edgestate;
-  sto->headmaxl = (DIRECTED ? IN_DEG[*Mhead] : IN_DEG[*Mhead] + OUT_DEG[*Mhead]) == sto->maxin - 1 + edgestate;
-  
+  }  
+
+  BDStratBlocksSetLast(*Mtail, *Mhead, edgestate, sto->blocks);
+
+  int tailattr = sto->bd_vattr[*Mtail];
+  int headattr = sto->bd_vattr[*Mhead];
+
+  sto->tailmaxl = (DIRECTED ? sto->outdegree[headattr][*Mtail] : sto->indegree[headattr][*Mtail] + sto->outdegree[headattr][*Mtail]) == sto->maxout[headattr][*Mtail] - 1 + edgestate;
+  sto->headmaxl = (DIRECTED ? sto->indegree[tailattr][*Mhead] : sto->indegree[tailattr][*Mhead] + sto->outdegree[tailattr][*Mhead]) == sto->maxin[tailattr][*Mhead] - 1 + edgestate;
+
   // compute proposed dyad count for current mixing type (only)
-  Dyad proposeddyadstype = BDStratBlocksDyadCountOnToggle(*Mtail, *Mhead, sto->blocks, sto->stratmixingtype, sto->tailmaxl, sto->headmaxl);
-  
-  ComputeChangesToToggleability(Mtail, Mhead, edgestate, sto);
-  
+  Dyad proposeddyadstype = BDStratBlocksDyadCountOnToggle(*Mtail, *Mhead, sto->blocks, sto->stratmixingtype, edgestate ? +1 : -1, sto->tailmaxl, sto->headmaxl);
+
+  ComputeChangesToToggleability(Mtail, Mhead, sto);
+
   double prob_weight = sto->currentcumprob/sto->proposedcumprob;
   
   // the rationale for the logratio is similar to that given for BDTNT, with two additional considerations:
@@ -259,15 +307,23 @@ MH_P_FN(MH_BDStratTNT) {
 
 MH_U_FN(Mu_BDStratTNT) {
   GET_STORAGE(BDStratTNTStorage, sto);
+
+  int tailattr = sto->bd_vattr[tail];
+  int headattr = sto->bd_vattr[head];
   
   if(sto->CD) {
     sto->stratmixingtype = sto->indmat[sto->strat_vattr[tail]][sto->strat_vattr[head]];
 
-    sto->tailmaxl = (DIRECTED ? OUT_DEG[tail] : IN_DEG[tail] + OUT_DEG[tail]) == sto->maxout - 1 + edgestate;
-    sto->headmaxl = (DIRECTED ? IN_DEG[head] : IN_DEG[head] + OUT_DEG[head]) == sto->maxin - 1 + edgestate;
+    sto->tailmaxl = (DIRECTED ? sto->outdegree[headattr][tail] : sto->indegree[headattr][tail] + sto->outdegree[headattr][tail]) == sto->maxout[headattr][tail] - 1 + edgestate;
+    sto->headmaxl = (DIRECTED ? sto->indegree[tailattr][head] : sto->indegree[tailattr][head] + sto->outdegree[tailattr][head]) == sto->maxin[tailattr][head] - 1 + edgestate;
 
-    ComputeChangesToToggleability(&tail, &head, edgestate, sto);
+    BDStratBlocksSetLast(tail, head, edgestate, sto->blocks);
+
+    ComputeChangesToToggleability(&tail, &head, sto);    
   }
+  
+  sto->indegree[tailattr][head] += edgestate ? -1 : 1;
+  sto->outdegree[headattr][tail] += edgestate ? -1 : 1;
   
   // update edgelist
   HashELToggleKnown(tail, head, sto->hash[sto->stratmixingtype], edgestate);
@@ -279,7 +335,7 @@ MH_U_FN(Mu_BDStratTNT) {
   if(sto->nmixtypestoupdate > 0) {
     sto->currentcumprob = sto->proposedcumprob;
     for(int i = 0; i < sto->nmixtypestoupdate; i++) {
-      WtPopSetWt(sto->mixtypestoupdate[i], edgestate ? sto->originalprobvec[sto->mixtypestoupdate[i]] : 0, sto->wtp);
+      WtPopSetWt(sto->mixtypestoupdate[i], edgestate ? sto->originalprobvec[sto->mixtypestoupdate[i]] : 0, sto->wtp);          
     }
   }
 }
@@ -295,6 +351,9 @@ MH_F_FN(Mf_BDStratTNT) {
   }
   Free(sto->hash);
 
+  for(int i = 0; i < sto->nstratlevels; i++) {
+    Free(sto->indmat[i]);      
+  }
   Free(sto->indmat);
 
   Free(sto->originalprobvec);
@@ -302,6 +361,18 @@ MH_F_FN(Mf_BDStratTNT) {
   Free(sto->mixtypestoupdate);  
 
   WtPopDestroy(sto->wtp);
+
+  Free(sto->maxout);
+  if(DIRECTED) {
+    Free(sto->maxin);
+  }
+  
+  for(int i = 0; i < sto->nbdlevels; i++) {
+    Free(sto->indegree[i]);
+    Free(sto->outdegree[i]);
+  }
+  Free(sto->indegree);
+  Free(sto->outdegree);
   // MHp->storage itself should be Freed by MHProposalDestroy
 }
 
@@ -311,24 +382,22 @@ MH_F_FN(Mf_BDStratTNT) {
    because it does not correctly update network quantities like nedges
    after each of the 10 proposed toggles.
 ***********************/
-MH_P_FN(MH_TNT10)
-{
-  /* *** don't forget tail-> head now */
-  
-  Edge nedges=EDGECOUNT(nwp);
-  static double P=0.5;
-  static double Q, DP, DO;
 
-  if(MHp->ntoggles == 0) { /* Initialize */
-    MHp->ntoggles=10;
-    Q = 1-P;
-    DP = P*DYADCOUNT(nwp);
-    DO = DP/Q;
-    return;
-  }
+MH_I_FN(Mi_TNT10){
+  MH_STORAGE = DegreeBoundInitializeR(MHp->R, nwp);
+  MHp->ntoggles=10;
+}
+
+MH_P_FN(MH_TNT10){
+  Edge nedges=EDGECOUNT(nwp);
+  const double P=0.5;
+  double Q = 1-P;
+  double DP = P*DYADCOUNT(nwp);
+  double DO = DP/Q;
+
 
   double logratio = 0;
-  BD_LOOP({
+  BD_LOOP(MH_STORAGE, {
       logratio = 0;
       for(unsigned int n = 0; n < 10; n++){
 	if (unif_rand() < P && nedges > 0) { /* Select a tie at random */
@@ -347,6 +416,11 @@ MH_P_FN(MH_TNT10)
   MHp->logratio += logratio;
 }
 
+MH_F_FN(Mf_TNT10){
+  DegreeBoundDestroy(MH_STORAGE);
+}
+
+
 /*********************
  void MH_constantedges
  propose pairs of toggles that keep number of edges
@@ -358,6 +432,11 @@ MH_P_FN(MH_TNT10)
  NOT recommended for such networks.  However, most network
  datasets are sparse, so this is not likely to be an issue.
 *********************/
+MH_I_FN(Mi_ConstantEdges){
+  MH_STORAGE = DegreeBoundInitializeR(MHp->R, nwp);
+  MHp->ntoggles = 2;
+}
+
 MH_P_FN(MH_ConstantEdges){  
   /* *** don't forget tail-> head now */
   
@@ -369,13 +448,18 @@ MH_P_FN(MH_ConstantEdges){
   /* Note:  This proposal cannot be used for full or empty observed graphs.
      If desired, we could check for this at initialization phase. 
      (For now, however, no way to easily return an error message and stop.)*/
-  BD_LOOP({
+  BD_LOOP(MH_STORAGE, {
       /* First, select edge at random */
       GetRandEdge(Mtail, Mhead, nwp);
       /* Second, select non-edge at random */
       GetRandNonedge(Mtail+1, Mhead+1, nwp);
     });
 }
+
+MH_F_FN(Mf_ConstantEdges){
+  DegreeBoundDestroy(MH_STORAGE);
+}
+
 
 /*********************
  void MH_CondDegreeDist
@@ -513,17 +597,17 @@ MH_P_FN(MH_CondDegreeDist){
 /*********************
  void MH_CondOutDegreeDist
 *********************/
+MH_I_FN(Mi_CondOutDegreeDist){
+  MH_STORAGE = DegreeBoundInitializeR(MHp->R, nwp);
+  MHp->ntoggles=2;
+}
+
 MH_P_FN(MH_CondOutDegreeDist){  
   int noutedge=0, k, fvalid=0;
   int k0, k1;
   int trynode;
   Vertex e, alter, tail=0, head, head1;
   
-  if(MHp->ntoggles == 0) { /* Initialize */
-    MHp->ntoggles=2;    
-    return;
-  }
-
   fvalid = 0;
   trynode = 0;
   while(fvalid==0 && trynode < 1500){
@@ -565,7 +649,7 @@ MH_P_FN(MH_CondOutDegreeDist){
   Mhead[1] = alter;
   }
   
-  if(trynode==1500 || !CheckTogglesValid(MHp, nwp)){
+  if(trynode==1500 || !CheckTogglesValid(MH_STORAGE, MHp, nwp)){
       Mtail[0] = 1;
       Mhead[0] = 2;
       Mtail[1] = 1;
@@ -574,6 +658,11 @@ MH_P_FN(MH_CondOutDegreeDist){
   
 
 }
+
+MH_F_FN(Mf_CondOutDegreeDist){
+  DegreeBoundDestroy(MH_STORAGE);
+}
+
 
 /*********************
  void MH_CondInDegreeDist
@@ -761,6 +850,11 @@ MH_P_FN(MH_ConstrainedCondOutDegDist){
 }
 
 
+MH_I_FN(Mi_NodePairedTiesToggles){
+  MH_STORAGE = DegreeBoundInitializeR(MHp->R, nwp);
+  MHp->ntoggles = N_NODES;
+}
+
 MH_P_FN(MH_NodePairedTiesToggles){  
   /* chooses a node and toggles all ties and
 	 and toggles an equal number of matching nonties
@@ -822,11 +916,16 @@ MH_P_FN(MH_NodePairedTiesToggles){
     }
   
   j = 2*nedge;
-  if (!CheckTogglesValid(MHp, nwp))
+  if (!CheckTogglesValid(MH_STORAGE, MHp, nwp))
     {
       *Mtail = *Mhead = 0;
     }
 }
+
+MH_F_FN(Mf_NodePairedTiesToggles){
+  DegreeBoundDestroy(MH_STORAGE);
+}
+
 
 /*********************
  void MH_OneRandomTnTNode
@@ -1294,6 +1393,12 @@ MH_P_FN(MH_ConstrainedCondDegDist){
   }
 }
 
+
+MH_I_FN(Mi_ConstrainedNodePairedTiesToggles){
+  MH_STORAGE = DegreeBoundInitializeR(MHp->R, nwp);
+  MHp->ntoggles=N_NODES;
+}
+
 void MH_ConstrainedNodePairedTiesToggles (MHProposal *MHp,
        	 Network *nwp) {  
   /* chooses a node and toggles all ties and
@@ -1355,11 +1460,16 @@ void MH_ConstrainedNodePairedTiesToggles (MHProposal *MHp,
     }
   
   j = 2*nedge;
-  if (!CheckConstrainedTogglesValid(MHp, nwp))
+  if (!CheckConstrainedTogglesValid(MH_STORAGE, MHp, nwp))
     {
       *Mtail = *Mhead = 0;
     }
 }
+
+MH_F_FN(Mf_ConstrainedNodePairedTiesToggles){
+  DegreeBoundDestroy(MH_STORAGE);
+}
+
 
 /*********************
  void MH_ConstrainedReallocateWithReplacement
@@ -1472,6 +1582,11 @@ void MH_ConstrainedAllTogglesForOneNode (MHProposal *MHp,
 /*********************
  void MH_ConstrainedTwoRandomToggles
 *********************/
+MH_I_FN(Mi_ConstrainedTwoRandomToggles){
+  MH_STORAGE = DegreeBoundInitializeR(MHp->R, nwp);
+  MHp->ntoggles=2;
+}
+
 void MH_ConstrainedTwoRandomToggles (MHProposal *MHp,
 				 Network *nwp) {  
   int i;
@@ -1495,12 +1610,17 @@ void MH_ConstrainedTwoRandomToggles (MHProposal *MHp,
 	}
     }
   
-  if (!CheckConstrainedTogglesValid(MHp, nwp))
+  if (!CheckConstrainedTogglesValid(MH_STORAGE, MHp, nwp))
     {
       Mtail[0] = Mhead[0] = 0;
       Mtail[1] = Mhead[1] = 0;
     }  
 }
+
+MH_F_FN(Mf_ConstrainedTwoRandomToggles){
+  DegreeBoundDestroy(MH_STORAGE);
+}
+
 
 /*********************
  void MH_ConstrainedCondDeg

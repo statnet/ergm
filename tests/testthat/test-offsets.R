@@ -1,12 +1,20 @@
+#  File tests/testthat/test-offsets.R in package ergm, part of the
+#  Statnet suite of packages for network analysis, https://statnet.org .
+#
+#  This software is distributed under the GPL-3 license.  It is free,
+#  open source, and has the attribution requirements (GPL Section 7) at
+#  https://statnet.org/attribution .
+#
+#  Copyright 2003-2021 Statnet Commons
+################################################################################
 local_edition(3)
 o <- options(ergm.eval.loglik=TRUE)
 
 set.seed(0)
 
+data(sampson)
 total.theta <- coef(ergm(samplike~edges))
 offset.theta <- pi
-
-data(sampson)
 
 test_that("Linear ERGM with free parameter before offset", {
   e1 <- ergm(samplike~edges+offset(edges), offset.coef=c(pi))
@@ -33,7 +41,7 @@ test_that("Linear ERGM with partial offsets", {
 test_that("Curved ERGM with partial offsets", {
   e4 <- ergm(samplike~edges+gwesp(0.25, fix=TRUE), control=control.ergm(seed=0,MCMLE.maxit=2))
   e4a <- ergm(samplike~edges+offset(gwesp(),c(FALSE,TRUE)), offset.coef=0.25, control=control.ergm(seed=0,MCMLE.maxit=2))
-  expect_equal(coef(e4a)[-3], coef(e4), tolerance=0.03, ignore_attr=TRUE)
+  expect_equal(coef(e4a)[-3], coef(e4), tolerance=0.06, ignore_attr=TRUE)
   expect_equal(logLik(e4a), logLik(e4), tolerance=0.01, ignore_attr=TRUE)
 })
 

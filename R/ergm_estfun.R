@@ -1,12 +1,12 @@
-#  File R/ergm_estfun.R in package ergm, part of the Statnet suite
-#  of packages for network analysis, https://statnet.org .
+#  File R/ergm_estfun.R in package ergm, part of the
+#  Statnet suite of packages for network analysis, https://statnet.org .
 #
 #  This software is distributed under the GPL-3 license.  It is free,
 #  open source, and has the attribution requirements (GPL Section 7) at
-#  https://statnet.org/attribution
+#  https://statnet.org/attribution .
 #
-#  Copyright 2003-2020 Statnet Commons
-#######################################################################
+#  Copyright 2003-2021 Statnet Commons
+################################################################################
 #' Compute the Sample Estimating Function Values of an ERGM.
 #'
 #' The estimating function for an ERGM is the score function: the
@@ -32,6 +32,15 @@
 #' @export
 ergm.estfun <- function(stats, theta, model, ...){
   UseMethod("ergm.estfun")
+}
+
+#' @describeIn ergm.estfun Method for numeric vectors of length \eqn{p}.
+#' @export
+ergm.estfun.numeric <- function(stats, theta, model, ...){
+  etamap <- if(is(model, "ergm_model")) model$etamap else model
+  estf <- c(ergm.etagradmult(theta,stats,etamap))[!etamap$offsettheta]
+  names(estf) <- (if(is(model, "ergm_model")) param_names(model, FALSE) else names(theta))[!etamap$offsettheta]
+  -estf
 }
 
 #' @describeIn ergm.estfun Method for matrices with \eqn{p} columns.

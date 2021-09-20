@@ -1,12 +1,12 @@
-#  File R/ergm.stocapprox.R in package ergm, part of the Statnet suite
-#  of packages for network analysis, https://statnet.org .
+#  File R/ergm.stocapprox.R in package ergm, part of the
+#  Statnet suite of packages for network analysis, https://statnet.org .
 #
 #  This software is distributed under the GPL-3 license.  It is free,
 #  open source, and has the attribution requirements (GPL Section 7) at
-#  https://statnet.org/attribution
+#  https://statnet.org/attribution .
 #
-#  Copyright 2003-2020 Statnet Commons
-#######################################################################
+#  Copyright 2003-2021 Statnet Commons
+################################################################################
 ############################################################################
 # The <ergm.stocapprox> function provides one of the styles of maximum
 # likelihood estimation that can be used. This one is based on Snijders
@@ -26,7 +26,7 @@
 #                  'initial_gain'  'nsubphases'  'niterations'
 #                  'nr.maxit'      'nr.reltol'   'calc.mcmc.se'
 #                  'hessian'       'method'      'metric'
-#                  'compress'      'trustregion' 'burnin'
+#                  'compress'      'burnin'
 #                  'interval'
 #               the use of these variables is explained in the
 #               <control.ergm> function header
@@ -127,18 +127,17 @@ ergm.stocapprox <- function(init, nw, model,
                    hessianflag=control$main.hessian,
                    method=control$MCMLE.method,
                    metric=control$MCMLE.metric,
-                   trustregion=control$SA.trustregion,
                    verbose=verbose)
 #
 # Important: Keep R-M (pre-NR) theta
-# ve$coef <- theta
+# ve$coefficients <- theta
 #
   ve$sample <- ergm.sample.tomcmc(ve$sample, control)
 # The next is the right one to uncomment
 # ve$mcmcloglik <- ve$mcmcloglik - network.dyadcount(nw)*log(2)
 
   # From ergm.estimate:
-  #    structure(list(coef=theta, sample=mcmc.list(as.mcmc(stats)), 
+  #    structure(list(coefficients=theta, sample=mcmc.list(as.mcmc(stats)), 
                       # iterations=iteration, mcmcloglik=mcmcloglik,
                       # MCMCtheta=init, 
                       # loglikelihood=loglikelihood, gradient=gradient,

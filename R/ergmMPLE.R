@@ -1,12 +1,12 @@
-#  File R/ergmMPLE.R in package ergm, part of the Statnet suite
-#  of packages for network analysis, https://statnet.org .
+#  File R/ergmMPLE.R in package ergm, part of the
+#  Statnet suite of packages for network analysis, https://statnet.org .
 #
 #  This software is distributed under the GPL-3 license.  It is free,
 #  open source, and has the attribution requirements (GPL Section 7) at
-#  https://statnet.org/attribution
+#  https://statnet.org/attribution .
 #
-#  Copyright 2003-2020 Statnet Commons
-#######################################################################
+#  Copyright 2003-2021 Statnet Commons
+################################################################################
 ############################################################################
 # The <ergmMPLE> function has different behavior based on whether the given
 # formula should be fit or not. If so, <ergm> is called. If not, the elements
@@ -81,6 +81,7 @@
 #' @template control
 #' @template verbose
 #' @template expand.bipartite
+#' @template basis
 #'
 #' @param \dots Additional arguments, to be passed to lower-level functions.
 #' @return
@@ -130,11 +131,11 @@
 #' mplesetup <- ergmMPLE(formula)
 #' 
 #' # Obtain MPLE coefficients "by hand":
-#' glm(mplesetup$response ~ . - 1, data = data.frame(mplesetup$predictor), 
-#'     weights = mplesetup$weights, family="binomial")$coefficients
+#' coef(glm(mplesetup$response ~ . - 1, data = data.frame(mplesetup$predictor),
+#'          weights = mplesetup$weights, family="binomial"))
 #' 
 #' # Check that the coefficients agree with the output of the ergm function:
-#' ergmMPLE(formula, output="fit")$coef
+#' coef(ergmMPLE(formula, output="fit"))
 #' 
 #' # We can also format the predictor matrix into an array:
 #' mplearray <- ergmMPLE(formula, output="array")
@@ -169,23 +170,27 @@
 #' mplearray$weights[1:5,1:5]
 #' @export ergmMPLE
 ergmMPLE <- function(formula, constraints=~., obs.constraints=~-observed, fitmodel=FALSE, output=c("matrix", "array", "dyadlist", "fit"), expand.bipartite=FALSE, control=control.ergm(),
-                     verbose=FALSE, ...){
+                     verbose=FALSE, ..., basis=ergm.getnetwork(formula)){
   if(!missing(fitmodel)){
       warning("Argument fitmodel= to ergmMPLE() has been deprecated and will be removed in a future version. Use output=\"fit\" instead.")
       if(fitmodel) output <- "fit"
   }
   check.control.class("ergm", "ergmMPLE")
   handle.control.toplevel("ergm", ...)
+
   output <- match.arg(output)
   if (output=="fit") {
-    return(ergm(formula, estimate="MPLE", control=control, verbose=verbose, constraints=constraints, ...))
+    return(
+      ergm(formula, estimate="MPLE", control=control, verbose=verbose, constraints=constraints, obs.constraints=obs.constraints, basis=basis, ...)
+    )
   }
+
+  nw <- basis
 
   if(output %in% c("array", "dyadlist")) formula <- nonsimp_update.formula(formula, .~indices+.)
 
   # Construct the model
-  nw <- ergm.getnetwork(formula)
-  model <- ergm_model(formula, nw, term.options=control$term.options)
+  model <- ergm_model(formula, nw, ..., term.options=control$term.options)
 
   # Handle the observation process constraints.
   tmp <- .handle.auto.constraints(nw, constraints, obs.constraints)

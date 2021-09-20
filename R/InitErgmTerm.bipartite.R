@@ -1,12 +1,12 @@
-#  File R/InitErgmTerm.bipartite.R in package ergm, part of the Statnet suite
-#  of packages for network analysis, https://statnet.org .
+#  File R/InitErgmTerm.bipartite.R in package ergm, part of the
+#  Statnet suite of packages for network analysis, https://statnet.org .
 #
 #  This software is distributed under the GPL-3 license.  It is free,
 #  open source, and has the attribution requirements (GPL Section 7) at
-#  https://statnet.org/attribution
+#  https://statnet.org/attribution .
 #
-#  Copyright 2003-2020 Statnet Commons
-#######################################################################
+#  Copyright 2003-2021 Statnet Commons
+################################################################################
 #  See InitErgmTerm.R for a general explanation 
 #  of InitErgmTerm functions
 
@@ -19,6 +19,54 @@
 
 
 #########################################################
+
+#' @name b1nodematch-ergmTerm
+#' @title Nodal attribute-based homophily effect for the first mode in a bipartite network
+#' @description Nodal attribute-based homophily effect for the first mode in a bipartite (aka two-mode) network
+#' @details This term is introduced
+#'   in Bomiriya et al (2014). With the default `alpha` and `beta` values, this term will
+#'   simply be a homophily based two-star statistic. This term adds one statistic to the model
+#'   unless `diff` is set to `TRUE` , in which case the term adds multiple network
+#'   statistics to the model, one for each of (a subset of) the unique values of the `attr`
+#'   attribute.
+#'   
+#'   If an `alpha`
+#'   discount parameter is used, each of these statistics gives the sum of
+#'   the number of common second-mode nodes raised to the power `alpha` for each pair of
+#'   first-mode nodes with that attribute. If a `beta` discount parameter is used, each
+#'   of these statistics gives half the sum of the number of two-paths with two first-mode nodes
+#'   with that attribute as the two ends of the two path raised to the power `beta` for each
+#'   edge in the network.
+#'
+#' @usage
+#' # binary: b1nodematch(attr, diff=FALSE, keep=NULL, alpha=1, beta=1, byb2attr=NULL,
+#' #                     levels=NULL)
+#'
+#' @template ergmTerm-attr
+#' @param diff by default, one statistic will be added to the model. If `diff` is set to `TRUE`, one statistic will be added for each unique value of the `attr` attribute
+#' @param keep deprecated
+#' @param alpha,beta optional discount parameters both of which take values from `[0, 1]`, only one should be
+#'   set at one time
+#' @param byb2attr specifies a
+#'   second mode categorical attribute. Setting this argument
+#'   will separate the orginal statistics based on the values of the set second mode attribute---
+#'   i.e. for example, if `diff` is `FALSE` , then the sum of all the statistics for
+#'   each level of this second-mode attribute will be equal to the original `b1nodematch`
+#'   statistic where `byb2attr` set to `NULL` .
+#' @templateVar explain select a subset of `attr` values to include.
+#' @template ergmTerm-levels-doco
+#'
+#' @template ergmTerm-general
+#'
+#' @template ergmTerm-bipartite
+#'
+#' @template ergmTerm-keep-dep
+#'
+#' @concept bipartite
+#' @concept undirected
+#' @concept dyad-independent
+#' @concept categorical nodal attribute
+#' @concept frequently-used
 InitErgmTerm.b1nodematch	<-	function (nw, arglist, ..., version=packageVersion("ergm")) {
   if(version <= as.package_version("3.9.4")){
     ### Check the network and arguments to make sure they are appropriate.
@@ -105,6 +153,56 @@ InitErgmTerm.b1nodematch	<-	function (nw, arglist, ..., version=packageVersion("
 
 
 ##########################################################
+
+#' @name b2nodematch-ergmTerm
+#' @title Nodal attribute-based homophily effect for the second mode in a bipartite network
+#' @description Nodal attribute-based homophily effect for the second mode in a bipartite (aka two-mode) network
+#' @details This term is introduced in Bomiriya et al (2014).
+#'   With the default `alpha` and `beta` values, this term will
+#'   simply be a homophily based two-star statistic. This term adds one statistic to the model
+#'   unless `diff` is set to `TRUE` , in which case the term adds multiple network
+#'   statistics to the model, one for each of (a subset of) the unique values of the `attr`
+#'   attribute.
+#'   
+#'   If an `alpha`
+#'   discount parameter is used, each of these statistics gives the sum of
+#'   the number of common first-mode nodes raised to the power `alpha` for each pair of
+#'   second-mode nodes with that attribute. If a `beta` discount parameter is used, each
+#'   of these statistics gives half the sum of the number of two-paths with two second-mode nodes
+#'   with that attribute as the two ends of the two path raised to the power `beta` for each
+#'   edge in the network.
+#'
+#' @usage
+#' # binary: b2nodematch(attr, diff=FALSE, keep=NULL, alpha=1, beta=1, byb1attr=NULL,
+#' #                     levels=NULL)
+#'
+#' @template ergmTerm-attr
+#' @param diff by default, one statistic will be added to the model. If `diff` is set to `TRUE`, one statistic will be added for each unique value of the `attr` attribute
+#' @param keep deprecated
+#' @param alpha,beta optional discount parameters both of which take values from `[0, 1]`, only one should be
+#'   set at one time
+#' @param byb2attr specifies a
+#'   second mode categorical attribute. Setting this argument
+#'   will separate the orginal statistics based on the values of the set second mode attribute---
+#'   i.e. for example, if `diff` is `FALSE` , then the sum of all the statistics for
+#'   each level of this second-mode attribute will be equal to the original `b1nodematch`
+#'   statistic where `byb2attr` set to `NULL` .
+#' @templateVar explain select a subset of `attr` values to include.
+#' @template ergmTerm-levels-doco
+#'
+#' @template ergmTerm-general
+#'
+#' @template ergmTerm-bipartite
+#'
+#' @template ergmTerm-attr
+#'
+#' @template ergmTerm-keep-dep
+#'
+#' @concept bipartite
+#' @concept undirected
+#' @concept dyad-independent
+#' @concept categorical nodal attribute
+#' @concept frequently-used
 InitErgmTerm.b2nodematch	<-	function (nw, arglist, ..., version=packageVersion("ergm")) {
   if(version <= as.package_version("3.9.4")){
     ### Check the network and arguments to make sure they are appropriate.

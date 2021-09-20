@@ -32,11 +32,11 @@ parameters are fixed. Note that each term has to be treated as a special
 case.
 }
 \details{
-Some ERGM terms such as \code{\link{gwesp}} and \code{\link{gwdegree}} have
+Some ERGM terms such as \code{\link[=gwesp-ergmTerm]{gwesp}} and \code{\link[=gwdegree-ergmTerm]{gwdegree}} have
 two forms: a curved form, for which their decay or similar parameters are to
 be estimated, and whose canonical statistics is a vector of the term's
-components (\code{\link{esp}(1)}, \code{\link{esp}(2)}, \dots{} and
-\code{\link{degree}(1)}, \code{\link{degree}(2)}, \dots{}, respectively) and
+components (\code{\link[=esp-ergmTerm]{esp(1)}}, \code{\link[=esp-ergmTerm]{esp(2)}}, \dots{} and
+\code{\link[=degree-ergmTerm]{degree(1)}}, \code{\link[=degree-ergmTerm]{degree(2)}}, \dots{}, respectively) and
 a "fixed" form where the decay or similar parameters are fixed, and whose
 canonical statistic is just the term itself. It is often desirable to fit a
 model estimating the curved parameters but simulate the "fixed" statistic.

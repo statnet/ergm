@@ -1,12 +1,12 @@
-#  File R/is.inCH.R in package ergm, part of the Statnet suite
-#  of packages for network analysis, https://statnet.org .
+#  File R/is.inCH.R in package ergm, part of the
+#  Statnet suite of packages for network analysis, https://statnet.org .
 #
 #  This software is distributed under the GPL-3 license.  It is free,
 #  open source, and has the attribution requirements (GPL Section 7) at
-#  https://statnet.org/attribution
+#  https://statnet.org/attribution .
 #
-#  Copyright 2003-2020 Statnet Commons
-#######################################################################
+#  Copyright 2003-2021 Statnet Commons
+################################################################################
 ###############################################################################
 # The <is.inCH> function determines whether a vector p is in the convex hull
 # of the vectors M
@@ -21,28 +21,6 @@
 #
 ###############################################################################
 
-########
-# The n-vector p is in the convex hull of the n-vectors in the
-# Rxn matrix M iff the maximum value of z_0 + z'p equals zero for all vectors z
-# satisfying z_0 + z'M \le 0.  Thus, the value returned by is.inCH depends on the
-# solution of a linear program, for which the lpSolve package and its function
-# lp is needed.  Letting q=(1 p')' and L = (1 M), the program is:
-#
-#  maximize z'q  
-#  subject to z'L <= 0 
-#
-#  Notice that, if there exists a z that makes z'q positive, then there is
-#  no maximizer since in that case Kz gives a larger value whenever K>1.  
-#  For this reason, we add one additional constraint, namely, z'q <= 1.
-#
-#  To put this all in "standard form", we let z=a-b, where a, b, are nonnegative.
-#  If we then write x=(a' b')', we obtain a new linear program:  
-#
-#  Minimize x'(-q' q')'
-#  subject to x'(q' -q')' <= 1 and x'(L -L) <= 0 and x >= 0
-#  ...and if the minimum is strictly negative, return FALSE because the point
-#  is not in the CH in that case.
-
 #' Determine whether a vector is in the closure of the convex hull of some
 #' sample of vectors
 #' 
@@ -56,28 +34,26 @@
 #' hyperplane between \code{p} and the rows of \code{M}.  This condition may be
 #' reworded as follows:
 #' 
-#' Letting \eqn{q=(1 p')'} and \eqn{L = (1 M)}, if the maximum value of
-#' \eqn{z'q} for all \eqn{z} such that \eqn{z'L \le 0} equals zero (the maximum
-#' must be at least zero since z=0 gives zero), then there is no separating
-#' hyperplane and so \code{p} is contained in the convex hull of the rows of
-#' \code{M}.  So the question of interest becomes a constrained optimization
-#' problem.
+#' Letting \eqn{q=(1 p')'} and \eqn{L = (1 M)}, if the minimum value
+#' of \eqn{z'q} for all \eqn{z} such that \eqn{z'L \ge 0} equals zero
+#' (the minimum must be at most zero since z=0 gives zero), then there
+#' is no separating hyperplane and so \code{p} is contained in the
+#' convex hull of the rows of \code{M}. So the question of interest
+#' becomes a constrained optimization problem.
+#'
+#' Lastly, in the event of such a hyperplane existing, one can make
+#' the objective function arbitrarily low by multiplying \eqn{z} by a
+#' large positive constant. To prevent it from running away, we
+#' constrain the elements of \eqn{z} to be between \eqn{-1} and
+#' \eqn{+1}.
 #' 
-#' Solving this problem relies on the package \code{lpSolve} to solve a linear
-#' program.  We may put the program in "standard form" by writing \eqn{z=a-b},
-#' where \eqn{a} and \eqn{b} are nonnegative vectors.  If we write \eqn{x=(a'
-#' b')'}, we obtain the linear program given by:
-#' 
-#' Minimize \eqn{(-q' q')x} subject to \eqn{x'(L -L) \le 0} and \eqn{x \ge 0}.
-#' One additional constraint arises because whenever any strictly negative
-#' value of \eqn{(-q' q')x} may be achieved, doubling \eqn{x} arbitrarily many
-#' times makes this value arbitrarily large in the negative direction, so no
-#' minimizer exists.  Therefore, we add the constraint \eqn{(q' -q')x \le 1}.
+#' Solving this problem relies on the package \pkg{lpSolveAPI} to solve a linear
+#' program.
 #' 
 #' This function is used in the "stepping" algorithm of Hummel et al (2012).
 #' 
 #' @param p A \eqn{d}-dimensional vector or a matrix with \eqn{d} columns
-#' @param M An \eqn{r} by \eqn{d} matrix.  Each row of \code{M} is a
+#' @param M An \eqn{n} by \eqn{d} matrix.  Each row of \code{M} is a
 #' \eqn{d}-dimensional vector.
 #' @template verbose
 #' @param \dots arguments passed directly to linear program solver
@@ -89,8 +65,11 @@
 #' \item Hummel, R. M., Hunter, D. R., and Handcock, M. S. (2012), Improving
 #' Simulation-Based Algorithms for Fitting ERGMs, Journal of Computational and
 #' Graphical Statistics, 21: 920-939. }
+#'
+#' @keywords internal
 #' @export is.inCH
 is.inCH <- function(p, M, verbose=FALSE, ...) { # Pass extra arguments directly to LP solver
+  verbose <- max(0, min(verbose, 4))
 
   if(is.null(dim(p))) p <- rbind(p)
 
@@ -110,26 +89,52 @@ is.inCH <- function(p, M, verbose=FALSE, ...) { # Pass extra arguments directly 
   #' @importFrom lpSolveAPI make.lp set.column set.objfn set.constr.type set.rhs set.bounds get.objective
 
   # Set up the optimisation problem: the following are common for all rows of p.
-  L <- cbind(1, M)
-  lprec <- make.lp(n, d+1)
-  for(k in seq_len(d+1)) set.column(lprec, k, L[,k])
-  set.constr.type(lprec, rep.int(2L, n)) # 2 = ">="
-  set.rhs(lprec,  numeric(n))
-  set.bounds(lprec, lower = rep.int(-1, d+1L), upper = rep.int(1, d+1L))
+
+  timeout <- 1
+
+  setup.lp <- function(){
+    L <- cbind(1, M)
+    lprec <- make.lp(n, d+1)
+    for(k in seq_len(d+1)) set.column(lprec, k, L[,k])
+    set.constr.type(lprec, rep.int(2L, n)) # 2 = ">="
+    set.rhs(lprec,  numeric(n))
+    set.bounds(lprec, lower = rep.int(-1, d+1L), upper = rep.int(1, d+1L))
+    lp.control(lprec, break.at.value = -.Machine$double.eps, verbose=c("important","important","important","normal","detailed")[min(max(verbose+1,0),5)], timeout=timeout)
+    lprec
+  }
+  lprec <- setup.lp()
 
   for(i in seq_len(nrow(p))){ # Iterate over test points.
 
-    # Set the objective function in terms of p and solve the problem.
-    set.objfn(lprec, c(1, p[i,]))
-    solve(lprec)
+    # Keep trying until results are satisfactory.
+    #
+    # flag meanings:
+    # -1      : dummy value, just starting out
+    #  0 or 11: Good (either 0 or some negative value)
+    #  1 or  7: Timeout
+    #   others: probably nothing good, but don't know how to handle
+    flag <- -1
+    while(flag%in%c(-1,1,7)){
+      # Set the objective function in terms of p and solve the problem.
+      set.objfn(lprec, c(1, p[i,]))
+      flag <- solve(lprec)
+      if(flag%in%c(1,7)){ # Timeout
+        timeout <- timeout * 2 # Increase timeout, in case it's just a big problem.
+        z <- rnorm(1) # Shift target and test set by the same constant.
+        p <- p + z
+        M <- M + z
+        lprec <- setup.lp() # Reinitialize
+      }
+    }
 
     # If the objective function (min) is not zero, the point p[i,] is not in the CH of M.
-    if(get.objective(lprec)){
-      if(verbose>1) message(sprintf("is.inCH: iter= %d, outside hull.",i))
+    if(get.objective(lprec) < 0){
+      if(verbose > 1) message(sprintf("is.inCH: iter = %d, outside hull.",i))
       return(FALSE)
-    }
+    }else if(verbose > 2 && nrow(p) > 1) message(sprintf("is.inCH: iter = %d, inside hull.", i))
+
   }
 
-  if(verbose>1) message(sprintf("is.inCH: iter= %d, inside hull.",i))
+  if(verbose > 1) message("is.inCH: all test points inside hull.")
   return(TRUE) # If all points passed the test, return TRUE.
 }

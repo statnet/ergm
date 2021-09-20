@@ -112,7 +112,7 @@ Further details on the various cluster types are included below.}
 multiple MCMC chains, it is possible to attempt to accelerate
 sampling by evaluating qualified terms' change statistics in
 multiple threads run in parallel. This is done using the
-\href{http://www.openmp.org/}{OpenMP} API.
+\href{https://www.openmp.org/}{OpenMP} API.
 
 However, this introduces a nontrivial amont of computational
 overhead. See below for a list of the major factors affecting
@@ -182,7 +182,7 @@ that is compatible with \code{snow} or \code{parallel} packages.
 benefit from parallel execution.
 \item The more expensive the terms in the model are, the more benefit
 from parallel execution. For example, models with terms like
-\code{\link{gwdsp}} will generally get more benefit than models where all
+\code{\link[=gwdsp-ergmTerm]{gwdsp}} will generally get more benefit than models where all
 terms are dyad-independent.
 \item Sampling more dense networks will generally get more benefit than
 sparse networks. Network size has little, if any, effect.

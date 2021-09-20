@@ -1,12 +1,12 @@
-#  File R/control.san.R in package ergm, part of the Statnet suite
-#  of packages for network analysis, https://statnet.org .
+#  File R/control.san.R in package ergm, part of the
+#  Statnet suite of packages for network analysis, https://statnet.org .
 #
 #  This software is distributed under the GPL-3 license.  It is free,
 #  open source, and has the attribution requirements (GPL Section 7) at
-#  https://statnet.org/attribution
+#  https://statnet.org/attribution .
 #
-#  Copyright 2003-2020 Statnet Commons
-#######################################################################
+#  Copyright 2003-2021 Statnet Commons
+################################################################################
 
 
 #' Auxiliary for Controlling SAN
@@ -76,9 +76,7 @@ control.san<-function(SAN.maxit=4,
                       parallel.type=NULL,
                       parallel.version.check=TRUE,
                       parallel.inherit.MT=FALSE){
-  control<-list()
-  for(arg in names(formals(sys.function())))
-    control[arg]<-list(get(arg))
 
+  control <- handle.controls("control.san")
   set.control.class("control.san")
 }

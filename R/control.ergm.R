@@ -1,12 +1,12 @@
-#  File R/control.ergm.R in package ergm, part of the Statnet suite
-#  of packages for network analysis, https://statnet.org .
+#  File R/control.ergm.R in package ergm, part of the
+#  Statnet suite of packages for network analysis, https://statnet.org .
 #
 #  This software is distributed under the GPL-3 license.  It is free,
 #  open source, and has the attribution requirements (GPL Section 7) at
-#  https://statnet.org/attribution
+#  https://statnet.org/attribution .
 #
-#  Copyright 2003-2020 Statnet Commons
-#######################################################################
+#  Copyright 2003-2021 Statnet Commons
+################################################################################
 #' Auxiliary for Controlling ERGM Fitting
 #' 
 #' Auxiliary function as user interface for fine-tuning 'ergm' fitting.
@@ -40,9 +40,9 @@
 #' \item Initial values for the elements that are \code{NA} are fit using the
 #' method specified by \code{\link[=control.ergm]{control$init.method}}.
 #' 
-#' } Passing \code{control.ergm(init=coef(prev.fit))} can be used to ``resume''
-#' an uncoverged [ergm()] run, but see
-#' \code{\link{enformulate.curved}}.
+#' } Passing \code{control.ergm(init=coef(prev.fit))} can be used to
+#' ``resume'' an uncoverged [ergm()] run, though `checkpoint` and
+#' `resume` would be better under most circumstances.
 #' 
 #' @param init.method A chatacter vector or \code{NULL}. The default
 #'   method depends on the reference measure used. For the binary
@@ -186,7 +186,7 @@
 #' convergence.
 #' @param MCMC.runtime.traceplot Logical: If `TRUE`, plot traceplots of the MCMC
 #' sample after every MCMC MLE iteration.
-#' @param MCMC.maxedges The maximum number of edges that may occur during the MCMC sampling.
+#' @template control_MCMC_maxedges
 #' @param MCMC.addto.se Whether to add the standard errors induced by the MCMC
 #' algorithm to the estimates' standard errors.
 #' @param SAN.maxit When \code{target.stats} argument is passed to
@@ -295,11 +295,6 @@
 #' See Hummel et al (2010) for an explanation of "lognormal" and "naive".
 #' @param MCMLE.method Deprecated. By default, ergm uses \code{trust}, and
 #' falls back to \code{optim} with Nelder-Mead method when \code{trust} fails.
-#' @param MCMLE.trustregion Maximum increase the algorithm will allow for the
-#' approximated likelihood at a given iteration.  See Snijders (2002) for
-#' details.
-#' 
-#' Note that not all metrics abide by it.
 #' @param MCMLE.dampening (logical) Should likelihood dampening be used?
 #' @param MCMLE.dampening.min.ess The effective sample size below which
 #' dampening is used.
@@ -319,16 +314,15 @@
 #'   pre-filtering of target and test points in the Hummel step length
 #'   calculation. May improve performance for large MCMC sample sizes
 #'   with missing data MLE.
-#' @param MCMLE.steplength Multiplier for step length, which may (for values
-#' less than one) make fitting more stable at the cost of computational
-#' efficiency.  Can be set to "adaptive"; see
-#' \code{MCMLE.adaptive.trustregion}.
-#' 
-#' If \code{MCMLE.steplength.margin} is not \code{NULL}, the step length will
-#' be set using the algorithm of Hummel et al. (2010). In that case, it will
-#' serve as the maximum step length considered. However, setting it to anything
-#' other than 1 will preclude using Hummel or precision as termination
-#' criteria.
+#' @param MCMLE.steplength Multiplier for step length (on the
+#'   mean-value parameter scale), which may (for values less than one)
+#'   make fitting more stable at the cost of computational efficiency.
+#'
+#'   If \code{MCMLE.steplength.margin} is not \code{NULL}, the step
+#'   length will be set using the algorithm of Hummel et
+#'   al. (2010). In that case, it will serve as the maximum step
+#'   length considered. However, setting it to anything other than 1
+#'   will preclude using Hummel or precision as termination criteria.
 #'
 #' @param MCMLE.steplength.parallel Whether parallel multisection
 #'   search (as opposed to a bisection search) for the Hummel step
@@ -340,9 +334,6 @@
 #' @param MCMLE.steplength.precision Required relative precision of the step
 #'   length calculation: \eqn{(u-l)/l}.
 #'
-#' @param MCMLE.adaptive.trustregion Maximum increase the algorithm will allow
-#' for the approximated loglikelihood at a given iteration when
-#' \code{MCMLE.steplength="adaptive"}.
 #' @param MCMLE.sequential Logical: If TRUE, the next iteration of the fit uses
 #' the last network sampled as the starting network.  If FALSE, always use the
 #' initially passed network.  The results should be similar (stochastically),
@@ -413,8 +404,6 @@
 #' in the model.  See Snijders (2002) for details.
 #' @param SA.phase3_n Sample size for the MCMC sample in Phase 3 of the
 #' stochastic approximation algorithm.  See Snijders (2002) for details.
-#' @param SA.trustregion The trust region parameter for the likelihood
-#' functions, used in the stochastic approximation algorithm.
 #' @param RM.phase1n_base,RM.phase2n_base,RM.phase2sub,RM.init_gain,RM.phase3n
 #' The Robbins-Monro control parameters are not yet documented.
 #' @param Step.maxit Maximum number of iterations (steps) allowed by the
@@ -445,7 +434,7 @@
 #' Therefore, these settings are in effect if there are missing dyads in the
 #' observed network, using a higher default number of steps.
 #' 
-#' @param CD.samplesize.per_theta,obs.CD.samplesize.per_theta,CD.maxit,CD.conv.min.pval,CD.NR.maxit,CD.NR.reltol,CD.metric,CD.method,CD.trustregion,CD.dampening,CD.dampening.min.ess,CD.dampening.level,CD.steplength.margin,CD.steplength,CD.steplength.parallel,CD.adaptive.trustregion,CD.adaptive.epsilon,CD.steplength.esteq,CD.steplength.miss.sample,CD.steplength.maxit,CD.steplength.min
+#' @param CD.samplesize.per_theta,obs.CD.samplesize.per_theta,CD.maxit,CD.conv.min.pval,CD.NR.maxit,CD.NR.reltol,CD.metric,CD.method,CD.dampening,CD.dampening.min.ess,CD.dampening.level,CD.steplength.margin,CD.steplength,CD.steplength.parallel,CD.adaptive.epsilon,CD.steplength.esteq,CD.steplength.miss.sample,CD.steplength.maxit,CD.steplength.min
 #'   Miscellaneous tuning parameters of the CD sampler and
 #'   optimizer. These have the same meaning as their `MCMLE.*` and
 #'   `MCMC.*` counterparts.
@@ -458,9 +447,7 @@
 #' @template control_MCMC_parallel
 #' @template seed
 #' @template control_MCMC_packagenames
-#' @param \dots Additional arguments, passed to other functions This argument
-#' is helpful because it collects any control parameters that have been
-#' deprecated; a warning message is printed in case of deprecated arguments.
+#' @template control_dots
 #' @return A list with arguments as components.
 #' @seealso [ergm()]. The \code{\link{control.simulate}} function
 #' performs a similar function for \code{\link{simulate.ergm}};
@@ -582,7 +569,6 @@ control.ergm<-function(drop=TRUE,
                          "Median.Likelihood",
                          "EF.Likelihood", "naive"),
                        MCMLE.method=c("BFGS","Nelder-Mead"),
-                       MCMLE.trustregion=20,
                        MCMLE.dampening=FALSE,
                        MCMLE.dampening.min.ess=20,
                        MCMLE.dampening.level=0.1,
@@ -592,7 +578,6 @@ control.ergm<-function(drop=TRUE,
                        MCMLE.steplength=NVL2(MCMLE.steplength.margin, 1, 0.5),
                        MCMLE.steplength.parallel=c("observational","always","never"),
                        MCMLE.steplength.precision=.25,
-                       MCMLE.adaptive.trustregion=3,
                        MCMLE.sequential=TRUE,
                        MCMLE.density.guard.min=10000,
                        MCMLE.density.guard=exp(3),
@@ -612,7 +597,7 @@ control.ergm<-function(drop=TRUE,
                        MCMLE.last.boost=4,
                        MCMLE.steplength.esteq=TRUE, 
                        MCMLE.steplength.miss.sample=function(x1) ceiling(sqrt(ncol(rbind(x1)))),
-                       MCMLE.steplength.maxit=if(MCMLE.steplength.margin<0) 5 else 25, 
+                       MCMLE.steplength.maxit=NVL3(MCMLE.steplength.margin, if(.<0) 5 else 25),
                        MCMLE.steplength.min=0.0001,
                        MCMLE.effectiveSize.interval_drop=2,
                        MCMLE.save_intermediates=NULL,
@@ -624,7 +609,6 @@ control.ergm<-function(drop=TRUE,
                        SA.nsubphases=4,
                        SA.niterations=NULL, 
                        SA.phase3_n=NULL,
-                       SA.trustregion=0.5,
                        SA.interval=1024,
                        SA.burnin=SA.interval*16,
                        SA.samplesize=1024,
@@ -658,13 +642,11 @@ control.ergm<-function(drop=TRUE,
                          "Median.Likelihood",
                          "EF.Likelihood"),
                        CD.method=c("BFGS","Nelder-Mead"),
-                       CD.trustregion=20,
                        CD.dampening=FALSE,
                        CD.dampening.min.ess=20,
                        CD.dampening.level=0.1,
                        CD.steplength.margin=0.5,
                        CD.steplength=1,
-                       CD.adaptive.trustregion=3,
                        CD.adaptive.epsilon=0.01,
                        CD.steplength.esteq=TRUE, 
                        CD.steplength.miss.sample=function(x1) ceiling(sqrt(ncol(rbind(x1)))),
@@ -699,25 +681,14 @@ control.ergm<-function(drop=TRUE,
                        SAN.burnin.times="SAN.nsteps.times"
                        )
 
+  for(trustarg in c("MCMLE.trustregion", "MCMLE.adaptive.trustregion",
+                    "CD.trustregion", "CD.adaptive.trustregion",
+                    "SA.trustregion"))
+    old.controls[[trustarg]] <- list(action = warning, message = paste(" The trust region mechanism has been obviated by step length", sQuote("*.steplen"), "and other mechanisms and has been removed."))
+
   match.arg.pars <- c("MPLE.type","MCMLE.metric","MCMLE.method","main.method",'MCMLE.termination',"CD.metric","CD.method","MCMLE.steplength.parallel","CD.steplength.parallel","MPLE.nonident","MPLE.nonvar","MCMLE.nonvar","MCMLE.nonident")
-  
-  control<-list()
-  formal.args<-formals(sys.function())
-  formal.args[["..."]]<-NULL
-  for(arg in names(formal.args))
-    control[arg]<-list(get(arg))
 
-  for(arg in names(list(...))){
-    if(!is.null(old.controls[[arg]])){
-      warning("Passing ",arg," to control.ergm(...) is deprecated and may be removed in a future version. Specify it as control.ergm(",old.controls[[arg]],"=...) instead.")
-      control[old.controls[[arg]]]<-list(list(...)[[arg]])
-    }else{
-      stop("Unrecognized control parameter: ",arg,".")
-    }
-  }
-
-  for(arg in match.arg.pars)
-    control[arg]<-list(match.arg(control[[arg]][1],eval(formal.args[[arg]])))
+  control <- handle.controls("control.ergm", ...)
 
   if((MCMLE.steplength!=1 || is.null(MCMLE.steplength.margin)) && MCMLE.termination %in% c("Hummel", "precision"))
     stop("Hummel and precision-based termination require non-null MCMLE.steplength.margin and MCMLE.steplength = 1.")
@@ -727,6 +698,7 @@ control.ergm<-function(drop=TRUE,
   set.control.class("control.ergm")
 }
 
+
 handle.control.toplevel<-function(myname, ...){
   myctrlname <- paste0("control.",myname)
   control.names <- names(list(...))[names(list(...)) %in% names(formals(get(myctrlname, mode="function")))]
@@ -734,9 +706,10 @@ handle.control.toplevel<-function(myname, ...){
 }
 
 SCALABLE_MCMC_CONTROLS <- c("MCMC.burnin", "MCMC.interval")
-STATIC_MCMC_CONTROLS <- c("MCMC.samplesize", "MCMC.prop", "MCMC.prop.weights", "MCMC.prop.args", "MCMC.packagenames", "MCMC.maxedges", "term.options", "obs.MCMC.mul", "obs.MCMC.samplesize.mul", "obs.MCMC.samplesize", "obs.MCMC.interval.mul", "obs.MCMC.interval", "obs.MCMC.burnin.mul", "obs.MCMC.burnin", "obs.MCMC.prop", "obs.MCMC.prop.weights", "obs.MCMC.prop.args")
+STATIC_MCMC_CONTROLS <- c("MCMC.samplesize", "MCMC.prop", "MCMC.prop.weights", "MCMC.prop.args", "MCMC.packagenames", "MCMC.maxedges", "term.options", "obs.MCMC.mul", "obs.MCMC.samplesize.mul", "obs.MCMC.samplesize", "obs.MCMC.interval.mul", "obs.MCMC.interval", "obs.MCMC.burnin.mul", "obs.MCMC.burnin", "obs.MCMC.prop", "obs.MCMC.prop.weights", "obs.MCMC.prop.args", "MCMC.batch")
 ADAPTIVE_MCMC_CONTROLS <- c("MCMC.effectiveSize", "MCMC.effectiveSize.damp", "MCMC.effectiveSize.maxruns", "MCMC.effectiveSize.burnin.pval", "obs.MCMC.effectiveSize")
 PARALLEL_MCMC_CONTROLS <- c("parallel","parallel.type","parallel.version.check")
+OBS_MCMC_CONTROLS <- c("MCMC.base.samplesize", "MCMC.base.effectiveSize", "MCMC.samplesize", "MCMC.effectiveSize", "MCMC.interval", "MCMC.burnin")
 MPLE_CONTROLS <- c("MPLE.max.dyad.types","MPLE.samplesize","MPLE.type","MPLE.maxit")
 
 remap_algorithm_MCMC_controls <- function(control, algorithm){

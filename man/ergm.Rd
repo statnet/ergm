@@ -7,8 +7,6 @@
 \alias{ergm.object}
 \alias{nobs.ergm}
 \alias{print.ergm}
-\alias{coef.ergm}
-\alias{coefficients.ergm}
 \alias{vcov.ergm}
 \title{Exponential-Family Random Graph Models}
 \usage{
@@ -33,10 +31,6 @@ is.ergm(object)
 \method{nobs}{ergm}(object, ...)
 
 \method{print}{ergm}(x, digits = max(3, getOption("digits") - 3), ...)
-
-\method{coef}{ergm}(object, ...)
-
-\method{coefficients}{ergm}(object, ...)
 
 \method{vcov}{ergm}(object, sources = c("all", "model", "estimation"), ...)
 }
@@ -77,7 +71,7 @@ on the support of the distribution of the networks being modeled,
 using syntax similar to the \code{formula} argument, on the
 right-hand side. Multiple constraints
 may be given, separated by \dQuote{+} and \dQuote{-} operators. (See
-\link[=ergm-constraints]{ERGM constraints} for the explanation of
+\link[=ergmConstraint]{ERGM constraints} for the explanation of
 their semantics.)
 Together with the model terms in the formula and the reference measure, the constraints
 define the distribution of networks being modeled.
@@ -91,7 +85,7 @@ will override the one chosen automatically.
 
 The default is \code{~.}, for an unconstrained model.
 
-See the \link[=ergm-constraints]{ERGM constraints} documentation for
+See the \link[=ergmConstraint]{ERGM constraints} documentation for
 the constraints implemented in the \strong{\link[=ergm-package]{ergm}}
 package. Other packages may add their own constraints.
 
@@ -121,7 +115,7 @@ passing a string with the function's name. In that case,
 arguments to the proposal should be specified through the
 \code{obs.prop.args} argument to \code{\link{control.ergm}}.
 
-See the \link[=ergm-constraints]{ERGM constraints} documentation for
+See the \link[=ergmConstraint]{ERGM constraints} documentation for
 the constraints implemented in the \strong{\link[=ergm-package]{ergm}}
 package. Other packages may add their own constraints.
 
@@ -286,11 +280,6 @@ on a similar scheme.
 
 \item \code{print}: 
 
-\item \code{coef}: extracts estimated model coefficients.
-
-\item \code{coefficients}: An \emph{alias} for
-\code{ergm}.
-
 \item \code{vcov}: extracts the variance-covariance matrix of
 parameter estimates.
 }}
@@ -406,8 +395,6 @@ summary(gest)
 \donttest{
 # Extract parameter estimates as a numeric vector:
 coef(gest)
-}
-\donttest{
 # Sources of variation in parameter estimates:
 vcov(gest, sources="model")
 vcov(gest, sources="estimation")
@@ -454,7 +441,7 @@ Handcock, M. S. (2003)
 Working Paper \#39,
 Center for Statistics and the Social Sciences,
 University of Washington.
-\url{https://www.csss.washington.edu/research/working-papers/assessing-degeneracy-statistical-models-social-networks}
+\url{https://csss.uw.edu/research/working-papers/assessing-degeneracy-statistical-models-social-networks}
 
 Handcock MS (2003b).
 \pkg{degreenet}: Models for Skewed Count Distributions Relevant

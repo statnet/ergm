@@ -1,12 +1,12 @@
-#  File R/ergm.bridge.R in package ergm, part of the Statnet suite
-#  of packages for network analysis, https://statnet.org .
+#  File R/ergm.bridge.R in package ergm, part of the
+#  Statnet suite of packages for network analysis, https://statnet.org .
 #
 #  This software is distributed under the GPL-3 license.  It is free,
 #  open source, and has the attribution requirements (GPL Section 7) at
-#  https://statnet.org/attribution
+#  https://statnet.org/attribution .
 #
-#  Copyright 2003-2020 Statnet Commons
-#######################################################################
+#  Copyright 2003-2021 Statnet Commons
+################################################################################
 
 #' Bridge sampling to evaluate ERGM log-likelihoods and log-likelihood ratios
 #' 
@@ -50,12 +50,25 @@
 #' @return If `llronly=TRUE` or `llkonly=TRUE`, these functions return
 #'   the scalar log-likelihood-ratio or the log-likelihood.
 #'   Otherwise, they return a list with the following components:
-#'   \item{llr}{The estimated log-ratio.}  \item{llrs}{The estimated
-#'   log-ratios for each of the \code{nsteps} bridges.}  \item{path}{A
-#'   numeric matrix with nsteps rows, with each row being the
-#'   respective bridge's parameter configuration.}  \item{stats}{A
-#'   numeric matrix with nsteps rows, with each row being the
-#'   respective bridge's vector of simulated statistics.}
+#'
+#'   \item{llr}{The estimated log-ratio.}
+#'
+#'   \item{llr.vcov}{The estimated variance of the log-ratio due to
+#'   MCMC approximation.}
+#'
+#'   \item{llrs}{A list of lists (1 per attempt) of the estimated
+#'   log-ratios for each of the \code{bridge.nsteps} bridges.}
+#'
+#'   \item{llrs.vcov}{A list of lists (1 per attempt) of the estimated
+#'   variances of the estimated log-ratios for each of the
+#'   \code{bridge.nsteps} bridges.}
+#'
+#'   \item{paths}{A list of lists (1 per attempt) with two elements:
+#'   `theta`, a numeric matrix with `bridge.nsteps` rows, with each
+#'   row being the respective bridge's parameter configuration; and
+#'   `weight`, a vector of length `bridge.nsteps` containing its
+#'   weight.}
+#'
 #'   \item{Dtheta.Du}{The gradient vector of the parameter values with
 #'   respect to position of the bridge.}
 #' @seealso \code{\link{simulate.formula.ergm}}
@@ -64,126 +77,127 @@
 #'   networks}, Journal of Computational and Graphical Statistics.
 #' @keywords model
 #' @export
-ergm.bridge.llr<-function(object, response=NULL, reference=~Bernoulli, constraints=~., from, to, obs.constraints=~.-observed, target.stats=NULL, basis=eval_lhs.formula(object), verbose=FALSE, ..., llronly=FALSE, control=control.ergm.bridge()){
+ergm.bridge.llr<-function(object, response=NULL, reference=~Bernoulli, constraints=~., from, to, obs.constraints=~.-observed, target.stats=NULL, basis=ergm.getnetwork(object), verbose=FALSE, ..., llronly=FALSE, control=control.ergm.bridge()){
   check.control.class("ergm.bridge", "ergm.bridge.llr")
   handle.control.toplevel("ergm.bridge", ...)
 
   if(!is.null(control$seed)) {set.seed(as.integer(control$seed))}
+
+  # Set up a cluster, if not already.
+  ergm.getCluster(control, verbose)
 
   message("Setting up bridge sampling...")
   
   ergm_preprocess_response(basis, response)
 
   ## Generate the path.
-  path<-t(rbind(sapply(seq(from=0+1/2/(control$nsteps+1),to=1-1/2/(control$nsteps+1),length.out=control$nsteps),function(u) cbind(to*u + from*(1-u)))))
+  path <- t(rbind(sapply(seq(from = 0 + 1 / 2 / control$bridge.nsteps, to = 1 - 1 / 2 / control$bridge.nsteps, length.out = control$bridge.nsteps), function(u) cbind(to * u + from * (1 - u)))))
 
-  ## Control list constructor.
-  gen_control <- function(obs, burnin){
-    control.simulate.formula(
-      MCMC.burnin = if(burnin=="first"){
-                      if(obs) control$obs.MCMC.burnin
-                      else control$MCMC.burnin
-                    }else if(burnin=="between"){
-                      if(obs) control$obs.MCMC.burnin.between
-                      else control$MCMC.burnin.between
-                    }else{
-                      0
-                    },
-      term.options = control$term.options,
-      MCMC.interval = if(burnin!="no"){
-                       1
-                     }else{
-                       if(obs) control$obs.MCMC.interval
-                       else control$MCMC.interval
-                     },
-      MCMC.packagenames=control$MCMC.packagenames,
-      parallel=control$parallel,
-      parallel.type=control$parallel.type,
-      parallel.version.check=control$parallel.version.check
-    )
+  # Determine whether an observation process is in effect.
+  obs <- has.obs.constraints(basis, constraints, obs.constraints, target.stats)
+
+  ## Control list constructor
+  gen_control <- function(obs, burnin = c("first", "between")){
+    control$MCMC.burnin <-
+      switch(match.arg(burnin),
+             first = if(obs) control$obs.MCMC.burnin
+                     else control$MCMC.burnin,
+             between = if(obs) control$obs.MCMC.burnin.between
+                       else control$MCMC.burnin.between)
+    control$MCMC.interval <-
+      if(obs) ceiling(control$obs.MCMC.interval / control$bridge.nsteps)
+      else ceiling(control$MCMC.interval / control$bridge.nsteps)
+
+    #' @importFrom utils head
+    modifyList(do.call(control.simulate.formula, control[intersect(names(control), head(names(formals(control.simulate.formula)), -1))]),
+               list(MCMC.samplesize = if(obs) control$obs.MCMC.samplesize else control$MCMC.samplesize))
   }
-  
+
   ## Obtain simulation setting arguments in terms of ergm_state.
   if(verbose) message("Initializing model and proposals...")
-  sim_settings <- do.call(stats::simulate, c(simulate(object, coef=from, nsim=1, reference=reference, constraints=list(constraints, obs.constraints), observational=FALSE, output="ergm_state", verbose=max(verbose-1,0), basis = basis, control=gen_control(FALSE, "first"), ..., do.sim=FALSE), do.sim=FALSE))
+  sim_settings <- simulate(object, coef=from, nsim=1, reference=reference, constraints=list(constraints, obs.constraints), observational=FALSE, output="ergm_state", verbose=max(verbose-1,0), basis = basis, control=gen_control(FALSE, "first"), ..., return.args = "ergm_state")
   if(verbose) message("Model and proposals initialized.")
-  nw.state <- sim_settings$object
-  stats <- matrix(NA, control$nsteps, nparam(nw.state,canonical=TRUE))
+  state <- list(sim_settings$object)
 
-  obs <- !is.null(.handle.auto.constraints(basis, constraints, obs.constraints, target.stats)$constraints.obs)
   if(obs){
     if(verbose) message("Initializing constrained model and proposals...")
-    sim_settings.obs <- do.call(stats::simulate, c(simulate(object, coef=from, nsim=1, reference=reference, constraints=list(constraints, obs.constraints), observational=TRUE, output="ergm_state", verbose=max(verbose-1,0), basis = basis, control=gen_control(TRUE, "first"), ..., do.sim=FALSE), do.sim=FALSE))
+    sim_settings.obs <- simulate(object, coef=from, nsim=1, reference=reference, constraints=list(constraints, obs.constraints), observational=TRUE, output="ergm_state", verbose=max(verbose-1,0), basis = basis, control=gen_control(TRUE, "first"), ..., return.args = "ergm_state")
     if(verbose) message("Constrained model and proposals initialized.")
-    nw.state.obs <- sim_settings.obs$object
-    stats.obs <- matrix(NA, control$nsteps, nparam(nw.state.obs,canonical=TRUE))
-  }else
-    stats.obs <- matrix(NVL(target.stats, summary(nw.state)), control$nsteps, nparam(nw.state,canonical=TRUE), byrow=TRUE)
-
-  message("Using ", control$nsteps, " bridges: ", appendLF=FALSE)
-  
-  for(i in seq_len(control$nsteps)){
-    theta<-path[i,]
-    if(verbose==0) message(i," ",appendLF=FALSE)
-    if(verbose>0) message("Running theta=[",paste(format(theta),collapse=","),"].")
-    if(verbose>1) message("Burning in...")
-
-    ## First burn-in has to be longer, but those thereafter should be shorter if the bridges are closer together.
-    sim_settings[c("nsim", "coef", "object", "output", "control")] <-
-      list(
-        nsim = 1,
-        coef = theta,
-        object = nw.state,
-        output = "ergm_state",
-        control = gen_control(FALSE, if(i==1)"first"else"between")
-      )
-    nw.state <- do.call(stats::simulate, sim_settings)
-
-    if(obs){
-      sim_settings.obs[c("nsim", "coef", "object", "output", "control")] <-
-        list(
-          nsim = 1,
-          coef = theta,
-          object = nw.state.obs,
-          output = "ergm_state",
-          control = gen_control(TRUE, if(i==1)"first"else"between")
-        )
-      nw.state.obs <- do.call(stats::simulate, sim_settings.obs)
-    }
-
-    if(verbose>1) message("Simulating...")
-    sim_settings[c("nsim", "object", "output", "control")] <-
-      list(
-        nsim = ceiling(control$MCMC.samplesize/control$nsteps),
-        object = nw.state,
-        output = "stats",
-        control = gen_control(FALSE,"no")
-      )
-    stats[i,] <- colMeans(as.matrix(do.call(stats::simulate, sim_settings)))
-
-    if(obs){
-      sim_settings.obs[c("nsim", "object", "output", "control")] <-
-        list(
-          nsim = ceiling(control$obs.MCMC.samplesize/control$nsteps),
-          object = nw.state.obs,
-          output = "stats",
-          control = gen_control(TRUE,"no")
-        )
-      stats.obs[i,] <- colMeans(as.matrix(do.call(stats::simulate, sim_settings.obs)))
-    }
+    state.obs <- list(sim_settings.obs$object)
   }
-  message(".")
 
-  if(verbose) message("Bridge sampling finished. Collating...")
+  ## Miscellaneous settings
+  Dtheta.Du <- (to-from)[!state[[1]]$model$etamap$offsettheta] / control$bridge.nsteps
 
-  Dtheta.Du<-(to-from)/control$nsteps
+  ## Handle target statistics, if passed.
+  if(!is.null(target.stats)){
+    if(nparam(as.ergm_model(state[[1]]), canonical=TRUE, offset=FALSE)!=length(target.stats)){
+      stop("Incorrect length of the target.stats vector: should be ", nparam(as.ergm_model(state[[1]]), canonical=TRUE, offset=FALSE), " but is ",length(target.stats),". Note that offset() terms should *not* get target statistics.")
+    }
+    target.stats <- .align.target.stats.offset(as.ergm_model(state[[1]]), target.stats)
+    if(any(as.ergm_model(state[[1]])$etamap$offsetmap)) warning("Using target.stats for a model with offset terms may produce an inaccurate estimate of the log-likelihood and derived quantities (deviance, AIC, BIC, etc.), because some of the target stats must be imputed.")
+  }else target.stats <- summary(state[[1]])
 
-  esteq  <- rbind(sapply(seq_len(control$nsteps), function(i) ergm.etagradmult(path[i,],stats[i,]-stats.obs[i,],nw.state$model$etamap)))
-  nochg <- Dtheta.Du==0 | apply(esteq==0, 1, all)
-  llrs <- -as.vector(crossprod(Dtheta.Du[!nochg],esteq[!nochg,,drop=FALSE]))
-  llr <- sum(llrs)
-  if(llronly) llr
-  else list(llr=llr,from=from,to=to,llrs=llrs,path=path,stats=stats,stats.obs=stats.obs,Dtheta.Du=Dtheta.Du)
+
+  ## Helper function to calculate Dtheta.Du %*% Deta.Dtheta %*% g(y)
+  llrsamp <- function(samp, theta){
+    if(is.mcmc.list(samp)) lapply.mcmc.list(ergm.estfun(samp, theta, state[[1]]$model$etamap), `%*%`, Dtheta.Du)
+    else sum(ergm.estfun(samp, theta, state[[1]]$model$etamap) * Dtheta.Du)
+  }
+
+
+  message("Using ", control$bridge.nsteps, " bridges: ", appendLF=FALSE)
+
+  llr.hist <- list()
+  vcov.llr.hist <- list()
+  path.hist <- list()
+
+  repeat{
+    attempt <- length(path.hist) + 1
+    # Bridge in reverse order on even-numbered attempts, if bidirectional bridging used.
+    if(control$bridge.bidirectional && attempt > 1) path <- path[nrow(path):1, , drop = FALSE]
+    llrs <- numeric(control$bridge.nsteps)
+    vcov.llrs <- numeric(control$bridge.nsteps)
+
+    for(i in seq_len(control$bridge.nsteps)){
+      theta<-path[i,]
+      if(verbose==0) message(i," ",appendLF=FALSE)
+      if(verbose>0) message("Running theta=[",paste(format(theta),collapse=","),"].")
+
+      ## First burn-in has to be longer, but those thereafter should be shorter if the bridges are closer together.
+      z <- ergm_MCMC_sample(state, theta = theta, verbose = max(verbose - 1, 0),
+                            control = gen_control(FALSE, if(i == 1 && (attempt == 1 || !control$bridge.bidirectional)) "first" else "between"))
+      state <- z$networks
+      samp <- llrsamp(z$stats, theta)
+      vcov.llrs[i] <- c(ERRVL(try(spectrum0.mvar(samp)/(niter(samp)*nchain(samp)), silent=TRUE), 0))
+      llrs[i] <- mean(as.matrix(samp))
+
+      if(obs){
+        z <- ergm_MCMC_sample(state.obs, theta = theta, verbose = max(verbose - 1, 0),
+                              control = gen_control(TRUE, if(i == 1 && (attempt == 1 || !control$bridge.bidirectional)) "first" else "between"))
+        state.obs <- z$networks
+        samp <- llrsamp(z$stats, theta)
+        vcov.llrs[i] <- vcov.llrs[i] + c(ERRVL(try(spectrum0.mvar(samp)/(niter(samp)*nchain(samp)), silent=TRUE), 0))
+        llrs[i] <- llrs[i] - mean(as.matrix(samp))
+      }else llrs[i] <- llrs[i] - llrsamp(target.stats, theta)
+    }
+    message(".")
+
+    if(verbose) message("Bridge sampling finished. Collating...")
+
+    llr.hist[[attempt]] <- llrs
+    vcov.llr.hist[[attempt]] <- vcov.llrs
+    path.hist[[attempt]] <- path
+
+    llr <- sum(unlist(llr.hist)) / attempt
+    vcov.llr <- sum(unlist(vcov.llr.hist)) / attempt^2
+
+    if(is.null(control$bridge.target.se) || vcov.llr <= control$bridge.target.se^2) break
+    else message("Estimated standard error (", format(sqrt(vcov.llr)), ") above target (", format(control$bridge.target.se), "). Drawing additional samples.")
+  }
+
+  if(llronly) structure(llr, vcov=vcov.llr)
+  else list(llr = llr, vcov.llr = vcov.llr, from = from, to = to, llrs = llr.hist, vcov.llrs = vcov.llr.hist, paths = path.hist, Dtheta.Du = Dtheta.Du)
 }
 
 #' @rdname ergm.bridge.llr
@@ -200,7 +214,7 @@ ergm.bridge.llr<-function(object, response=NULL, reference=~Bernoulli, constrain
 #' 
 #' 
 #' @export
-ergm.bridge.0.llk<-function(object, response=NULL, reference=~Bernoulli, coef, ..., llkonly=TRUE, control=control.ergm.bridge(), basis=eval_lhs.formula(object)){
+ergm.bridge.0.llk<-function(object, response=NULL, reference=~Bernoulli, coef, ..., llkonly=TRUE, control=control.ergm.bridge(), basis=ergm.getnetwork(object)){
   check.control.class("ergm.bridge", "ergm.bridge.0.llk")
   handle.control.toplevel("ergm.bridge", ...)
   ergm_preprocess_response(basis, response)
@@ -231,7 +245,7 @@ ergm.bridge.0.llk<-function(object, response=NULL, reference=~Bernoulli, coef, .
 #'   dyad-independent model.
 #' 
 #' @export
-ergm.bridge.dindstart.llk<-function(object, response=NULL, constraints=~., coef, obs.constraints=~.-observed, target.stats=NULL, dind=NULL, coef.dind=NULL,  basis=eval_lhs.formula(object), ..., llkonly=TRUE, control=control.ergm.bridge(), verbose=FALSE){
+ergm.bridge.dindstart.llk<-function(object, response=NULL, constraints=~., coef, obs.constraints=~.-observed, target.stats=NULL, dind=NULL, coef.dind=NULL,  basis=ergm.getnetwork(object), ..., llkonly=TRUE, control=control.ergm.bridge(), verbose=FALSE){
   check.control.class("ergm.bridge", "ergm.bridge.dindstart.llk")
   handle.control.toplevel("ergm.bridge", ...)
 
@@ -245,7 +259,16 @@ ergm.bridge.dindstart.llk<-function(object, response=NULL, constraints=~., coef,
   if(!is.null(dind)) stop("Custom dind scaffolding has been disabled. It may be reenabled in the future.")
 
   m<-ergm_model(object, nw, term.options=control$term.options)
-  
+  m.edges <- ergm_model(~edges, nw, term.options = control$term.options)
+
+  if(!is.null(target.stats)){
+    if(nparam(m, canonical=TRUE, offset=FALSE)!=length(target.stats)){
+      stop("Incorrect length of the target.stats vector: should be ", nparam(m, canonical=TRUE, offset=FALSE), " but is ",length(target.stats),". Note that offset() terms should *not* get target statistics.")
+    }
+    target.stats <- .align.target.stats.offset(m, target.stats)
+    target.stats[is.na(target.stats) & m$etamap$offsetmap] <- summary(m, nw)[is.na(target.stats) & m$etamap$offsetmap]
+  }
+
   q.pos.full <- c(0,cumsum(nparam(m, canonical=FALSE, byterm=TRUE, offset=TRUE)))
   p.pos.full <- c(0,cumsum(nparam(m, canonical=TRUE, byterm=TRUE, offset=FALSE)))
   rng <- function(x, from, to) if(to>=from) x[from:to]
@@ -278,10 +301,9 @@ ergm.bridge.dindstart.llk<-function(object, response=NULL, constraints=~., coef,
         offset.dind <- c(offset.dind, coef[(q.pos.full[i]+1):q.pos.full[i+1]][m$terms[[i]]$offset]) # Add offset coefficient where applicable.
       }
 
-    if(is.null(target.stats)){
-      terms.full <- c(terms.full, list(as.name("edges")))
-      dindmap <- c(dindmap, TRUE)
-    }
+    terms.full <- c(terms.full, list(as.name("edges")))
+    dindmap <- c(dindmap, TRUE)
+    if(!is.null(target.stats)) ts.dind <- as.vector(c(ts.dind, edges = network.edgecount(nw)))
 
     # Copy environment and LHS if present.
     dind <- append_rhs.formula(object[-length(object)], compact(terms.full))
@@ -293,46 +315,47 @@ ergm.bridge.dindstart.llk<-function(object, response=NULL, constraints=~., coef,
   ergm.dind<-suppressMessages(suppressWarnings(ergm(dind,estimate="MPLE",constraints=constraints,obs.constraints=obs.constraints,eval.loglik=FALSE,control=control.ergm(drop=FALSE, term.options=control$term.options, MPLE.max.dyad.types=control$MPLE.max.dyad.types), offset.coef = offset.dind)))
   
   if(is.null(coef.dind)){
-    coef.dind <- coef(ergm.dind)[!ergm.dind$etamap$offsettheta]
-    coef.dind <- ifelse(is.na(coef.dind),0,coef.dind)
-    llk.dind<--ergm.dind$glm$deviance/2 - -ergm.dind$glm.null$deviance/2
+    eta.dind <- ergm.eta(coef(ergm.dind), ergm.dind$etamap)[!ergm.dind$etamap$offsetmap]
+    eta.dind <- ifelse(is.na(eta.dind),0,eta.dind)
+    llk.dind<- -ergm.dind$glm$deviance/2 - -ergm.dind$glm.null$deviance/2
   }else{
-    lin.pred <- model.matrix(ergm.dind$glm) %*% coef.dind
+    eta.dind <- ergm.eta(coef(ergm.dind), ergm.dind$etamap)
+    lin.pred <- model.matrix(ergm.dind$glm) %*% eta.dind
     llk.dind <- 
       crossprod(lin.pred,ergm.dind$glm$y*ergm.dind$glm$prior.weights)-sum(log1p(exp(lin.pred))*ergm.dind$glm$prior.weights) -
-        (network.dyadcount(ergm.dind$network,FALSE) - network.edgecount(NVL(as.rlebdm(ergm.dind$constrained, ergm.dind$constrained.obs,which="missing"),network.initialize(1))))*log(1/2)
+      (network.dyadcount(ergm.dind$network,FALSE) - network.edgecount(NVL(as.rlebdm(ergm.dind$constrained, ergm.dind$constrained.obs,which="missing"),network.initialize(1))))*log(1/2)
   }
   
   # If there are target.stats we need to adjust the log-likelihood in
   # case they are different from those to which the dyad-independent
   # submodel was actually fit:
   # l(theta,ts)-l(theta,ns)=sum(theta*(ts-ns)).
-  if(!is.null(target.stats)) llk.dind <- llk.dind + c(crossprod(coef.dind, NVL(c(ts.dind), ergm.dind$nw.stats[!ergm.dind$etamap$offsetmap]) - ergm.dind$nw.stats[!ergm.dind$etamap$offsetmap]))
+  if(!is.null(target.stats)) llk.dind <- llk.dind + c(crossprod(eta.dind, NVL(c(ts.dind), ergm.dind$nw.stats[!ergm.dind$etamap$offsetmap]) - ergm.dind$nw.stats[!ergm.dind$etamap$offsetmap]))
 
-  from <- numeric(length(dindmap))
-  from[dindmap] <- replace(coef(ergm.dind), is.na(coef(ergm.dind)), 0)
-  to <- c(coef, if(is.null(target.stats)) 0)
+  coef.dind <- numeric(length(dindmap))
+  coef.dind[dindmap] <- replace(coef(ergm.dind), is.na(coef(ergm.dind)), 0)
+  coef.aug <- c(coef, 0)
 
-  form.aug <- if(is.null(target.stats)) append_rhs.formula(object, list(as.name("edges"))) else object
+  form.aug <- append_rhs.formula(object, list(as.name("edges")))
 
   ## From this point on, target.stats has NAs corresponding to offset
   ## terms.
-  if(!is.null(target.stats)) target.stats <- .align.target.stats.offset(m, target.stats)
-
-  if(!is.null(target.stats) && any(is.na(target.stats))){
-    warning("Using target.stats for a model with offset terms may produce an inaccurate estimate of the log-likelihood and derived quantities (deviance, AIC, BIC, etc.), because some of the target stats must be imputed.")
-    target.stats[m$etamap$offsetmap] <- summary(m, nw)[m$etamap$offsetmap]
-  }
+  if(!is.null(target.stats)) target.stats <- unname(c(target.stats[!m$etamap$offsetmap], ult(ts.dind)))
 
   if(verbose){
     message("Dyad-independent submodel MLE has likelihood ", format(llk.dind), " at:")
-    message_print(from)
+    message_print(coef.dind)
   }
-  
-  message("Bridging from dyad-independent submodel to full model...")
-  br<-ergm.bridge.llr(form.aug, constraints=constraints, obs.constraints=obs.constraints, from=from, to=to, basis=basis, target.stats=target.stats, control=control, verbose=verbose)
+
+  # NB: Since the LHS network is almost certainly going to be closer
+  # to a draw from the full model's MLE than from the submodel's MLE,
+  # bridge from the full model to the submodel and subtract below.
+  message("Bridging between the dyad-independent submodel and the full model...")
+  br <- ergm.bridge.llr(form.aug, constraints = constraints, obs.constraints = obs.constraints,
+                        from = coef.aug, to = coef.dind, basis = basis, target.stats = target.stats,
+                        control = control, verbose = verbose)
   message("Bridging finished.")
   
-  if(llkonly) llk.dind + br$llr
-  else c(br,llk.dind=llk.dind, llk=llk.dind + br$llr)
+  if (llkonly) llk.dind - br$llr
+  else c(br, llk.dind = llk.dind, llk = llk.dind - br$llr)
 }

@@ -1,16 +1,34 @@
-#  File R/InitErgmTerm.extra.R in package ergm, part of the Statnet suite
-#  of packages for network analysis, https://statnet.org .
+#  File R/InitErgmTerm.extra.R in package ergm, part of the
+#  Statnet suite of packages for network analysis, https://statnet.org .
 #
 #  This software is distributed under the GPL-3 license.  It is free,
 #  open source, and has the attribution requirements (GPL Section 7) at
-#  https://statnet.org/attribution
+#  https://statnet.org/attribution .
 #
-#  Copyright 2003-2020 Statnet Commons
-#######################################################################
+#  Copyright 2003-2021 Statnet Commons
+################################################################################
 # These are InitErgm functions that were never included in the public release.
 #NOTE: a number of undocumented terms have been removed from this file
 # the terms still exist on the experimental_terms svn branch
 
+#' @name concurrentties-ergmTerm
+#' @title Concurrent tie count
+#' @description Concurrent tie count
+#' @details This term adds one network statistic to the model, equal to the number of
+#'   ties incident on each actor beyond the first. 
+#'   This term can only be used with undirected networks.
+#'
+#' @usage
+#' # binary: concurrentties(by=NULL, levels=NULL)
+#' @param by a vertex attribute (see Specifying Vertex attributes and Levels (`?nodal_attributes`) for details.);
+#'   it functions just like the `by` argument of the `degree` term
+#' @templateVar explain TODO
+#' @template ergmTerm-levels-doco
+#'
+#' @template ergmTerm-general
+#'
+#' @concept undirected
+#' @concept categorical nodal attribute
 InitErgmTerm.concurrentties<-function(nw, arglist, ..., version=packageVersion("ergm")) {
   if(version <= as.package_version("3.9.4")){
     a <- check.ErgmTerm(nw, arglist, directed=FALSE,bipartite=NULL,

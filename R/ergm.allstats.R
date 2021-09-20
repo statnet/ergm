@@ -1,12 +1,12 @@
-#  File R/ergm.allstats.R in package ergm, part of the Statnet suite
-#  of packages for network analysis, https://statnet.org .
+#  File R/ergm.allstats.R in package ergm, part of the
+#  Statnet suite of packages for network analysis, https://statnet.org .
 #
 #  This software is distributed under the GPL-3 license.  It is free,
 #  open source, and has the attribution requirements (GPL Section 7) at
-#  https://statnet.org/attribution
+#  https://statnet.org/attribution .
 #
-#  Copyright 2003-2020 Statnet Commons
-#######################################################################
+#  Copyright 2003-2021 Statnet Commons
+################################################################################
 #=========================================================================
 # This file contains the 2 following functions for calculating exact
 # log-likelihoods
@@ -118,7 +118,7 @@ ergm.allstats <- function(formula, zeroobs = TRUE, force = FALSE,
 
   # Initialization stuff
   nw <- ergm.getnetwork(formula)
-  m <- ergm_model(formula, nw, initialfit=TRUE, ...)
+  m <- ergm_model(formula, nw, ...)
 
   # Check for networks that are too large.  Pretty unsophisticated check for now.
   if ((network.size(nw) > 8 && !is.directed(nw)) || (network.size(nw) > 6 && is.directed(nw))) {

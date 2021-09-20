@@ -1,11 +1,11 @@
-/*  File src/geodist.c in package ergm, part of the Statnet suite
- *  of packages for network analysis, https://statnet.org .
+/*  File src/geodist.c in package ergm, part of the
+ *  Statnet suite of packages for network analysis, https://statnet.org .
  *
  *  This software is distributed under the GPL-3 license.  It is free,
  *  open source, and has the attribution requirements (GPL Section 7) at
- *  https://statnet.org/attribution
+ *  https://statnet.org/attribution .
  *
- *  Copyright 2003-2020 Statnet Commons
+ *  Copyright 2003-2021 Statnet Commons
  */
 #include "geodist.h"
 
@@ -117,50 +117,3 @@ void full_geodesic_distribution (int *edgelist, int *nnodes,
       ++geodist[dist[j]-1];
   }
 }
-
-/**************  FUNCTION geodesic_matrix
- See notes for node_geodesics about input parameters.  The only 
- difference in the input parameter list is that here, there is no
- source parameter and distmat is an nxn matrix in which each row is
- a single vector that will be passed to the node_geodesics function. */
-void geodesic_matrix (int *edgelist, int *nnodes,
-		      int *nodelist, int *nedges, 
-		      int *nodecolor, int *distmat, int *Q) {
-  int i, n=*nnodes;
-
-  for (i=1; i<=n; i++) 
-    node_geodesics (edgelist, nnodes, nodelist, nedges, nodecolor,
-		    distmat+n*(i-1), Q, &i);
-}
-
-
-/************  FUNCTION pair_geodesic
- This function is identical to node_geodesics in all respects except
- that only the value of dist[destination] is guaranteed to be correct
- upon return.  */
-void pair_geodesic (int *edgelist, int *nnodes, int *nodelist,
-                     int *nedges, int *nodecolor, int *dist, 
-                     int *Q, int *source, int *destination) {
-  int i, j, u, v, n=*nnodes, twoe = 2*(*nedges), Qbottom=0, Qtop=0, done=0;
-
-  for (i=0; i<n; i++) {
-    nodecolor[i]=0; /* WHITE */
-    dist[i]=n; /* Here, n means infinity */
-  }
-  nodecolor[*source-1]=1; /* NONWHITE */
-  dist[*source-1]=0; 
-  Q[Qtop++]=*source;  /* Push source onto top of queue */
-  while (Qbottom<Qtop && !done) {  /* Repeat until queue is empty */
-    u=Q[Qbottom++]; /* Pop vertex off bottom of queue (it must be NONWHITE) */
-    for (j=2*nodelist[u-1]; !done && j<twoe && edgelist[j]==u; j+=2) {
-      v=edgelist[j+1];
-      if (nodecolor[v-1]==0) { /* WHITE */
-        nodecolor[v-1]=1; /* NONWHITE */
-        dist[v-1] = dist[u-1]+1; /* Node v is one step farther than node u */
-        Q[Qtop++]=v;  /* Push v onto top of queue */
-        if (v==*destination) done=1;
-      }
-    }
-  }
-}
-

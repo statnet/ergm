@@ -1,12 +1,12 @@
-#  File R/predict.ergm.R in package ergm, part of the Statnet suite
-#  of packages for network analysis, https://statnet.org .
+#  File R/predict.ergm.R in package ergm, part of the
+#  Statnet suite of packages for network analysis, https://statnet.org .
 #
 #  This software is distributed under the GPL-3 license.  It is free,
 #  open source, and has the attribution requirements (GPL Section 7) at
-#  https://statnet.org/attribution
+#  https://statnet.org/attribution .
 #
-#  Copyright 2003-2020 Statnet Commons
-#######################################################################
+#  Copyright 2003-2021 Statnet Commons
+################################################################################
 #' ERGM-based tie probabilities
 #' 
 #' @description 
@@ -132,7 +132,7 @@ predict.formula <- function(object, theta,
     data.frame = as.data.frame(predmat[,c("tail", "head", "p")]),
     matrix = {
       # Get vertex names
-      vnames <- eval_lhs.formula(object) %v% "vertex.names"
+      vnames <- ergm.getnetwork(object) %v% "vertex.names"
       structure(.df_to_matrix(predmat), dimnames = list(vnames, vnames))
     }
   )
@@ -155,7 +155,7 @@ predict_ergm_unconditional <- function(object, coef, nsim=100, output="network",
 predict.ergm <- function(object, ...) {
   predict.formula(
     object = object$formula,
-    theta = ergm.eta(object$coef, object$etamap),
+    theta = ergm.eta(coef(object), object$etamap),
     ...
   )
 }

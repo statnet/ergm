@@ -1,12 +1,12 @@
-#  File tests/testthat/test-term-options.R in package ergm, part of the Statnet suite
-#  of packages for network analysis, https://statnet.org .
+#  File tests/testthat/test-term-options.R in package ergm, part of the
+#  Statnet suite of packages for network analysis, https://statnet.org .
 #
 #  This software is distributed under the GPL-3 license.  It is free,
 #  open source, and has the attribution requirements (GPL Section 7) at
-#  https://statnet.org/attribution
+#  https://statnet.org/attribution .
 #
-#  Copyright 2003-2020 Statnet Commons
-#######################################################################
+#  Copyright 2003-2021 Statnet Commons
+################################################################################
 
 data(florentine)
 old.opts1 <- options(ergm.eval.loglik=TRUE)
@@ -29,7 +29,7 @@ test_that("ergm() MCMLE of a term that takes options",{
 })
 
 test_that("gof() of a model that had term options",{
-  gof(e2, control=control.gof.ergm(nsim=10))
+  expect_error(gof(e2, control=control.gof.ergm(nsim=10)), NA)
 })
 
 options(ergm.eval.loglik=FALSE)

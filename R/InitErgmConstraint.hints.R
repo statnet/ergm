@@ -1,8 +1,28 @@
+#  File R/InitErgmConstraint.hints.R in package ergm, part of the
+#  Statnet suite of packages for network analysis, https://statnet.org .
+#
+#  This software is distributed under the GPL-3 license.  It is free,
+#  open source, and has the attribution requirements (GPL Section 7) at
+#  https://statnet.org/attribution .
+#
+#  Copyright 2003-2021 Statnet Commons
+################################################################################
 InitErgmConstraint.TNT<-function(nw, arglist, ...){
   .Deprecate_once("sparse")
   InitErgmConstraint.sparse(nw, arglist, ...)
 }
 
+#' @name sparse-ergmConstraint
+#' @title Sparse network
+#' @description Sparse network
+#' @details The network is sparse. This typically results in a Tie-Non-Tie (TNT) proposal regime.
+#'
+#' @usage
+#' # sparse
+#'
+#' @template ergmConstraint-general
+#'
+#' @concept dyad-independent
 InitErgmConstraint.sparse<-function(nw, arglist, ...){
   a <- check.ErgmTerm(nw, arglist)
   list(dependence = FALSE, priority=10, impliedby=c("sparse", "edges", "degrees", "edges", "idegrees", "odegrees", "b1degrees", "b2degrees", "idegreedist", "odegreedist", "degreedist", "b1degreedist", "b2degreedist"), constrain="sparse")
@@ -13,6 +33,47 @@ InitErgmConstraint.Strat<-function(nw, arglist, ...){
   InitErgmConstraint.strat(nw, arglist, ...)
 }
 
+#' @name strat-ergmConstraint
+#' @title Stratified Dyads
+#' @description Stratified Dyads
+#' @details The dyads in the network are stratified according to an attribute combination.
+#'   This typically results in stratifying proposals by mixing type on a vertex attribute.
+#'   
+#'   Specifically, the user may pass a vertex attribute `attr` as an argument
+#'   (the default for `attr` gives every vertex the same attribute value),
+#'   and may also pass a matrix of weights `pmat` (the default for
+#'   `pmat` gives equal weight to each mixing type). See
+#'   [Specifying Vertex Attributes and Levels for details][nodal_attributes] on
+#'   specifying vertex attributes. The matrix `pmat` , if specified, must have
+#'   the same dimensions as a mixing matrix for the network and attribute under
+#'   consideration, and the correspondence between rows and columns of `pmat`
+#'   and values of `attr` is the same as for a mixing matrix.
+#'   
+#'   The interpretation is that `pmat[i,j]/sum(pmat)` is the probability of
+#'   proposing a toggle for mixing type `(i,j)` . (For undirected, unipartite
+#'   networks, `pmat` is first symmetrized, and then entries below the diagonal
+#'   are set to zero. Only entries on or above the diagonal of the symmetrized
+#'   `pmat` are considered when making proposals. This accounts for the
+#'   convention that mixing is undirected in an undirected, unipartite network:
+#'   a tail of type `i` and a head of type `j` has the same mixing type
+#'   as a tail of type `j` and a head of type `i` .)
+#'   
+#'   As an alternative way of specifying `pmat` , the user may pass
+#'   `empirical=TRUE` to use the mixing matrix of the network beginning
+#'   the MCMC chain as `pmat` . In order for this to work,
+#'   that network should have a reasonable (in particular, nonempty) edge set.
+#'   
+#'   While some mixing types may be assigned zero proposal probability
+#'   (either with a direct specification of `pmat` or with `empirical=TRUE` ),
+#'   this will not be recognized as a constraint by all components of `ergm` ,
+#'   and should be used with caution.
+#'
+#' @usage
+#' # strat(attr=NULL, pmat=NULL, empirical=FALSE)
+#'
+#' @template ergmConstraint-general
+#'
+#' @concept dyad-independent
 InitErgmConstraint.strat <- function(nw, arglist, ...) {
   a <- check.ErgmTerm(nw, arglist,
                       varnames = c("attr", "pmat", "empirical"),
@@ -22,29 +83,25 @@ InitErgmConstraint.strat <- function(nw, arglist, ...) {
   attr <- a$attr; pmat <- a$pmat; empirical <- a$empirical
 
   if(is.bipartite(nw)) {
-    strat_row_nodecov <- NVL2(attr, ergm_get_vattr(attr, nw, bip="b1"), rep(1, nw %n% "bipartite"))
-    strat_col_nodecov <- NVL2(attr, ergm_get_vattr(attr, nw, bip="b2"), rep(1, network.size(nw) - (nw %n% "bipartite")))
-
+    strat_row_nodecov <- ergm_get_vattr(attr, nw, bip = "b1")
+    strat_col_nodecov <- ergm_get_vattr(attr, nw, bip = "b2")
+    
     strat_row_levels <- sort(unique(strat_row_nodecov))
     strat_col_levels <- sort(unique(strat_col_nodecov))
 
+    strat_nodecov <- c(match(strat_row_nodecov, strat_row_levels), 
+                       match(strat_col_nodecov, strat_col_levels) + length(strat_row_levels))
+
     strat_levels <- c(strat_row_levels, strat_col_levels)
-
-    strat_row_nodecov <- match(strat_row_nodecov, strat_row_levels)
-    strat_col_nodecov <- match(strat_col_nodecov, strat_col_levels)
-    strat_nodecov <- c(strat_row_nodecov, strat_col_nodecov + length(strat_row_levels))
   } else {
-    strat_row_nodecov <- NVL2(attr, ergm_get_vattr(attr, nw), rep(1, network.size(nw)))
-    strat_col_nodecov <- strat_row_nodecov
+    strat_nodecov <- ergm_get_vattr(attr, nw)
 
-    strat_row_levels <- sort(unique(strat_row_nodecov))
-    strat_col_levels <- strat_row_levels
+    strat_levels <- sort(unique(strat_nodecov))
 
-    strat_levels <- strat_row_levels
-    
-    strat_row_nodecov <- match(strat_row_nodecov, strat_row_levels)
-    strat_col_nodecov <- strat_row_nodecov
-    strat_nodecov <- strat_row_nodecov
+    strat_nodecov <- match(strat_nodecov, strat_levels)
+
+    strat_row_levels <- strat_levels
+    strat_col_levels <- strat_levels
   }
   
   pmat <- NVL(pmat, matrix(1, nrow = length(strat_row_levels), ncol = length(strat_col_levels)))
@@ -69,33 +126,16 @@ InitErgmConstraint.strat <- function(nw, arglist, ...) {
     headattrs <- headattrs + length(strat_row_levels)
   }
 
-  # record the number of mixing types and the number of unique attr codes
-  nmixingtypes <- length(probvec)
-  ncodes <- length(strat_levels)
-    
-  # record the nodal indices grouped (and counted) by attr code
-  nodeindicesbycode <- order(strat_nodecov)
-  nodecountsbycode <- tabulate(strat_nodecov, nbins=length(strat_levels))
+  # record the number of unique attr codes
+  nlevels <- length(strat_levels)
   
-  ## may wish to add check that if pmat[i,j] > 0 then at least one dyad  
-  indmat <- matrix(-1L, nrow=length(strat_levels), ncol=length(strat_levels))
-  indmat[cbind(tailattrs, headattrs)] <- seq_along(tailattrs) - 1L  # zero-based for C code
-  if(!is.bipartite(nw) && !is.directed(nw)) {
-    # symmetrize for undirected unipartite
-    indmat[cbind(headattrs, tailattrs)] <- seq_along(tailattrs) - 1L
-  }
-
   list(dependence = FALSE, 
        priority = 10, 
-       nmixtypes = nmixingtypes,
        tailattrs = tailattrs,
        headattrs = headattrs,
        probvec = probvec,
-       nlevels = ncodes,
-       nodecountsbycode = nodecountsbycode,
-       nodeindicesbycode = nodeindicesbycode,
+       nlevels = nlevels,
        nodecov = strat_nodecov,
-       indmat = indmat,
        empirical = empirical,
        constrain = "strat")
 }

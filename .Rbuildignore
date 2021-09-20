@@ -15,3 +15,7 @@ appveyor.yml
 ^revdep$
 ^.github$
 ^man-roxygen$
+^codecov\.yml$
+^vignettes/.*_cache$
+^vignettes/.*_files$
+^README.md$
