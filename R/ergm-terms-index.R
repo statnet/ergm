@@ -220,9 +220,9 @@ ergmTermCache <- local({
 
   df <- data.frame(membership)
 
-  keywords <- ergm_concept()
-  categories <- keywords[keywords$name %in% categories, 'short']
-  colnames(df) <- categories
+  concepts <- ergm_keyword()
+  keywords <- concepts[concepts$name %in% keywords, 'short']
+  colnames(df) <- keywords
   rownames(df) <- NULL
   df$Link <- sapply(terms,'[[','link')
   df$Term <- sapply(terms,'[[','name')

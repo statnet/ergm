@@ -27,7 +27,7 @@
   eval(COLLATE_ALL_MY_CONTROLS_EXPR)
 
   .RegisterProposals()
-  .RegisterConcepts()
+  .RegisterKeywords()
 }
 
 # TODO: Figure out some automatic way to keep this in sync with statnet.common.
