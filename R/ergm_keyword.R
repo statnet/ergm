@@ -8,6 +8,9 @@
 #  Copyright 2003-2021 Statnet Commons
 ################################################################################
 
+DISPLAY_TEXT_KW_INDEX_MAX_WIDTHS <- list('name'=20, 'short'=8, 'description'=30, 'popular'=8, 'package'=8)
+DISPLAY_LATEX_KW_INDEX_PCT_WIDTHS <- c(0.15, 0.10, 0.6, 0.05, 0.10)
+
 #' Dynamic ERGM keyword registry
 #'
 #' A function to manage dynamic ERGM keywords. To register a keyword, call the function with all parameters
@@ -41,3 +44,74 @@ ergm_keyword <- local({
     }
   }
 })
+
+.formatKeywordsText <- function(df) {
+  line_wrap <- function(lines, max_width) {
+    lines <- unlist(strsplit(sapply(strsplit(lines, '\n'), stringr::str_wrap, max_width), '\n'))
+
+    out <- c()
+    for (line in lines) {
+      while (nchar(line) > max_width) {
+        out <- c(out, substr(line, 1, max_width))
+        line <- substr(line, max_width + 1, nchar(line))
+      }
+      out <- c(out, line)
+    }
+    out
+  }
+
+  pad_lines <- function(lines, max_lines) {
+    c(lines, rep('', max_lines - length(lines)))
+  }
+
+  df[, 'popular'] = ifelse(df[, 'popular'], 'o', '')
+  out <- sprintf('|%s|\n', paste(stringr::str_pad(names(DISPLAY_TEXT_KW_INDEX_MAX_WIDTHS), DISPLAY_TEXT_KW_INDEX_MAX_WIDTHS, side='right', pad='-'), collapse='|'))
+  empty_row <- sprintf('|%s|\n', paste(stringr::str_pad(rep('', length(DISPLAY_TEXT_KW_INDEX_MAX_WIDTHS)), DISPLAY_TEXT_KW_INDEX_MAX_WIDTHS), collapse='|'))
+
+  r <- list()
+  for (i in 1:dim(df)[1]) {
+    print(df[i, ])
+    for (c in names(DISPLAY_TEXT_KW_INDEX_MAX_WIDTHS)) {
+      r[[c]] <- if (df[i, c] != '') line_wrap(df[i, c], DISPLAY_TEXT_KW_INDEX_MAX_WIDTHS[[c]]) else character(0)
+    }
+
+    max_lines <- max(sapply(r, length))
+    for (c in names(DISPLAY_TEXT_KW_INDEX_MAX_WIDTHS)) {
+      r[[c]] <- pad_lines(r[[c]], max_lines)
+    }
+
+    for (j in 1:max_lines) {
+      out <- sprintf('%s|%s|\n', out, paste(stringr::str_pad(sapply(r, "[[", j), DISPLAY_TEXT_KW_INDEX_MAX_WIDTHS, side='right'), collapse='|'))
+    }
+    out <- paste(out, empty_row, sep='')
+  }
+
+  sprintf('\\preformatted{%s}', out)
+}
+
+.formatKeywordsLatex <- function(df) {
+  sprintf('\\out{%s}',
+    knitr::kable(df, 'latex', escape=FALSE, longtable=TRUE, align=sprintf('p{%.1f\\textwidth}', DISPLAY_LATEX_KW_INDEX_PCT_WIDTHS), vline="") %>%
+      gsub(' *\n *', ' ', .) %>%
+      gsub('\\\\ ', '\\\\\\\\ ', .))
+}
+
+.formatKeywordsHtml <- function(df) {
+  css <- '<style>.striped th,.striped td {padding:3px 10px} .striped tbody tr:nth-child(odd) {background: #eee}</style>'
+  sprintf('\\out{%s%s}', css, knitr::kable(df, 'html', escape=FALSE, table.attr='class="striped"'))
+}
+
+#' Keywords defined for Exponential-Family Random Graph Models
+#'
+#' @name ergmKeywords
+#' @aliases ergm-keywords keywords-ergm ergm.keywords keywords.ergm
+#' @docType package
+#' @description This collects all defined keywords defined for the ERGM and derived packages
+#'
+#' @section Possible keywords defined by the ERGM and derived packages:
+#' \if{latex}{\Sexpr[results=rd,stage=render]{ergm:::.formatKeywordsLatex(ergm::ergm_keyword())}}
+#' \if{text}{\Sexpr[results=rd,stage=render]{ergm:::.formatKeywordsText(ergm::ergm_keyword())}}
+#' \if{html}{\Sexpr[results=rd,stage=render]{ergm:::.formatKeywordsHtml(ergm::ergm_keyword())}}
+#'
+#' @keywords models
+NULL
