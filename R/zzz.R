@@ -88,6 +88,28 @@ eval(UPDATE_MY_SCTRL_EXPR)
   ergm_proposal_table("c", c("Unif","DiscUnif","StdNormal","Poisson","Binomial"), "|.dyads",  -3, "random", "DistRLE")
 }
 
+
+.RegisterKeywords <- function() {
+  ergm_keyword(name="binary", short="bin", description="", popular=FALSE, package="ergm")
+  ergm_keyword(name="bipartite", short="bip", description="", popular=FALSE, package="ergm")
+  ergm_keyword(name="categorical nodal attribute", short="cat nodal attr", description="", popular=FALSE, package="ergm")
+  ergm_keyword(name="continuous", short="cont", description="", popular=FALSE, package="ergm")
+  ergm_keyword(name="curved", short="curved", description="", popular=FALSE, package="ergm")
+  ergm_keyword(name="directed", short="dir", description="", popular=FALSE, package="ergm")
+  ergm_keyword(name="discrete", short="discrete", description="", popular=FALSE, package="ergm")
+  ergm_keyword(name="dyad-independent", short="dyad-indep", description="", popular=FALSE, package="ergm")
+  ergm_keyword(name="finite", short="fin", description="", popular=FALSE, package="ergm")
+  ergm_keyword(name="frequently-used", short="freq", description="", popular=FALSE, package="ergm")
+  ergm_keyword(name="non-negative", short="non-neg", description="", popular=FALSE, package="ergm")
+  ergm_keyword(name="operator", short="op", description="", popular=FALSE, package="ergm")
+  ergm_keyword(name="positive", short="pos", description="", popular=FALSE, package="ergm")
+  ergm_keyword(name="quantative nodal attribute", short="quant nodal attr", description="", popular=FALSE, package="ergm")
+  ergm_keyword(name="soft", short="soft", description="", popular=FALSE, package="ergm")
+  ergm_keyword(name="triad-related", short="triad rel", description="", popular=FALSE, package="ergm")
+  ergm_keyword(name="valued", short="val", description="", popular=TRUE, package="ergm")
+  ergm_keyword(name="undirected", short="undir", description="", popular=FALSE, package="ergm")
+}
+
 .onUnload <- function(libpath){
   library.dynam.unload("ergm",libpath)
 }
