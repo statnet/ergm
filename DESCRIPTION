@@ -142,6 +142,7 @@ Collate:
     'ergm.utility.R'
     'ergmMPLE.R'
     'ergm_estfun.R'
+    'ergm_keyword.R'
     'ergm_model.R'
     'ergm_model.utils.R'
     'ergm_proposal.R'
