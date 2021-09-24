@@ -16,9 +16,6 @@ DISPLAY_TEXT_MAX_WIDTH <- sum(unlist(DISPLAY_TEXT_INDEX_MAX_WIDTHS)) + length(DI
 DISPLAY_LATEX_INDEX_PCT_WIDTHS <- c(0.3, 0.05, 0.5, 0.1)
 DISPLAY_LATEX_TOC_PCT_WIDTHS <- function(n_concepts) c(2.4, rep(.7, n_concepts))
 
-FREQUENTLY_USED_TERM_CATEGORIES <- c('binary', 'valued', 'directed', 'undirected', 'bipartite', 'dyad-independent','operator','layer-aware')
-OPERATOR_CATEGORIES <- c('binary', 'valued', 'directed', 'undirected', 'bipartite', 'dyad-independent', 'layer-aware')
-
 # Return the index entry for a single term in the new format
 .parseTerm <- function(name, pkg, pkg_name) {
   doc <- pkg[[name]]

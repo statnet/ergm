@@ -194,16 +194,16 @@ can also be searched via \code{\link{search.ergmTerms}}.
 
 \subsection{Frequently-used terms}{
 
-\if{latex}{\Sexpr[results=rd,stage=render]{ergm:::.formatMatrixLatex(ergm:::.termMatrix("ergmTerm", keywords=ergm:::FREQUENTLY_USED_TERM_CATEGORIES, only.include='frequently-used'))}}
-\if{text}{\Sexpr[results=rd,stage=render]{ergm:::.formatMatrixText(ergm:::.termMatrix("ergmTerm", keywords=ergm:::FREQUENTLY_USED_TERM_CATEGORIES, only.include='frequently-used'))}}
-\if{html}{\Sexpr[results=rd,stage=render]{ergm:::.formatMatrixHtml(ergm:::.termMatrix("ergmTerm", keywords=ergm:::FREQUENTLY_USED_TERM_CATEGORIES, only.include='frequently-used'))}}
+\if{latex}{\Sexpr[results=rd,stage=render]{ergm:::.formatMatrixLatex(ergm:::.termMatrix("ergmTerm", keywords = subset(ergm_keyword(), popular)$name, only.include='frequently-used'))}}
+\if{text}{\Sexpr[results=rd,stage=render]{ergm:::.formatMatrixText(ergm:::.termMatrix("ergmTerm", keywords = subset(ergm_keyword(), popular)$name, only.include='frequently-used'))}}
+\if{html}{\Sexpr[results=rd,stage=render]{ergm:::.formatMatrixHtml(ergm:::.termMatrix("ergmTerm", keywords = subset(ergm_keyword(), popular)$name, only.include='frequently-used'))}}
 }
 
 \subsection{Operator terms}{
 
-\if{latex}{\Sexpr[results=rd,stage=render]{ergm:::.formatMatrixLatex(ergm:::.termMatrix("ergmTerm", keywords=ergm:::OPERATOR_CATEGORIES, only.include='operator'))}}
-\if{text}{\Sexpr[results=rd,stage=render]{ergm:::.formatMatrixText(ergm:::.termMatrix("ergmTerm", keywords=ergm:::OPERATOR_CATEGORIES, only.include='operator'))}}
-\if{html}{\Sexpr[results=rd,stage=render]{ergm:::.formatMatrixHtml(ergm:::.termMatrix("ergmTerm", keywords=ergm:::OPERATOR_CATEGORIES, only.include='operator'))}}
+\if{latex}{\Sexpr[results=rd,stage=render]{ergm:::.formatMatrixLatex(ergm:::.termMatrix("ergmTerm", keywords = subset(ergm_keyword(), popular & name!="operator")$name, only.include='operator'))}}
+\if{text}{\Sexpr[results=rd,stage=render]{ergm:::.formatMatrixText(ergm:::.termMatrix("ergmTerm", keywords = subset(ergm_keyword(), popular & name!="operator")$name, only.include='operator'))}}
+\if{html}{\Sexpr[results=rd,stage=render]{ergm:::.formatMatrixHtml(ergm:::.termMatrix("ergmTerm", keywords = subset(ergm_keyword(), popular & name!="operator")$name, only.include='operator'))}}
 }
 
 \subsection{All terms}{
