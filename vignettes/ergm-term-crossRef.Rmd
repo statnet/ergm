@@ -42,13 +42,13 @@ search.ergmTerms(keywords=c('bipartite','dyad-independent'))
 For convenience, this table lists a subset of the most commonly-used ergm terms and keywords.
 
 ```{r,results='asis',echo=FALSE}
-ergm:::.termMatrix('ergmTerm',keywords=c('binary', 'valued', 'directed', 'undirected', 'bipartite', 'dyad-independent','operator','layer-aware'),only.include='frequently-used')
+ergm:::.termMatrix('ergmTerm',keywords=c('binary', 'valued', 'directed', 'undirected', 'bipartite', 'dyad-independent', 'operator'), only.include='frequently-used')
 ```
 
 For convenience, this table lists operator terms: terms that wrap or modify other terms.
 
 ```{r,results='asis',echo=FALSE}
-ergm:::.termMatrix('ergmTerm',keywords=c('binary', 'valued', 'directed', 'undirected', 'bipartite', 'dyad-independent','operator','layer-aware'),only.include='operator')
+ergm:::.termMatrix('ergmTerm',keywords=c('binary', 'valued', 'directed', 'undirected', 'bipartite', 'dyad-independent', 'operator'), only.include='operator')
 ```
 
 
