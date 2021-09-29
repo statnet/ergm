@@ -416,7 +416,7 @@ ergmTermCache <- local({
 #' Keyword tags will only return a match if all of the specified tags are
 #' included in the term.
 #' 
-#' @param search.terms optional character search term to search for in the text of the
+#' @param search.term optional character search term to search for in the text of the
 #' term descriptions. Only matching terms will be returned. Matching is case
 #' insensitive.
 #' @param net a network object that the term would be applied to, used as

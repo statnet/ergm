@@ -7,6 +7,10 @@
 search.ergmTerms(search.term, net, keywords, name, packages)
 }
 \arguments{
+\item{search.term}{optional character search term to search for in the text of the
+term descriptions. Only matching terms will be returned. Matching is case
+insensitive.}
+
 \item{net}{a network object that the term would be applied to, used as
 template to determine directedness, bipartite, etc}
 
@@ -16,10 +20,6 @@ restrict the results (i.e. 'curved', 'triad-related')}
 \item{name}{optional character name of a specific term to return}
 
 \item{packages}{optional character vector indicating the subset of packages in which to search}
-
-\item{search.terms}{optional character search term to search for in the text of the
-term descriptions. Only matching terms will be returned. Matching is case
-insensitive.}
 }
 \value{
 prints out the name and short description of matching terms, and
