@@ -18,6 +18,7 @@ DISPLAY_LATEX_TOC_PCT_WIDTHS <- function(n_concepts) c(2.4, rep(.7, n_concepts))
 
 .fsub <- function(x, pattern, replacement, fixed = TRUE, ...) gsub(pattern, replacement, x, fixed = fixed, ...)
 
+#' @import magrittr
 # Return the index entry for a single term in the new format
 .parseTerm <- function(name, pkg, pkg_name) {
   doc <- pkg[[name]]

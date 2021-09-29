@@ -457,7 +457,7 @@ ergm_get_vattr <- function(object, nw, accept="character", bip=c("n","b1","b2","
 }
 
 #' @rdname nodal_attributes-API
-#' @importFrom purrr "%>%" map pmap_chr map_chr discard
+#' @importFrom purrr map pmap_chr map_chr discard
 #' @importFrom rlang set_names
 #' @export
 ergm_get_vattr.AsIs <- function(object, nw, accept="character", bip=c("n","b1","b2","a"), multiple=if(accept=="character") "paste" else "stop", ...){
@@ -471,7 +471,7 @@ ergm_get_vattr.AsIs <- function(object, nw, accept="character", bip=c("n","b1","
 }
 
 #' @rdname nodal_attributes-API
-#' @importFrom purrr "%>%" map pmap_chr
+#' @importFrom purrr map pmap_chr
 #' @importFrom rlang set_names
 #' @export
 ergm_get_vattr.character <- function(object, nw, accept="character", bip=c("n","b1","b2","a"), multiple=if(accept=="character") "paste" else "stop", ...){
@@ -511,7 +511,7 @@ ergm_get_vattr.function <- function(object, nw, accept="character", bip=c("n","b
 
 
 #' @rdname nodal_attributes-API
-#' @importFrom purrr "%>%" map when
+#' @importFrom purrr map when
 #' @importFrom tibble lst
 #' @export
 ergm_get_vattr.formula <- function(object, nw, accept="character", bip=c("n","b1","b2","a"), multiple=if(accept=="character") "paste" else "stop", ...){

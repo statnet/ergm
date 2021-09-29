@@ -1,5 +1,5 @@
 Package: ergm
-Version: 4.1-6701
+Version: 4.1-6702
 Date: 2021-09-29
 Title: Fit, Simulate and Diagnose Exponential-Family Models for Networks
 Authors@R: c(
@@ -33,6 +33,7 @@ Imports:
     rlang (>= 0.4.10),
     memoise (>= 2.0.0),
     tibble (>= 3.1.0),
+    magrittr (>= 2.0.1),
     parallel,
     methods,
     knitr,
@@ -46,7 +47,6 @@ Suggests:
     rmarkdown,
     Rmpi (>= 0.6.9.1),
     testthat (>= 3.0.2),
-    magrittr (>= 2.0.1),
     tergm (>= 4.0.0),
     ergm.count (>= 4.0),
     ergm.userterms (>= 3.10.0),
