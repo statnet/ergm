@@ -255,13 +255,18 @@ jobs:
 
       - name: Check UBSAN output
         if: contains(matrix.config.flags, 'ubsan')
+        # NB: xargs -r only works in GNU, so not on MacOS.
         run: |
-          find check/ -name '*.Rout' -print0 | xargs -r -0 grep -E '\.[hc]:[0-9]+:[0-9]+: +runtime error:' > check/ubsan.err || true
-          if [ -s check/ubsan.err ]
+          find check/ -name '*.Rout' -print0 > check/Rout.list
+          if [ -s check/Rout.list ]
           then
-            echo "UBSAN errors:" >&2
-            cat check/ubsan.err >&2
-            exit 1
+            cat check/Rout.list | xargs -0 grep -E '\.[hc]:[0-9]+:[0-9]+: +runtime error:' > check/ubsan.err || true
+            if [ -s check/ubsan.err ]
+            then
+              echo "UBSAN errors:" >&2
+              cat check/ubsan.err >&2
+              exit 1
+            fi
           fi
         shell: bash
         
@@ -274,7 +279,7 @@ jobs:
             check
             !check/*/00_pkg_src
 
-      - name: Preinstall package to test coverage
+      - name: Preinstall package to work around an issue in covr # can be removed after covr update
         if: contains(matrix.config.flags, 'covr')
         run: R CMD INSTALL .
         shell: bash
