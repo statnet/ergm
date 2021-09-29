@@ -16,6 +16,8 @@ DISPLAY_TEXT_MAX_WIDTH <- sum(unlist(DISPLAY_TEXT_INDEX_MAX_WIDTHS)) + length(DI
 DISPLAY_LATEX_INDEX_PCT_WIDTHS <- c(0.3, 0.05, 0.5, 0.1)
 DISPLAY_LATEX_TOC_PCT_WIDTHS <- function(n_concepts) c(2.4, rep(.7, n_concepts))
 
+.fsub <- function(x, pattern, replacement, fixed = TRUE, ...) gsub(pattern, replacement, x, fixed = fixed, ...)
+
 # Return the index entry for a single term in the new format
 .parseTerm <- function(name, pkg, pkg_name) {
   doc <- pkg[[name]]
@@ -71,7 +73,7 @@ ergmTermCache <- local({
   pkglist <- character(0) # Current list of packages.
 
   # Reset the cache and update the list of watched packages.
-  unload <- function(pkg_name) {
+  unload <- function(pkg_name, ...) {
     pkglist <<-.packages(TRUE)
 
     for (term_type in SUPPORTED_TERM_TYPES) {
@@ -96,7 +98,7 @@ ergmTermCache <- local({
 
   # Check if new namespaces have been added.
   checknew <- function() {
-    loaded_packages <- .packages(TRUE)
+    loaded_packages <- loadedNamespaces()
     revdeps <- c("ergm", tools::dependsOnPkgs("ergm"))
 
     term_packages <- tryCatch({
@@ -218,7 +220,7 @@ ergmTermCache <- local({
   df <- data.frame(membership)
 
   concepts <- ergm_keyword()
-  keywords <- concepts[concepts$name %in% keywords, 'short']
+  keywords <- concepts[match(keywords, concepts$name), 'short']
   colnames(df) <- keywords
   rownames(df) <- NULL
   df$Link <- sapply(terms,'[[','link')
@@ -252,7 +254,7 @@ ergmTermCache <- local({
 .formatIndexText <- function(df) {
   if(is.null(df)) return(NULL)
 
-  df$Term <- gsub('`', '', gsub('valued', 'val', gsub('binary', 'bin', df$Term)))
+  df$Term %<>% .fsub('binary', 'bin') %>% .fsub('valued', 'val') %>% .fsub('`', '')
 
   line_wrap <- function(lines, max_width) {
     lines <- unlist(strsplit(sapply(strsplit(lines, '\n'), stringr::str_wrap, max_width), '\n'))
@@ -322,14 +324,14 @@ ergmTermCache <- local({
 .formatIndexLatex <- function(df) {
   if(is.null(df)) return(NULL)
 
-  df$Term <- gsub('valued', 'val', gsub('binary', 'bin', df$Term))
-  df$Term <- gsub('\n', ' \\\\newline ', df$Term) %>% gsub('`([^`]*)`', '\\1', .) %>%
-    strsplit(' ') %>% sapply(., function(x) paste(sprintf('\\code{%s}', x), collapse=' ')) %>%
-    gsub('\\\\code\\{\\(([^(]*)\\)\\}', '(\\1)', .) %>% gsub('\\\\code\\{\\\\newline\\}', '\\\\newline', .) %>%
+  df$Term %<>% .fsub('binary', 'bin') %>% .fsub('valued', 'val')
+  df$Term %<>% .fsub('\n', ' \\newline ') %>% gsub('`([^`]*)`', '\\1', .) %>%
+    strsplit(' ') %>% sapply(., function(x) x %>% .fsub('_', '\\_') %>% sprintf('\\code{%s}', .) %>% paste(collapse=' ')) %>%
+    gsub('\\\\code\\{\\(([^(]*)\\)\\}', '(\\1)', .) %>% .fsub('\\code{\\newline}', '\\newline') %>%
     paste('\\\\raggedright \\\\allowbreak', .)
   df$Link <- NULL
   sprintf('\\out{%s}',
-    knitr::kable(df, 'latex', escape=FALSE, longtable=TRUE, align=sprintf('p{%.1f\\textwidth}', DISPLAY_LATEX_INDEX_PCT_WIDTHS), vline="") %>%
+    knitr::kable(df, 'latex', escape=FALSE, row.names=FALSE, longtable=TRUE, align=sprintf('p{%.1f\\textwidth}', DISPLAY_LATEX_INDEX_PCT_WIDTHS), vline="") %>%
       gsub(' *\n *', ' ', .) %>%
       gsub('\\\\ ', '\\\\\\\\ ', .))
 }
@@ -344,7 +346,7 @@ ergmTermCache <- local({
   }
 
   sprintf('\\out{%s}',
-    knitr::kable(df, 'latex', escape=FALSE, longtable=TRUE, align=sprintf('p{%.1fcm}', DISPLAY_LATEX_TOC_PCT_WIDTHS(dim(df)[2] - 1)), vline="") %>%
+    knitr::kable(df, 'latex', escape=FALSE, row.names=FALSE, longtable=TRUE, align=sprintf('p{%.1fcm}', DISPLAY_LATEX_TOC_PCT_WIDTHS(dim(df)[2] - 1)), vline="") %>%
       gsub(' *\n *', ' ', .) %>%
       gsub('\\\\ ', '\\\\\\\\ ', .))
 }
@@ -352,7 +354,7 @@ ergmTermCache <- local({
 .formatTocLatex <- function(toc) {
   if(is.null(toc)) return(NULL)
 
-  out <- '\\out{\\noindent\\textbf{Terms by concepts}\n\n\\begin{description}'
+  out <- '\\out{\\begin{description}'
   for (cat in names(toc)) {
     out <- sprintf('%s\n\\item[%s] %s', out, cat, paste(toc[[cat]]$name, collapse=', '))
   }
@@ -363,18 +365,18 @@ ergmTermCache <- local({
 .formatIndexHtml <- function(df) {
   if(is.null(df)) return(NULL)
 
-  df$Term <- gsub('valued', 'val', gsub('binary', 'bin', df$Term))
+  df$Term %<>% .fsub('binary', 'bin') %>% .fsub('valued', 'val')
 
   # Hack! because HTML code has to be wrapped \out{} which prevents \link{} from being parsed, the link has
   # to be constructed with the actual address. To find the address, generate the correct link with 
   # \link[=absdiff-ergmTerm]{test} and check that it works with \out{<a href="../help/absdiff-ergmTerm">test</a>}.
   # This address may change from an upstream R-studio change
 
-  df$Term <- sprintf(gsub('`([^`(]*)([^`]*)`', '<span class="code"><a href="../help/%1$s" id="%1$s">\\1\\2</a></span>', gsub('\n', '<br />', df$Term)), df$Link)
+  df$Term <- sprintf(gsub('`([^`(]*)([^`]*)`', '<span class="code"><a href="../help/%1$s" id="%1$s">\\1\\2</a></span>', .fsub(df$Term, '\n', '<br />\n')), df$Link)
   df$Link <- NULL
 
   css <- '<style>.striped th,.striped td {padding:3px 10px} .striped tbody tr:nth-child(odd) {background: #eee} .striped .code {font-family: monospace} .matrix td {align: center} .matrix th,.matrix td {padding-right:5px; width: 75px}</style>'
-  sprintf('\\out{%s%s}', css, knitr::kable(df, 'html', escape=FALSE, table.attr='class="striped"'))
+  sprintf('\\out{%s%s}', css, knitr::kable(df, 'html', escape=FALSE, row.names=FALSE, table.attr='class="striped"'))
 }
 
 .formatMatrixHtml <- function(df) {
@@ -386,7 +388,7 @@ ergmTermCache <- local({
     df[[c]] <- ifelse(df[[c]], '&#10004;', '')
   }
 
-  sprintf('\\out{%s}', knitr::kable(df, 'html', escape=FALSE, table.attr='class="matrix"'))
+  sprintf('\\out{%s}', knitr::kable(df, 'html', escape=FALSE, row.names=FALSE, table.attr='class="matrix"'))
 }
 
 .formatTocHtml <- function(toc) {
