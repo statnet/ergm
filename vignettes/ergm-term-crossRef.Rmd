@@ -42,13 +42,13 @@ search.ergmTerms(keywords=c('bipartite','dyad-independent'))
 For convenience, this table lists a subset of the most commonly-used ergm terms and keywords.
 
 ```{r,results='asis',echo=FALSE}
-ergm:::.termMatrix('ergmTerm',keywords=c('binary', 'valued', 'directed', 'undirected', 'bipartite', 'dyad-independent', 'operator'), only.include='frequently-used')
+ergm:::.formatMatrixHtml(ergm:::.termMatrix('ergmTerm',keywords=c('binary', 'valued', 'directed', 'undirected', 'bipartite', 'dyad-independent', 'operator'), only.include='frequently-used'), wrapRdTags=FALSE)
 ```
 
 For convenience, this table lists operator terms: terms that wrap or modify other terms.
 
 ```{r,results='asis',echo=FALSE}
-ergm:::.termMatrix('ergmTerm',keywords=c('binary', 'valued', 'directed', 'undirected', 'bipartite', 'dyad-independent', 'operator'), only.include='operator')
+ergm:::.formatMatrixHtml(ergm:::.termMatrix('ergmTerm',keywords=c('binary', 'valued', 'directed', 'undirected', 'bipartite', 'dyad-independent', 'operator'), only.include='operator'), wrapRdTags=FALSE)
 ```
 
 
@@ -56,7 +56,7 @@ ergm:::.termMatrix('ergmTerm',keywords=c('binary', 'valued', 'directed', 'undire
 This table lists the complete set of terms available in the ergm package. In HTML versions, clicking on a term name will jump to its definition. 
 
 ```{r,results='asis',echo=FALSE}
-ergm:::.termMatrix('ergmTerm')
+ergm:::.formatMatrixHtml(ergm:::.termMatrix('ergmTerm'), wrapRdTags=FALSE)
 ```
 
 
@@ -74,7 +74,7 @@ ergm:::.termTable(terms)
 Note that currently the keywords are somewhat ambiguous in their exclusivity.  For example, a term marked as 'directed' can not be used with an undirected network, but a term not marked with either 'directed' or 'undirected' can be used with both. (rename to 'directed-only' ?)
 
 ```{r,results='asis',echo=FALSE}
-ergm:::.termToc('ergmTerm')
+cat(ergm:::.formatTocHtml(ergm:::.termToc('ergmTerm'), wrapRdTags=FALSE))
 ```
 
 ------------
