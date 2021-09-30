@@ -380,7 +380,7 @@ ergmTermCache <- local({
   sprintf('\\out{%s%s}', css, knitr::kable(df, 'html', escape=FALSE, row.names=FALSE, table.attr='class="striped"'))
 }
 
-.formatMatrixHtml <- function(df) {
+.formatMatrixHtml <- function(df, wrapRdTags=TRUE) {
   if(is.null(df)) return(NULL)
 
   df$Term <- sprintf('<a href="#%s">%s</a>', df$Link, df$Term)
@@ -389,18 +389,27 @@ ergmTermCache <- local({
     df[[c]] <- ifelse(df[[c]], '&#10004;', '')
   }
 
-  sprintf('\\out{%s}', knitr::kable(df, 'html', escape=FALSE, row.names=FALSE, table.attr='class="matrix"'))
+  out <- knitr::kable(df, 'html', escape=FALSE, row.names=FALSE, table.attr='class="matrix"')
+  if(wrapRdTags) {
+    out <- sprintf('\\out{%s}', out)
+  }
+  out
 }
 
-.formatTocHtml <- function(toc) {
+.formatTocHtml <- function(toc, wrapRdTags=TRUE) {
   if(is.null(toc)) return(NULL)
 
-  out <- paste('Jump to keyword:', paste(sprintf('<a href="#cat_%s">%s</a>', names(toc), names(toc)), collapse=' '))
+  out <- paste('Jump to keyword:', paste(sprintf('<a href="#cat_%s">%s</a>', gsub(' ', '_', names(toc)), names(toc)), collapse=' '))
   for (cat in names(toc)) {
-    out <- sprintf('%s<h3><a id="cat_%s">%s</a></h3>%s', out, cat, cat,
+    out <- sprintf('%s<h3><a id="cat_%s">%s</a></h3>%s', out, gsub(' ', '_', cat), cat,
       paste(sprintf('<a href="#%s">%s</a>', toc[[cat]]$link, toc[[cat]]$name), collapse=' '))
   }
-  sprintf('\\out{%s}', out)
+
+  if(wrapRdTags) {
+    out <- sprintf('\\out{%s}', out)
+  }
+
+  out
 }
 
 # function to look up the set of terms applicable for a specific network
