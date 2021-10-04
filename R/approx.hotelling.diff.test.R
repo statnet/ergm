@@ -131,7 +131,7 @@ approx.hotelling.diff.test<-function(x,y=NULL, mu0=0, assume.indep=FALSE, var.eq
 
   if(p==0) stop("data are essentially constant")
   
-  ivcov.d <-ginv(vcov.d[!novar,!novar,drop=FALSE])
+  ivcov.d <-sginv(vcov.d[!novar,!novar,drop=FALSE])
   
   method <- paste0("Hotelling's ",
                   NVL2(y, "Two", "One"),
@@ -154,7 +154,7 @@ approx.hotelling.diff.test<-function(x,y=NULL, mu0=0, assume.indep=FALSE, var.eq
                    " do not vary in x or in y but have differences equal to mu0"),
               "; they have been ignored for the purposes of testing.")
     }
-    T2 <- c(t((d-mu0)[!novar])%*%ivcov.d%*%(d-mu0)[!novar])
+    T2 <- xTAx((d-mu0)[!novar], ivcov.d)
   }
 
   NANVL <- function(z, ifNAN) ifelse(is.nan(z),ifNAN,z)
@@ -273,10 +273,15 @@ spectrum0.mvar <- function(x, order.max=NULL, aic=is.null(order.max), tol=.Machi
   p <- ncol(x)
   
   v <- matrix(0,p,p)
-  novar <- abs(apply(x,2,stats::sd))<tol
-  x <- x[,!novar,drop=FALSE]
 
+  # Save the scale of each variable, then drop nonvarying and standardise.
+  # TODO: What if the variable actually has a tiny magnitude?
+  xscl <- apply(x, 2L, stats::sd)
+  novar <- xscl < tol
+  x <- x[,!novar,drop=FALSE]
+  xscl <- xscl[!novar]
   if(ncol(x) == 0) stop("All variables are constant.")
+  x <- sweep(x, 2L, xscl, "/", check.margin = FALSE)
 
   # Index of the first local minimum in a sequence.
   first_local_min <- function(x){
@@ -286,10 +291,9 @@ spectrum0.mvar <- function(x, order.max=NULL, aic=is.null(order.max), tol=.Machi
   
   # Map the variables onto their principal components, dropping
   # redundant (linearly-dependent) dimensions. Here, we keep the
-  # eigenvectors such that the reciprocal condition number defined
-  # as s.min/s.max, where s.min and s.max are the smallest and the
-  # biggest singular values, respectively, is greater than the
-  # tolerance.
+  # eigenvectors such that the reciprocal condition number defined as
+  # s.min/s.max, where s.min and s.max are the smallest and the
+  # biggest eigenvalues, respectively, is greater than the tolerance.
   e <- eigen(cov(x), symmetric=TRUE)
   Q <- e$vectors[,sqrt(pmax(e$values,0)/max(e$values))>tol*2,drop=FALSE]
   xr <- x%*%Q # Columns of xr are guaranteed to be linearly independent.
@@ -324,13 +328,12 @@ spectrum0.mvar <- function(x, order.max=NULL, aic=is.null(order.max), tol=.Machi
   arcoefs <- NVL2(dim(arcoefs), apply(arcoefs,2:3,base::sum), sum(arcoefs))
   
   adj <- diag(1,nrow=ncol(xr)) - arcoefs
-  iadj <- solve(adj)
-  v.var <- iadj %*% arvar %*% t(iadj)
+  v.var <- sandwich_ssolve(adj, arvar)
 
   infl <- exp((determinant(v.var)$modulus-determinant(ind.var)$modulus)/ncol(ind.var))
   
   # Reverse the mapping for the variance estimate.
-  v.var <- Q%*%v.var%*%t(Q)
+  v.var <- xAxT(xscl*Q, v.var)
   
   v[!novar,!novar] <- v.var
   

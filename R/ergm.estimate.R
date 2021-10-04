@@ -219,7 +219,7 @@ ergm.estimate<-function(init, model, statsmatrices, statsmatrices.obs=NULL,
       Lout <- list(hessian = -V)
     }
     Lout$par <- try(eta0 
-                    - solve(Lout$hessian, xobs),
+                    + ssolve(-Lout$hessian, xobs),
                     silent=TRUE)
     # If there's an error, first try a robust matrix inverse.  This can often
     # happen if the matrix of simulated statistics does not ever change for one
@@ -227,7 +227,7 @@ ergm.estimate<-function(init, model, statsmatrices, statsmatrices.obs=NULL,
     #' @importFrom MASS ginv
     if(inherits(Lout$par,"try-error")){
       Lout$par <- try(eta0 
-                      - ginv(Lout$hessian) %*% 
+                      + sginv(-Lout$hessian) %*%
                       xobs,
                       silent=TRUE)
     }
@@ -240,7 +240,7 @@ ergm.estimate<-function(init, model, statsmatrices, statsmatrices.obs=NULL,
       }else{
         Lout <- list(hessian = -(as.matrix(nearPD(V)$mat)))
       }
-      Lout$par <- eta0 - solve(Lout$hessian, xobs)
+      Lout$par <- eta0 + ssolve(-Lout$hessian, xobs)
     }
     Lout$convergence <- 0 # maybe add some error-checking here to get other codes
     Lout$value <- 0.5*crossprod(xobs,
@@ -344,7 +344,7 @@ ergm.estimate<-function(init, model, statsmatrices, statsmatrices.obs=NULL,
     }
     
     covar <- matrix(NA, ncol=length(theta), nrow=length(theta))
-    covar[!model$etamap$offsettheta,!model$etamap$offsettheta ] <- ginv(-Lout$hessian)
+    covar[!model$etamap$offsettheta,!model$etamap$offsettheta ] <- sginv(-Lout$hessian)
     dimnames(covar) <- list(names(theta),names(theta))
     He <- matrix(NA, ncol=length(theta), nrow=length(theta))
     He[!model$etamap$offsettheta,!model$etamap$offsettheta ] <- Lout$hessian

@@ -384,3 +384,96 @@ is.SPD <- function(x, tol = .Machine$double.eps){
     rcond(x) >= tol &&
     all(eigen(x, symmetric=TRUE, only.values=TRUE)$values > 0)
 }
+
+# ssolve() and sginv() (for *s*caled) are thin wrappers around
+# base::solve() and MASS::ginv() that first scale the matrix's rows
+# and/or columns by its diagonal elements and then undo the scaling on
+# the result. rcond() returns the reciprocal condition number net of
+# the above scaling. snearPD() wraps nearPD() to scale the diagonal
+# as well.
+#
+# This is useful when dealing with covariance matrices of variables
+# with very different orders of magnitude. Such matrices have very
+# large ratios between their greatest and their least eigenvalues,
+# causing them to appear to their algorithms to be near-singular when
+# they are actually very much SPD.
+#
+# NB: In R, vector * matrix and matrix * vector always scales
+# corresponding rows.
+ssolve <- function(a, b, ..., symm = TRUE){
+  if(missing(b)){
+    b <- diag(1, nrow(a))
+    colnames(b) <- rownames(a)
+  }
+
+  d <- diag(as.matrix(a))
+  d <- ifelse(d==0, 1, 1/d)
+
+  if(symm){
+    d <- sqrt(d)
+    a <- a * d * rep(d, each = length(d))
+    solve(a, b*d, ...) * d
+  }else{
+    solve(a*d, b*d, ...)
+  }
+}
+
+
+sginv <- function(X, ..., symm = TRUE){
+  d <- diag(as.matrix(X))
+  d <- ifelse(d==0, 1, 1/d)
+
+  if(symm){
+    d <- sqrt(d)
+    dd <- rep(d, each = length(d)) * d
+    X <- X * dd
+    ginv(X, ...) * dd
+  }else{
+    dd <- rep(d, each = length(d))
+    ginv(X*d, ...) * dd
+  }
+}
+
+srcond <- function(x, ..., symm = TRUE){
+  d <- diag(as.matrix(x))
+  d <- ifelse(d==0, 1, 1/d)
+
+  if(symm){
+    d <- sqrt(d)
+    dd <- rep(d, each = length(d)) * d
+    rcond(x*dd)
+  }else{
+    rcond(x*d, ...)
+  }
+}
+
+snearPD <- function(x, ...){
+  d <- abs(diag(as.matrix(x)))
+  d[d==0] <- 1
+  d <- sqrt(d)
+  dd <- rep(d, each = length(d)) * d
+  x <- nearPD(x / dd, ...)
+  x$mat <- x$mat * dd
+  x
+}
+
+# These are somewhat inspired by emulator::quad.form.inv() and others.
+
+# x^T A x
+xTAx <- function(x, A){
+  drop(crossprod(crossprod(A, x), x))
+}
+# x A x^T
+xAxT <- function(x, A){
+  drop(x %*% tcrossprod(A, x))
+}
+
+# x A^-1 x^T
+xTAx_ssolve <- function(x, A, ...){
+  drop(crossprod(x, ssolve(A, x, ...)))
+}
+
+# Evaluate A^-1 B (A^T)^-1, minimising matrix inversion.
+sandwich_ssolve <- function(A, B, ...){
+  ssolve(A, t(ssolve(A, B, ...)), ...)
+}

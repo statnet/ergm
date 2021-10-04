@@ -337,8 +337,8 @@ san.ergm_model <- function(object, reference=~Bernoulli, constraints=~., target.
     stats <- sm[nrow(sm),]
     # Use *proposal* distribution of statistics for weights.
     invcov <-
-      if(control$SAN.invcov.diag) ginv(diag(diag(cov(sm.prop)), ncol(sm.prop)), tol=.Machine$double.eps)
-      else ginv(cov(sm.prop), tol=.Machine$double.eps)
+      if(control$SAN.invcov.diag) sginv(diag(diag(cov(sm.prop)), ncol(sm.prop)), tol=.Machine$double.eps)
+      else sginv(cov(sm.prop), tol=.Machine$double.eps)
 
     # Ensure no statistic has weight 0:
     diag(invcov)[abs(diag(invcov))<.Machine$double.eps] <- min(diag(invcov)[abs(diag(invcov))>=.Machine$double.eps],1)

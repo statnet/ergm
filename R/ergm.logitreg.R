@@ -139,7 +139,7 @@ ergm.logitreg <- function(x, y, wt = rep(1, length(y)),
   names(fit$coefficients) <- dn[if(!is.null(m)) !m$etamap$offsettheta else TRUE]
   fit$deviance <- -2*fit$value
   fit$iter <- fit$iterations
-  asycov <- ginv(-fit$hessian)
+  asycov <- sginv(-fit$hessian)
   fit$cov.unscaled <- asycov
   if(!fit$converged)
       message("Trust region algorithm did not converge.")

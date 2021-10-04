@@ -209,7 +209,7 @@ ergm.stepping = function(init, nw, model, initialfit, constraints,
   if(!v$failure & !any(is.na(coef(v)))){
     asyse <- mc.se
     if(is.null(v$covar)){
-      asyse[names(coef(v))] <- suppressWarnings(sqrt(diag(ginv(-v$hessian))))
+      asyse[names(coef(v))] <- suppressWarnings(sqrt(diag(sginv(-v$hessian))))
     }else{
       asyse[names(coef(v))] <- suppressWarnings(sqrt(diag(v$covar)))
     }

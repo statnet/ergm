@@ -101,12 +101,12 @@ ergm.pen.glm <- function(formula,
    iter <- iter + 1
    XW2 <- sweep(x, 1, (weights*(pi * (1 - pi)))^0.5, "*") #### X' (W ^ 1/2)
    Fisher <- crossprod(XW2)  #### X' W  X
-   covs <- ginv(Fisher)  ### (X' W  X) ^ -1
+   covs <- sginv(Fisher)  ### (X' W  X) ^ -1
 #  H <- crossprod(XW2, covs) %*% XW2
 #  H <- XW2 %*% covs %*% t(XW2)
    diagH <- pi
    for(i in seq(along=diagH)){
-    diagH[i] <- XW2[i,] %*% covs %*% XW2[i,]
+    diagH[i] <- xTAx(XW2[i,], covs)
    }
 #  U.star <- crossprod(x, y - pi)
 #  U.star <- crossprod(x, (y - pi)*weights)

@@ -353,10 +353,10 @@ ergm.MCMLE <- function(init, nw, model,
       # ellipsoid is workable, if flat.) Special handling is required
       # if some statistic has a variance of exactly 0.
       novar <- diag(Vm) == 0
-      Vm[!novar,!novar] <- as.matrix(nearPD(Vm[!novar,!novar,drop=FALSE], posd.tol=0)$mat)
-      iVm <- ginv(Vm)
+      Vm[!novar,!novar] <- snearPD(Vm[!novar,!novar,drop=FALSE], posd.tol=0, base.matrix=TRUE)$mat
+      iVm <- sginv(Vm)
       diag(Vm)[novar] <- sqrt(.Machine$double.xmax) # Virtually any nonzero difference in estimating functions will map to a very large number.
-      d2 <- estdiff%*%iVm%*%estdiff
+      d2 <- xTAx(estdiff, iVm)
       if(d2<2) last.adequate <- TRUE
     }
 
@@ -444,7 +444,7 @@ ergm.MCMLE <- function(init, nw, model,
       }
     }else if(control$MCMLE.termination=='confidence'){
       if(!is.null(estdiff.prev)){
-        d2.prev <- estdiff.prev%*%iVm%*%estdiff.prev
+        d2.prev <- xTAx(estdiff.prev, iVm)
         if(verbose) message("Distance from origin on tolerance region scale: ", d2, " (previously ", d2.prev, ").")
         d2.not.improved <- d2.not.improved[-1] 
         if(d2 >= d2.prev){
@@ -481,7 +481,7 @@ ergm.MCMLE <- function(init, nw, model,
           estdiff <- estdiff[!hotel$novar]
           estcov <- estcov[!hotel$novar, !hotel$novar]
 
-          d2e <- estdiff%*%iVm[!hotel$novar, !hotel$novar]%*%estdiff
+          d2e <- xTAx(estdiff, iVm[!hotel$novar, !hotel$novar])
           if(d2e<1){ # Update ends within tolerance ellipsoid.
             T2 <- try(.ellipsoid_mahalanobis(estdiff, estcov, iVm[!hotel$novar, !hotel$novar]), silent=TRUE) # Distance to the nearest point on the tolerance region boundary.
             if(inherits(T2, "try-error")){ # Within tolerance ellipsoid, but cannot be tested.
@@ -631,16 +631,17 @@ ergm.MCMLE <- function(init, nw, model,
 #' @noRd
 .ellipsoid_mahalanobis <- function(y, W, U){
   y <- c(y)
-  if(y%*%U%*%y>=1) stop("Point is not in the interior of the ellipsoid.")
+  if(xTAx(y,U)>=1) stop("Point is not in the interior of the ellipsoid.")
   I <- diag(length(y))
   WU <- W%*%U
   x <- function(l) c(solve(I+l*WU, y)) # Singluar for negative reciprocals of eigenvalues of WiU.
-  zerofn <- function(l) ERRVL(try({x <- x(l); c(x%*%U%*%x)-1}, silent=TRUE), +Inf)
+  zerofn <- function(l) ERRVL(try({x <- x(l); xTAx(x,U)-1}, silent=TRUE), +Inf)
 
   # For some reason, WU sometimes has 0i element in its eigenvalues.
   eig <- Re(eigen(WU, only.values=TRUE)$values)
   lmin <- -1/max(eig)
   l <- uniroot(zerofn, lower=lmin, upper=0, tol=sqrt(.Machine$double.xmin))$root
   x <- x(l)
-  (y-x)%*%solve(W)%*%(y-x)
+
+  xTAx_ssolve(y-x, W)
 }
