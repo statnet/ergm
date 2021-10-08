@@ -129,18 +129,18 @@ ergmTermCache <- local({
   }
 })
 
-#' Filter a list of terms, currently by categories
+#' Filter a list of terms, currently by keywords/concepts
 #'
 #' @param terms a term list returned by `ergmTermCache()`
-#' @param categories a function with one argument or a formula understood by [purrr::as_mapper()] that takes a character vector containing a term's categories and returns `TRUE` or `FALSE`
+#' @param keywords a function with one argument or a formula understood by [purrr::as_mapper()] that takes a character vector containing a term's keywords/concepts and returns `TRUE` or `FALSE`
 #' @param ... additional arguments, currently unused
 #'
 #' @return a filtered term list
 #' @noRd
-.filterTerms <- function(terms, categories = NULL, ...) {
-  if (!is.null(categories)) {
-    categories <- as_mapper(categories)
-    keep <- terms %>% map("concepts") %>% map_lgl(categories)
+.filterTerms <- function(terms, keywords = NULL, ...) {
+  if (!is.null(keywords)) {
+    keywords <- as_mapper(keywords)
+    keep <- terms %>% map("concepts") %>% map_lgl(keywords)
     terms <- terms[keep]
   }
   terms
