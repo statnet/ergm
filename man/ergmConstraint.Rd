@@ -58,20 +58,18 @@ equal to \code{((A|B)&C)|D}.
 
 Terms with a positive sign can be viewed as "adding" a constraint
 while those with a negative sign can be viewed as "relaxing" a constraint.
+
+The constraints formula can also contain a \code{.}. If present,
+\code{\link{\%ergmlhs\%}} attributes \code{constraints} and \code{constraints.obs} will
+be substituted in its place.
 }
 
-\section{Constraints implemented in the \code{\link[=ergm-package]{ergm}} package}{
+\section{Constraints}{
 
-\describe{
-\item{\code{.} or \code{NULL} (dyad-independent)}{
-A placeholder for no constraints: all networks of a
-particular size and type have non-zero probability.
-Cannot be combined with other constraints.
-}
-}
-\if{latex}{\Sexpr[results=rd,stage=render]{ergm:::.formatIndexLatex(ergm:::.buildTermsDataframe("ergmConstraint"))}}
-\if{text}{\Sexpr[results=rd,stage=render]{ergm:::.formatIndexText(ergm:::.buildTermsDataframe("ergmConstraint"))}}
-\if{html}{\Sexpr[results=rd,stage=render]{ergm:::.formatIndexHtml(ergm:::.buildTermsDataframe("ergmConstraint"))}}
+
+\if{latex}{\Sexpr[results=rd,stage=render]{ergm:::.formatIndexLatex(ergm:::.buildTermsDataframe("ergmConstraint", keywords = ~!"hint"\%in\%.))}}
+\if{text}{\Sexpr[results=rd,stage=render]{ergm:::.formatIndexText(ergm:::.buildTermsDataframe("ergmConstraint", keywords = ~!"hint"\%in\%.))}}
+\if{html}{\Sexpr[results=rd,stage=render]{ergm:::.formatIndexHtml(ergm:::.buildTermsDataframe("ergmConstraint", keywords = ~!"hint"\%in\%.))}}
 \subsection{All constraints}{
 
 \if{latex}{\Sexpr[results=rd,stage=render]{ergm:::.formatMatrixLatex(ergm:::.termMatrix("ergmConstraint"))}}
@@ -85,6 +83,25 @@ Cannot be combined with other constraints.
 \if{text}{\Sexpr[results=rd,stage=render]{ergm:::.formatTocText(ergm:::.termToc("ergmConstraint"))}}
 \if{html}{\Sexpr[results=rd,stage=render]{ergm:::.formatTocHtml(ergm:::.termToc("ergmConstraint"))}}
 }
+}
+
+\section{Hints}{
+
+
+It is often the case that there is additional information available
+about the distribution of networks being modelled. For example, you
+may be aware that the network is sparse or that there are strata
+among the dyads. Hints, typically passed on the RHS of \code{MCMC.prop}
+and \code{obs.MCMC.prop} arguments to \code{\link[=control.ergm]{control.ergm()}},
+\code{\link[=control.simulate.ergm]{control.simulate.ergm()}}, and others, allow this information to be
+provided. By default, hint \code{\link[=sparse-ergmConstraint]{sparse}} is in
+effect. Note that not all proposals support all hints.
+
+The following hints are known to \code{ergm} at this time:
+
+\if{latex}{\Sexpr[results=rd,stage=render]{ergm:::.formatIndexLatex(ergm:::.buildTermsDataframe("ergmConstraint", keywords = ~"hint"\%in\%., omit.keywords ="hint"))}}
+\if{text}{\Sexpr[results=rd,stage=render]{ergm:::.formatIndexText(ergm:::.buildTermsDataframe("ergmConstraint", keywords = ~"hint"\%in\%., omit.keywords ="hint"))}}
+\if{html}{\Sexpr[results=rd,stage=render]{ergm:::.formatIndexHtml(ergm:::.buildTermsDataframe("ergmConstraint", keywords = ~"hint"\%in\%., omit.keywords ="hint"))}}
 }
 
 \references{
