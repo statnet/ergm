@@ -23,6 +23,7 @@ InitErgmConstraint.TNT<-function(nw, arglist, ...){
 #' @template ergmConstraint-general
 #'
 #' @concept dyad-independent
+#' @concept hint
 InitErgmConstraint.sparse<-function(nw, arglist, ...){
   a <- check.ErgmTerm(nw, arglist)
   list(dependence = FALSE, priority=10, impliedby=c("sparse", "edges", "degrees", "edges", "idegrees", "odegrees", "b1degrees", "b2degrees", "idegreedist", "odegreedist", "degreedist", "b1degreedist", "b2degreedist"), constrain="sparse")
@@ -74,6 +75,7 @@ InitErgmConstraint.Strat<-function(nw, arglist, ...){
 #' @template ergmConstraint-general
 #'
 #' @concept dyad-independent
+#' @concept hint
 InitErgmConstraint.strat <- function(nw, arglist, ...) {
   a <- check.ErgmTerm(nw, arglist,
                       varnames = c("attr", "pmat", "empirical"),
