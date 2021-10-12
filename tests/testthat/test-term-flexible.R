@@ -23,7 +23,6 @@ bipnw <- as.network(exbip.el, matrix.type="edgelist", bipartite=100, directed=FA
 bipnw %v% "Letter" <- letters[1:3]
 bipnw %v% "Cost" <- c(3,2,1)
 
-
 # another bipartite nw with more ties and 2 attributes
 set.seed(258)
 b1 <- floor(runif(150, 1,200))

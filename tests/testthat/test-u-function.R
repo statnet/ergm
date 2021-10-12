@@ -81,3 +81,20 @@ test_that("Multiplicitous proposal", {
   sim.dyads <- t(sapply(lapply(sim, as.matrix, attrname="v"), c))
   expect_true(all(sim.dyads==s[,-(1:4)]))
 })
+
+test_that("Ergm.count_test", {
+  library(ergm.count)
+  nw <- network.initialize(4, dir=TRUE)
+  nw[1,2,names.eval="v",add.edges=TRUE] <- 1
+  nw[1,3,names.eval="v",add.edges=TRUE] <- 1
+  nw[3,2,names.eval="v",add.edges=TRUE] <- 1
+  nw %ergmlhs% "response" <- "v"
+  s <- summary(nw~sum+test.abs.sum.minus.5+test.abs.sum.minus.5(FALSE)+test.abs.sum.minus.5(FALSE,TRUE)+sociomatrix)
+  expect_true(all(abs(s[1]-5)==s[2]) && all(abs(s[1]-5)==s[3]) && all(abs(s[1]-5)==s[4]))
+  expect_true(all(s[-(1:4)]==c(as.matrix(nw, attrname="v"))))
+  sim <- simulate(nw~sum,monitor=~test.abs.sum.minus.5+test.abs.sum.minus.5(FALSE)+test.abs.sum.minus.5(FALSE,TRUE)+sociomatrix, reference=~Poisson, coef=0, nsim=100, control=control.simulate.formula(MCMC.burnin=0,MCMC.interval=1))
+  s <- attr(sim, "stats")
+  expect_true(all(abs(s[,1]-5)==s[,2]) && all(abs(s[,1]-5)==s[,3]) && all(abs(s[,1]-5)==s[,4]))
+  sim.dyads <- t(sapply(lapply(sim, as.matrix, attrname="v"), c))
+  expect_true(all(sim.dyads==s[,-(1:4)]))
+})
