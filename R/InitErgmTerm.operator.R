@@ -302,6 +302,7 @@ InitErgmTerm..submodel_and_summary <- function(nw, arglist, ...){
 #'   the following properties:
 #'   - dyadic independence;
 #'   - dyadwise contribution of 0 for a 0-valued dyad.
+#'
 #'   Formally, this means that it is expressable as
 #'   \deqn{g(y) = \sum_{i,j} f_{i,j}(y_{i,j}),}{sum[i,j]
 #'   f[i,j] (y[i,j]),} where for all \eqn{i}, \eqn{j}, and \eqn{y},

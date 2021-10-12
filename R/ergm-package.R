@@ -311,7 +311,7 @@ NULL
 #' 
 #' The current recommendation for any package implementing additional terms is
 #' to document the term with Roxygen comments and a name in the form
-#' termName-ergmTerm. This ensures that \code{help("ergmTerm")} will list ERGM
+#' `termName-ergmTerm`. This ensures that \code{help("ergmTerm")} will list ERGM
 #' terms available from all loaded packages.
 #'
 #' @section Terms included in the [`ergm`][ergm-package] package:
