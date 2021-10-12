@@ -108,7 +108,6 @@ eval(UPDATE_MY_SCTRL_EXPR)
   ergm_keyword(name="triad-related", short="triad rel", description="", popular=FALSE, package="ergm")
   ergm_keyword(name="valued", short="val", description="", popular=TRUE, package="ergm")
   ergm_keyword(name="undirected", short="undir", description="", popular=TRUE, package="ergm")
-  ergm_keyword(name="hint", short="hint", description="A hint to the MCMC sampler about the distribution of the networks.", popular=TRUE, package="ergm")
 }
 
 .onUnload <- function(libpath){

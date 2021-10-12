@@ -12,10 +12,9 @@ InitErgmConstraint.TNT<-function(nw, arglist, ...){
   InitErgmConstraint.sparse(nw, arglist, ...)
 }
 
-#' @name sparse-ergmConstraint
+#' @name sparse-ergmHint
 #' @title Sparse network
-#' @description Sparse network
-#' @details The network is sparse. This typically results in a Tie-Non-Tie (TNT) proposal regime.
+#' @description The network is sparse. This typically results in a Tie-Non-Tie (TNT) proposal regime.
 #'
 #' @usage
 #' # sparse
@@ -23,7 +22,6 @@ InitErgmConstraint.TNT<-function(nw, arglist, ...){
 #' @template ergmConstraint-general
 #'
 #' @concept dyad-independent
-#' @concept hint
 InitErgmConstraint.sparse<-function(nw, arglist, ...){
   a <- check.ErgmTerm(nw, arglist)
   list(dependence = FALSE, priority=10, impliedby=c("sparse", "edges", "degrees", "edges", "idegrees", "odegrees", "b1degrees", "b2degrees", "idegreedist", "odegreedist", "degreedist", "b1degreedist", "b2degreedist"), constrain="sparse")
@@ -34,21 +32,22 @@ InitErgmConstraint.Strat<-function(nw, arglist, ...){
   InitErgmConstraint.strat(nw, arglist, ...)
 }
 
-#' @name strat-ergmConstraint
-#' @title Stratified Dyads
-#' @description Stratified Dyads
-#' @details The dyads in the network are stratified according to an attribute combination.
-#'   This typically results in stratifying proposals by mixing type on a vertex attribute.
+#' @name strat-ergmHint
+#' @title Stratified dyads
+#' @description The dyads in the network are stratified according to
+#'   an attribute combination.  This typically results in stratifying
+#'   proposals by mixing type on a vertex attribute.
 #'   
-#'   Specifically, the user may pass a vertex attribute `attr` as an argument
-#'   (the default for `attr` gives every vertex the same attribute value),
-#'   and may also pass a matrix of weights `pmat` (the default for
-#'   `pmat` gives equal weight to each mixing type). See
-#'   [Specifying Vertex Attributes and Levels for details][nodal_attributes] on
-#'   specifying vertex attributes. The matrix `pmat` , if specified, must have
-#'   the same dimensions as a mixing matrix for the network and attribute under
-#'   consideration, and the correspondence between rows and columns of `pmat`
-#'   and values of `attr` is the same as for a mixing matrix.
+#' @details The user may pass a vertex attribute `attr` as an argument
+#'   (the default for `attr` gives every vertex the same attribute
+#'   value), and may also pass a matrix of weights `pmat` (the default
+#'   for `pmat` gives equal weight to each mixing type). See
+#'   [Specifying Vertex Attributes and Levels for
+#'   details][nodal_attributes] on specifying vertex attributes. The
+#'   matrix `pmat` , if specified, must have the same dimensions as a
+#'   mixing matrix for the network and attribute under consideration,
+#'   and the correspondence between rows and columns of `pmat` and
+#'   values of `attr` is the same as for a mixing matrix.
 #'   
 #'   The interpretation is that `pmat[i,j]/sum(pmat)` is the probability of
 #'   proposing a toggle for mixing type `(i,j)` . (For undirected, unipartite
@@ -72,10 +71,9 @@ InitErgmConstraint.Strat<-function(nw, arglist, ...){
 #' @usage
 #' # strat(attr=NULL, pmat=NULL, empirical=FALSE)
 #'
-#' @template ergmConstraint-general
+#' @template ergmHint-general
 #'
 #' @concept dyad-independent
-#' @concept hint
 InitErgmConstraint.strat <- function(nw, arglist, ...) {
   a <- check.ErgmTerm(nw, arglist,
                       varnames = c("attr", "pmat", "empirical"),

@@ -8,7 +8,7 @@
 #  Copyright 2003-2021 Statnet Commons
 #######################################################################
 
-SUPPORTED_TERM_TYPES <- c('Term', 'Constraint', 'Reference')
+SUPPORTED_TERM_TYPES <- c('Term', 'Constraint', 'Reference', 'Hint')
 SUPPORTED_TERM_TYPE_REGEX <- sprintf('-ergm(%s)(.Rd)?', paste(SUPPORTED_TERM_TYPES, collapse='|'))
 
 DISPLAY_TEXT_INDEX_MAX_WIDTHS <- list('Term'=25, 'Pkg'=5, 'Description'=33, 'Concepts'=12)

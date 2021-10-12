@@ -399,10 +399,11 @@ NULL
 NULL
 #TODO: Write a valued example.
 
+
 #' Sample Space Constraints for Exponential-Family Random Graph Models
 #'
 #' @name ergmConstraint
-#' @aliases ergm-constraints constraints-ergm ergm.constraints constraints.ergm ergm-hints hints
+#' @aliases ergm-constraints constraints-ergm ergm.constraints constraints.ergm
 #' @docType package
 #' @description This page describes how to specify the constraints on the network sample space (the set of possible networks \eqn{Y}, the set of networks \eqn{y} for which \eqn{h(y)>0}) and sometimes the baseline weights \eqn{h(y)} to functions in the [`ergm`][ergm-package]
 #' package. It also provides an indexed list of the constraints visible to the \CRANpkg{ergm}'s API.
@@ -451,9 +452,9 @@ NULL
 #'
 #' @section Constraints visible to the package:
 #'
-#' \if{latex}{\Sexpr[results=rd,stage=render]{ergm:::.formatIndexLatex(ergm:::.buildTermsDataframe("ergmConstraint", keywords = ~!"hint"%in%.))}}
-#' \if{text}{\Sexpr[results=rd,stage=render]{ergm:::.formatIndexText(ergm:::.buildTermsDataframe("ergmConstraint", keywords = ~!"hint"%in%.))}}
-#' \if{html}{\Sexpr[results=rd,stage=render]{ergm:::.formatIndexHtml(ergm:::.buildTermsDataframe("ergmConstraint", keywords = ~!"hint"%in%.))}}
+#' \if{latex}{\Sexpr[results=rd,stage=render]{ergm:::.formatIndexLatex(ergm:::.buildTermsDataframe("ergmConstraint"))}}
+#' \if{text}{\Sexpr[results=rd,stage=render]{ergm:::.formatIndexText(ergm:::.buildTermsDataframe("ergmConstraint"))}}
+#' \if{html}{\Sexpr[results=rd,stage=render]{ergm:::.formatIndexHtml(ergm:::.buildTermsDataframe("ergmConstraint"))}}
 #'
 #' ## All constraints
 #' \if{latex}{\Sexpr[results=rd,stage=render]{ergm:::.formatMatrixLatex(ergm:::.termMatrix("ergmConstraint"))}}
@@ -465,22 +466,82 @@ NULL
 #' \if{text}{\Sexpr[results=rd,stage=render]{ergm:::.formatTocText(ergm:::.termToc("ergmConstraint"))}}
 #' \if{html}{\Sexpr[results=rd,stage=render]{ergm:::.formatTocHtml(ergm:::.termToc("ergmConstraint"))}}
 #'
-#' @section Hints:
+#' @references
+#' - Goodreau SM, Handcock MS, Hunter DR, Butts CT, Morris M (2008a).  A
+#' \pkg{statnet} Tutorial. *Journal of Statistical Software*, 24(8).
+#' \url{https://www.jstatsoft.org/v24/i08/}.
+#'
+#' - Hunter, D. R. and Handcock, M. S. (2006) *Inference in curved
+#' exponential family models for networks*, Journal of Computational and
+#' Graphical Statistics.
+#'
+#' - Hunter DR, Handcock MS, Butts CT, Goodreau SM, Morris M (2008b).
+#' \pkg{ergm}: A Package to Fit, Simulate and Diagnose Exponential-Family
+#' Models for Networks.  *Journal of Statistical Software*, 24(3).
+#' \url{https://www.jstatsoft.org/v24/i03/}.
+#'
+#' - Karwa V, Krivitsky PN, and Slavkovi\'c AB (2016). Sharing Social Network
+#' Data: Differentially Private Estimation of Exponential-Family Random Graph
+#' Models. *Journal of the Royal Statistical Society, Series C*, 66(3):
+#' 481-500. \doi{10.1111/rssc.12185}
+#'
+#' - Krivitsky PN (2012). Exponential-Family Random Graph Models for Valued
+#' Networks. *Electronic Journal of Statistics*, 6, 1100-1128.
+#' \doi{10.1214/12-EJS696}
+#'
+#' - Morris M, Handcock MS, Hunter DR (2008).  Specification of
+#' Exponential-Family Random Graph Models: Terms and Computational Aspects.
+#' *Journal of Statistical Software*, 24(4). \url{https://www.jstatsoft.org/v24/i04/}.
+#' @keywords models
+NULL
+
+#' MCMC Hints for Exponential-Family Random Graph Models
+#'
+#' @name ergmHint
+#' @aliases ergm-hints hints-ergm ergm.hints hints.ergm hints
+#' @docType package
+#' @description This page describes how to provide to the
+#'   \CRANpkg{ergm}'s MCMC algorithms information about the sample space.
+#'
+#' @section \dQuote{Hints} for MCMC:
+#' \ERGMspec
+#'
+#' \newcommand{\Hint}{\dQuote{Hint}}
+#' \newcommand{\hint}{\dQuote{hint}}
+#' \newcommand{\Hints}{\dQuote{Hints}}
+#' \newcommand{\hints}{\dQuote{hints}}
 #'
 #' It is often the case that there is additional information available
 #' about the distribution of networks being modelled. For example, you
 #' may be aware that the network is sparse or that there are strata
-#' among the dyads. Hints, typically passed on the RHS of `MCMC.prop`
+#' among the dyads. \Hints, typically passed on the right-hand side of `MCMC.prop`
 #' and `obs.MCMC.prop` arguments to [control.ergm()],
 #' [control.simulate.ergm()], and others, allow this information to be
-#' provided. By default, hint [`sparse`][sparse-ergmConstraint] is in
-#' effect. Note that not all proposals support all hints.
+#' provided. By default, hint [`sparse`][sparse-ergmHint] is in
+#' effect.
 #'
-#' The following hints are known to `ergm` at this time:
+#' Unlike constraints, model terms, and reference distributions,
+#' \hints{} do not affect the specification of the model. That is,
+#' regardless of what \hints{} may or may not be in effect, the sample
+#' space and the probabilities within it are the same. However,
+#' \hints{} may affect the MCMC proposal distribution used by the
+#' samplers.
 #'
-#' \if{latex}{\Sexpr[results=rd,stage=render]{ergm:::.formatIndexLatex(ergm:::.buildTermsDataframe("ergmConstraint", keywords = ~"hint"%in%., omit.keywords ="hint"))}}
-#' \if{text}{\Sexpr[results=rd,stage=render]{ergm:::.formatIndexText(ergm:::.buildTermsDataframe("ergmConstraint", keywords = ~"hint"%in%., omit.keywords ="hint"))}}
-#' \if{html}{\Sexpr[results=rd,stage=render]{ergm:::.formatIndexHtml(ergm:::.buildTermsDataframe("ergmConstraint", keywords = ~"hint"%in%., omit.keywords ="hint"))}}
+#' Note that not all proposals support all \hints: and if the most
+#' suitable proposal available cannot incorporate a particular \hint,
+#' a warning message will be printed.
+#'
+#' \Hints{} use the same underlying API as constraints, and, if present,
+#' [`%ergmlhs%`] attributes `constraints` and `constraints.obs` will
+#' be substituted in its place.
+#'
+#' @section Hints available to the package:
+#'
+#' The following hints are known to \CRANpkg{ergm} at this time:
+#'
+#' \if{latex}{\Sexpr[results=rd,stage=render]{ergm:::.formatIndexLatex(ergm:::.buildTermsDataframe("ergmHint"))}}
+#' \if{text}{\Sexpr[results=rd,stage=render]{ergm:::.formatIndexText(ergm:::.buildTermsDataframe("ergmHint"))}}
+#' \if{html}{\Sexpr[results=rd,stage=render]{ergm:::.formatIndexHtml(ergm:::.buildTermsDataframe("ergmHint"))}}
 #' 
 #' @references
 #' - Goodreau SM, Handcock MS, Hunter DR, Butts CT, Morris M (2008a).  A
@@ -510,6 +571,7 @@ NULL
 #' *Journal of Statistical Software*, 24(4). \url{https://www.jstatsoft.org/v24/i04/}.
 #' @keywords models
 NULL
+
 
 #' Reference Measures for Exponential-Family Random Graph Models
 #'
