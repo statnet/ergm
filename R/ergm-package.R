@@ -168,29 +168,12 @@ NULL
 #' @name ergmTerm
 #' @aliases ergm-terms ergm.terms terms-ergm terms.ergm InitErgmTerm InitErgmWtTerm
 #' @docType package
-#' @description The function [`ergm`] is used to fit exponential random graph
-#' models, in which the probability of a given network, \eqn{y}, on a set of
-#' nodes is
-#' \deqn{h(y) \exp\{\eta(\theta) \cdot g(y)\} / c(\theta),}{h(y) exp{eta(theta).g(y)} / c(theta),}
-#' where \eqn{h(y)} is the reference measure (for valued network models),
-#' \eqn{g(y)} is a vector of network statistics for \eqn{y}, \eqn{\eta(\theta)}
-#' is a natural parameter vector of the same length (with
-#' \eqn{\eta(\theta)\equiv\theta}{eta(theta)=theta} for most terms),
-#' \eqn{\cdot}{.} is the dot product, and \eqn{c(\theta)} is the normalizing
-#' constant for the distribution.
-#' 
-#' The network statistics \eqn{g(y)} are entered as terms in the function call
-#' to [`ergm`].  This page describes the possible terms (and hence
-#' network statistics) included in [`ergm`][ergm-package] package.
-#' 
-#' A cross-referenced HTML version of the term documentation is available via
-#' `vignette('ergm-term-crossRef')` and terms can also be searched via
-#' [`search.ergmTerms`].
+#' @description This page explains how to specify the network statistics \eqn{g(y)} to functions in the [`ergm`][ergm-package] package and packages that extend it. It also provides an indexed list of the possible terms (and hence network statistics) visible to the \CRANpkg{ergm} API. Terms can also be searched via [`search.ergmTerms`].
 #'
 #' @section Specifying models:
-#' Terms to [`ergm`] are specified by a formula to represent the
-#' network and network statistics. This is done via a `formula`, that is,
-#' an formula object, of the form `y ~ <term 1> + <term 2> ...`, where
+#' \ERGMspec
+#'
+#' Network statistics \eqn{g(y)} and mappings \eqn{\eta(\theta)} are specified by a formula object, of the form `y ~ <term 1> + <term 2> ...`, where
 #' `y` is a network object or a matrix that can be coerced to a network
 #' object, and `<term 1>`, `<term 2>`, etc, are each terms chosen
 #' from the list given below.  To create a network object in , use the
@@ -421,20 +404,14 @@ NULL
 #' @name ergmConstraint
 #' @aliases ergm-constraints constraints-ergm ergm.constraints constraints.ergm ergm-hints hints
 #' @docType package
-#' @description [`ergm`] is used to fit exponential-family random graph models
-#' (ERGMs), in which the probability of a given network, \eqn{y}, on a set of
-#' nodes is \eqn{h(y) \exp\{\eta(\theta) \cdot g(y)\}/c(\theta)}, where
-#' \eqn{h(y)} is the reference measure (usually \eqn{h(y)=1}), \eqn{g(y)} is a
-#' vector of network statistics for \eqn{y}, \eqn{\eta(\theta)} is a natural
-#' parameter vector of the same length (with \eqn{\eta(\theta)=\theta} for most
-#' terms), and \eqn{c(\theta)} is the normalizing constant for the
-#' distribution.
-#' 
-#' This page describes the constraints (the networks \eqn{y} for which
-#' \eqn{h(y)>0}) that are included with the [`ergm`][ergm-package]
-#' package. Other packages may add new constraints.
+#' @description This page describes how to specify the constraints on the network sample space (the set of possible networks \eqn{Y}, the set of networks \eqn{y} for which \eqn{h(y)>0}) and sometimes the baseline weights \eqn{h(y)} to functions in the [`ergm`][ergm-package]
+#' package. It also provides an indexed list of the constraints visible to the \CRANpkg{ergm}'s API.
 #'
-#' @section Constraints formula:
+#' @section Specifying constraints:
+#' \ERGMspec
+#' Constraints typically affect \eqn{Y}, or, equivalently, set \eqn{h(y)=0} for some \eqn{y}, but some (\dQuote{soft} constraints) set 
+#' \eqn{h(y)} to values other than 0 and 1.
+#' 
 #' A constraints formula is a one- or two-sided formula whose left-hand side is
 #' an optional direct selection of the `InitErgmProposal` function and
 #' whose right-hand side is a series of one or more terms separated by
@@ -472,7 +449,7 @@ NULL
 #' [`%ergmlhs%`] attributes `constraints` and `constraints.obs` will
 #' be substituted in its place.
 #'
-#' @section Constraints:
+#' @section Constraints visible to the package:
 #'
 #' \if{latex}{\Sexpr[results=rd,stage=render]{ergm:::.formatIndexLatex(ergm:::.buildTermsDataframe("ergmConstraint", keywords = ~!"hint"%in%.))}}
 #' \if{text}{\Sexpr[results=rd,stage=render]{ergm:::.formatIndexText(ergm:::.buildTermsDataframe("ergmConstraint", keywords = ~!"hint"%in%.))}}
@@ -539,16 +516,17 @@ NULL
 #' @name ergmReference
 #' @aliases ergm-references references-ergm ergm.references references.ergm
 #' @docType package
-#' @description This page describes the possible reference measures (baseline distributions)
-#' for found in the [`ergm`][ergm-package] package, particularly the
-#' default (Bernoulli) reference measure for binary ERGMs.
-#' 
-#' The reference measure is specified on the RHS of a one-sided formula passed
-#' as the `reference` argument to [`ergm`].  See the
-#' [`ergm`] documentation for a complete description of how
-#' reference measures are specified.
+#' @description This page describes how to specify the reference measures (baseline distributions)
+#' (the set of possible networks \eqn{Y} and the baseline weights \eqn{h(y)} to functions in the [`ergm`][ergm-package]
+#' package. It also provides an indexed list of the references visible to the \CRANpkg{ergm}'s API.
 #'
-#' @section Possible reference measures to represent baseline distributions:
+#' @section Specifying reference measures:
+#' \ERGMspec
+#'
+#' The reference measure \eqn{(Y,h(y))} is specified on the right-hand side of a one-sided formula passed
+#' typically as the `reference` argument.
+#'
+#' @section Reference measures visible to the package:
 #' \if{latex}{\Sexpr[results=rd,stage=render]{ergm:::.formatIndexLatex(ergm:::.buildTermsDataframe("ergmReference"))}}
 #' \if{text}{\Sexpr[results=rd,stage=render]{ergm:::.formatIndexText(ergm:::.buildTermsDataframe("ergmReference"))}}
 #' \if{html}{\Sexpr[results=rd,stage=render]{ergm:::.formatIndexHtml(ergm:::.buildTermsDataframe("ergmReference"))}}

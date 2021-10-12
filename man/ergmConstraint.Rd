@@ -11,20 +11,14 @@
 \alias{hints}
 \title{Sample Space Constraints for Exponential-Family Random Graph Models}
 \description{
-\code{\link{ergm}} is used to fit exponential-family random graph models
-(ERGMs), in which the probability of a given network, \eqn{y}, on a set of
-nodes is \eqn{h(y) \exp\{\eta(\theta) \cdot g(y)\}/c(\theta)}, where
-\eqn{h(y)} is the reference measure (usually \eqn{h(y)=1}), \eqn{g(y)} is a
-vector of network statistics for \eqn{y}, \eqn{\eta(\theta)} is a natural
-parameter vector of the same length (with \eqn{\eta(\theta)=\theta} for most
-terms), and \eqn{c(\theta)} is the normalizing constant for the
-distribution.
-
-This page describes the constraints (the networks \eqn{y} for which
-\eqn{h(y)>0}) that are included with the \code{\link[=ergm-package]{ergm}}
-package. Other packages may add new constraints.
+This page describes how to specify the constraints on the network sample space (the set of possible networks \eqn{Y}, the set of networks \eqn{y} for which \eqn{h(y)>0}) and sometimes the baseline weights \eqn{h(y)} to functions in the \code{\link[=ergm-package]{ergm}}
+package. It also provides an indexed list of the constraints visible to the \CRANpkg{ergm}'s API.
 }
-\section{Constraints formula}{
+\section{Specifying constraints}{
+
+\ERGMspec
+Constraints typically affect \eqn{Y}, or, equivalently, set \eqn{h(y)=0} for some \eqn{y}, but some (\dQuote{soft} constraints) set
+\eqn{h(y)} to values other than 0 and 1.
 
 A constraints formula is a one- or two-sided formula whose left-hand side is
 an optional direct selection of the \code{InitErgmProposal} function and
@@ -64,7 +58,7 @@ The constraints formula can also contain a \code{.}. If present,
 be substituted in its place.
 }
 
-\section{Constraints}{
+\section{Constraints visible to the package}{
 
 
 \if{latex}{\Sexpr[results=rd,stage=render]{ergm:::.formatIndexLatex(ergm:::.buildTermsDataframe("ergmConstraint", keywords = ~!"hint"\%in\%.))}}

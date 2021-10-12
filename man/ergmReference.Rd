@@ -9,16 +9,19 @@
 \alias{references.ergm}
 \title{Reference Measures for Exponential-Family Random Graph Models}
 \description{
-This page describes the possible reference measures (baseline distributions)
-for found in the \code{\link[=ergm-package]{ergm}} package, particularly the
-default (Bernoulli) reference measure for binary ERGMs.
-
-The reference measure is specified on the RHS of a one-sided formula passed
-as the \code{reference} argument to \code{\link{ergm}}.  See the
-\code{\link{ergm}} documentation for a complete description of how
-reference measures are specified.
+This page describes how to specify the reference measures (baseline distributions)
+(the set of possible networks \eqn{Y} and the baseline weights \eqn{h(y)} to functions in the \code{\link[=ergm-package]{ergm}}
+package. It also provides an indexed list of the references visible to the \CRANpkg{ergm}'s API.
 }
-\section{Possible reference measures to represent baseline distributions}{
+\section{Specifying reference measures}{
+
+\ERGMspec
+
+The reference measure \eqn{(Y,h(y))} is specified on the right-hand side of a one-sided formula passed
+typically as the \code{reference} argument.
+}
+
+\section{Reference measures visible to the package}{
 
 \if{latex}{\Sexpr[results=rd,stage=render]{ergm:::.formatIndexLatex(ergm:::.buildTermsDataframe("ergmReference"))}}
 \if{text}{\Sexpr[results=rd,stage=render]{ergm:::.formatIndexText(ergm:::.buildTermsDataframe("ergmReference"))}}

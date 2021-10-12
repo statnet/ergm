@@ -11,30 +11,13 @@
 \alias{InitErgmWtTerm}
 \title{Terms used in Exponential Family Random Graph Models}
 \description{
-The function \code{\link{ergm}} is used to fit exponential random graph
-models, in which the probability of a given network, \eqn{y}, on a set of
-nodes is
-\deqn{h(y) \exp\{\eta(\theta) \cdot g(y)\} / c(\theta),}{h(y) exp{eta(theta).g(y)} / c(theta),}
-where \eqn{h(y)} is the reference measure (for valued network models),
-\eqn{g(y)} is a vector of network statistics for \eqn{y}, \eqn{\eta(\theta)}
-is a natural parameter vector of the same length (with
-\eqn{\eta(\theta)\equiv\theta}{eta(theta)=theta} for most terms),
-\eqn{\cdot}{.} is the dot product, and \eqn{c(\theta)} is the normalizing
-constant for the distribution.
-
-The network statistics \eqn{g(y)} are entered as terms in the function call
-to \code{\link{ergm}}.  This page describes the possible terms (and hence
-network statistics) included in \code{\link[=ergm-package]{ergm}} package.
-
-A cross-referenced HTML version of the term documentation is available via
-\code{vignette('ergm-term-crossRef')} and terms can also be searched via
-\code{\link{search.ergmTerms}}.
+This page explains how to specify the network statistics \eqn{g(y)} to functions in the \code{\link[=ergm-package]{ergm}} package and packages that extend it. It also provides an indexed list of the possible terms (and hence network statistics) visible to the \CRANpkg{ergm} API. Terms can also be searched via \code{\link{search.ergmTerms}}.
 }
 \section{Specifying models}{
 
-Terms to \code{\link{ergm}} are specified by a formula to represent the
-network and network statistics. This is done via a \code{formula}, that is,
-an formula object, of the form \verb{y ~ <term 1> + <term 2> ...}, where
+\ERGMspec
+
+Network statistics \eqn{g(y)} and mappings \eqn{\eta(\theta)} are specified by a formula object, of the form \verb{y ~ <term 1> + <term 2> ...}, where
 \code{y} is a network object or a matrix that can be coerced to a network
 object, and \verb{<term 1>}, \verb{<term 2>}, etc, are each terms chosen
 from the list given below.  To create a network object in , use the
