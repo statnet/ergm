@@ -7,7 +7,6 @@
 #
 #  Copyright 2003-2021 Statnet Commons
 ################################################################################
-local_edition(3)
 
 net1 <- network.initialize(10,directed=FALSE)
 net1[,] <- 1
@@ -66,7 +65,6 @@ test_that("fixallbut with network input", {
 })
 
 test_that("constraint conflict is detected", {
-  local_edition(3)
   data(florentine)
   conwarn <- "^The specified model's sample space constraint holds statistic\\(s\\) edges  constant. They will be ignored.$"
   dyadwarn <- "^The number of observed dyads in this network is ill-defined due to complex constraints on the sample space..*$"

@@ -14,9 +14,9 @@ test_that("Simulation for Passthrough() and .submodel() and .summary()", {
   text.out <- matrix(scan(textConnection(paste(text, collapse="")),quiet=TRUE),byrow=TRUE,ncol=3)
   text.out <- text.out[nrow(text.out)-nrow(out)+seq_len(nrow(out)),]
   
-  expect_equivalent(out[,1:3],out[,4:6])
-  expect_equivalent(out[,1:3],out[,7:9])
-  expect_equivalent(out[,1:3],text.out)
+  expect_equal(out[,1:3],out[,4:6], ignore_attr=TRUE)
+  expect_equal(out[,1:3],out[,7:9], ignore_attr=TRUE)
+  expect_equal(out[,1:3],text.out, ignore_attr=TRUE)
 })
 
 data(sampson)
@@ -31,9 +31,9 @@ test_that("Simulation for NodematchFilter() and F()", {
                     F(~edges, ~!nodematch("group")),
                   output="stats", nsim=20, control=control.simulate.formula(MCMC.burnin=0, MCMC.interval=1), coef=numeric(44))
 
-  expect_equivalent(out[,1:14],out[,15:28])
-  expect_equivalent(out[,1:14],out[,29:42])
-  expect_equivalent(out[,1]+out[,44],out[,43])
+  expect_equal(out[,1:14],out[,15:28], ignore_attr=TRUE)
+  expect_equal(out[,1:14],out[,29:42], ignore_attr=TRUE)
+  expect_equal(out[,1]+out[,44],out[,43], ignore_attr=TRUE)
 })
 
 test_that("Summary for F() with complex form", {
@@ -46,21 +46,22 @@ test_that("Summary for F() with complex form", {
                    F(~edges + absdiff("wealth"), ~absdiff("wealth") > 5) +
                    F(~edges + absdiff("wealth"), ~absdiff("wealth") >= 5))
 
-  expect_equivalent(out,
-                    sapply(list(m==93, m[m==93],
-                                m<5, m[m<5],
-                                m!=5, m[m!=5],
-                                m<=5, m[m<=5],
-                                m>5, m[m>5],
-                                m>=5, m[m>=5]),
-                           sum)/2)
+  expect_equal(out,
+               sapply(list(m==93, m[m==93],
+                           m<5, m[m<5],
+                           m!=5, m[m!=5],
+                           m<=5, m[m<=5],
+                           m>5, m[m>5],
+                           m>=5, m[m>=5]),
+                      sum)/2, ignore_attr=TRUE)
 })
 
 test_that("Symmetrize() summary", {
   m <- as.matrix(samplike)
-  expect_equivalent(
+  expect_equal(
     c(sum(m*t(m))/2, sum(m+t(m)>0)/2, sum(m[lower.tri(m)]), sum(m[upper.tri(m)])),
-    summary(samplike ~ Symmetrize(~edges,"strong") + Symmetrize(~edges,"weak") + Symmetrize(~edges,"lower") + Symmetrize(~edges,"upper"))
+    summary(samplike ~ Symmetrize(~edges,"strong") + Symmetrize(~edges,"weak") + Symmetrize(~edges,"lower") + Symmetrize(~edges,"upper")),
+    ignore_attr=TRUE
   )
 })
 
@@ -69,9 +70,9 @@ test_that("S() summary directed->bipartite", {
   b1 <- sample.int(network.size(samplike), 5)
   b2 <- sample(setdiff(seq_len(network.size(samplike)), b1), 4)
 
-  expect_equivalent(
+  expect_equal(
     c(sum(m[b1,b2])),
-    summary(samplike ~ S(~edges,I(b1)~I(b2)))
+    summary(samplike ~ S(~edges,I(b1)~I(b2))), ignore_attr=TRUE
   )
 })
 
@@ -80,9 +81,9 @@ test_that("S() summary undirected->bipartite", {
   b1 <- sample.int(network.size(flomarriage), 5)
   b2 <- sample(setdiff(seq_len(network.size(flomarriage)), b1), 4)
 
-  expect_equivalent(
+  expect_equal(
     c(sum(m[b1,b2])),
-    summary(flomarriage ~ S(~edges,I(b1)~I(b2)))
+    summary(flomarriage ~ S(~edges,I(b1)~I(b2))), ignore_attr=TRUE
   )
 })
 
@@ -90,9 +91,9 @@ test_that("S() summary directed->directed", {
   m <- as.matrix(samplike)
   i <- sample.int(network.size(samplike), 5)
 
-  expect_equivalent(
+  expect_equal(
     c(sum(m[i,i])),
-    summary(samplike ~ S(~edges,~i))
+    summary(samplike ~ S(~edges,~i)), ignore_attr=TRUE
   )
 })
 
@@ -101,17 +102,17 @@ test_that("S() summary undirected->undirected", {
   m <- as.matrix(flomarriage)
   i <- sample.int(network.size(flomarriage), 5)
 
-  expect_equivalent(
+  expect_equal(
     c(sum(m[i,i])/2),
-    summary(flomarriage ~ S(~edges,~i))
+    summary(flomarriage ~ S(~edges,~i)), ignore_attr=TRUE
   )
 })
 
 
 test_that("Binary Label() summary", {
-  expect_equivalent(
+  expect_equal(
     summary(flomarriage ~ Label(~edges+absdiff("wealth"), "abc")),
-    summary(flomarriage ~ edges+absdiff("wealth"))
+    summary(flomarriage ~ edges+absdiff("wealth")), ignore_attr=TRUE
   )
 
   expect_named(
@@ -141,14 +142,14 @@ test_that("Binary Label() summary", {
 })
 
 test_that("Binary Label() estimation and offsets in submodels", {
-  expect_equivalent(
+  expect_equal(
     coef(ergm(flomarriage ~ Label(~edges+offset(absdiff("wealth")), "abc"), offset.coef=-.5)),
-    coef(ergm(flomarriage ~ edges+offset(absdiff("wealth")), offset.coef=-.5))
+    coef(ergm(flomarriage ~ edges+offset(absdiff("wealth")), offset.coef=-.5)), ignore_attr=TRUE
   )
 
-  expect_equivalent(
+  expect_equal(
     coef(ergm(flomarriage ~ Label(~edges+offset(gwesp), "abc"), offset.coef=c(-.5,1), estimate="MPLE")),
-    coef(ergm(flomarriage ~ edges+offset(gwesp), offset.coef=c(-.5,1), estimate="MPLE"))
+    coef(ergm(flomarriage ~ edges+offset(gwesp), offset.coef=c(-.5,1), estimate="MPLE")), ignore_attr=TRUE
   )
 })
 
@@ -157,18 +158,18 @@ library(ergm.count)
 data(zach)
 test_that("Summary for the B() operator with nonzero criteria",{
   summ <- summary(zach~B(~edges+triangles+degree(0:5), "nonzero") + B(~edges+triangles+degree(0:5), ~nonzero), response="contexts")
-  expect_equivalent(summ, rep(summary(zach~edges+triangles+degree(0:5)),2))
+  expect_equal(summ, rep(summary(zach~edges+triangles+degree(0:5)),2), ignore_attr=TRUE)
 })
 
 test_that("Summary for the B() operator with interval criteria",{
   summ <- summary(zach~B(~edges+triangles+degree(0:5), ~ininterval(3,5,c(FALSE,FALSE))), response="contexts")
-  expect_equivalent(summ, summary(zach~edges+triangles+degree(0:5), response= ~ contexts>=3 & contexts<=5))
+  expect_equal(summ, summary(zach~edges+triangles+degree(0:5), response= ~ contexts>=3 & contexts<=5), ignore_attr=TRUE)
 })
 
 test_that("Valued Label() summary", {
-  expect_equivalent(
+  expect_equal(
     summary(zach ~ Label(~edges+absdiff("faction.id"), "abc")),
-    summary(zach ~ edges+absdiff("faction.id"))
+    summary(zach ~ edges+absdiff("faction.id")), ignore_attr=TRUE
   )
 
   expect_named(
@@ -199,13 +200,11 @@ test_that("Valued Label() summary", {
 
 test_that("Interaction terms", {
   # TODO: Need better tests.
-  local_edition(3)
   expect_equal(summary(flomarriage~edges:absdiff("wealth") + absdiff("wealth"):edges), summary(flomarriage~absdiff("wealth") + absdiff("wealth")), ignore_attr = TRUE)
   expect_equal(summary(flomarriage~edges*absdiff("wealth") + absdiff("wealth")*edges), summary(flomarriage~edges + absdiff("wealth")+ absdiff("wealth") + absdiff("wealth") + edges + absdiff("wealth")), ignore_attr = TRUE)
 })
 
 test_that("Interaction terms handling of interact.dependent", {
-  local_edition(3)
   expect_error(summary(flomarriage~triangles:absdiff("wealth")), ".*poorly defined.*")
   expect_warning(summary(flomarriage~triangles:absdiff("wealth"), interact.dependent = "warning"), ".*poorly defined.*")
   expect_message(summary(flomarriage~triangles:absdiff("wealth"), interact.dependent = "message"), ".*poorly defined.*")

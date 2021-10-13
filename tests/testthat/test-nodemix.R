@@ -9,7 +9,6 @@
 ################################################################################
 library(ergm)
 
-local_edition(3)
 
 # Test undirected network
 data(faux.mesa.high)
@@ -408,13 +407,13 @@ test_that("Undirected nodemix() summary with level2 filter by logical matrix", {
   M <- matrix(TRUE, 5, 5)
   M[1,1] <- M[3,2] <- M[2,3] <- FALSE
   s.ab2 <- summary(fmh ~ nodemix("Race", levels2=M))
-  expect_equivalent(s.ab2, fmh.mm.Race[M[upper.tri(M, TRUE)]])
+  expect_equal(s.ab2, fmh.mm.Race[M[upper.tri(M, TRUE)]], ignore_attr=TRUE)
 })
 
 test_that("Undirected nodemix() summary with level2 filter by numeric matrix", {
   M <- cbind(2,3)
   s.ab2 <- summary(fmh ~ nodemix("Race", levels2=M))
-  expect_equivalent(s.ab2, fmh.mm.Race[5])
+  expect_equal(s.ab2, fmh.mm.Race[5], ignore_attr=TRUE)
 })
 
 
@@ -434,7 +433,7 @@ test_that("Directed nodemix() summary with level2 matrix filter", {
   M <- matrix(FALSE, 3, 3)
   M[1,2] <- M[1,3] <- TRUE
   s.ab2 <- summary(samplike ~ nodemix("Trinity", levels2=M))
-  expect_equivalent(s.ab2, samp.mm.Trinity[c(M)])
+  expect_equal(s.ab2, samp.mm.Trinity[c(M)], ignore_attr=TRUE)
 })
 
 test_that("Undirected nodemix() with level2 character matrix", {

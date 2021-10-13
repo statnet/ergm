@@ -8,7 +8,6 @@
 #  Copyright 2003-2021 Statnet Commons
 ################################################################################
 ### Tests to make sure drop=FALSE works.
-local_edition(3)
 
 library(statnet.common)
 opttest({

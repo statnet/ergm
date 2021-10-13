@@ -8,7 +8,6 @@
 #  Copyright 2003-2021 Statnet Commons
 ################################################################################
 
-local_edition(3)
 
 # Create test bipartite network (from SMG)
 gmat <- cbind(

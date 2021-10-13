@@ -7,7 +7,6 @@
 #
 #  Copyright 2003-2021 Statnet Commons
 ################################################################################
-local_edition(3)
 
 logit <- function(p) log(p/(1-p))
 

@@ -8,7 +8,6 @@
 #  Copyright 2003-2021 Statnet Commons
 ################################################################################
 
-local_edition(3)
 
 # tests to veryify the structure of the ergm-terms documentation
 # this executes functions similar to what would be run when building the ergm=term=crossRef.Rmd file

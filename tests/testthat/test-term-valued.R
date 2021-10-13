@@ -8,7 +8,6 @@
 #  Copyright 2003-2021 Statnet Commons
 ################################################################################
 
-local_edition(3)
 
 tst <- function(truth, fmla){
   test <- summary(fmla, response="w")

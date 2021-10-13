@@ -7,7 +7,6 @@
 #
 #  Copyright 2003-2021 Statnet Commons
 ################################################################################
-local_edition(3)
 
 edges_mle <- function(y) {
   e <- network.edgecount(y)

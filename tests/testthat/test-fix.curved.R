@@ -8,7 +8,6 @@
 #  Copyright 2003-2021 Statnet Commons
 ################################################################################
 test_that("fix.curved() works", {
-  local_edition(3)
   data(sampson)
   out<-fix.curved(samplike~edges+gwnsp(decay=.5,fixed=TRUE)+gwesp()+gwodegree()+edges,c(1:7))
   expect_equal(out,

@@ -7,7 +7,6 @@
 #
 #  Copyright 2003-2021 Statnet Commons
 ################################################################################
-local_edition(3)
 nw <- network(8, dir = FALSE)
 
 test_that("Estimation with Offset() operator works", {

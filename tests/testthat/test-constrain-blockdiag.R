@@ -7,7 +7,6 @@
 #
 #  Copyright 2003-2021 Statnet Commons
 ################################################################################
-local_edition(3)
 
 mean_mat <- function(Mmin, Mmax){
   Mmin <- statnet.common::NVL(Mmin, Mmax)

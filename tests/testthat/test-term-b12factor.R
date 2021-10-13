@@ -19,5 +19,5 @@ test_that("NA check works for b1factor", {
 
 test_that("Correct statistics for b2factor()", {
   o <- summary(bipnet~b2factor('felines'))
-  expect_equivalent(o, 1)
+  expect_equal(o, 1, ignore_attr=TRUE)
 })

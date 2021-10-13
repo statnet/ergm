@@ -7,7 +7,6 @@
 # #  Copyright 2003-2021 Statnet Commons
 ################################################################################
 
-local_edition(3)
 
 expect_summary <- function(s, e, value, coefficients, tolerance=0.001) {
   expect_equal(s, value, tolerance=tolerance, ignore_attr=TRUE)

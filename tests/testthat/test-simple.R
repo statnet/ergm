@@ -8,7 +8,6 @@
 #  Copyright 2003-2021 Statnet Commons
 ################################################################################
 # Simulate a network with a high number of nodes with outdegree=3 and a low number with indegree=3:
-local_edition(3)
 
 library(statnet.common)
 opttest({

@@ -7,7 +7,6 @@
 #
 #  Copyright 2003-2021 Statnet Commons
 ################################################################################
-local_edition(3)
 
 aaa <- network.initialize(10,directed=TRUE,loops=TRUE)
 aaa %v% 'race' <- rep(c('B','W'),10)

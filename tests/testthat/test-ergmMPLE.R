@@ -7,7 +7,6 @@
 #
 #  Copyright 2003-2021 Statnet Commons
 ################################################################################
-local_edition(3)
 data(faux.mesa.high)
 formula <- faux.mesa.high ~ nodematch("Sex")
 mplesetup <- ergmMPLE(formula)
