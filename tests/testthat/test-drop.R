@@ -67,7 +67,7 @@ crash.test <- function() {
 }
 
 test_that("doesn't crash for dyad-dependent and curved terms", {
-  expect_error(crash.test(), NA)
+  capture_warnings(expect_error(crash.test(), NA))
 })
 
 }, "drop")

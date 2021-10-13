@@ -1,5 +1,5 @@
 Package: ergm
-Version: 4.1-6719
+Version: 4.1-6723
 Date: 2021-10-13
 Title: Fit, Simulate and Diagnose Exponential-Family Models for Networks
 Authors@R: c(
@@ -51,6 +51,7 @@ Suggests:
     ergm.count (>= 4.0),
     ergm.userterms (>= 3.10.0),
     networkDynamic (>= 0.10.1),
+    withr,
     covr
 SystemRequirements: OpenMPI
 BugReports: https://github.com/statnet/ergm/issues

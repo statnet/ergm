@@ -12,9 +12,11 @@ o <- options(ergm.eval.loglik=FALSE)
 data(florentine)
 
 test_that("Nonidentifiable model produces a warning.", {
-  expect_warning(ergm(flomarriage~edges+nodecov(~wealth)+nodecov(~-wealth/2+1)),".*nodecov\\.-wealth/2\\+1.*\\bnonidentifiable\\b.*")
-  expect_warning(ergm(flomarriage~edges+nodecov(~wealth)+nodecov(~-wealth/2+1), control=control.ergm(init.method="CD")),".*nodecov\\.-wealth/2\\+1.*\\bnonidentifiable\\b.*")
-  expect_warning(ergm(flomarriage~edges+nodecov(~wealth)+nodecov(~-wealth/2+1)+gwesp(fixed=FALSE), control=control.ergm(MCMLE.maxit=1)),".*nodecov\\.-wealth/2\\+1.*\\bnonidentifiable\\b.*")
+  warnpat <- ".*nodecov\\.-wealth/2\\+1.*\\bnonidentifiable\\b.*"
+  expect_warning(ergm(flomarriage~edges+nodecov(~wealth)+nodecov(~-wealth/2+1)), warnpat)
+  expect_warning(ergm(flomarriage~edges+nodecov(~wealth)+nodecov(~-wealth/2+1), control=control.ergm(init.method="CD")), warnpat)
+  warns <- capture_warnings(ergm(flomarriage~edges+nodecov(~wealth)+nodecov(~-wealth/2+1)+gwesp(fixed=FALSE), control=control.ergm(MCMLE.maxit=1)))
+  expect_match(warns, warnpat, all=FALSE)
 })
 
 test_that("Model identifiable only due to offsets does not.", {

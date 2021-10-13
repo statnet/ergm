@@ -151,15 +151,10 @@ test_that("opentriad, undirected", {
 
 test_that("sociality, undirected", {
   s.0 <- summary(fmh~sociality)
-  s.a <- summary(fmh~sociality("Race"))
   s.b <- summary(fmh~sociality(nodes=-(2:203)))
-  s.ab <- summary(fmh~sociality(function(x) x %v% "Race", nodes=-(3:200)))
-  e.ab <- ergm(fmh~sociality(~Race, nodes=-(3:205)), estimate="MPLE")
 
   expect_equal(head(s.0), c(4,0,0,1,0,0), ignore_attr=TRUE)
-  expect_equal(s.a[45:50], c(0,8,0,0,0,3), ignore_attr=TRUE)
   expect_equal(s.b, c(13,3,1), ignore_attr=TRUE)
-  expect_summary(s.ab, e.ab, c(7,3,2,0,0,0,0), -c(2.6595, 3.5464))
 })
 
 test_that("transitiveties, directed", {

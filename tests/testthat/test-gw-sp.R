@@ -11,7 +11,8 @@
 
 niter <- 20
 
-data("faux.dixon.high")
+data(faux.dixon.high)
+data(faux.mesa.high)
 
 test.approx = function(a, b, tol=1e-6) {
   expect_lte(abs(a - b), tol)
