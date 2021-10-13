@@ -13,7 +13,7 @@
 
 
 #===========================================================================
-# This file contains the following 74 new, easier-to-write ergm-term
+# This file contains the following 74 new, easier-to-write ERGM term
 # initialization functions (each prepended with "InitErgmTerm"):
 #   A:   <absdiff>          <absdiffcat>      <altkstar>
 #        <asymmetric>       <adegcor>
@@ -2694,7 +2694,7 @@ InitErgmTerm.diff <- function(nw, arglist, ..., version=packageVersion("ergm")) 
   sign.action <- match.arg(tolower(a$sign.action), SIGN.ACTIONS)
   sign.code <- match(sign.action, SIGN.ACTIONS)
 
-  if(sign.action!="abs" && !is.directed(nw) && !is.bipartite(nw)) ergm_Init_inform("Note that behavior of term diff() on unipartite, undirected networks may be unexpected. See help(\"ergm-terms\") for more information.")
+  if(sign.action!="abs" && !is.directed(nw) && !is.bipartite(nw)) ergm_Init_inform(paste("Note that behavior of term diff() on unipartite, undirected networks may be unexpected. See", sQuote("ergmTerm?diff"),"for more information."))
   
   # 1 and 4 are sign codes that allow negative differences.
   if(sign.code %in% c(1, 4) &&  a$pow!=round(a$pow)) ergm_Init_abort("In term diff(attr, pow, sign=",a$sign,"), pow must be an integer.")
@@ -6317,7 +6317,7 @@ InitErgmTerm.sociality<-function(nw, arglist, ..., version=packageVersion("ergm"
 #' @usage
 #' # binary: threepath
 InitErgmTerm.threepath <- function(nw, arglist, ..., version=packageVersion("ergm")) {
-  ergm_Init_warn("This term is inaccurately named and actually refers to a '3-trail' in that it counts repeated vertices: i-j-k-i is a 3-trail but not a 3-path. See ergm-terms help for more information. This name has been deprecated and will be removed in a future version: if a 3-trail is what you want, use the term 'threetrail'.")
+  ergm_Init_warn(paste("This term is inaccurately named and actually refers to a '3-trail' in that it counts repeated vertices: i-j-k-i is a 3-trail but not a 3-path. See", sQuote("ergmTerm?treepath"), "help for more information. This name has been deprecated and will be removed in a future version: if a 3-trail is what you want, use the term 'threetrail'."))
   if(version <= as.package_version("3.9.4")){
     ### Check the network and arguments to make sure they are appropriate.
     a <- check.ErgmTerm (nw, arglist, 

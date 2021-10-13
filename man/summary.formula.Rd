@@ -24,7 +24,7 @@ A vector of statistics specified in RHS of the formula.
 Most generally, this function computes those summaries of the
 object on the LHS of the formula that are specified by its RHS.  In
 particular, if given a network as its LHS and
-\code{\link{ergm-terms}} on its RHS, it computes the sufficient
+\code{\link{ergmTerm}} on its RHS, it computes the sufficient
 statistics associated with those terms.
 }
 \details{
@@ -48,6 +48,6 @@ summary(m ~ edges, directed=FALSE) # Now it's correct
 
 }
 \seealso{
-\code{\link[=ergm]{ergm()}}, \code{\link[=network]{network()}}, \link{ergm-terms}
+\code{\link[=ergm]{ergm()}}, \code{\link[=network]{network()}}, \code{\link{ergmTerm}}
 }
 \keyword{models}

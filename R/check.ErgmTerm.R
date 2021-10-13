@@ -16,7 +16,7 @@ ergm_Init_warn_once <- once(ergm_Init_warn)
 #' Helper functions for implementing \code{\link[=ergm]{ergm()}}
 #' terms, to check whether the term can be used with the specified
 #' network.  For information on ergm terms, see
-#' \link{ergm-terms}. \code{ergm.checkargs},
+#' \link{ergmTerm}. \code{ergm.checkargs},
 #' \code{ergm.checkbipartite}, and \code{ergm.checkderected} are
 #' helper functions for an old API and are deprecated. Use
 #' \code{check.ErgmTerm}.

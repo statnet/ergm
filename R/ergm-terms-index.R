@@ -414,7 +414,7 @@ ergmTermCache <- local({
 
 # function to look up the set of terms applicable for a specific network
 
-#' Search the ergm-terms documentation for appropriate terms
+#' Search the ERGM terms
 #' 
 #' Searches through the \code{\link{ergm.terms}} help page and prints out a
 #' list of terms appropriate for the specified network's structural

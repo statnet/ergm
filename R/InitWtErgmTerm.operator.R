@@ -34,10 +34,10 @@ InitWtErgmTerm.Passthrough <- function(nw, arglist, ...){
 #'   depends on the argument `form`
 #' @param form One of three values:
 #'   - `"sum"`: see section "Generalizations of
-#'   binary terms" in `?ergm-terms`; all terms in `formula` must
+#'   binary terms" in [`ergmTerm`] help; all terms in `formula` must
 #'   be dyad-independent.
 #'   - `"nonzero"`: section "Generalizations of
-#'   binary terms" in `?ergm-terms`; any binary `ergm` terms
+#'   binary terms" in [`ergmTerm`] help; any binary `ergm` terms
 #'   may be used in `formula` .
 #'   - a one-sided formula value-dependent
 #'   network. `form` must contain one "valued" `ergm` term, with

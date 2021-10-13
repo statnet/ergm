@@ -59,7 +59,7 @@
 #'   [`formula`] should be of the form \code{y ~ <model terms>}, where
 #'   \code{y} is a network object or a matrix that can be coerced to a
 #'   [`network`] object.  For the details on the possible \code{<model
-#'   terms>}, see \code{\link{ergm-terms}}.  To create a
+#'   terms>}, see \code{\link{ergmTerm}}.  To create a
 #'   \code{\link[network]{network}} object in , use the
 #'   \code{network()} function, then add nodal attributes to it using
 #'   the \code{\%v\%} operator if necessary.

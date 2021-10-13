@@ -2,7 +2,7 @@
 % Please edit documentation in R/ergm-terms-index.R
 \name{search.ergmTerms}
 \alias{search.ergmTerms}
-\title{Search the ergm-terms documentation for appropriate terms}
+\title{Search the ERGM terms}
 \usage{
 search.ergmTerms(search.term, net, keywords, name, packages)
 }

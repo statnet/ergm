@@ -40,7 +40,7 @@ is.ergm(object)
 \code{\link[network]{network}} object or a matrix that can be
 coerced to a \code{\link[network]{network}} object.  For the
 details on the possible \code{<model terms>}, see
-\code{\link{ergm-terms}} and Morris, Handcock and Hunter (2008)
+\code{\link{ergmTerm}} and Morris, Handcock and Hunter (2008)
 for binary ERGM terms and Krivitsky (2012) for valued ERGM terms
 (terms for weighted edges).  To create a
 \code{\link[network]{network}} object in \R, use the
@@ -495,7 +495,7 @@ Available from
 \url{https://www.cmu.edu/joss/content/articles/volume3/Snijders.pdf}.
 }
 \seealso{
-\code{\link{network}}, \code{\link{\%v\%}}, \code{\link{\%n\%}}, \link{ergm-terms}, \code{\link{ergmMPLE}},
+\code{\link{network}}, \code{\link{\%v\%}}, \code{\link{\%n\%}}, \code{\link{ergmTerm}}, \code{\link{ergmMPLE}},
 \code{\link[=summary.ergm]{summary.ergm()}}
 }
 \keyword{models}

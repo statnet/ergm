@@ -15,10 +15,10 @@ depends on the argument \code{form}}
 \item{form}{One of three values:
 \itemize{
 \item \code{"sum"}: see section "Generalizations of
-binary terms" in \code{?ergm-terms}; all terms in \code{formula} must
+binary terms" in \code{\link{ergmTerm}} help; all terms in \code{formula} must
 be dyad-independent.
 \item \code{"nonzero"}: section "Generalizations of
-binary terms" in \code{?ergm-terms}; any binary \code{ergm} terms
+binary terms" in \code{\link{ergmTerm}} help; any binary \code{ergm} terms
 may be used in \code{formula} .
 \item a one-sided formula value-dependent
 network. \code{form} must contain one "valued" \code{ergm} term, with

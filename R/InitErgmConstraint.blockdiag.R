@@ -11,7 +11,7 @@
 ## FIXME: There is almost certainly a better way to do this.
 .consensus.order <- function(x1, x2){
   o <- intersect(x1, x2)
-  if(!all(x1[x1 %in% o] == x2[x2 %in% o])) stop("Current implementation of block-diagonal sampling requires the common blocks of egos and blocks of alters to have the same order. See help('ergm-constraints') for more information.")
+  if(!all(x1[x1 %in% o] == x2[x2 %in% o])) stop("Current implementation of block-diagonal sampling requires the common blocks of egos and blocks of alters to have the same order. See ", sQuote("ergmConstraint?blockdiag"), "for more information.")
   o1 <- c(0, which(x1 %in% o),length(x1)+1)
   o2 <- c(0, which(x2 %in% o),length(x2)+1)
   n <- length(o1) - 1
@@ -79,7 +79,7 @@ InitErgmConstraint.blockdiag<-function(lhs.nw, attr=NULL, ...){
            bip <- lhs.nw %n% "bipartite"
            ea <- a[seq_len(bip)]
            aa <- a[bip+seq_len(n-bip)]
-           if(length(rle(ea)$lengths)!=length(unique(rle(ea)$values)) || length(rle(aa)$lengths)!=length(unique(rle(aa)$values))) stop("Current implementation of block-diagonal sampling requires that the blocks of the egos and the alters be contiguous. See help('ergm-constraints') for more information.")
+           if(length(rle(ea)$lengths)!=length(unique(rle(ea)$values)) || length(rle(aa)$lengths)!=length(unique(rle(aa)$values))) stop("Current implementation of block-diagonal sampling requires that the blocks of the egos and the alters be contiguous. See ", sQuote("ergmConstraint?blockdiag"), " for more information.")
 
            tmp <- .double.rle(ea, aa)
            el <- tmp$lengths1
