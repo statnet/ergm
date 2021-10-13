@@ -22,4 +22,4 @@ in binary mode.
 \concept{binary}
 \concept{discrete}
 \concept{finite}
-\concept{positive}
+\concept{nonnegative}

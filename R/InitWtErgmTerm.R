@@ -986,7 +986,7 @@ InitWtErgmTerm.transitiveties<-function (nw, arglist, ...) {
 #'
 #' @concept directed
 #' @concept undirected
-#' @concept non-negative
+#' @concept nonnegative
 #' @concept triad-related
 InitWtErgmTerm.transitiveweights<-function (nw, arglist, ...) {
 ### Check the network and arguments to make sure they are appropriate.
@@ -1059,7 +1059,7 @@ InitWtErgmTerm.cyclicalties<-function (nw, arglist, ...) {
 #'
 #' @concept directed
 #' @concept undirected
-#' @concept non-negative
+#' @concept nonnegative
 InitWtErgmTerm.cyclicalweights<-function (nw, arglist, ...) {
 ### Check the network and arguments to make sure they are appropriate.
   a <- check.ErgmTerm(nw, arglist, bipartite=NULL, nonnegative=TRUE,

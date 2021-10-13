@@ -34,5 +34,5 @@ to induce a multimodal distribution of networks.
 \code{\link{ergmTerm}} for index of model terms currently visible to the package.
 }
 \concept{directed}
-\concept{non-negative}
+\concept{nonnegative}
 \concept{undirected}

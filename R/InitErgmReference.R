@@ -24,7 +24,7 @@
 #' @concept discrete
 #' @concept finite
 #' @concept binary
-#' @concept positive
+#' @concept nonnegative
 InitErgmReference.Bernoulli <- function(nw, arglist, ...){
   a <- check.ErgmTerm(nw, arglist)
   list(name="Bernoulli", init_methods=c("MPLE", "CD", "zeros"))
