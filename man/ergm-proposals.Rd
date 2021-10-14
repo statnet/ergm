@@ -16,8 +16,6 @@
 \alias{InitErgmProposal.CondOutDegreeDist}
 \alias{InitErgmProposal.ConstantEdges}
 \alias{InitErgmProposal.TNT}
-\alias{InitErgmProposal.BDStratTNT}
-\alias{InitErgmProposal.randomtoggle}
 \alias{InitErgmProposal.randomtoggleNonObserved}
 \alias{InitErgmProposal.NonObservedTNT}
 \alias{InitErgmProposal.CondB1Degree}
@@ -49,9 +47,7 @@
 
   \describe{
   
-        \item{InitErgmProposal.randomtoggle}{Propose a randomly selected dyad to toggle.
-        }
-        
+
         \item{InitErgmProposal.TNT}{Default MH algorithm. Stratifies the population of dyads
         	by edge status: those having ties and those having no ties (hence T/NT).  
         	This is useful for improving performance in sparse networks,
@@ -105,13 +101,6 @@
         \item{InitErgmProposal.CondInDegree}{MHp for \eqn{constraints= ~idegrees}. For directed networks, randomly select two dyads with a common head node, one having an edge one not, and propose to swap the tie from one tail to the other.
         }
         \item{InitErgmProposal.CondOutDegree}{MHp for \eqn{constraints= ~odegrees}. For directed networks, randomly select two dyads with a common tail node, one having an edge and one not, and propose to swap the tie from one head to the other.
-        }
-
-        \item{InitErgmProposal.BDStratTNT}{Implements a TNT proposal with any subset of the following features: (1) upper
-                    bounds on degree, specified via the \code{\link[=bd-ergmConstraint]{bd}} constraint's \code{maxout}, \code{maxin}, and \code{attribs}
-                    arguments; (2) stratification of proposals according to mixing type on a vertex attribute, specified via the 
-                    \code{\link[=strat-ergmConstraint]{strat}} hint; (3) fixation of specified mixing types on a(nother) vertex attribute, specified via 
-                    the \code{\link[=blocks-ergmConstraint]{blocks}} constraint.
         }
 
        }}

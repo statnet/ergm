@@ -251,6 +251,91 @@ ergmTermCache <- local({
   ret
 }
 
+.filterProposals <- function(proposals, proposal=NULL, ...) {
+  if (!is.null(proposal)) {
+    proposals <- proposals[proposals$Proposal == proposal,]
+  }
+
+  proposals
+}
+
+.parseProposal <- function(...) {
+  ps <- ergm_proposal_table()
+  ps <- .filterProposals(ps, ...)
+
+  proposals <- list()
+
+  for (i in 1:nrow(ps)) {
+    constraints <- strsplit(ps$Constraints[i], '(?<=.)(?=[|&])', perl=TRUE)[[1]]
+    constraints <- lapply(constraints, function(c) list(
+      name=substr(c, 2, stringr::str_length(c)),
+      enforce=substr(c, 1, 1) == '&'))
+    proposals[[length(proposals) + 1]] <- list(
+      proposal=ps$Proposal[i],
+      reference=ps$Reference[i],
+      enforced=constraints %>% keep("enforce") %>% map("name") %>% unlist,
+      may_enforce=constraints %>% discard("enforce") %>% map("name") %>% unlist,
+      priority=ps$Priority[i],
+      weight=ps$Weights[i]
+    )
+  }
+
+  proposals
+}
+
+.formatProposalsHtml <- function(df, keepProposal=FALSE) {
+  if (is.null(df)) return(NULL)
+
+  for (i in 1:length(df)) {
+    df[[i]]$enforced <- if (length(df[[i]]$enforced) > 0) paste(sprintf('<a href="../help/%1$s-ergmConstraint">%1$s</a>', df[[i]]$enforced), collapse=' ') else ""
+    df[[i]]$may_enforce <- if (length(df[[i]]$may_enforce) > 0) paste(sprintf('<a href="../help/%1$s-ergmConstraint">%1$s</a>', df[[i]]$may_enforce), collapse=' ') else ""
+  }
+
+  df <- do.call(rbind, df)
+
+  if (!keepProposal) {
+    df <- subset(df, select=-proposal)
+  }
+
+  css <- '<style>th,td {padding:3px 10px}</style>'
+  sprintf("\\out{%s%s}", css, knitr::kable(df, 'html', escape=FALSE, row.names=FALSE))
+}
+
+.formatProposalsLatex <- function(df, keepProposal=FALSE) {
+  if (is.null(df)) return(NULL)
+
+  for (i in 1:length(df)) {
+    df[[i]]$enforced <- if (length(df[[i]]$enforced) > 0) paste(df[[i]]$enforced, collapse=' ') else ""
+    df[[i]]$may_enforce <- if (length(df[[i]]$may_enforce) > 0) paste(df[[i]]$may_enforce, collapse=' ') else ""
+  }
+
+  df <- do.call(rbind, df)
+
+  if (!keepProposal) {
+    df <- subset(df, select=-proposal)
+  }
+
+  sprintf("\\out{%s}", knitr::kable(df, 'latex', escape=FALSE, row.names=FALSE))
+}
+
+.formatProposalsText <- function(df, keepProposal=FALSE) {
+  if (is.null(df)) return(NULL)
+
+  for (i in 1:length(df)) {
+    df[[i]]$enforced <- if (length(df[[i]]$enforced) > 0) paste(df[[i]]$enforced, collapse=' ') else ""
+    df[[i]]$may_enforce <- if (length(df[[i]]$may_enforce) > 0) paste(df[[i]]$may_enforce, collapse=' ') else ""
+  }
+
+  df <- do.call(rbind, df)
+
+  if (!keepProposal) {
+    df <- subset(df, select=-proposal)
+  }
+
+  sprintf('\\preformatted{%s}', paste(knitr::kable(df, 'pipe'), collapse='\n'))
+}
+
+# output listings of terms, grouped by keywords
 #' @importFrom magrittr "%>%" "%<>%"
 .formatIndexText <- function(df) {
   if(is.null(df)) return(NULL)

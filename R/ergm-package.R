@@ -617,3 +617,22 @@ NULL
 #'
 #' @keywords models
 NULL
+
+#' Proposals for Exponential-Family Random Graph Models
+#'
+#' @name ergmProposals
+#' @aliases ergm-proposals proposals-ergm ergm.proposals proposals.ergm
+#' @docType package
+#' @description TODO
+#'
+#' @section Implemented proposals for ergm models:
+#' \if{html}{\Sexpr[results=rd,stage=render]{ergm:::.formatProposalsHtml(ergm:::.parseProposal(), keepProposal=TRUE)}}
+#' \if{text}{\Sexpr[results=rd,stage=render]{ergm:::.formatProposalsText(ergm:::.parseProposal(), keepProposal=TRUE)}}
+#' \if{latex}{\Sexpr[results=rd,stage=render]{ergm:::.formatProposalsLatex(ergm:::.parseProposal(), keepProposal=TRUE)}}
+#'
+#' @seealso TODO
+#'
+#' @references TODO
+#'
+#' @keywords models
+NULL

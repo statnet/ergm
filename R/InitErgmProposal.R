@@ -43,6 +43,11 @@
 ############################################################################
 DyadGenType <- list(RandDyadGen=0L, WtRandDyadGen=1L, RLEBDM1DGen=2L, EdgeListGen=3L)
 
+#' @templateVar name randomtoggle
+#' @title Propose a randomly selected dyad to toggle
+#' @description Propose a randomly selected dyad to toggle
+#' @template ergmProposal
+NULL
 InitErgmProposal.randomtoggle <- function(arguments, nw){
   list(name = "randomtoggle", dyadgen = ergm_dyadgen_select(arguments, nw), bd = ergm_bd_init(arguments, nw))
 }
@@ -51,6 +56,14 @@ InitErgmProposal.TNT <- function(nw, arguments, ...){
   list(name = "TNT", dyadgen = ergm_dyadgen_select(arguments, nw), bd = ergm_bd_init(arguments, nw))
 }
 
+#' @templateVar name BDStratTNT
+#' @title TNT proposal with degree bounds
+#' @description Implements a TNT proposal with any subset of the following features:
+#'   1. upper on degree, specified via the [`bd`][bd-ergmConstraint] constraint's `maxout`, `maxin`, and `attribs` arguments
+#'   2. stratification of proposals according to mixing type on a vertex attribute, specified via the [`strat`][strat-ergmConstraint] hint;
+#'   3. fixation of specified mixing types on a(nother) vertex attribute, specified via the [`blocks`][blocks-ergmConstraint] constraint.
+#' @template ergmProposal
+NULL
 InitErgmProposal.BDStratTNT <- function(arguments, nw) {
   # if bd has not already been initialized, or if related arguments are passed directly to the proposal, (re)initialize it now
   if(any(!unlist(lapply(arguments[c("attribs", "maxout", "maxin")], is.null)))) {
