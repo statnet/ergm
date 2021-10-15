@@ -103,7 +103,7 @@ ergm_keyword <- local({
 
 #' Keywords defined for Exponential-Family Random Graph Models
 #'
-#' @name ergmKeywords
+#' @name ergmKeyword
 #' @aliases ergm-keywords keywords-ergm ergm.keywords keywords.ergm
 #' @docType package
 #' @description This collects all defined keywords defined for the ERGM and derived packages
