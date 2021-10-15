@@ -598,8 +598,7 @@ InitErgmConstraint.egocentric <- function(nw, arglist, ...){
 
 #' @name Dyads-ergmConstraint
 #' @title Constrain fixed or varying dyad-independent terms
-#' @description Constrain fixed or varying dyad-independent terms
-#' @details This is an "operator" constraint that takes one or two [ergm] formulas. For the terms in the `vary=` formula, only those that change at least one of the terms will be allowed to vary, and all others will be fixed. If both formulas are given, the dyads that vary either for one or for the other will be allowed to vary. Note that a formula passed to `Dyads` without an argument name will default to `fix=` .
+#' @description This is an "operator" constraint that takes one or two [`ergmTerm`] dyad-independent formulas. For the terms in the `vary=` formula, only those that change at least one of the terms will be allowed to vary, and all others will be fixed. If both formulas are given, the dyads that vary either for one or for the other will be allowed to vary. Note that a formula passed to `Dyads` without an argument name will default to `fix=` .
 #'
 #' @usage
 #' # Dyads(fix=NULL, vary=NULL)
@@ -621,6 +620,12 @@ InitErgmConstraint.Dyads<-function(nw, arglist, ...){
 
   if(is.null(fix) & is.null(vary))
     ergm_Init_abort(paste("Dyads constraint takes at least one argument, either",sQuote("fix"),"or",sQuote("vary"),"or both."))
+
+  for(f in c(fix, vary)){
+    f[[3]] <- f[[2]]
+    f[[2]] <- nw
+    if(!is.dyad.independent(f)) ergm_Init_abort(paste("Terms passed to the Dyads constraint must be dyad-independent."))
+  }
 
   list(
     free_dyads = function(){
