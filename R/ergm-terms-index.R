@@ -270,6 +270,7 @@ ergmTermCache <- local({
     constraints <- lapply(constraints, function(c) list(
       name=substr(c, 2, stringr::str_length(c)),
       enforce=substr(c, 1, 1) == '&'))
+    constraints <- constraints %>% keep(~substr(.x$name, 1, 1) != '.')
     proposals[[length(proposals) + 1]] <- list(
       proposal=ps$Proposal[i],
       reference=ps$Reference[i],
@@ -309,13 +310,17 @@ ergmTermCache <- local({
     df[[i]]$may_enforce <- if (length(df[[i]]$may_enforce) > 0) paste(df[[i]]$may_enforce, collapse=' ') else ""
   }
 
-  df <- do.call(rbind, df)
+  df <- as.data.frame(do.call(rbind, df))
+  names(df) <- c('Proposal', 'Reference', 'Enforced', 'May Enforce', 'Priority', 'Weight')
 
   if (!keepProposal) {
-    df <- subset(df, select=-proposal)
+    df <- subset(df, select=-Proposal)
   }
 
-  sprintf("\\out{%s}", knitr::kable(df, 'latex', escape=FALSE, row.names=FALSE))
+  sprintf("\\out{%s}", knitr::kable(df, 'latex', escape=FALSE, row.names=FALSE, longtable=TRUE, vline="") %>%
+    gsub(' *\n *', ' ', .) %>%
+    gsub('\\\\ ', '\\\\\\\\ ', .))
+
 }
 
 .formatProposalsText <- function(df, keepProposal=FALSE) {
