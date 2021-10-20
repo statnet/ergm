@@ -3,6 +3,7 @@
 \name{sparse-ergmHint}
 \alias{sparse-ergmHint}
 \alias{InitErgmConstraint.sparse}
+\alias{sparse-ergmConstraint}
 \title{Sparse network}
 \usage{
 # sparse

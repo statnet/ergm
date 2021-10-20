@@ -71,7 +71,7 @@ InitErgmProposal.TNT <- function(nw, arguments, ...){
 #' @title TNT proposal with degree bounds
 #' @description Implements a TNT proposal with any subset of the following features:
 #'   1. upper on degree, specified via the [`bd`][bd-ergmConstraint] constraint's `maxout`, `maxin`, and `attribs` arguments
-#'   2. stratification of proposals according to mixing type on a vertex attribute, specified via the [`strat`][strat-ergmConstraint] hint;
+#'   2. stratification of proposals according to mixing type on a vertex attribute, specified via the [`strat`][strat-ergmHint] hint;
 #'   3. fixation of specified mixing types on a(nother) vertex attribute, specified via the [`blocks`][blocks-ergmConstraint] constraint.
 #' @template ergmProposal
 NULL
