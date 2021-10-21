@@ -499,11 +499,11 @@ InitErgmConstraint.fixallbut<-function(nw, arglist,...){
   list(
     free_dyads = function(){
       if(is.network(free.dyads)) free.dyads <- as.edgelist(free.dyads)
-      fixed <- as.edgelist(free.dyads,
-                           n=nw%n%"n",
-                           directed=nw%n%"directed",
-                           bipartite=nw%n%"bipartite",
-                           loops=nw%n%"loops")
+      else free.dyads <- as.edgelist(free.dyads,
+                                     n=nw%n%"n",
+                                     directed=nw%n%"directed",
+                                     bipartite=nw%n%"bipartite",
+                                     loops=nw%n%"loops")
       as.rlebdm(free.dyads)
     },
     dependence = FALSE)
