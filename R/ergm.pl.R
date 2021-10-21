@@ -53,12 +53,17 @@ ergm.pl<-function(nw, fd, m, theta.offset=NULL,
   elfd <- as.rlebdm(el) & fd
   e <- sum(elfd)
 
-  maxNumDyadTypes <- as.integer(min(if(is.function(control$MPLE.max.dyad.types)) control$MPLE.max.dyad.types(d=d, e=e) else control$MPLE.max.dyad.types,
-                         1.05*d)) # a little larger than d so the hash table doesn't bog down
   maxDyads <- if(is.function(control$MPLE.samplesize)) control$MPLE.samplesize(d=d, e=e) else control$MPLE.samplesize
 
-  if(as.double(maxNumDyadTypes)*nparam(m, canonical=TRUE) > .Machine$integer.max) {
-    stop("The maximum number of unique dyad types times the number of statistics exceeds 32 bit limits, so the MPLE cannot proceed; try reducing either MPLE.max.dyad.types or the number of terms in the model.")
+  # Convert the new-style MPLE results into old-style.
+  old_PL <- function(z){
+    y0 <- which(z$y[1,] != 0)
+    y1 <- which(z$y[2,] != 0)
+    x <- t(z$x[,c(y0, y1), drop=FALSE])
+    list(y = rep(c(0L,1L), c(length(y0), length(y1))),
+         x = x,
+         weightsvector = c(z$y[1,y0],z$y[2,y1])
+         )
   }
 
   z <- .Call("MPLE_wrapper",
@@ -66,17 +71,18 @@ ergm.pl<-function(nw, fd, m, theta.offset=NULL,
              # MPLE settings
              as.double(to_ergm_Cdouble(fd)),
              as.integer(maxDyads),
-             as.integer(maxNumDyadTypes),
              PACKAGE="ergm")
-  uvals <- z$weightsvector!=0
+
+
+  z <- old_PL(z)
   if (verbose) {
-    message(paste("MPLE covariate matrix has", sum(uvals), "rows."))
+    message(paste("MPLE covariate matrix has", length(z$y), "rows."))
   }
-  zy <- z$y[uvals]
-  wend <- as.numeric(z$weightsvector[uvals])
-  xmat <- matrix(z$x, ncol=nparam(m,canonical=TRUE), byrow=TRUE)[uvals,,drop=FALSE]
+  zy <- z$y
+  wend <- as.numeric(z$weightsvector)
+  xmat <- z$x
   colnames(xmat) <- param_names(m,canonical=TRUE)
-  rm(z,uvals)
+  rm(z)
 
   # If we ran out of space, AND we have a sparse network, then, use
   # case-control MPLE.
@@ -87,22 +93,21 @@ ergm.pl<-function(nw, fd, m, theta.offset=NULL,
     xmat <- xmat[zy==0,,drop=FALSE]
     zy <- zy[zy==0]
 
-    ## Run a whitelist PL over all of the toggleable edges in the network.
-    maxNumDyadTypes <- min(maxNumDyadTypes, e)
-
     z <- .Call("MPLE_wrapper",
                state,
                # MPLE settings
                as.double(to_ergm_Cdouble(elfd)),
                as.integer(.Machine$integer.max), # maxDyads
-               as.integer(maxNumDyadTypes),
                PACKAGE="ergm")
-    uvals <- z$weightsvector!=0
-    zy.e <- z$y[uvals]
-    wend.e <- as.numeric(z$weightsvector[uvals])
-    xmat.e <- matrix(z$x, ncol=nparam(m,canonical=TRUE), byrow=TRUE)[uvals,,drop=FALSE]
+    z <- old_PL(z)
+    if (verbose) {
+      message(paste("MPLE covariate matrix has", length(z$y), "rows."))
+    }
+    zy.e <- z$y
+    wend.e <- as.numeric(z$weightsvector)
+    xmat.e <- z$x
     colnames(xmat.e) <- param_names(m,canonical=TRUE)
-    rm(z,uvals)
+    rm(z)
 
     # Divvy up the sampling weight of the ties:
     wend.e <- wend.e / sum(wend.e) * e

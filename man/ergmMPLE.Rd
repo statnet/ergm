@@ -101,10 +101,6 @@ the corresponding edge exists or not).
 Using \code{output="matrix"}, note that the result of the fit may be
 obtained from the \code{\link{glm}} function, as shown in the examples
 below.
-
-When \code{output="array"}, the \code{MPLE.max.dyad.types} control parameter
-must be greater than \code{network.dyadcount(.)} of the response network, or
-not all elements of the array that ought to be filled in will be.
 }
 \examples{
 

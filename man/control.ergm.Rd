@@ -13,7 +13,6 @@ control.ergm(
   main.hessian = TRUE,
   checkpoint = NULL,
   resume = NULL,
-  MPLE.max.dyad.types = 1e+06,
   MPLE.samplesize = .Machine$integer.max,
   init.MPLE.samplesize = function(d, e) max(sqrt(d), e, 40) * 8,
   MPLE.type = c("glm", "penalized", "logitreg"),
@@ -243,7 +242,7 @@ be reused, except for those whose value passed via
 network, the model, or some critical settings differ between
 runs, the results may be undefined.}
 
-\item{MPLE.samplesize, init.MPLE.samplesize, MPLE.max.dyad.types}{These parameters control the maximum number of dyads (potential
+\item{MPLE.samplesize, init.MPLE.samplesize}{These parameters control the maximum number of dyads (potential
 ties) that will be used by the MPLE to construct the predictor
 matrix for its logistic regression. In general, the algorithm
 visits dyads in a systematic sample that, if it does not hit one
@@ -255,9 +254,7 @@ by the algorithm before the limit was exceeded will be used.
 \code{MPLE.samplesize} limits the number of dyads visited, unless the
 MPLE is being computed for the purpose of being the initial value
 for MCMC-based estimation, in which case \code{init.MPLE.samplesize}
-is used instead, \code{MPLE.max.dyad.types} limits the number of
-unique values of change statistic vectors that will be
-stored. All of these can be specified either as numbers or as
+is used instead, All of these can be specified either as numbers or as
 \verb{function(d,e)} taking the number of informative dyads and
 informative edges. Specifying or returning a larger number than
 the number of informative dyads is safe.}

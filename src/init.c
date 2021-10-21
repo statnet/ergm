@@ -37,7 +37,7 @@ extern SEXP get_ergm_omp_terms();
 extern SEXP Godfather_wrapper(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
 extern SEXP MCMC_wrapper(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
 extern SEXP MCMCPhase12(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
-extern SEXP MPLE_wrapper(SEXP, SEXP, SEXP, SEXP);
+extern SEXP MPLE_wrapper(SEXP, SEXP, SEXP);
 extern SEXP network_stats_wrapper(SEXP);
 extern SEXP SAN_wrapper(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
 extern SEXP set_ergm_omp_terms(SEXP);
@@ -67,7 +67,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"Godfather_wrapper",        (DL_FUNC) &Godfather_wrapper,         6},
     {"MCMC_wrapper",             (DL_FUNC) &MCMC_wrapper,              7},
     {"MCMCPhase12",              (DL_FUNC) &MCMCPhase12,              10},
-    {"MPLE_wrapper",             (DL_FUNC) &MPLE_wrapper,              4},
+    {"MPLE_wrapper",             (DL_FUNC) &MPLE_wrapper,              3},
     {"network_stats_wrapper",    (DL_FUNC) &network_stats_wrapper,     1},
     {"SAN_wrapper",              (DL_FUNC) &SAN_wrapper,               9},
     {"set_ergm_omp_terms",       (DL_FUNC) &set_ergm_omp_terms,        1},

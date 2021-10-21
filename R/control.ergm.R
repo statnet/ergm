@@ -75,7 +75,7 @@
 #' @param main.hessian Logical: If TRUE, then an approximate Hessian matrix is
 #' used in the MCMC-based estimation method.
 #'
-#' @param MPLE.samplesize,init.MPLE.samplesize,MPLE.max.dyad.types
+#' @param MPLE.samplesize,init.MPLE.samplesize
 #'   These parameters control the maximum number of dyads (potential
 #'   ties) that will be used by the MPLE to construct the predictor
 #'   matrix for its logistic regression. In general, the algorithm
@@ -88,9 +88,7 @@
 #'   `MPLE.samplesize` limits the number of dyads visited, unless the
 #'   MPLE is being computed for the purpose of being the initial value
 #'   for MCMC-based estimation, in which case `init.MPLE.samplesize`
-#'   is used instead, `MPLE.max.dyad.types` limits the number of
-#'   unique values of change statistic vectors that will be
-#'   stored. All of these can be specified either as numbers or as
+#'   is used instead, All of these can be specified either as numbers or as
 #'   `function(d,e)` taking the number of informative dyads and
 #'   informative edges. Specifying or returning a larger number than
 #'   the number of informative dyads is safe.
@@ -477,7 +475,6 @@ control.ergm<-function(drop=TRUE,
                        checkpoint=NULL,
                        resume=NULL,
 
-                       MPLE.max.dyad.types=1e+6,
                        MPLE.samplesize=.Machine$integer.max,
                        init.MPLE.samplesize=function(d,e) max(sqrt(d),e,40)*8,
                        MPLE.type=c("glm", "penalized","logitreg"),
@@ -664,7 +661,8 @@ control.ergm<-function(drop=TRUE,
   for(trustarg in c("MCMLE.trustregion", "MCMLE.adaptive.trustregion",
                     "CD.trustregion", "CD.adaptive.trustregion",
                     "SA.trustregion"))
-    old.controls[[trustarg]] <- list(action = warning, message = paste(" The trust region mechanism has been obviated by step length", sQuote("*.steplen"), "and other mechanisms and has been removed."))
+    old.controls[[trustarg]] <- list(action = warning, message = paste("The trust region mechanism has been obviated by step length", sQuote("*.steplen"), "and other mechanisms and has been removed."))
+  old.controls[["MPLE.max.dyad.types"]] <- list(action = warning, message = paste("Argument", sQuote("MPLE.max.dyad.types"), " has been deprecated and will be removed in a future version."))
 
   match.arg.pars <- c("MPLE.type","MCMLE.metric","MCMLE.method","main.method",'MCMLE.termination',"CD.metric","CD.method","MCMLE.steplength.parallel","CD.steplength.parallel","MPLE.nonident","MPLE.nonvar","MCMLE.nonvar","MCMLE.nonident")
 
@@ -690,7 +688,7 @@ STATIC_MCMC_CONTROLS <- c("MCMC.samplesize", "MCMC.prop", "MCMC.prop.weights", "
 ADAPTIVE_MCMC_CONTROLS <- c("MCMC.effectiveSize", "MCMC.effectiveSize.damp", "MCMC.effectiveSize.maxruns", "MCMC.effectiveSize.burnin.pval", "obs.MCMC.effectiveSize")
 PARALLEL_MCMC_CONTROLS <- c("parallel","parallel.type","parallel.version.check")
 OBS_MCMC_CONTROLS <- c("MCMC.base.samplesize", "MCMC.base.effectiveSize", "MCMC.samplesize", "MCMC.effectiveSize", "MCMC.interval", "MCMC.burnin")
-MPLE_CONTROLS <- c("MPLE.max.dyad.types","MPLE.samplesize","MPLE.type","MPLE.maxit")
+MPLE_CONTROLS <- c("MPLE.samplesize","MPLE.type","MPLE.maxit")
 
 remap_algorithm_MCMC_controls <- function(control, algorithm){
   CTRLS <- c(SCALABLE_MCMC_CONTROLS, STATIC_MCMC_CONTROLS, ADAPTIVE_MCMC_CONTROLS) %>% keep(startsWith,"MCMC.") %>% substr(6, 10000L)
