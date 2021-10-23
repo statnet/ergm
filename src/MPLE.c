@@ -11,6 +11,35 @@
 #include "ergm_changestat.h"
 #include "ergm_rlebdm.h"
 
+static double **MPLE_workspace = NULL;
+static StoreDVecMapENE *MPLE_covfreq = NULL;
+static khint_t MPLE_nalloc = 0;
+static khint_t MPLE_nalloc_max = 0;
+
+// TODO: Consider preallocating space for these vectors parcelling them out.
+static inline double *MPLE_workspace_push(double *ptr){
+  if(MPLE_nalloc == MPLE_nalloc_max)
+    MPLE_workspace = Realloc(MPLE_workspace, (MPLE_nalloc_max = MAX(MPLE_nalloc_max, 1u) * 2u), double*);
+
+  MPLE_workspace[MPLE_nalloc++] = ptr;
+  return ptr;
+}
+
+SEXP MPLE_workspace_free(){
+  if(MPLE_covfreq){
+    kh_destroy(DVecMapENE, MPLE_covfreq);
+    MPLE_covfreq = NULL;
+  }
+
+  if(MPLE_workspace){
+    for(unsigned int i = 0; i < MPLE_nalloc; i++) Free(MPLE_workspace[i]);
+    Free(MPLE_workspace);
+    MPLE_nalloc_max = MPLE_nalloc = 0;
+  }
+
+  return R_NilValue;
+}
+
 /* *****************
  void MPLE_wrapper
 
@@ -26,8 +55,6 @@
    statistics.  Note that two sets of statistics are considered
    unique in this context if the corresponding response values
    (i.e., dyad values, edge or no edge) are unequal.
-   The value maxNumDyadTypes is the largest allowable number of
-   unique sets of change statistics.
  Re-rewritten by Pavel Krivitsky to make compression fast. ;)
  *****************/
 
@@ -67,11 +94,7 @@ SEXP MPLE_wrapper(SEXP stateR,
       i++;
     });
 
-  // Free the key vectors and destroy ASAP.
-  kh_foreach_key(covfreq, k, {
-      Free(k);
-    });
-  kh_destroy(DVecMapENE, covfreq);
+  MPLE_workspace_free();
 
   const char *outn[] = {"y", "x", ""};
   SEXP outl = PROTECT(mkNamed(VECSXP, outn));
@@ -92,7 +115,7 @@ static inline void insCovMatRow(StoreDVecMapENE *h, double *pred, int response){
   khiter_t pos = kh_put(DVecMapENE, h, pred, &ret);
   if(ret){ // New element inserted:
     // Copy and replace the key, since it'll get overwritten later.
-    double *newpred = Calloc(nstat, double);
+    double *newpred = MPLE_workspace_push(Calloc(nstat, double));
     memcpy(newpred, pred, nstat*sizeof(double));
     kh_key(h, pos) = newpred;
     kh_val(h, pos) = (ENE){0,0}; // Initialize the counters, just in case.
@@ -113,7 +136,7 @@ StoreDVecMapENE *MpleInit_hash_wl_RLE(ErgmState *s, RLEBDM1D *wl, Edge maxNumDya
   Model *m = s->m;
 
   // Initialise the output.
-  StoreDVecMapENE *covfreq = kh_init(DVecMapENE);
+  StoreDVecMapENE *covfreq = MPLE_covfreq = kh_init(DVecMapENE);
   covfreq->l = m->n_stats;
 
   // Number of free dyads.

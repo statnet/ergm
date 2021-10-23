@@ -46,6 +46,7 @@ ergm.pl<-function(nw, fd, m, theta.offset=NULL,
                     control, ignore.offset=FALSE,
                     verbose=FALSE) {
   on.exit(ergm_Cstate_clear())
+  on.exit(PL_workspace_clear(), add=TRUE)
 
   state <- ergm_state(nw, model=m)
   d <- sum(fd)
@@ -72,9 +73,8 @@ ergm.pl<-function(nw, fd, m, theta.offset=NULL,
              as.double(to_ergm_Cdouble(fd)),
              as.integer(maxDyads),
              PACKAGE="ergm")
-
-
   z <- old_PL(z)
+
   if (verbose) {
     message(paste("MPLE covariate matrix has", length(z$y), "rows."))
   }
@@ -100,6 +100,7 @@ ergm.pl<-function(nw, fd, m, theta.offset=NULL,
                as.integer(.Machine$integer.max), # maxDyads
                PACKAGE="ergm")
     z <- old_PL(z)
+
     if (verbose) {
       message(paste("MPLE covariate matrix has", length(z$y), "rows."))
     }
@@ -151,4 +152,8 @@ ergm.pl<-function(nw, fd, m, theta.offset=NULL,
   
   list(xmat=xmat, zy=zy, foffset=foffset, wend=wend,
        xmat.full=xmat.full)
+}
+
+PL_workspace_clear <- function(){
+  .Call("MPLE_workspace_free", PACKAGE="ergm")
 }
