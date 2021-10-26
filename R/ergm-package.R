@@ -637,7 +637,7 @@ NULL
 #' \if{text}{\Sexpr[results=rd,stage=render]{ergm:::.formatProposalsText(ergm:::.parseProposal(), keepProposal=TRUE)}}
 #' \if{latex}{\Sexpr[results=rd,stage=render]{ergm:::.formatProposalsLatex(ergm:::.parseProposal(), keepProposal=TRUE)}}
 #'
-#' @seealso [`ergm`][ergm-package] package, [`ergm`], [`ergmConstraint`], [`ergmProposal`]
+#' @seealso [`ergm`][ergm-package] package, [`ergm`], [`ergmConstraint`], [`ergm_proposal`]
 #'
 #' @references
 #' - Goodreau SM, Handcock MS, Hunter DR, Butts CT, Morris M (2008a).  A \pkg{statnet} Tutorial.

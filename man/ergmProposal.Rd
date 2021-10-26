@@ -44,6 +44,6 @@ Terms and Computational Aspects. \emph{Journal of Statistical Software}, 24(4).
 }
 }
 \seealso{
-\code{\link[=ergm-package]{ergm}} package, \code{\link{ergm}}, \code{\link{ergmConstraint}}, \code{\link{ergmProposal}}
+\code{\link[=ergm-package]{ergm}} package, \code{\link{ergm}}, \code{\link{ergmConstraint}}, \code{\link{ergm_proposal}}
 }
 \keyword{models}

@@ -61,6 +61,14 @@ InitErgmConstraint..attributes <- function(nw, arglist, ...){
     dependence = FALSE)
 }
 
+#' @name .dyads-ergmConstraint
+#' @title TODO
+#' @description TODO
+#' @details TODO
+#'
+#' @template ergmConstraint-general
+NULL
+
 #' @name edges-ergmConstraint
 #' @title Preserve the edge count of the given network
 #' @description Preserve the edge count of the given network

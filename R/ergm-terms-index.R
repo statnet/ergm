@@ -45,6 +45,10 @@ DISPLAY_LATEX_TOC_PCT_WIDTHS <- function(n_concepts) c(2.4, rep(.7, n_concepts))
     usages <- lapply(raw_usage, function(u) list(type=NULL, usage=u))
   }
 
+  if (length(usages) == 0) {
+    return(NULL)
+  }
+
   ret <- list(
     link=name,
     name=comps[1],
@@ -92,7 +96,9 @@ ergmTermCache <- local({
     converted <- all_doco[grep(SUPPORTED_TERM_TYPE_REGEX, all_doco)]
 
     for (term in lapply(converted, .parseTerm, pkg, pkg_name)) {
-      cache[[term$type]][[term$link]] <<- term
+      if (!is.null(term)) {
+        cache[[term$type]][[term$link]] <<- term
+      }
     }
   }
 
@@ -270,7 +276,6 @@ ergmTermCache <- local({
     constraints <- lapply(constraints, function(c) list(
       name=substr(c, 2, stringr::str_length(c)),
       enforce=substr(c, 1, 1) == '&'))
-    constraints <- constraints %>% keep(~substr(.x$name, 1, 1) != '.')
     proposals[[length(proposals) + 1]] <- list(
       proposal=ps$Proposal[i],
       reference=ps$Reference[i],
@@ -288,6 +293,8 @@ ergmTermCache <- local({
   if (is.null(df)) return(NULL)
 
   for (i in 1:length(df)) {
+    df[[i]]$proposal <- sprintf('<a href="../help/%1$s-ergmProposal">%1$s</a>', df[[i]]$proposal)
+    df[[i]]$reference <- sprintf('<a href="../help/%1$s-ergmReference">%1$s</a>', df[[i]]$reference)
     df[[i]]$enforced <- if (length(df[[i]]$enforced) > 0) paste(sprintf('<a href="../help/%1$s-ergmConstraint">%1$s</a>', df[[i]]$enforced), collapse=' ') else ""
     df[[i]]$may_enforce <- if (length(df[[i]]$may_enforce) > 0) paste(sprintf('<a href="../help/%1$s-ergmConstraint">%1$s</a>', df[[i]]$may_enforce), collapse=' ') else ""
   }
