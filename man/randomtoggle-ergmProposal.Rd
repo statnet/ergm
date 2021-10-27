@@ -8,7 +8,7 @@
 Propose a randomly selected dyad to toggle
 }
 \details{
-\if{html}{\Sexpr[results=rd,stage=render]{ergm:::.formatProposalsHtml(ergm:::.parseProposal(proposal="randomtoggle"))}}
-\if{text}{\Sexpr[results=rd,stage=render]{ergm:::.formatProposalsText(ergm:::.parseProposal(proposal="randomtoggle"))}}
-\if{latex}{\Sexpr[results=rd,stage=render]{ergm:::.formatProposalsLatex(ergm:::.parseProposal(proposal="randomtoggle"))}}
+\if{html}{\Sexpr[results=rd,stage=render]{ergm:::.formatProposalsHtml(ergm:::.buildProposalsList(proposal="randomtoggle"))}}
+\if{text}{\Sexpr[results=rd,stage=render]{ergm:::.formatProposalsText(ergm:::.buildProposalsList(proposal="randomtoggle"))}}
+\if{latex}{\Sexpr[results=rd,stage=render]{ergm:::.formatProposalsLatex(ergm:::.buildProposalsList(proposal="randomtoggle"))}}
 }

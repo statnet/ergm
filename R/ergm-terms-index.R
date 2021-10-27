@@ -8,7 +8,7 @@
 #  Copyright 2003-2021 Statnet Commons
 #######################################################################
 
-SUPPORTED_TERM_TYPES <- c('Term', 'Constraint', 'Reference', 'Hint')
+SUPPORTED_TERM_TYPES <- c('Term', 'Constraint', 'Reference', 'Hint', 'Proposal')
 SUPPORTED_TERM_TYPE_REGEX <- sprintf('-ergm(%s)(.Rd)?', paste(SUPPORTED_TERM_TYPES, collapse='|'))
 
 DISPLAY_TEXT_INDEX_MAX_WIDTHS <- list('Term'=25, 'Pkg'=5, 'Description'=33, 'Concepts'=12)
@@ -24,42 +24,72 @@ DISPLAY_LATEX_TOC_PCT_WIDTHS <- function(n_concepts) c(2.4, rep(.7, n_concepts))
   name <- substr(name, 1, nchar(name) - 3)
   tags <- sapply(doc, attr, 'Rd_tag')
   comps <- strsplit(name, '-')[[1]]
-
-  concepts <- doc[tags == '\\concept'] %>% unlist
   type <- comps[length(comps)]
-  raw_usage <- doc[tags == '\\usage'] %>% 
-    unlist %>% 
-    paste(collapse="") %>%
-    gsub("\n *# *"," ", .) %>%
-    strsplit("\n") %>%
-    .[[1]] %>%
-    trimws()
 
-  if (type %in% c('ergmTerm', 'ergmProposal')) {
-    usages <- list()
-    for (usage_line in regmatches(raw_usage, regexec("^(binary|valued): *(.+)$", raw_usage))) {
-      usages[[length(usages) + 1]] <- list('type'=usage_line[2], 'usage'=usage_line[3])
-      concepts <- c(concepts, usage_line[2])
+  if (type != "ergmProposal") {
+    concepts <- doc[tags == '\\concept'] %>% unlist
+    raw_usage <- doc[tags == '\\usage'] %>%
+      unlist %>%
+      paste(collapse="") %>%
+      gsub("\n *# *"," ", .) %>%
+      strsplit("\n") %>%
+      .[[1]] %>%
+      trimws()
+
+    if (type %in% c('ergmTerm')) {
+      usages <- list()
+      for (usage_line in regmatches(raw_usage, regexec("^(binary|valued): *(.+)$", raw_usage))) {
+        usages[[length(usages) + 1]] <- list('type'=usage_line[2], 'usage'=usage_line[3])
+        concepts <- c(concepts, usage_line[2])
+      }
+    } else {
+      usages <- lapply(raw_usage, function(u) list(type=NULL, usage=u))
     }
+
+    if (length(usages) == 0) {
+      return(NULL)
+    }
+
+    return(list(
+      link=name,
+      name=comps[1],
+      type=type,
+      alias=doc[tags == '\\alias'] %>% unlist,
+      package=pkg_name,
+      usages=usages,
+      title=doc[tags == '\\title'] %>% unlist %>% paste(collapse='') %>% trimws(),
+      description=doc[tags == '\\details'] %>% unlist %>% paste(collapse='') %>% trimws(),
+      concepts=if (!is.null(concepts)) unique(concepts) else c(),
+      keywords=c()))
   } else {
-    usages <- lapply(raw_usage, function(u) list(type=NULL, usage=u))
-  }
+    ps <- ergm_proposal_table()
+    ps <- .filterProposals(ps, proposal=comps[1])
 
-  if (length(usages) == 0) {
-    return(NULL)
+    proposals = list()
+    for (i in 1:nrow(ps)) {
+      constraints <- strsplit(ps$Constraints[i], '(?<=.)(?=[|&])', perl=TRUE)[[1]]
+      constraints <- lapply(constraints, function(c) list(
+        name=substr(c, 2, stringr::str_length(c)),
+        enforce=substr(c, 1, 1) == '&'))
+      proposals[[length(proposals) + 1]] <- list(
+        Proposal=ps$Proposal[i],
+        Reference=ps$Reference[i],
+        Enforced=constraints %>% keep("enforce") %>% map("name") %>% unlist,
+        May_Enforce=constraints %>% discard("enforce") %>% map("name") %>% unlist,
+        Priority=ps$Priority[i],
+        Weight=ps$Weights[i]
+      )
+    }
+    return(list(
+      link=name,
+      name=comps[1],
+      type=type,
+      alias=doc[tags == '\\alias'] %>% unlist,
+      package=pkg_name,
+      title=doc[tags == '\\title'] %>% unlist %>% paste(collapse='') %>% trimws(),
+      description=doc[tags == '\\details'] %>% unlist %>% paste(collapse='') %>% trimws(),
+      rules=proposals))
   }
-
-  ret <- list(
-    link=name,
-    name=comps[1],
-    type=type,
-    alias=doc[tags == '\\alias'] %>% unlist,
-    package=pkg_name,
-    usages=usages,
-    title=doc[tags == '\\title'] %>% unlist %>% paste(collapse='') %>% trimws(),
-    description=doc[tags == '\\details'] %>% unlist %>% paste(collapse='') %>% trimws(),
-    concepts=if (!is.null(concepts)) unique(concepts) else c(),
-    keywords=c())
 }
 
 #' A simple dictionary to cache loaded terms
@@ -194,6 +224,25 @@ ergmTermCache <- local({
   }) %>% t() %>% as.data.frame(stringsAsFactors=FALSE)
 }
 
+#' Constructs a data frame containing term proposals, suitable for typesetting in help files and vignettes
+#'
+#' @param proposal only include rules relevant to the given proposal
+#'
+#' @return a data frame with columns for usage, package, title, concepts, and link
+#' @noRd
+.buildProposalsList <- function(proposal) {
+  proposals <- ergmTermCache("ergmProposal")
+  if (!missing(proposal)) {
+    proposals <- proposals[[paste0(proposal, '-ergmProposal')]]$rules
+  } else {
+    proposals <- proposals %>% map("rules") %>% flatten()
+  }
+
+  if (length(proposals) == 0) return(NULL)
+  names(proposals) <- 1:length(proposals)
+  proposals
+}
+
 
 # terms : a list structure of the documentation data
 # categores : an optional vector of column names to print and include
@@ -265,44 +314,20 @@ ergmTermCache <- local({
   proposals
 }
 
-.parseProposal <- function(...) {
-  ps <- ergm_proposal_table()
-  ps <- .filterProposals(ps, ...)
-
-  proposals <- list()
-
-  for (i in 1:nrow(ps)) {
-    constraints <- strsplit(ps$Constraints[i], '(?<=.)(?=[|&])', perl=TRUE)[[1]]
-    constraints <- lapply(constraints, function(c) list(
-      name=substr(c, 2, stringr::str_length(c)),
-      enforce=substr(c, 1, 1) == '&'))
-    proposals[[length(proposals) + 1]] <- list(
-      proposal=ps$Proposal[i],
-      reference=ps$Reference[i],
-      enforced=constraints %>% keep("enforce") %>% map("name") %>% unlist,
-      may_enforce=constraints %>% discard("enforce") %>% map("name") %>% unlist,
-      priority=ps$Priority[i],
-      weight=ps$Weights[i]
-    )
-  }
-
-  proposals
-}
-
 .formatProposalsHtml <- function(df, keepProposal=FALSE) {
   if (is.null(df)) return(NULL)
 
   for (i in 1:length(df)) {
-    df[[i]]$proposal <- sprintf('<a href="../help/%1$s-ergmProposal">%1$s</a>', df[[i]]$proposal)
-    df[[i]]$reference <- sprintf('<a href="../help/%1$s-ergmReference">%1$s</a>', df[[i]]$reference)
-    df[[i]]$enforced <- if (length(df[[i]]$enforced) > 0) paste(sprintf('<a href="../help/%1$s-ergmConstraint">%1$s</a>', df[[i]]$enforced), collapse=' ') else ""
-    df[[i]]$may_enforce <- if (length(df[[i]]$may_enforce) > 0) paste(sprintf('<a href="../help/%1$s-ergmConstraint">%1$s</a>', df[[i]]$may_enforce), collapse=' ') else ""
+    df[[i]]$Proposal <- sprintf('<a href="../help/%1$s-ergmProposal">%1$s</a>', df[[i]]$Proposal)
+    df[[i]]$Reference <- sprintf('<a href="../help/%1$s-ergmReference">%1$s</a>', df[[i]]$Reference)
+    df[[i]]$Enforced <- if (length(df[[i]]$Enforced) > 0) paste(sprintf('<a href="../help/%1$s-ergmConstraint">%1$s</a>', df[[i]]$Enforced), collapse=' ') else ""
+    df[[i]]$May_Enforce <- if (length(df[[i]]$May_Enforce) > 0) paste(sprintf('<a href="../help/%1$s-ergmConstraint">%1$s</a>', df[[i]]$May_Enforce), collapse=' ') else ""
   }
 
   df <- do.call(rbind, df)
 
   if (!keepProposal) {
-    df <- subset(df, select=-proposal)
+    df <- subset(df, select=-Proposal)
   }
 
   css <- '<style>th,td {padding:3px 10px}</style>'
@@ -313,8 +338,8 @@ ergmTermCache <- local({
   if (is.null(df)) return(NULL)
 
   for (i in 1:length(df)) {
-    df[[i]]$enforced <- if (length(df[[i]]$enforced) > 0) paste(df[[i]]$enforced, collapse=' ') else ""
-    df[[i]]$may_enforce <- if (length(df[[i]]$may_enforce) > 0) paste(df[[i]]$may_enforce, collapse=' ') else ""
+    df[[i]]$Enforced <- if (length(df[[i]]$Enforced) > 0) paste(df[[i]]$Enforced, collapse=' ') else ""
+    df[[i]]$May_Enforce <- if (length(df[[i]]$May_Enforce) > 0) paste(df[[i]]$May_Enforce, collapse=' ') else ""
   }
 
   df <- as.data.frame(do.call(rbind, df))
@@ -334,14 +359,14 @@ ergmTermCache <- local({
   if (is.null(df)) return(NULL)
 
   for (i in 1:length(df)) {
-    df[[i]]$enforced <- if (length(df[[i]]$enforced) > 0) paste(df[[i]]$enforced, collapse=' ') else ""
-    df[[i]]$may_enforce <- if (length(df[[i]]$may_enforce) > 0) paste(df[[i]]$may_enforce, collapse=' ') else ""
+    df[[i]]$Enforced <- if (length(df[[i]]$Enforced) > 0) paste(df[[i]]$Enforced, collapse=' ') else ""
+    df[[i]]$May_Enforce <- if (length(df[[i]]$May_Enforce) > 0) paste(df[[i]]$May_Enforce, collapse=' ') else ""
   }
 
   df <- do.call(rbind, df)
 
   if (!keepProposal) {
-    df <- subset(df, select=-proposal)
+    df <- subset(df, select=-Proposal)
   }
 
   sprintf('\\preformatted{%s}', paste(knitr::kable(df, 'pipe'), collapse='\n'))

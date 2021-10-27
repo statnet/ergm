@@ -8,7 +8,7 @@
 TODO
 }
 \details{
-\if{html}{\Sexpr[results=rd,stage=render]{ergm:::.formatProposalsHtml(ergm:::.parseProposal(proposal="DiscUnif2"))}}
-\if{text}{\Sexpr[results=rd,stage=render]{ergm:::.formatProposalsText(ergm:::.parseProposal(proposal="DiscUnif2"))}}
-\if{latex}{\Sexpr[results=rd,stage=render]{ergm:::.formatProposalsLatex(ergm:::.parseProposal(proposal="DiscUnif2"))}}
+\if{html}{\Sexpr[results=rd,stage=render]{ergm:::.formatProposalsHtml(ergm:::.buildProposalsList(proposal="DiscUnif2"))}}
+\if{text}{\Sexpr[results=rd,stage=render]{ergm:::.formatProposalsText(ergm:::.buildProposalsList(proposal="DiscUnif2"))}}
+\if{latex}{\Sexpr[results=rd,stage=render]{ergm:::.formatProposalsLatex(ergm:::.buildProposalsList(proposal="DiscUnif2"))}}
 }

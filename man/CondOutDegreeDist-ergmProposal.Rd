@@ -9,7 +9,7 @@ MHp for \eqn{constraints= ~odegreedist}. For directed networks, similar to
 \code{InitErgmProposal.CondDegreeDist}, except for outdegree case
 }
 \details{
-\if{html}{\Sexpr[results=rd,stage=render]{ergm:::.formatProposalsHtml(ergm:::.parseProposal(proposal="CondOutDegreeDist"))}}
-\if{text}{\Sexpr[results=rd,stage=render]{ergm:::.formatProposalsText(ergm:::.parseProposal(proposal="CondOutDegreeDist"))}}
-\if{latex}{\Sexpr[results=rd,stage=render]{ergm:::.formatProposalsLatex(ergm:::.parseProposal(proposal="CondOutDegreeDist"))}}
+\if{html}{\Sexpr[results=rd,stage=render]{ergm:::.formatProposalsHtml(ergm:::.buildProposalsList(proposal="CondOutDegreeDist"))}}
+\if{text}{\Sexpr[results=rd,stage=render]{ergm:::.formatProposalsText(ergm:::.buildProposalsList(proposal="CondOutDegreeDist"))}}
+\if{latex}{\Sexpr[results=rd,stage=render]{ergm:::.formatProposalsLatex(ergm:::.buildProposalsList(proposal="CondOutDegreeDist"))}}
 }

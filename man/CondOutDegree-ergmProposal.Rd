@@ -9,7 +9,7 @@ MHp for \eqn{constraints= ~odegrees}. For directed networks, randomly select two
 common tail node, one having an edge and one not, and propose to swap the tie from one head to the other.
 }
 \details{
-\if{html}{\Sexpr[results=rd,stage=render]{ergm:::.formatProposalsHtml(ergm:::.parseProposal(proposal="CondOutDegree"))}}
-\if{text}{\Sexpr[results=rd,stage=render]{ergm:::.formatProposalsText(ergm:::.parseProposal(proposal="CondOutDegree"))}}
-\if{latex}{\Sexpr[results=rd,stage=render]{ergm:::.formatProposalsLatex(ergm:::.parseProposal(proposal="CondOutDegree"))}}
+\if{html}{\Sexpr[results=rd,stage=render]{ergm:::.formatProposalsHtml(ergm:::.buildProposalsList(proposal="CondOutDegree"))}}
+\if{text}{\Sexpr[results=rd,stage=render]{ergm:::.formatProposalsText(ergm:::.buildProposalsList(proposal="CondOutDegree"))}}
+\if{latex}{\Sexpr[results=rd,stage=render]{ergm:::.formatProposalsLatex(ergm:::.buildProposalsList(proposal="CondOutDegree"))}}
 }
