@@ -8,7 +8,6 @@
 #  Copyright 2003-2021 Statnet Commons
 ################################################################################
 
-
 # tests to veryify the structure of the ergm-terms documentation
 # this executes functions similar to what would be run when building the ergm=term=crossRef.Rmd file
 # and verifys that the structure of ergm-terms.Rd matches what the parser expects
@@ -34,16 +33,20 @@ test_that("check initialisation functions", {
   }
 })
 
-test_that("test search function", {
+test_that("test search ergm term", {
   # crude checks for search.ergmTerms are in the search.ergmTerms man page
 
   # expect to find at least eight terms mentioning triangles
-  found<-search.ergmTerms('triangle')
-  expect_gte(length(found), 8)
+  expect_equal(length(search.ergmTerms('triangle')), 9)
 
-  found<-search.ergmTerms(keywords = 'bipartite')
-  expect_gte(length(found), 20)
+  # search using a bipartite net as a template
+  myNet<-network.initialize(5,bipartite=3,directed=FALSE)
+  expect_equal(length(search.ergmTerms(net=myNet)), 38)
 
-  ergm_found<-search.ergmTerms(keywords = 'bipartite', packages=c('ergm', 'base'))
-  expect_gte(length(ergm_found), length(ergm))
+  expect_equal(length(search.ergmTerms(keywords = 'bipartite')), 38)
+
+  expect_equal(length(search.ergmTerms(keywords = 'bipartite', packages='ergm')), 38)
+
+  library(ergm.multi)
+  expect_equal(length(search.ergmTerms(keywords = 'bipartite', packages='ergm')), 42)
 })

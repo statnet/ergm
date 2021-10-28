@@ -534,6 +534,99 @@ ergmTermCache <- local({
   out
 }
 
+search.ergmTermType <-function(term.type, search.term, net, keywords, name, packages) {
+  if (!missing(net)){
+    if(!is.network(net)){
+      stop("the 'net' argument must be the network argument that applicable terms are to be searched for")
+    }
+  }
+
+  if(missing(keywords)){
+    keywords<-character(0)
+  }
+  if (!missing(net)){
+    if(is.directed(net)){
+      keywords<-c(keywords,'directed')
+    } else {
+      keywords<-c(keywords,'undirected')
+    }
+    if(is.bipartite(net)){
+      keywords<-c(keywords,'bipartite')
+    }
+  }
+
+  terms <- ergmTermCache(term.type)
+
+  found<-rep(TRUE,length(terms))
+
+  # if name is specified, restrict to terms with that name
+  if(!missing(name)){
+    for (t in seq_along(terms)){
+      term<-terms[[t]]
+      found[t]<-any(term$name==name || term$link==name)
+    }
+  }
+
+  # restrict by keywords
+  for (t in which(found)){
+    term<-terms[[t]]
+    if(!all(keywords%in%term$concepts)){
+      found[t]<-FALSE }
+  }
+
+  # next (optionally) restrict by search.term matches
+  if (!missing(search.term)){
+    for (t in which(found)){
+      term<-terms[[t]]
+      # if we don't find the search.term in the text grep, mark it as false
+      if(length(grep(search.term,c(term$description, term$title),ignore.case=TRUE))==0){
+        found[t]<-FALSE
+      }
+    }
+  }
+
+  # optionally restrict by package
+  if (!missing(packages)) {
+    for (t in which(found)) {
+      term <- terms[[t]]
+      if (!term$package %in% packages) {
+        found[t] <- FALSE
+      }
+    }
+  }
+
+  # if term name was specified, print out all the matching terms
+  # otherwise,  loop over the remaining terms to format output as condensed
+  output<-list()
+  if(!missing(name)){
+    if(sum(found)==0){
+      cat("No terms named '",name,"' were found. Try searching with search.term='",name,"'instead.",sep='')
+    } else {
+      cat("Definitions for term(s) ",name,":\n")
+      for (t in which(found)){
+        term<-terms[[t]]
+        output<-c(output, term)
+        cat(sprintf('%s\n    %s: %s\n    Keywords: %s\n\n',
+          term$usages[[1]]$usage,
+          term$title,
+          term$description,
+          paste(term$concepts, collapse=', ')))
+      }
+    }
+  }else{
+    for (t in which(found)){
+      term<-terms[[t]]
+      for (usage in term$usages) {
+        outText <- sprintf('%s\n    %s\n', usage$usage, term$title)
+        output<-c(output,outText)
+      }
+    }
+    cat("Found ",length(output)," matching ergm terms:\n")
+    cat(paste(output,collapse='\n'))
+  }
+  invisible(output)
+}
+
 # function to look up the set of terms applicable for a specific network
 
 #' Search the ERGM terms
@@ -587,55 +680,179 @@ ergmTermCache <- local({
 #' 
 #' @importFrom utils capture.output
 #' @export search.ergmTerms
-search.ergmTerms<-function(search.term,net,keywords,name,packages){
-  
-  if (!missing(net)){
-    if(!is.network(net)){
-      stop("the 'net' argument must be the network argument that applicable terms are to be searched for")
-    }
-  }
-  
-  if(missing(keywords)){
-    keywords<-character(0)
-  }
-  if (!missing(net)){
-    if(is.directed(net)){
-      keywords<-c(keywords,'directed')
-    } else {
-      keywords<-c(keywords,'undirected')
-    }
-    if(is.bipartite(net)){
-      keywords<-c(keywords,'bipartite')
-    } 
-  }
+search.ergmTerms <- partial(search.ergmTermType, "ergmTerm")
 
-  terms <- ergmTermCache('ergmTerm')
+#' Search the ERGM References
+#'
+#' Searches through the \code{\link{ergm.references}} help page and prints out a
+#' list of terms appropriate for the specified network's structural
+#' constraints, optionally restricting by additional keywords and search term
+#' matches.
+#'
+#' Uses \code{\link{grep}} internally to match the search terms against the term
+#' description, so \code{search.term} is currently matched as a single phrase.
+#' Keyword tags will only return a match if all of the specified tags are
+#' included in the term.
+#'
+#' @param search.term optional character search term to search for in the text of the
+#' term descriptions. Only matching terms will be returned. Matching is case
+#' insensitive.
+#' @param keywords optional character vector of keyword tags to use to
+#' restrict the results (i.e. 'curved', 'triad-related')
+#' @param name optional character name of a specific term to return
+#' @param packages optional character vector indicating the subset of packages in which to search
+#' @return prints out the name and short description of matching terms, and
+#' invisibly returns them as a list.  If \code{name} is specified, prints out
+#' the full definition for the named term.
+#' @author skyebend@uw.edu
+#' @seealso See also \code{\link{ergm.references}} for the complete documentation
+#' @examples
+#'
+#' # find all of the terms that mention triangles
+#' search.ergmReferences('dyad')
+#'
+#' # search on multiple keywords
+#' search.ergmReferences(keywords=c('binary','discrete'))
+#'
+#' # print out the content for a specific term
+#' search.ergmReferences(name='Bernoulli')
+#'
+#' # request the bipartite keyword in the ergm package
+#' search.ergmReferences(keywords='binary', packages='ergm')
+#'
+#' @importFrom utils capture.output
+#' @export search.ergmReferences
+search.ergmReferences <- function(search.term, keywords, name, packages)
+  search.ergmTermType("ergmReference", search.term=search.term, keywords=keywords, name=name, packages=packages)
+
+#' Search the ERGM Constraint
+#'
+#' Searches through the \code{\link{ergm.constraints}} help page and prints out a
+#' list of terms appropriate for the specified network's structural
+#' constraints, optionally restricting by additional keywords and search term
+#' matches.
+#'
+#' Uses \code{\link{grep}} internally to match the search terms against the term
+#' description, so \code{search.term} is currently matched as a single phrase.
+#' Keyword tags will only return a match if all of the specified tags are
+#' included in the term.
+#'
+#' @param search.term optional character search term to search for in the text of the
+#' term descriptions. Only matching terms will be returned. Matching is case
+#' insensitive.
+#' @param keywords optional character vector of keyword tags to use to
+#' restrict the results (i.e. 'curved', 'triad-related')
+#' @param name optional character name of a specific term to return
+#' @param packages optional character vector indicating the subset of packages in which to search
+#' @return prints out the name and short description of matching terms, and
+#' invisibly returns them as a list.  If \code{name} is specified, prints out
+#' the full definition for the named term.
+#' @author skyebend@uw.edu
+#' @seealso See also \code{\link{ergm.constraints}} for the complete documentation
+#' @examples
+#'
+#' # find all of the terms that mention triangles
+#' search.ergmConstraints('degree')
+#'
+#' # search on multiple keywords
+#' search.ergmConstraints(keywords=c('directed','dyad-independent'))
+#'
+#' # print out the content for a specific term
+#' search.ergmConstraints(name='b1degrees')
+#'
+#' # request the bipartite keyword in the ergm package
+#' search.ergmConstraints(keywords='directed', packages='ergm')
+#'
+#' @importFrom utils capture.output
+#' @export search.ergmConstraints
+search.ergmConstraints <- function(search.term, keywords, name, packages)
+  search.ergmTermType("ergmConstraint", search.term=search.term, keywords=keywords, name=name, packages=packages)
+
+#' Search the ERGM Proposals
+#'
+#' Searches through the \code{\link{ergm.proposals}} help page and prints out a
+#' list of terms appropriate for the specified network's structural
+#' constraints, optionally restricting by additional keywords and search term
+#' matches.
+#'
+#' Uses \code{\link{grep}} internally to match the search terms against the term
+#' description, so \code{search.term} is currently matched as a single phrase.
+#' Keyword tags will only return a match if all of the specified tags are
+#' included in the term.
+#'
+#' @param search.term optional character search term to search for in the text of the
+#' term descriptions. Only matching terms will be returned. Matching is case
+#' insensitive.
+#' @param name optional character name of a specific term to return
+#' @param packages optional character vector indicating the subset of packages in which to search
+#' @return prints out the name and short description of matching terms, and
+#' invisibly returns them as a list.  If \code{name} is specified, prints out
+#' the full definition for the named term.
+#' @seealso See also \code{\link{ergm.proposals}} for the complete documentation
+#' @examples
+#'
+#' # find all of the proposals that mention triangles
+#' search.ergmProposals('MH algorithm')
+#'
+#' # print out the content for a specific proposals
+#' search.ergmProposals(name='randomtoggle')
+#'
+#' # find all proposals with required or optional constraints
+#' search.ergmProposals(constraints='.dyads')
+#'
+#' # find all proposals with references
+#' search.ergmProposals(references='.dyads')
+#'
+#' # request proposals that mention triangle in the ergm package
+#' search.ergmProposals('MH algorithm', packages='ergm')
+#'
+#' @importFrom utils capture.output
+#' @export search.ergmProposals
+search.ergmProposals <- function(search.term, name, references, constraints, packages) {
+  proposals <- .buildProposalsList()
   
-  found<-rep(TRUE,length(terms))
+  terms <- ergmTermCache("ergmProposal")
   
+  found <- rep(TRUE,length(terms))
+
   # if name is specified, restrict to terms with that name
-  if(!missing(name)){
-    for (t in seq_along(terms)){
+  if (!missing(name)) {
+    for (t in seq_along(terms)) {
       term<-terms[[t]]
       found[t]<-any(term$name==name || term$link==name)
     }
   }
-  
-  # restrict by keywords
-  for (t in which(found)){
-    term<-terms[[t]]
-    if(!all(keywords%in%term$concepts)){
-      found[t]<-FALSE }
-  }
-  
-  # next (optionally) restrict by search.term matches
-  if (!missing(search.term)){
-    for (t in which(found)){
-      term<-terms[[t]]
+
+   # next (optionally) restrict by search.term matches
+  if (!missing(search.term)) {
+    for (t in which(found)) {
+      term <-terms[[t]]
       # if we don't find the search.term in the text grep, mark it as false
-      if(length(grep(search.term,c(term$description, term$title),ignore.case=TRUE))==0){
+      if (length(grep(search.term,c(term$description, term$title), ignore.case=TRUE)) == 0) {
         found[t]<-FALSE
       } 
+    }
+  }
+
+  # optionally restrict by references
+  if (!missing(references)) {
+    for (t in which(found)) {
+      term <-terms[[t]]
+      if (!any(term$rules %>% map("Reference") %in% references)) {
+        found[t]<-FALSE
+      }
+    }
+  }
+
+  # optionally restrict by constraints
+  if (!missing(constraints)) {
+    for (constraint in constraints) {
+      for (t in which(found)) {
+        term <-terms[[t]]
+        if (!constraint %in% (term$rules %>% map('Enforced') %>% unlist) && !constraint %in% (term$rules %>% map("May_Enforce") %>% unlist)) {
+          found[t]<-FALSE
+        }
+      }
     }
   }
 
@@ -654,28 +871,31 @@ search.ergmTerms<-function(search.term,net,keywords,name,packages){
   output<-list()
   if(!missing(name)){
     if(sum(found)==0){
-      cat("No terms named '",name,"' were found. Try searching with search.term='",name,"'instead.",sep='')
+      cat("No proposals named '",name,"' were found. Try searching with search.term='",name,"'instead.",sep='')
     } else {
-      cat("Definitions for term(s) ",name,":\n")
+      cat("Definitions for proposal(s) ",name,":\n")
       for (t in which(found)){
         term<-terms[[t]]
         output<-c(output, term)
-        cat(sprintf('%s\n    %s: %s\n    Keywords: %s\n\n',
-          term$usages[[1]]$usage,
+        cat(sprintf('%s\n    %s: %s\n',
+          term$name,
           term$title,
-          term$description,
-          paste(term$concepts, collapse=', ')))
+          term$description))
+        for (rule in term$rules) {
+          cat(sprintf('    Reference: %s\n%s%s\n',
+            rule$Reference,
+            if (length(rule$Enforced) > 0) paste("    Enfored:", paste(rule$Enforced, collapse=" "), "\n") else "",
+            if (length(rule$May_Enforce) > 0) paste("    May Enfore:", paste(rule$May_Enforce, collapse=" "), "\n") else ""))
+        }
       }
     }
   }else{
     for (t in which(found)){
       term<-terms[[t]]
-      for (usage in term$usages) {
-        outText <- sprintf('%s\n    %s\n', usage$usage, term$title)
-        output<-c(output,outText)
-      }
+      outText <- sprintf('%s\n    %s\n', term$name, term$title)
+      output<-c(output,outText)
     }
-    cat("Found ",length(output)," matching ergm terms:\n")
+    cat("Found ",length(output)," matching ergm proposals:\n")
     cat(paste(output,collapse='\n'))
   }
   invisible(output)
