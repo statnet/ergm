@@ -7,6 +7,13 @@
 #
 #  Copyright 2003-2021 Statnet Commons
 ################################################################################
+
+#' @templateVar name dyadnoiseTNT
+#' @aliases InitErgmProposal.dyadnoiseTNT
+#' @title TODO
+#' @description TODO
+#' @template ergmProposal
+NULL
 InitErgmProposal.dyadnoiseTNT<-function(arguments, nw){
   p0to1 <- arguments$constraints$dyadnoise$p01
   p1to0 <- arguments$constraints$dyadnoise$p10
@@ -22,6 +29,12 @@ InitErgmProposal.dyadnoiseTNT<-function(arguments, nw){
        bd = ergm_bd_init(arguments, nw))
 }
 
+#' @templateVar name dyadnoise
+#' @aliases InitErgmProposal.dyadnoise
+#' @title TODO
+#' @description TODO
+#' @template ergmProposal
+NULL
 InitErgmProposal.dyadnoise<-function(arguments, nw){
   p0to1 <- arguments$constraints$dyadnoise$p01
   p1to0 <- arguments$constraints$dyadnoise$p10

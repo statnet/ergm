@@ -3,6 +3,7 @@
 \name{strat-ergmHint}
 \alias{strat-ergmHint}
 \alias{InitErgmConstraint.strat}
+\alias{strat-ergmConstraint}
 \title{Stratified dyads}
 \usage{
 # strat(attr=NULL, pmat=NULL, empirical=FALSE)

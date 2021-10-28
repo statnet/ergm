@@ -8,11 +8,23 @@
 #  Copyright 2003-2021 Statnet Commons
 ################################################################################
 
+#' @templateVar name StdNormal
+#' @aliases InitWtErgmProposal.StdNormal
+#' @title TODO
+#' @description TODO
+#' @template ergmProposal
+NULL
 InitWtErgmProposal.StdNormal <- function(arguments, nw) {
   proposal <- list(name = "StdNormal", inputs=NULL)
   proposal
 }
 
+#' @templateVar name DiscUnif
+#' @aliases InitWtErgmProposal.DiscUnif
+#' @title TODO
+#' @description TODO
+#' @template ergmProposal
+NULL
 InitWtErgmProposal.DiscUnif <- function(arguments, nw) {
   a <- NVL(arguments$reference$arguments$a, -Inf)
   b <- NVL(arguments$reference$arguments$b, Inf)
@@ -21,6 +33,12 @@ InitWtErgmProposal.DiscUnif <- function(arguments, nw) {
   proposal
 }
 
+#' @templateVar name DiscUnif2
+#' @aliases InitWtErgmProposal.DiscUnif2
+#' @title TODO
+#' @description TODO
+#' @template ergmProposal
+NULL
 InitWtErgmProposal.DiscUnif2 <- function(arguments, nw) {
   a <- NVL(arguments$reference$arguments$a, -Inf)
   b <- NVL(arguments$reference$arguments$b, Inf)
@@ -29,6 +47,12 @@ InitWtErgmProposal.DiscUnif2 <- function(arguments, nw) {
   proposal
 }
 
+#' @templateVar name DiscUnifNonObserved
+#' @aliases InitWtErgmProposal.DiscUnifNonObserved
+#' @title TODO
+#' @description TODO
+#' @template ergmProposal
+NULL
 InitWtErgmProposal.DiscUnifNonObserved <- function(arguments, nw) {
   a <- NVL(arguments$reference$arguments$a, -Inf)
   b <- NVL(arguments$reference$arguments$b, Inf)
@@ -37,6 +61,12 @@ InitWtErgmProposal.DiscUnifNonObserved <- function(arguments, nw) {
   proposal
 }
 
+#' @templateVar name Unif
+#' @aliases InitWtErgmProposal.Unif
+#' @title TODO
+#' @description TODO
+#' @template ergmProposal
+NULL
 InitWtErgmProposal.Unif <- function(arguments, nw) {
   a <- NVL(arguments$reference$arguments$a, -Inf)
   b <- NVL(arguments$reference$arguments$b, Inf)
@@ -45,6 +75,12 @@ InitWtErgmProposal.Unif <- function(arguments, nw) {
   proposal
 }
 
+#' @templateVar name UnifNonObserved
+#' @aliases InitWtErgmProposal.UnifNonObserved
+#' @title TODO
+#' @description TODO
+#' @template ergmProposal
+NULL
 InitWtErgmProposal.UnifNonObserved <- function(arguments, nw) {
   a <- NVL(arguments$reference$arguments$a, -Inf)
   b <- NVL(arguments$reference$arguments$b, Inf)
@@ -53,6 +89,12 @@ InitWtErgmProposal.UnifNonObserved <- function(arguments, nw) {
   proposal
 }
 
+#' @templateVar name DistRLE
+#' @aliases InitWtErgmProposal.DistRLE
+#' @title TODO
+#' @description TODO
+#' @template ergmProposal
+NULL
 InitWtErgmProposal.DistRLE <- function(arguments, nw) {
   inputs <- with(arguments$reference$arguments,
                  switch(arguments$reference$name,
