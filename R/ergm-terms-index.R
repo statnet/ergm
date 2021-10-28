@@ -570,6 +570,7 @@ search.ergmTermType <-function(term.type, search.term, net, keywords, name, pack
   # restrict by keywords
   for (t in which(found)){
     term<-terms[[t]]
+
     if(!all(keywords%in%term$concepts)){
       found[t]<-FALSE }
   }

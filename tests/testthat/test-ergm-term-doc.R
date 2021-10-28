@@ -47,6 +47,8 @@ test_that("test search ergm term", {
 
   expect_equal(length(search.ergmTerms(keywords = 'bipartite', packages='ergm')), 38)
 
-  library(ergm.multi)
-  expect_equal(length(search.ergmTerms(keywords = 'bipartite', packages='ergm')), 42)
+  library(ergm.count)
+  expect_equal(length(search.ergmTerms(keywords = 'valued')), 85)
+  expect_equal(length(search.ergmTerms(keywords = 'valued', packages='ergm')), 83)
+  expect_equal(length(search.ergmTerms(keywords = 'valued', packages=c('ergm', 'ergm.count'))), 85)
 })
