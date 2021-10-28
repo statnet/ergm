@@ -2,12 +2,9 @@
 % Please edit documentation in R/InitErgmConstraint.R
 \name{.dyads-ergmConstraint}
 \alias{.dyads-ergmConstraint}
-\title{TODO}
+\title{A meta-constraint indicating handling of arbitrary dyadic constraints}
 \description{
-TODO
-}
-\details{
-TODO
+This is a flag in the proposal table indicating that the proposal can enforce arbitrary combinations of dyadic constraints. It cannot be invoked directly by the user.
 }
 \seealso{
 \code{\link{ergmConstraint}} for index of constraints and hints currently visible to the package.
