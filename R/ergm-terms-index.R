@@ -169,16 +169,22 @@ ergmTermCache <- local({
 #'
 #' @param terms a term list returned by `ergmTermCache()`
 #' @param keywords a function with one argument or a formula understood by [purrr::as_mapper()] that takes a character vector containing a term's keywords/concepts and returns `TRUE` or `FALSE`
+#' @param packages a character vector containing the packages to search through
 #' @param ... additional arguments, currently unused
 #'
 #' @return a filtered term list
 #' @noRd
-.filterTerms <- function(terms, keywords = NULL, ...) {
+.filterTerms <- function(terms, keywords = NULL, packages=NULL, ...) {
   if (!is.null(keywords)) {
     keywords <- as_mapper(keywords)
     keep <- terms %>% map("concepts") %>% map_lgl(keywords)
     terms <- terms[keep]
   }
+
+  if (!is.null(packages)) {
+    terms <- terms[(terms %>% map("package")) %in% packages]
+  }
+
   terms
 }
 
@@ -198,11 +204,11 @@ ergmTermCache <- local({
 #'
 #' @param term_type character string giving the type of term, currently `"ergmTerm"`, `"ergmConstraint"`, or `"ergmReference"`
 #' @param ... further arguments passed to `.filterTerms()`
-#' @param omit.keywords keywords to not put into the table column (usually because they are redundant)
+#' @param display.keywords keywords to not put into the table column (usually because they are redundant)
 #'
 #' @return a data frame with columns for usage, package, title, concepts, and link
 #' @noRd
-.buildTermsDataframe <- function(term_type, ..., omit.keywords = c("binary","valued")) {
+.buildTermsDataframe <- function(term_type, ..., display.keywords = subset(ergm::ergm_keyword(), !name%in%c("binary", "valued"))$name) {
   terms <- ergmTermCache(term_type)
 
   terms <- .filterTerms(terms, ...)
@@ -218,7 +224,7 @@ ergmTermCache <- local({
       usage <- paste(sprintf('`%s`', sapply(term$usages, '[[', 'usage')), collapse='\n')
     }
 
-    term$concepts <- setdiff(term$concepts, omit.keywords)
+    term$concepts <- intersect(term$concepts, display.keywords)
 
     c(Term = usage, Package = term$package, Description = term$title, Concepts = if (length(term$concepts) > 0) paste(term$concepts, collapse='\n') else '', Link = term$link)
   }) %>% t() %>% as.data.frame(stringsAsFactors=FALSE)
@@ -245,29 +251,25 @@ ergmTermCache <- local({
 
 
 # terms : a list structure of the documentation data
-# categores : an optional vector of column names to print and include
-# only.include : an optional vector of keywords, only terms that match the keywords will be printed
-.termMatrix <- function(term_type, keywords=NULL, only.include=NULL) {
+# ... : further arguments passed to `.filterTerms()`
+# display.keywords : an optional vector of column names to print and include
+.termMatrix <- function(term_type, ..., display.keywords=NULL) {
   terms <- ergmTermCache(term_type)
 
-  # if list of keywords not supplied, generate it
-  # otherwise, use the keywords (and column order) provided
-  if (is.null(keywords)) {
-    keywords <- unique(unlist(sapply(terms,'[[','concepts')))
+  terms <- .filterTerms(terms, ...)
+
+  # if list of display.keywords not supplied, generate it
+  # otherwise, use the display.keywords (and column order) provided
+  if (is.null(display.keywords)) {
+    display.keywords <- unique(unlist(sapply(terms,'[[','concepts')))
   }
 
-  if(length(keywords)==0) return(NULL)
-
-  # figure out which terms should be included
-  if (!is.null(only.include)) {
-    included <- vapply(terms, function(term) any(term$concepts %in% only.include), logical(1))
-    terms <- terms[included]
-  }
+  if(length(display.keywords)==0) return(NULL)
 
   if (length(terms) == 0) return(NULL)
 
   # figure out which terms are members of each cat
-  membership <- lapply(keywords, function(cat) {
+  membership <- lapply(display.keywords, function(cat) {
     # return true for terms that match cat
     sapply(terms, function(term) cat %in% term$concepts)
   })
@@ -275,26 +277,33 @@ ergmTermCache <- local({
   df <- data.frame(membership)
 
   concepts <- ergm_keyword()
-  keywords <- concepts[match(keywords, concepts$name), 'short']
-  colnames(df) <- keywords
+  display.keywords <- concepts[match(display.keywords, concepts$name), 'short']
+  colnames(df) <- display.keywords
   rownames(df) <- NULL
   df$Link <- sapply(terms,'[[','link')
   df$Term <- sapply(terms,'[[','name')
 
-  df[c('Term', keywords, 'Link')]
+  df[c('Term', display.keywords, 'Link')]
 }
 
 # output listings of terms, grouped by keywords
-.termToc <- function(term_type) {
+.termToc <- function(term_type, ..., display.keywords=NULL) {
   terms <- ergmTermCache(term_type)
+
+  terms <- .filterTerms(terms, ...)
+
+  # if list of display.keywords not supplied, generate it
+  # otherwise, use the display.keywords (and column order) provided
+  if (is.null(display.keywords)) {
+    display.keywords <- unique(unlist(sapply(terms,'[[','concepts')))
+  }
+
+  if(length(display.keywords)==0) return(NULL)
 
   if (length(terms) == 0) return(NULL)
 
-  cats <- unique(unlist(sapply(terms, '[[', 'concepts')))
-  if(length(cats)==0) return(NULL)
-
   ret <- list()
-  for (cat in cats) {
+  for (cat in display.keywords) {
     #find ones with matching cats
     matchingTerms <- terms[sapply(terms, function(term) any(term$concepts==cat))]
     ret[[cat]] <- list(
