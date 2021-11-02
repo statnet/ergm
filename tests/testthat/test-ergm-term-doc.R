@@ -8,16 +8,18 @@
 #  Copyright 2003-2021 Statnet Commons
 ################################################################################
 
+library(ergm.count)
+
 # tests to veryify the structure of the ergm-terms documentation
 # this executes functions similar to what would be run when building the ergm=term=crossRef.Rmd file
 # and verifys that the structure of ergm-terms.Rd matches what the parser expects
-test_that("check terms keywords", {
-  # every term must include at least one of 'directed', 'undirected', or 'operator'
-  for (term in ergm:::ergmTermCache('ergmTerm')) {
-    expect_true(any(c('directed','undirected','operator')%in%term$concepts))
-    expect_true(any(c('binary','valued')%in%term$concepts))
-  }
-})
+## test_that("check terms keywords", {
+##   # every term must include at least one of 'directed', 'undirected', or 'operator'
+##   for (term in ergm:::ergmTermCache('ergmTerm')) {
+##     expect_true(any(c('directed','undirected','operator')%in%term$concepts))
+##     expect_true(any(c('binary','valued')%in%term$concepts))
+##   }
+## })
 
 test_that("check initialisation functions", {
   for (term in ergm:::ergmTermCache('ergmTerm')) {
@@ -37,7 +39,7 @@ test_that("test search ergm term", {
   # crude checks for search.ergmTerms are in the search.ergmTerms man page
 
   # expect to find at least eight terms mentioning triangles
-  expect_equal(length(search.ergmTerms('triangle')), 9)
+  expect_equal(length(search.ergmTerms('triangle')), 13)
 
   # search using a bipartite net as a template
   myNet<-network.initialize(5,bipartite=3,directed=FALSE)
@@ -45,10 +47,48 @@ test_that("test search ergm term", {
 
   expect_equal(length(search.ergmTerms(keywords = 'bipartite')), 38)
 
+  expect_gt(length(search.ergmTerms(name = 'b2factor')), 0)
+  expect_equal(length(search.ergmTerms(name = 'b3factor')), 0)
+
   expect_equal(length(search.ergmTerms(keywords = 'bipartite', packages='ergm')), 38)
 
   library(ergm.count)
   expect_equal(length(search.ergmTerms(keywords = 'valued')), 85)
   expect_equal(length(search.ergmTerms(keywords = 'valued', packages='ergm')), 83)
   expect_equal(length(search.ergmTerms(keywords = 'valued', packages=c('ergm', 'ergm.count'))), 85)
+})
+
+test_that("test search ergm reference", {
+  expect_equal(length(search.ergmReferences('dyad')), 7)
+
+  expect_equal(length(search.ergmReferences(keywords = 'binary')), 1)
+  expect_equal(length(search.ergmReferences(keywords = 'binary', packages='ergm.count')), 0)
+  expect_equal(length(search.ergmReferences(keywords = 'binary', packages='ergm')), 1)
+
+  expect_gt(length(search.ergmReferences(name = 'Bernoulli')), 0)
+  expect_equal(length(search.ergmReferences(name = 'Cernoulli')), 0)
+})
+
+test_that("test search ergm constraint", {
+  expect_equal(length(search.ergmConstraints('degree')), 10)
+
+  expect_equal(length(search.ergmConstraints(keywords = 'directed')), 17)
+  expect_equal(length(search.ergmConstraints(keywords = 'directed', packages='ergm.count')), 0)
+  expect_equal(length(search.ergmConstraints(keywords = 'directed', packages='ergm')), 17)
+
+  expect_gt(length(search.ergmConstraints(name = 'b1degrees')), 0)
+  expect_equal(length(search.ergmConstraints(name = 'b3degrees')), 0)
+})
+
+test_that("test search ergm proposal", {
+  expect_equal(length(search.ergmProposals('bipartite')), 2)
+
+  expect_equal(length(search.ergmProposals(constraints='.dyads')), 3)
+
+  expect_equal(length(search.ergmProposals(reference='Bernoulli')), 17)
+  expect_equal(length(search.ergmProposals(reference='Bernoulli', packages='ergm.count')), 0)
+  expect_equal(length(search.ergmProposals(reference='Bernoulli', packages='ergm')), 17)
+
+  expect_equal(length(search.ergmProposals(name = 'randomtoggle')), 1)
+  expect_equal(length(search.ergmProposals(name = 'mandomtoggle')), 0)
 })

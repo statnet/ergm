@@ -4,14 +4,18 @@
 \alias{search.ergmProposals}
 \title{Search the ERGM Proposals}
 \usage{
-search.ergmProposals(search.term, name, references, constraints, packages)
+search.ergmProposals(search, name, reference, constraints, packages)
 }
 \arguments{
-\item{search.term}{optional character search term to search for in the text of the
+\item{search}{optional character search term to search for in the text of the
 term descriptions. Only matching terms will be returned. Matching is case
 insensitive.}
 
-\item{name}{optional character name of a specific term to return}
+\item{name}{optional character name of a specific proposal to return}
+
+\item{reference}{optional character to limit proposals to only those with a matching reference}
+
+\item{constraints}{optional character vector to limit proposals to only those with matching hard or soft constraints}
 
 \item{packages}{optional character vector indicating the subset of packages in which to search}
 }
@@ -22,15 +26,15 @@ the full definition for the named term.
 }
 \description{
 Searches through the \code{\link{ergm.proposals}} help page and prints out a
-list of terms appropriate for the specified network's structural
+list of proposals appropriate for the specified network's structural
 constraints, optionally restricting by additional keywords and search term
 matches.
 }
 \details{
-Uses \code{\link{grep}} internally to match the search terms against the term
-description, so \code{search.term} is currently matched as a single phrase.
+Uses \code{\link{grep}} internally to match the search terms against the proposal
+description, so \code{search} is currently matched as a single phrase.
 Keyword tags will only return a match if all of the specified tags are
-included in the term.
+included in the proposal
 }
 \examples{
 
@@ -44,7 +48,7 @@ search.ergmProposals(name='randomtoggle')
 search.ergmProposals(constraints='.dyads')
 
 # find all proposals with references
-search.ergmProposals(references='.dyads')
+search.ergmProposals(reference='Bernoulli')
 
 # request proposals that mention triangle in the ergm package
 search.ergmProposals('MH algorithm', packages='ergm')

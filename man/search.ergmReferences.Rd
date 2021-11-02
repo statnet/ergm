@@ -4,10 +4,10 @@
 \alias{search.ergmReferences}
 \title{Search the ERGM References}
 \usage{
-search.ergmReferences(search.term, keywords, name, packages)
+search.ergmReferences(search, keywords, name, packages)
 }
 \arguments{
-\item{search.term}{optional character search term to search for in the text of the
+\item{search}{optional character search term to search for in the text of the
 term descriptions. Only matching terms will be returned. Matching is case
 insensitive.}
 
@@ -31,19 +31,19 @@ matches.
 }
 \details{
 Uses \code{\link{grep}} internally to match the search terms against the term
-description, so \code{search.term} is currently matched as a single phrase.
+description, so \code{search} is currently matched as a single phrase.
 Keyword tags will only return a match if all of the specified tags are
 included in the term.
 }
 \examples{
 
-# find all of the terms that mention triangles
+# find all of the references that mention dyad
 search.ergmReferences('dyad')
 
 # search on multiple keywords
 search.ergmReferences(keywords=c('binary','discrete'))
 
-# print out the content for a specific term
+# print out the content for a specific reference
 search.ergmReferences(name='Bernoulli')
 
 # request the bipartite keyword in the ergm package

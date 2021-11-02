@@ -4,46 +4,46 @@
 \alias{search.ergmConstraints}
 \title{Search the ERGM Constraint}
 \usage{
-search.ergmConstraints(search.term, keywords, name, packages)
+search.ergmConstraints(search, keywords, name, packages)
 }
 \arguments{
-\item{search.term}{optional character search term to search for in the text of the
-term descriptions. Only matching terms will be returned. Matching is case
+\item{search}{optional character search term to search for in the text of the
+constraint descriptions. Only matching constraints will be returned. Matching is case
 insensitive.}
 
 \item{keywords}{optional character vector of keyword tags to use to
 restrict the results (i.e. 'curved', 'triad-related')}
 
-\item{name}{optional character name of a specific term to return}
+\item{name}{optional character name of a specific constraint to return}
 
 \item{packages}{optional character vector indicating the subset of packages in which to search}
 }
 \value{
-prints out the name and short description of matching terms, and
+prints out the name and short description of matching constraints, and
 invisibly returns them as a list.  If \code{name} is specified, prints out
-the full definition for the named term.
+the full definition for the named constraint.
 }
 \description{
 Searches through the \code{\link{ergm.constraints}} help page and prints out a
-list of terms appropriate for the specified network's structural
+list of constraints appropriate for the specified network's structural
 constraints, optionally restricting by additional keywords and search term
 matches.
 }
 \details{
-Uses \code{\link{grep}} internally to match the search terms against the term
-description, so \code{search.term} is currently matched as a single phrase.
+Uses \code{\link{grep}} internally to match the search terms against the constraint
+description, so \code{search} is currently matched as a single phrase.
 Keyword tags will only return a match if all of the specified tags are
-included in the term.
+included in the constraint
 }
 \examples{
 
-# find all of the terms that mention triangles
+# find all of the constraint that mention degrees
 search.ergmConstraints('degree')
 
 # search on multiple keywords
 search.ergmConstraints(keywords=c('directed','dyad-independent'))
 
-# print out the content for a specific term
+# print out the content for a specific constraint
 search.ergmConstraints(name='b1degrees')
 
 # request the bipartite keyword in the ergm package
