@@ -311,7 +311,11 @@ ergm.stepping = function(init, nw, model, initialfit, constraints,
   }
 
   if(!is.null(cl)){
-    min(steplength.max, parallel::parRapply(cl=cl, x2crs, shrink_into_CH, x1crs, verbose=verbose)/margin)
+    # NBs: parRapply() would call shrink_into_CH() for every
+    # row. Direct reference to split.data.frame() is necessary here
+    # since no matrix method.
+    x2crs <- split.data.frame(x2crs, rep_len(seq_along(cl), nrow(x2crs)))
+    min(steplength.max, unlist(parallel::parLapply(cl=cl, x2crs, shrink_into_CH, x1crs, verbose=verbose))/margin)
   }else{
     min(steplength.max, shrink_into_CH(if(!is.null(x2)) x2crs else m2crs, x1crs, verbose=verbose)/margin)
   }
