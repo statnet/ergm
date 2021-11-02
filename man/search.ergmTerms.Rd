@@ -4,10 +4,10 @@
 \alias{search.ergmTerms}
 \title{Search the ERGM terms}
 \usage{
-search.ergmTerms(...)
+search.ergmTerms(search, net, keywords, name, packages)
 }
 \arguments{
-\item{search.term}{optional character search term to search for in the text of the
+\item{search}{optional character search term to search for in the text of the
 term descriptions. Only matching terms will be returned. Matching is case
 insensitive.}
 
@@ -34,7 +34,7 @@ matches.
 }
 \details{
 Uses \code{\link{grep}} internally to match the search terms against the term
-description, so \code{search.term} is currently matched as a single phrase.
+description, so \code{search} is currently matched as a single phrase.
 Keyword tags will only return a match if all of the specified tags are
 included in the term.
 }

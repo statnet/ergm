@@ -27,7 +27,7 @@ library(ergm)
 It is possible to search the `ergm-terms` help page and search for specific keywords of terms using the `search.ergmTerms` command.  For example to find all the terms that mention 'triangle' in their description:
 
 ```{r}
-search.ergmTerms(search.term='triangle')
+search.ergmTerms(search='triangle')
 ```
 
 Or to find all of the dyad-independent bipartite terms:
