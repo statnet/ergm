@@ -12,7 +12,7 @@
 #' @aliases InitErgmProposal.dyadnoiseTNT
 #' @title TODO
 #' @description TODO
-#' @template ergmProposal
+#' @template ergmProposal-general
 NULL
 InitErgmProposal.dyadnoiseTNT<-function(arguments, nw){
   p0to1 <- arguments$constraints$dyadnoise$p01
@@ -33,7 +33,7 @@ InitErgmProposal.dyadnoiseTNT<-function(arguments, nw){
 #' @aliases InitErgmProposal.dyadnoise
 #' @title TODO
 #' @description TODO
-#' @template ergmProposal
+#' @template ergmProposal-general
 NULL
 InitErgmProposal.dyadnoise<-function(arguments, nw){
   p0to1 <- arguments$constraints$dyadnoise$p01

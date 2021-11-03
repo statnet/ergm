@@ -12,7 +12,7 @@
 #' @aliases InitWtErgmProposal.StdNormal
 #' @title TODO
 #' @description TODO
-#' @template ergmProposal
+#' @template ergmProposal-general
 NULL
 InitWtErgmProposal.StdNormal <- function(arguments, nw) {
   proposal <- list(name = "StdNormal", inputs=NULL)
@@ -23,7 +23,7 @@ InitWtErgmProposal.StdNormal <- function(arguments, nw) {
 #' @aliases InitWtErgmProposal.DiscUnif
 #' @title TODO
 #' @description TODO
-#' @template ergmProposal
+#' @template ergmProposal-general
 NULL
 InitWtErgmProposal.DiscUnif <- function(arguments, nw) {
   a <- NVL(arguments$reference$arguments$a, -Inf)
@@ -37,7 +37,7 @@ InitWtErgmProposal.DiscUnif <- function(arguments, nw) {
 #' @aliases InitWtErgmProposal.DiscUnif2
 #' @title TODO
 #' @description TODO
-#' @template ergmProposal
+#' @template ergmProposal-general
 NULL
 InitWtErgmProposal.DiscUnif2 <- function(arguments, nw) {
   a <- NVL(arguments$reference$arguments$a, -Inf)
@@ -51,7 +51,7 @@ InitWtErgmProposal.DiscUnif2 <- function(arguments, nw) {
 #' @aliases InitWtErgmProposal.DiscUnifNonObserved
 #' @title TODO
 #' @description TODO
-#' @template ergmProposal
+#' @template ergmProposal-general
 NULL
 InitWtErgmProposal.DiscUnifNonObserved <- function(arguments, nw) {
   a <- NVL(arguments$reference$arguments$a, -Inf)
@@ -65,7 +65,7 @@ InitWtErgmProposal.DiscUnifNonObserved <- function(arguments, nw) {
 #' @aliases InitWtErgmProposal.Unif
 #' @title TODO
 #' @description TODO
-#' @template ergmProposal
+#' @template ergmProposal-general
 NULL
 InitWtErgmProposal.Unif <- function(arguments, nw) {
   a <- NVL(arguments$reference$arguments$a, -Inf)
@@ -79,7 +79,7 @@ InitWtErgmProposal.Unif <- function(arguments, nw) {
 #' @aliases InitWtErgmProposal.UnifNonObserved
 #' @title TODO
 #' @description TODO
-#' @template ergmProposal
+#' @template ergmProposal-general
 NULL
 InitWtErgmProposal.UnifNonObserved <- function(arguments, nw) {
   a <- NVL(arguments$reference$arguments$a, -Inf)
@@ -93,7 +93,7 @@ InitWtErgmProposal.UnifNonObserved <- function(arguments, nw) {
 #' @aliases InitWtErgmProposal.DistRLE
 #' @title TODO
 #' @description TODO
-#' @template ergmProposal
+#' @template ergmProposal-general
 NULL
 InitWtErgmProposal.DistRLE <- function(arguments, nw) {
   inputs <- with(arguments$reference$arguments,

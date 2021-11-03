@@ -47,7 +47,7 @@ DyadGenType <- list(RandDyadGen=0L, WtRandDyadGen=1L, RLEBDM1DGen=2L, EdgeListGe
 #' @aliases InitErgmProposal.randomtoggle
 #' @title Propose a randomly selected dyad to toggle
 #' @description Propose a randomly selected dyad to toggle
-#' @template ergmProposal
+#' @template ergmProposal-general
 NULL
 InitErgmProposal.randomtoggle <- function(arguments, nw){
   list(name = "randomtoggle", dyadgen = ergm_dyadgen_select(arguments, nw), bd = ergm_bd_init(arguments, nw))
@@ -60,7 +60,7 @@ InitErgmProposal.randomtoggle <- function(arguments, nw){
 #'   edge status: those having ties and those having no ties (hence T/NT).
 #'   This is useful for improving performance in sparse networks,
 #'   because it gives at least 50\% chance of proposing a toggle of an existing edge.
-#' @template ergmProposal
+#' @template ergmProposal-general
 NULL
 InitErgmProposal.TNT <- function(nw, arguments, ...){
   list(name = "TNT", dyadgen = ergm_dyadgen_select(arguments, nw), bd = ergm_bd_init(arguments, nw))
@@ -73,7 +73,7 @@ InitErgmProposal.TNT <- function(nw, arguments, ...){
 #'   1. upper on degree, specified via the [`bd`][bd-ergmConstraint] constraint's `maxout`, `maxin`, and `attribs` arguments
 #'   2. stratification of proposals according to mixing type on a vertex attribute, specified via the [`strat`][strat-ergmHint] hint;
 #'   3. fixation of specified mixing types on a(nother) vertex attribute, specified via the [`blocks`][blocks-ergmConstraint] constraint.
-#' @template ergmProposal
+#' @template ergmProposal-general
 NULL
 InitErgmProposal.BDStratTNT <- function(arguments, nw) {
   # if bd has not already been initialized, or if related arguments are passed directly to the proposal, (re)initialize it now
@@ -233,7 +233,7 @@ InitErgmProposal.BDStratTNT <- function(arguments, nw) {
 #'   MH_CondDegreeTetrad selects two edges with no nodes in common, A1-A2 and B1-B2, s.t. A1-B2 and B1-A2 are
 #'   not edges, and propose to replace the former two by the latter two. MH_CondDegreeHexad selects three edges
 #'   A1->A2, B1->B2, C1->C2 at random and rotate them to A1->B2, B1->C2, and C1->A2.
-#' @template ergmProposal
+#' @template ergmProposal-general
 NULL
 InitErgmProposal.CondDegree <- function(arguments, nw) {
   proposal <- list(name = "CondDegree", inputs=NULL)
@@ -245,7 +245,7 @@ InitErgmProposal.CondDegree <- function(arguments, nw) {
 #' @title MHp for degree mix constraints
 #' @description MHp for \eqn{constraints= ~degreesmix}. Similar to `InitErgmProposal.CondDegree`, except that
 #'   the toggle is proposed only if the mixing matrix of degrees is preserved before and after the toggle.
-#' @template ergmProposal
+#' @template ergmProposal-general
 NULL
 InitErgmProposal.CondDegreeMix <- function(arguments, nw) {
   proposal <- list(name = "CondDegreeMix",
@@ -258,7 +258,7 @@ InitErgmProposal.CondDegreeMix <- function(arguments, nw) {
 #' @title MHp for odegree constraints
 #' @description MHp for \eqn{constraints= ~odegrees}. For directed networks, randomly select two dyads with a
 #'   common tail node, one having an edge and one not, and propose to swap the tie from one head to the other.
-#' @template ergmProposal
+#' @template ergmProposal-general
 NULL
 InitErgmProposal.CondOutDegree <- function(arguments, nw) {
   proposal <- list(name = "CondOutDegree", inputs=NULL)
@@ -273,7 +273,7 @@ InitErgmProposal.CondOutDegree <- function(arguments, nw) {
 #' @title MHp for idegree constraints
 #' @description MHp for \eqn{constraints= ~idegrees}. For directed networks, randomly select two dyads with a
 #'   common head node, one having an edge one not, and propose to swap the tie from one tail to the other.
-#' @template ergmProposal
+#' @template ergmProposal-general
 NULL
 InitErgmProposal.CondInDegree <- function(arguments, nw) {
   proposal <- list(name = "CondInDegree", inputs=NULL)
@@ -289,7 +289,7 @@ InitErgmProposal.CondInDegree <- function(arguments, nw) {
 #' @description MHp for \eqn{constraints= ~b1degrees}. For bipartite networks, randomly select an edge {B1i, B2j}
 #'   and an empty dyad with the same node B1i, {B1i, B2k}, and propose to toggle both {B1i, B2j} and {B1i, B2k}.
 #'   This ensures that the degrees of individual nodes in mode 1 are preserved.
-#' @template ergmProposal
+#' @template ergmProposal-general
 NULL
 InitErgmProposal.CondB1Degree <- function(arguments, nw) {
   proposal <- list(name = "CondB1Degree", inputs=NULL)
@@ -305,7 +305,7 @@ InitErgmProposal.CondB1Degree <- function(arguments, nw) {
 #' @description MHp for \eqn{constraints= ~b2degrees}. For bipartite networks, randomly select an edge {B1j, B2i}
 #'   and an empty dyad with the same node B2i, {B1k, B2i}, and propose to toggle both {B1j, B2i} and {B1k, B2i}.
 #'   This ensures that the degrees of individual nodes in mode 2 are preserved.
-#' @template ergmProposal
+#' @template ergmProposal-general
 NULL
 InitErgmProposal.CondB2Degree <- function(arguments, nw) {
   proposal <- list(name = "CondB2Degree", inputs=NULL)
@@ -320,7 +320,7 @@ InitErgmProposal.CondB2Degree <- function(arguments, nw) {
 #' @description MHp for \eqn{constraints= ~degreedist}. Randomly select a node (T) and its edge (E).  If the head
 #'   node of the edge (H) has 1 degree more than another randomly select node (A), and A is disconnected to both
 #'   T and H, then propose to toggle E and the dyad between T and A.
-#' @template ergmProposal
+#' @template ergmProposal-general
 NULL
 InitErgmProposal.CondDegreeDist <- function(arguments, nw) {
   proposal <- list(name = "CondDegreeDist", inputs=NULL)
@@ -340,7 +340,7 @@ InitErgmProposal.CondDegreeDist <- function(arguments, nw) {
 #' @title MHp for idegreedist constraints
 #' @description MHp for \eqn{constraints= ~idegreedist}. For directed networks, similar to
 #'   `InitErgmProposal.CondDegreeDist`, except for indegree case
-#' @template ergmProposal
+#' @template ergmProposal-general
 NULL
 InitErgmProposal.CondInDegreeDist <- function(arguments, nw) {
   proposal <- list(name = "CondInDegreeDist", inputs=NULL)
@@ -360,7 +360,7 @@ InitErgmProposal.CondInDegreeDist <- function(arguments, nw) {
 #' @title MHp for odegreedist constraints
 #' @description MHp for \eqn{constraints= ~odegreedist}. For directed networks, similar to
 #'   `InitErgmProposal.CondDegreeDist`, except for outdegree case
-#' @template ergmProposal
+#' @template ergmProposal-general
 NULL
 InitErgmProposal.CondOutDegreeDist <- function(arguments, nw) {
   proposal <- list(name = "CondOutDegreeDist", inputs=NULL)
@@ -386,7 +386,7 @@ InitErgmProposal.CondOutDegreeDist <- function(arguments, nw) {
 #'   c. proposing toggling both these dyads. Note that step b. will be very inefficient if the network is nearly
 #'      complete, so this proposal is NOT recommended for such networks. However, most network datasets are
 #'      sparse, so this is not likely to be an issue.
-#' @template ergmProposal
+#' @template ergmProposal-general
 NULL
 InitErgmProposal.ConstantEdges <- function(arguments, nw) {
   proposal <- list(name = "ConstantEdges", bd = ergm_bd_init(arguments, nw))
@@ -397,7 +397,7 @@ InitErgmProposal.ConstantEdges <- function(arguments, nw) {
 #' @aliases InitErgmProposal.HammingConstantEdges
 #' @title TODO
 #' @description TODO
-#' @template ergmProposal
+#' @template ergmProposal-general
 NULL
 InitErgmProposal.HammingConstantEdges <- function(arguments, nw) {
   proposal <- list(name = "HammingConstantEdges", inputs=NULL)
@@ -411,7 +411,7 @@ InitErgmProposal.HammingConstantEdges <- function(arguments, nw) {
 #' @aliases InitErgmProposal.HammingTNT
 #' @title TODO
 #' @description TODO
-#' @template ergmProposal
+#' @template ergmProposal-general
 NULL
 InitErgmProposal.HammingTNT <- function(arguments, nw) {
   proposal <- list(name = "HammingTNT", inputs=NULL)
