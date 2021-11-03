@@ -621,7 +621,7 @@ NULL
 #' Metropolis-Hastings Proposal Methods for ERGM MCMC
 #'
 #' @name ergmProposal
-#' @aliases ergm-proposals proposals-ergm ergm.proposals proposals.ergm
+#' @aliases ergm-proposals proposals-ergm ergm.proposals proposals.ergm InitErgmProposal InitWtErgmProposal
 #' @docType package
 #' @description [`ergm`]  uses a Metropolis-Hastings (MH) algorithm to control the behavior of the Markov Chain
 #'   Monte Carlo (MCMC) for sampling networks.  The MCMC chain is intended to step around the sample space of

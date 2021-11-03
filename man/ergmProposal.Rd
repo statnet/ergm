@@ -7,6 +7,8 @@
 \alias{proposals-ergm}
 \alias{ergm.proposals}
 \alias{proposals.ergm}
+\alias{InitErgmProposal}
+\alias{InitWtErgmProposal}
 \title{Metropolis-Hastings Proposal Methods for ERGM MCMC}
 \description{
 \code{\link{ergm}}  uses a Metropolis-Hastings (MH) algorithm to control the behavior of the Markov Chain
