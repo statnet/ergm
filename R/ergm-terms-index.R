@@ -208,7 +208,7 @@ ergmTermCache <- local({
 #'
 #' @return a data frame with columns for usage, package, title, concepts, and link
 #' @noRd
-.buildTermsDataframe <- function(term_type, ..., display.keywords = subset(ergm::ergm_keyword(), !name%in%c("binary", "valued"))$name) {
+.buildTermsDataframe <- function(term_type, ..., display.keywords = setdiff(ergm::ergm_keyword()$name, c("binary", "valued"))) {
   terms <- ergmTermCache(term_type)
 
   terms <- .filterTerms(terms, ...)
@@ -336,7 +336,7 @@ ergmTermCache <- local({
   df <- do.call(rbind, df)
 
   if (!keepProposal) {
-    df <- subset(df, select=-Proposal)
+    df <- df[,colnames(df)!="Proposal"]
   }
 
   css <- '<style>th,td {padding:3px 10px}</style>'
@@ -355,7 +355,7 @@ ergmTermCache <- local({
   names(df) <- c('Proposal', 'Reference', 'Enforced', 'May Enforce', 'Priority', 'Weight')
 
   if (!keepProposal) {
-    df <- subset(df, select=-Proposal)
+    df <- df[,colnames(df)!="Proposal"]
   }
 
   sprintf("\\out{%s}", knitr::kable(df, 'latex', escape=FALSE, row.names=FALSE, longtable=TRUE, vline="") %>%
@@ -375,7 +375,7 @@ ergmTermCache <- local({
   df <- do.call(rbind, df)
 
   if (!keepProposal) {
-    df <- subset(df, select=-Proposal)
+    df <- df[,colnames(df)!="Proposal"]
   }
 
   sprintf('\\preformatted{%s}', paste(knitr::kable(df, 'pipe'), collapse='\n'))
