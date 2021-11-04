@@ -8,7 +8,7 @@
 #  Copyright 2003-2021 Statnet Commons
 #######################################################################
 
-#' @name Bernoulli-ergmReference
+#' @templateVar name Bernoulli
 #' @title Bernoulli reference
 #' @description Bernoulli reference
 #' @details Specifies each
@@ -30,7 +30,7 @@ InitErgmReference.Bernoulli <- function(nw, arglist, ...){
   list(name="Bernoulli", init_methods=c("MPLE", "CD", "zeros"))
 }
 
-#' @name StdNormal-ergmReference
+#' @templateVar name StdNormal
 #' @title Standard Normal reference
 #' @description Standard Normal reference
 #' @details Specifies each dyad's baseline distribution to be the normal distribution
@@ -47,7 +47,7 @@ InitErgmReference.StdNormal <- function(nw, arglist, ...){
   list(name="StdNormal", init_methods=c("CD","zeros"))
 }
 
-#' @name Unif-ergmReference
+#' @templateVar name Unif
 #' @title Continuous Uniform reference
 #' @description Continuous Uniform reference
 #' @details Specifies each dyad's baseline distribution to be continuous uniform
@@ -69,7 +69,7 @@ InitErgmReference.Unif <- function(nw, arglist, ...){
   list(name="Unif", arguments=list(a=a$a, b=a$b), init_methods=c("CD","zeros"))
 }
 
-#' @name DiscUnif-ergmReference
+#' @templateVar name DiscUnif
 #' @title Discrete Uniform reference
 #' @description Discrete Uniform reference
 #' @details Specifies each dyad's baseline distribution to be discrete uniform

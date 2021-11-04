@@ -11,7 +11,7 @@
 
 #################################################################################
 
-#' @name transitiveties-ergmTerm
+#' @templateVar name transitiveties
 #' @title Transitive ties
 #' @description Transitive ties
 #' @details This term adds one statistic, equal to the number of ties
@@ -79,7 +79,7 @@ InitErgmTerm.transitiveties<-function (nw, arglist, ..., version=packageVersion(
 
 #################################################################################
 
-#' @name cyclicalties-ergmTerm
+#' @templateVar name cyclicalties
 #' @title Cyclical ties
 #' @description Cyclical ties
 #' @details This term adds one statistic, equal to the number of ties

@@ -10,7 +10,7 @@
 ## Creates a submodel that ignores any edges not within the
 ## blocks.
 
-#' @name NodematchFilter-ergmTerm
+#' @templateVar name NodematchFilter
 #' @title Filtering on nodematch
 #' @description Filtering on nodematch
 #' @details Evaluates the terms specified in `formula` on a network

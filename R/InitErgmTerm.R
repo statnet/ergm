@@ -168,7 +168,7 @@ LEVELS_BASE1 <- NULL
 
 ################################################################################
 
-#' @name absdiff-ergmTerm
+#' @templateVar name absdiff
 #' @title Absolute difference
 #' @description Absolute difference in nodal attribute.
 #' @details This term adds one network statistic to the model equaling
@@ -223,7 +223,7 @@ InitErgmTerm.absdiff <- function(nw, arglist, ..., version=packageVersion("ergm"
 
 ################################################################################
 
-#' @name absdiffcat-ergmTerm
+#' @templateVar name absdiffcat
 #' @title Categorical absolute difference
 #' @description Categorical absolute difference in nodal attribute.
 #' @details This term adds one statistic for every possible nonzero distinct
@@ -294,7 +294,7 @@ InitErgmTerm.absdiffcat <- function(nw, arglist, ..., version=packageVersion("er
 
 ################################################################################
 
-#' @name altkstar-ergmTerm
+#' @templateVar name altkstar
 #' @title Alternating k-star
 #' @description Add one network statistic to the model equal to a weighted alternating
 #'   sequence of k-star statistics with weight parameter `lambda`.
@@ -365,7 +365,7 @@ InitErgmTerm.altkstar <- function(nw, arglist, ...) {
 
 ################################################################################
 
-#' @name asymmetric-ergmTerm
+#' @templateVar name asymmetric
 #' @title Asymmetric dyads
 #' @description Asymmetric dyads
 #' @details This term adds one network statistic to the model equal to the
@@ -444,7 +444,7 @@ InitErgmTerm.asymmetric <- function(nw, arglist, ..., version=packageVersion("er
 
 ################################################################################
 
-#' @name attrcov-ergmTerm
+#' @templateVar name attrcov
 #' @title Edge covariate by attribute pairing
 #' @description Edge covariate by attribute pairing
 #' 
@@ -519,7 +519,7 @@ InitErgmTerm.attrcov <- function (nw, arglist, ..., version=packageVersion("ergm
 
 ################################################################################
 
-#' @name b1concurrent-ergmTerm
+#' @templateVar name b1concurrent
 #' @title Concurrent node count for the first mode in a bipartite network
 #' @description Concurrent node count for the first mode in a bipartite network
 #' @details This term adds one
@@ -594,7 +594,7 @@ InitErgmTerm.b1concurrent<-function(nw, arglist, ..., version=packageVersion("er
 
 ################################################################################
 
-#' @name b1degrange-ergmTerm
+#' @templateVar name b1degrange
 #' @title Degree range for the first mode in a bipartite network
 #' @description Degree range for the first mode in a bipartite (a.k.a. two-mode) network
 #' @details This term adds one
@@ -711,7 +711,7 @@ InitErgmTerm.b1degrange<-function(nw, arglist, ..., version=packageVersion("ergm
 
 ################################################################################
 
-#' @name b1cov-ergmTerm
+#' @templateVar name b1cov
 #' @title Main effect of a covariate for the first mode in a bipartite network
 #' @description Main effect of a covariate for the first mode in a bipartite (aka two-mode) network
 #' @details This term adds a single network statistic for each quantitative attribute or matrix column to the model equaling the total
@@ -766,7 +766,7 @@ InitErgmTerm.b1cov<-function (nw, arglist, ..., version=packageVersion("ergm")) 
 
 ################################################################################
 
-#' @name b1degree-ergmTerm
+#' @templateVar name b1degree
 #' @title Degree for the first mode in a bipartite network
 #' @description Degree for the first mode in a bipartite (aka two-mode) network
 #' @details This term adds one network statistic to the model for
@@ -853,7 +853,7 @@ InitErgmTerm.b1degree <- function(nw, arglist, ..., version=packageVersion("ergm
 
 ################################################################################
 
-#' @name b1dsp-ergmTerm
+#' @templateVar name b1dsp
 #' @title Dyadwise shared partners for dyads in the first bipartition
 #' @description Dyadwise shared partners for dyads in the first bipartition
 #' @details This term adds one
@@ -899,7 +899,7 @@ InitErgmTerm.b1dsp<-function(nw, arglist, cache.sp=TRUE, ...) {
 
 ################################################################################
 
-#' @name b1factor-ergmTerm
+#' @templateVar name b1factor
 #' @title Factor attribute effect for the first mode in a bipartite network
 #' @description Factor attribute effect for the first mode in a bipartite (aka two-mode) network
 #' @details This term adds multiple network statistics to the model, one for each of (a subset of) the
@@ -975,7 +975,7 @@ InitErgmTerm.b1factor<-function (nw, arglist, ..., version=packageVersion("ergm"
 
 ################################################################################
 
-#' @name b1sociality-ergmTerm
+#' @templateVar name b1sociality
 #' @title Degree
 #' @description Degree
 #' @details This term adds one network statistic for each node in the first bipartition, equal to the number of
@@ -1020,7 +1020,7 @@ InitErgmTerm.b1sociality<-function(nw, arglist, ...) {
 
 ################################################################################
 
-#' @name b1star-ergmTerm
+#' @templateVar name b1star
 #' @title k-Stars for the first mode in a bipartite network
 #' @description k-Stars for the first mode in a bipartite (aka two-mode) network
 #' @details This term adds one network statistic to the model for
@@ -1092,7 +1092,7 @@ InitErgmTerm.b1star <- function(nw, arglist, ..., version=packageVersion("ergm")
 
 ################################################################################
 
-#' @name b1starmix-ergmTerm
+#' @templateVar name b1starmix
 #' @title Mixing matrix for k-stars centered on the first mode of a bipartite network
 #' @description Mixing matrix for k-stars centered on the first mode of a bipartite network
 #' @details This term counts all k-stars in which
@@ -1187,7 +1187,7 @@ InitErgmTerm.b1starmix <- function(nw, arglist, ..., version=packageVersion("erg
 
 ################################################################################
 
-#' @name b1twostar-ergmTerm
+#' @templateVar name b1twostar
 #' @title Two-star census for central nodes centered on the first mode of a bipartite network
 #' @description Two-star census for central nodes centered on the first mode of a bipartite network
 #' @details This term takes two nodal attributes. Assuming that there are
@@ -1283,7 +1283,7 @@ InitErgmTerm.b1twostar <- function(nw, arglist, ..., version=packageVersion("erg
 
 ################################################################################
 
-#' @name b2concurrent-ergmTerm
+#' @templateVar name b2concurrent
 #' @title Concurrent node count for the second mode in a bipartite network
 #' @description Concurrent node count for the second mode in a bipartite (aka two-mode) network
 #' @details This term adds one
@@ -1354,7 +1354,7 @@ InitErgmTerm.b2concurrent<-function(nw, arglist, ..., version=packageVersion("er
 
 ################################################################################
 
-#' @name b2cov-ergmTerm
+#' @templateVar name b2cov
 #' @title Main effect of a covariate for the second mode in a bipartite  network
 #' @description Main effect of a covariate for the second mode in a bipartite (aka two-mode) network
 #' @details This term adds a single network statistic for each quantitative attribute or matrix column to the model equaling the total
@@ -1407,7 +1407,7 @@ InitErgmTerm.b2cov<-function (nw, arglist, ..., version=packageVersion("ergm")) 
 
 ################################################################################
 
-#' @name b2degrange-ergmTerm
+#' @templateVar name b2degrange
 #' @title Degree range for the second mode in a bipartite network
 #' @description Degree range for the second mode in a bipartite (a.k.a. two-mode) network
 #' @details This term adds one
@@ -1525,7 +1525,7 @@ InitErgmTerm.b2degrange<-function(nw, arglist, ..., version=packageVersion("ergm
 
 ################################################################################
 
-#' @name b2degree-ergmTerm
+#' @templateVar name b2degree
 #' @title Degree for the second mode in a bipartite network
 #' @description Degree for the second mode in a bipartite (aka two-mode) network
 #' @details This term adds one network statistic to the model for
@@ -1609,7 +1609,7 @@ InitErgmTerm.b2degree <- function(nw, arglist, ..., version=packageVersion("ergm
 
 ################################################################################
 
-#' @name b2dsp-ergmTerm
+#' @templateVar name b2dsp
 #' @title Dyadwise shared partners for dyads in the second bipartition
 #' @description Dyadwise shared partners for dyads in the second bipartition
 #' @details This term adds one network statistic to the model for each element in `d` ; the \eqn{i} th
@@ -1653,7 +1653,7 @@ InitErgmTerm.b2dsp<-function(nw, arglist, cache.sp=TRUE, ...) {
 
 ################################################################################
 
-#' @name b2factor-ergmTerm
+#' @templateVar name b2factor
 #' @title Factor attribute effect for the second mode in a bipartite network
 #' @description Factor attribute effect for the second mode in a bipartite (aka two-mode) network
 #' @details This term adds multiple network statistics to the model, one for each of (a subset of) the
@@ -1730,7 +1730,7 @@ InitErgmTerm.b2factor<-function (nw, arglist, ..., version=packageVersion("ergm"
 
 ################################################################################
 
-#' @name b2sociality-ergmTerm
+#' @templateVar name b2sociality
 #' @title Degree
 #' @description Degree
 #' @details This term adds one network statistic for each node in the second bipartition, equal to the number of
@@ -1777,7 +1777,7 @@ InitErgmTerm.b2sociality<-function(nw, arglist, ...) {
 
 ################################################################################
 
-#' @name b2star-ergmTerm
+#' @templateVar name b2star
 #' @title k-Stars for the second mode in a bipartite network
 #' @description k-Stars for the second mode in a bipartite (aka two-mode) network
 #' @details This term adds one network statistic to the model for
@@ -1850,7 +1850,7 @@ InitErgmTerm.b2star <- function(nw, arglist, ..., version=packageVersion("ergm")
 
 ################################################################################
 
-#' @name b2starmix-ergmTerm
+#' @templateVar name b2starmix
 #' @title Mixing matrix for k-stars centered on the second mode of a bipartite network
 #' @description Mixing matrix for k-stars centered on the second mode of a bipartite network
 #' @details This term is exactly the same as `b1starmix` except that the roles of
@@ -1934,7 +1934,7 @@ InitErgmTerm.b2starmix <- function(nw, arglist, ..., version=packageVersion("erg
 
 ################################################################################
 
-#' @name b2twostar-ergmTerm
+#' @templateVar name b2twostar
 #' @title Two-star census for central nodes centered on the second mode of a bipartite network
 #' @description Two-star census for central nodes centered on the second mode of a bipartite network
 #' @details This term is exactly the same as `b1twostar` except that the
@@ -2026,7 +2026,7 @@ InitErgmTerm.b2twostar <- function(nw, arglist, ..., version=packageVersion("erg
 
 ################################################################################
 
-#' @name balance-ergmTerm
+#' @templateVar name balance
 #' @title Balanced triads
 #' @description Balanced triads
 #' @details This term adds one network statistic to the model equal to the number of
@@ -2056,7 +2056,7 @@ InitErgmTerm.balance<-function (nw, arglist, ...) {
 
 ################################################################################
 
-#' @name concurrent-ergmTerm
+#' @templateVar name concurrent
 #' @title Concurrent node count
 #' @description Concurrent node count
 #' @details This term adds one network statistic to the model, equal to the number of
@@ -2121,7 +2121,7 @@ InitErgmTerm.concurrent<-function(nw, arglist, ..., version=packageVersion("ergm
 
 ################################################################################
 
-#' @name ctriple-ergmTerm
+#' @templateVar name ctriple
 #' @title Cyclic triples
 #' @description Cyclic triples
 #' @details By default, this term adds one
@@ -2201,7 +2201,7 @@ InitErgmTerm.ctriad<-InitErgmTerm.ctriple
 
 ################################################################################
 
-#' @name cycle-ergmTerm
+#' @templateVar name cycle
 #' @title k-Cycle Census
 #' @description k-Cycle Census
 #' @details This term adds one network statistic to the model for each value of `k` ,
@@ -2277,7 +2277,7 @@ InitErgmTerm.cycle <- function(nw, arglist, ...) {
 
 ################################################################################
 
-#' @name degcor-ergmTerm
+#' @templateVar name degcor
 #' @title Degree Correlation
 #' @description Degree Correlation
 #' @details This term adds one network statistic equal to the correlation
@@ -2309,7 +2309,7 @@ InitErgmTerm.degcor<-function (nw, arglist, ...) {
 
 ################################################################################
 
-#' @name degcrossprod-ergmTerm
+#' @templateVar name degcrossprod
 #' @title Degree Cross-Product
 #' @description Degree Cross-Product
 #' @details This term adds one network statistic equal to the mean of the cross-products
@@ -2334,7 +2334,7 @@ InitErgmTerm.degcrossprod<-function (nw, arglist, ...) {
 
 ################################################################################
 
-#' @name degrange-ergmTerm
+#' @templateVar name degrange
 #' @title Degree range
 #' @description Degree range
 #' @details This term adds one
@@ -2448,7 +2448,7 @@ InitErgmTerm.degrange<-function(nw, arglist, ..., version=packageVersion("ergm")
 
 ################################################################################
 
-#' @name degree-ergmTerm
+#' @templateVar name degree
 #' @title Degree
 #' @description Degree
 #' @details This term adds one
@@ -2538,7 +2538,7 @@ InitErgmTerm.degree<-function(nw, arglist, ..., version=packageVersion("ergm")) 
 
 ################################################################################
 
-#' @name degree1.5-ergmTerm
+#' @templateVar name degree1.5
 #' @title Degree to the 3/2 power
 #' @description Degree to the 3/2 power
 #' @details This term adds one network statistic to the model equaling the sum over
@@ -2581,7 +2581,7 @@ InitErgmTerm.degreepopularity<-function (nw, arglist, ...) {
 
 ################################################################################
 
-#' @name density-ergmTerm
+#' @templateVar name density
 #' @title Density
 #' @description Density
 #' @details This term adds one network statistic equal to the density of the network.
@@ -2609,7 +2609,7 @@ InitErgmTerm.density<-function(nw, arglist, ...) {
 
 ################################################################################
 
-#' @name diff-ergmTerm
+#' @templateVar name diff
 #' @title Difference
 #' @description Difference
 #' @details For values of `pow` other than
@@ -2709,7 +2709,7 @@ InitErgmTerm.diff <- function(nw, arglist, ..., version=packageVersion("ergm")) 
 
 ################################################################################
 
-#' @name dsp-ergmTerm
+#' @templateVar name dsp
 #' @title Dyadwise shared partners
 #' @description Dyadwise shared partners
 #' @details This term adds one
@@ -2765,7 +2765,7 @@ InitErgmTerm.dsp<-function(nw, arglist, cache.sp=TRUE, ...) {
 
 ################################################################################
 
-#' @name dyadcov-ergmTerm
+#' @templateVar name dyadcov
 #' @title Dyadic covariate
 #' @description Dyadic covariate
 #' @details #'   This term adds three statistics to the model, each equal to the sum of the
@@ -2847,7 +2847,7 @@ InitErgmTerm.dyadcov<-function (nw, arglist, ...) {
 
 ################################################################################
 
-#' @name edgecov-ergmTerm
+#' @templateVar name edgecov
 #' @title Edge covariate
 #' @description Edge covariate
 #' @details This term adds one statistic to the model, equal to the sum
@@ -2907,7 +2907,7 @@ InitErgmTerm.edgecov <- function(nw, arglist, ...) {
 ################################################################################
 
 
-#' @name edges-ergmTerm
+#' @templateVar name edges
 #' @title Edges
 #' @description Number of edges in the network.
 #' @details This term adds one network statistic equal to the number of
@@ -2938,7 +2938,7 @@ InitErgmTerm.edges<-function(nw, arglist, ...) {
 
 ################################################################################
 
-#' @name esp-ergmTerm
+#' @templateVar name esp
 #' @title Edgewise shared partners
 #' @description Edgewise shared partners
 #' @details This is just like the `dsp` term, except this term adds one network
@@ -2981,7 +2981,7 @@ InitErgmTerm.esp<-function(nw, arglist, cache.sp=TRUE, ...) {
 
 ################################################################################
 
-#' @name gwb1degree-ergmTerm
+#' @templateVar name gwb1degree
 #' @title Geometrically weighted degree distribution for the first mode in a bipartite network
 #' @description Geometrically weighted degree distribution for the first mode in a bipartite (aka two-mode) network
 #' @details This term adds one network statistic to the model equal to the weighted
@@ -3080,7 +3080,7 @@ InitErgmTerm.gwb1degree<-function(nw, arglist, gw.cutoff=30, ..., version=packag
 
 ################################################################################
 
-#' @name gwb1dsp-ergmTerm
+#' @templateVar name gwb1dsp
 #' @title Geometrically weighted dyadwise shared partner distribution for dyads in the first bipartition
 #' @description Geometrically weighted dyadwise shared partner distribution for dyads in the first bipartition
 #' @details This term adds one network statistic to the model equal to the geometrically
@@ -3139,7 +3139,7 @@ InitErgmTerm.gwb1dsp<-function(nw, arglist, cache.sp=TRUE, gw.cutoff=30, ...) {
 
 ################################################################################
 
-#' @name gwb2degree-ergmTerm
+#' @templateVar name gwb2degree
 #' @title Geometrically weighted degree distribution for the second mode in a bipartite network
 #' @description Geometrically weighted degree distribution for the second mode in a bipartite (aka two-mode) network
 #' @details This term adds one network statistic to the model equal to the weighted
@@ -3234,7 +3234,7 @@ InitErgmTerm.gwb2degree<-function(nw, arglist, cache.sp=TRUE, gw.cutoff=30, ...,
 
 ################################################################################
 
-#' @name gwb2dsp-ergmTerm
+#' @templateVar name gwb2dsp
 #' @title Geometrically weighted dyadwise shared partner distribution for dyads in the second bipartition
 #' @description Geometrically weighted dyadwise shared partner distribution for dyads in the second bipartition
 #' @details This term adds one network statistic to the model equal to the geometrically
@@ -3295,7 +3295,7 @@ InitErgmTerm.gwb2dsp<-function(nw, arglist, cache.sp=TRUE, gw.cutoff=30, ...) {
 
 ################################################################################
 
-#' @name gwdegree-ergmTerm
+#' @templateVar name gwdegree
 #' @title Geometrically weighted degree distribution
 #' @description Geometrically weighted degree distribution
 #' @details This term adds one network statistic to the model equal to the weighted
@@ -3382,7 +3382,7 @@ InitErgmTerm.gwdegree<-function(nw, arglist, gw.cutoff=30, ..., version=packageV
 
 ################################################################################
 
-#' @name gwdsp-ergmTerm
+#' @templateVar name gwdsp
 #' @title Geometrically weighted dyadwise shared partner distribution
 #' @description Geometrically weighted dyadwise shared partner distribution
 #' @details This term adds one network statistic to the model equal to the geometrically
@@ -3451,7 +3451,7 @@ InitErgmTerm.gwdsp<-function(nw, arglist, cache.sp=TRUE, gw.cutoff=30, ...) {
 
 ################################################################################
 
-#' @name gwesp-ergmTerm
+#' @templateVar name gwesp
 #' @title Geometrically weighted edgewise shared partner distribution
 #' @description Geometrically weighted edgewise shared partner distribution
 #' @details This term is just like `gwdsp` except it adds a statistic equal to the
@@ -3521,7 +3521,7 @@ InitErgmTerm.gwesp<-function(nw, arglist, cache.sp=TRUE, gw.cutoff=30, ...) {
 
 ################################################################################
 
-#' @name gwidegree-ergmTerm
+#' @templateVar name gwidegree
 #' @title Geometrically weighted in-degree distribution
 #' @description Geometrically weighted in-degree distribution
 #' @details This term adds one network statistic to the model
@@ -3610,7 +3610,7 @@ InitErgmTerm.gwidegree<-function(nw, arglist, gw.cutoff=30, ..., version=package
 
 ################################################################################
 
-#' @name gwnsp-ergmTerm
+#' @templateVar name gwnsp
 #' @title Geometrically weighted nonedgewise shared partner distribution
 #' @description Geometrically weighted nonedgewise shared partner distribution
 #' @details This term is just like
@@ -3679,7 +3679,7 @@ InitErgmTerm.gwnsp<-function(nw, arglist, cache.sp=TRUE, gw.cutoff=30, ...) {
 
 ################################################################################
 
-#' @name gwodegree-ergmTerm
+#' @templateVar name gwodegree
 #' @title Geometrically weighted out-degree distribution
 #' @description Geometrically weighted out-degree distribution
 #' @details This term adds one network statistic to the model
@@ -3772,7 +3772,7 @@ InitErgmTerm.gwodegree<-function(nw, arglist, gw.cutoff=30, ..., version=package
 
 ################################################################################
 
-#' @name hamming-ergmTerm
+#' @templateVar name hamming
 #' @title Hamming distance
 #' @description Hamming distance
 #' @details This term adds one statistic to the model equal to the weighted or
@@ -3987,7 +3987,7 @@ InitErgmTerm.hammingmix<-function (nw, arglist, ..., version=packageVersion("erg
 
 ################################################################################
 
-#' @name idegrange-ergmTerm
+#' @templateVar name idegrange
 #' @title In-degree range
 #' @description In-degree range
 #' @details This term adds one
@@ -4096,7 +4096,7 @@ InitErgmTerm.idegrange<-function(nw, arglist, ..., version=packageVersion("ergm"
 
 ################################################################################
 
-#' @name idegree-ergmTerm
+#' @templateVar name idegree
 #' @title In-degree
 #' @description In-degree
 #' @details This term adds one network statistic to
@@ -4186,7 +4186,7 @@ InitErgmTerm.idegree<-function(nw, arglist, ..., version=packageVersion("ergm"))
 
 ################################################################################
 
-#' @name idegree1.5-ergmTerm
+#' @templateVar name idegree1.5
 #' @title In-degree to the 3/2 power
 #' @description In-degree to the 3/2 power
 #' @details This term adds one network statistic to the model equaling the sum
@@ -4229,7 +4229,7 @@ InitErgmTerm.idegreepopularity<-function (nw, arglist, ...) {
 
 ################################################################################
 
-#' @name intransitive-ergmTerm
+#' @templateVar name intransitive
 #' @title Intransitive triads
 #' @description Intransitive triads
 #' @details This term adds one statistic to the model, equal to the number of triads in
@@ -4260,7 +4260,7 @@ InitErgmTerm.intransitive<-function (nw, arglist, ...) {
 
 ################################################################################
 
-#' @name isolatededges-ergmTerm
+#' @templateVar name isolatededges
 #' @title Isolated edges
 #' @description Isolated edges
 #' @details This term adds one statistic to the
@@ -4294,7 +4294,7 @@ InitErgmTerm.isolatededges <- function(nw, arglist, ...) {
 
 ################################################################################
 
-#' @name isolates-ergmTerm
+#' @templateVar name isolates
 #' @title Isolates
 #' @description Isolates
 #' @details This term adds one statistic to the
@@ -4330,7 +4330,7 @@ InitErgmTerm.isolates <- function(nw, arglist, ...) {
 
 ################################################################################
 
-#' @name istar-ergmTerm
+#' @templateVar name istar
 #' @title In-stars
 #' @description In-stars
 #' @details This term adds one network statistic to the
@@ -4404,7 +4404,7 @@ InitErgmTerm.istar<-function(nw, arglist, ..., version=packageVersion("ergm")) {
 
 ################################################################################
 
-#' @name kstar-ergmTerm
+#' @templateVar name kstar
 #' @title k-Stars
 #' @description k-Stars
 #' @details This term adds one
@@ -4476,7 +4476,7 @@ InitErgmTerm.kstar<-function(nw, arglist, ..., version=packageVersion("ergm")) {
 
 ################################################################################
 
-#' @name localtriangle-ergmTerm
+#' @templateVar name localtriangle
 #' @title Triangles within neighborhoods
 #' @description Triangles within neighborhoods
 #' @details This term adds one statistic to the model equal to the number of triangles
@@ -4534,7 +4534,7 @@ InitErgmTerm.localtriangle<-function (nw, arglist, ...) {
 
 ################################################################################
 
-#' @name m2star-ergmTerm
+#' @templateVar name m2star
 #' @title Mixed 2-stars, a.k.a 2-paths
 #' @description Mixed 2-stars, a.k.a 2-paths
 #' @details This term adds one statistic to the model, equal to the number of mixed
@@ -4565,7 +4565,7 @@ InitErgmTerm.m2star<-function(nw, arglist, ...) {
 
 ################################################################################
 
-#' @name meandeg-ergmTerm
+#' @templateVar name meandeg
 #' @title Mean vertex degree
 #' @description Mean vertex degree
 #' @details This term adds one network statistic to the model equal to the
@@ -4592,7 +4592,7 @@ InitErgmTerm.meandeg<-function(nw, arglist, ...) {
 
 ################################################################################
 
-#' @name mm-ergmTerm
+#' @templateVar name mm
 #' @title Mixing matrix cells and margins
 #' @description Mixing matrix cells and margins
 #' @details `attrs` is the rows of the mixing matrix and whose RHS gives
@@ -4739,7 +4739,7 @@ InitErgmTerm.mm<-function (nw, arglist, ..., version=packageVersion("ergm")) {
 
 ################################################################################
 
-#' @name mutual-ergmTerm
+#' @templateVar name mutual
 #' @title Mutuality
 #' @description Mutuality
 #' @details In binary ERGMs, equal to the number of
@@ -4864,7 +4864,7 @@ InitErgmTerm.mutual<-function (nw, arglist, ..., version=packageVersion("ergm"))
 
 ################################################################################
 
-#' @name nearsimmelian-ergmTerm
+#' @templateVar name nearsimmelian
 #' @title Near simmelian triads
 #' @description Near simmelian triads
 #' @details This term adds one statistic to the model equal to the number of near
@@ -4892,7 +4892,7 @@ InitErgmTerm.nearsimmelian<-function (nw, arglist, ...) {
 
 ################################################################################
 
-#' @name nodecov-ergmTerm
+#' @templateVar name nodecov
 #' @title Main effect of a covariate
 #' @description Main effect of a covariate
 #' @details This term adds a single network statistic for each quantitative attribute or matrix column to the model equaling the sum of
@@ -4949,7 +4949,7 @@ InitErgmTerm.nodemain<-InitErgmTerm.nodecov
 
 ################################################################################
 
-#' @name nodefactor-ergmTerm
+#' @templateVar name nodefactor
 #' @title Factor attribute effect
 #' @description Factor attribute effect
 #' @details This term adds multiple network statistics to the
@@ -5025,7 +5025,7 @@ InitErgmTerm.nodefactor<-function (nw, arglist, ..., version=packageVersion("erg
 
 ################################################################################
 
-#' @name nodeicov-ergmTerm
+#' @templateVar name nodeicov
 #' @title Main effect of a covariate for in-edges
 #' @description Main effect of a covariate for in-edges
 #' @details This term adds a single network statistic for each quantitative attribute or matrix column to the model equaling the total
@@ -5077,7 +5077,7 @@ InitErgmTerm.nodeicov<-function (nw, arglist, ..., version=packageVersion("ergm"
 
 ################################################################################
 
-#' @name nodeifactor-ergmTerm
+#' @templateVar name nodeifactor
 #' @title Factor attribute effect for in-edges
 #' @description Factor attribute effect for in-edges
 #' @details This term adds multiple network
@@ -5154,7 +5154,7 @@ InitErgmTerm.nodeifactor<-function (nw, arglist, ..., version=packageVersion("er
 
 ################################################################################
 
-#' @name nodematch-ergmTerm
+#' @templateVar name nodematch
 #' @title Uniform homophily and differential homophily
 #' @description Uniform homophily and differential homophily
 #' @details When `diff=FALSE` , this term adds one network statistic
@@ -5243,7 +5243,7 @@ InitErgmTerm.nodematch<-InitErgmTerm.match<-function (nw, arglist, ..., version=
 
 ################################################################################
 
-#' @name nodemix-ergmTerm
+#' @templateVar name nodemix
 #' @title Nodal attribute mixing
 #' @description Nodal attribute mixing
 #' @details By default, this term adds one network statistic to
@@ -5457,7 +5457,7 @@ InitErgmTerm.nodemix<-function (nw, arglist, ..., version=packageVersion("ergm")
 
 ################################################################################
 
-#' @name nodeocov-ergmTerm
+#' @templateVar name nodeocov
 #' @title Main effect of a covariate for out-edges
 #' @description Main effect of a covariate for out-edges
 #' @details This term adds a single network statistic for each quantitative attribute or matrix column to the model equaling the total
@@ -5509,7 +5509,7 @@ InitErgmTerm.nodeocov<-function (nw, arglist, ..., version=packageVersion("ergm"
 
 ################################################################################
 
-#' @name nodeofactor-ergmTerm
+#' @templateVar name nodeofactor
 #' @title Factor attribute effect for out-edges
 #' @description Factor attribute effect for out-edges
 #' @details This term adds multiple network
@@ -5586,7 +5586,7 @@ InitErgmTerm.nodeofactor<-function (nw, arglist, ..., version=packageVersion("er
 
 ################################################################################
 
-#' @name nsp-ergmTerm
+#' @templateVar name nsp
 #' @title Nonedgewise shared partners
 #' @description Nonedgewise shared partners
 #' @details This is
@@ -5650,7 +5650,7 @@ InitErgmTerm.nsp<-function(nw, arglist, cache.sp=TRUE, ...) {
 
 ################################################################################
 
-#' @name odegrange-ergmTerm
+#' @templateVar name odegrange
 #' @title Out-degree range
 #' @description Out-degree range
 #' @details This term adds one
@@ -5763,7 +5763,7 @@ InitErgmTerm.odegrange<-function(nw, arglist, ..., version=packageVersion("ergm"
 
 ################################################################################
 
-#' @name odegree-ergmTerm
+#' @templateVar name odegree
 #' @title Out-degree
 #' @description Out-degree
 #' @details This term adds one network statistic to
@@ -5854,7 +5854,7 @@ InitErgmTerm.odegree<-function(nw, arglist, ..., version=packageVersion("ergm"))
 
 ################################################################################
 
-#' @name odegree1.5-ergmTerm
+#' @templateVar name odegree1.5
 #' @title Out-degree to the 3/2 power
 #' @description Out-degree to the 3/2 power
 #' @details This term adds one network statistic to the model equaling the sum
@@ -5896,7 +5896,7 @@ InitErgmTerm.odegreepopularity<-function (nw, arglist, ...) {
 
 ################################################################################
 
-#' @name opentriad-ergmTerm
+#' @templateVar name opentriad
 #' @title Open triads
 #' @description Open triads
 #' @details This term
@@ -5923,7 +5923,7 @@ InitErgmTerm.opentriad<-function (nw, arglist, ...) {
 
 ################################################################################
 
-#' @name ostar-ergmTerm
+#' @templateVar name ostar
 #' @title k-Outstars
 #' @description k-Outstars
 #' @details This term adds one network statistic to the
@@ -6003,7 +6003,7 @@ InitErgmTerm.ostar<-function(nw, arglist, ..., version=packageVersion("ergm")) {
 
 ################################################################################
 
-#' @name receiver-ergmTerm
+#' @templateVar name receiver
 #' @title Receiver effect
 #' @description Receiver effect
 #' @details This term adds one network statistic for each node equal to the number of
@@ -6059,7 +6059,7 @@ InitErgmTerm.receiver<-function(nw, arglist, ..., version=packageVersion("ergm")
 
 ################################################################################
 
-#' @name sender-ergmTerm
+#' @templateVar name sender
 #' @title Sender effect
 #' @description Sender effect
 #' @details This term adds one network statistic for each node equal to the number of
@@ -6114,7 +6114,7 @@ InitErgmTerm.sender<-function(nw, arglist, ..., version=packageVersion("ergm")) 
 
 ################################################################################
 
-#' @name simmelian-ergmTerm
+#' @templateVar name simmelian
 #' @title Simmelian triads
 #' @description Simmelian triads
 #' @details This term adds one
@@ -6143,7 +6143,7 @@ InitErgmTerm.simmelian<-function (nw, arglist, ...) {
 
 ################################################################################
 
-#' @name simmelianties-ergmTerm
+#' @templateVar name simmelianties
 #' @title Ties in simmelian triads
 #' @description Ties in simmelian triads
 #' @details This term adds
@@ -6177,7 +6177,7 @@ InitErgmTerm.simmelianties<-function (nw, arglist, ...) {
 
 ################################################################################
 
-#' @name smalldiff-ergmTerm
+#' @templateVar name smalldiff
 #' @title Number of ties between actors with similar attribute values
 #' @description Number of ties between actors with similar (but not necessarily identical) attribute values
 #' @details This term adds one statistic, having as its
@@ -6234,7 +6234,7 @@ InitErgmTerm.smalldiff<-function (nw, arglist, ..., version=packageVersion("ergm
 
 ################################################################################
 
-#' @name sociality-ergmTerm
+#' @templateVar name sociality
 #' @title Undirected degree
 #' @description Undirected degree
 #' @details This term adds one network statistic for each node equal to the number of
@@ -6350,7 +6350,7 @@ InitErgmTerm.threepath <- function(nw, arglist, ..., version=packageVersion("erg
 
 ################################################################################
 
-#' @name threetrail-ergmTerm
+#' @templateVar name threetrail
 #' @title Three-trails
 #' @description Three-trails
 #' @details For an undirected network, this term adds one statistic equal to the number
@@ -6428,7 +6428,7 @@ InitErgmTerm.threetrail <- function(nw, arglist, ..., version=packageVersion("er
 
 ################################################################################
 
-#' @name transitive-ergmTerm
+#' @templateVar name transitive
 #' @title Transitive triads
 #' @description Transitive triads
 #' @details This term adds one statistic to the model, equal to the number of triads in
@@ -6457,7 +6457,7 @@ InitErgmTerm.transitive<-function (nw, arglist, ...) {
 
 ################################################################################
 
-#' @name triadcensus-ergmTerm
+#' @templateVar name triadcensus
 #' @title Triad census
 #' @description Triad census
 #' @details For a directed network, this term adds one network statistic for each of
@@ -6550,7 +6550,7 @@ InitErgmTerm.triadcensus<-function (nw, arglist, ..., version=packageVersion("er
 
 ################################################################################
 
-#' @name triangle-ergmTerm
+#' @templateVar name triangle
 #' @title Triangles
 #' @description Triangles
 #' @details By default, this term adds one statistic to the model equal to the number of triangles
@@ -6626,7 +6626,7 @@ InitErgmTerm.triangle<-InitErgmTerm.triangles<-function (nw, arglist, ..., versi
 
 ################################################################################
 
-#' @name tripercent-ergmTerm
+#' @templateVar name tripercent
 #' @title Triangle percentage
 #' @description Triangle percentage
 #' @details By default, this term adds one statistic to the model equal to 100 times the ratio of
@@ -6700,7 +6700,7 @@ InitErgmTerm.tripercent<-function (nw, arglist, ..., version=packageVersion("erg
 
 ################################################################################
 
-#' @name ttriple-ergmTerm
+#' @templateVar name ttriple
 #' @title Transitive triples
 #' @description Transitive triples
 #' @details By default, this term adds one statistic to the model, equal to the number of transitive
@@ -6777,7 +6777,7 @@ InitErgmTerm.ttriad<-InitErgmTerm.ttriple
 
 ################################################################################
 
-#' @name twopath-ergmTerm
+#' @templateVar name twopath
 #' @title 2-Paths
 #' @description 2-Paths
 #' @details This term adds one statistic to the model, equal to the number of 2-paths in

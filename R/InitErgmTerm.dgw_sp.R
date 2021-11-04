@@ -137,7 +137,7 @@
 #routine is used (since it is safe for undirected graphs), irrespective of
 #the user's selection.  UTP cannot be chosen otherwise, since it won't work.
 
-#' @name desp-ergmTerm
+#' @templateVar name desp
 #' @title Directed edgewise shared partners
 #' @description Directed edgewise shared partners
 #' @details This term adds one network statistic to the model for each element in `d` where the \eqn{i} th such statistic equals the number of edges in the network with exactly `d[i]` shared partners.
@@ -204,7 +204,7 @@ InitErgmTerm.desp<-function(nw, arglist, cache.sp=TRUE, ...) {
 #always used (since it is directedness-safe), and the user's input is
 #overridden.  UTP cannot be chosen otherwise, since it won't work.
 
-#' @name dgwesp-ergmTerm
+#' @templateVar name dgwesp
 #' @title Geometrically weighted edgewise shared partner distribution
 #' @description Geometrically weighted edgewise shared partner distribution
 #' @details This term adds a statistic equal to the geometrically weighted edgewise (not dyadwise) shared partner distribution with decay parameter `decay` parameter.
@@ -301,7 +301,7 @@ InitErgmTerm.dgwesp<-function(nw, arglist, cache.sp=TRUE, gw.cutoff=30, ...) {
 #the user's selection.  UTP cannot be chosen otherwise, since it won't work.
 #
 
-#' @name ddsp-ergmTerm
+#' @templateVar name ddsp
 #' @title Directed dyadwise shared partners
 #' @description Directed dyadwise shared partners
 #' @details This term adds one network statistic to the model for each element in `d` where the \eqn{i} th such statistic equals the number of dyads in the network with exactly `d[i]` shared partners.
@@ -364,7 +364,7 @@ InitErgmTerm.ddsp<-function(nw, arglist, cache.sp=TRUE, ...) {
 
 ################################################################################
 
-#' @name dgwdsp-ergmTerm
+#' @templateVar name dgwdsp
 #' @title Geometrically weighted dyadwise shared partner distribution
 #' @description Geometrically weighted dyadwise shared partner distribution
 #' @details This term adds one network statistic to the model equal to the geometrically weighted dyadwise shared partner distribution with decay parameter `decay` parameter.
@@ -467,7 +467,7 @@ InitErgmTerm.dgwdsp<-function(nw, arglist, cache.sp=TRUE, gw.cutoff=30, ...) {
 #the user's selection.  UTP cannot be chosen otherwise, since it won't work.
 #
 
-#' @name dnsp-ergmTerm
+#' @templateVar name dnsp
 #' @title Directed non-edgewise shared partners
 #' @description Directed non-edgewise shared partners
 #' @details This term adds one network statistic to the model for each element in `d` where the \eqn{i} th such statistic equals the number of non-edges in the network with exactly `d[i]` shared partners.
@@ -529,7 +529,7 @@ InitErgmTerm.dnsp<-function(nw, arglist, cache.sp=TRUE, ...) {
 
 ################################################################################
 
-#' @name dgwnsp-ergmTerm
+#' @templateVar name dgwnsp
 #' @title Geometrically weighted non-edgewise shared partner distribution
 #' @description Geometrically weighted non-edgewise shared partner distribution
 #' @details This term is just like gwesp and gwdsp except it adds a statistic equal to the geometrically weighted nonedgewise (that is, over dyads that do not have an edge) shared partner distribution with decay parameter `decay` parameter.

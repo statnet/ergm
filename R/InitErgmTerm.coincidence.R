@@ -8,7 +8,7 @@
 #  Copyright 2003-2021 Statnet Commons
 #######################################################################
 
-#' @name coincidence-ergmTerm
+#' @templateVar name coincidence
 #' @title Coincident node count for the second mode in a bipartite (aka two-mode) network
 #' @description Coincident node count for the second mode in a bipartite (aka two-mode) network
 #' @details By default this term adds one

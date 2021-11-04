@@ -147,7 +147,7 @@ InitErgmTerm.Passthrough <- function(nw, arglist, ...){
     wrap.ergm_model(m, nw, if(a$label) ergm_mk_std_op_namewrap('Passthrough') else identity))
 }
 
-#' @name Label-ergmTerm
+#' @templateVar name Label
 #' @title Modify terms' coefficient names
 #' @description Modify terms' coefficient names
 #' @details This operator evaluates `formula` without modification, but modifies its coefficient and/or parameter names based on `label` and `pos` .
@@ -288,7 +288,10 @@ InitErgmTerm..submodel_and_summary <- function(nw, arglist, ...){
     wrap.ergm_model(m, nw, NULL))
 }
 
+# Roxygen converts the name to FALSE-ergmTerm if the name is not specified. This generates a warning but is probably the best we can do
+
 #' @name F-ergmTerm
+#' @templateVar name F
 #' @title Filtering on arbitrary one-term model.
 #' @description Filtering on arbitrary one-term model.
 #' @details Evaluates the given `formula` on a network constructed by
@@ -364,7 +367,7 @@ InitErgmTerm..filter.formula.net <- function(nw, arglist, ...){
     wrap.ergm_model(m, nw, NULL))
 }
 
-#' @name Offset-ergmTerm
+#' @templateVar name Offset
 #' @title Terms with fixed coefficients
 #' @description Terms with fixed coefficients
 #' @details This operator is analogous to the `offset()` wrapper, but the
@@ -574,7 +577,7 @@ ergm_symmetrize.network <- function(x, rule=c("weak","strong","upper","lower"), 
   nvattr.copy.network(o, x)
 }
 
-#' @name Symmetrize-ergmTerm
+#' @templateVar name Symmetrize
 #' @title Evaluation on symmetrized (undirected) network
 #' @description Evaluation on symmetrized (undirected) network
 #' @details :
@@ -625,7 +628,7 @@ InitErgmTerm.Symmetrize <- function(nw, arglist, ...){
                list(dependence=!is.dyad.independent(m) || rule%in%c("weak","strong"))))
 }
 
-#' @name Sum-operator-ergmTerm
+#' @templateVar name Sum-operator
 #' @title A sum (or an arbitrary linear combination) of one or more formulas
 #' @description A sum (or an arbitrary linear combination) of one or more formulas
 #' @details This operator sums up the RHS statistics of the input formulas elementwise.
@@ -766,7 +769,7 @@ InitErgmTerm.Sum <- function(nw, arglist,...){
     wms[[1L]][c("map", "gradient", "params", "minpar", "maxpar")])
 }
 
-#' @name S-ergmTerm
+#' @templateVar name S
 #' @title Evaluation on an induced subgraph
 #' @description Evaluation on an induced subgraph
 #' @details This operator takes a two-sided forumla `attrs` whose LHS gives the attribute or attribute function for which tails and heads will be used to construct the induced subgraph. They must evaluate either to a logical vector equal in length to the number of tails (for LHS) and heads (for RHS) indicating which nodes are to be used to induce the subgraph or a numeric vector giving their indices. (As with indexing vectors, the logical vector will be recycled to the size of the network or the size of the appropriate bipartition, and negative indices will deselect vertices.)
@@ -852,7 +855,7 @@ InitErgmTerm.S <- function(nw, arglist, ...){
 }
 
 
-#' @name Curve-ergmTerm
+#' @templateVar name Curve
 #' @title Impose a curved structure on term parameters.
 #' @description Impose a curved structure on term parameters.
 #' @details Arguments may have the same forms as in the API, but for convenience, alternative forms are accepted.
@@ -973,7 +976,7 @@ InitErgmTerm.Parametrise <- InitErgmTerm.Curve
 #' #           cov=NULL)
 InitErgmTerm.Parametrize <- InitErgmTerm.Curve
 
-#' @name Log-ergmTerm
+#' @templateVar name Log
 #' @title Take a natural logarithm of a network's statistic
 #' @description Take a natural logarithm of a network's statistic
 #' @details Evaluate the terms specified in `formula` and takes a natural (base \eqn{e} ) logarithm of them. Since an ERGM statistic must be finite, `log0` specifies the value to be substituted for `log(0)` . The default value seems reasonable for most purposes.
@@ -1004,7 +1007,7 @@ InitErgmTerm.Log <- function(nw, arglist, ...){
   c(list(name="Log", inputs=log0, auxiliaries=~.submodel_and_summary(m)), wm)
 }
 
-#' @name Exp-ergmTerm
+#' @templateVar name Exp
 #' @title Exponentiate a network's statistic
 #' @description Exponentiate a network's statistic
 #' @details Evaluate the terms specified in `formula` and exponentiates them with base \eqn{e} .
@@ -1032,7 +1035,7 @@ InitErgmTerm.Exp <- function(nw, arglist, ...){
   c(list(name="Exp", auxiliaries=~.submodel_and_summary(m)), wm)
 }
 
-#' @name Prod-ergmTerm
+#' @templateVar name Prod
 #' @title A product (or an arbitrary power combination) of one or more formulas
 #' @description A product (or an arbitrary power combination) of one or more formulas
 #' @details This operator evaluates a list of formulas whose corresponnding RHS
