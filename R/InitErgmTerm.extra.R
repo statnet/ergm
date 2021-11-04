@@ -11,7 +11,7 @@
 #NOTE: a number of undocumented terms have been removed from this file
 # the terms still exist on the experimental_terms svn branch
 
-#' @name concurrentties-ergmTerm
+#' @templateVar name concurrentties
 #' @title Concurrent tie count
 #' @description Concurrent tie count
 #' @details This term adds one network statistic to the model, equal to the number of

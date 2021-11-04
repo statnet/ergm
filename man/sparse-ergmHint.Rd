@@ -12,6 +12,6 @@
 The network is sparse. This typically results in a Tie-Non-Tie (TNT) proposal regime.
 }
 \seealso{
-\code{\link{ergmConstraint}} for index of constraints and hints currently visible to the package.
+\code{\link{ergmHint}} for index of constraints and hints currently visible to the package.
 }
 \concept{dyad-independent}

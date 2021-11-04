@@ -41,7 +41,7 @@
   list(values=o, lengths1=l1, lengths2=l2)
 }
 
-#' @name blockdiag-ergmConstraint
+#' @templateVar name blockdiag
 #' @title Force a block-diagonal structure on the network
 #' @description Force a block-diagonal structure (and its bipartite analogue) on the network
 #' @details  Only dyads \eqn{(i,j)} for which `attr(i)==attr(j)` can have edges. 

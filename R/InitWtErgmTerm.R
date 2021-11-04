@@ -79,7 +79,7 @@ InitWtErgmTerm.absdiffcat <- function(nw, arglist, ..., version=packageVersion("
 }
 
 
-#' @name atleast-ergmTerm
+#' @templateVar name atleast
 #' @title Number of dyads with values greater than or equal to a threshold
 #' @description Number of dyads with values greater than or equal to a threshold
 #' @details Adds the number of
@@ -112,7 +112,7 @@ InitWtErgmTerm.atleast<-function(nw, arglist, ...) {
        emptynwstats=ifelse(0>=a$threshold, network.dyadcount(nw,FALSE), 0))
 }
 
-#' @name atmost-ergmTerm
+#' @templateVar name atmost
 #' @title Number of dyads with values less than or equal to a threshold
 #' @description Number of dyads with values less than or equal to a threshold
 #' @details Adds the number of
@@ -297,7 +297,7 @@ InitWtErgmTerm.edgecov <- function(nw, arglist, ...) {
   binary_dind_wrap("edgecov", nw, a, ...)
 }
 
-#' @name equalto-ergmTerm
+#' @templateVar name equalto
 #' @title Number of dyads with values equal to a specific value
 #' @description Number of dyads with values equal to a specific value (within tolerance)
 #' @details Adds one statistic equal to the number of dyads whose values
@@ -328,7 +328,7 @@ InitWtErgmTerm.equalto<-function(nw, arglist, ...) {
        emptynwstats=if(abs(a$value)<=a$tolerance) network.dyadcount(nw,FALSE) else 0)
 }
 
-#' @name ininterval-ergmTerm
+#' @templateVar name ininterval
 #' @title Number of dyads whose values are in an interval
 #' @description Number of dyads whose values are in an interval
 #' @details Adds one statistic equaling to the number of dyads whose values
@@ -379,7 +379,7 @@ InitWtErgmTerm.ininterval<-function(nw, arglist, ...) {
        ) network.dyadcount(nw,FALSE) else 0)
 }
 
-#' @name greaterthan-ergmTerm
+#' @templateVar name greaterthan
 #' @title Number of dyads with values strictly greater than a threshold
 #' @description Number of dyads with values strictly greater than a threshold
 #' @details Adds the number of
@@ -410,7 +410,7 @@ InitWtErgmTerm.greaterthan<-function(nw, arglist, ...) {
        emptynwstats=ifelse(0>a$threshold, network.dyadcount(nw,FALSE), 0))
 }
 
-#' @name smallerthan-ergmTerm
+#' @templateVar name smallerthan
 #' @title Number of dyads with values strictly smaller than a threshold
 #' @description Number of dyads with values strictly smaller than a threshold
 #' @details Adds the number of
@@ -442,7 +442,7 @@ InitWtErgmTerm.smallerthan<-function(nw, arglist, ...) {
 }
 
 
-#' @name sum-ergmTerm
+#' @templateVar name sum
 #' @title Sum of dyad values (optionally taken to a power)
 #' @description Sum of dyad values (optionally taken to a power)
 #' @details This term adds one statistic equal to the sum of
@@ -477,7 +477,7 @@ InitWtErgmTerm.sum<-function(nw, arglist, ...) {
 }
 
 
-#' @name nodecovar-ergmTerm
+#' @templateVar name nodecovar
 #' @title Covariance of undirected dyad values incident on each actor
 #' @description Covariance of undirected dyad values incident on each actor
 #' @details This term adds one statistic equal to
@@ -591,7 +591,7 @@ InitWtErgmTerm.sociality<-function (nw, arglist, ..., version=packageVersion("er
 }
 
 
-#' @name nodeocovar-ergmTerm
+#' @templateVar name nodeocovar
 #' @title Covariance of out-dyad values incident on each actor
 #' @description Covariance of out-dyad values incident on each actor
 #' @details This term adds one statistic equal to
@@ -681,7 +681,7 @@ InitWtErgmTerm.sender<-function (nw, arglist, ..., version=packageVersion("ergm"
   binary_dind_wrap("sender", nw, a, ..., version=version)
 }
 
-#' @name nodeicovar-ergmTerm
+#' @templateVar name nodeicovar
 #' @title Covariance of in-dyad values incident on each actor
 #' @description Covariance of in-dyad values incident on each actor
 #' @details This term adds one statistic equal to
@@ -959,7 +959,7 @@ InitWtErgmTerm.transitiveties<-function (nw, arglist, ...) {
        minval=0, maxval=network.dyadcount(nw,FALSE))  
 }
 
-#' @name transitiveweights-ergmTerm
+#' @templateVar name transitiveweights
 #' @title Transitive weights
 #' @description Transitive weights
 #' @details This statistic implements the transitive weights
@@ -1031,7 +1031,7 @@ InitWtErgmTerm.cyclicalties<-function (nw, arglist, ...) {
   
 }
 
-#' @name cyclicalweights-ergmTerm
+#' @templateVar name cyclicalweights
 #' @title Cyclical weights
 #' @description Cyclical weights
 #' @details This statistic implements the cyclical weights
