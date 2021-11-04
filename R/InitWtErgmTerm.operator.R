@@ -13,7 +13,7 @@ InitWtErgmTerm.Passthrough <- function(nw, arglist, ...){
   out
 }
 
-#' @name B-ergmTerm
+#' @templateVar name B
 #' @title Wrap binary terms for use in valued models
 #' @description Wrap binary terms for use in valued models
 #' @details Wraps binary `ergm` terms for use in valued models, with `formula` specifying which terms
