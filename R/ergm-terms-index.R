@@ -68,7 +68,12 @@ DISPLAY_LATEX_TOC_PCT_WIDTHS <- function(n_concepts) c(2.4, rep(.7, n_concepts))
 
     proposals = list()
     for (i in 1:nrow(ps)) {
-      constraints <- strsplit(ps$Constraints[i], '(?<=.)(?=[|&])', perl=TRUE)[[1]]
+      if (!stringr::str_detect(ps$Constraints[i], '[|&]') || stringr::str_detect(ps$Constraints[i], '\\+')) {
+        constraints <- strsplit(ps$Constraints[i], '\\+')[[1]]
+        constraints <- paste0(ifelse(constraints == '.dyads', '|', '&'), constraints)
+      } else {
+        constraints <- strsplit(ps$Constraints[i], '(?<=.)(?=[|&])', perl=TRUE)[[1]]
+      }
       constraints <- lapply(constraints, function(c) list(
         name=substr(c, 2, stringr::str_length(c)),
         enforce=substr(c, 1, 1) == '&'))
