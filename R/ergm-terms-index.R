@@ -68,7 +68,12 @@ DISPLAY_LATEX_TOC_PCT_WIDTHS <- function(n_concepts) c(2.4, rep(.7, n_concepts))
 
     proposals = list()
     for (i in 1:nrow(ps)) {
-      constraints <- strsplit(ps$Constraints[i], '(?<=.)(?=[|&])', perl=TRUE)[[1]]
+      if (!stringr::str_detect(ps$Constraints[i], '[|&]') || stringr::str_detect(ps$Constraints[i], '\\+')) {
+        constraints <- strsplit(ps$Constraints[i], '\\+')[[1]]
+        constraints <- paste0(ifelse(constraints == '.dyads', '|', '&'), constraints)
+      } else {
+        constraints <- strsplit(ps$Constraints[i], '(?<=.)(?=[|&])', perl=TRUE)[[1]]
+      }
       constraints <- lapply(constraints, function(c) list(
         name=substr(c, 2, stringr::str_length(c)),
         enforce=substr(c, 1, 1) == '&'))
@@ -78,7 +83,8 @@ DISPLAY_LATEX_TOC_PCT_WIDTHS <- function(n_concepts) c(2.4, rep(.7, n_concepts))
         Enforced=constraints %>% keep("enforce") %>% map("name") %>% unlist,
         May_Enforce=constraints %>% discard("enforce") %>% map("name") %>% unlist,
         Priority=ps$Priority[i],
-        Weight=ps$Weights[i]
+        Weight=ps$Weights[i],
+        Class=ifelse(ps$Class[i] == 'c', 'cross-sectional', 'last-toggle')
       )
     }
     return(list(
@@ -335,7 +341,7 @@ ergmTermCache <- local({
     df[[i]]$May_Enforce <- if (length(df[[i]]$May_Enforce) > 0) paste(sprintf('<a href="../help/%1$s-ergmConstraint">%1$s</a>', df[[i]]$May_Enforce), collapse=' ') else ""
   }
 
-  df <- do.call(rbind, df)
+  df <- do.call(rbind.data.frame, df)
 
   if (!keepProposal) {
     df <- df[,colnames(df)!="Proposal"]
@@ -353,8 +359,9 @@ ergmTermCache <- local({
     df[[i]]$May_Enforce <- if (length(df[[i]]$May_Enforce) > 0) paste(df[[i]]$May_Enforce, collapse=' ') else ""
   }
 
-  df <- as.data.frame(do.call(rbind, df))
-  names(df) <- c('Proposal', 'Reference', 'Enforced', 'May Enforce', 'Priority', 'Weight')
+  df <- as.data.frame(do.call(rbind.data.frame, df))
+  names(df) <- c('Proposal', 'Reference', 'Enforced', 'May Enforce', 'Priority', 'Weight', 'Class')
+  df[, 'Class'] = ifelse(df[, 'Class'] == 'cross-sectional', 'c', 't')
 
   if (!keepProposal) {
     df <- df[,colnames(df)!="Proposal"]
@@ -374,7 +381,7 @@ ergmTermCache <- local({
     df[[i]]$May_Enforce <- if (length(df[[i]]$May_Enforce) > 0) paste(df[[i]]$May_Enforce, collapse=' ') else ""
   }
 
-  df <- do.call(rbind, df)
+  df <- do.call(rbind.data.frame, df)
 
   if (!keepProposal) {
     df <- df[,colnames(df)!="Proposal"]
@@ -898,8 +905,9 @@ search.ergmProposals <- function(search, name, reference, constraints, packages)
           term$title,
           term$description))
         for (rule in term$rules) {
-          cat(sprintf('    Reference: %s\n%s%s\n',
+          cat(sprintf('    Reference: %s Class: %s\n%s%s\n',
             rule$Reference,
+            rule$Class,
             if (length(rule$Enforced) > 0) paste("    Enfored:", paste(rule$Enforced, collapse=" "), "\n") else "",
             if (length(rule$May_Enforce) > 0) paste("    May Enfore:", paste(rule$May_Enforce, collapse=" "), "\n") else ""))
         }
