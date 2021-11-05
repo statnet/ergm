@@ -3,9 +3,12 @@
 \name{triangle-ergmTerm}
 \alias{triangle-ergmTerm}
 \alias{InitErgmTerm.triangle}
+\alias{triangles-ergmTerm}
 \title{Triangles}
 \usage{
 # binary: triangle(attr=NULL, diff=FALSE, levels=NULL)
+
+# binary: triangles(attr=NULL, diff=FALSE, levels=NULL)
 }
 \arguments{
 \item{attr, diff}{quantitative attribute (see Specifying Vertex attributes and Levels (\code{?nodal_attributes}) for details.) If \code{attr} is specified and \code{diff} is \code{FALSE} ,

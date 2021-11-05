@@ -6551,6 +6551,7 @@ InitErgmTerm.triadcensus<-function (nw, arglist, ..., version=packageVersion("er
 ################################################################################
 
 #' @templateVar name triangle
+#' @aliases triangles-ergmTerm
 #' @title Triangles
 #' @description Triangles
 #' @details By default, this term adds one statistic to the model equal to the number of triangles
@@ -6565,6 +6566,8 @@ InitErgmTerm.triadcensus<-function (nw, arglist, ..., version=packageVersion("er
 #'
 #' @usage
 #' # binary: triangle(attr=NULL, diff=FALSE, levels=NULL)
+#'
+#' # binary: triangles(attr=NULL, diff=FALSE, levels=NULL)
 #'
 #' @param attr,diff quantitative attribute (see Specifying Vertex attributes and Levels (`?nodal_attributes`) for details.) If `attr` is specified and `diff` is `FALSE` ,
 #'   then the count is restricted to those triples of nodes with
