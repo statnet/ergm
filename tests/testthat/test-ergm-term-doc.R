@@ -39,7 +39,7 @@ test_that("test search ergm term", {
   # crude checks for search.ergmTerms are in the search.ergmTerms man page
 
   # expect to find at least eight terms mentioning triangles
-  expect_equal(length(search.ergmTerms('triangle')), 13)
+  expect_equal(length(search.ergmTerms('triangle')), 14)
 
   # search using a bipartite net as a template
   myNet<-network.initialize(5,bipartite=3,directed=FALSE)
