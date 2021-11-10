@@ -636,6 +636,10 @@ search.ergmTermType <-function(term.type, search, net, keywords, name, packages)
     for (t in which(found)){
       term<-terms[[t]]
       unique_usages <- term$usages %>% map("usage") %>% unlist %>% unique
+      if (term$type %in% c('ergmTerm')) {
+        term_types <- sapply(unique_usages, function(usage) paste(term$usages[(term$usages %>% map("usage") %>% unlist) == usage] %>% map("type") %>% unlist %>% unique, collapse=", "))
+        unique_usages <- paste0(unique_usages, " (", term_types, ")")
+      }
       outText <- paste0(paste(unique_usages, collapse="\n"), "\n    ", term$title, "\n")
       output<-c(output,outText)
     }
