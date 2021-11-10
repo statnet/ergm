@@ -140,12 +140,19 @@ is.inCH <- function(p, M, verbose=FALSE, ...) { # Pass extra arguments directly 
 }
 
 
-
+warning_once <- once(warning)
 
 #' @describeIn is.inCH Shrink points p towards m until all are in the convex hull of M.
+#' @param solver A character string selecting which solver to use; by default, tries `Rglpk`'s but falls back to `lpSolveAPI`'s.
 #' @export
-shrink_into_CH <- function(p, M, m = NULL, verbose=FALSE, ...) { # Pass extra arguments directly to LP solver
+shrink_into_CH <- function(p, M, m = NULL, verbose=FALSE, ..., solver = c("glpk", "lpsolve")) { # Pass extra arguments directly to LP solver
+  solver <- match.arg(solver)
   verbose <- max(0, min(verbose, 4))
+
+  if(solver == "glpk" && !requireNamespace("Rglpk", quietly=TRUE)){
+    warning_once(sQuote("glpk"), " selected as the solver, but package ", sQuote("Rglpk"), " is not available; falling back to ", sQuote("lpSolveAPI"), ". This should be fine unless the sample size and/or the number of parameters is very big.", immediate.=TRUE, call.=FALSE)
+    solver <- "lpsolve"
+  }
 
   if(is.null(dim(p))) p <- rbind(p)
 
@@ -169,14 +176,20 @@ shrink_into_CH <- function(p, M, m = NULL, verbose=FALSE, ...) { # Pass extra ar
 
   # Minimise: p'z
   # Constrain: Mz >= -1. No further constraints!
-  # Set up the optimisation problem: the following are common for all rows of p.
-  lprec <- make.lp(n, d)
-  for(k in seq_len(d)) set.column(lprec, k, M[, k])
-  set.constr.type(lprec, rep.int(2L, n)) # 2 = ">="
-  set.rhs(lprec,  rep.int(-1, n))
-  # By default, z are bounded >= 0. We need to remove these bounds.
-  set.bounds(lprec, rep.int(-Inf, d), rep.int(+Inf, d))
-  lp.control(lprec, verbose=c("important","important","important","normal","detailed")[min(max(verbose+1,0),5)], ...)
+  dir <- rep.int(">=", n)
+  rhs <- rep.int(-1, n)
+  lb <- rep.int(-Inf, d)
+
+  if(solver == "lpsolve"){
+    # Set up the optimisation problem: the following are common for all rows of p.
+    lprec <- make.lp(n, d)
+    for(k in seq_len(d)) set.column(lprec, k, M[, k])
+    set.constr.type(lprec, dir)
+    set.rhs(lprec,  rhs)
+    # By default, z are bounded >= 0. We need to remove these bounds.
+    set.bounds(lprec, lower=lb)
+    lp.control(lprec, verbose=c("important","important","important","normal","detailed")[min(max(verbose+1,0),5)], ...)
+  }
 
   if (verbose >= 2) message("Iterating over ", np, " test points.")
   g <- Inf
@@ -184,9 +197,15 @@ shrink_into_CH <- function(p, M, m = NULL, verbose=FALSE, ...) { # Pass extra ar
     if (verbose >= 3) message("Test point ", i)
     if (all((x <- p[i,]) == 0)) next # Test point is at centroid. TODO: Tolerance?
 
-    set.objfn(lprec, x)
-    solve(lprec)
-    g <- min(g, -1/get.objective(lprec))
+    if(solver == "lpsolve"){
+      set.objfn(lprec, x)
+      solve(lprec)
+      o <- get.objective(lprec)
+    }else{
+      o <- Rglpk::Rglpk_solve_LP(x, M, dir, rhs, list(lower=list(ind=seq_len(d), val=lb)), control=list(..., verbose=verbose))$optimum
+    }
+
+    g <- min(g, -1/o)
 
     if (verbose >= 3) message("Step length is now ", g, ".")
   }

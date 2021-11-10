@@ -305,6 +305,15 @@
 #'   (default) `"observational"` (i.e., when missing data MLE is
 #'   used).
 #'
+#' @param MCMLE.steplength.solver The linear program solver to use for
+#'   MCMLE step length calculation. Can be either `"glpk"` to use
+#'   \CRANpkg{Rglpk} or `"lpsolve"` to use \CRANpkg{lpSolveAPI}.
+#'   \CRANpkg{Rglpk} can be orders of magnitude faster, particularly
+#'   for models with many parameters and with large sample sizes, so
+#'   it is used where available; but it requires an external library
+#'   to install under some operating systems, so fallback to
+#'   \CRANpkg{lpSolveAPI} provided.
+#'
 #' @param MCMLE.sequential Logical: If TRUE, the next iteration of the fit uses
 #' the last network sampled as the starting network.  If FALSE, always use the
 #' initially passed network.  The results should be similar (stochastically),
@@ -402,7 +411,7 @@
 #' Therefore, these settings are in effect if there are missing dyads in the
 #' observed network, using a higher default number of steps.
 #' 
-#' @param CD.samplesize.per_theta,obs.CD.samplesize.per_theta,CD.maxit,CD.conv.min.pval,CD.NR.maxit,CD.NR.reltol,CD.metric,CD.method,CD.dampening,CD.dampening.min.ess,CD.dampening.level,CD.steplength.margin,CD.steplength,CD.steplength.parallel,CD.adaptive.epsilon,CD.steplength.esteq,CD.steplength.miss.sample,CD.steplength.min
+#' @param CD.samplesize.per_theta,obs.CD.samplesize.per_theta,CD.maxit,CD.conv.min.pval,CD.NR.maxit,CD.NR.reltol,CD.metric,CD.method,CD.dampening,CD.dampening.min.ess,CD.dampening.level,CD.steplength.margin,CD.steplength,CD.steplength.parallel,CD.adaptive.epsilon,CD.steplength.esteq,CD.steplength.miss.sample,CD.steplength.min,CD.steplength.solver
 #'   Miscellaneous tuning parameters of the CD sampler and
 #'   optimizer. These have the same meaning as their `MCMLE.*` and
 #'   `MCMC.*` counterparts.
@@ -553,6 +562,7 @@ control.ergm<-function(drop=TRUE,
                        obs.MCMLE.samplesize=NULL,
                        obs.MCMLE.interval=round(MCMLE.interval*obs.MCMC.interval.mul),
                        obs.MCMLE.burnin=round(MCMLE.burnin*obs.MCMC.burnin.mul),
+                       MCMLE.steplength.solver=c("glpk","lpsolve"),
                        
                        MCMLE.last.boost=4,
                        MCMLE.steplength.esteq=TRUE, 
@@ -611,6 +621,7 @@ control.ergm<-function(drop=TRUE,
                        CD.steplength.miss.sample=function(x1) ceiling(sqrt(ncol(rbind(x1)))),
                        CD.steplength.min=0.0001,
                        CD.steplength.parallel=c("observational","always","never"),
+                       CD.steplength.solver=c("glpk","lpsolve"),
                        
                        loglik=control.logLik.ergm(),
 

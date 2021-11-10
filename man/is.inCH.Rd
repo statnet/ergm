@@ -8,7 +8,14 @@ sample of vectors}
 \usage{
 is.inCH(p, M, verbose = FALSE, ...)
 
-shrink_into_CH(p, M, m = NULL, verbose = FALSE, ...)
+shrink_into_CH(
+  p,
+  M,
+  m = NULL,
+  verbose = FALSE,
+  ...,
+  solver = c("glpk", "lpsolve")
+)
 }
 \arguments{
 \item{p}{A \eqn{d}-dimensional vector or a matrix with \eqn{d} columns}
@@ -23,6 +30,8 @@ detail. Note that very high values (5+) may significantly slow
 down processing.}
 
 \item{\dots}{arguments passed directly to linear program solver}
+
+\item{solver}{A character string selecting which solver to use; by default, tries \code{Rglpk}'s but falls back to \code{lpSolveAPI}'s.}
 }
 \value{
 Logical, telling whether \code{p} is (or all rows of \code{p} are)
