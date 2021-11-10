@@ -9,7 +9,7 @@
 \usage{
 # binary: Label(formula, label, pos)
 
-# valued: Label(formulas, label, pos)
+# valued: Label(formula, label, pos)
 }
 \arguments{
 \item{formula}{formula to be evaluated}

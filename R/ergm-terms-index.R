@@ -635,10 +635,9 @@ search.ergmTermType <-function(term.type, search, net, keywords, name, packages)
   }else{
     for (t in which(found)){
       term<-terms[[t]]
-      for (usage in term$usages) {
-        outText <- sprintf('%s\n    %s\n', usage$usage, term$title)
-        output<-c(output,outText)
-      }
+      unique_usages <- term$usages %>% map("usage") %>% unlist %>% unique
+      outText <- paste0(paste(unique_usages, collapse="\n"), "\n    ", term$title, "\n")
+      output<-c(output,outText)
     }
     cat("Found ",length(output)," matching ergm terms:\n")
     cat(paste(output,collapse='\n'))

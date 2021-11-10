@@ -39,29 +39,29 @@ test_that("test search ergm term", {
   # crude checks for search.ergmTerms are in the search.ergmTerms man page
 
   # expect to find at least eight terms mentioning triangles
-  expect_equal(length(search.ergmTerms('triangle')), 14)
+  expect_equal(length(search.ergmTerms('triangle')), 9)
 
   # search using a bipartite net as a template
   myNet<-network.initialize(5,bipartite=3,directed=FALSE)
-  expect_equal(length(search.ergmTerms(net=myNet)), 38)
+  expect_equal(length(search.ergmTerms(net=myNet)), 31)
 
-  expect_equal(length(search.ergmTerms(keywords = 'bipartite')), 38)
+  expect_equal(length(search.ergmTerms(keywords = 'bipartite')), 31)
 
   expect_gt(length(search.ergmTerms(name = 'b2factor')), 0)
   expect_equal(length(search.ergmTerms(name = 'b3factor')), 0)
 
-  expect_equal(length(search.ergmTerms(keywords = 'bipartite', packages='ergm')), 38)
+  expect_equal(length(search.ergmTerms(keywords = 'bipartite', packages='ergm')), 31)
 
-  expect_gt(length(search.ergmTerms(keywords = 'valued')), 83)
-  expect_equal(length(search.ergmTerms(keywords = 'valued', packages='ergm')), 83)
-  expect_gt(length(search.ergmTerms(keywords = 'valued', packages=c('ergm', 'ergm.count'))), 83)
+  expect_gt(length(search.ergmTerms(keywords = 'valued')), 44)
+  expect_equal(length(search.ergmTerms(keywords = 'valued', packages='ergm')), 44)
+  expect_gt(length(search.ergmTerms(keywords = 'valued', packages=c('ergm', 'ergm.count'))), 44)
 })
 
 test_that("test search ergm reference", {
   expect_equal(length(search.ergmReferences('dyad')), 7)
 
   expect_equal(length(search.ergmReferences(keywords = 'binary')), 1)
-  expect_equal(length(search.ergmReferences(keywords = 'binary', packages='ergm.count')), 0)
+  expect_equal(length(search.ergmReferences(keywords = 'binary', packages='blah')), 0)
   expect_equal(length(search.ergmReferences(keywords = 'binary', packages='ergm')), 1)
 
   expect_gt(length(search.ergmReferences(name = 'Bernoulli')), 0)
@@ -69,11 +69,11 @@ test_that("test search ergm reference", {
 })
 
 test_that("test search ergm constraint", {
-  expect_equal(length(search.ergmConstraints('degree')), 10)
+  expect_equal(length(search.ergmConstraints('degree')), 9)
 
-  expect_equal(length(search.ergmConstraints(keywords = 'directed')), 17)
-  expect_equal(length(search.ergmConstraints(keywords = 'directed', packages='ergm.count')), 0)
-  expect_equal(length(search.ergmConstraints(keywords = 'directed', packages='ergm')), 17)
+  expect_equal(length(search.ergmConstraints(keywords = 'directed')), 16)
+  expect_equal(length(search.ergmConstraints(keywords = 'directed', packages='blah')), 0)
+  expect_equal(length(search.ergmConstraints(keywords = 'directed', packages='ergm')), 16)
 
   expect_gt(length(search.ergmConstraints(name = 'b1degrees')), 0)
   expect_equal(length(search.ergmConstraints(name = 'b3degrees')), 0)
