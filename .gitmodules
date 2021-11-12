@@ -1,0 +1,3 @@
+[submodule "man-roxygen"]
+	path = man-roxygen
+	url = git@github.com:statnet/ergm-man-roxygen.git

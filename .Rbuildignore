@@ -19,3 +19,4 @@ appveyor.yml
 ^vignettes/.*_cache$
 ^vignettes/.*_files$
 ^README.md$
+^.gitmodules$
