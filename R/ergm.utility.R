@@ -479,7 +479,7 @@ xTAx_ssolve <- function(x, A, ...){
 # test degrees of freedom) are affected
 xTAx_qrsolve <- function(x, A, tol = 1e-07, ...){
   Aqr <- qr(A, tol=tol, ...)
-  nullity <- ncol(A) - Aqr$rank
+  nullity <- NCOL(A) - Aqr$rank
   if(nullity && !all(abs(crossprod(qr.Q(Aqr)[,-seq_len(Aqr$rank), drop=FALSE], x))<tol))
     stop("x is not in the span of A")
   structure(sum(x*qr.coef(Aqr, x), na.rm=TRUE), rank=Aqr$rank, nullity=nullity)
