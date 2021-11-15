@@ -468,9 +468,21 @@ xAxT <- function(x, A){
   drop(x %*% tcrossprod(A, x))
 }
 
-# x A^-1 x^T
+# xT A^-1 x
 xTAx_ssolve <- function(x, A, ...){
   drop(crossprod(x, ssolve(A, x, ...)))
+}
+
+# xT A^-1 x, but using QR decomposition and confirming that x is in
+# the span of A if A is singular; returns rank and nullity as
+# attributes just in case subsequent calculations (e.g., hypothesis
+# test degrees of freedom) are affected
+xTAx_qrsolve <- function(x, A, tol = 1e-07, ...){
+  Aqr <- qr(A, tol=tol, ...)
+  nullity <- ncol(A) - Aqr$rank
+  if(nullity && !all(abs(crossprod(qr.Q(Aqr)[,-seq_len(Aqr$rank), drop=FALSE], x))<tol))
+    stop("x is not in the span of A")
+  structure(sum(x*qr.coef(Aqr, x), na.rm=TRUE), rank=Aqr$rank, nullity=nullity)
 }
 
 # Evaluate A^-1 B (A^T)^-1, minimising matrix inversion.
