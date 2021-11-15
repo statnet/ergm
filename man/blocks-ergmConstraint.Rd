@@ -8,7 +8,7 @@
 # blocks(attr=NULL, levels=NULL, levels2=FALSE, b1levels=NULL, b2levels=NULL)
 }
 \arguments{
-\item{attr}{quantitative attribute (see Specifying Vertex attributes and Levels (\code{?nodal_attributes}) for details.)}
+\item{attr}{quantitative attribute (see \link[=nodal_attributes]{Specifying Vertex attributes and Levels} (\code{?nodal_attributes}) for details.)}
 
 \item{b1levels, b2levels, levels, level2}{control what statistics are included in the model and the order in which they appear. \code{levels2} apply to all networks; \code{levels} applies to unipartite networks; \code{b1levels} and \code{b2levels} apply to bipartite networks (see Specifying Vertex attributes and Levels (\code{?nodal_attributes}) for details)}
 }

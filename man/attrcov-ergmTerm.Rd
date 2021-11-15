@@ -8,7 +8,7 @@
 # binary: attrcov(attr, mat)
 }
 \arguments{
-\item{attr}{quantitative attribute (see Specifying Vertex attributes and Levels (\code{?nodal_attributes}) for details.)}
+\item{attr}{quantitative attribute (see \link[=nodal_attributes]{Specifying Vertex attributes and Levels} (\code{?nodal_attributes}) for details.)}
 
 \item{mat}{a matrix of covariates with the same dimensions as a mixing matrix for \code{attr}}
 }

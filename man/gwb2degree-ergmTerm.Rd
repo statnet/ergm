@@ -14,7 +14,7 @@ this parameter may be fixed (if \code{fixed=TRUE} ),
 or it may be used as merely the starting value for the estimation
 in a curved exponential family model (the default).}
 
-\item{attr}{quantitative attribute (see Specifying Vertex attributes and Levels (\code{?nodal_attributes}) for details.)}
+\item{attr}{quantitative attribute (see \link[=nodal_attributes]{Specifying Vertex attributes and Levels} (\code{?nodal_attributes}) for details.)}
 
 \item{cutoff}{This optional argument sets the number of underlying degree terms
 to use in computing the statistics when \code{fixed=FALSE}, in order to reduce

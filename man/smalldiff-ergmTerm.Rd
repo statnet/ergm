@@ -8,7 +8,7 @@
 # binary: smalldiff(attr, cutoff)
 }
 \arguments{
-\item{attr}{quantitative attribute (see Specifying Vertex attributes and Levels (\code{?nodal_attributes}) for details.)}
+\item{attr}{quantitative attribute (see \link[=nodal_attributes]{Specifying Vertex attributes and Levels} (\code{?nodal_attributes}) for details.)}
 
 \item{maximum}{difference in attribute values for ties to be considered}
 }

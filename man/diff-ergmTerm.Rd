@@ -11,7 +11,7 @@
 # valued: diff(attr, pow=1, dir="t-h", sign.action="identity", form ="sum")
 }
 \arguments{
-\item{attr}{quantitative attribute (see Specifying Vertex attributes and Levels (\code{?nodal_attributes}) for details.)}
+\item{attr}{quantitative attribute (see \link[=nodal_attributes]{Specifying Vertex attributes and Levels} (\code{?nodal_attributes}) for details.)}
 
 \item{pow}{exponent for the node difference}
 

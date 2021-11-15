@@ -16,7 +16,7 @@ exponential-family model (see Hunter and Handcock, 2006). The
 default is \code{FALSE} , which means the scale parameter is not
 fixed and thus the model is a CEF model.}
 
-\item{attr}{quantitative attribute (see Specifying Vertex attributes and Levels (\code{?nodal_attributes}) for details.)}
+\item{attr}{quantitative attribute (see \link[=nodal_attributes]{Specifying Vertex attributes and Levels} (\code{?nodal_attributes}) for details.)}
 
 \item{cutoff}{This optional argument sets the number of underlying degree terms
 to use in computing the statistics when \code{fixed=FALSE}, in order to reduce

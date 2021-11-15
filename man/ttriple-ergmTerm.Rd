@@ -21,7 +21,7 @@ equal to the number of triangles where all three nodes have that value of the at
 \item{levels}{add one statistic for each value specified if \code{diff} is \code{TRUE}. (See Specifying Vertex
 attributes and Levels (\code{\link[=nodal_attributes]{?nodal_attributes}}) for details.)}
 
-\item{attr}{quantitative attribute (see Specifying Vertex attributes and Levels (\code{?nodal_attributes}) for details.)}
+\item{attr}{quantitative attribute (see \link[=nodal_attributes]{Specifying Vertex attributes and Levels} (\code{?nodal_attributes}) for details.)}
 }
 \description{
 Transitive triples

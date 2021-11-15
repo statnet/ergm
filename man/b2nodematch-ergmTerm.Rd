@@ -26,7 +26,7 @@ statistic where \code{byb2attr} set to \code{NULL} .}
 \item{levels}{select a subset of \code{attr} values to include. (See Specifying Vertex
 attributes and Levels (\code{\link[=nodal_attributes]{?nodal_attributes}}) for details.)}
 
-\item{attr}{quantitative attribute (see Specifying Vertex attributes and Levels (\code{?nodal_attributes}) for details.)}
+\item{attr}{quantitative attribute (see \link[=nodal_attributes]{Specifying Vertex attributes and Levels} (\code{?nodal_attributes}) for details.)}
 }
 \description{
 Nodal attribute-based homophily effect for the second mode in a bipartite (aka two-mode) network
