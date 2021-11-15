@@ -1,5 +1,5 @@
 Package: ergm
-Version: 4.1-6774
+Version: 4.1-6775
 Date: 2021-11-16
 Title: Fit, Simulate and Diagnose Exponential-Family Models for Networks
 Authors@R: c(
@@ -18,7 +18,7 @@ Authors@R: c(
              person("Christian", "Schmid", role=c("ctb"), email="cxs5700@psu.edu"),
              person("Joyce", "Cheng", role=c("ctb"), email="joyce.cheng@student.unsw.edu.au"))
 Depends:
-    R (>= 3.5),
+    R (>= 4.0),
     network (>= 1.17.0)
 Imports:
     robustbase (>= 0.93.7),

@@ -129,7 +129,16 @@
 
 #=======================InitErgmTerm utility functions============================#
 
-GWDECAY <- list(
+#' @title Curved settings for geometric weights for the `gw*` terms
+#'
+#' @description This is a list containing `map` and `gradient` for the weights described by Hunter (2007).
+#'
+#' @references
+#' David R. Hunter (2007) Curved Exponential Family Models for Social Networks. *Social Networks*, 29: 216-230. \doi{10.1016/j.socnet.2006.08.005}
+#' @keywords internal
+#' @name ergm_GWDECAY
+#' @export ergm_GWDECAY
+ergm_GWDECAY <- list(
   map = function(x,n,...) {
     i <- 1:n
     x[1] * ifelse(i==1, 1, (exp(x[2])*(1-(1-exp(-x[2]))^i)))
@@ -143,6 +152,8 @@ GWDECAY <- list(
   minpar = c(-Inf, 0)
 )
 
+GWDECAY <- ergm_GWDECAY
+
 .spcache.aux <- function(type){
   type <- toupper(type)
   trim_env(as.formula(as.call(list(as.name('~'), as.call(list(as.name('.spcache.net'),type=if(type=='ITP')'OTP' else type))))))
@@ -155,6 +166,33 @@ nodecov_names <- function(nodecov, prefix=NULL){
           else cn
         }else attr(nodecov, "name")
   NVL3(prefix, paste0(prefix,".",cn), cn)
+}
+
+#' A common pattern for obtaining an edge covariate
+#'
+#' @param name a string containing the name of the calling term.
+#' @param nw the LHS network.
+#' @param a list returned by [check.ErgmTerm()].
+#'
+#' @return A list with two elements: `xm` for the obtained predictor
+#'   matrix and `cn` for the standard coefficient name.
+#' @keywords internal
+#' @export
+ergm_edgecov_args <- function(name, nw, a){
+  # Process the arguments
+  if(is.network(a$x)){
+    if(!is.null(a$attrname) && !a$attrname %in% list.edge.attributes(a$x))
+      ergm_Init_abort("Specified network ", sQuote(deparse1(sys.call(-1)[[3]]$x)), " does not have an edge attribute ", sQuote(a$attrname), ".")
+    xm <- as.matrix.network(a$x, matrix.type="adjacency", a$attrname)
+  }else if(is.character(a$x)){
+    xm <- get.network.attribute(nw, a$x)
+    if (is.null(xm)) ergm_Init_abort("There is no network attribute named ", sQuote(a$x), ".")
+  }else xm <- as.matrix(a$x)
+
+  cn <- if(!is.null(a$attrname)) paste(name, deparse1(sys.call(-1)[[3]]$x), a$attrname, sep = ".")
+        else paste(name, as.character(sys.call(-1)[[3]]$x), sep = ".")
+
+  list(xm=xm, cn=cn)
 }
 
 # LEVELS_BASE1 is a placeholder for whatever the value of levels= or
@@ -2797,25 +2835,9 @@ InitErgmTerm.dyadcov<-function (nw, arglist, ...) {
                       vartypes = c("matrix,network,character","character"),
                       defaultvalues = list(NULL,NULL),
                       required = c(TRUE,FALSE))
-  ### Process the arguments
-  if(is.network(a$x))
-    xm<-as.matrix.network(a$x,matrix.type="adjacency",a$attrname)
-  else if(is.character(a$x)){
-    xm<-get.network.attribute(nw,a$x)
-    if (is.null(xm)){
-      ergm_Init_abort("There is no network attribute named ",a$x)
-    }
-  }
-  else
-    xm<-as.matrix(a$x)
 
-#Update the terms list, adding the vectorized adjacency matrix
-  if(!is.null(a$attrname))
-    cn<-paste("dyadcov", as.character(sys.call(0)[[3]][2]), 
-              as.character(a$attrname), sep = ".")
-  else
-    cn<-paste("dyadcov", as.character(sys.call(0)[[3]][2]), sep = ".")
- 
+  l <- ergm_edgecov_args("dyadcov", nw, a); xm <- l$xm; cn <- l$cn
+
   if(is.directed(nw)){
    #Check for symmetry
    # DH:  Since nw is directed, why are we testing for symmetry here?  
@@ -2875,27 +2897,9 @@ InitErgmTerm.edgecov <- function(nw, arglist, ...) {
                       vartypes = c("matrix,network,character", "character"),
                       defaultvalues = list(NULL, NULL),
                       required = c(TRUE, FALSE))
-  ### Process the arguments
-  if(is.network(a$x))
-    xm<-as.matrix.network(a$x,matrix.type="adjacency",a$attrname)
-  else if(is.character(a$x)){
-    xm<-get.network.attribute(nw,a$x)
-    if (is.null(xm)){
-      ergm_Init_abort("There is no network attribute named ",a$x)
-    }
-  }
-  else
-    xm<-as.matrix(a$x)
-  
-  ### Construct the list to return
-  if(!is.null(a$attrname)) {
-    # Note: the sys.call business grabs the name of the x object from the 
-    # user's call.  Not elegant, but it works as long as the user doesn't
-    # pass anything complicated.
-    cn<-paste("edgecov", as.character(a$attrname), sep = ".")
-  } else {
-    cn<-paste("edgecov", as.character(sys.call(0)[[3]][2]), sep = ".")
-  }
+
+  l <- ergm_edgecov_args("edgecov", nw, a); xm <- l$xm; cn <- l$cn
+
   inputs <- c(NCOL(xm), as.double(xm))
   attr(inputs, "ParamsBeforeCov") <- 1
   list(name="edgecov", coef.names = cn, inputs = inputs, dependence=FALSE,
