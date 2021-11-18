@@ -590,7 +590,8 @@ search.ergmTermType <-function(term.type, search, net, keywords, name, packages)
     term<-terms[[t]]
 
     if(!all(keywords%in%term$concepts)){
-      found[t]<-FALSE }
+      found[t]<-FALSE
+    }
   }
 
   # next (optionally) restrict by search matches
@@ -635,10 +636,22 @@ search.ergmTermType <-function(term.type, search, net, keywords, name, packages)
   }else{
     for (t in which(found)){
       term<-terms[[t]]
-      for (usage in term$usages) {
-        outText <- sprintf('%s\n    %s\n', usage$usage, term$title)
-        output<-c(output,outText)
+      unique_usages <- term$usages %>% map("usage") %>% unlist %>% unique
+      if (term$type %in% c('ergmTerm')) {
+        if (!missing(keywords) && any(c("binary", "valued") %in% keywords)) {
+          term_type_to_match <- intersect(keywords, c('binary', 'valued'))
+          term_types <- sapply(unique_usages, function(usage) paste(term$usages[(term$usages %>% map("usage") %>% unlist) == usage] %>% map("type") %>% unlist %>% unique %>% intersect(term_type_to_match), collapse=", "))
+
+          unique_usages <- unique_usages[term_types != '']
+          term_types <- term_types[term_types != '']
+        } else {
+          term_types <- sapply(unique_usages, function(usage) paste(term$usages[(term$usages %>% map("usage") %>% unlist) == usage] %>% map("type") %>% unlist %>% unique, collapse=", "))
+        }
+
+        unique_usages <- paste0(unique_usages, " (", term_types, ")")
       }
+      outText <- paste0(paste(unique_usages, collapse="\n"), "\n    ", term$title, "\n")
+      output<-c(output,outText)
     }
     cat("Found ",length(output)," matching ergm terms:\n")
     cat(paste(output,collapse='\n'))

@@ -145,7 +145,7 @@ InitWtErgmTerm.Sum <- function(...){
 
 #' @rdname Label-ergmTerm
 #' @usage
-#' # valued: Label(formulas, label, pos)
+#' # valued: Label(formula, label, pos)
 InitWtErgmTerm.Label <- function(nw, arglist, ...){
   out <- InitErgmTerm.Label(nw, arglist, ...)
   out$name <- "wtpassthrough_term"
