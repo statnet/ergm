@@ -421,7 +421,7 @@ ssolve <- function(a, b, ..., symm = TRUE){
 
 sginv <- function(X, ..., symm = TRUE){
   d <- diag(as.matrix(X))
-  d <- ifelse(d==0, 1, 1/d)
+  d <- ifelse(abs(d - 0) < .Machine$double.eps 1, 1/d)
 
   if(symm){
     d <- sqrt(d)
