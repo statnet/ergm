@@ -45,7 +45,7 @@ samplike %v% "Trinity" <- c("F", "S", "H")
 
 
 # an undirected nw
-data(faux.mesa.high)
+data(faux.mesa.high, package="statnet.data")
 fmh <- faux.mesa.high
 set.seed(7)
 set.edge.attribute(fmh, "GradeMet", rbinom(203, 6, .5))

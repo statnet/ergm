@@ -51,7 +51,7 @@ ergm.etagradmult.R <- function(theta, v, etamap) {
   ans
 }
 
-data(faux.mesa.high)
+data(faux.mesa.high, package="statnet.data")
 flom <- ergm_model(~edges+gwesp()+gwdegree()+absdiffcat("Grade")+Offset(~nodefactor("Grade"),c(+1,-1), c(2,3))+gwesp()+NodematchFilter(~gwesp()+nodefactor("Grade"), "Grade"), faux.mesa.high)
 (neta <- nparam(flom, canonical=TRUE))
 (ntheta <- nparam(flom, canonical=FALSE))

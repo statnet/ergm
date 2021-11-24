@@ -8,7 +8,7 @@
 #  Copyright 2003-2021 Statnet Commons
 ################################################################################
 
-data(florentine)
+data(flomarriage, package="statnet.data")
 set.seed(0)
 
 niterations <- NA

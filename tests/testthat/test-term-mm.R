@@ -32,7 +32,7 @@ bipnw2 %v% "Color" <- color
 
 
 # a directed nw
-data(sampson)
+data(samplike, package="statnet.data")
 set.seed(42)
 set.edge.attribute(samplike, "YearsTrusted", rbinom(88, 4, .5))
 set.seed(296)
@@ -41,7 +41,7 @@ samplike %v% "Trinity" <- c("F", "S", "H")
 
 
 # an undirected nw
-data(faux.mesa.high)
+data(faux.mesa.high, package="statnet.data")
 fmh <- faux.mesa.high
 set.seed(7)
 set.edge.attribute(fmh, "GradeMet", rbinom(203, 6, .5))

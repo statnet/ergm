@@ -12,7 +12,7 @@
 library(statnet.common)
 opttest({
 
-data(sampson)
+data(samplike, package="statnet.data")
 test_that("shouldn't need to drop", {
   # MPLE
   summary(ergm(samplike~edges, control=control.ergm(drop=FALSE)))

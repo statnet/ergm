@@ -7,7 +7,7 @@
 #
 #  Copyright 2003-2021 Statnet Commons
 ################################################################################
-data(florentine)
+data(flomarriage, package="statnet.data")
 
 test_that("snctrl() has at least some of the correct arguments", {
   snctrl_names <- names(formals(snctrl))

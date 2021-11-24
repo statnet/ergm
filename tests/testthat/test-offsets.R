@@ -11,7 +11,7 @@ o <- options(ergm.eval.loglik=TRUE)
 
 set.seed(0)
 
-data(sampson)
+data(samplike, package="statnet.data")
 total.theta <- coef(ergm(samplike~edges))
 offset.theta <- pi
 

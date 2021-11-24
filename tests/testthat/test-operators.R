@@ -7,7 +7,7 @@
 #
 #  Copyright 2003-2021 Statnet Commons
 ################################################################################
-data(florentine)
+data(flomarriage, package="statnet.data")
 
 test_that("Simulation for Passthrough() and .submodel() and .summary()", {
   text <- capture.output(out <- simulate(flomarriage~edges+degree(0)+absdiff("wealth")+Passthrough(~edges+degree(0)+absdiff("wealth"))+submodel.test(~edges+degree(0)+absdiff("wealth"))+summary.test(~edges+degree(0)+absdiff("wealth")), output="stats", nsim=20, control=control.simulate.formula(MCMC.burnin=0, MCMC.interval=1), coef=numeric(10)))
@@ -19,7 +19,7 @@ test_that("Simulation for Passthrough() and .submodel() and .summary()", {
   expect_equal(out[,1:3],text.out, ignore_attr=TRUE)
 })
 
-data(sampson)
+data(samplike, package="statnet.data")
 g <- samplike%v%"group"
 sameg <- outer(g,g,"==")
 
@@ -155,7 +155,7 @@ test_that("Binary Label() estimation and offsets in submodels", {
 
 
 library(ergm.count)
-data(zach)
+data(zach, package="statnet.data")
 test_that("Summary for the B() operator with nonzero criteria",{
   summ <- summary(zach~B(~edges+triangles+degree(0:5), "nonzero") + B(~edges+triangles+degree(0:5), ~nonzero), response="contexts")
   expect_equal(summ, rep(summary(zach~edges+triangles+degree(0:5)),2), ignore_attr=TRUE)

@@ -172,7 +172,7 @@ test_that("predict.formula(net ~ edges + degree(1)", {
 
 
 test_that("it works for offsets and non-finite offset coefs (and MPLE existence check works)", {
-  data("faux.mesa.high")
+  data("faux.mesa.high", package="statnet.data")
   expect_warning(fit <- ergm(
     faux.mesa.high ~ edges
     + nodefactor("Grade")
@@ -190,7 +190,7 @@ test_that("it works for offsets and non-finite offset coefs (and MPLE existence 
 
 
 test_that("matrix output of predict() is properly named", {
-  data(g4)
+  data(g4, package="statnet.data")
   set.seed(666)
   fit <- ergm(g4 ~ edges)
   p.cond <- predict(fit, conditional = TRUE, output = "matrix")

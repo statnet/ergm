@@ -7,7 +7,10 @@
 #
 #  Copyright 2003-2021 Statnet Commons
 ################################################################################
-data(samplk)
+data(samplk1, package="statnet.data")
+data(samplk2, package="statnet.data")
+data(samplk3, package="statnet.data")
+
 samplk2 %e% "a" <- 1
 samplk3 %e% "a" <- 1
 test_that("MCMC diagnostics produced even when names are not unique", {

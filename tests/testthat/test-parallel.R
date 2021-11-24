@@ -11,7 +11,7 @@
 library(statnet.common)
 opttest({
 
-data(florentine)
+data(flomarriage, package="statnet.data")
 
 for(type in c("SOCK")){
   test_that(paste0("parallel ", type), {
@@ -48,7 +48,7 @@ test_that("pre-made SOCK cluster", {
   library(parallel)
   clus <- makeCluster(2, type='PSOCK')
   clus
-  data(florentine)
+  data(flomarriage, package="statnet.data")
   t0 <- proc.time()
   fauxmodel.01 <- ergm(flomarriage ~ edges + isolates + gwesp(0.2, fixed=T),
                        control=control.ergm(parallel=clus,
@@ -69,7 +69,7 @@ test_that("pre-made SOCK cluster", {
 opttest({
 
 library(ergm)
-data(florentine)
+data(flomarriage, package="statnet.data")
 
 for(type in c("MPI")){
   test_that(paste0("parallel MPI", type), {
@@ -103,7 +103,7 @@ if(inherits(try(get.MT_terms(), silent=TRUE),"try-error")){
 }else{
   test_that("OpenMP", {
     library(ergm)
-    data(florentine)
+    data(flomarriage, package="statnet.data")
     set.seed(0)
     sim.ser <- simulate(flomarriage~edges+triangle, nsim=100, control=control.simulate(MCMC.burnin=1, MCMC.interval=1), output="stats")
 

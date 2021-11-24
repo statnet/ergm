@@ -12,7 +12,7 @@ library(statnet.common)
 opttest({
 
 options(ergm.eval.loglik=FALSE)
-data(florentine)
+data(flomarriage, package="statnet.data")
 
 test_that("runtime diagnostics", {
   expect_error(ergm(flomarriage ~ kstar(1:2) + absdiff("wealth") + triangle,

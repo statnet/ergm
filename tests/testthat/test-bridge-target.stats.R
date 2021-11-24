@@ -21,7 +21,7 @@ l <- function(nw, ets=NULL, theta=NULL){
   e*log(expit(theta)) + (d-e)*log(expit(-theta))
 }
 
-data(florentine)
+data(flomarriage, package="statnet.data")
 y <- flomarriage
 
 test_that("Log-likelihood with attainable target statistics",{

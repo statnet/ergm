@@ -8,7 +8,8 @@
 #  Copyright 2003-2021 Statnet Commons
 ################################################################################
 
-data(florentine)
+data(flomarriage, package="statnet.data")
+data(flobusiness, package="statnet.data")
 
 test_that("concatenation of ergm_models works", {
   ergm_model(~edges+offset(kstar(2))+absdiff("priorates")+gwesp()+triangles+offset(gwdsp())+absdiff("wealth"),flobusiness) -> m12

@@ -15,7 +15,7 @@ test_that("MPLE + offset", {
   set.seed(0)
 
   options(ergm.eval.loglik=FALSE)
-  data(florentine)
+  data(flomarriage, package="statnet.data")
   boo<-flomarriage
   boo[1:3,]<-0
   foo <- suppressWarnings(

@@ -14,7 +14,7 @@ expect_summary <- function(s, e, value, coefficients, tolerance=0.001) {
 }
 
 # an undirected nw
-data(faux.mesa.high)
+data(faux.mesa.high, package="statnet.data")
 fmh <- faux.mesa.high
 set.seed(7)
 set.edge.attribute(fmh, "GradeMet", rbinom(203, 6, .5))

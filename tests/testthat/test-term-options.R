@@ -8,7 +8,7 @@
 #  Copyright 2003-2021 Statnet Commons
 ################################################################################
 
-data(florentine)
+data(flomarriage, package="statnet.data")
 old.opts1 <- options(ergm.eval.loglik=TRUE)
 times <- 2
 
@@ -39,7 +39,7 @@ test_that("ergm() for a model with term options and mean-value parameters and lo
   expect_error(logLik(e3), "Log-likelihood was not estimated for this fit.")
 })
 
-data(sampson)
+data(samplike, package="statnet.data")
 old.opts2 <- options(ergm.term=list(times=2))
 test_that("summary() with term options globally set",{
   expect_equal(summary(samplike~.edges_times),summary(samplike~edges)*times, ignore_attr=TRUE)

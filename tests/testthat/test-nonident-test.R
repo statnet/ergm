@@ -9,7 +9,7 @@
 ################################################################################
 o <- options(ergm.eval.loglik=FALSE)
 
-data(florentine)
+data(flomarriage, package="statnet.data")
 
 test_that("Nonidentifiable model produces a warning.", {
   warnpat <- ".*nodecov\\.-wealth/2\\+1.*\\bnonidentifiable\\b.*"

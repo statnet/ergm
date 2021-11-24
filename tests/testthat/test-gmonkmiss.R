@@ -13,7 +13,7 @@ library(statnet.common)
 opttest({
 
 options(ergm.eval.loglik=FALSE)
-data(sampson)
+data(samplike, package="statnet.data")
 
 run.test <- function() {
   #

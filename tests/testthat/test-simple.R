@@ -12,7 +12,7 @@
 library(statnet.common)
 opttest({
 
-data(sampson)
+data(samplike, package="statnet.data")
 
 test_that("extreme outdegree and indegree simulation test", {
   m <- simulate(samplike~odegree(3)+idegree(3), coef=c(100,-100))

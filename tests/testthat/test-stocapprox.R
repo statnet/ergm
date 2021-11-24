@@ -10,7 +10,7 @@
 
 options(ergm.eval.loglik=FALSE)
 
-data(florentine)
+data(flomarriage, package="statnet.data")
 
 test_that("Stochastic Approximation produces similar results to MCMLE (linear ERGM)",{
   set.seed(2)

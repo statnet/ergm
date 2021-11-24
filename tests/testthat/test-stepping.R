@@ -12,7 +12,7 @@ library(statnet.common)
 opttest({
 
 ####Load the data (provided in the package):
-data(ecoli)
+data(ecoli, package="statnet.data")
 form <- ecoli2 ~ edges + degree(2:5) + gwdegree(0.25, fixed = T)
 
 test_that("stepping test", {

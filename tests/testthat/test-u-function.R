@@ -29,7 +29,7 @@ test_that("Private storage, auxiliaries, and auxiliaries of auxiliaries", {
 })
 
 test_that("Multiple auxiliaries in one term", {
-  data(florentine)
+  data(flomarriage, package="statnet.data")
   floempty <- flomarriage
   floempty[,] <- 0
 
@@ -53,7 +53,7 @@ test_that("Multiple auxiliaries in one term", {
 })
 
 test_that("multiple auxiliaries in one term: multiplicitous proposal", {
-  data(florentine)
+  data(flomarriage, package="statnet.data")
   floempty <- flomarriage
   floempty[,] <- 0
 

@@ -7,7 +7,7 @@
 #
 #  Copyright 2003-2021 Statnet Commons
 ################################################################################
-data(faux.mesa.high)
+data(faux.mesa.high, package="statnet.data")
 formula <- faux.mesa.high ~ nodematch("Sex")
 mplesetup <- ergmMPLE(formula)
 
@@ -24,7 +24,7 @@ test_that("output = 'fit' works for undirected networks", {
   expect_equal(coef(modelfit), coef(alt), ignore_attr=TRUE, tolerance=0.001)
 })
 
-data(florentine)
+data(flomarriage, package="statnet.data")
 
 test_that("output = 'array' works for undirected networks", {
   mplearray <- ergmMPLE(flomarriage~edges+absdiff("wealth"), output="array")

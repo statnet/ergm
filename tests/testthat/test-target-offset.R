@@ -7,7 +7,7 @@
 #
 #  Copyright 2003-2021 Statnet Commons
 ################################################################################
-data(florentine)
+data(flomarriage, package="statnet.data")
 
 test_that("target+offset in a non-curved ERGM", {
   expect_warning(fit <- ergm(flomarriage~offset(edges)+edges+degree(1)+offset(degree(0)),target.stats=summary(flomarriage~edges+degree(1)),

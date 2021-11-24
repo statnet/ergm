@@ -8,7 +8,7 @@
 #  Copyright 2003-2021 Statnet Commons
 ################################################################################
 
-data(florentine)
+data(flomarriage, package="statnet.data")
 baseline <- summary(flomarriage~edges+absdiff("wealth"))
 esps <- summary(flomarriage~gwesp(), gw.cutoff=4)
 

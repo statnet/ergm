@@ -65,7 +65,7 @@ test_that("fixallbut with network input", {
 })
 
 test_that("constraint conflict is detected", {
-  data(florentine)
+  data(flomarriage, package="statnet.data")
   conwarn <- "^The specified model's sample space constraint holds statistic\\(s\\) edges  constant. They will be ignored.$"
   dyadwarn <- "^The number of observed dyads in this network is ill-defined due to complex constraints on the sample space..*$"
   

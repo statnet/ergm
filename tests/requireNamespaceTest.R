@@ -8,7 +8,7 @@
 #  Copyright 2003-2021 Statnet Commons
 ################################################################################
 library(network)
-data(flo)
+data(flo, package="statnet.data")
 
 # Also, while we are at it, test the options setting in .onLoad().
 options(ergm.eval.loglik=FALSE) # .onLoad() should not clobber this.
@@ -27,7 +27,7 @@ InitErgmTerm.myedges<-ergm:::InitErgmTerm.edges
 ergm::summary_formula(as.network(flo)~myedges)
 
 # actually run ergm()
-data(sampson, package="ergm")
+data(samplike, package="statnet.data")
 fit <- ergm::ergm(samplike~edges)
 stopifnot(isTRUE(all.equal(-log(1/(network.edgecount(samplike)/network.dyadcount(samplike))-1), coef(fit), check.attributes=FALSE)))
 

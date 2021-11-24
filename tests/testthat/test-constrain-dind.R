@@ -86,7 +86,7 @@ test_dind_constr(y0, ~observed, Mmin, Mmax) # in the block OR unobserved
 
 
 test_that("Dyads() operator for directed networks", {
-  data(sampson)
+  data(samplike, package="statnet.data")
   fix_g <- coef(ergm(samplike~edges, constraints=~Dyads(~nodematch("group")), control=control.ergm(force.main=TRUE, seed=0))) # Test MCMC.
   vary_g <- coef(ergm(samplike~edges, constraints=~Dyads(vary=~nodematch("group"))))
   fix_g_and_c <- coef(ergm(samplike~edges, constraints=~Dyads(~nodematch("group")+nodematch("cloisterville"))))
@@ -107,7 +107,7 @@ test_that("Dyads() operator for directed networks", {
 })
 
 test_that("Dyads() operator for bipartite undirected networks", {
-  data(florentine)
+  data(flomarriage, package="statnet.data")
   bfl <- get.inducedSubgraph(flomarriage, 1:7, 8:16)
   fix_g <- coef(ergm(bfl~edges, constraints=~Dyads(~nodematch(~wealth>median(wealth)))))
 

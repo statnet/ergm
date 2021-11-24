@@ -11,7 +11,7 @@ library(ergm)
 
 
 # Test undirected network
-data(faux.mesa.high)
+data(faux.mesa.high, package="statnet.data")
 m <- matrix(c(75, 0, 0, 1, 1, 1, 0, 33, 2, 4, 2, 1,
  0, 2, 23, 7, 6, 4, 1, 4, 7, 9, 1, 5, 1, 2, 6, 1, 17, 5,
  1, 1, 4, 5, 5, 6), 6, 6)  # Correct answer!
@@ -25,7 +25,7 @@ test_that("weighted nodemix on undirected network faux.mesa.high", {
 })
 
 # directed network
-data(sampson)
+data(samplike, package="statnet.data")
 grpord<-c("Turks","Loyal","Outcasts")
 m2 <- matrix(c(30, 9, 7, 5, 23, 1, 1, 2, 10), 3, 3,dimnames=list(From=grpord,To=grpord)) # Correct answer!
 mixnames<-t(sapply(grpord,function(from) sapply(grpord,function(to) paste("mix.group",from,to,sep="."))))
@@ -387,7 +387,7 @@ expect_equal(stats[sort(unique(c(m_ind[b1levs,b2levs])))[levs2withblevs]], ergm.
 })
 
 
-data(faux.mesa.high)
+data(faux.mesa.high, package="statnet.data")
 fmh <- faux.mesa.high
 set.seed(7)
 set.edge.attribute(fmh, "GradeMet", rbinom(203, 6, .5))
@@ -417,7 +417,7 @@ test_that("Undirected nodemix() summary with level2 filter by numeric matrix", {
 })
 
 
-data(sampson)
+data(samplike, package="statnet.data")
 set.seed(42)
 set.edge.attribute(samplike, "YearsTrusted", rbinom(88, 4, .5))
 set.seed(296)

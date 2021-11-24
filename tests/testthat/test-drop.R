@@ -12,7 +12,7 @@
 library(statnet.common)
 opttest({
 logit <- function(p) log(p/(1-p))
-data(sampson)
+data(samplike, package="statnet.data")
 
 # Just one covariate. Note that the .mcmc tests mainly test detection
 # and overriding of control$force.main. Note that 1/2 has been subtracted from the "maxed" matrices. This is to test detection of non-0-1 extremeness.

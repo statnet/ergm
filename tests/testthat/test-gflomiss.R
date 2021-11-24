@@ -11,7 +11,7 @@
 
 library(statnet.common)
 opttest({
-data(florentine)
+data(flomarriage, package="statnet.data")
 
 run.test <- function() {
   ##
