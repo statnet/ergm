@@ -42,7 +42,7 @@ preproc_check_print <- function(nw, response){
   ))
 }
 
-data(florentine)
+data(flomarriage, data="statnet.data")
 preproc_check_print(flomarriage, NULL)
 
 flomarriage \%e\% "w" <- runif(network.edgecount(flomarriage))

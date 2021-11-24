@@ -171,7 +171,7 @@ model.transform.formula <- function(object, theta, recipes, ...){
 #' \dontshow{
 #' options(ergm.eval.loglik=FALSE)
 #' }
-#' data(sampson)
+#' data(samplike, package="statnet.data")
 #' gest<-ergm(samplike~edges+gwesp(),
 #'            control=control.ergm(MCMLE.maxit=2))
 #' summary(gest)
@@ -244,7 +244,7 @@ fix.curved.formula <- function(object, theta, ...){
 ## #' \dontshow{
 ## #' options(ergm.eval.loglik=FALSE)
 ## #' }
-## #' data(sampson)
+## #' data(samplike, package="statnet.data")
 ## #' gest<-ergm(samplike~edges+gwesp(decay=.5, fixed=FALSE), 
 ## #'     control=control.ergm(MCMLE.maxit=1))
 ## #' # Error:

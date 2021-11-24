@@ -108,7 +108,7 @@ not all elements of the array that ought to be filled in will be.
 }
 \examples{
 
-data(faux.mesa.high)
+data(faux.mesa.high, package="statnet.data")
 formula <- faux.mesa.high ~ edges + nodematch("Sex") + nodefactor("Grade")
 mplesetup <- ergmMPLE(formula)
 

@@ -69,7 +69,7 @@
 #' @keywords regression models
 #' @examples
 #'
-#'  data(florentine)
+#'  data(flomarriage, package="statnet.data")
 #'
 #'  x <- ergm(flomarriage ~ density)
 #'  summary(x)

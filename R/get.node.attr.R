@@ -53,7 +53,7 @@
 #' the checking functionality
 #' @examples
 #' 
-#' data(faux.mesa.high)
+#' data(faux.mesa.high, package="statnet.data")
 #' get.node.attr(faux.mesa.high,'Grade')
 #' @keywords internal
 #' @export get.node.attr
@@ -176,7 +176,7 @@ get.node.attr <- function(nw, attrname, functionname=NULL, numeric=FALSE) {
 #' @examples
 #' library(magrittr) # for %>%
 #'
-#' data(faux.mesa.high)
+#' data(faux.mesa.high, package="statnet.data")
 #' 
 #' # Activity by grade with a baseline grade excluded:
 #' summary(faux.mesa.high~nodefactor(~Grade))
@@ -347,7 +347,7 @@ ERGM_GET_VATTR_MULTIPLE_TYPES <- c("paste", "matrix", "stop")
 #'   controls the suggested name of the attribute combination.
 #'
 #' @examples
-#' data(florentine)
+#' data(flomarriage, package="statnet.data")
 #' ergm_get_vattr("priorates", flomarriage)
 #' ergm_get_vattr(~priorates, flomarriage)
 #' ergm_get_vattr(~cbind(priorates, priorates^2), flomarriage, multiple="matrix")

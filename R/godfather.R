@@ -62,7 +62,7 @@
 #' @seealso [tergm::tergm.godfather()], [simulate.ergm()],
 #'   [simulate.formula()]
 #' @examples
-#' data(florentine)
+#' data(flomarriage, package="statnet.data")
 #' ergm.godfather(flomarriage~edges+absdiff("wealth")+triangles,
 #'                changes=list(cbind(1:2,2:3),
 #'                             cbind(3,5),

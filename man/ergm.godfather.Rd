@@ -82,7 +82,7 @@ Gives the network a series of proposals it can't refuse. Returns the
 statistics of the network, and, optionally, the final network.
 }
 \examples{
-data(florentine)
+data(flomarriage, package="statnet.data")
 ergm.godfather(flomarriage~edges+absdiff("wealth")+triangles,
                changes=list(cbind(1:2,2:3),
                             cbind(3,5),

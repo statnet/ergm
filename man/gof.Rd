@@ -172,7 +172,7 @@ and odegree.
 \examples{
 
 \donttest{
-data(florentine)
+data(flomarriage, package="statnet.data")
 gest <- ergm(flomarriage ~ edges + kstar(2))
 gest
 summary(gest)

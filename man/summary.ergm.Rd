@@ -111,7 +111,7 @@ also \code{\link[=vcov.ergm]{vcov.ergm()}} and its \code{sources} argument.
 }
 \examples{
 
- data(florentine)
+ data(flomarriage, package="statnet.data")
 
  x <- ergm(flomarriage ~ density)
  summary(x)

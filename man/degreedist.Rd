@@ -39,7 +39,7 @@ function. For help about \link[=degreedist-ergmConstraint]{the ERGM sample space
 
 \examples{
 
-data(faux.mesa.high)
+data(faux.mesa.high, package="statnet.data")
 degreedist(faux.mesa.high)
 
 }

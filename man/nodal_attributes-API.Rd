@@ -209,7 +209,7 @@ assumes that they are in the same order as the user would like
 them in the matrix.
 }
 \examples{
-data(florentine)
+data(flomarriage, package="statnet.data")
 ergm_get_vattr("priorates", flomarriage)
 ergm_get_vattr(~priorates, flomarriage)
 ergm_get_vattr(~cbind(priorates, priorates^2), flomarriage, multiple="matrix")

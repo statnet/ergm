@@ -93,7 +93,7 @@ More information can be found by looking at the documentation of
 
 \dontrun{
 #
-data(florentine)
+data(flomarriage, package="statnet.data")
 #
 # test the mcmc.diagnostics function
 #

@@ -79,7 +79,7 @@ necessary. If the log-likelihood was not computed for
 
 # See help(ergm) for a description of this model. The likelihood will
 # not be evaluated.
-data(florentine)
+data(flomarriage, package="statnet.data")
 \dontrun{
 # The default maximum number of iterations is currently 20. We'll only
 # use 2 here for speed's sake.

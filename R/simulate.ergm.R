@@ -221,7 +221,7 @@
 #' #
 #' # attach the Florentine Marriage data
 #' #
-#' data(florentine)
+#' data(flomarriage, package="statnet.data")
 #' #
 #' # fit an edges and 2-star model using the ergm function
 #' #

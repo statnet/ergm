@@ -64,7 +64,7 @@ to the sociomatrix or edge list specified by \code{new}.
 \examples{
 
 #
-data(florentine)
+data(flomarriage, package="statnet.data")
 #
 # test the network.update function
 #

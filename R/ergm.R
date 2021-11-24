@@ -440,7 +440,7 @@
 #' #
 #' # load the Florentine marriage data matrix
 #' #
-#' data(flo)
+#' data(flo, package="statnet.data")
 #' #
 #' # attach the sociomatrix for the Florentine marriage data
 #' # This is not yet a network object.
@@ -470,13 +470,9 @@
 #' #
 #' plot(flomarriage, vertex.cex=flomarriage %v% "wealth" / 20, main="Marriage Ties")
 #' #
-#' # Use 'data(package = "ergm")' to list the data sets in a
-#' #
-#' data(package="ergm")
-#' #
 #' # Load a network object of the Florentine data
 #' #
-#' data(florentine)
+#' data(flomarriage, package="statnet.data")
 #' #
 #' # Fit a model where the propensity to form ties between
 #' # families depends on the absolute difference in wealth
@@ -491,7 +487,7 @@
 #' summary(gest)
 #' 
 #' # import synthetic network that looks like a molecule
-#' data(molecule)
+#' data(molecule, package="statnet.data")
 #' # Add a attribute to it to mimic the atomic type
 #' molecule %v% "atomic type" <- c(1,1,1,1,1,1,2,2,2,2,2,2,2,3,3,3,3,3,3,3)
 #' #

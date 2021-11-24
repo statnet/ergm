@@ -123,7 +123,7 @@ future.
 # and have it return its arguments. We can use it to obtain
 # low-level inputs robustly.
 
-data(florentine)
+data(flomarriage, package="statnet.data")
 control <- control.simulate(MCMC.burnin = 2, MCMC.interval = 1)
 
 

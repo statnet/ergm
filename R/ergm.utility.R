@@ -69,7 +69,7 @@ is.ergm <- function(object)
 #'   distribution
 #' @examples
 #' 
-#' data(faux.mesa.high)
+#' data(faux.mesa.high, package="statnet.data")
 #' degreedist(faux.mesa.high)
 #' 
 #' @export

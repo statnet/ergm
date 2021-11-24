@@ -126,7 +126,7 @@
 #' @keywords regression models
 #' @examples
 #' 
-#' data(faux.mesa.high)
+#' data(faux.mesa.high, package="statnet.data")
 #' formula <- faux.mesa.high ~ edges + nodematch("Sex") + nodefactor("Grade")
 #' mplesetup <- ergmMPLE(formula)
 #' 

@@ -486,7 +486,7 @@ ergm_symmetrize.default <- function(x, rule=c("weak","strong","upper","lower"), 
 #' 
 #' }
 #' @examples
-#' data(sampson)
+#' data(samplike, package="statnet.data")
 #' samplike[1,2] <- NA
 #' samplike[4.1] <- NA
 #' sm <- as.matrix(samplike)

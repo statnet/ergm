@@ -41,7 +41,7 @@
 #' @seealso See also the sna package \code{\link[sna]{geodist}} function
 #' @examples
 #' 
-#' data(faux.mesa.high)
+#' data(faux.mesa.high, package="statnet.data")
 #' ergm.geodistdist(faux.mesa.high)
 #'
 #' @keywords internal

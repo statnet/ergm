@@ -37,7 +37,7 @@ class of the LHS of the formula.
 #
 # Lets look at the Florentine marriage data
 #
-data(florentine)
+data(flomarriage, package="statnet.data")
 #
 # test the summary_formula function
 #

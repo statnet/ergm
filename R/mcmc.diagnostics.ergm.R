@@ -86,7 +86,7 @@
 #'
 #' \dontrun{
 #' #
-#' data(florentine)
+#' data(flomarriage, package="statnet.data")
 #' #
 #' # test the mcmc.diagnostics function
 #' #

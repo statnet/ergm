@@ -140,7 +140,7 @@ term in question.
 \examples{
 library(magrittr) # for \%>\%
 
-data(faux.mesa.high)
+data(faux.mesa.high, package="statnet.data")
 
 # Activity by grade with a baseline grade excluded:
 summary(faux.mesa.high~nodefactor(~Grade))

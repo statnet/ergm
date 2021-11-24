@@ -52,7 +52,7 @@ package. It does not work with curved terms not included in ergm.
 \dontshow{
 options(ergm.eval.loglik=FALSE)
 }
-data(sampson)
+data(samplike, package="statnet.data")
 gest<-ergm(samplike~edges+gwesp(),
            control=control.ergm(MCMLE.maxit=2))
 summary(gest)

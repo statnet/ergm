@@ -58,7 +58,7 @@ are missing values and 's default of \code{na.action = na.omit} is used, and
 
 \examples{
 
-data(molecule)
+data(molecule, package="statnet.data")
 molecule \%v\% "atomic type" <- c(1,1,1,1,1,1,2,2,2,2,2,2,2,3,3,3,3,3,3,3)
 fit0 <- ergm(molecule ~ edges)
 anova(fit0)

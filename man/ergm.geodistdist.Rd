@@ -43,7 +43,7 @@ network via full_geodesic_distribution.C
 }
 \examples{
 
-data(faux.mesa.high)
+data(faux.mesa.high, package="statnet.data")
 ergm.geodistdist(faux.mesa.high)
 
 }

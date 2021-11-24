@@ -33,7 +33,7 @@ attribute data into an ergm term.
 }
 \examples{
 
-data(faux.mesa.high)
+data(faux.mesa.high, package="statnet.data")
 get.node.attr(faux.mesa.high,'Grade')
 }
 \seealso{
