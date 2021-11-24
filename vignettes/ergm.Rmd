@@ -533,6 +533,7 @@ whether there are more (or less) degree 1 nodes than we would expect,
 given the density.
 
 ```{r, message = F}
+data(flobusiness, package="statnet.data")
 summary(flobusiness~edges+degree(1))
 fit <- ergm(flobusiness~edges+degree(1))
 summary(fit)
