@@ -58,7 +58,7 @@ question. This is compatible with using `magrittr`'s pipes for improved readabil
 Then, taking `faux.mesa.high` dataset's actor attribute `Grade`, representing the grade of the student, we can evaluate, equivalently, the linear effect of grade on overall activity of an actor:
 ```{r, node-attr-spec, message=FALSE}
 library(ergm)
-data(faux.mesa.high)
+data(faux.mesa.high, package="statnet.data")
 summary(faux.mesa.high~nodecov("Grade")) # String
 summary(faux.mesa.high~nodecov(~Grade)) # Formula
 summary(faux.mesa.high~nodecov(function(nw) nw%v%"Grade")) # Function
