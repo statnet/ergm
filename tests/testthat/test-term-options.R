@@ -9,6 +9,8 @@
 ################################################################################
 
 data(flomarriage, package="statnet.data")
+data(flobusiness, package="statnet.data")
+
 old.opts1 <- options(ergm.eval.loglik=TRUE)
 times <- 2
 
