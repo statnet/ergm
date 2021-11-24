@@ -37,7 +37,8 @@ Imports:
     parallel,
     methods,
     knitr,
-    stringr
+    stringr,
+    statnet.data
 Suggests:
     lattice (>= 0.20.41),
     latticeExtra (>= 0.6.29),
@@ -186,4 +187,5 @@ Collate:
     'wtd.median.R'
     'zzz.R'
 Remotes: github::statnet/tergm@master,
-    github::statnet/ergm.count@master
+    github::statnet/ergm.count@master,
+    github::statnet/statnet.data
