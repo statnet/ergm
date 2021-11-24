@@ -209,7 +209,7 @@ data(package='statnet.data') # tells us the datasets in our packages
 We'll start with Padgett's data on Renaissance Florentine families for our first example.  As with all data analysis, we start by looking at our data using graphical and numerical descriptives.
 
 ```{r}
-data(florentine, package="statnet.data") # loads flomarriage and flobusiness data
+data(flomarriage, package="statnet.data") # loads flomarriage and flobusiness data
 flomarriage # Look at the flomarriage network properties (uses `network`), esp. the vertex attributes
 par(mfrow=c(1,2)) # Setup a 2 panel plot
 plot(flomarriage, 
