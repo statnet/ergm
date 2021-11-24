@@ -105,7 +105,6 @@ Collate:
     'control.logLik.ergm.R'
     'control.san.R'
     'control.simulate.R'
-    'data.R'
     'ergm-defunct.R'
     'ergm-internal.R'
     'ergm-options.R'
