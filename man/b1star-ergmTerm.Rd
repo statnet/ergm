@@ -16,9 +16,6 @@
 attributes and Levels (\code{\link[=nodal_attributes]{?nodal_attributes}}) for details.)}
 }
 \description{
-k-Stars for the first mode in a bipartite (aka two-mode) network
-}
-\details{
 This term adds one network statistic to the model for
 each element in \code{k} . The \eqn{i} th such statistic counts the number of
 distinct \code{k[i]} -stars whose center node is in the first mode of the

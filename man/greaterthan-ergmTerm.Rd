@@ -11,11 +11,7 @@
 \item{threshold}{a vector of numerical values}
 }
 \description{
-Number of dyads with values strictly greater than a threshold
-}
-\details{
-Adds the number of
-statistics equal to the length of \code{threshold}
+Adds the number of statistics equal to the length of \code{threshold}
 equaling to the number of dyads whose values exceed the
 corresponding element of \code{threshold} .
 }

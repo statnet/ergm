@@ -70,8 +70,7 @@ NULL
 
 #' @templateVar name edges
 #' @title Preserve the edge count of the given network
-#' @description Preserve the edge count of the given network
-#' @details Only networks
+#' @description Only networks
 #'   having the same number of edges as the network passed
 #'   in the model formula have non-zero probability.
 #'
@@ -86,8 +85,7 @@ InitErgmConstraint.edges<-function(nw, arglist, ...){
 
 #' @templateVar name degrees
 #' @title Preserve the degree of each vertex of the given network
-#' @description Preserve the degree of each vertex of the given network
-#' @details Only networks
+#' @description Only networks
 #'   whose vertex degrees are the same as those in the network passed
 #'   in the model formula have non-zero probability. If the network is
 #'   directed, both indegree and outdegree are preserved.
@@ -112,8 +110,7 @@ InitErgmConstraint.nodedegrees<-InitErgmConstraint.degrees
 
 #' @templateVar name odegrees
 #' @title Preserve outdegree for directed networks
-#' @description Preserve outdegree for directed networks
-#' @details For directed networks, preserve the outdegree of each vertex of the given
+#' @description For directed networks, preserve the outdegree of each vertex of the given
 #'   network, while allowing indegree to vary
 #'
 #' @usage
@@ -129,8 +126,7 @@ InitErgmConstraint.odegrees<-function(nw, arglist, ...){
 
 #' @templateVar name idegrees
 #' @title Preserve indegree for directed networks
-#' @description Preserve indegree for directed networks
-#' @details For directed networks, preserve the indegree of each vertex of the given
+#' @description For directed networks, preserve the indegree of each vertex of the given
 #'   network, while allowing outdegree to vary
 #'
 #' @usage
@@ -146,8 +142,7 @@ InitErgmConstraint.idegrees<-function(nw, arglist, ...){
 
 #' @templateVar name b1degrees
 #' @title Preserve the actor degree for bipartite networks
-#' @description Preserve the degree distribution for bipartite networks
-#' @details For bipartite networks, preserve the degree for the first mode of each vertex of the given
+#' @description For bipartite networks, preserve the degree for the first mode of each vertex of the given
 #'   network, while allowing the degree for the second mode to vary.
 #'
 #' @usage
@@ -163,8 +158,7 @@ InitErgmConstraint.b1degrees<-function(nw, arglist, ...){
 
 #' @templateVar name b2degrees
 #' @title Preserve the receiver degree for bipartite networks
-#' @description Preserve the degree distribution for bipartite networks
-#' @details For bipartite networks, preserve the degree for the second mode of each vertex of the given
+#' @description For bipartite networks, preserve the degree for the second mode of each vertex of the given
 #'   network, while allowing the degree for the first mode to vary.
 #'
 #' @usage
@@ -180,8 +174,7 @@ InitErgmConstraint.b2degrees<-function(nw, arglist, ...){
 
 #' @templateVar name degreedist
 #' @title Preserve the degree distribution of the given network
-#' @description Preserve the degree distribution of the given network
-#' @details Only networks
+#' @description Only networks
 #'   whose degree distributions are the same as those in the network passed
 #'   in the model formula have non-zero probability.
 #'
@@ -199,8 +192,7 @@ InitErgmConstraint.degreedist<-function(nw, arglist, ...){
 
 #' @templateVar name idegreedist
 #' @title Preserve the indegree distribution
-#' @description Preserve the indegree distribution
-#' @details Preserve the indegree distribution of the given network.
+#' @description Preserve the indegree distribution of the given network.
 #'
 #' @usage
 #' # idegreedist
@@ -215,8 +207,7 @@ InitErgmConstraint.idegreedist<-function(nw, arglist, ...){
 
 #' @templateVar name odegreedist
 #' @title Preserve the outdegree distribution
-#' @description Preserve the outdegree distribution
-#' @details Preserve the outdegree distribution of the given network.
+#' @description Preserve the outdegree distribution of the given network.
 #'
 #' @usage
 #' # odegreedist
@@ -231,8 +222,7 @@ InitErgmConstraint.odegreedist<-function(nw, arglist, ...){
 
 #' @templateVar name bd
 #' @title Constrain maximum and minimum vertex degree
-#' @description Constrain maximum and minimum vertex degree
-#' @details Condition on the number of inedge or outedges posessed by a node. 
+#' @description Condition on the number of inedge or outedges posessed by a node. 
 #' See Placing Bounds on Degrees section for more information. ([`?ergmConstraint`][ergmConstraint])
 #'
 #' @usage
@@ -266,8 +256,7 @@ InitErgmConstraint.bd<-function(nw, arglist, ...){
 
 #' @templateVar name blocks
 #' @title Constrain "blocks" of dyads
-#' @description Constrain "blocks" of dyads
-#' @details Any dyad whose toggle would produce a nonzero change statistic for a `nodemix` term with the same arguments will be fixed. Note that the `levels2` argument has a different default value for `blocks` than it does for `nodemix` .
+#' @description Any dyad whose toggle would produce a nonzero change statistic for a `nodemix` term with the same arguments will be fixed. Note that the `levels2` argument has a different default value for `blocks` than it does for `nodemix` .
 #'
 #' @usage
 #' # blocks(attr=NULL, levels=NULL, levels2=FALSE, b1levels=NULL, b2levels=NULL)
@@ -405,7 +394,6 @@ InitErgmConstraint.blocks <- function(nw, arglist, ...) {
 #' @templateVar name hamming
 #' @title TODO
 #' @description TODO
-#' @details TODO
 #'
 #' @usage
 #' # hamming
@@ -420,8 +408,7 @@ InitErgmConstraint.hamming<-function(nw, arglist, ...){
 
 #' @templateVar name observed
 #' @title Preserve the observed dyads of the given network
-#' @description Preserve the observed dyads of the given network
-#' @details Preserve the observed dyads of the given network.
+#' @description Preserve the observed dyads of the given network.
 #'
 #' @usage
 #' # observed
@@ -439,8 +426,7 @@ InitErgmConstraint.observed <- function(nw, arglist, ...){
 
 #' @templateVar name fixedas
 #' @title Preserve and preclude edges
-#' @description Preserve and preclude edges
-#' @details Preserve the edges in 'present' and preclude the edges in 'absent'.
+#' @description Preserve the edges in 'present' and preclude the edges in 'absent'.
 #'
 #' @usage
 #' # fixedas(present, absent)
@@ -483,8 +469,7 @@ InitErgmConstraint.fixedas<-function(nw, arglist,...){
 
 #' @templateVar name fixallbut
 #' @title Preserve the dyad status in all but the given edges
-#' @description Preserve the dyad status in all but the given edges
-#' @details Preserve the dyad status in all but `free.dyads`.
+#' @description Preserve the dyad status in all but `free.dyads`.
 #'
 #' @usage
 #' # fixallbut(free.dyads)
@@ -519,9 +504,7 @@ InitErgmConstraint.fixallbut<-function(nw, arglist,...){
 #' @templateVar name dyadnoise
 #' @title A soft constraint to adjust the sampled distribution for
 #'   dyad-level noise with known perturbation probabilities
-#' @description A soft constraint to adjust the sampled distribution for
-#'   dyad-level noise with known perturbation probabilities
-#' @details It is assumed that the observed LHS network is a noisy observation of
+#' @description It is assumed that the observed LHS network is a noisy observation of
 #'   some unobserved true network, with `p01` giving the dyadwise
 #'   probability of erroneously observing a tie where the true network
 #'   had a non-tie and `p10` giving the dyadwise probability of
@@ -556,8 +539,7 @@ InitErgmConstraint.dyadnoise<-function(nw, arglist, ...){
 
 #' @templateVar name egocentric
 #' @title Preserve values of dyads incident on vertices with given attribute
-#' @description Preserve values of dyads incident on vertices with given attribute
-#' @details Preserve values of dyads incident on vertices with attribute `attr` being `TRUE` or if `attrname` is `NULL` , the vertex attribute `"na"` being `FALSE`.
+#' @description Preserve values of dyads incident on vertices with attribute `attr` being `TRUE` or if `attrname` is `NULL` , the vertex attribute `"na"` being `FALSE`.
 #'
 #' @usage
 #' # egocentric(attr=NULL, direction="both")

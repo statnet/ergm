@@ -26,9 +26,6 @@ attributes and Levels (\code{\link[=nodal_attributes]{?nodal_attributes}}) for d
 \item{attr}{quantitative attribute (see Specifying Vertex attributes and Levels (\code{?nodal_attributes}) for details.)}
 }
 \description{
-Out-degree range
-}
-\details{
 This term adds one
 network statistic to the model for each element of \code{from} (or \code{to} ); the \eqn{i} th
 such statistic equals the number of nodes in the network of out-degree

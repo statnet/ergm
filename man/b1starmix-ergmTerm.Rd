@@ -21,9 +21,6 @@ all homophilous k-stars are counted together, though these k-stars are still
 categorized according to the value of the central b1 node.}
 }
 \description{
-Mixing matrix for k-stars centered on the first mode of a bipartite network
-}
-\details{
 This term counts all k-stars in which
 the b2 nodes (called events in some contexts) are homophilous in the sense
 that they all share the same value of \code{attr} . However, the b1 node

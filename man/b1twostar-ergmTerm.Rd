@@ -15,9 +15,6 @@
 \item{b1levels, b2levels, base, levels2}{used to leave some of the categories out (see Specifying Vertex attributes and Levels (\code{?nodal_attributes}) for details)}
 }
 \description{
-Two-star census for central nodes centered on the first mode of a bipartite network
-}
-\details{
 This term takes two nodal attributes. Assuming that there are
 \eqn{n_1} values of \code{b1attr} among the b1 nodes and \eqn{n_2}
 values of \code{b2attr} among the b2 nodes, then the total number of

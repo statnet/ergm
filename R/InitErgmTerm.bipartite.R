@@ -22,15 +22,14 @@
 
 #' @templateVar name b1nodematch
 #' @title Nodal attribute-based homophily effect for the first mode in a bipartite network
-#' @description Nodal attribute-based homophily effect for the first mode in a bipartite (aka two-mode) network
-#' @details This term is introduced
+#' @description This term is introduced
 #'   in Bomiriya et al (2014). With the default `alpha` and `beta` values, this term will
 #'   simply be a homophily based two-star statistic. This term adds one statistic to the model
 #'   unless `diff` is set to `TRUE` , in which case the term adds multiple network
 #'   statistics to the model, one for each of (a subset of) the unique values of the `attr`
 #'   attribute.
 #'   
-#'   If an `alpha`
+#' @details If an `alpha`
 #'   discount parameter is used, each of these statistics gives the sum of
 #'   the number of common second-mode nodes raised to the power `alpha` for each pair of
 #'   first-mode nodes with that attribute. If a `beta` discount parameter is used, each
@@ -156,15 +155,14 @@ InitErgmTerm.b1nodematch	<-	function (nw, arglist, ..., version=packageVersion("
 
 #' @templateVar name b2nodematch
 #' @title Nodal attribute-based homophily effect for the second mode in a bipartite network
-#' @description Nodal attribute-based homophily effect for the second mode in a bipartite (aka two-mode) network
-#' @details This term is introduced in Bomiriya et al (2014).
+#' @description This term is introduced in Bomiriya et al (2014).
 #'   With the default `alpha` and `beta` values, this term will
 #'   simply be a homophily based two-star statistic. This term adds one statistic to the model
 #'   unless `diff` is set to `TRUE` , in which case the term adds multiple network
 #'   statistics to the model, one for each of (a subset of) the unique values of the `attr`
 #'   attribute.
 #'   
-#'   If an `alpha`
+#' @details If an `alpha`
 #'   discount parameter is used, each of these statistics gives the sum of
 #'   the number of common first-mode nodes raised to the power `alpha` for each pair of
 #'   second-mode nodes with that attribute. If a `beta` discount parameter is used, each

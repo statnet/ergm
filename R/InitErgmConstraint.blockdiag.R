@@ -43,8 +43,7 @@
 
 #' @templateVar name blockdiag
 #' @title Force a block-diagonal structure on the network
-#' @description Force a block-diagonal structure (and its bipartite analogue) on the network
-#' @details  Only dyads \eqn{(i,j)} for which `attr(i)==attr(j)` can have edges. 
+#' @description  Only dyads \eqn{(i,j)} for which `attr(i)==attr(j)` can have edges. 
 #'   
 #'   Note that the current implementation requires that blocks be
 #'   contiguous for unipartite graphs, and for bipartite

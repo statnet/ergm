@@ -8,9 +8,6 @@
 # binary: opentriad
 }
 \description{
-Open triads
-}
-\details{
 This term
 adds one statistic to the model equal to the number of 2-stars minus
 three times the number of triangles in the network. It is currently

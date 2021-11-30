@@ -11,9 +11,6 @@
 \item{pow}{power of dyad values. Defaults to 1.}
 }
 \description{
-Sum of dyad values (optionally taken to a power)
-}
-\details{
 This term adds one statistic equal to the sum of
 dyad values taken to the power \code{pow}.
 }

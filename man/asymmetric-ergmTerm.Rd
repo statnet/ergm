@@ -17,9 +17,6 @@
 \item{level}{Used in the same way as for the \code{nodematch} term. (See \code{nodematch} (\code{?nodematch}) for details.)}
 }
 \description{
-Asymmetric dyads
-}
-\details{
 This term adds one network statistic to the model equal to the
 number of pairs of actors for which exactly one of
 \eqn{(i{\rightarrow}j)}{(i,j)} or \eqn{(j{\rightarrow}i)}{(j,i)} exists.

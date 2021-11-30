@@ -8,9 +8,6 @@
 # binary: m2star
 }
 \description{
-Mixed 2-stars, a.k.a 2-paths
-}
-\details{
 This term adds one statistic to the model, equal to the number of mixed
 2-stars in the network, where a mixed 2-star is a pair of distinct edges
 \eqn{(i{\rightarrow}j), (j{\rightarrow}k)}{(i,j), (j,k)} . A mixed 2-star is

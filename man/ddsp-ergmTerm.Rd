@@ -13,9 +13,6 @@
 \item{type}{one of \code{c("OTP", "ITP", "RTP", "OSP", "ISP")}}
 }
 \description{
-Directed dyadwise shared partners
-}
-\details{
 This term adds one network statistic to the model for each element in \code{d} where the \eqn{i} th such statistic equals the number of dyads in the network with exactly \code{d[i]} shared partners.
 }
 \note{

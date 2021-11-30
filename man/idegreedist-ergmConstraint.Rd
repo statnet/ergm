@@ -8,9 +8,6 @@
 # idegreedist
 }
 \description{
-Preserve the indegree distribution
-}
-\details{
 Preserve the indegree distribution of the given network.
 }
 \seealso{

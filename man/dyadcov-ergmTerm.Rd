@@ -16,10 +16,7 @@ the name of the quantitative edge attribute to use for covariate values
 of zero).}
 }
 \description{
-Dyadic covariate
-}
-\details{
-#'   This term adds three statistics to the model, each equal to the sum of the
+This term adds three statistics to the model, each equal to the sum of the
 covariate values for all dyads occupying one of the three possible non-empty
 dyad states (mutual, upper-triangular asymmetric, and lower-triangular
 asymmetric dyads, respectively), with the empty or null state serving as a

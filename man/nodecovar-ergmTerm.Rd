@@ -21,13 +21,9 @@ calculation. This makes sense for counts in particular. If
 square roots.}
 }
 \description{
-Covariance of undirected dyad values incident on each actor
-}
-\details{
 This term adds one statistic equal to
 \eqn{\sum_{i,j<k} y_{i,j}y_{i,k}/(n-2)} . This can be
-viewed as a valued analog of the \code{star(2)}
-statistic.
+viewed as a valued analog of the \code{star(2)} statistic.
 }
 \note{
 Note that this term replaces \code{nodesqrtcovar} , which has been

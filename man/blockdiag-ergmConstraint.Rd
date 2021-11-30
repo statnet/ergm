@@ -11,9 +11,6 @@
 \item{attr}{quantitative attribute (see Specifying Vertex attributes and Levels (\code{?nodal_attributes}) for details.)}
 }
 \description{
-Force a block-diagonal structure (and its bipartite analogue) on the network
-}
-\details{
 Only dyads \eqn{(i,j)} for which \code{attr(i)==attr(j)} can have edges.
 
 Note that the current implementation requires that blocks be

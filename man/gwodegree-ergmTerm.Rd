@@ -27,9 +27,6 @@ the computational burden.  Its default value can also be controlled by the
 attributes and Levels (\code{\link[=nodal_attributes]{?nodal_attributes}}) for details.)}
 }
 \description{
-Geometrically weighted out-degree distribution
-}
-\details{
 This term adds one network statistic to the model
 equal to the weighted out-degree distribution with decay parameter
 \code{decay} parameter, which should be non-negative. This

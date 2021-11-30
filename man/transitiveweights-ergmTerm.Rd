@@ -20,9 +20,6 @@ combined strength of the two paths ( \code{"min"} ) or their
 geometric mean ( \code{"geomean"} )}
 }
 \description{
-Transitive weights
-}
-\details{
 This statistic implements the transitive weights
 statistic defined by Krivitsky (2012), Equation 13. For each of these options,
 the first (and the default) is more stable but also more

@@ -18,9 +18,6 @@
 it will be recycled with indices appended. If a function is specified, \code{formulas} parameter names are extracted and their list of character vectors is passed \code{label}.}
 }
 \description{
-A sum (or an arbitrary linear combination) of one or more formulas
-}
-\details{
 This operator sums up the RHS statistics of the input formulas elementwise.
 
 If a formula has an LHS, it is interpreted as follows:
@@ -34,7 +31,8 @@ If a formula has an LHS, it is interpreted as follows:
 \item \code{"mean"} Network statistics of this formula will be averaged; equivalent to \code{matrix(1/p,1,p)} , where \code{p} is the length of the network statistic vector.
 }
 }
-
+}
+\details{
 Note that each formula must either produce the same number of
 statistics or be mapped through a matrix to produce the same
 number of statistics.

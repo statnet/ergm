@@ -15,9 +15,6 @@ attributes and Levels (\code{\link[=nodal_attributes]{?nodal_attributes}}) for d
 specified. (Thus, indices passed as \code{levels} should correspond to indices when \code{levels} = NULL and \code{active} = 0.)}
 }
 \description{
-Coincident node count for the second mode in a bipartite (aka two-mode) network
-}
-\details{
 By default this term adds one
 network statistic to the model for each pair of nodes of mode two. It is
 equal to the number of (first mode) mutual partners of that pair.

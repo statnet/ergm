@@ -3,7 +3,7 @@
 \name{equalto-ergmTerm}
 \alias{equalto-ergmTerm}
 \alias{InitWtErgmTerm.equalto}
-\title{Number of dyads with values equal to a specific value}
+\title{Number of dyads with values equal to a specific value (within tolerance)}
 \usage{
 # valued: equalto(value=0, tolerance=0)
 }
@@ -13,9 +13,6 @@
 \item{tolerance}{numerical threshold}
 }
 \description{
-Number of dyads with values equal to a specific value (within tolerance)
-}
-\details{
 Adds one statistic equal to the number of dyads whose values
 are within \code{tolerance} of \code{value} , i.e., between
 \code{value-tolerance} and \code{value+tolerance} , inclusive.

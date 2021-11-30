@@ -8,9 +8,6 @@
 # binary: twopath
 }
 \description{
-2-Paths
-}
-\details{
 This term adds one statistic to the model, equal to the number of 2-paths in
 the network. For a directed network this is defined as a pair of edges
 \eqn{(i{\rightarrow}j), (j{\rightarrow}k)}{(i,j), (j,k)} , where \eqn{i} and

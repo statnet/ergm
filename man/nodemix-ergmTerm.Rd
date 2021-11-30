@@ -23,9 +23,6 @@
 \item{form}{character how to aggregate tie values in a valued ERGM}
 }
 \description{
-Nodal attribute mixing
-}
-\details{
 By default, this term adds one network statistic to
 the model for each possible pairing of attribute values. The
 statistic equals the number of edges in the network in which the

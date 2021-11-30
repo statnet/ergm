@@ -18,9 +18,6 @@
 \item{form}{character how to aggregate tie values in a valued ERGM}
 }
 \description{
-Receiver effect
-}
-\details{
 This term adds one network statistic for each node equal to the number of
 in-ties for that node. This measures the popularity of the node. The term
 for the first node is omitted by default because of linear dependence that

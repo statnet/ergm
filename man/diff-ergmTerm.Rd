@@ -32,9 +32,6 @@ differences are replaced by 0
 \item{form}{character how to aggregate tie values in a valued ERGM}
 }
 \description{
-Difference
-}
-\details{
 For values of \code{pow} other than
 \code{0} , this term adds one network statistic to the model,
 equaling the sum, over directed edges \eqn{(i,j)} , of

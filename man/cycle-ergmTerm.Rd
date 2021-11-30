@@ -20,9 +20,6 @@ undirected case.}
 \item{directed}{2-cycles are equivalent to mutual dyads.}
 }
 \description{
-k-Cycle Census
-}
-\details{
 This term adds one network statistic to the model for each value of \code{k} ,
 corresponding to the number of \code{k} -cycles (or, alternately, semicycles)
 in the graph.

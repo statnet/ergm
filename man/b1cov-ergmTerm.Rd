@@ -16,9 +16,6 @@
 \item{form}{character how to aggregate tie values in a valued ERGM}
 }
 \description{
-Main effect of a covariate for the first mode in a bipartite (aka two-mode) network
-}
-\details{
 This term adds a single network statistic for each quantitative attribute or matrix column to the model equaling the total
 value of \code{attr(i)} for all edges /eqn{(i,j)} in the network. This
 term may only be used with bipartite networks. For categorical attributes,

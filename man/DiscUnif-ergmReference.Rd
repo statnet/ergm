@@ -11,9 +11,6 @@
 \item{a, b}{minimum and maximum to the baseline discrete uniform distribution, both inclusive. Both values must be finite.}
 }
 \description{
-Discrete Uniform reference
-}
-\details{
 Specifies each dyad's baseline distribution to be discrete uniform
 between \code{a} and \code{b} (both inclusive): \eqn{h(y)=1} , with
 the support being

@@ -13,10 +13,6 @@
 \item{rule}{one of \code{"weak"}, \code{"strong"}, \code{"upper"}, \code{"lower"}}
 }
 \description{
-Evaluation on symmetrized (undirected) network
-}
-\details{
-:
 Evaluates the terms in \code{formula} on an undirected network
 constructed by symmetrizing the LHS network using one of four rules:
 \enumerate{

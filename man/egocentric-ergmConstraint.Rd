@@ -13,9 +13,6 @@
 \item{direction}{one of \code{"both"}, \code{"out"} and \code{"in"}, only applies to directed networks. \code{"out"} only preserves the out-dyads of those actors and \code{"in"} preserves their in-dyads.}
 }
 \description{
-Preserve values of dyads incident on vertices with given attribute
-}
-\details{
 Preserve values of dyads incident on vertices with attribute \code{attr} being \code{TRUE} or if \code{attrname} is \code{NULL} , the vertex attribute \code{"na"} being \code{FALSE}.
 }
 \seealso{

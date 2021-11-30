@@ -13,9 +13,6 @@
 \item{mat}{a matrix of covariates with the same dimensions as a mixing matrix for \code{attr}}
 }
 \description{
-Edge covariate by attribute pairing
-}
-\details{
 This term adds one statistic to the model, equal to the sum of the covariate values
 for each edge appearing in the network, where the covariate value for a given edge is determined by its mixing type on
 \code{attr}. Undirected networks are regarded as having undirected mixing, and it is assumed that \code{mat} is symmetric

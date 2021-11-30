@@ -21,13 +21,9 @@ calculation. This makes sense for counts in particular. If
 square roots.}
 }
 \description{
-Covariance of in-dyad values incident on each actor
-}
-\details{
 This term adds one statistic equal to
 \eqn{\sum_{i,j,k} y_{j,i}y_{k,i}/(n-2)} . This can be
-viewed as a valued analog of the \code{istar(2)}
-statistic.
+viewed as a valued analog of the \code{istar(2)} statistic.
 }
 \note{
 Note that this term replaces \code{nodeisqrtcovar} , which has been

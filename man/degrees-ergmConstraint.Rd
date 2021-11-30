@@ -12,9 +12,6 @@
 # nodedegrees
 }
 \description{
-Preserve the degree of each vertex of the given network
-}
-\details{
 Only networks
 whose vertex degrees are the same as those in the network passed
 in the model formula have non-zero probability. If the network is

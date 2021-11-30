@@ -8,9 +8,6 @@
 # binary: intransitive
 }
 \description{
-Intransitive triads
-}
-\details{
 This term adds one statistic to the model, equal to the number of triads in
 the network that are intransitive. The intransitive triads are those of type
 \verb{111D} , \code{201} , \verb{111U} , \verb{021C} , or \verb{030C} in the

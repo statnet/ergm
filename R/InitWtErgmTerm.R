@@ -81,12 +81,10 @@ InitWtErgmTerm.absdiffcat <- function(nw, arglist, ..., version=packageVersion("
 
 #' @templateVar name atleast
 #' @title Number of dyads with values greater than or equal to a threshold
-#' @description Number of dyads with values greater than or equal to a threshold
-#' @details Adds the number of
+#' @description Adds the number of
 #'   statistics equal to the length of `threshold`
 #'   equaling to the number of dyads whose values equal or exceed the
-#'   corresponding element of
-#'   `threshold` .
+#'   corresponding element of `threshold` .
 #'
 #' @usage
 #' # valued: atleast(threshold=0)
@@ -114,12 +112,9 @@ InitWtErgmTerm.atleast<-function(nw, arglist, ...) {
 
 #' @templateVar name atmost
 #' @title Number of dyads with values less than or equal to a threshold
-#' @description Number of dyads with values less than or equal to a threshold
-#' @details Adds the number of
-#'   statistics equal to the length of `threshold`
+#' @description Adds the number of statistics equal to the length of `threshold`
 #'   equaling to the number of dyads whose values equal or are exceeded by the
-#'   corresponding element of
-#'   `threshold` .
+#'   corresponding element of `threshold` .
 #'
 #' @usage
 #' # valued: atmost(threshold=0)
@@ -298,9 +293,8 @@ InitWtErgmTerm.edgecov <- function(nw, arglist, ...) {
 }
 
 #' @templateVar name equalto
-#' @title Number of dyads with values equal to a specific value
-#' @description Number of dyads with values equal to a specific value (within tolerance)
-#' @details Adds one statistic equal to the number of dyads whose values
+#' @title Number of dyads with values equal to a specific value (within tolerance)
+#' @description Adds one statistic equal to the number of dyads whose values
 #'   are within `tolerance` of `value` , i.e., between
 #'   `value-tolerance` and `value+tolerance` , inclusive.
 #'
@@ -330,10 +324,8 @@ InitWtErgmTerm.equalto<-function(nw, arglist, ...) {
 
 #' @templateVar name ininterval
 #' @title Number of dyads whose values are in an interval
-#' @description Number of dyads whose values are in an interval
-#' @details Adds one statistic equaling to the number of dyads whose values
-#'   are between `lower` and
-#'   `upper` .
+#' @description Adds one statistic equaling to the number of dyads whose values
+#'   are between `lower` and `upper` .
 #'
 #' @usage
 #' # valued: ininterval(lower=-Inf, upper=+Inf, open=c(TRUE,TRUE))
@@ -381,9 +373,7 @@ InitWtErgmTerm.ininterval<-function(nw, arglist, ...) {
 
 #' @templateVar name greaterthan
 #' @title Number of dyads with values strictly greater than a threshold
-#' @description Number of dyads with values strictly greater than a threshold
-#' @details Adds the number of
-#'   statistics equal to the length of `threshold`
+#' @description Adds the number of statistics equal to the length of `threshold`
 #'   equaling to the number of dyads whose values exceed the
 #'   corresponding element of `threshold` .
 #'
@@ -412,9 +402,7 @@ InitWtErgmTerm.greaterthan<-function(nw, arglist, ...) {
 
 #' @templateVar name smallerthan
 #' @title Number of dyads with values strictly smaller than a threshold
-#' @description Number of dyads with values strictly smaller than a threshold
-#' @details Adds the number of
-#'   statistics equal to the length of `threshold`
+#' @description Adds the number of statistics equal to the length of `threshold`
 #'   equaling to the number of dyads whose values are exceeded by the
 #'   corresponding element of `threshold` .
 #'
@@ -444,8 +432,7 @@ InitWtErgmTerm.smallerthan<-function(nw, arglist, ...) {
 
 #' @templateVar name sum
 #' @title Sum of dyad values (optionally taken to a power)
-#' @description Sum of dyad values (optionally taken to a power)
-#' @details This term adds one statistic equal to the sum of
+#' @description This term adds one statistic equal to the sum of
 #'   dyad values taken to the power `pow`.
 #'
 #' @usage
@@ -479,11 +466,9 @@ InitWtErgmTerm.sum<-function(nw, arglist, ...) {
 
 #' @templateVar name nodecovar
 #' @title Covariance of undirected dyad values incident on each actor
-#' @description Covariance of undirected dyad values incident on each actor
-#' @details This term adds one statistic equal to
+#' @description This term adds one statistic equal to
 #'   \eqn{\sum_{i,j<k} y_{i,j}y_{i,k}/(n-2)} . This can be
-#'   viewed as a valued analog of the `star(2)`
-#'   statistic. 
+#'   viewed as a valued analog of the `star(2)` statistic. 
 #'
 #' @aliases nodesqrtcovar-ergmTerm
 #'   
@@ -593,11 +578,9 @@ InitWtErgmTerm.sociality<-function (nw, arglist, ..., version=packageVersion("er
 
 #' @templateVar name nodeocovar
 #' @title Covariance of out-dyad values incident on each actor
-#' @description Covariance of out-dyad values incident on each actor
-#' @details This term adds one statistic equal to
+#' @description This term adds one statistic equal to
 #'   \eqn{\sum_{i,j,k} y_{i,j}y_{i,k}/(n-2)} . This can be
-#'   viewed as a valued analog of the `ostar(2)`
-#'   statistic.
+#'   viewed as a valued analog of the `ostar(2)` statistic.
 #'   
 #' @usage
 #' # valued: nodeocovar(center, transform)
@@ -683,11 +666,9 @@ InitWtErgmTerm.sender<-function (nw, arglist, ..., version=packageVersion("ergm"
 
 #' @templateVar name nodeicovar
 #' @title Covariance of in-dyad values incident on each actor
-#' @description Covariance of in-dyad values incident on each actor
-#' @details This term adds one statistic equal to
+#' @description This term adds one statistic equal to
 #'   \eqn{\sum_{i,j,k} y_{j,i}y_{k,i}/(n-2)} . This can be
-#'   viewed as a valued analog of the `istar(2)`
-#'   statistic. 
+#'   viewed as a valued analog of the `istar(2)` statistic. 
 #'
 #' @aliases nodeisqrtcovar-ergmTerm
 #'   
@@ -961,8 +942,7 @@ InitWtErgmTerm.transitiveties<-function (nw, arglist, ...) {
 
 #' @templateVar name transitiveweights
 #' @title Transitive weights
-#' @description Transitive weights
-#' @details This statistic implements the transitive weights
+#' @description This statistic implements the transitive weights
 #'   statistic defined by Krivitsky (2012), Equation 13. For each of these options,
 #'   the first (and the default) is more stable but also more
 #'   conservative, while the second is more sensitive but more likely
@@ -1033,8 +1013,7 @@ InitWtErgmTerm.cyclicalties<-function (nw, arglist, ...) {
 
 #' @templateVar name cyclicalweights
 #' @title Cyclical weights
-#' @description Cyclical weights
-#' @details This statistic implements the cyclical weights
+#' @description This statistic implements the cyclical weights
 #'   statistic, like that defined by Krivitsky (2012), Equation 13,
 #'   but with the focus dyad being \eqn{y_{j,i}} rather than
 #'   \eqn{y_{i,j}} . For each option,

@@ -19,9 +19,6 @@
 \item{pos}{controls how \code{label} modifies the term names: one of \code{"prepend"} , \code{"replace"} , \code{"append"} , or \code{"("} , with the latter wrapping the term names in parentheses like a function call with name specified by \code{label} .}
 }
 \description{
-Modify terms' coefficient names
-}
-\details{
 This operator evaluates \code{formula} without modification, but modifies its coefficient and/or parameter names based on \code{label} and \code{pos} .
 }
 \seealso{

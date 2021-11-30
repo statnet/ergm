@@ -8,9 +8,6 @@
 # observed
 }
 \description{
-Preserve the observed dyads of the given network
-}
-\details{
 Preserve the observed dyads of the given network.
 }
 \seealso{

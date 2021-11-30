@@ -12,9 +12,6 @@
 it functions just like the \code{by} argument of the \code{b2degree} term.}
 }
 \description{
-Concurrent node count for the second mode in a bipartite (aka two-mode) network
-}
-\details{
 This term adds one
 network statistic to the model, equal to the number of nodes in the second
 mode of the network with degree 2 or higher. The second mode of a bipartite

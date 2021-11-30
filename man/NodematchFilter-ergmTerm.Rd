@@ -13,9 +13,6 @@
 \item{attrname}{a character vector giving one or more names of attributes in the network's vertex attribute list.}
 }
 \description{
-Filtering on nodematch
-}
-\details{
 Evaluates the terms specified in \code{formula} on a network
 constructed by taking \eqn{y} and removing any edges for which
 \code{attrname(i)!=attrname(j)} .

@@ -8,9 +8,6 @@
 # binary: meandeg
 }
 \description{
-Mean vertex degree
-}
-\details{
 This term adds one network statistic to the model equal to the
 average degree of a node. Note that this term is a constant multiple of
 both \code{edges} and \code{density} .

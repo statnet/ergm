@@ -24,16 +24,14 @@ value of the attribute.}
 attributes and Levels (\code{\link[=nodal_attributes]{?nodal_attributes}}) for details.)}
 }
 \description{
-Degree range
-}
-\details{
 This term adds one
 network statistic to the model for each element of \code{from} (or \code{to} ); the \eqn{i} th
 such statistic equals the number of nodes in the network of degree
 greater than or equal to
 \code{from[i]} but strictly less than \code{to[i]} , i.e. with edges
 in semiopen interval \verb{[from,to)} .
-
+}
+\details{
 This term can only be used with undirected networks; for directed networks
 see \code{idegrange} and \code{odegrange} . This term can be used
 with bipartite networks, and will count nodes of both first and second mode in

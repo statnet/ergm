@@ -8,9 +8,6 @@
 # binary: isolates
 }
 \description{
-Isolates
-}
-\details{
 This term adds one statistic to the
 model equal to the number of isolates in the network. For an undirected
 network, an isolate is defined to be any node with degree zero. For a

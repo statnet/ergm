@@ -18,9 +18,6 @@
 attributes and Levels (\code{\link[=nodal_attributes]{?nodal_attributes}}) for details.)}
 }
 \description{
-Three-trails
-}
-\details{
 For an undirected network, this term adds one statistic equal to the number
 of 3-trails, where a 3-trail is defined as a trail of length three that
 traverses three distinct edges.

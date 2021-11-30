@@ -20,9 +20,6 @@ three nodes have that value of the attribute.}
 attributes and Levels (\code{\link[=nodal_attributes]{?nodal_attributes}}) for details.)}
 }
 \description{
-Cyclic triples
-}
-\details{
 By default, this term adds one
 statistic to the model, equal to the number of cyclic triples in the
 network, defined as a set of edges of the form \eqn{\{(i{\rightarrow}j), (j{\rightarrow}k), (k{\rightarrow}i)\}}{\{(i,j), (j,k), (k,i)\}} .

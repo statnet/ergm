@@ -18,8 +18,7 @@
 
 #' @templateVar name b1mindegree
 #' @title Minimum degree for the first mode in a bipartite network
-#' @description Minimum degree for the first mode in a bipartite (aka two-mode) network
-#' @details This term adds one network statistic to the model for
+#' @description This term adds one network statistic to the model for
 #'   each element in `d` ; the \eqn{i} th such statistic equals the number of
 #'   nodes in the first mode of a bipartite network with at least degree `d[i]` .
 #'   The first mode of a bipartite network object is sometimes known as the "actor" mode.
@@ -62,8 +61,7 @@ InitErgmTerm.b1mindegree <- function(nw, arglist, ...) {
 
 #' @templateVar name b2mindegree
 #' @title Minimum degree for the second mode in a bipartite network
-#' @description Minimum degree for the second mode in a bipartite (aka two-mode) network
-#' @details This term adds one network statistic to the model for
+#' @description This term adds one network statistic to the model for
 #'   each element in `d` ; the \eqn{i} th such statistic equals the number of
 #'   nodes in the second mode of a bipartite network with at least degree `d[i]` .
 #'   The second mode of a bipartite network object is sometimes known as the "event" mode.

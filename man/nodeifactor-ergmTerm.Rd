@@ -21,9 +21,6 @@ attributes and Levels (\code{\link[=nodal_attributes]{?nodal_attributes}}) for d
 \item{form}{character how to aggregate tie values in a valued ERGM}
 }
 \description{
-Factor attribute effect for in-edges
-}
-\details{
 This term adds multiple network
 statistics to the model, one for each of (a subset of) the unique
 values of the \code{attr} attribute (or each combination of the

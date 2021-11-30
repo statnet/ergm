@@ -8,9 +8,6 @@
 # binary: simmelian
 }
 \description{
-Simmelian triads
-}
-\details{
 This term adds one
 statistic to the model equal to the number of Simmelian triads, as defined
 by Krackhardt and Handcock (2007). This is a complete sub-graph of size

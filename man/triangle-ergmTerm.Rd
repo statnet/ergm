@@ -21,9 +21,6 @@ equal to the number of triangles where all three nodes have that value of the at
 attributes and Levels (\code{\link[=nodal_attributes]{?nodal_attributes}}) for details.)}
 }
 \description{
-Triangles
-}
-\details{
 By default, this term adds one statistic to the model equal to the number of triangles
 in the network. For an undirected network, a triangle is defined to be any
 set \eqn{\{(i,j), (j,k), (k,i)\}} of three edges. For a directed network, a

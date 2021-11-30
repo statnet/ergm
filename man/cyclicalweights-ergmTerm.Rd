@@ -19,9 +19,6 @@ combined strength of the two paths ( \code{"min"} ) or their
 geometric mean ( \code{"geomean"} )}
 }
 \description{
-Cyclical weights
-}
-\details{
 This statistic implements the cyclical weights
 statistic, like that defined by Krivitsky (2012), Equation 13,
 but with the focus dyad being \eqn{y_{j,i}} rather than

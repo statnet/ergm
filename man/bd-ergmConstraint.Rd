@@ -17,9 +17,6 @@ If the vector is of length 1, the limit is applied to all nodes. If an individua
 then there is no restriction of that kind is applied.}
 }
 \description{
-Constrain maximum and minimum vertex degree
-}
-\details{
 Condition on the number of inedge or outedges posessed by a node.
 See Placing Bounds on Degrees section for more information. (\code{\link[=ergmConstraint]{?ergmConstraint}})
 }

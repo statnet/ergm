@@ -149,8 +149,7 @@ InitErgmTerm.Passthrough <- function(nw, arglist, ...){
 
 #' @templateVar name Label
 #' @title Modify terms' coefficient names
-#' @description Modify terms' coefficient names
-#' @details This operator evaluates `formula` without modification, but modifies its coefficient and/or parameter names based on `label` and `pos` .
+#' @description This operator evaluates `formula` without modification, but modifies its coefficient and/or parameter names based on `label` and `pos` .
 #'
 #' @usage
 #' # binary: Label(formula, label, pos)
@@ -292,9 +291,8 @@ InitErgmTerm..submodel_and_summary <- function(nw, arglist, ...){
 
 #' @name F-ergmTerm
 #' @templateVar name F
-#' @title Filtering on arbitrary one-term model.
-#' @description Filtering on arbitrary one-term model.
-#' @details Evaluates the given `formula` on a network constructed by
+#' @title Filtering on arbitrary one-term model
+#' @description Evaluates the given `formula` on a network constructed by
 #'   taking \eqn{y} and removing any edges for which
 #'   \eqn{f_{i,j}(y_{i,j}) = 0}{f[i,j] (y[i,j])=0} .
 #'
@@ -369,8 +367,7 @@ InitErgmTerm..filter.formula.net <- function(nw, arglist, ...){
 
 #' @templateVar name Offset
 #' @title Terms with fixed coefficients
-#' @description Terms with fixed coefficients
-#' @details This operator is analogous to the `offset()` wrapper, but the
+#' @description This operator is analogous to the `offset()` wrapper, but the
 #'   coefficients are specified within the term and the curved ERGM
 #'   mechanism is used internally.
 #'
@@ -579,9 +576,7 @@ ergm_symmetrize.network <- function(x, rule=c("weak","strong","upper","lower"), 
 
 #' @templateVar name Symmetrize
 #' @title Evaluation on symmetrized (undirected) network
-#' @description Evaluation on symmetrized (undirected) network
-#' @details :
-#'   Evaluates the terms in `formula` on an undirected network
+#' @description Evaluates the terms in `formula` on an undirected network
 #'   constructed by symmetrizing the LHS network using one of four rules:
 #'   
 #'   1. "weak" A tie \eqn{(i,j)} is present in the constructed
@@ -630,8 +625,7 @@ InitErgmTerm.Symmetrize <- function(nw, arglist, ...){
 
 #' @templateVar name Sum-operator
 #' @title A sum (or an arbitrary linear combination) of one or more formulas
-#' @description A sum (or an arbitrary linear combination) of one or more formulas
-#' @details This operator sums up the RHS statistics of the input formulas elementwise.
+#' @description This operator sums up the RHS statistics of the input formulas elementwise.
 #'   
 #'   If a formula has an LHS, it is interpreted as follows:
 #'   - a numeric scalar: Network statistics of this formula will be multiplied by this.
@@ -640,8 +634,8 @@ InitErgmTerm.Symmetrize <- function(nw, arglist, ...){
 #'   - a character string: One of several predefined linear combinations. Currently supported presets are as follows:
 #'     - `"sum"` Network statistics of this formula will be summed up; equivalent to `matrix(1,1,p)` , where `p` is the length of the network statistic vector.
 #'     - `"mean"` Network statistics of this formula will be averaged; equivalent to `matrix(1/p,1,p)` , where `p` is the length of the network statistic vector.
-#'   
-#'   Note that each formula must either produce the same number of
+#'
+#' @details Note that each formula must either produce the same number of
 #'   statistics or be mapped through a matrix to produce the same
 #'   number of statistics.
 #'   
@@ -771,8 +765,9 @@ InitErgmTerm.Sum <- function(nw, arglist,...){
 
 #' @templateVar name S
 #' @title Evaluation on an induced subgraph
-#' @description Evaluation on an induced subgraph
-#' @details This operator takes a two-sided forumla `attrs` whose LHS gives the attribute or attribute function for which tails and heads will be used to construct the induced subgraph. They must evaluate either to a logical vector equal in length to the number of tails (for LHS) and heads (for RHS) indicating which nodes are to be used to induce the subgraph or a numeric vector giving their indices. (As with indexing vectors, the logical vector will be recycled to the size of the network or the size of the appropriate bipartition, and negative indices will deselect vertices.)
+#' @description This operator takes a two-sided forumla `attrs` whose LHS gives the attribute or attribute function for which tails and heads will be used to construct the induced subgraph. They must evaluate either to a logical vector equal in length to the number of tails (for LHS) and heads (for RHS) indicating which nodes are to be used to induce the subgraph or a numeric vector giving their indices. 
+#'
+#' @details As with indexing vectors, the logical vector will be recycled to the size of the network or the size of the appropriate bipartition, and negative indices will deselect vertices.
 #'   
 #'   When the two sets are identical, the induced subgraph retains the directedness of the original graph. Otherwise, an undirected bipartite graph is induced.
 #'
@@ -856,9 +851,8 @@ InitErgmTerm.S <- function(nw, arglist, ...){
 
 
 #' @templateVar name Curve
-#' @title Impose a curved structure on term parameters.
-#' @description Impose a curved structure on term parameters.
-#' @details Arguments may have the same forms as in the API, but for convenience, alternative forms are accepted.
+#' @title Impose a curved structure on term parameters
+#' @description Arguments may have the same forms as in the API, but for convenience, alternative forms are accepted.
 #'   
 #'   If the model in `formula` is curved, then the outputs of this operator term's `map` argument will be used as inputs to the curved terms of the `formula` model.
 #'
@@ -978,8 +972,7 @@ InitErgmTerm.Parametrize <- InitErgmTerm.Curve
 
 #' @templateVar name Log
 #' @title Take a natural logarithm of a network's statistic
-#' @description Take a natural logarithm of a network's statistic
-#' @details Evaluate the terms specified in `formula` and takes a natural (base \eqn{e} ) logarithm of them. Since an ERGM statistic must be finite, `log0` specifies the value to be substituted for `log(0)` . The default value seems reasonable for most purposes.
+#' @description Evaluate the terms specified in `formula` and takes a natural (base \eqn{e} ) logarithm of them. Since an ERGM statistic must be finite, `log0` specifies the value to be substituted for `log(0)` . The default value seems reasonable for most purposes.
 #'
 #' @usage
 #' # binary: Log(formula, log0=-1/sqrt(.Machine$double.eps))
@@ -1009,8 +1002,7 @@ InitErgmTerm.Log <- function(nw, arglist, ...){
 
 #' @templateVar name Exp
 #' @title Exponentiate a network's statistic
-#' @description Exponentiate a network's statistic
-#' @details Evaluate the terms specified in `formula` and exponentiates them with base \eqn{e} .
+#' @description Evaluate the terms specified in `formula` and exponentiates them with base \eqn{e} .
 #'
 #' @usage
 #' # binary: Exp(formula)
@@ -1037,11 +1029,10 @@ InitErgmTerm.Exp <- function(nw, arglist, ...){
 
 #' @templateVar name Prod
 #' @title A product (or an arbitrary power combination) of one or more formulas
-#' @description A product (or an arbitrary power combination) of one or more formulas
-#' @details This operator evaluates a list of formulas whose corresponnding RHS
+#' @description This operator evaluates a list of formulas whose corresponnding RHS
 #'   statistics will be multiplied elementwise. They are required to be nonnegative.
 #'   
-#'   If a formula has an LHS, it is interpreted as follows:
+#' @details If a formula has an LHS, it is interpreted as follows:
 #'   - a numeric scalar: Network statistics of this formula will be exponentiated by this.
 #'   - a numeric vector: Corresponding network statistics of this formula will be exponentiated by this.
 #'   - a numeric matrix: Vector of network statistics will be exponentiated by this using the same pattern as matrix multiplication.
@@ -1049,7 +1040,7 @@ InitErgmTerm.Exp <- function(nw, arglist, ...){
 #'     - `"prod"`: Network statistics of this formula will be multiplied together; equivalent to `matrix(1,1,p)` , where `p` is the length of the network statistic vector.
 #'     - `"geomean"`: Network statistics of this formula will be geometrically averaged; equivalent to `matrix(1/p,1,p)` , where `p` is the length of the network statistic vector.
 #'   
-#'   Note that each formula must either produce the same number of
+#' Note that each formula must either produce the same number of
 #'   statistics or be mapped through a matrix to produce the same
 #'   number of statistics.
 #'   

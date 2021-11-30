@@ -24,9 +24,6 @@ attributes and Levels (\code{\link[=nodal_attributes]{?nodal_attributes}}) for d
 \item{attr}{quantitative attribute (see Specifying Vertex attributes and Levels (\code{?nodal_attributes}) for details.)}
 }
 \description{
-Transitive triples
-}
-\details{
 By default, this term adds one statistic to the model, equal to the number of transitive
 triples in the network, defined as a set of edges \eqn{\{(i{\rightarrow}j),
   j{\rightarrow}k), (i{\rightarrow}k)\}}{\{(i,j), (j,k), (i,k)\}} . Note that

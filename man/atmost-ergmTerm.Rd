@@ -11,14 +11,9 @@
 \item{threshold}{a vector of numerical values}
 }
 \description{
-Number of dyads with values less than or equal to a threshold
-}
-\details{
-Adds the number of
-statistics equal to the length of \code{threshold}
+Adds the number of statistics equal to the length of \code{threshold}
 equaling to the number of dyads whose values equal or are exceeded by the
-corresponding element of
-\code{threshold} .
+corresponding element of \code{threshold} .
 }
 \seealso{
 \code{\link{ergmTerm}} for index of model terms currently visible to the package.

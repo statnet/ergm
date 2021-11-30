@@ -11,9 +11,6 @@
 \item{free.dyads}{edgelist or network. Networks will be converted to the corresponding edgelist.}
 }
 \description{
-Preserve the dyad status in all but the given edges
-}
-\details{
 Preserve the dyad status in all but \code{free.dyads}.
 }
 \seealso{

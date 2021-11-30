@@ -33,9 +33,6 @@ attributes and Levels (\code{\link[=nodal_attributes]{?nodal_attributes}}) for d
 \item{form}{character how to aggregate tie values in a valued ERGM}
 }
 \description{
-Mutuality
-}
-\details{
 In binary ERGMs, equal to the number of
 pairs of actors \eqn{i} and \eqn{j} for which \eqn{(i{\rightarrow}j)}{(i,j)}
 and \eqn{(j{\rightarrow}i)}{(j,i)} both exist. For valued ERGMs, equal to \eqn{\sum_{i<j} m(y_{i,j},y_{j,i})} ,

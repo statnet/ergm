@@ -22,9 +22,6 @@ the computational burden.  Its default value can also be controlled by the
 \code{gw.cutoff} term option control parameter. (See \code{?control.ergm}.)}
 }
 \description{
-Geometrically weighted nonedgewise shared partner distribution
-}
-\details{
 This term is just like
 \code{gwesp} and \code{gwdsp} except it adds a statistic equal to
 the geometrically weighted \emph{nonedgewise} (that is, over dyads

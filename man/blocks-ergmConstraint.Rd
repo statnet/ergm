@@ -13,9 +13,6 @@
 \item{b1levels, b2levels, levels, level2}{control what statistics are included in the model and the order in which they appear. \code{levels2} apply to all networks; \code{levels} applies to unipartite networks; \code{b1levels} and \code{b2levels} apply to bipartite networks (see Specifying Vertex attributes and Levels (\code{?nodal_attributes}) for details)}
 }
 \description{
-Constrain "blocks" of dyads
-}
-\details{
 Any dyad whose toggle would produce a nonzero change statistic for a \code{nodemix} term with the same arguments will be fixed. Note that the \code{levels2} argument has a different default value for \code{blocks} than it does for \code{nodemix} .
 }
 \seealso{
