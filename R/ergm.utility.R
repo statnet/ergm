@@ -398,9 +398,13 @@ is.SPD <- function(x, tol = .Machine$double.eps){
 # causing them to appear to their algorithms to be near-singular when
 # they are actually very much SPD.
 #
+# snnd mode assumes that the matrix is symmetric non-negative definite
+# (SNND). If it's "obvious" that it's not (e.g., negative diagonal
+# elements), an error is raised.
+#
 # NB: In R, vector * matrix and matrix * vector always scales
 # corresponding rows.
-ssolve <- function(a, b, ..., symm = TRUE){
+ssolve <- function(a, b, ..., snnd = TRUE){
   if(missing(b)){
     b <- diag(1, nrow(a))
     colnames(b) <- rownames(a)
@@ -409,8 +413,9 @@ ssolve <- function(a, b, ..., symm = TRUE){
   d <- diag(as.matrix(a))
   d <- ifelse(d==0, 1, 1/d)
 
-  if(symm){
+  if(snnd){
     d <- sqrt(d)
+    if(anyNA(d)) stop("Matrix a has negative elements on the diagonal, and snnd=TRUE.")
     a <- a * d * rep(d, each = length(d))
     solve(a, b*d, ...) * d
   }else{
@@ -419,12 +424,13 @@ ssolve <- function(a, b, ..., symm = TRUE){
 }
 
 
-sginv <- function(X, ..., symm = TRUE){
+sginv <- function(X, ..., snnd = TRUE){
   d <- diag(as.matrix(X))
   d <- ifelse(d==0, 1, 1/d)
 
-  if(symm){
+  if(snnd){
     d <- sqrt(d)
+    if(anyNA(d)) stop("Matrix a has negative elements on the diagonal, and snnd=TRUE.")
     dd <- rep(d, each = length(d)) * d
     X <- X * dd
     ginv(X, ...) * dd
@@ -434,12 +440,13 @@ sginv <- function(X, ..., symm = TRUE){
   }
 }
 
-srcond <- function(x, ..., symm = TRUE){
+srcond <- function(x, ..., snnd = TRUE){
   d <- diag(as.matrix(x))
   d <- ifelse(d==0, 1, 1/d)
 
-  if(symm){
+  if(snnd){
     d <- sqrt(d)
+    if(anyNA(d)) stop("Matrix a has negative elements on the diagonal, and snnd=TRUE.")
     dd <- rep(d, each = length(d)) * d
     rcond(x*dd)
   }else{
@@ -451,6 +458,7 @@ snearPD <- function(x, ...){
   d <- abs(diag(as.matrix(x)))
   d[d==0] <- 1
   d <- sqrt(d)
+  if(anyNA(d)) stop("Matrix x has negative elements on the diagonal.")
   dd <- rep(d, each = length(d)) * d
   x <- nearPD(x / dd, ...)
   x$mat <- x$mat * dd
