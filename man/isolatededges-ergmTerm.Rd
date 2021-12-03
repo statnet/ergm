@@ -8,9 +8,6 @@
 # binary: isolatededges
 }
 \description{
-Isolated edges
-}
-\details{
 This term adds one statistic to the
 model equal to the number of isolated edges in the network, i.e., the number
 of edges each of whose endpoints has degree 1. This term can only be used

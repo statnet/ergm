@@ -15,9 +15,6 @@
 \item{which}{used to specify which of the parameters in the formula are fixed. It can be a logical vector (recycled as needed), a numeric vector of indices of parameters to be fixed, or a character vector of parameter names.}
 }
 \description{
-Terms with fixed coefficients
-}
-\details{
 This operator is analogous to the \code{offset()} wrapper, but the
 coefficients are specified within the term and the curved ERGM
 mechanism is used internally.

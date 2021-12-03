@@ -15,9 +15,6 @@
 \item{formula}{formula to be evaluated}
 }
 \description{
-Exponentiate a network's statistic
-}
-\details{
 Evaluate the terms specified in \code{formula} and exponentiates them with base \eqn{e} .
 }
 \seealso{

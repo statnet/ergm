@@ -11,9 +11,6 @@
 \item{d}{a vector of distinct integers}
 }
 \description{
-Dyadwise shared partners
-}
-\details{
 This term adds one
 network statistic to the model for each element in \code{d} ; the \eqn{i} th
 such statistic equals the number of dyads in the network with exactly

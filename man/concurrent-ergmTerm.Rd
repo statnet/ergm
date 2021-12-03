@@ -12,9 +12,6 @@
 It functions just like the \code{by} argument of the \code{degree} term.}
 }
 \description{
-Concurrent node count
-}
-\details{
 This term adds one network statistic to the model, equal to the number of
 nodes in the network with degree 2 or higher.
 This term can only be used with undirected

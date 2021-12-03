@@ -8,9 +8,6 @@
 # binary: transitive
 }
 \description{
-Transitive triads
-}
-\details{
 This term adds one statistic to the model, equal to the number of triads in
 the network that are transitive. The transitive triads are those of type
 \verb{120D} , \verb{030T} , \verb{120U} , or \code{300} in the categorization

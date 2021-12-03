@@ -24,9 +24,6 @@ value of the attribute.}
 attributes and Levels (\code{\link[=nodal_attributes]{?nodal_attributes}}) for details.)}
 }
 \description{
-Degree range for the second mode in a bipartite (a.k.a. two-mode) network
-}
-\details{
 This term adds one
 network statistic to the model for each element of \code{from} (or \code{to} ); the \eqn{i} th
 such statistic equals the number of nodes of the second mode

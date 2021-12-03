@@ -19,9 +19,6 @@ on this attribute in order for \eqn{i\rightarrow j}{i-->j} to be counted.}
 attributes and Levels (\code{\link[=nodal_attributes]{?nodal_attributes}}) for details.)}
 }
 \description{
-Cyclical ties
-}
-\details{
 This term adds one statistic, equal to the number of ties
 \eqn{i\rightarrow j}{i-->j} such that there exists a two-path from
 \eqn{j} to \eqn{i} . (Related to the \code{ttriple} term.)

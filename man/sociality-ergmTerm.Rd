@@ -23,9 +23,6 @@ which statistics are included just as for the \code{nodes} argument of \code{sen
 \item{form}{character how to aggregate tie values in a valued ERGM}
 }
 \description{
-Undirected degree
-}
-\details{
 This term adds one network statistic for each node equal to the number of
 ties of that node. For directed networks, see \code{sender} and
 \code{receiver} .

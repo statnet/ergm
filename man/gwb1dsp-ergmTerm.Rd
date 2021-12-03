@@ -19,9 +19,6 @@ the computational burden.  Its default value can also be controlled by the
 \code{gw.cutoff} term option control parameter. (See \code{?control.ergm}.)}
 }
 \description{
-Geometrically weighted dyadwise shared partner distribution for dyads in the first bipartition
-}
-\details{
 This term adds one network statistic to the model equal to the geometrically
 weighted dyadwise shared partner distribution for dyads in the first bipartition with decay parameter
 \code{decay} parameter, which should be non-negative. This term can only be used with bipartite networks.

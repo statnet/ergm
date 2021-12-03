@@ -21,9 +21,6 @@ all homophilous k-stars are counted together, though these k-stars are still
 categorized according to the value of the central b1 node.}
 }
 \description{
-Mixing matrix for k-stars centered on the second mode of a bipartite network
-}
-\details{
 This term is exactly the same as \code{b1starmix} except that the roles of
 b1 and b2 are reversed.
 }

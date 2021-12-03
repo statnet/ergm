@@ -13,10 +13,6 @@ dyad-level noise with known perturbation probabilities}
 LHS network giving these probabilities.}
 }
 \description{
-A soft constraint to adjust the sampled distribution for
-dyad-level noise with known perturbation probabilities
-}
-\details{
 It is assumed that the observed LHS network is a noisy observation of
 some unobserved true network, with \code{p01} giving the dyadwise
 probability of erroneously observing a tie where the true network

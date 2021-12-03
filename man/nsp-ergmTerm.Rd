@@ -11,9 +11,6 @@
 \item{d}{a vector of distinct integers}
 }
 \description{
-Nonedgewise shared partners
-}
-\details{
 This is
 just like the \code{dsp} and \code{esp} terms, except this term adds
 one network statistic to the model for each element in \code{d}

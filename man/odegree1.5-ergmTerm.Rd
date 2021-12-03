@@ -8,9 +8,6 @@
 # binary: odegree1.5
 }
 \description{
-Out-degree to the 3/2 power
-}
-\details{
 This term adds one network statistic to the model equaling the sum
 over the actors of each actor's outdegree taken to the 3/2 power
 (or, equivalently, multiplied by its square root). This term is

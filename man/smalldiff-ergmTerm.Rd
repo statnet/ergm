@@ -13,9 +13,6 @@
 \item{maximum}{difference in attribute values for ties to be considered}
 }
 \description{
-Number of ties between actors with similar (but not necessarily identical) attribute values
-}
-\details{
 This term adds one statistic, having as its
 value the number of edges in the network for which the incident
 actors' attribute values differ less than \code{cutoff} ; that is,

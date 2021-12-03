@@ -27,9 +27,6 @@ attributes and Levels (\code{\link[=nodal_attributes]{?nodal_attributes}}) for d
 \item{form}{character how to aggregate tie values in a valued ERGM}
 }
 \description{
-Uniform homophily and differential homophily
-}
-\details{
 When \code{diff=FALSE} , this term adds one network statistic
 to the model, which counts the number of edges \eqn{(i,j)} for which
 \code{attr(i)==attr(j)} . This is also called ''uniform homophily,'' because each group is assumed to have the same propensity for within-group ties. When multiple attribute names are given, the

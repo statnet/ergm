@@ -22,9 +22,6 @@ for the 120th node in the second biparition, while \code{nodes=I(120)} will incl
 \item{form}{character how to aggregate tie values in a valued ERGM}
 }
 \description{
-Degree
-}
-\details{
 This term adds one network statistic for each node in the first bipartition, equal to the number of
 ties of that node. This term can only be used with bipartite networks. For directed networks, see \code{sender} and
 \code{receiver}. For unipartite networks, see \code{sociality}.

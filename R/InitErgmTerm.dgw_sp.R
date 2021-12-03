@@ -139,8 +139,7 @@
 
 #' @templateVar name desp
 #' @title Directed edgewise shared partners
-#' @description Directed edgewise shared partners
-#' @details This term adds one network statistic to the model for each element in `d` where the \eqn{i} th such statistic equals the number of edges in the network with exactly `d[i]` shared partners.
+#' @description This term adds one network statistic to the model for each element in `d` where the \eqn{i} th such statistic equals the number of edges in the network with exactly `d[i]` shared partners.
 #'   
 #' @usage
 #' # binary: desp(d, type="OTP")
@@ -206,8 +205,7 @@ InitErgmTerm.desp<-function(nw, arglist, cache.sp=TRUE, ...) {
 
 #' @templateVar name dgwesp
 #' @title Geometrically weighted edgewise shared partner distribution
-#' @description Geometrically weighted edgewise shared partner distribution
-#' @details This term adds a statistic equal to the geometrically weighted edgewise (not dyadwise) shared partner distribution with decay parameter `decay` parameter.
+#' @description This term adds a statistic equal to the geometrically weighted edgewise (not dyadwise) shared partner distribution with decay parameter `decay` parameter.
 #'   
 #' @usage
 #' # binary: dgwesp(decay, fixed=FALSE, cutoff=30, type="OTP")
@@ -303,8 +301,7 @@ InitErgmTerm.dgwesp<-function(nw, arglist, cache.sp=TRUE, gw.cutoff=30, ...) {
 
 #' @templateVar name ddsp
 #' @title Directed dyadwise shared partners
-#' @description Directed dyadwise shared partners
-#' @details This term adds one network statistic to the model for each element in `d` where the \eqn{i} th such statistic equals the number of dyads in the network with exactly `d[i]` shared partners.
+#' @description This term adds one network statistic to the model for each element in `d` where the \eqn{i} th such statistic equals the number of dyads in the network with exactly `d[i]` shared partners.
 #'   
 #' @usage
 #' # binary: ddsp(d, type="OTP")
@@ -366,8 +363,7 @@ InitErgmTerm.ddsp<-function(nw, arglist, cache.sp=TRUE, ...) {
 
 #' @templateVar name dgwdsp
 #' @title Geometrically weighted dyadwise shared partner distribution
-#' @description Geometrically weighted dyadwise shared partner distribution
-#' @details This term adds one network statistic to the model equal to the geometrically weighted dyadwise shared partner distribution with decay parameter `decay` parameter.
+#' @description This term adds one network statistic to the model equal to the geometrically weighted dyadwise shared partner distribution with decay parameter `decay` parameter.
 #'   
 #' @usage
 #' # binary: dgwdsp(decay, fixed=FALSE, cutoff=30, type="OTP")
@@ -469,8 +465,7 @@ InitErgmTerm.dgwdsp<-function(nw, arglist, cache.sp=TRUE, gw.cutoff=30, ...) {
 
 #' @templateVar name dnsp
 #' @title Directed non-edgewise shared partners
-#' @description Directed non-edgewise shared partners
-#' @details This term adds one network statistic to the model for each element in `d` where the \eqn{i} th such statistic equals the number of non-edges in the network with exactly `d[i]` shared partners.
+#' @description This term adds one network statistic to the model for each element in `d` where the \eqn{i} th such statistic equals the number of non-edges in the network with exactly `d[i]` shared partners.
 #'   
 #' @usage
 #' # binary: dnsp(d, type="OTP")
@@ -531,8 +526,7 @@ InitErgmTerm.dnsp<-function(nw, arglist, cache.sp=TRUE, ...) {
 
 #' @templateVar name dgwnsp
 #' @title Geometrically weighted non-edgewise shared partner distribution
-#' @description Geometrically weighted non-edgewise shared partner distribution
-#' @details This term is just like gwesp and gwdsp except it adds a statistic equal to the geometrically weighted nonedgewise (that is, over dyads that do not have an edge) shared partner distribution with decay parameter `decay` parameter.
+#' @description This term is just like gwesp and gwdsp except it adds a statistic equal to the geometrically weighted nonedgewise (that is, over dyads that do not have an edge) shared partner distribution with decay parameter `decay` parameter.
 #'   
 #' @usage
 #' # binary: dgwnsp(decay, fixed=FALSE, cutoff=30, type="OTP")

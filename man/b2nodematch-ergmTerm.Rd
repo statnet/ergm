@@ -29,16 +29,14 @@ attributes and Levels (\code{\link[=nodal_attributes]{?nodal_attributes}}) for d
 \item{attr}{quantitative attribute (see Specifying Vertex attributes and Levels (\code{?nodal_attributes}) for details.)}
 }
 \description{
-Nodal attribute-based homophily effect for the second mode in a bipartite (aka two-mode) network
-}
-\details{
 This term is introduced in Bomiriya et al (2014).
 With the default \code{alpha} and \code{beta} values, this term will
 simply be a homophily based two-star statistic. This term adds one statistic to the model
 unless \code{diff} is set to \code{TRUE} , in which case the term adds multiple network
 statistics to the model, one for each of (a subset of) the unique values of the \code{attr}
 attribute.
-
+}
+\details{
 If an \code{alpha}
 discount parameter is used, each of these statistics gives the sum of
 the number of common first-mode nodes raised to the power \code{alpha} for each pair of

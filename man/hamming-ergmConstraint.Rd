@@ -10,9 +10,6 @@
 \description{
 TODO
 }
-\details{
-TODO
-}
 \seealso{
 \code{\link{ergmConstraint}} for index of constraints and hints currently visible to the package.
 }

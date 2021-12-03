@@ -17,9 +17,6 @@
 \item{log0}{the value to be substituted for \code{log(0)}}
 }
 \description{
-Take a natural logarithm of a network's statistic
-}
-\details{
 Evaluate the terms specified in \code{formula} and takes a natural (base \eqn{e} ) logarithm of them. Since an ERGM statistic must be finite, \code{log0} specifies the value to be substituted for \code{log(0)} . The default value seems reasonable for most purposes.
 }
 \seealso{

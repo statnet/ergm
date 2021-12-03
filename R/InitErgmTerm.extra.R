@@ -13,8 +13,7 @@
 
 #' @templateVar name concurrentties
 #' @title Concurrent tie count
-#' @description Concurrent tie count
-#' @details This term adds one network statistic to the model, equal to the number of
+#' @description This term adds one network statistic to the model, equal to the number of
 #'   ties incident on each actor beyond the first. 
 #'   This term can only be used with undirected networks.
 #'

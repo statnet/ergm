@@ -21,9 +21,6 @@ of zero).}
 \item{form}{character how to aggregate tie values in a valued ERGM}
 }
 \description{
-Edge covariate
-}
-\details{
 This term adds one statistic to the model, equal to the sum
 of the covariate values for each edge appearing in the network. The
 \code{edgecov} term applies to both directed and undirected networks. For

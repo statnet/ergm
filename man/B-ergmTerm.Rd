@@ -47,13 +47,11 @@ dyad of the valued network adds 1 to the valued term in
 }}
 }
 \description{
-Wrap binary terms for use in valued models
-}
-\details{
 Wraps binary \code{ergm} terms for use in valued models, with \code{formula} specifying which terms
 are to be wrapped and \code{form} specifying how they are to be
 used and how the binary network they are evaluated on is to be constructed.
-
+}
+\details{
 For example, \code{B(~nodecov("a"), form="sum")} is equivalent to
 \code{nodecov("a", form="sum")} and similarly with
 \code{form="nonzero"} .

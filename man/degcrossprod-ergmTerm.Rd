@@ -8,9 +8,6 @@
 # binary: degcrossprod
 }
 \description{
-Degree Cross-Product
-}
-\details{
 This term adds one network statistic equal to the mean of the cross-products
 of the degrees of all pairs of nodes in the network which are tied.
 Only coded for undirected networks.

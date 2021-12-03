@@ -10,8 +10,7 @@
 
 #' @templateVar name coincidence
 #' @title Coincident node count for the second mode in a bipartite (aka two-mode) network
-#' @description Coincident node count for the second mode in a bipartite (aka two-mode) network
-#' @details By default this term adds one
+#' @description By default this term adds one
 #'   network statistic to the model for each pair of nodes of mode two. It is
 #'   equal to the number of (first mode) mutual partners of that pair.
 #'   The first mode of a bipartite

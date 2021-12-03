@@ -8,9 +8,6 @@
 # odegreedist
 }
 \description{
-Preserve the outdegree distribution
-}
-\details{
 Preserve the outdegree distribution of the given network.
 }
 \seealso{

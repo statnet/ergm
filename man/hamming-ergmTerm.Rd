@@ -18,9 +18,6 @@ that defines the ERGM.}
 to use for weight values when a network is specified in \code{cov}}
 }
 \description{
-Hamming distance
-}
-\details{
 This term adds one statistic to the model equal to the weighted or
 unweighted Hamming distance of the network from the network specified by
 \code{x} . Unweighted Hamming distance is defined as the total

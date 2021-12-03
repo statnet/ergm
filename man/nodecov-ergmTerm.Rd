@@ -23,9 +23,6 @@
 \item{form}{character how to aggregate tie values in a valued ERGM}
 }
 \description{
-Main effect of a covariate
-}
-\details{
 This term adds a single network statistic for each quantitative attribute or matrix column to the model equaling the sum of
 \code{attr(i)} and \code{attr(j)} for all edges \eqn{(i,j)} in the
 network. For categorical attributes, see \code{nodefactor} . Note that for

@@ -16,9 +16,6 @@ then each node's degree is tabulated only with other nodes having the same
 value of the \code{by} attribute.}
 }
 \description{
-Degree for the second mode in a bipartite (aka two-mode) network
-}
-\details{
 This term adds one network statistic to the model for
 each element in \code{d} ; the \eqn{i} th such statistic equals the number of
 nodes of degree \code{d[i]} in the second mode of a bipartite network, i.e.

@@ -12,8 +12,7 @@
 
 #' @templateVar name NodematchFilter
 #' @title Filtering on nodematch
-#' @description Filtering on nodematch
-#' @details Evaluates the terms specified in `formula` on a network
+#' @description Evaluates the terms specified in `formula` on a network
 #'   constructed by taking \eqn{y} and removing any edges for which
 #'   `attrname(i)!=attrname(j)` .
 #'

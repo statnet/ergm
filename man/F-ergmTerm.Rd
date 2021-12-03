@@ -3,7 +3,7 @@
 \name{F-ergmTerm}
 \alias{F-ergmTerm}
 \alias{InitErgmTerm.F}
-\title{Filtering on arbitrary one-term model.}
+\title{Filtering on arbitrary one-term model}
 \usage{
 # binary: F(formula, filter)
 }
@@ -25,9 +25,6 @@ For convenience, the term in specified can be a part of a simple logical or comp
 which filters on \eqn{f_{i,j}(y_{i,j}) \bigcirc 0}{f[i,j] (y[i,j]) \%OP\% 0} instead.}
 }
 \description{
-Filtering on arbitrary one-term model.
-}
-\details{
 Evaluates the given \code{formula} on a network constructed by
 taking \eqn{y} and removing any edges for which
 \eqn{f_{i,j}(y_{i,j}) = 0}{f[i,j] (y[i,j])=0} .

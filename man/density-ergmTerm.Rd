@@ -8,9 +8,6 @@
 # binary: density
 }
 \description{
-Density
-}
-\details{
 This term adds one network statistic equal to the density of the network.
 For undirected networks, \code{density} equals \code{kstar(1)} or
 \code{edges} divided by \eqn{n(n-1)/2} ; for directed networks,

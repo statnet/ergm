@@ -10,8 +10,7 @@
 
 #' @templateVar name Bernoulli
 #' @title Bernoulli reference
-#' @description Bernoulli reference
-#' @details Specifies each
+#' @description Specifies each
 #'   dyad's baseline distribution to be Bernoulli with probability of
 #'   the tie being \eqn{0.5} . This is the only reference measure used
 #'   in binary mode.
@@ -32,8 +31,7 @@ InitErgmReference.Bernoulli <- function(nw, arglist, ...){
 
 #' @templateVar name StdNormal
 #' @title Standard Normal reference
-#' @description Standard Normal reference
-#' @details Specifies each dyad's baseline distribution to be the normal distribution
+#' @description Specifies each dyad's baseline distribution to be the normal distribution
 #'   with mean 0 and variance 1.
 #'
 #' @usage
@@ -49,8 +47,7 @@ InitErgmReference.StdNormal <- function(nw, arglist, ...){
 
 #' @templateVar name Unif
 #' @title Continuous Uniform reference
-#' @description Continuous Uniform reference
-#' @details Specifies each dyad's baseline distribution to be continuous uniform
+#' @description Specifies each dyad's baseline distribution to be continuous uniform
 #'   between `a` and `b`: \eqn{h(y)=1} , with the support being `[a, b]`.
 #'
 #' @usage
@@ -71,8 +68,7 @@ InitErgmReference.Unif <- function(nw, arglist, ...){
 
 #' @templateVar name DiscUnif
 #' @title Discrete Uniform reference
-#' @description Discrete Uniform reference
-#' @details Specifies each dyad's baseline distribution to be discrete uniform
+#' @description Specifies each dyad's baseline distribution to be discrete uniform
 #'   between `a` and `b` (both inclusive): \eqn{h(y)=1} , with
 #'   the support being
 #'   `a`, `a+1`, \ldots, `b-1`, `b`.

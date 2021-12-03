@@ -18,12 +18,10 @@
 it will be recycled with indices appended. If a function is specified, \code{formulas} parameter names are extracted and their list of character vectors is passed \code{label}.}
 }
 \description{
-A product (or an arbitrary power combination) of one or more formulas
-}
-\details{
 This operator evaluates a list of formulas whose corresponnding RHS
 statistics will be multiplied elementwise. They are required to be nonnegative.
-
+}
+\details{
 If a formula has an LHS, it is interpreted as follows:
 \itemize{
 \item a numeric scalar: Network statistics of this formula will be exponentiated by this.

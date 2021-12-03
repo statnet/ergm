@@ -15,12 +15,11 @@ InitWtErgmTerm.Passthrough <- function(nw, arglist, ...){
 
 #' @templateVar name B
 #' @title Wrap binary terms for use in valued models
-#' @description Wrap binary terms for use in valued models
-#' @details Wraps binary `ergm` terms for use in valued models, with `formula` specifying which terms
+#' @description Wraps binary `ergm` terms for use in valued models, with `formula` specifying which terms
 #'   are to be wrapped and `form` specifying how they are to be
 #'   used and how the binary network they are evaluated on is to be constructed. 
 #'   
-#'   For example, `B(~nodecov("a"), form="sum")` is equivalent to
+#' @details For example, `B(~nodecov("a"), form="sum")` is equivalent to
 #'   `nodecov("a", form="sum")` and similarly with
 #'   `form="nonzero"` .
 #'   

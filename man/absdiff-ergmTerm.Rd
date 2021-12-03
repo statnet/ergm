@@ -4,7 +4,7 @@
 \alias{absdiff-ergmTerm}
 \alias{InitErgmTerm.absdiff}
 \alias{InitWtErgmTerm.absdiff}
-\title{Absolute difference}
+\title{Absolute difference in nodal attribute}
 \usage{
 # binary: absdiff(attr,
 #                 pow=1)
@@ -21,9 +21,6 @@
 \item{form}{character how to aggregate tie values in a valued ERGM}
 }
 \description{
-Absolute difference in nodal attribute.
-}
-\details{
 This term adds one network statistic to the model equaling
 the sum of \code{abs(attr[i]-attr[j])^pow} for all edges \verb{(i,j)} in
 the network.

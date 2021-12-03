@@ -15,9 +15,6 @@ it functions just like the \code{by} argument of the \code{degree} term}
 attributes and Levels (\code{\link[=nodal_attributes]{?nodal_attributes}}) for details.)}
 }
 \description{
-Concurrent tie count
-}
-\details{
 This term adds one network statistic to the model, equal to the number of
 ties incident on each actor beyond the first.
 This term can only be used with undirected networks.

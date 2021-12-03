@@ -8,9 +8,6 @@
 # binary: simmelianties
 }
 \description{
-Ties in simmelian triads
-}
-\details{
 This term adds
 one statistic to the model equal to the number of ties in the network that
 are associated with Simmelian triads, as defined by Krackhardt and Handcock

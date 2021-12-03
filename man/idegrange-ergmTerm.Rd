@@ -24,9 +24,6 @@ value of the attribute.}
 attributes and Levels (\code{\link[=nodal_attributes]{?nodal_attributes}}) for details.)}
 }
 \description{
-In-degree range
-}
-\details{
 This term adds one
 network statistic to the model for each element of \code{from} (or \code{to} ); the \eqn{i} th
 such statistic equals the number of nodes in the network of in-degree

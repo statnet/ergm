@@ -58,7 +58,7 @@ DISPLAY_LATEX_TOC_PCT_WIDTHS <- function(n_concepts) c(2.4, rep(.7, n_concepts))
       package=pkg_name,
       usages=usages,
       title=doc[tags == '\\title'] %>% unlist %>% paste(collapse='') %>% trimws(),
-      description=doc[tags == '\\details'] %>% unlist %>% paste(collapse='') %>% trimws(),
+      description=doc[tags == '\\description'] %>% unlist %>% paste(collapse='') %>% trimws(),
       details=doc %>% unlist %>% paste(collapse='') %>% trimws(),
       concepts=if (!is.null(concepts)) unique(concepts) else c(),
       keywords=c()))

@@ -6,7 +6,7 @@
 \alias{InitWtErgmTerm.nonzero}
 \alias{nonzero-ergmTerm}
 \alias{InitWtErgmTerm.edges}
-\title{Edges}
+\title{Number of edges in the network}
 \usage{
 # binary: edges
 
@@ -15,9 +15,6 @@
 # valued: edges
 }
 \description{
-Number of edges in the network.
-}
-\details{
 This term adds one network statistic equal to the number of
 edges (i.e. nonzero values) in the network. For undirected networks, \code{edges}
 is equal to \code{kstar(1)}; for directed networks, edges is equal to both

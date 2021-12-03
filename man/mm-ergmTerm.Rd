@@ -23,9 +23,6 @@ attributes and Levels (\code{\link[=nodal_attributes]{?nodal_attributes}}) for d
 \item{form}{character how to aggregate tie values in a valued ERGM}
 }
 \description{
-Mixing matrix cells and margins
-}
-\details{
 \code{attrs} is the rows of the mixing matrix and whose RHS gives
 that for its columns. A one-sided formula (e.g.,
 \code{~A} ) is symmetrized (e.g., \code{A~A} ). A two-sided formula with a dot on one side

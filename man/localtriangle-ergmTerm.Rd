@@ -14,9 +14,6 @@ are in the same neighborhood. Note that \code{triangle} , with or without an arg
 special case of \code{localtriangle} .}
 }
 \description{
-Triangles within neighborhoods
-}
-\details{
 This term adds one statistic to the model equal to the number of triangles
 in the network between nodes "close to" each other. For an undirected
 network, a local triangle is defined to be any set of three edges between

@@ -18,9 +18,6 @@ equal to the number of triangles where all three nodes have that value of the at
 attributes and Levels (\code{\link[=nodal_attributes]{?nodal_attributes}}) for details.)}
 }
 \description{
-Triangle percentage
-}
-\details{
 By default, this term adds one statistic to the model equal to 100 times the ratio of
 the number of triangles in the network to the sum of the number of triangles
 and the number of 2-stars not in triangles (the latter is considered a

@@ -8,9 +8,6 @@
 # edges
 }
 \description{
-Preserve the edge count of the given network
-}
-\details{
 Only networks
 having the same number of edges as the network passed
 in the model formula have non-zero probability.

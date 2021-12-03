@@ -4,7 +4,7 @@
 \alias{absdiffcat-ergmTerm}
 \alias{InitErgmTerm.absdiffcat}
 \alias{InitWtErgmTerm.absdiffcat}
-\title{Categorical absolute difference}
+\title{Categorical absolute difference in nodal attribute}
 \usage{
 # binary: absdiffcat(attr,
 #                 base=NULL,
@@ -26,9 +26,6 @@ attributes and Levels (\code{\link[=nodal_attributes]{?nodal_attributes}}) for d
 \item{form}{character how to aggregate tie values in a valued ERGM}
 }
 \description{
-Categorical absolute difference in nodal attribute.
-}
-\details{
 This term adds one statistic for every possible nonzero distinct
 value of \code{abs(attr[i]-attr[j])} in the network. The value of each such
 statistic is the number of edges in the network with the corresponding

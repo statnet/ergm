@@ -8,9 +8,6 @@
 # odegrees
 }
 \description{
-Preserve outdegree for directed networks
-}
-\details{
 For directed networks, preserve the outdegree of each vertex of the given
 network, while allowing indegree to vary
 }

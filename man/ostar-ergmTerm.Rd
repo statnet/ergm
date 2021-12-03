@@ -16,9 +16,6 @@
 attributes and Levels (\code{\link[=nodal_attributes]{?nodal_attributes}}) for details.)}
 }
 \description{
-k-Outstars
-}
-\details{
 This term adds one network statistic to the
 model for each element in \code{k} . The \eqn{i} th such statistic counts the
 number of distinct \code{k[i]} -outstars in the network, where a

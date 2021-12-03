@@ -8,9 +8,6 @@
 # binary: degree1.5
 }
 \description{
-Degree to the 3/2 power
-}
-\details{
 This term adds one network statistic to the model equaling the sum over
 the actors of each actor's degree taken to the 3/2 power (or,
 equivalently, multiplied by its square root). This term is an

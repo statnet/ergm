@@ -24,9 +24,6 @@ the computational burden.  Its default value can also be controlled by the
 \item{type}{one of \code{c("OTP", "ITP", "RTP", "OSP", "ISP")}.}
 }
 \description{
-Geometrically weighted edgewise shared partner distribution
-}
-\details{
 This term adds a statistic equal to the geometrically weighted edgewise (not dyadwise) shared partner distribution with decay parameter \code{decay} parameter.
 }
 \note{

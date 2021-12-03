@@ -11,9 +11,6 @@
 \item{d}{a vector of distinct integers}
 }
 \description{
-Edgewise shared partners
-}
-\details{
 This is just like the \code{dsp} term, except this term adds one network
 statistic to the model for each element in \code{d} where the \eqn{i} th such
 statistic equals the number of edges (rather than dyads) in the

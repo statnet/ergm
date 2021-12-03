@@ -18,12 +18,8 @@ end, respectively. \code{open} can also be specified as one of
 \code{"[]"} , \code{"(]"} , \code{"[)"} , and \code{"()"} .}
 }
 \description{
-Number of dyads whose values are in an interval
-}
-\details{
 Adds one statistic equaling to the number of dyads whose values
-are between \code{lower} and
-\code{upper} .
+are between \code{lower} and \code{upper} .
 }
 \seealso{
 \code{\link{ergmTerm}} for index of model terms currently visible to the package.

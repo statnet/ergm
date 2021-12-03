@@ -18,9 +18,6 @@
 \item{form}{character how to aggregate tie values in a valued ERGM}
 }
 \description{
-Sender effect
-}
-\details{
 This term adds one network statistic for each node equal to the number of
 out-ties for that node. This measures the activity of the node. The term for
 the first node is omitted by default because of linear dependence that

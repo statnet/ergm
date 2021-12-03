@@ -21,9 +21,6 @@ attributes and Levels (\code{\link[=nodal_attributes]{?nodal_attributes}}) for d
 \item{form}{character how to aggregate tie values in a valued ERGM}
 }
 \description{
-Factor attribute effect for the first mode in a bipartite (aka two-mode) network
-}
-\details{
 This term adds multiple network statistics to the model, one for each of (a subset of) the
 unique values of the \code{attr} attribute. Each of these statistics
 gives the number of times a node with that attribute in the first mode of

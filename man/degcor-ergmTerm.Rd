@@ -8,9 +8,6 @@
 # binary: degcor
 }
 \description{
-Degree Correlation
-}
-\details{
 This term adds one network statistic equal to the correlation
 of the degrees of all pairs of nodes in the network which are tied.
 Only coded for undirected networks.

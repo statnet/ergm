@@ -13,8 +13,7 @@
 
 #' @templateVar name transitiveties
 #' @title Transitive ties
-#' @description Transitive ties
-#' @details This term adds one statistic, equal to the number of ties
+#' @description This term adds one statistic, equal to the number of ties
 #'   \eqn{i\rightarrow j}{i-->j} such that there exists a two-path from
 #'   \eqn{i} to \eqn{j} . (Related to the `ttriple` term.)
 #'
@@ -81,8 +80,7 @@ InitErgmTerm.transitiveties<-function (nw, arglist, ..., version=packageVersion(
 
 #' @templateVar name cyclicalties
 #' @title Cyclical ties
-#' @description Cyclical ties
-#' @details This term adds one statistic, equal to the number of ties
+#' @description This term adds one statistic, equal to the number of ties
 #'   \eqn{i\rightarrow j}{i-->j} such that there exists a two-path from
 #'   \eqn{j} to \eqn{i} . (Related to the `ttriple` term.)
 #'

@@ -17,9 +17,6 @@ Without the optional argument, this statistic is equivalent to \code{b1mindegree
 attributes and Levels (\code{\link[=nodal_attributes]{?nodal_attributes}}) for details.)}
 }
 \description{
-Concurrent node count for the first mode in a bipartite network
-}
-\details{
 This term adds one
 network statistic to the model, equal to the number of nodes in the first
 mode of the network with degree 2 or higher. The first mode of a bipartite

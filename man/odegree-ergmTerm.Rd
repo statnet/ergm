@@ -24,9 +24,6 @@ value of the attribute.}
 attributes and Levels (\code{\link[=nodal_attributes]{?nodal_attributes}}) for details.)}
 }
 \description{
-Out-degree
-}
-\details{
 This term adds one network statistic to
 the model for each element in \code{d} ; the \eqn{i} th such statistic equals
 the number of nodes in the network of out-degree \code{d[i]} , i.e. the

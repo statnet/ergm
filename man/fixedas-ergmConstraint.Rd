@@ -11,9 +11,6 @@
 \item{present, absent}{edgelist or network}
 }
 \description{
-Preserve and preclude edges
-}
-\details{
 Preserve the edges in 'present' and preclude the edges in 'absent'.
 }
 \seealso{

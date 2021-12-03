@@ -24,9 +24,6 @@ the computational burden.  Its default value can also be controlled by the
 \item{type}{one of \code{c("OTP", "ITP", "RTP", "OSP", "ISP")}}
 }
 \description{
-Geometrically weighted dyadwise shared partner distribution
-}
-\details{
 This term adds one network statistic to the model equal to the geometrically weighted dyadwise shared partner distribution with decay parameter \code{decay} parameter.
 }
 \note{

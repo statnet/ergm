@@ -8,9 +8,6 @@
 # Bernoulli
 }
 \description{
-Bernoulli reference
-}
-\details{
 Specifies each
 dyad's baseline distribution to be Bernoulli with probability of
 the tie being \eqn{0.5} . This is the only reference measure used

@@ -8,9 +8,6 @@
 # binary: balance
 }
 \description{
-Balanced triads
-}
-\details{
 This term adds one network statistic to the model equal to the number of
 triads in the network that are balanced. The balanced triads are those of
 type \code{102} or \code{300} in the categorization of Davis and Leinhardt (1972). For details on the 16 possible triad types, see
