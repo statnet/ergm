@@ -89,8 +89,9 @@ SEXP MPLE_wrapper(SEXP stateR,
   unsigned int i = 0;
   kh_foreach(covfreq, k, v, {
       memcpy(x + i*nstats, k, nstats*sizeof(double));
-      y[i*2u] = v.nonedges;
-      y[i*2u+1] = v.edges;
+      // R's glm() expects (successes,failures)
+      y[i*2u+1] = v.nonedges;
+      y[i*2u] = v.edges;
       i++;
     });
 
