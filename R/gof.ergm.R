@@ -257,7 +257,7 @@ gof.formula <- function(object, ...,
   }
 
   if(is.bipartite(nw)){
-    nb1 <- nw %v% "bipratite"
+    nb1 <- nw %n% "bipartite"
     nb2 <- n-nb1
   }else{
     nb1 <- nb2 <- n
