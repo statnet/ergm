@@ -291,7 +291,7 @@ gof.formula <- function(object, ...,
     obsname <- paste("obs", gv, sep=".")
 
     obs <- if(!network.naedgecount(nw) | !unconditional) calc(nw)
-           else SimCond[[obs]]
+           else colMeans(SimCond[[simname]])
     assign(obsname, obs, parent.frame())
 
     sim <- array(0,
