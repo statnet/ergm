@@ -349,7 +349,7 @@
 #' Prototype Packages for Managing and Animating Longitudinal
 #' Network Data: \pkg{dynamicnetwork} and \pkg{rSoNIA}.
 #' \emph{Journal of Statistical Software}, 24(7).
-#' \url{https://www.jstatsoft.org/v24/i07/}.
+#' \doi{10.18637/jss.v024.i07}
 #' 
 #' 
 #' Butts CT (2007).
