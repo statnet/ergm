@@ -359,7 +359,7 @@
 #' Butts CT (2008).
 #' \pkg{network}: A Package for Managing Relational Data in \R.
 #' \emph{Journal of Statistical Software}, 24(2).
-#' \url{https://www.jstatsoft.org/v24/i02/}.
+#' \doi{10.18637/jss.v024.i02}
 #' 
 #' Butts C (2015).
 #' \pkg{network}: The Statnet Project (https://statnet.org). R package version 1.12.0, \url{https://cran.r-project.org/package=network}.
