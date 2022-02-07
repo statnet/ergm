@@ -96,6 +96,7 @@ control.ergm(
   obs.MCMLE.samplesize = NULL,
   obs.MCMLE.interval = round(MCMLE.interval * obs.MCMC.interval.mul),
   obs.MCMLE.burnin = round(MCMLE.burnin * obs.MCMC.burnin.mul),
+  MCMLE.steplength.solver = c("glpk", "lpsolve"),
   MCMLE.last.boost = 4,
   MCMLE.steplength.esteq = TRUE,
   MCMLE.steplength.miss.sample = function(x1) ceiling(sqrt(ncol(rbind(x1)))),
@@ -149,6 +150,7 @@ control.ergm(
   CD.steplength.miss.sample = function(x1) ceiling(sqrt(ncol(rbind(x1)))),
   CD.steplength.min = 1e-04,
   CD.steplength.parallel = c("observational", "always", "never"),
+  CD.steplength.solver = c("glpk", "lpsolve"),
   loglik = control.logLik.ergm(),
   term.options = NULL,
   seed = NULL,
@@ -533,6 +535,15 @@ function of the number of (curved) parameters in the model, and
 \code{MCMLE.samplesize.min} sets the minimum sample size regardless of
 their number.}
 
+\item{MCMLE.steplength.solver}{The linear program solver to use for
+MCMLE step length calculation. Can be either \code{"glpk"} to use
+\CRANpkg{Rglpk} or \code{"lpsolve"} to use \CRANpkg{lpSolveAPI}.
+\CRANpkg{Rglpk} can be orders of magnitude faster, particularly
+for models with many parameters and with large sample sizes, so
+it is used where available; but it requires an external library
+to install under some operating systems, so fallback to
+\CRANpkg{lpSolveAPI} provided.}
+
 \item{MCMLE.last.boost}{For the Hummel termination criterion, increase the
 MCMC sample size of the last iteration by this factor.}
 
@@ -599,7 +610,7 @@ optimization chooses a step length equal to the largest possible multiple of
 \item{Step.burnin, Step.interval, Step.samplesize}{Sets the corresponding
 \verb{MCMC.*} parameters when \code{main.method="Stepping"}.}
 
-\item{CD.samplesize.per_theta, obs.CD.samplesize.per_theta, CD.maxit, CD.conv.min.pval, CD.NR.maxit, CD.NR.reltol, CD.metric, CD.method, CD.dampening, CD.dampening.min.ess, CD.dampening.level, CD.steplength.margin, CD.steplength, CD.steplength.parallel, CD.adaptive.epsilon, CD.steplength.esteq, CD.steplength.miss.sample, CD.steplength.min}{Miscellaneous tuning parameters of the CD sampler and
+\item{CD.samplesize.per_theta, obs.CD.samplesize.per_theta, CD.maxit, CD.conv.min.pval, CD.NR.maxit, CD.NR.reltol, CD.metric, CD.method, CD.dampening, CD.dampening.min.ess, CD.dampening.level, CD.steplength.margin, CD.steplength, CD.steplength.parallel, CD.adaptive.epsilon, CD.steplength.esteq, CD.steplength.miss.sample, CD.steplength.min, CD.steplength.solver}{Miscellaneous tuning parameters of the CD sampler and
 optimizer. These have the same meaning as their \verb{MCMLE.*} and
 \verb{MCMC.*} counterparts.
 
