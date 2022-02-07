@@ -7,37 +7,12 @@
 #
 #  Copyright 2003-2021 Statnet Commons
 ################################################################################
-############################################################################
-# The <ergm.stepping> function provides one of the styles of maximum
-# likelihood estimation that can be used. This one is attributed to ?? and
-# uses ?? approach. The other  MLE styles are found in functions <ergm.robmon>
-# <ergm.stocapprox> and <ergm.mainfitloop>
-#
-# --PARAMETERS--
-#   init         : the initial theta values
-#   nw             : the network
-#   model          : the model, as returned by <ergm_model>
-#   initialfit     : an ergm object, as the initial fit
-#   control     : a list of parameters for controlling the MCMC sampling
-#   proposal     : an proposal object for 'nw', as returned by
-#                    <proposal>
-#   proposal.obs: an proposal object for the observed network of'nw',
-#                    as returned by <proposal>
-#   verbose        : whether the MCMC sampling should be verbose AND
-#                    the diagnostic plots should be printed ; default=FALSE
-#   ...            : additional paramters that are passed onto
-#                    <ergm.estimate> and <simulate.formula>
-#
-# --RETURNED--
-#   v: an ergm object as a list containing several items; for details see
-#      the return list in the <ergm> function header (<ergm.stepping>=@)
-#
-###########################################################################      
 
 ergm.stepping = function(init, nw, model, initialfit, constraints,
                          control, proposal, proposal.obs, 
                          verbose=FALSE, ...){
 
+  .Deprecate_once(msg="All improvements introduced by the Stepping algorithm have been integrated into the much more flexible MCMLE implementation, so ergm.stepping() is deprecated and will be removed in a future version.")
   control <- remap_algorithm_MCMC_controls(control, "Step")
 
   #   preliminary, to set up structure. 

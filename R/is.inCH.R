@@ -51,6 +51,11 @@
 #' program.
 #' 
 #' This function is used in the "stepping" algorithm of Hummel et al (2012).
+#'
+#' @note [is.inCH()] has been deprecated in favour of
+#'   [shrink_into_CH()], which returns the optimal step length instead
+#'   of a yes-or-no test. In general, `shrink_into_CH(...)>=1` is
+#'   equivalent to `is.inCH(...).
 #' 
 #' @param p A \eqn{d}-dimensional vector or a matrix with \eqn{d} columns
 #' @param M An \eqn{n} by \eqn{d} matrix.  Each row of \code{M} is a
@@ -69,6 +74,8 @@
 #' @keywords internal
 #' @export is.inCH
 is.inCH <- function(p, M, verbose=FALSE, ...) { # Pass extra arguments directly to LP solver
+  .Deprecate_once("shrink_into_CH()")
+
   verbose <- max(0, min(verbose, 4))
 
   if(is.null(dim(p))) p <- rbind(p)

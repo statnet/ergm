@@ -72,6 +72,12 @@ This function is used in the "stepping" algorithm of Hummel et al (2012).
 \item \code{shrink_into_CH}: Shrink points p towards m until all are in the convex hull of M.
 }}
 
+\note{
+\code{\link[=is.inCH]{is.inCH()}} has been deprecated in favour of
+\code{\link[=shrink_into_CH]{shrink_into_CH()}}, which returns the optimal step length instead
+of a yes-or-no test. In general, \code{shrink_into_CH(...)>=1} is
+equivalent to `is.inCH(...).
+}
 \references{
 \itemize{ \item
 \url{https://www.cs.mcgill.ca/~fukuda/soft/polyfaq/node22.html}

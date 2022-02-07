@@ -216,7 +216,7 @@ being fit. See Handcock (2000) and Hunter and Handcock (2006) for details.
 
 Note that in recent versions of ERGM, the enhancements of \code{Stepping}
 have been folded into the default \code{MCMLE}, which is able to handle more
-modeling scenarios.}
+modeling scenarios; and \code{Stepping} may be removed in a future version.}
 
 \item{force.main}{Logical: If TRUE, then force MCMC-based estimation method,
 even if the exact MLE can be computed via maximum pseudolikelihood
