@@ -189,6 +189,9 @@ shrink_into_CH <- function(p, M, m = NULL, verbose=FALSE, ..., solver = c("glpk"
     # By default, z are bounded >= 0. We need to remove these bounds.
     set.bounds(lprec, lower=lb)
     lp.control(lprec, verbose=c("important","important","important","normal","detailed")[min(max(verbose+1,0),5)], ...)
+  }else{
+    # Rglpk prefers this format.
+    M <- slam::as.simple_triplet_matrix(M)
   }
 
   if (verbose >= 2) message("Iterating over ", np, " test points.")
@@ -202,7 +205,7 @@ shrink_into_CH <- function(p, M, m = NULL, verbose=FALSE, ..., solver = c("glpk"
       solve(lprec)
       o <- get.objective(lprec)
     }else{
-      o <- Rglpk::Rglpk_solve_LP(x, M, dir, rhs, list(lower=list(ind=seq_len(d), val=lb)), control=list(..., verbose=verbose))$optimum
+      o <- Rglpk::Rglpk_solve_LP(x, M, dir, rhs, list(lower=list(ind=seq_len(d), val=lb)), control=list(..., verbose=max(0,verbose-3)))$optimum
     }
 
     g <- min(g, -1/o)
