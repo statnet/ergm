@@ -349,7 +349,7 @@
 #' Prototype Packages for Managing and Animating Longitudinal
 #' Network Data: \pkg{dynamicnetwork} and \pkg{rSoNIA}.
 #' \emph{Journal of Statistical Software}, 24(7).
-#' \url{https://www.jstatsoft.org/v24/i07/}.
+#' \doi{10.18637/jss.v024.i07}.
 #' 
 #' 
 #' Butts CT (2007).
@@ -359,7 +359,7 @@
 #' Butts CT (2008).
 #' \pkg{network}: A Package for Managing Relational Data in \R.
 #' \emph{Journal of Statistical Software}, 24(2).
-#' \url{https://www.jstatsoft.org/v24/i02/}.
+#' \doi{10.18637/jss.v024.i02}.
 #' 
 #' Butts C (2015).
 #' \pkg{network}: The Statnet Project (https://statnet.org). R package version 1.12.0, \url{https://cran.r-project.org/package=network}.
@@ -367,7 +367,7 @@
 #' Goodreau SM, Handcock MS, Hunter DR, Butts CT, Morris M (2008a).
 #' A \pkg{statnet} Tutorial.
 #' \emph{Journal of Statistical Software}, 24(8).
-#' \url{https://www.jstatsoft.org/v24/i08/}.
+#' \doi{10.18637/jss.v024.i08}.
 #' 
 #' Goodreau SM, Kitts J, Morris M (2008b).
 #' Birds of a Feather, or Friend of a Friend? Using Exponential
@@ -409,7 +409,7 @@
 #' \pkg{ergm}: A Package to Fit, Simulate and Diagnose
 #' Exponential-Family Models for Networks.
 #' \emph{Journal of Statistical Software}, 24(3).
-#' \url{https://www.jstatsoft.org/v24/i03/}.
+#' \doi{10.18637/jss.v024.i03}.
 #'
 #' Karwa V, Krivitsky PN, and Slavkovi\'{c} AB (2017). Sharing Social Network
 #' Data: Differentially Private Estimation of Exponential-Family Random
@@ -424,7 +424,7 @@
 #' Specification of Exponential-Family Random Graph Models:
 #' Terms and Computational Aspects.
 #' \emph{Journal of Statistical Software}, 24(4).
-#' \url{https://www.jstatsoft.org/v24/i04/}.
+#' \doi{10.18637/jss.v024.i04}.
 #' 
 #' Snijders, T.A.B. (2002),
 #' Markov Chain Monte Carlo Estimation of Exponential Random Graph Models.
