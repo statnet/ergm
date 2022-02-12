@@ -222,7 +222,7 @@ ergm_MCMC_sample <- function(state, control, theta=NULL,
       }
       burnin.pval <- best.burnin$pval
       if(is.na(burnin.pval) | burnin.pval <= control$MCMC.effectiveSize.burnin.pval){
-        if(verbose>1) message("Selected burn-in p-value = ", burnin.pval, " is below the threshold of ",control$MCMC.effectiveSize.burnin.pval,".")
+        if(verbose>1) message("Selected burn-in ", format(start(esteq)+best.burnin$burnin*thin(esteq), digits=2, scientific=TRUE)," p-value = ", burnin.pval, " is below the threshold of ",control$MCMC.effectiveSize.burnin.pval,".")
         next
       }
       postburnin.mcmc <- window(esteq, start=start(esteq)+best.burnin$burnin*thin(esteq))
@@ -351,7 +351,6 @@ ergm_MCMC_slave <- function(state, eta,control,verbose,..., burnin=NULL, samples
     # b is basically the number of steps corresponding to halving of
     # the difference in the expected value of the variable at the
     # current MCMC draw from the ultimate expected value.
-    b <- round(b)
     a <- lm(s ~ 1 + I(2^(-seq_len(n)/b)))
     sum(sigma(a)^2)
   }
