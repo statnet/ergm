@@ -215,14 +215,14 @@ ergm_MCMC_sample <- function(state, control, theta=NULL,
             ,ask=FALSE,smooth=TRUE,density=FALSE)
       }
 
-      best.burnin <- .find_OK_burnin(esteq, order.max=control$MCMC.effectiveSize.order.max)
+      best.burnin <- .find_OK_burnin(esteq, control)
       if(is.na(best.burnin$burnin)){
         if(verbose>1) message("Can not compute a valid burn-in. Setting burn-in to",interval,".")
         best.burnin$burnin <- interval
       }
       burnin.pval <- best.burnin$pval
       if(is.na(burnin.pval) | burnin.pval <= control$MCMC.effectiveSize.burnin.pval){
-        if(verbose>1) message("Selected burn-in ", format(start(esteq)+best.burnin$burnin*thin(esteq), digits=2, scientific=TRUE)," p-value = ", burnin.pval, " is below the threshold of ",control$MCMC.effectiveSize.burnin.pval,".")
+        if(verbose>1) message("Selected burn-in ", format(start(esteq)+best.burnin$burnin*thin(esteq), digits=2, scientific=TRUE), " (",round(best.burnin$burnin/niter(esteq)*100,2),"%) p-value = ", burnin.pval, " is below the threshold of ",control$MCMC.effectiveSize.burnin.pval,".")
         next
       }
       postburnin.mcmc <- window(esteq, start=start(esteq)+best.burnin$burnin*thin(esteq))
@@ -345,8 +345,15 @@ ergm_MCMC_slave <- function(state, eta,control,verbose,..., burnin=NULL, samples
 }
 
 
-.find_OK_burnin <- function(x, ...){
-  n <- nrow(x[[1]])
+.find_OK_burnin <- function(x, control){
+  if(niter(x) < control$MCMC.effectiveSize.burnin.nmin) warning("The per-thread sample size for estimating burn-in is very small. This should probably be fixed in the calling function.")
+
+  if((pc <- control$MCMC.effectiveSize.burnin.PC)>0 && pc<nvar(x)){
+    v <- svd(scale(as.matrix(x)), nu=0, nv=pc)$v
+    x <- lapply.mcmc.list(x, `%*%`, v)
+  }
+
+  n <- niter(x)
   ssr <- function(b, s){
     # b is basically the number of steps corresponding to halving of
     # the difference in the expected value of the variable at the
@@ -356,7 +363,10 @@ ergm_MCMC_slave <- function(state, eta,control,verbose,..., burnin=NULL, samples
   }
   geweke <- function(b){
     if(b>0) x <- window(x, start=start(x) + b * thin(x))
-    p.val <- suppressWarnings(geweke.diag.mv(x, ...)$p.value)
+    if(niter(x)*nchain(x) > (nmax <- control$MCMC.effectiveSize.burnin.nmax))
+    x <- lapply.mcmc.list(x, `[`, round(seq(from=1,to=niter(x),length.out=round(nmax/nchain(x)))), , drop=FALSE)
+
+    p.val <- suppressWarnings(geweke.diag.mv(x, order.max=control$MCMC.effectiveSize.order.max)$p.value)
     if(is.na(p.val)) 0 else p.val
   }
 
@@ -366,7 +376,11 @@ ergm_MCMC_slave <- function(state, eta,control,verbose,..., burnin=NULL, samples
 
   bscl <- 10 # I.e., reduce error to about 1/2^10 of the initial value.
 
-  best <- sapply(xs, function(x) optimize(ssr, c(0, n/bscl/4), s=x)$minimum)
+  best <- sapply(xs, function(x) optimize(ssr, c(n/bscl*control$MCMC.effectiveSize.burnin.min, n/bscl*control$MCMC.effectiveSize.burnin.max), s=x)$minimum)
+  bestssr <- mapply(ssr, b=best, s=xs)
+  nullssr <- sapply(xs, function(x) ssr(Inf, s=x))
+  best <- ifelse(bestssr/nullssr > control$MCMC.effectiveSize.burnin.SSRR,
+                 n/bscl*control$MCMC.effectiveSize.burnin.min, best)
   if(all(is.na(best) | is.infinite(best))) return(FAIL)
 
   best <- max(best, na.rm=TRUE) * bscl

@@ -18,6 +18,12 @@ control.simulate.formula.ergm(
   MCMC.effectiveSize.damp = 10,
   MCMC.effectiveSize.maxruns = 1000,
   MCMC.effectiveSize.burnin.pval = 0.2,
+  MCMC.effectiveSize.burnin.min = 0.05,
+  MCMC.effectiveSize.burnin.max = 0.5,
+  MCMC.effectiveSize.burnin.nmin = 16,
+  MCMC.effectiveSize.burnin.nmax = 128,
+  MCMC.effectiveSize.burnin.SSRR = 0.9,
+  MCMC.effectiveSize.burnin.PC = FALSE,
   MCMC.effectiveSize.order.max = NULL,
   MCMC.maxedges = Inf,
   MCMC.packagenames = c(),
@@ -42,6 +48,12 @@ control.simulate(
   MCMC.effectiveSize.damp = 10,
   MCMC.effectiveSize.maxruns = 1000,
   MCMC.effectiveSize.burnin.pval = 0.2,
+  MCMC.effectiveSize.burnin.min = 0.05,
+  MCMC.effectiveSize.burnin.max = 0.5,
+  MCMC.effectiveSize.burnin.nmin = 16,
+  MCMC.effectiveSize.burnin.nmax = 128,
+  MCMC.effectiveSize.burnin.SSRR = 0.9,
+  MCMC.effectiveSize.burnin.PC = FALSE,
   MCMC.effectiveSize.order.max = NULL,
   MCMC.maxedges = Inf,
   MCMC.packagenames = c(),
@@ -66,6 +78,12 @@ control.simulate.formula(
   MCMC.effectiveSize.damp = 10,
   MCMC.effectiveSize.maxruns = 1000,
   MCMC.effectiveSize.burnin.pval = 0.2,
+  MCMC.effectiveSize.burnin.min = 0.05,
+  MCMC.effectiveSize.burnin.max = 0.5,
+  MCMC.effectiveSize.burnin.nmin = 16,
+  MCMC.effectiveSize.burnin.nmax = 128,
+  MCMC.effectiveSize.burnin.SSRR = 0.9,
+  MCMC.effectiveSize.burnin.PC = FALSE,
   MCMC.effectiveSize.order.max = NULL,
   MCMC.maxedges = Inf,
   MCMC.packagenames = c(),
@@ -91,6 +109,12 @@ control.simulate.ergm(
   MCMC.effectiveSize.damp = 10,
   MCMC.effectiveSize.maxruns = 1000,
   MCMC.effectiveSize.burnin.pval = 0.2,
+  MCMC.effectiveSize.burnin.min = 0.05,
+  MCMC.effectiveSize.burnin.max = 0.5,
+  MCMC.effectiveSize.burnin.nmin = 16,
+  MCMC.effectiveSize.burnin.nmax = 128,
+  MCMC.effectiveSize.burnin.SSRR = 0.9,
+  MCMC.effectiveSize.burnin.PC = FALSE,
   MCMC.effectiveSize.order.max = NULL,
   MCMC.maxedges = Inf,
   MCMC.packagenames = NULL,
@@ -136,22 +160,39 @@ networks per call to the lower-level code; this can be useful if
 \verb{output=} is a function, where it can be used to limit the number
 of networks held in memory at any given time.}
 
-\item{MCMC.effectiveSize, MCMC.effectiveSize.damp, MCMC.effectiveSize.maxruns, MCMC.effectiveSize.burnin.pval, MCMC.effectiveSize.order.max}{Set \code{MCMC.effectiveSize} to a non-NULL value to adaptively
+\item{MCMC.effectiveSize, MCMC.effectiveSize.damp, MCMC.effectiveSize.maxruns, MCMC.effectiveSize.burnin.pval, MCMC.effectiveSize.burnin.min, MCMC.effectiveSize.burnin.max, MCMC.effectiveSize.burnin.nmin, MCMC.effectiveSize.burnin.nmax, MCMC.effectiveSize.burnin.SSRR, MCMC.effectiveSize.burnin.PC, MCMC.effectiveSize.order.max}{Set \code{MCMC.effectiveSize} to a non-NULL value to adaptively
 determine the burn-in and the MCMC length needed to get the
 specified effective size; 50 is a reasonable value. In the
 adaptive MCMC mode, MCMC is run forward repeatedly
 (\code{MCMC.samplesize*MCMC.interval} steps, up to
 \code{MCMC.effectiveSize.maxruns} times) until the target effective
-sample size is reached or exceeded. After each run, the returned
-statistics are mapped to the estimating function scale, then a
-broken stick model is fit to each statistic to find the candidate
-burn-in. If its Geweke diagnostic produces a \eqn{p}-value higher
-than \code{MCMC.effectiveSize.burnin.pval}, it is accepted. The
-effective size of the post-burn-in sample is computed via Vats,
-Flegal, and Jones (2015), and compared to the target effective
-size. If it is not matched, the MCMC run is resumed, with the
-additional draws needed linearly extrapolated but weighted in
-favor of the baseline \code{MCMC.samplesize} by the weighting factor
+sample size is reached or exceeded.
+
+After each run, the returned statistics are mapped to the
+estimating function scale, then an exponential decay model is fit
+to the scaled statistics to find the candidate burn-in, bounded
+by \code{MCMC.effectiveSize.min} and \code{MCMC.effectiveSize.max} as
+proportions of sample size. If the ratio between the best-fitting
+decay sum of squared residuals and that of the sum of squared
+residuals without burn-in is greater than
+\code{MCMC.effectiveSize.burnin.SSRR}, the exponential model is
+considered to be unsuitable and \code{MCMC.effectiveSize.min} is used.
+
+A Geweke diagnostic is then run, after thinning the sample to
+\code{MCMC.effectiveSize.burnin.nmax}. If this Geweke diagnostic
+produces a \eqn{p}-value higher than
+\code{MCMC.effectiveSize.burnin.pval}, it is accepted.
+
+If \code{MCMC.effectiveSize.burnin.PC>0}, instead of using the full
+sample for burn-in estimation, at most this many principal
+components are used instead.
+
+The effective
+size of the post-burn-in sample is computed via Vats, Flegal, and
+Jones (2015), and compared to the target effective size. If it is
+not matched, the MCMC run is resumed, with the additional draws
+needed linearly extrapolated but weighted in favor of the
+baseline \code{MCMC.samplesize} by the weighting factor
 \code{MCMC.effectiveSize.damp} (higher = less damping). Lastly, if
 after an MCMC run, the number of samples equals or exceeds
 \code{2*MCMC.samplesize}, the chain will be thinned by 2 until it
