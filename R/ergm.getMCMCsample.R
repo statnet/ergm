@@ -355,10 +355,18 @@ ergm_MCMC_slave <- function(state, eta,control,verbose,..., burnin=NULL, samples
 
   n <- niter(x)
   ssr <- function(b, s){
+    x <- 2^(-seq_len(n)/b)
+    if(is.list(s)){
+      y <- do.call(rbind, s)
+      x <- rep(x, length(s))
+    }else{
+      y <- s
+      x <- x
+    }
     # b is basically the number of steps corresponding to halving of
     # the difference in the expected value of the variable at the
     # current MCMC draw from the ultimate expected value.
-    a <- lm(s ~ 1 + I(2^(-seq_len(n)/b)))
+    a <- lm(y ~ x)
     sum(sigma(a)^2)
   }
   geweke <- function(b){
@@ -371,14 +379,25 @@ ergm_MCMC_slave <- function(state, eta,control,verbose,..., burnin=NULL, samples
   }
 
   FAIL <- list(burnin=round(n/2), pval=0)
-  xs <- x %>% map(scale) %>% map(~.[,attr(.,"scaled:scale")>0,drop=FALSE]) %>% discard(~ncol(.)==0)
+  xs <-
+    if(control$MCMC.effectiveSize.burnin.pool) as.matrix(x) %>% scale %>% `[`(,attr(.,"scaled:scale")>0,drop=FALSE) %>% split(rep(seq_along(x), each=n))
+    else x %>% map(scale) %>% map(~.[,attr(.,"scaled:scale")>0,drop=FALSE]) %>% discard(~ncol(.)==0)
+
   if(length(xs)==0) return(FAIL)
 
-  bscl <- 10 # I.e., reduce error to about 1/2^10 of the initial value.
+  bscl <- log2(control$MCMC.effectiveSize.burnin.scl) # I.e., how far to take the exponential decay.
 
-  best <- sapply(xs, function(x) optimize(ssr, c(n/bscl*control$MCMC.effectiveSize.burnin.min, n/bscl*control$MCMC.effectiveSize.burnin.max), s=x)$minimum)
-  bestssr <- mapply(ssr, b=best, s=xs)
-  nullssr <- sapply(xs, function(x) ssr(Inf, s=x))
+  brange <- n/bscl*c(control$MCMC.effectiveSize.burnin.min, control$MCMC.effectiveSize.burnin.max)
+  if(control$MCMC.effectiveSize.burnin.pool){
+    best <- optimize(ssr, brange, s=xs)$minimum
+    bestssr <- ssr(best, xs)
+    nullssr <- ssr(Inf, xs)
+  }else{
+    best <- sapply(xs, function(x) optimize(ssr, brange, s=x)$minimum)
+    bestssr <- mapply(ssr, b=best, s=xs)
+    nullssr <- sapply(xs, function(x) ssr(Inf, s=x))
+  }
+
   best <- ifelse(bestssr/nullssr > control$MCMC.effectiveSize.burnin.SSRR,
                  n/bscl*control$MCMC.effectiveSize.burnin.min, best)
   if(all(is.na(best) | is.infinite(best))) return(FAIL)

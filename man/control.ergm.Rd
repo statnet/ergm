@@ -37,6 +37,8 @@ control.ergm(
   MCMC.effectiveSize.burnin.nmax = 128,
   MCMC.effectiveSize.burnin.SSRR = 0.9,
   MCMC.effectiveSize.burnin.PC = FALSE,
+  MCMC.effectiveSize.burnin.scl = 1024,
+  MCMC.effectiveSize.burnin.pool = FALSE,
   MCMC.effectiveSize.order.max = NULL,
   MCMC.return.stats = TRUE,
   MCMC.runtime.traceplot = FALSE,
@@ -330,7 +332,7 @@ Metropolis-Hastings algorithm.  Increasing sample size may increase the
 precision in the estimates by reducing MCMC error, at the expense of time.
 Set it higher for larger networks, or when using parallel functionality.}
 
-\item{MCMC.effectiveSize, MCMC.effectiveSize.damp, MCMC.effectiveSize.maxruns, MCMC.effectiveSize.burnin.pval, MCMC.effectiveSize.burnin.min, MCMC.effectiveSize.burnin.max, MCMC.effectiveSize.burnin.nmin, MCMC.effectiveSize.burnin.nmax, MCMC.effectiveSize.burnin.SSRR, MCMC.effectiveSize.burnin.PC, MCMC.effectiveSize.order.max}{Set \code{MCMC.effectiveSize} to a non-NULL value to adaptively
+\item{MCMC.effectiveSize, MCMC.effectiveSize.damp, MCMC.effectiveSize.maxruns, MCMC.effectiveSize.burnin.pval, MCMC.effectiveSize.burnin.min, MCMC.effectiveSize.burnin.max, MCMC.effectiveSize.burnin.nmin, MCMC.effectiveSize.burnin.nmax, MCMC.effectiveSize.burnin.SSRR, MCMC.effectiveSize.burnin.PC, MCMC.effectiveSize.burnin.scl, MCMC.effectiveSize.burnin.pool, MCMC.effectiveSize.order.max}{Set \code{MCMC.effectiveSize} to a non-NULL value to adaptively
 determine the burn-in and the MCMC length needed to get the
 specified effective size; 50 is a reasonable value. In the
 adaptive MCMC mode, MCMC is run forward repeatedly
@@ -340,12 +342,14 @@ sample size is reached or exceeded.
 
 After each run, the returned statistics are mapped to the
 estimating function scale, then an exponential decay model is fit
-to the scaled statistics to find the candidate burn-in, bounded
-by \code{MCMC.effectiveSize.min} and \code{MCMC.effectiveSize.max} as
-proportions of sample size. If the ratio between the best-fitting
-decay sum of squared residuals and that of the sum of squared
-residuals without burn-in is greater than
-\code{MCMC.effectiveSize.burnin.SSRR}, the exponential model is
+to the scaled statistics to find that burn-in which would reduce
+the difference between the initial values of statistics and their
+equilibrium values by a factor of \code{MCMC.effectiveSize.burnin.scl}
+of what it initially was, bounded by \code{MCMC.effectiveSize.min} and
+\code{MCMC.effectiveSize.max} as proportions of sample size. If the
+ratio between the best-fitting decay sum of squared residuals and
+that of the sum of squared residuals without burn-in is greater
+than \code{MCMC.effectiveSize.burnin.SSRR}, the exponential model is
 considered to be unsuitable and \code{MCMC.effectiveSize.min} is used.
 
 A Geweke diagnostic is then run, after thinning the sample to
@@ -355,7 +359,10 @@ produces a \eqn{p}-value higher than
 
 If \code{MCMC.effectiveSize.burnin.PC>0}, instead of using the full
 sample for burn-in estimation, at most this many principal
-components are used instead.
+components are used instead. If \code{MCMC.effectiveSize.burnin.pool}
+is \code{TRUE}, the exponential decay model is estimated on all MCMC
+samples put together; otherwise each individually, then the
+highest valid one is taken.
 
 The effective
 size of the post-burn-in sample is computed via Vats, Flegal, and
