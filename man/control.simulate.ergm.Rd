@@ -22,7 +22,6 @@ control.simulate.formula.ergm(
   MCMC.effectiveSize.burnin.max = 0.5,
   MCMC.effectiveSize.burnin.nmin = 16,
   MCMC.effectiveSize.burnin.nmax = 128,
-  MCMC.effectiveSize.burnin.SSRR = 0.9,
   MCMC.effectiveSize.burnin.PC = FALSE,
   MCMC.effectiveSize.burnin.scl = 1024,
   MCMC.effectiveSize.burnin.pool = FALSE,
@@ -54,7 +53,6 @@ control.simulate(
   MCMC.effectiveSize.burnin.max = 0.5,
   MCMC.effectiveSize.burnin.nmin = 16,
   MCMC.effectiveSize.burnin.nmax = 128,
-  MCMC.effectiveSize.burnin.SSRR = 0.9,
   MCMC.effectiveSize.burnin.PC = FALSE,
   MCMC.effectiveSize.burnin.scl = 1024,
   MCMC.effectiveSize.burnin.pool = FALSE,
@@ -86,7 +84,6 @@ control.simulate.formula(
   MCMC.effectiveSize.burnin.max = 0.5,
   MCMC.effectiveSize.burnin.nmin = 16,
   MCMC.effectiveSize.burnin.nmax = 128,
-  MCMC.effectiveSize.burnin.SSRR = 0.9,
   MCMC.effectiveSize.burnin.PC = FALSE,
   MCMC.effectiveSize.burnin.scl = 1024,
   MCMC.effectiveSize.burnin.pool = FALSE,
@@ -119,7 +116,6 @@ control.simulate.ergm(
   MCMC.effectiveSize.burnin.max = 0.5,
   MCMC.effectiveSize.burnin.nmin = 16,
   MCMC.effectiveSize.burnin.nmax = 128,
-  MCMC.effectiveSize.burnin.SSRR = 0.9,
   MCMC.effectiveSize.burnin.PC = FALSE,
   MCMC.effectiveSize.burnin.scl = 1024,
   MCMC.effectiveSize.burnin.pool = FALSE,
@@ -168,7 +164,7 @@ networks per call to the lower-level code; this can be useful if
 \verb{output=} is a function, where it can be used to limit the number
 of networks held in memory at any given time.}
 
-\item{MCMC.effectiveSize, MCMC.effectiveSize.damp, MCMC.effectiveSize.maxruns, MCMC.effectiveSize.burnin.pval, MCMC.effectiveSize.burnin.min, MCMC.effectiveSize.burnin.max, MCMC.effectiveSize.burnin.nmin, MCMC.effectiveSize.burnin.nmax, MCMC.effectiveSize.burnin.SSRR, MCMC.effectiveSize.burnin.PC, MCMC.effectiveSize.burnin.scl, MCMC.effectiveSize.burnin.pool, MCMC.effectiveSize.order.max}{Set \code{MCMC.effectiveSize} to a non-NULL value to adaptively
+\item{MCMC.effectiveSize, MCMC.effectiveSize.damp, MCMC.effectiveSize.maxruns, MCMC.effectiveSize.burnin.pval, MCMC.effectiveSize.burnin.min, MCMC.effectiveSize.burnin.max, MCMC.effectiveSize.burnin.nmin, MCMC.effectiveSize.burnin.nmax, MCMC.effectiveSize.burnin.PC, MCMC.effectiveSize.burnin.scl, MCMC.effectiveSize.burnin.pool, MCMC.effectiveSize.order.max}{Set \code{MCMC.effectiveSize} to a non-NULL value to adaptively
 determine the burn-in and the MCMC length needed to get the
 specified effective size; 50 is a reasonable value. In the
 adaptive MCMC mode, MCMC is run forward repeatedly
@@ -183,10 +179,9 @@ the difference between the initial values of statistics and their
 equilibrium values by a factor of \code{MCMC.effectiveSize.burnin.scl}
 of what it initially was, bounded by \code{MCMC.effectiveSize.min} and
 \code{MCMC.effectiveSize.max} as proportions of sample size. If the
-ratio between the best-fitting decay sum of squared residuals and
-that of the sum of squared residuals without burn-in is greater
-than \code{MCMC.effectiveSize.burnin.SSRR}, the exponential model is
-considered to be unsuitable and \code{MCMC.effectiveSize.min} is used.
+best-fitting decay exceeds \code{MCMC.effectiveSize.max}, the
+exponential model is considered to be unsuitable and
+\code{MCMC.effectiveSize.min} is used.
 
 A Geweke diagnostic is then run, after thinning the sample to
 \code{MCMC.effectiveSize.burnin.nmax}. If this Geweke diagnostic

@@ -387,18 +387,14 @@ ergm_MCMC_slave <- function(state, eta,control,verbose,..., burnin=NULL, samples
 
   bscl <- log2(control$MCMC.effectiveSize.burnin.scl) # I.e., how far to take the exponential decay.
 
-  brange <- n/bscl*c(control$MCMC.effectiveSize.burnin.min, control$MCMC.effectiveSize.burnin.max)
-  if(control$MCMC.effectiveSize.burnin.pool){
-    best <- optimize(ssr, brange, s=xs)$minimum
-    bestssr <- ssr(best, xs)
-    nullssr <- ssr(Inf, xs)
-  }else{
-    best <- sapply(xs, function(x) optimize(ssr, brange, s=x)$minimum)
-    bestssr <- mapply(ssr, b=best, s=xs)
-    nullssr <- sapply(xs, function(x) ssr(Inf, s=x))
-  }
+  brange <- n*c(control$MCMC.effectiveSize.burnin.min/bscl,1)
+  best <-
+    if(control$MCMC.effectiveSize.burnin.pool) optimize(ssr, brange, s=xs)$minimum
+    else sapply(xs, function(x) optimize(ssr, brange, s=x)$minimum)
 
-  best <- ifelse(bestssr/nullssr > control$MCMC.effectiveSize.burnin.SSRR,
+  # If decay shows up as too big, there is unlikely to be a trend, so
+  # the burn-in is probably very small.
+  best <- ifelse(best > n/bscl*control$MCMC.effectiveSize.burnin.max,
                  n/bscl*control$MCMC.effectiveSize.burnin.min, best)
   if(all(is.na(best) | is.infinite(best))) return(FAIL)
 

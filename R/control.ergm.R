@@ -492,7 +492,6 @@ control.ergm<-function(drop=TRUE,
                        MCMC.effectiveSize.burnin.max=0.5,
                        MCMC.effectiveSize.burnin.nmin=16,
                        MCMC.effectiveSize.burnin.nmax=128,
-                       MCMC.effectiveSize.burnin.SSRR=0.90,
                        MCMC.effectiveSize.burnin.PC=FALSE,
                        MCMC.effectiveSize.burnin.scl=1024,
                        MCMC.effectiveSize.burnin.pool=FALSE,
@@ -683,7 +682,7 @@ handle.control.toplevel<-function(myname, ...){
 
 SCALABLE_MCMC_CONTROLS <- c("MCMC.burnin", "MCMC.interval")
 STATIC_MCMC_CONTROLS <- c("MCMC.samplesize", "MCMC.prop", "MCMC.prop.weights", "MCMC.prop.args", "MCMC.packagenames", "MCMC.maxedges", "term.options", "obs.MCMC.mul", "obs.MCMC.samplesize.mul", "obs.MCMC.samplesize", "obs.MCMC.interval.mul", "obs.MCMC.interval", "obs.MCMC.burnin.mul", "obs.MCMC.burnin", "obs.MCMC.prop", "obs.MCMC.prop.weights", "obs.MCMC.prop.args", "MCMC.batch")
-ADAPTIVE_MCMC_CONTROLS <- c("MCMC.effectiveSize", "MCMC.effectiveSize.damp", "MCMC.effectiveSize.maxruns", "MCMC.effectiveSize.burnin.pval", "MCMC.effectiveSize.burnin.min", "MCMC.effectiveSize.burnin.max", "MCMC.effectiveSize.burnin.nmin", "MCMC.effectiveSize.burnin.nmax", "MCMC.effectiveSize.burnin.SSRR", "MCMC.effectiveSize.burnin.PC", "MCMC.effectiveSize.burnin.scl", "MCMC.effectiveSize.burnin.pool", "obs.MCMC.effectiveSize")
+ADAPTIVE_MCMC_CONTROLS <- c("MCMC.effectiveSize", "MCMC.effectiveSize.damp", "MCMC.effectiveSize.maxruns", "MCMC.effectiveSize.burnin.pval", "MCMC.effectiveSize.burnin.min", "MCMC.effectiveSize.burnin.max", "MCMC.effectiveSize.burnin.nmin", "MCMC.effectiveSize.burnin.nmax", "MCMC.effectiveSize.burnin.PC", "MCMC.effectiveSize.burnin.scl", "MCMC.effectiveSize.burnin.pool", "obs.MCMC.effectiveSize")
 PARALLEL_MCMC_CONTROLS <- c("parallel","parallel.type","parallel.version.check")
 OBS_MCMC_CONTROLS <- c("MCMC.base.samplesize", "MCMC.base.effectiveSize", "MCMC.samplesize", "MCMC.effectiveSize", "MCMC.interval", "MCMC.burnin")
 MPLE_CONTROLS <- c("MPLE.samplesize","MPLE.type","MPLE.maxit")

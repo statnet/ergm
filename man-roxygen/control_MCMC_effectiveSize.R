@@ -1,5 +1,5 @@
 #' @param
-#'   MCMC.effectiveSize,MCMC.effectiveSize.damp,MCMC.effectiveSize.maxruns,MCMC.effectiveSize.burnin.pval,MCMC.effectiveSize.burnin.min,MCMC.effectiveSize.burnin.max,MCMC.effectiveSize.burnin.nmin,MCMC.effectiveSize.burnin.nmax,MCMC.effectiveSize.burnin.SSRR,MCMC.effectiveSize.burnin.PC,MCMC.effectiveSize.burnin.scl,MCMC.effectiveSize.burnin.pool,MCMC.effectiveSize.order.max
+#'   MCMC.effectiveSize,MCMC.effectiveSize.damp,MCMC.effectiveSize.maxruns,MCMC.effectiveSize.burnin.pval,MCMC.effectiveSize.burnin.min,MCMC.effectiveSize.burnin.max,MCMC.effectiveSize.burnin.nmin,MCMC.effectiveSize.burnin.nmax,MCMC.effectiveSize.burnin.PC,MCMC.effectiveSize.burnin.scl,MCMC.effectiveSize.burnin.pool,MCMC.effectiveSize.order.max
 #'   Set `MCMC.effectiveSize` to a non-NULL value to adaptively
 #'   determine the burn-in and the MCMC length needed to get the
 #'   specified effective size; 50 is a reasonable value. In the
@@ -15,10 +15,9 @@
 #'   equilibrium values by a factor of `MCMC.effectiveSize.burnin.scl`
 #'   of what it initially was, bounded by `MCMC.effectiveSize.min` and
 #'   `MCMC.effectiveSize.max` as proportions of sample size. If the
-#'   ratio between the best-fitting decay sum of squared residuals and
-#'   that of the sum of squared residuals without burn-in is greater
-#'   than `MCMC.effectiveSize.burnin.SSRR`, the exponential model is
-#'   considered to be unsuitable and `MCMC.effectiveSize.min` is used.
+#'   best-fitting decay exceeds `MCMC.effectiveSize.max`, the
+#'   exponential model is considered to be unsuitable and
+#'   `MCMC.effectiveSize.min` is used.
 #'
 #'   A Geweke diagnostic is then run, after thinning the sample to
 #'   `MCMC.effectiveSize.burnin.nmax`. If this Geweke diagnostic
