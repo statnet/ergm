@@ -13,7 +13,7 @@ Authors@R: c(
              person("Kirk","Li",role=c("ctb"),email="kirkli@u.washington.edu"),
              person("Skye", "Bender-deMoll", role=c("ctb"), email="skyebend@u.washington.edu"),
              person("Chad", "Klumb", role=c("ctb"), email="cklumb@gmail.com"),
-             person("Michał", " Bojanowski", role=c("ctb"), email="mbojanowski@kozminski.edu.pl"),
+             person("Michał", " Bojanowski", role=c("ctb"), email="michal2992@gmail.com", comment=c(ORCID="0000-0001-7503-852X")),
              person("Ben", "Bolker", role=c("ctb"), email="bbolker+lme4@gmail.com"),
              person("Christian", "Schmid", role=c("ctb"), email="cxs5700@psu.edu"),
              person("Joyce", "Cheng", role=c("ctb"), email="joyce.cheng@student.unsw.edu.au"))
