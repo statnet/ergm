@@ -83,7 +83,7 @@
 #' Bender-deMoll S, Morris M, Moody J (2008).  Prototype Packages for Managing
 #' and Animating Longitudinal Network Data: \pkg{dynamicnetwork} and
 #' \pkg{rSoNIA}.  \emph{Journal of Statistical Software}, 24(7).
-#' \url{https://www.jstatsoft.org/v24/i07/}.
+#' \doi{10.18637/jss.v024.i07}
 #' 
 #' Besag, J., 1974, Spatial interaction and the statistical analysis of lattice
 #' systems (with discussion), \emph{Journal of the Royal Statistical Society,
@@ -98,7 +98,7 @@
 #' 
 #' Butts CT (2008).  \pkg{network}: A Package for Managing Relational Data in .
 #' \emph{Journal of Statistical Software}, 24(2).
-#' \url{https://www.jstatsoft.org/v24/i02/}.
+#' \doi{10.18637/jss.v024.i02}
 #' 
 #' Butts C (2015). \pkg{network}: Classes for Relational Data. The Statnet
 #' Project (\url{https://statnet.org}). R package version 1.12.0,
@@ -109,7 +109,7 @@
 #' 
 #' Goodreau SM, Handcock MS, Hunter DR, Butts CT, Morris M (2008a).  A
 #' \pkg{statnet} Tutorial.  \emph{Journal of Statistical Software}, 24(8).
-#' \url{https://www.jstatsoft.org/v24/i08/}.
+#' \doi{10.18637/jss.v024.i08}
 #' 
 #' Goodreau SM, Kitts J, Morris M (2008b).  Birds of a Feather, or Friend of a
 #' Friend? Using Exponential Random Graph Models to Investigate Adolescent
@@ -140,7 +140,7 @@
 #' Hunter DR, Handcock MS, Butts CT, Goodreau SM, Morris M (2008b).
 #' \pkg{ergm}: A Package to Fit, Simulate and Diagnose Exponential-Family
 #' Models for Networks.  \emph{Journal of Statistical Software}, 24(3).
-#' \url{https://www.jstatsoft.org/v24/i03/}.
+#' \doi{10.18637/jss.v024.i03}
 #' 
 #' Krivitsky PN, Handcock MS (2007).  \pkg{latentnet}: Latent position and
 #' cluster models for statistical networks.  Seattle, WA.  Version 2,
@@ -154,7 +154,7 @@
 #' Morris M, Handcock MS, Hunter DR (2008).  Specification of
 #' Exponential-Family Random Graph Models: Terms and Computational Aspects.
 #' \emph{Journal of Statistical Software}, 24(4).
-#' \url{https://www.jstatsoft.org/v24/i04/}.
+#' \doi{10.18637/jss.v024.i04}
 #' 
 #' Strauss, D., and Ikeda, M.(1990). Pseudolikelihood estimation for social
 #' networks. \emph{Journal of the American Statistical Association}, 85,
@@ -380,7 +380,7 @@ NULL
 #' - Morris M, Handcock MS, and Hunter DR. Specification of
 #' Exponential-Family Random Graph Models: Terms and Computational Aspects.
 #' *Journal of Statistical Software*, 2008, 24(4), 1-24.
-#' \url{https://www.jstatsoft.org/v24/i04}
+#' \doi{10.18637/jss.v024.i04}
 #' 
 #' - Snijders, T. A. B., P. E. Pattison, G. L. Robins, and M. S. Handcock
 #' (2006). New specifications for exponential random graph models,
@@ -478,7 +478,7 @@ NULL
 #' - Hunter DR, Handcock MS, Butts CT, Goodreau SM, Morris M (2008b).
 #' \pkg{ergm}: A Package to Fit, Simulate and Diagnose Exponential-Family
 #' Models for Networks.  *Journal of Statistical Software*, 24(3).
-#' \url{https://www.jstatsoft.org/v24/i03/}.
+#' \doi{10.18637/jss.v024.i08}
 #'
 #' - Karwa V, Krivitsky PN, and Slavkovi\'c AB (2016). Sharing Social Network
 #' Data: Differentially Private Estimation of Exponential-Family Random Graph
@@ -491,7 +491,7 @@ NULL
 #'
 #' - Morris M, Handcock MS, Hunter DR (2008).  Specification of
 #' Exponential-Family Random Graph Models: Terms and Computational Aspects.
-#' *Journal of Statistical Software*, 24(4). \url{https://www.jstatsoft.org/v24/i04/}.
+#' *Journal of Statistical Software*, 24(4). \doi{10.18637/jss.v024.i03}
 #' @keywords models
 NULL
 
@@ -546,7 +546,7 @@ NULL
 #' @references
 #' - Goodreau SM, Handcock MS, Hunter DR, Butts CT, Morris M (2008a).  A
 #' \pkg{statnet} Tutorial. *Journal of Statistical Software*, 24(8).
-#' \url{https://www.jstatsoft.org/v24/i08/}.
+#' \doi{10.18637/jss.v024.i08}
 #' 
 #' - Hunter, D. R. and Handcock, M. S. (2006) *Inference in curved
 #' exponential family models for networks*, Journal of Computational and
@@ -555,7 +555,7 @@ NULL
 #' - Hunter DR, Handcock MS, Butts CT, Goodreau SM, Morris M (2008b).
 #' \pkg{ergm}: A Package to Fit, Simulate and Diagnose Exponential-Family
 #' Models for Networks.  *Journal of Statistical Software*, 24(3).
-#' \url{https://www.jstatsoft.org/v24/i03/}.
+#' \do{10.18637/jss.v024.i03}
 #' 
 #' - Karwa V, Krivitsky PN, and Slavkovi\'c AB (2016). Sharing Social Network
 #' Data: Differentially Private Estimation of Exponential-Family Random Graph
@@ -568,7 +568,7 @@ NULL
 #' 
 #' - Morris M, Handcock MS, Hunter DR (2008).  Specification of
 #' Exponential-Family Random Graph Models: Terms and Computational Aspects.
-#' *Journal of Statistical Software*, 24(4). \url{https://www.jstatsoft.org/v24/i04/}.
+#' *Journal of Statistical Software*, 24(4). \doi{10.18637/jss.v024.i04}
 #' @keywords models
 NULL
 
@@ -609,7 +609,7 @@ NULL
 #' - Hunter DR, Handcock MS, Butts CT, Goodreau SM, Morris M (2008b). \pkg{ergm}:
 #' A Package to Fit, Simulate and Diagnose Exponential-Family Models for
 #' Networks. *Journal of Statistical Software*, 24(3).
-#' \url{https://www.jstatsoft.org/v24/i03/}.
+#' \doi{10.18637/jss.v024.i03}
 #' 
 #' - Krivitsky PN (2012). Exponential-Family Random Graph Models for Valued
 #' Networks. *Electronic Journal of Statistics*, 2012, 6, 1100-1128.
