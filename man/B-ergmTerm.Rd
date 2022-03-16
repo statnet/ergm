@@ -8,8 +8,8 @@
 # valued: B(formula, form)
 }
 \arguments{
-\item{formula}{a one-sided formula whose RHS contains the
-binary ergm terms to be used. Which terms may be used
+\item{formula}{a one-sided \code{\link[=ergm]{ergm()}}-style formula whose RHS contains the
+binary ergm terms to be evaluated. Which terms may be used
 depends on the argument \code{form}}
 
 \item{form}{One of three values:

@@ -12,15 +12,9 @@
 # valued: Sum(formulas, label)
 }
 \arguments{
-\item{formulas}{a list of formulas to be used}
+\item{formulas}{a list (constructed using \code{\link[=list]{list()}} or \code{\link[=c]{c()}}) of \code{\link[=ergm]{ergm()}}-style formulas whose RHS gives the statistics to be evaluated, or a single formula.
 
-\item{label}{used to specify the names of the elements of the resulting term sum vector. If \code{label} is a character vector of length 1,
-it will be recycled with indices appended. If a function is specified, \code{formulas} parameter names are extracted and their list of character vectors is passed \code{label}.}
-}
-\description{
-This operator sums up the RHS statistics of the input formulas elementwise.
-
-If a formula has an LHS, it is interpreted as follows:
+If a formula in the list has an LHS, it is interpreted as follows:
 \itemize{
 \item a numeric scalar: Network statistics of this formula will be multiplied by this.
 \item a numeric vector: Corresponding network statistics of this formula will be multiplied by this.
@@ -30,7 +24,13 @@ If a formula has an LHS, it is interpreted as follows:
 \item \code{"sum"} Network statistics of this formula will be summed up; equivalent to \code{matrix(1,1,p)} , where \code{p} is the length of the network statistic vector.
 \item \code{"mean"} Network statistics of this formula will be averaged; equivalent to \code{matrix(1/p,1,p)} , where \code{p} is the length of the network statistic vector.
 }
+}}
+
+\item{label}{used to specify the names of the elements of the resulting term sum vector. If \code{label} is a character vector of length 1,
+it will be recycled with indices appended. If a function is specified, \code{formulas} parameter names are extracted and their list of character vectors is passed \code{label}.}
 }
+\description{
+This operator sums up the RHS statistics of the input formulas elementwise.
 }
 \details{
 Note that each formula must either produce the same number of

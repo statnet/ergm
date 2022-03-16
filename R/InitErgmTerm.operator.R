@@ -153,7 +153,7 @@ InitErgmTerm.Passthrough <- function(nw, arglist, ...){
 #'
 #' @usage
 #' # binary: Label(formula, label, pos)
-#' @param formula formula to be evaluated
+#' @template ergmTerm-formula
 #' @param label either a character vector specifying the label for the terms or a function through which term names are mapped (or a `as_mapper` -style formula).
 #' @param pos controls how `label` modifies the term names: one of `"prepend"` , `"replace"` , `"append"` , or `"("` , with the latter wrapping the term names in parentheses like a function call with name specified by `label` .
 #'
@@ -298,7 +298,7 @@ InitErgmTerm..submodel_and_summary <- function(nw, arglist, ...){
 #'
 #' @usage
 #' # binary: F(formula, filter)
-#' @param formula formula to be evaluated
+#' @template ergmTerm-formula
 #' @param filter must contain one binary `ergm` term, with
 #'   the following properties:
 #'   - dyadic independence;
@@ -373,7 +373,7 @@ InitErgmTerm..filter.formula.net <- function(nw, arglist, ...){
 #'
 #' @usage
 #' # binary: Offset(formula, coef, which)
-#' @param formula formula to be evaluated
+#' @template ergmTerm-formula
 #' @param coef coefficients to the formula
 #' @param which used to specify which of the parameters in the formula are fixed. It can be a logical vector (recycled as needed), a numeric vector of indices of parameters to be fixed, or a character vector of parameter names.
 #'
@@ -594,7 +594,7 @@ ergm_symmetrize.network <- function(x, rule=c("weak","strong","upper","lower"), 
 #'
 #' @usage
 #' # binary: Undir(formula, rule="weak")
-#' @param formula formula to be evaluated
+#' @template ergmTerm-formula
 #' @param rule one of `"weak"`, `"strong"`, `"upper"`, `"lower"`
 #'
 #' @template ergmTerm-general
@@ -627,13 +627,6 @@ InitErgmTerm.Symmetrize <- function(nw, arglist, ...){
 #' @title A sum (or an arbitrary linear combination) of one or more formulas
 #' @description This operator sums up the RHS statistics of the input formulas elementwise.
 #'   
-#'   If a formula has an LHS, it is interpreted as follows:
-#'   - a numeric scalar: Network statistics of this formula will be multiplied by this.
-#'   - a numeric vector: Corresponding network statistics of this formula will be multiplied by this.
-#'   - a numeric matrix: Vector of network statistics will be pre-multiplied by this.
-#'   - a character string: One of several predefined linear combinations. Currently supported presets are as follows:
-#'     - `"sum"` Network statistics of this formula will be summed up; equivalent to `matrix(1,1,p)` , where `p` is the length of the network statistic vector.
-#'     - `"mean"` Network statistics of this formula will be averaged; equivalent to `matrix(1/p,1,p)` , where `p` is the length of the network statistic vector.
 #'
 #' @details Note that each formula must either produce the same number of
 #'   statistics or be mapped through a matrix to produce the same
@@ -648,7 +641,15 @@ InitErgmTerm.Symmetrize <- function(nw, arglist, ...){
 #'
 #' @usage
 #' # binary: Sum(formulas, label)
-#' @param formulas a list of formulas to be used
+#' @param formulas a list (constructed using [list()] or [c()]) of [ergm()]-style formulas whose RHS gives the statistics to be evaluated, or a single formula.
+#'
+#'   If a formula in the list has an LHS, it is interpreted as follows:
+#'   - a numeric scalar: Network statistics of this formula will be multiplied by this.
+#'   - a numeric vector: Corresponding network statistics of this formula will be multiplied by this.
+#'   - a numeric matrix: Vector of network statistics will be pre-multiplied by this.
+#'   - a character string: One of several predefined linear combinations. Currently supported presets are as follows:
+#'     - `"sum"` Network statistics of this formula will be summed up; equivalent to `matrix(1,1,p)` , where `p` is the length of the network statistic vector.
+#'     - `"mean"` Network statistics of this formula will be averaged; equivalent to `matrix(1/p,1,p)` , where `p` is the length of the network statistic vector.
 #' @param label used to specify the names of the elements of the resulting term sum vector. If `label` is a character vector of length 1,
 #'   it will be recycled with indices appended. If a function is specified, `formulas` parameter names are extracted and their list of character vectors is passed `label`.
 #"   (For convenience, if only one formula is given, just a character vector is passed. Lastly, if `label` or result of its function call is an [`AsIs`] object, it is not wrapped in `Sum~...`.
@@ -773,7 +774,7 @@ InitErgmTerm.Sum <- function(nw, arglist,...){
 #'
 #' @usage
 #' # binary: S(formula, attrs)
-#' @param formula formula to be evaluated
+#' @template ergmTerm-formula
 #' @param attrs a two-sided formula to be used. A one-sided formula (e.g., `~A` ) is symmetrized (e.g., `A~A` ).
 #'
 #' @template ergmTerm-general
@@ -860,7 +861,7 @@ InitErgmTerm.S <- function(nw, arglist, ...){
 #'
 #' @usage
 #' # binary: Curve(formula, params, map, gradient=NULL, minpar=-Inf, maxpar=+Inf, cov=NULL)
-#' @param formula an arbitrary formula for a linear or curved ERGM
+#' @template ergmTerm-formula
 #' @param params a named list whos names are the curved parameter names, may also be a character vector with names.
 #' @param map the mapping from curved to canonical. May have the following forms:
 #' - a `function(x, n, ...)` treated as in the API: called with `x` set to the curved parameter vector, `n` to the length of output expected, and `cov` , if present, passed in `...` . The function must return a numeric vector of length `n` .
@@ -976,7 +977,7 @@ InitErgmTerm.Parametrize <- InitErgmTerm.Curve
 #'
 #' @usage
 #' # binary: Log(formula, log0=-1/sqrt(.Machine$double.eps))
-#' @param formula formula to be evaluated
+#' @template ergmTerm-formula
 #' @param log0 the value to be substituted for `log(0)`
 #'
 #' @template ergmTerm-general
@@ -1006,7 +1007,7 @@ InitErgmTerm.Log <- function(nw, arglist, ...){
 #'
 #' @usage
 #' # binary: Exp(formula)
-#' @param formula formula to be evaluated
+#' @template ergmTerm-formula
 #'
 #' @template ergmTerm-general
 #'
@@ -1032,14 +1033,7 @@ InitErgmTerm.Exp <- function(nw, arglist, ...){
 #' @description This operator evaluates a list of formulas whose corresponnding RHS
 #'   statistics will be multiplied elementwise. They are required to be nonnegative.
 #'   
-#' @details If a formula has an LHS, it is interpreted as follows:
-#'   - a numeric scalar: Network statistics of this formula will be exponentiated by this.
-#'   - a numeric vector: Corresponding network statistics of this formula will be exponentiated by this.
-#'   - a numeric matrix: Vector of network statistics will be exponentiated by this using the same pattern as matrix multiplication.
-#'   - a character string: One of several predefined linear combinations. Currently supported presets are as follows:
-#'     - `"prod"`: Network statistics of this formula will be multiplied together; equivalent to `matrix(1,1,p)` , where `p` is the length of the network statistic vector.
-#'     - `"geomean"`: Network statistics of this formula will be geometrically averaged; equivalent to `matrix(1/p,1,p)` , where `p` is the length of the network statistic vector.
-#'   
+#' @details    
 #' Note that each formula must either produce the same number of
 #'   statistics or be mapped through a matrix to produce the same
 #'   number of statistics.
@@ -1053,7 +1047,16 @@ InitErgmTerm.Exp <- function(nw, arglist, ...){
 #'   
 #' @usage
 #' # binary: Prod(formulas, label)
-#' @param formulas formulas to be evaluated
+#' @param formulas a list (constructed using [list()] or [c()]) of [ergm()]-style formulas whose RHS gives the statistics to be evaluated, or a single formula.
+#'
+#' If a formula in the list has an LHS, it is interpreted as follows:
+#'   - a numeric scalar: Network statistics of this formula will be exponentiated by this.
+#'   - a numeric vector: Corresponding network statistics of this formula will be exponentiated by this.
+#'   - a numeric matrix: Vector of network statistics will be exponentiated by this using the same pattern as matrix multiplication.
+#'   - a character string: One of several predefined multiplicative combinations. Currently supported presets are as follows:
+#'     - `"prod"`: Network statistics of this formula will be multiplied together; equivalent to `matrix(1,1,p)` , where `p` is the length of the network statistic vector.
+#'     - `"geomean"`: Network statistics of this formula will be geometrically averaged; equivalent to `matrix(1/p,1,p)` , where `p` is the length of the network statistic vector.
+
 #' @param label used to specify the names of the elements of the resulting term product vector. If `label` is a character vector of length 1,
 #'   it will be recycled with indices appended. If a function is specified, `formulas` parameter names are extracted and their list of character vectors is passed `label`.
 #"   (For convenience, if only one formula is given, just a character vector is passed. Lastly, if `label` or result of its function call is an [`AsIs`] object, it is not wrapped in `Prod~...`.

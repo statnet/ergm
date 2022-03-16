@@ -12,7 +12,7 @@
 # valued: Exp(formula)
 }
 \arguments{
-\item{formula}{formula to be evaluated}
+\item{formula}{a one-sided \code{\link[=ergm]{ergm()}}-style formula with the terms to be evaluated}
 }
 \description{
 Evaluate the terms specified in \code{formula} and exponentiates them with base \eqn{e} .

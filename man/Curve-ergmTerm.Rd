@@ -30,7 +30,7 @@
 #           cov=NULL)
 }
 \arguments{
-\item{formula}{an arbitrary formula for a linear or curved ERGM}
+\item{formula}{a one-sided \code{\link[=ergm]{ergm()}}-style formula with the terms to be evaluated}
 
 \item{params}{a named list whos names are the curved parameter names, may also be a character vector with names.}
 

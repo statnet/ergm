@@ -12,7 +12,19 @@
 # valued: Prod(formulas, label)
 }
 \arguments{
-\item{formulas}{formulas to be evaluated}
+\item{formulas}{a list (constructed using \code{\link[=list]{list()}} or \code{\link[=c]{c()}}) of \code{\link[=ergm]{ergm()}}-style formulas whose RHS gives the statistics to be evaluated, or a single formula.
+
+If a formula in the list has an LHS, it is interpreted as follows:
+\itemize{
+\item a numeric scalar: Network statistics of this formula will be exponentiated by this.
+\item a numeric vector: Corresponding network statistics of this formula will be exponentiated by this.
+\item a numeric matrix: Vector of network statistics will be exponentiated by this using the same pattern as matrix multiplication.
+\item a character string: One of several predefined multiplicative combinations. Currently supported presets are as follows:
+\itemize{
+\item \code{"prod"}: Network statistics of this formula will be multiplied together; equivalent to \code{matrix(1,1,p)} , where \code{p} is the length of the network statistic vector.
+\item \code{"geomean"}: Network statistics of this formula will be geometrically averaged; equivalent to \code{matrix(1/p,1,p)} , where \code{p} is the length of the network statistic vector.
+}
+}}
 
 \item{label}{used to specify the names of the elements of the resulting term product vector. If \code{label} is a character vector of length 1,
 it will be recycled with indices appended. If a function is specified, \code{formulas} parameter names are extracted and their list of character vectors is passed \code{label}.}
@@ -22,18 +34,6 @@ This operator evaluates a list of formulas whose corresponnding RHS
 statistics will be multiplied elementwise. They are required to be nonnegative.
 }
 \details{
-If a formula has an LHS, it is interpreted as follows:
-\itemize{
-\item a numeric scalar: Network statistics of this formula will be exponentiated by this.
-\item a numeric vector: Corresponding network statistics of this formula will be exponentiated by this.
-\item a numeric matrix: Vector of network statistics will be exponentiated by this using the same pattern as matrix multiplication.
-\item a character string: One of several predefined linear combinations. Currently supported presets are as follows:
-\itemize{
-\item \code{"prod"}: Network statistics of this formula will be multiplied together; equivalent to \code{matrix(1,1,p)} , where \code{p} is the length of the network statistic vector.
-\item \code{"geomean"}: Network statistics of this formula will be geometrically averaged; equivalent to \code{matrix(1/p,1,p)} , where \code{p} is the length of the network statistic vector.
-}
-}
-
 Note that each formula must either produce the same number of
 statistics or be mapped through a matrix to produce the same
 number of statistics.

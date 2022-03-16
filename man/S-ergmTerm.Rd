@@ -8,7 +8,7 @@
 # binary: S(formula, attrs)
 }
 \arguments{
-\item{formula}{formula to be evaluated}
+\item{formula}{a one-sided \code{\link[=ergm]{ergm()}}-style formula with the terms to be evaluated}
 
 \item{attrs}{a two-sided formula to be used. A one-sided formula (e.g., \code{~A} ) is symmetrized (e.g., \code{A~A} ).}
 }

@@ -12,7 +12,7 @@
 # valued: Log(formula, log0=-1/sqrt(.Machine$double.eps))
 }
 \arguments{
-\item{formula}{formula to be evaluated}
+\item{formula}{a one-sided \code{\link[=ergm]{ergm()}}-style formula with the terms to be evaluated}
 
 \item{log0}{the value to be substituted for \code{log(0)}}
 }

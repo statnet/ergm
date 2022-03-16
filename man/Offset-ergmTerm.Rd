@@ -8,7 +8,7 @@
 # binary: Offset(formula, coef, which)
 }
 \arguments{
-\item{formula}{formula to be evaluated}
+\item{formula}{a one-sided \code{\link[=ergm]{ergm()}}-style formula with the terms to be evaluated}
 
 \item{coef}{coefficients to the formula}
 

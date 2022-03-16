@@ -8,7 +8,7 @@
 # binary: Undir(formula, rule="weak")
 }
 \arguments{
-\item{formula}{formula to be evaluated}
+\item{formula}{a one-sided \code{\link[=ergm]{ergm()}}-style formula with the terms to be evaluated}
 
 \item{rule}{one of \code{"weak"}, \code{"strong"}, \code{"upper"}, \code{"lower"}}
 }

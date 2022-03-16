@@ -12,7 +12,7 @@
 # valued: Label(formula, label, pos)
 }
 \arguments{
-\item{formula}{formula to be evaluated}
+\item{formula}{a one-sided \code{\link[=ergm]{ergm()}}-style formula with the terms to be evaluated}
 
 \item{label}{either a character vector specifying the label for the terms or a function through which term names are mapped (or a \code{as_mapper} -style formula).}
 

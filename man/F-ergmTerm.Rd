@@ -8,7 +8,7 @@
 # binary: F(formula, filter)
 }
 \arguments{
-\item{formula}{formula to be evaluated}
+\item{formula}{a one-sided \code{\link[=ergm]{ergm()}}-style formula with the terms to be evaluated}
 
 \item{filter}{must contain one binary \code{ergm} term, with
 the following properties:
