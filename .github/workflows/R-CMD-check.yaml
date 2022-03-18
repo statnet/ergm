@@ -179,9 +179,9 @@ jobs:
       - name: Install dependencies
         run: |
           remotes::install_deps(dependencies = TRUE)
-          remotes::install_cran("pkgbuild")
-          remotes::install_cran("rcmdcheck")
-          remotes::install_cran("covr")
+          remotes::install_cran("pkgbuild"); stopifnot(require("pkgbuild"))
+          remotes::install_cran("rcmdcheck"); stopifnot(require("rcmdcheck"))
+          remotes::install_cran("covr"); stopifnot(require("covr"))
         shell: Rscript {0}
 
       - name: Install tinytex (R)
