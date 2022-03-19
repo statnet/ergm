@@ -331,8 +331,10 @@ ergmTermCache <- local({
   proposals
 }
 
+PROPOSAL_NOT_IN_TABLE <- "This proposal is not referenced in the lookup table."
+
 .formatProposalsHtml <- function(df, keepProposal=FALSE) {
-  if (is.null(df)) return(NULL)
+  if (NROW(df) == 0) return(paste0("\\out{<p>", PROPOSAL_NOT_IN_TABLE, "</p>}"))
 
   for (i in 1:length(df)) {
     df[[i]]$Proposal <- sprintf('<a href="../help/%1$s-ergmProposal">%1$s</a>', df[[i]]$Proposal)
@@ -352,7 +354,7 @@ ergmTermCache <- local({
 }
 
 .formatProposalsLatex <- function(df, keepProposal=FALSE) {
-  if (is.null(df)) return(NULL)
+  if (NROW(df) == 0) return(paste0("\\out{",PROPOSAL_NOT_IN_TABLE,"}"))
 
   for (i in 1:length(df)) {
     df[[i]]$Enforced <- if (length(df[[i]]$Enforced) > 0) paste(df[[i]]$Enforced, collapse=' ') else ""
@@ -374,7 +376,7 @@ ergmTermCache <- local({
 }
 
 .formatProposalsText <- function(df, keepProposal=FALSE) {
-  if (is.null(df)) return(NULL)
+  if (NROW(df) == 0) return(PROPOSAL_NOT_IN_TABLE)
 
   for (i in 1:length(df)) {
     df[[i]]$Enforced <- if (length(df[[i]]$Enforced) > 0) paste(df[[i]]$Enforced, collapse=' ') else ""
