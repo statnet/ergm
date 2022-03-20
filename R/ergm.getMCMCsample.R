@@ -354,51 +354,54 @@ ergm_MCMC_slave <- function(state, eta,control,verbose,..., burnin=NULL, samples
   }
 
   n <- niter(x)
-  ssr <- function(b, s){
-    x <- 2^(-seq_len(n)/b)
-    if(is.list(s)){
-      y <- do.call(rbind, s)
-      x <- rep(x, length(s))
-    }else{
-      y <- s
-      x <- x
-    }
-    # b is basically the number of steps corresponding to halving of
+  p <- nvar(x)
+  bscl <- control$MCMC.effectiveSize.burnin.scl
+
+  ssr <- function(decay, y, results=FALSE){
+    # decay is basically the number of steps corresponding to halving of
     # the difference in the expected value of the variable at the
     # current MCMC draw from the ultimate expected value.
-    a <- lm(y ~ x)
-    sum(sigma(a)^2)
+
+    x <- rep(scale(2^(-seq_len(n)/decay)),
+             length.out = NROW(y))
+    a <- lm(y ~ x, x=results, y=results)
+    if(results) structure(a, decay=decay) else sum(sigma(a)^2)
   }
+
+  fit_decay <- function(y, interval){
+    if(is.list(y)) y <- do.call(rbind, y)
+
+    y <- y %>% scale %>% `[`(,attr(.,"scaled:scale")>0, drop=FALSE)
+
+    decay <- optimize(ssr, interval, y=y)$minimum
+
+    ssr(decay, y, results=TRUE)
+  }
+
   geweke <- function(b){
     if(b>0) x <- window(x, start=start(x) + b * thin(x))
-    if(niter(x)*nchain(x) > (nmax <- control$MCMC.effectiveSize.burnin.nmax))
+    if(niter(x)*nchain(x) > (nmax <- max(control$MCMC.effectiveSize.burnin.nmax, nvar(x)*10*4)))
     x <- lapply.mcmc.list(x, `[`, round(seq(from=1,to=niter(x),length.out=round(nmax/nchain(x)))), , drop=FALSE)
 
     p.val <- suppressWarnings(geweke.diag.mv(x, order.max=control$MCMC.effectiveSize.order.max)$p.value)
     if(is.na(p.val)) 0 else p.val
   }
 
-  FAIL <- list(burnin=round(n/2), pval=0)
-  xs <-
-    if(control$MCMC.effectiveSize.burnin.pool) as.matrix(x) %>% scale %>% `[`(,attr(.,"scaled:scale")>0,drop=FALSE) %>% split(rep(seq_along(x), each=n))
-    else x %>% map(scale) %>% map(~.[,attr(.,"scaled:scale")>0,drop=FALSE]) %>% discard(~ncol(.)==0)
+  best_burnin <- function(coef, decay, s) -decay * log2( s/bscl/abs(coef))
+  best_burnin.lm <- function(fit) best_burnin(if(is.matrix(coef(fit))) coef(fit)[2,] else coef(fit)[2], attr(fit,"decay"), sigma(fit))
 
-  if(length(xs)==0) return(FAIL)
+  FAIL <- list(burnin=round(n*control$MCMC.effectiveSize.burnin.max), pval=0)
 
-  bscl <- log2(control$MCMC.effectiveSize.burnin.scl) # I.e., how far to take the exponential decay.
+  bestfits <- unlist(lapply(x, function(chain) lapply(seq_len(p), function(i) fit_decay(chain[,i], c(0,n*log2(bscl)*8)))), recursive=FALSE)
 
-  brange <- n*c(control$MCMC.effectiveSize.burnin.min/bscl,1)
-  best <-
-    if(control$MCMC.effectiveSize.burnin.pool) optimize(ssr, brange, s=xs)$minimum
-    else sapply(xs, function(x) optimize(ssr, brange, s=x)$minimum)
+  ## print(lapply(bestfits, function(fit) cbind(scale=as.matrix(coef(fit))[2,], decay=attr(fit,"decay"), s=sigma(fit))))
+  best <- ifelse(sapply(bestfits, function(fit) sd(resid(fit))/sd(fit$y)<1-1/bscl*2),
+                 sapply(bestfits, best_burnin.lm),
+                 round(n*control$MCMC.effectiveSize.burnin.min))
 
-  # If decay shows up as too big, there is unlikely to be a trend, so
-  # the burn-in is probably very small.
-  best <- ifelse(best > n/bscl*control$MCMC.effectiveSize.burnin.max,
-                 n/bscl*control$MCMC.effectiveSize.burnin.min, best)
+  best <- sqrt(mean(pmin(pmax(best,0),n*control$MCMC.effectiveSize.burnin.max)^2, na.rm=TRUE))
+
   if(all(is.na(best) | is.infinite(best))) return(FAIL)
-
-  best <- max(best, na.rm=TRUE) * bscl
 
   list(burnin=round(best), pval=geweke(round(best)))
 }
