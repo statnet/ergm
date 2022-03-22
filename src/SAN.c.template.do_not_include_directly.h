@@ -96,24 +96,12 @@ MCMCStatus DISPATCH_SANSample(DISPATCH_ErgmState *s,
   values of the first group of m->n_stats networkstatistics should 
   all be zero
   *********************/
-/*for (j=0; j < m->n_stats; j++) */
-/*  networkstatistics[j] = 0.0; */
-/* Rprintf("\n"); */
-/* for (j=0; j < m->n_stats; j++){ */
-/*   Rprintf("j %d %f\n",j,networkstatistics[j]); */
-/* } */
-/* Rprintf("\n"); */
 
   unsigned int interval = nsteps / samplesize; // Integer division: rounds down.
   unsigned int burnin = nsteps - (samplesize-1)*interval;
 
   double *deltainvsig = R_calloc(nstats, double);
 
-  /*********************
-   Burn in step.  While we're at it, use nsteps statistics to 
-   prepare covariance matrix for Mahalanobis distance calculations 
-   in subsequent calls to M-H
-   *********************/
   /*  Catch more edges than we can return */
   if(DISPATCH_SANMetropolisHastings(s, invcov, tau, networkstatistics, prop_networkstatistics, burnin, &staken,
                                     nstats, statindices, noffsets, offsetindices, offsets, deltainvsig,
