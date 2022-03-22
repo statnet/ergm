@@ -331,14 +331,17 @@ san.ergm_model <- function(object, reference=~Bernoulli, constraints=~., target.
     state <- z$state
     sm <- rbind(sm, z$s)
     sm.prop <- z$s.prop
+    W.used <- control$SAN.invcov
 
     if(z$status!=0) stop("Error in SAN.")
     
     stats <- sm[nrow(sm),]
-    # Use *proposal* distribution of statistics for weights.
-    invcov <-
-      if(control$SAN.invcov.diag) sginv(diag(diag(cov(sm.prop)), ncol(sm.prop)), tol=.Machine$double.eps)
-      else sginv(cov(sm.prop), tol=.Machine$double.eps)
+
+    if(!isTRUE(all.equal(unname(stats), numeric(length(stats))))){
+      # Use *proposal* distribution of statistics for weights.
+      invcov <-
+        if(control$SAN.invcov.diag) sginv(diag(diag(cov(sm.prop)), ncol(sm.prop)), tol=.Machine$double.eps)
+        else sginv(cov(sm.prop), tol=.Machine$double.eps)
 
     # Ensure no statistic has weight 0:
     diag(invcov)[abs(diag(invcov))<.Machine$double.eps] <- min(diag(invcov)[abs(diag(invcov))>=.Machine$double.eps],1)
@@ -356,9 +359,10 @@ san.ergm_model <- function(object, reference=~Bernoulli, constraints=~., target.
       message_print(diag(control$SAN.invcov))
       message("Scaled Mahalanobis distance = ", mahalanobis(stats, 0, invcov, inverted=TRUE))
     }
+    }else if(verbose) message("Target statistics matched exactly.")
     
     out.mat <- z$s
-    attr(out.mat, "W") <- invcov
+    attr(out.mat, "W") <- W.used
     if(!only.last){
       out.list[[i]] <- switch(output,
                               ergm_state=state,
@@ -372,6 +376,7 @@ san.ergm_model <- function(object, reference=~Bernoulli, constraints=~., target.
       }
     }
   }
+
   if(control$SAN.maxit > 1 && !only.last){
     structure(out.list, formula = formula,
               stats = out.mat, class="network.list")
@@ -445,7 +450,7 @@ ergm_SAN_slave <- function(state, tau,control,verbose, ..., nsteps=NULL, samples
             state,
             # SAN settings
             as.double(deInf(tau)),
-            as.integer(samplesize),
+            as.integer(samplesize), as.integer(control$SAN.samplesize.min),
             as.integer(nsteps),
             as.double(control$SAN.invcov),
             statindices=as.integer(statindices - 1),
@@ -458,7 +463,7 @@ ergm_SAN_slave <- function(state, tau,control,verbose, ..., nsteps=NULL, samples
             state,
             # SAN settings
             as.double(deInf(tau)),
-            as.integer(samplesize),
+            as.integer(samplesize), as.integer(control$SAN.samplesize.min),
             as.integer(nsteps),
             as.double(control$SAN.invcov),
             statindices=as.integer(statindices - 1),
@@ -470,6 +475,10 @@ ergm_SAN_slave <- function(state, tau,control,verbose, ..., nsteps=NULL, samples
   # save the results
   z$s <- matrix(z$s, ncol=length(statindices), byrow = TRUE)
   z$s.prop <- matrix(z$s.prop, ncol=length(statindices), byrow = TRUE)
+  if((last <- suppressWarnings(min(which(is.na(z$s[,1]))))) != Inf){ # premature termination indicated by an NA.
+    z$s <- z$s[seq_len(last-1),,drop=FALSE]
+    z$s.prop <- z$s.prop[seq_len(last-1),,drop=FALSE]
+  }
   colnames(z$s) <- colnames(z$s.prop) <- param_names(state, canonical=TRUE)[statindices]
   z$state <- update(z$state)
 

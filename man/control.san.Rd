@@ -10,8 +10,9 @@ control.san(
   SAN.invcov = NULL,
   SAN.invcov.diag = FALSE,
   SAN.nsteps.alloc = function(nsim) 2^seq_len(nsim),
-  SAN.nsteps = 2^19,
-  SAN.samplesize = 2^12,
+  SAN.nsteps = 2^22,
+  SAN.samplesize = 2^15,
+  SAN.samplesize.min = 2^7,
   SAN.prop = trim_env(~sparse),
   SAN.prop.weights = "default",
   SAN.prop.args = list(),
@@ -50,6 +51,8 @@ simulated annealing runs.}
 \item{SAN.nsteps}{Number of MCMC proposals for all the annealing runs combined.}
 
 \item{SAN.samplesize}{Number of realisations' statistics to obtain for tuning purposes.}
+
+\item{SAN.samplesize.min}{Minimum number of realisations' statistics before testing for non-improvement.}
 
 \item{SAN.prop}{Specifies the proposal (directly) and/or
 a series of "hints" about the structure of the model being

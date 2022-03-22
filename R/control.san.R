@@ -42,6 +42,7 @@
 #'
 #' @param SAN.nsteps Number of MCMC proposals for all the annealing runs combined.
 #' @param SAN.samplesize Number of realisations' statistics to obtain for tuning purposes.
+#' @param SAN.samplesize.min Minimum number of realisations' statistics before testing for non-improvement.
 #' @template control_MCMC_prop
 #' @param SAN.packagenames Names of packages in which to look for change
 #' statistic functions in addition to those autodetected. This argument should
@@ -59,9 +60,10 @@ control.san<-function(SAN.maxit=4,
                       SAN.invcov=NULL,
                       SAN.invcov.diag=FALSE,
                       SAN.nsteps.alloc=function(nsim) 2^seq_len(nsim),
-                      SAN.nsteps=2^19,
-                      SAN.samplesize=2^12,
-                      
+                      SAN.nsteps=2^22,
+                      SAN.samplesize=2^14,
+                      SAN.samplesize.min=2^8,
+
                       SAN.prop=trim_env(~sparse),
                       SAN.prop.weights="default",
                       SAN.prop.args=list(),

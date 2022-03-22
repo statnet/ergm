@@ -10,7 +10,7 @@
 
 MCMCStatus DISPATCH_SANSample(DISPATCH_ErgmState *s,
                        double *invcov, double *tau, double *networkstatistics, double *prop_networkstatistics,
-                       int samplesize, int nsteps,
+                              int samplesize, int samplesize_in, int nsteps,
                        int nstats,
                        int *statindices,
                        int noffsets,
@@ -26,4 +26,5 @@ MCMCStatus DISPATCH_SANMetropolisHastings(DISPATCH_ErgmState *s,
                                    int *offsetindices,
                                    double *offsets,
                                           double *deltainvsig,
+                                          double sdecay, double *si, double *si2, double *sw, double *sw2,
                                    int verbose);

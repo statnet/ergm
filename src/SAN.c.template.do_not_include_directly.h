@@ -23,7 +23,7 @@
 SEXP DISPATCH_SAN_wrapper(SEXP stateR,
                    // MCMC settings
                    SEXP tau,
-                   SEXP samplesize, SEXP nsteps,
+                          SEXP samplesize, SEXP samplesize_min, SEXP nsteps,
                    SEXP invcov,
                    SEXP statindices,
                    SEXP offsetindices,
@@ -44,7 +44,7 @@ SEXP DISPATCH_SAN_wrapper(SEXP stateR,
   SEXP status;
   if(MHp) status = PROTECT(ScalarInteger(DISPATCH_SANSample(s,
                                                      REAL(invcov), REAL(tau), REAL(sample), REAL(prop_sample), asInteger(samplesize),
-                                                     asInteger(nsteps),
+                                                            asInteger(samplesize_min), asInteger(nsteps),
                                                      nstats, INTEGER(statindices), noffsets, INTEGER(offsetindices), REAL(offsets),
                                                      asInteger(verbose))));
   else status = PROTECT(ScalarInteger(MCMC_MH_FAILED));
@@ -57,7 +57,6 @@ SEXP DISPATCH_SAN_wrapper(SEXP stateR,
 
   /* record new generated network to pass back to R */
   if(asInteger(status) == MCMC_OK){
-    s->stats = REAL(sample) + (asInteger(samplesize)-1)*nstats;
     SET_VECTOR_ELT(outl, 3, DISPATCH_ErgmStateRSave(s));
   }
 
@@ -80,7 +79,7 @@ SEXP DISPATCH_SAN_wrapper(SEXP stateR,
 *********************/
 MCMCStatus DISPATCH_SANSample(DISPATCH_ErgmState *s,
                        double *invcov, double *tau, double *networkstatistics, double *prop_networkstatistics,
-                       int samplesize, int nsteps,
+                              int samplesize, int samplesize_min, int nsteps,
                        int nstats,
                        int *statindices,
                        int noffsets,
@@ -90,11 +89,19 @@ MCMCStatus DISPATCH_SANSample(DISPATCH_ErgmState *s,
   double *deltainvsig = R_calloc(nstats, double);
 
   int staken, tottaken, ptottaken;
-  unsigned int interval = nsteps / samplesize; // Integer division: rounds down.
-  unsigned int burnin = nsteps - (samplesize-1)*interval;
+  unsigned int interval = MAX(nsteps / samplesize, 1); // Integer division: rounds down.
+  unsigned int burnin = MAX((long int)nsteps - (samplesize-1)*interval, interval); // Need signed arithmetic here.
+  double
+    sdecay = 1-1.0/(samplesize_min*interval), // decay of previous samples
+    si = 0, // sum of increments
+    si2 = 0, // sum of squared increments
+    sw = 0, // sum of weights
+    sw2 = 0 // sum of squared weights
+    ;
 
   if(DISPATCH_SANMetropolisHastings(s, invcov, tau, networkstatistics, prop_networkstatistics, burnin, &staken,
                                     nstats, statindices, noffsets, offsetindices, offsets, deltainvsig,
+                                    sdecay, &si, &si2, &sw, &sw2,
                              verbose)!=MCMC_OK)
     return MCMC_MH_FAILED;
 
@@ -104,15 +111,29 @@ MCMCStatus DISPATCH_SANSample(DISPATCH_ErgmState *s,
     ptottaken = 0;
     
     /* Now sample networks */
-    for (unsigned int i=1; i < samplesize; i++){
+    unsigned int i;
+    for (i = 1; i < samplesize; i++){
       /* Set current vector of stats equal to previous vector */
       Rboolean finished = TRUE;
       for (unsigned int j=0; j<nstats; j++){
         if((networkstatistics[j+nstats] = networkstatistics[j])!=0) finished = FALSE;
       }
+
       if(finished){
-	if(verbose) Rprintf("Exact match found.\n");
-	break;
+        if(verbose) Rprintf("Exact match found after about %d steps.\n", burnin + (i-1)*interval);
+      }else if(i>=samplesize_min){
+        double mi = (double)si / sw, mi2 = (double)si2 / sw;
+
+        double vi = mi2 - mi*mi;
+        double zi = mi / sqrt(vi * sw2/(sw*sw)); // denom = sqrt(sum(w^2 * v)/sum(w)^2)
+        double pi = pnorm(zi, 0, 1, TRUE, FALSE); // Pr(Z < zi)
+
+        if(verbose>=4) Rprintf("%d: sw=%2.2f sw2=%2.2f si=%2.2f si2=%2.2f mi=%2.2f vi=%2.2f ni=%2.2f zi=%2.2f pi=%2.2f\n", burnin + (i-1)*interval, sw, sw2, si, si2, mi, vi, (sw*sw)/sw2, zi, pi);
+
+        if(isnan(pi) || pi >= 0.49){ // 0.5 is probably too much.
+          finished = TRUE;
+          if(verbose) Rprintf("Objective function is no longer improving at the specified temperature after about %d steps based on sample size %d.\n", burnin + (i-1)*interval, i);
+        }
       }
 
       networkstatistics += nstats;
@@ -121,7 +142,7 @@ MCMCStatus DISPATCH_SANSample(DISPATCH_ErgmState *s,
       
       if(DISPATCH_SANMetropolisHastings(s, invcov, tau, networkstatistics, prop_networkstatistics,
                                  interval, &staken, nstats, statindices, noffsets, offsetindices, offsets,
-                                        deltainvsig, verbose)!=MCMC_OK)
+                                        deltainvsig, sdecay, &si, &si2, &sw, &sw2, verbose)!=MCMC_OK)
 	return MCMC_MH_FAILED;
       tottaken += staken;
       if (verbose){
@@ -142,6 +163,12 @@ MCMCStatus DISPATCH_SANSample(DISPATCH_ErgmState *s,
     	R_ProcessEvents();
       }
 #endif
+
+      if(finished && samplesize-i>1){
+        *(networkstatistics+nstats) = *(prop_networkstatistics+nstats) = NA_REAL; // Mark the next values with the NA sentinel.
+	break;
+      }
+
     }
     /*********************
     Below is an extremely crude device for letting the user know
@@ -149,7 +176,7 @@ MCMCStatus DISPATCH_SANSample(DISPATCH_ErgmState *s,
     *********************/
     if (verbose){
 	  Rprintf("SAN Metropolis-Hastings accepted %7.3f%% of %lld proposed steps.\n",
-	    tottaken*100.0/(1.0*interval*samplesize), (long long) interval*samplesize); 
+                  tottaken*100.0/((long long) burnin + (long long) interval*(i-1)), (long long) burnin + (long long) interval*(i-1));
     }
   }else{
     if (verbose){
@@ -157,6 +184,9 @@ MCMCStatus DISPATCH_SANSample(DISPATCH_ErgmState *s,
 	      staken*100.0/(1.0*nsteps), nsteps); 
     }
   }
+
+  s->stats = networkstatistics;
+
   return MCMC_OK;
 }
 
@@ -181,13 +211,14 @@ MCMCStatus DISPATCH_SANMetropolisHastings(DISPATCH_ErgmState *s,
                                    int *offsetindices,
                                    double *offsets,
                                           double *deltainvsig,
+                                          double sdecay, double *si, double *si2, double *sw, double *sw2,
                                    int verbose){
   DISPATCH_Network *nwp = s->nwp;
   DISPATCH_Model *m = s->m;
   DISPATCH_MHProposal *MHp = s->MHp;
 
   unsigned int taken=0, unsuccessful=0;
-  
+
 /*  if (verbose)
     Rprintf("Now proposing %d DISPATCH_MH steps... ", nsteps); */
   for(unsigned int step=0; step < nsteps; step++) {
@@ -277,7 +308,14 @@ MCMCStatus DISPATCH_SANMetropolisHastings(DISPATCH_ErgmState *s,
       if(verbose>=5){
 	Rprintf("Rejected.\n");
       }
+      ip = 0;
     }
+
+    (*sw) *= sdecay; (*si) *= sdecay;
+    (*sw)++; (*si) += ip;
+    (*sw2) *= sdecay*sdecay; (*si2) *= sdecay;
+    (*sw2)++; (*si2) += ip*ip;
+
   }
 
   *staken = taken;

@@ -12,7 +12,7 @@
 n <- 50
 
 test_that("SAN moves from a sparser network to a denser one with desired triadic attributes", {
-	x <- network(n, density = 0.05/100*n, directed = FALSE)
+	x <- network(n, density = 1.25/n, directed = FALSE)
 	y <- san(x ~ edges + triangles, target.stats = c(n*6, n*3))
 	z <- summary(y ~ edges + triangles)
 
