@@ -24,33 +24,15 @@
 #' Determine whether a vector is in the closure of the convex hull of some
 #' sample of vectors
 #' 
-#' \code{is.inCH} returns \code{TRUE} if and only if \code{p} is contained in
+#' \code{is.inCH()} returns \code{TRUE} if and only if \code{p} is contained in
 #' the convex hull of the points given as the rows of \code{M}. If \code{p} is
 #' a matrix, each row is tested individually, and \code{TRUE} is returned if
 #' all rows are in the convex hull.
-#' 
-#' The \eqn{d}-vector \code{p} is in the convex hull of the \eqn{d}-vectors
-#' forming the rows of \code{M} if and only if there exists no separating
-#' hyperplane between \code{p} and the rows of \code{M}.  This condition may be
-#' reworded as follows:
-#' 
-#' Letting \eqn{q=(1 p')'} and \eqn{L = (1 M)}, if the minimum value
-#' of \eqn{z'q} for all \eqn{z} such that \eqn{z'L \ge 0} equals zero
-#' (the minimum must be at most zero since z=0 gives zero), then there
-#' is no separating hyperplane and so \code{p} is contained in the
-#' convex hull of the rows of \code{M}. So the question of interest
-#' becomes a constrained optimization problem.
 #'
-#' Lastly, in the event of such a hyperplane existing, one can make
-#' the objective function arbitrarily low by multiplying \eqn{z} by a
-#' large positive constant. To prevent it from running away, we
-#' constrain the elements of \eqn{z} to be between \eqn{-1} and
-#' \eqn{+1}.
-#' 
-#' Solving this problem relies on the package \pkg{lpSolveAPI} to solve a linear
-#' program.
-#' 
-#' This function is used in the "stepping" algorithm of Hummel et al (2012).
+#' `is.inCH()` was originally written for the "stepping" algorithm of
+#' Hummel et al (2012). See Krivitsky, Kuvelkar, and Hunter (2022) for
+#' detailed discussion of algorithms used in `is.inCH()` and
+#' `shrink_into_CH()`.
 #'
 #' @note [is.inCH()] has been deprecated in favour of
 #'   [shrink_into_CH()], which returns the optimal step length instead
@@ -68,9 +50,15 @@
 #' \url{https://www.cs.mcgill.ca/~fukuda/soft/polyfaq/node22.html}
 #' 
 #' \item Hummel, R. M., Hunter, D. R., and Handcock, M. S. (2012), Improving
-#' Simulation-Based Algorithms for Fitting ERGMs, Journal of Computational and
-#' Graphical Statistics, 21: 920-939. }
+#' Simulation-Based Algorithms for Fitting ERGMs, *Journal of Computational and
+#' Graphical Statistics*, 21: 920-939.
 #'
+#' \item Krivitsky, P. N., Kuvelkar, A. R., and Hunter,
+#' D. R. (2022). Likelihood-based Inference for Exponential-Family
+#' Random Graph Models via Linear Programming. *arXiv preprint*
+#' arXiv:2202.03572. \url{https://arxiv.org/abs/2202.03572}
+#'
+#' }
 #' @keywords internal
 #' @export is.inCH
 is.inCH <- function(p, M, verbose=FALSE, ...) { # Pass extra arguments directly to LP solver
@@ -149,7 +137,8 @@ is.inCH <- function(p, M, verbose=FALSE, ...) { # Pass extra arguments directly 
 
 warning_once <- once(warning)
 
-#' @describeIn is.inCH Shrink points p towards m until all are in the convex hull of M.
+#' @rdname is.inCH
+#' @description `shrink_into_CH()` returns the coefficient by which rows of `p` can be scaled towards or away from point `m` in order for all of them to be in the convex hull of `M` or on its boundary.
 #' @param solver A character string selecting which solver to use; by default, tries `Rglpk`'s but falls back to `lpSolveAPI`'s.
 #' @export
 shrink_into_CH <- function(p, M, m = NULL, verbose=FALSE, ..., solver = c("glpk", "lpsolve")) { # Pass extra arguments directly to LP solver
