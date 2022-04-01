@@ -249,7 +249,7 @@ Introduction to Stochastic Actor-Based Models for Network Dynamics.
 \item Morris M, Handcock MS, and Hunter DR. Specification of
 Exponential-Family Random Graph Models: Terms and Computational Aspects.
 \emph{Journal of Statistical Software}, 2008, 24(4), 1-24.
-\url{https://www.jstatsoft.org/v24/i04}
+\doi{10.18637/jss.v024.i04}
 \item Snijders, T. A. B., P. E. Pattison, G. L. Robins, and M. S. Handcock
 (2006). New specifications for exponential random graph models,
 \emph{Sociological Methodology}, 36(1): 99-153.
