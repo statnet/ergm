@@ -264,7 +264,7 @@
 #' \item{network}{Network passed on the left-hand side of `formula`. If `target.stats` are passed, it is replaced by the network returned by [san()].}
 #' \item{newnetworks}{A list of the final networks at the end of the MCMC
 #' simulation, one for each thread.}
-#' \item{newnetwork}{The first (possibly only) element of \code{netwonetworks}.}
+#' \item{newnetwork}{The first (possibly only) element of \code{newnetworks}.}
 #' \item{coef.init}{The initial value of \eqn{\theta}.}
 #' \item{est.cov}{The covariance matrix of the model statistics in the final MCMC sample.}
 #' \item{coef.hist, steplen.hist, stats.hist, stats.obs.hist}{
