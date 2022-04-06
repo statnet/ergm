@@ -173,7 +173,7 @@ those with which \code{object} was fitted.}
 constraints.}
 
 \item{monitor}{A one-sided formula specifying one or more terms
-whose value is to be monitored. These terms are appeneded to the
+whose value is to be monitored. These terms are appended to the
 model, along with a coefficient of 0, so their statistics are
 returned. An \code{\link{ergm_model}} objectcan be passed as well.}
 
