@@ -373,6 +373,8 @@ ergm_MCMC_slave <- function(state, eta,control,verbose,..., burnin=NULL, samples
 
     y <- y %>% scale %>% `[`(,attr(.,"scaled:scale")>0, drop=FALSE)
 
+    if(ncol(y) == 0) return(NULL)
+
     decay <- optimize(ssr, interval, y=y)$minimum
 
     ssr(decay, y, results=TRUE)
@@ -392,7 +394,7 @@ ergm_MCMC_slave <- function(state, eta,control,verbose,..., burnin=NULL, samples
 
   FAIL <- list(burnin=round(n*control$MCMC.effectiveSize.burnin.max), pval=0)
 
-  bestfits <- unlist(lapply(x, function(chain) lapply(seq_len(p), function(i) fit_decay(chain[,i], c(0,n*log2(bscl)*8)))), recursive=FALSE)
+  bestfits <- unlist(lapply(x, function(chain) lapply(seq_len(p), function(i) fit_decay(chain[,i], c(0,n*log2(bscl)*8)))), recursive=FALSE) %>% compact
 
   ## print(lapply(bestfits, function(fit) cbind(scale=as.matrix(coef(fit))[2,], decay=attr(fit,"decay"), s=sigma(fit))))
   best <- ifelse(sapply(bestfits, function(fit) sd(resid(fit))/sd(fit$y)<1-1/bscl*2),
