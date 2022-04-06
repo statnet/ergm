@@ -380,7 +380,7 @@ ergm_MCMC_slave <- function(state, eta,control,verbose,..., burnin=NULL, samples
 
   geweke <- function(b){
     if(b>0) x <- window(x, start=start(x) + b * thin(x))
-    if(niter(x)*nchain(x) > (nmax <- max(control$MCMC.effectiveSize.burnin.nmax, nvar(x)*10*4)))
+    if(niter(x)*nchain(x) > (nmax <- max(control$MCMC.effectiveSize.burnin.nmax, nvar(x)*2*4)))
     x <- lapply.mcmc.list(x, `[`, round(seq(from=1,to=niter(x),length.out=round(nmax/nchain(x)))), , drop=FALSE)
 
     p.val <- suppressWarnings(geweke.diag.mv(x, order.max=control$MCMC.effectiveSize.order.max)$p.value)
