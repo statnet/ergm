@@ -410,3 +410,51 @@ nthreads.control.list <- function(clinfo=NULL, ...){
   clinfo <- clinfo$parallel
   nthreads(clinfo, ...)
 }
+
+
+#' A rudimentary cache for large objects
+#'
+#' This cache is intended to store large, infrequently changing data
+#' structures such as [`ergm_model`]s and [`ergm_proposal`]s on worker
+#' nodes.
+#'
+#' @param comm a character string giving the desired function; partial matching is supported.
+#' @param hash a character string, typically a [digest()] of the object.
+#' @param object the object to be stored.
+#'
+#'
+#' Supported tasks are to return all entries, clear the cache, insert
+#' into cache, retrieve an object by hash, check if a hash is
+#' present, or do nothing.
+#'
+#' Cache is limited to a hard-coded size (currently 4). This should
+#' accommodate an [`ergm_model`] and an [`ergm_proposal`] for
+#' unconstrained and constrained MCMC. When additional objects are
+#' stored, the oldest object is purged and garbage-collected.
+#'
+#' @export
+ergm_state_cache <- local({
+  size <- 4
+  objects <- list()
+
+  function(comm = c("all", "clear", "insert", "get", "check", "pass", "list"),
+           hash, object){
+    comm <- match.arg(comm)
+
+    if(comm == "all") objects
+    else if(comm == "clear") objects <<- list()
+    else if(comm == "insert"){
+      objects[[hash]] <<- object # Add object to cache.
+      if(length(objects) > size){
+        objects <<- objects[-1] # If too many, clear the oldest.
+        gc()
+      }
+      invisible(NULL)
+    }
+    else if(comm == "get") objects[[hash]]
+    else if(comm == "check") hash %in% names(objects)
+    else if(comm == "pass") invisible(NULL)
+    else if(comm == "list") names(objects)
+    else stop("Unknown command.")
+  }
+})

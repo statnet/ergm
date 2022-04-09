@@ -29,6 +29,7 @@
 \alias{ergm_state_send}
 \alias{ergm_state_send.ergm_state_send}
 \alias{ergm_state_send.ergm_state_full}
+\alias{ergm_state_send.ergm_state_receive}
 \alias{update.ergm_state_send}
 \alias{ergm_state_receive}
 \alias{ergm_state_receive.ergm_state}
@@ -123,6 +124,8 @@ ergm_state_send(x, ...)
 
 \method{ergm_state_send}{ergm_state_full}(x, ...)
 
+\method{ergm_state_send}{ergm_state_receive}(x, ...)
+
 \method{update}{ergm_state_send}(object, state, ...)
 
 ergm_state_receive(x, ...)
@@ -172,7 +175,10 @@ on how it is used:
 \item{ext.flag}{one of \code{ERGM_STATE_R_CHANGED}, \code{ERGM_STATE_C_CHANGED}, and \code{ERGM_STATE_R_RECONCILED}.}
 
 \item{stats}{a numeric vector of network statistics or some other
-statistics used to resume.}}
+statistics used to resume.}
+
+\item{hashes}{a named list of hexadecimal strings containing MD5 hashes obtained by \code{\link{digest}} of contents \code{model} and/or \code{proposal}; for the \code{ergm_state_send} and \code{ergm_state_receive}, the hash may be retained even if these values are set to \code{NULL}}
+}
 }
 \description{
 \code{ergm_state} is a family of semi-internal classes for passing

@@ -134,17 +134,49 @@ ergm_MCMC_sample <- function(state, control, theta=NULL,
 
   flush.console()
 
+  force(eta)
   state0 <- state
-  state <- lapply(state, ergm_state_send) # Don't carry around nw0.
+
+  send_model_proposal <- function(){
+    if(verbose>1) message("Populating the state cache on worker nodes.")
+    call_state_cache <- function(...) ergm::ergm_state_cache(...)
+    environment(call_state_cache) <- globalenv()
+
+    for(item in c("model", "proposal")){
+      have_item <- unlist(clusterMap(ergm.getCluster(control), call_state_cache,
+                                     list("check"), map(state0, c("hashes", item))))
+      if(verbose>1 && all(have_item)) message("State cache for ", item, " already populated.")
+      if(!all(have_item))
+        clusterMap(ergm.getCluster(control), call_state_cache,
+                   ifelse(have_item, "pass", "insert"), map(state0, c("hashes", item)), ifelse(have_item, list(NULL), map(state0, item)))
+    }
+  }
+
+  if(!is.null(ergm.getCluster(control))){ # Populate cache and
+    send_model_proposal()
+    state <- lapply(state, ergm_state_receive) # Don't carry around nw0, model, or proposal.
+    # Don't carry the environment with the function.
+    call_MCMC_worker <- function(...) ergm::ergm_MCMC_slave(...)
+    environment(call_MCMC_worker) <- globalenv()
+  }else state <- lapply(state, ergm_state_send) # Don't carry around nw0.
   
   #' @importFrom parallel clusterMap
   doruns <- function(burnin=NULL, samplesize=NULL, interval=NULL){
-    out <- if(!is.null(ergm.getCluster(control))) persistEvalQ({clusterMap(ergm.getCluster(control),ergm_MCMC_slave,
-                                                                    state=state, MoreArgs=list(eta=eta,control=control.parallel,verbose=verbose,...,burnin=burnin,samplesize=samplesize,interval=interval))}, retries=getOption("ergm.cluster.retries"), beforeRetry={ergm.restartCluster(control,verbose)})
-    else list(ergm_MCMC_slave(state[[1]], burnin=burnin,samplesize=samplesize,interval=interval,eta=eta,control=control.parallel,verbose=verbose,...))
-    # Note: the return value's state will be a ergm_state_receive.
-    for(i in seq_along(out)) out[[i]]$state <- update(state[[i]], out[[i]]$state)
-    out
+    if(!is.null(ergm.getCluster(control)))
+      persistEvalQ({
+        clusterMap(ergm.getCluster(control), call_MCMC_worker,
+                   state=state, MoreArgs=list(eta=eta,control=control.parallel,verbose=verbose,...,burnin=burnin,samplesize=samplesize,interval=interval))},
+        retries = getOption("ergm.cluster.retries"),
+        beforeRetry = {
+          ergm.restartCluster(control,verbose)
+          send_model_proposal()
+        })
+    else{
+      out <- list(ergm_MCMC_slave(state[[1]], burnin=burnin,samplesize=samplesize,interval=interval,eta=eta,control=control.parallel,verbose=verbose,...))
+      # Note: the return value's state will be a ergm_state_receive.
+      for(i in seq_along(out)) out[[i]]$state <- update(state[[i]], out[[i]]$state)
+      out
+    }
   }
 
   handle_statuses <- function(outl){
@@ -207,7 +239,7 @@ ergm_MCMC_sample <- function(state, control, theta=NULL,
         if(verbose) message("Increasing thinning to ",interval,".")
       }
       
-      esteq <- lapply(sms, function(sm) NVL3(theta, ergm.estfun(sm, ., as.ergm_model(state[[1]])), sm[,!as.ergm_model(state[[1]])$etamap$offsetmap,drop=FALSE])) %>%
+      esteq <- lapply(sms, function(sm) NVL3(theta, ergm.estfun(sm, ., as.ergm_model(state0[[1]])), sm[,!as.ergm_model(state0[[1]])$etamap$offsetmap,drop=FALSE])) %>%
         lapply.mcmc.list(mcmc, start=1, thin=interval) %>% lapply.mcmc.list(`-`)
 
       if(control.parallel$MCMC.runtime.traceplot){
@@ -260,7 +292,7 @@ ergm_MCMC_sample <- function(state, control, theta=NULL,
     if(!is.null(nws)) nws <- map(outl, "saved")
     
     if(control.parallel$MCMC.runtime.traceplot){
-      lapply(sms, function(sm) NVL3(theta, ergm.estfun(sm, ., as.ergm_model(state[[1]])), sm[,!as.ergm_model(state[[1]])$etamap$offsetmap,drop=FALSE])) %>% lapply(mcmc, start=control.parallel$MCMC.burnin+1, thin=control.parallel$MCMC.interval) %>% as.mcmc.list() %>% window(., thin=thin(.)*max(1,floor(niter(.)/1000))) %>% plot(ask=FALSE,smooth=TRUE,density=FALSE)
+      lapply(sms, function(sm) NVL3(theta, ergm.estfun(sm, ., as.ergm_model(state0[[1]])), sm[,!as.ergm_model(state0[[1]])$etamap$offsetmap,drop=FALSE])) %>% lapply(mcmc, start=control.parallel$MCMC.burnin+1, thin=control.parallel$MCMC.interval) %>% as.mcmc.list() %>% window(., thin=thin(.)*max(1,floor(niter(.)/1000))) %>% plot(ask=FALSE,smooth=TRUE,density=FALSE)
     }
   }
 
@@ -291,18 +323,21 @@ ergm_MCMC_sample <- function(state, control, theta=NULL,
 #' @description The \code{ergm_MCMC_slave} function calls the actual C
 #'   routine and does minimal preprocessing.
 #'
-#' @param burnin,samplesize,interval MCMC paramters that can
-#'   be used to temporarily override those in the `control` list.
+#' @param burnin,samplesize,interval MCMC paramters that can be used
+#'   to temporarily override those in the `control` list.
 #' @return \code{ergm_MCMC_slave} returns the MCMC sample as a list of
 #'   the following: \item{s}{the matrix of statistics.}
 #'   \item{state}{an [`ergm_state`] object for the new network.}
-#'   \item{status}{success or failure code: `0` is
-#'   success, `1` for too many edges, and `2` for a
-#'   Metropolis-Hastings proposal failing.}
+#'   \item{status}{success or failure code: `0` is success, `1` for
+#'   too many edges, and `2` for a Metropolis-Hastings proposal failing,
+#'   `-1` for [`ergm_model`] or [`ergm_proposal`] not passed and
+#'   missing from the cache.}
 #' @useDynLib ergm
 #' @export
 ergm_MCMC_slave <- function(state, eta,control,verbose,..., burnin=NULL, samplesize=NULL, interval=NULL){
   on.exit(ergm_Cstate_clear())
+  state <- ergm_state_send(state)
+  if(is.null(state$model) || is.null(state$proposal)) return(list(status=-1L))
 
   NVL(burnin) <- control$MCMC.burnin
   NVL(samplesize) <- control$MCMC.samplesize

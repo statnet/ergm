@@ -37,6 +37,7 @@ Imports:
     parallel,
     methods,
     knitr,
+    digest,
     stringr
 Suggests:
     lattice (>= 0.20.41),
