@@ -143,7 +143,7 @@ ergm.logitreg <- function(x, y, wt = rep(1, length(y)),
   fit$cov.unscaled <- asycov
   if(!fit$converged)
       message("Trust region algorithm did not converge.")
-  invisible(fit)
+  fit
 }
 
 

@@ -201,7 +201,7 @@ ergm.mple<-function(nw, fd, m, init=NULL,
   structure(list(coefficients=theta,
       iterations=iteration, 
       MCMCtheta=theta, gradient=gradient,
-      hessian=NULL, covar=covar, failure=FALSE,
+      hessian=hess, covar=covar, failure=FALSE,
       glm = glm, glm.null = glm.null, xmat.full = if(save.xmat) pl$xmat.full),
      class="ergm")
 }
