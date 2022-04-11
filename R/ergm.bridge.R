@@ -339,25 +339,29 @@ ergm.bridge.dindstart.llk<-function(object, response=NULL, constraints=~., coef,
   }
 
   message("Fitting the dyad-independent submodel...")
-  ergm.dind<-suppressMessages(suppressWarnings(ergm(dind,estimate="MPLE",constraints=constraints,obs.constraints=obs.constraints,eval.loglik=FALSE,control=control.ergm(drop=FALSE, term.options=control$term.options, MPLE.max.dyad.types=control$MPLE.max.dyad.types), offset.coef = offset.dind)))
-  
   if(is.null(coef.dind)){
+    ergm.dind<-suppressMessages(suppressWarnings(ergm(dind,basis=nw,estimate="MPLE",constraints=constraints,obs.constraints=obs.constraints,eval.loglik=FALSE,control=control.ergm(drop=FALSE, term.options=control$term.options, MPLE.max.dyad.types=control$MPLE.max.dyad.types), offset.coef = offset.dind)))
+    etamap.dind <- ergm.dind$etamap
+    stats.dind <- ergm.dind$nw.stats
+
     eta.dind <- ergm.eta(coef(ergm.dind), ergm.dind$etamap)[!ergm.dind$etamap$offsetmap]
     eta.dind <- ifelse(is.na(eta.dind),0,eta.dind)
-    llk.dind<- -ergm.dind$glm$deviance/2 - -ergm.dind$glm.null$deviance/2
+    llk.dind <- ergm.dind$mple.lik
   }else{
-    eta.dind <- ergm.eta(coef(ergm.dind), ergm.dind$etamap)
-    lin.pred <- model.matrix(ergm.dind$glm) %*% eta.dind
-    llk.dind <- 
-      crossprod(lin.pred,ergm.dind$glm$y*ergm.dind$glm$prior.weights)-sum(log1p(exp(lin.pred))*ergm.dind$glm$prior.weights) -
-      (network.dyadcount(ergm.dind$network,FALSE) - network.edgecount(NVL(as.rlebdm(ergm.dind$constrained, ergm.dind$constrained.obs,which="missing"),network.initialize(1))))*log(1/2)
+    mple.dind <- suppressMessages(suppressWarnings(ergmMPLE(dind, output="matrix", constraints=constraints,obs.constraints=obs.constraints, control=control.ergm(drop=FALSE, term.options=control$term.options, MPLE.max.dyad.types=control$MPLE.max.dyad.types))))
+    etamap.dind <- attr(ergm.dind, "etamap")
+    stats.dind <- summary(dind, basis=nw)
+
+    eta.dind <- ergm.eta(coef.dind, etamap.dind)
+    lin.pred <- mple.dind$x %*% eta.dind
+    llk.dind <- crossprod(lin.pred, mple.dind$response*mple.dind$weights)-sum(log1p(exp(mple.dind$predictor))*mple.dind$weights)
   }
-  
+
   # If there are target.stats we need to adjust the log-likelihood in
   # case they are different from those to which the dyad-independent
   # submodel was actually fit:
   # l(theta,ts)-l(theta,ns)=sum(theta*(ts-ns)).
-  if(!is.null(target.stats)) llk.dind <- llk.dind + c(crossprod(eta.dind, NVL(c(ts.dind), ergm.dind$nw.stats[!ergm.dind$etamap$offsetmap]) - ergm.dind$nw.stats[!ergm.dind$etamap$offsetmap]))
+  if(!is.null(target.stats)) llk.dind <- llk.dind + c(crossprod(eta.dind, NVL(c(ts.dind), stats.dind[!etamap.dind$offsetmap]) - stats.dind[!etamap.dind$offsetmap]))
 
   coef.dind <- numeric(length(dindmap))
   coef.dind[dindmap] <- replace(coef(ergm.dind), is.na(coef(ergm.dind)), 0)

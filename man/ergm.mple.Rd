@@ -12,7 +12,6 @@ ergm.mple(
   init = NULL,
   MPLEtype = "glm",
   family = "binomial",
-  save.glm = TRUE,
   save.xmat = TRUE,
   control = NULL,
   verbose = FALSE,
@@ -44,10 +43,6 @@ or "logitreg"; default="glm"}
 \item{family}{the family to use in the R native routine
 \code{\link{glm}}; only applicable if "glm" is the 'MPLEtype';
 default="binomial"}
-
-\item{save.glm}{whether the mple fit and the null mple fit should
-be returned (T or F); if false, NULL is returned for both;
-default==TRUE}
 
 \item{control}{A list of control parameters for algorithm tuning,
 typically constructed with \code{\link[=control.ergm]{control.ergm()}}. Its documentation

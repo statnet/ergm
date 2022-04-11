@@ -45,9 +45,6 @@
 #' @param family the family to use in the R native routine
 #'   \code{\link{glm}}; only applicable if "glm" is the 'MPLEtype';
 #'   default="binomial"
-#' @param save.glm whether the mple fit and the null mple fit should
-#'   be returned (T or F); if false, NULL is returned for both;
-#'   default==TRUE
 #'
 #' @templateVar mycontrol control.ergm
 #' @template control
@@ -71,9 +68,8 @@
 #' Graph Models." _Social Networks_, *31*, pp. 52-62.
 ergm.mple<-function(nw, fd, m, init=NULL,
                     MPLEtype="glm", family="binomial",
-                    save.glm=TRUE,
                     save.xmat=TRUE,
-		    control=NULL,
+                    control=NULL,
                     verbose=FALSE,
                     ...) {
   message("Starting maximum pseudolikelihood estimation (MPLE):")
@@ -149,9 +145,6 @@ ergm.mple<-function(nw, fd, m, init=NULL,
   theta[!m$etamap$offsettheta] <- real.coef
   names(theta) <- param_names(m, FALSE)
 
-#
-# Old end
-#
   gradient <- rep(NA, length(theta))
 
   # FIXME: Actually, if case-control sampling was used, this should be positive.
@@ -189,21 +182,24 @@ ergm.mple<-function(nw, fd, m, init=NULL,
     }
   }
 
-  if(save.glm){
-    glm <- mplefit
-    glm.null <- mplefit.null
-  }else{
-    glm <- list(deviance=mplefit$deviance)
-    glm.null <- list(deviance=mplefit.null$deviance)
-  }
+  nobs <- sum(pl$wend)
+  df <- nparam(m, offset=FALSE)
+
   message("Finished MPLE.")
   # Output results as ergm-class object
   structure(list(coefficients=theta,
       iterations=iteration, 
       MCMCtheta=theta, gradient=gradient,
       hessian=hess, covar=covar, failure=FALSE,
-      glm = glm, glm.null = glm.null, xmat.full = if(save.xmat) pl$xmat.full),
-     class="ergm")
+      mple.lik = structure(
+        ERRVL(try(logLik(mplefit), silent=TRUE), -mplefit$deviance/2),
+        nobs = nobs, df = df, class="logLik"),
+      mple.lik.null = structure(
+        ERRVL(try(logLik(mplefit.null), silent=TRUE), -mplefit.null$deviance/2),
+        nobs = nobs, df = df, class="logLik"),
+      xmat.full = if(save.xmat) pl$xmat.full
+      ),
+      class="ergm")
 }
 
 #' Test whether the MPLE exists

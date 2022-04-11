@@ -788,6 +788,8 @@ ergm <- function(formula, response=NULL,
                                                                nonvar_action = control$MPLE.nonvar))
          )
 
+  initialfit$xmat.full <- NULL # No longer needed but takes up space.
+
   estimate.desc <- switch(estimate,
                           MPLE = if(MPLE.is.MLE) "Maximum Likelihood"
                                  else "Maximum Pseudolikelihood",
