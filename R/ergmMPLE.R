@@ -7,45 +7,6 @@
 #
 #  Copyright 2003-2021 Statnet Commons
 ################################################################################
-############################################################################
-# The <ergmMPLE> function has different behavior based on whether the given
-# formula should be fit or not. If so, <ergm> is called. If not, the elements
-# needed for logit regression are computed and returned using <ergm.pl>
-#
-# --PARAMETERS--
-#   formula : a formula as 'nw ~ term(s)'
-#   fitmodel: whether to fit the model given by 'formula' (T or F);
-#             default=FALSE
-#   control : a list of parameters to control the fitting process; this
-#             is ignored if 'fitmodel'=FALSE
-#   verbose : whether the <ergm> or <ergm.pl> functions should be verbose
-#             (T or F); default=FALSE
-#   ..      : additional parameters that will be passed onto <ergm> or
-#             <ergm.pl>
-#
-# --RETURNED--
-#   if output
-#     ="fit"  -- an ergm object, as returned by <ergm>
-#     ="matrix" -- a list with 3 components:
-#                response : the vector of dyad values; this is tabulated
-#                           according to 'weights' 
-#                predictor: the design matrix of change stats;  this is 
-#                           tabulated according to 'weights' 
-#                weights  : the weights for each entry/row of 'response'/
-#                           'predictor'
-#     ="array" -- a list with 3 components:
-#                response : the sociomatrix
-#                predictor: an array of change stats with dimensions
-#                           as follows: (tail, head, term)
-#                weights  : a sociomatrix with weights: typically 0 if a
-#                           dyad was not visited, 1 if it was
-#                Note that for undirected unipartite networks, the lower
-#                triangle for each term's predictor matrix is set to NA
-#                and its weight to 0.
-#
-###########################################################################
-
-
 
 #' ERGM Predictors and response for logistic regression calculation of MPLE
 #' 
@@ -70,7 +31,6 @@
 #' @param formula,constraints,obs.constraints An ERGM formula and
 #'   (optional) constraint specification formulas. See \code{\link{ergm}}.
 #' 
-#' @param fitmodel Deprecated. Use \code{output="fit"} instead.
 #' @param output Character, partially matched. See Value.
 #'
 #' @templateVar mycontrol control.ergm
@@ -165,12 +125,8 @@
 #' mplearray$predictor[1:5,1:5,1:3]
 #' mplearray$weights[1:5,1:5]
 #' @export ergmMPLE
-ergmMPLE <- function(formula, constraints=~., obs.constraints=~-observed, fitmodel=FALSE, output=c("matrix", "array", "dyadlist", "fit"), expand.bipartite=FALSE, control=control.ergm(),
+ergmMPLE <- function(formula, constraints=~., obs.constraints=~-observed, output=c("matrix", "array", "dyadlist", "fit"), expand.bipartite=FALSE, control=control.ergm(),
                      verbose=FALSE, ..., basis=ergm.getnetwork(formula)){
-  if(!missing(fitmodel)){
-      warning("Argument fitmodel= to ergmMPLE() has been deprecated and will be removed in a future version. Use output=\"fit\" instead.")
-      if(fitmodel) output <- "fit"
-  }
   check.control.class("ergm", "ergmMPLE")
   handle.control.toplevel("ergm", ...)
 
