@@ -73,6 +73,9 @@
 #' be 0; and for a unipartite undirected network, lower triangle of each
 #' \code{predictor[,,k]} matrix will be set to \code{NA}, with the lower
 #' triangle of \code{weights} being set to 0.
+#'
+#' To all of the above output types, `attr(., "etamap")` is attached
+#' containing the [mapping and offset information][ergm.eta].
 #' 
 #' If \code{output=="fit"}, then \code{ergmMPLE} simply calls the
 #' \code{\link{ergm}} function with the \code{estimate="MPLE"} option set,
@@ -167,7 +170,8 @@ ergmMPLE <- function(formula, constraints=~., obs.constraints=~-observed, output
   # Get the MPLE predictors
   pl <- ergm.pl(nw, fd, model, verbose=verbose, control=control, ignore.offset=TRUE,...)
 
-  switch(output,
+  structure(
+    switch(output,
          matrix = list(response = pl$zy, predictor = pl$xmat.full,
            weights = pl$wend),
          dyadlist = {
@@ -201,6 +205,8 @@ ergmMPLE <- function(formula, constraints=~., obs.constraints=~-observed, output
 
            list(response = ym, predictor = xa, weights = wm)
          }
-         )
+         ),
+    etamap = model$etamap
+  )
 }
 
