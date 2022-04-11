@@ -36,8 +36,7 @@
 # --RETURNED--
 #   fit: the best fit, as found by the <optim> function, and as a list of:
 #        par         :  the best set of parameters found
-#        value       :  the logistic deviance, as computed by
-#                       <ergm.logisticdeviance> evaluated at 'par'
+#        value       :  the logistic deviance
 #        counts      :  a two-element vector giving the number of calls to the
 #                       <ergm.locisticdeviance> function and the gradient
 #                       function for the "BFGS" method; this excludes calls
