@@ -121,12 +121,6 @@ degreedist.network <- function(object, print=TRUE, ...)
 }
 
 
-summary.statsmatrix.ergm <- function(object, ...){
- c(summary(round(object,digits=8), ...),
-   round(ergm.t.summary(object),5))
-}
-
-
 ###############################################################################
 # The <ergm.t.summary> function conducts a t test for comparing the mean of a
 # given vector and a hypothesized mean
