@@ -10,7 +10,6 @@
 #============================================================================
 # This file contains the following 2 functions for logistic regression
 #        <ergm.logitreg>
-#        <ergm.logisticdeviance>
 #============================================================================
 
 
@@ -145,12 +144,3 @@ ergm.logitreg <- function(x, y, wt = rep(1, length(y)),
       message("Trust region algorithm did not converge.")
   fit
 }
-
-
-
-ergm.logisticdeviance <- function(theta, X, y,
-                            w=rep(1,length(y)), offset=rep(0,length(y)), etamap=identity, etagrad=NULL) {
-      p <- plogis(.multiply.with.inf(X,etamap(theta))+offset)
-      -2*sum(w * ifelse(y, log(p), log1p(-p)))
-}
-
