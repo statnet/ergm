@@ -388,7 +388,7 @@ ergm_MCMC_slave <- function(state, eta,control,verbose,..., burnin=NULL, samples
     x <- lapply.mcmc.list(x, `%*%`, v)
   }
 
-  n <- niter(x)
+  nit <- niter(x)
   p <- nvar(x)
   bscl <- control$MCMC.effectiveSize.burnin.scl
 
@@ -397,9 +397,8 @@ ergm_MCMC_slave <- function(state, eta,control,verbose,..., burnin=NULL, samples
     # the difference in the expected value of the variable at the
     # current MCMC draw from the ultimate expected value.
 
-    x <- rep(scale(2^(-seq_len(n)/decay)),
-             length.out = NROW(y))
-    a <- lm(y ~ x, x=results, y=results)
+    x <- rep(2^(-seq_len(nit)/decay), length.out = NROW(y))
+    a <- try(lm(y ~ x, x=results, y=results))
     if(results) structure(a, decay=decay) else sum(sigma(a)^2)
   }
 
@@ -424,19 +423,18 @@ ergm_MCMC_slave <- function(state, eta,control,verbose,..., burnin=NULL, samples
     if(is.na(p.val)) 0 else p.val
   }
 
-  best_burnin <- function(coef, decay, s) -decay * log2( s/bscl/abs(coef))
+  best_burnin <- function(coef, decay, s) -decay * log2(s/bscl/abs(coef))
   best_burnin.lm <- function(fit) best_burnin(if(is.matrix(coef(fit))) coef(fit)[2,] else coef(fit)[2], attr(fit,"decay"), sigma(fit))
 
-  FAIL <- list(burnin=round(n*control$MCMC.effectiveSize.burnin.max), pval=0)
+  FAIL <- list(burnin=round(nit*control$MCMC.effectiveSize.burnin.max), pval=0)
 
-  bestfits <- unlist(lapply(x, function(chain) lapply(seq_len(p), function(i) fit_decay(chain[,i], c(0,n*log2(bscl)*8)))), recursive=FALSE) %>% compact
+  bestfits <- unlist(lapply(x, function(chain) lapply(seq_len(p), function(i) fit_decay(chain[,i], c(0,nit*log2(bscl)*8)))), recursive=FALSE) %>% compact
 
-  ## print(lapply(bestfits, function(fit) cbind(scale=as.matrix(coef(fit))[2,], decay=attr(fit,"decay"), s=sigma(fit))))
   best <- ifelse(sapply(bestfits, function(fit) sd(resid(fit))/sd(fit$y)<1-1/bscl*2),
                  sapply(bestfits, best_burnin.lm),
-                 round(n*control$MCMC.effectiveSize.burnin.min))
+                 round(nit*control$MCMC.effectiveSize.burnin.min))
 
-  best <- sqrt(mean(pmin(pmax(best,0),n*control$MCMC.effectiveSize.burnin.max)^2, na.rm=TRUE))
+  best <- sqrt(mean(pmin(pmax(best,0),nit*control$MCMC.effectiveSize.burnin.max)^2, na.rm=TRUE))
 
   if(all(is.na(best) | is.infinite(best))) return(FAIL)
 
