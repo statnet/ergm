@@ -64,7 +64,7 @@
 
 %% }
 
-\section{Changes in version 4.1.0}{
+\section{Changes in version 4.1.2}{
 
   \subsection{NEW FEATURES}{
     \itemize{
@@ -72,7 +72,7 @@
         \code{\link{F}()} operator's filter formula can now be a simple logical or comparison expression.
       }
       \item{
-        \code{\link{Passthrough}()} operator now takes an optional boolean label= argument, which controls whether Passthrough~ will be prepended to the coefficient name; it defaults to \code{FALSE}.
+        \code{\link{Passthrough}()} operator now takes an optional boolean label= argument, which controls whether Passthrough~ will be prepended to the coefficient name; it defaults to \code{TRUE} for backwards compatibility, though this may change in the future.
       }
     }
   }
@@ -81,7 +81,7 @@
   \subsection{BUG FIXES}{
     \itemize{
       \item{
-        In \code{\link{summary.ergm}()} output, the \code{$coefficients} element is now a matrix rather than a dataframe. This fixes some issues with duplicate term names. Also, \code{$coefs} element is no longer attached.
+        In \code{\link{summary.ergm}()} output, the \code{$coefficients} element is now a matrix rather than a dataframe. This fixes some issues with duplicate term names.
       }
       \item{
         \code{\link{check.ErgmTerm}()} no longer skips argument type check if the passed argument is \code{NULL}. For backwards compatibility, the check is skipped if the argument is optional \emph{and} the default value is \code{NULL}. A constant \code{ERGM_VATTR_SPEC_NULL} has been added for when \code{NULL} is a valid (but not default) input for nodal attribute specification.
@@ -101,9 +101,6 @@
 
   \subsection{OTHER USER-VISIBLE CHANGES}{
     \itemize{
-      \item{
-        API change: \code{\link{ergm_model}()} no longer sets an element \code{$coef.names}, and \code{offset()} decorator is set on each term's \code{coef.names}.
-      }
       \item{
         Miscellaneous improvements to the \code{BDStrat*} family of proposals.
       }
