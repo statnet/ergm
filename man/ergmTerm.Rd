@@ -79,7 +79,7 @@ name to be modeled/simulated.
 
 Binary ERGM statistics cannot be
 used directly in valued mode and vice versa. However, a substantial number
-of binary ERGM statistics --- particularly the ones with dyadic indepenence
+of binary ERGM statistics --- particularly the ones with dyadic independence
 --- have simple generalizations to valued ERGMs, and have been adapted in
 \code{\link[=ergm-package]{ergm}}. They have the same form as their binary
 ERGM counterparts, with an additional argument: \code{form}, which, at this
