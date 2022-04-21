@@ -2,19 +2,15 @@
 % Please edit documentation in R/ergm-internal.R
 \name{ergm-internal}
 \alias{ergm-internal}
-\alias{ergm.logisticdeviance}
 \alias{ergm.logitreg}
-\alias{logistftest}
 \alias{ergm_conlist}
-\alias{summary.statsmatrix.ergm}
-\alias{geweke.diag.ar}
 \title{Internal ergm Objects}
 \description{
 Internal \code{\link[=ergm-package]{ergm}} functions.
 }
 \details{
 Most of these are not to be called by the user (or in some cases are just
-waiting for proper documentation to be written :).
+waiting for proper documentation to be written.
 }
 \seealso{
 ergm-package

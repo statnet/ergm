@@ -49,8 +49,8 @@ down processing.}
 
 \item{eta}{the natural parameters of the model; by default constructed from \code{theta}.}
 
-\item{burnin, samplesize, interval}{MCMC paramters that can
-be used to temporarily override those in the \code{control} list.}
+\item{burnin, samplesize, interval}{MCMC paramters that can be used
+to temporarily override those in the \code{control} list.}
 }
 \value{
 \code{ergm_MCMC_sample} returns a list
@@ -67,9 +67,10 @@ sampled networks.}
 \code{ergm_MCMC_slave} returns the MCMC sample as a list of
 the following: \item{s}{the matrix of statistics.}
 \item{state}{an \code{\link{ergm_state}} object for the new network.}
-\item{status}{success or failure code: \code{0} is
-success, \code{1} for too many edges, and \code{2} for a
-Metropolis-Hastings proposal failing.}
+\item{status}{success or failure code: \code{0} is success, \code{1} for
+too many edges, and \code{2} for a Metropolis-Hastings proposal failing,
+\code{-1} for \code{\link{ergm_model}} or \code{\link{ergm_proposal}} not passed and
+missing from the cache.}
 }
 \description{
 This is an internal function, not normally called directly by the

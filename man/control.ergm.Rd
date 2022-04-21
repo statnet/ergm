@@ -330,7 +330,7 @@ Metropolis-Hastings algorithm.  Increasing sample size may increase the
 precision in the estimates by reducing MCMC error, at the expense of time.
 Set it higher for larger networks, or when using parallel functionality.}
 
-\item{MCMC.effectiveSize, MCMC.effectiveSize.damp, MCMC.effectiveSize.maxruns, MCMC.effectiveSize.burnin.pval, MCMC.effectiveSize.burnin.min, MCMC.effectiveSize.burnin.max, MCMC.effectiveSize.burnin.nmin, MCMC.effectiveSize.burnin.nmax, MCMC.effectiveSize.burnin.PC, MCMC.effectiveSize.burnin.scl, MCMC.effectiveSize.burnin.pool, MCMC.effectiveSize.order.max}{Set \code{MCMC.effectiveSize} to a non-NULL value to adaptively
+\item{MCMC.effectiveSize, MCMC.effectiveSize.damp, MCMC.effectiveSize.maxruns, MCMC.effectiveSize.burnin.pval, MCMC.effectiveSize.burnin.min, MCMC.effectiveSize.burnin.max, MCMC.effectiveSize.burnin.nmin, MCMC.effectiveSize.burnin.nmax, MCMC.effectiveSize.burnin.PC, MCMC.effectiveSize.burnin.scl, MCMC.effectiveSize.order.max}{Set \code{MCMC.effectiveSize} to a non-NULL value to adaptively
 determine the burn-in and the MCMC length needed to get the
 specified effective size; 50 is a reasonable value. In the
 adaptive MCMC mode, MCMC is run forward repeatedly
@@ -356,10 +356,7 @@ produces a \eqn{p}-value higher than
 
 If \code{MCMC.effectiveSize.burnin.PC>0}, instead of using the full
 sample for burn-in estimation, at most this many principal
-components are used instead. If \code{MCMC.effectiveSize.burnin.pool}
-is \code{TRUE}, the exponential decay model is estimated on all MCMC
-samples put together; otherwise each individually, then the
-highest valid one is taken.
+components are used instead.
 
 The effective
 size of the post-burn-in sample is computed via Vats, Flegal, and

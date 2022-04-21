@@ -87,22 +87,12 @@ MCMCStatus DISPATCH_SANSample(DISPATCH_ErgmState *s,
                        int *offsetindices,
                        double *offsets,
                        int verbose){
-  int staken, tottaken, ptottaken;
-    
-  /*********************
-  networkstatistics are modified in groups of m->n_stats, and they
-  reflect the CHANGE in the values of the statistics from the
-  original (observed) network.  Thus, when we begin, the initial 
-  values of the first group of m->n_stats networkstatistics should 
-  all be zero
-  *********************/
+  double *deltainvsig = R_calloc(nstats, double);
 
+  int staken, tottaken, ptottaken;
   unsigned int interval = nsteps / samplesize; // Integer division: rounds down.
   unsigned int burnin = nsteps - (samplesize-1)*interval;
 
-  double *deltainvsig = R_calloc(nstats, double);
-
-  /*  Catch more edges than we can return */
   if(DISPATCH_SANMetropolisHastings(s, invcov, tau, networkstatistics, prop_networkstatistics, burnin, &staken,
                                     nstats, statindices, noffsets, offsetindices, offsets, deltainvsig,
                              verbose)!=MCMC_OK)
@@ -116,11 +106,11 @@ MCMCStatus DISPATCH_SANSample(DISPATCH_ErgmState *s,
     /* Now sample networks */
     for (unsigned int i=1; i < samplesize; i++){
       /* Set current vector of stats equal to previous vector */
-      Rboolean found = TRUE;
+      Rboolean finished = TRUE;
       for (unsigned int j=0; j<nstats; j++){
-        if((networkstatistics[j+nstats] = networkstatistics[j])!=0) found = FALSE;
+        if((networkstatistics[j+nstats] = networkstatistics[j])!=0) finished = FALSE;
       }
-      if(found){
+      if(finished){
 	if(verbose) Rprintf("Exact match found.\n");
 	break;
       }
@@ -275,14 +265,14 @@ MCMCStatus DISPATCH_SANMetropolisHastings(DISPATCH_ErgmState *s,
       /* Make proposed toggles (updating timestamps--i.e., for real this time) */
       for(unsigned int i=0; i < MHp->ntoggles; i++) PROP_COMMIT;
       /* record network statistics for posterity */
-      Rboolean found = TRUE;
+      Rboolean finished = TRUE;
       for (unsigned int i = 0; i < nstats; i++){
-	if((networkstatistics[i] += m->workspace[statindices[i]])!=0) found=FALSE;
+	if((networkstatistics[i] += m->workspace[statindices[i]])!=0) finished = FALSE;
       }
       
       taken++;
 
-      if(found)	break;
+      if(finished) break;
     }else{
       if(verbose>=5){
 	Rprintf("Rejected.\n");

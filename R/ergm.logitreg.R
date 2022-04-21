@@ -10,7 +10,6 @@
 #============================================================================
 # This file contains the following 2 functions for logistic regression
 #        <ergm.logitreg>
-#        <ergm.logisticdeviance>
 #============================================================================
 
 
@@ -37,8 +36,7 @@
 # --RETURNED--
 #   fit: the best fit, as found by the <optim> function, and as a list of:
 #        par         :  the best set of parameters found
-#        value       :  the logistic deviance, as computed by
-#                       <ergm.logisticdeviance> evaluated at 'par'
+#        value       :  the logistic deviance
 #        counts      :  a two-element vector giving the number of calls to the
 #                       <ergm.locisticdeviance> function and the gradient
 #                       function for the "BFGS" method; this excludes calls
@@ -143,14 +141,5 @@ ergm.logitreg <- function(x, y, wt = rep(1, length(y)),
   fit$cov.unscaled <- asycov
   if(!fit$converged)
       message("Trust region algorithm did not converge.")
-  invisible(fit)
+  fit
 }
-
-
-
-ergm.logisticdeviance <- function(theta, X, y,
-                            w=rep(1,length(y)), offset=rep(0,length(y)), etamap=identity, etagrad=NULL) {
-      p <- plogis(.multiply.with.inf(X,etamap(theta))+offset)
-      -2*sum(w * ifelse(y, log(p), log1p(-p)))
-}
-

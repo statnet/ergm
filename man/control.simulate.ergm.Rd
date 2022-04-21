@@ -24,7 +24,6 @@ control.simulate.formula.ergm(
   MCMC.effectiveSize.burnin.nmax = 128,
   MCMC.effectiveSize.burnin.PC = FALSE,
   MCMC.effectiveSize.burnin.scl = 1024,
-  MCMC.effectiveSize.burnin.pool = FALSE,
   MCMC.effectiveSize.order.max = NULL,
   MCMC.maxedges = Inf,
   MCMC.packagenames = c(),
@@ -55,7 +54,6 @@ control.simulate(
   MCMC.effectiveSize.burnin.nmax = 128,
   MCMC.effectiveSize.burnin.PC = FALSE,
   MCMC.effectiveSize.burnin.scl = 1024,
-  MCMC.effectiveSize.burnin.pool = FALSE,
   MCMC.effectiveSize.order.max = NULL,
   MCMC.maxedges = Inf,
   MCMC.packagenames = c(),
@@ -86,7 +84,6 @@ control.simulate.formula(
   MCMC.effectiveSize.burnin.nmax = 128,
   MCMC.effectiveSize.burnin.PC = FALSE,
   MCMC.effectiveSize.burnin.scl = 1024,
-  MCMC.effectiveSize.burnin.pool = FALSE,
   MCMC.effectiveSize.order.max = NULL,
   MCMC.maxedges = Inf,
   MCMC.packagenames = c(),
@@ -118,7 +115,6 @@ control.simulate.ergm(
   MCMC.effectiveSize.burnin.nmax = 128,
   MCMC.effectiveSize.burnin.PC = FALSE,
   MCMC.effectiveSize.burnin.scl = 1024,
-  MCMC.effectiveSize.burnin.pool = FALSE,
   MCMC.effectiveSize.order.max = NULL,
   MCMC.maxedges = Inf,
   MCMC.packagenames = NULL,
@@ -164,7 +160,7 @@ networks per call to the lower-level code; this can be useful if
 \verb{output=} is a function, where it can be used to limit the number
 of networks held in memory at any given time.}
 
-\item{MCMC.effectiveSize, MCMC.effectiveSize.damp, MCMC.effectiveSize.maxruns, MCMC.effectiveSize.burnin.pval, MCMC.effectiveSize.burnin.min, MCMC.effectiveSize.burnin.max, MCMC.effectiveSize.burnin.nmin, MCMC.effectiveSize.burnin.nmax, MCMC.effectiveSize.burnin.PC, MCMC.effectiveSize.burnin.scl, MCMC.effectiveSize.burnin.pool, MCMC.effectiveSize.order.max}{Set \code{MCMC.effectiveSize} to a non-NULL value to adaptively
+\item{MCMC.effectiveSize, MCMC.effectiveSize.damp, MCMC.effectiveSize.maxruns, MCMC.effectiveSize.burnin.pval, MCMC.effectiveSize.burnin.min, MCMC.effectiveSize.burnin.max, MCMC.effectiveSize.burnin.nmin, MCMC.effectiveSize.burnin.nmax, MCMC.effectiveSize.burnin.PC, MCMC.effectiveSize.burnin.scl, MCMC.effectiveSize.order.max}{Set \code{MCMC.effectiveSize} to a non-NULL value to adaptively
 determine the burn-in and the MCMC length needed to get the
 specified effective size; 50 is a reasonable value. In the
 adaptive MCMC mode, MCMC is run forward repeatedly
@@ -190,10 +186,7 @@ produces a \eqn{p}-value higher than
 
 If \code{MCMC.effectiveSize.burnin.PC>0}, instead of using the full
 sample for burn-in estimation, at most this many principal
-components are used instead. If \code{MCMC.effectiveSize.burnin.pool}
-is \code{TRUE}, the exponential decay model is estimated on all MCMC
-samples put together; otherwise each individually, then the
-highest valid one is taken.
+components are used instead.
 
 The effective
 size of the post-burn-in sample is computed via Vats, Flegal, and

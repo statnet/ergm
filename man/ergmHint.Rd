@@ -61,14 +61,14 @@ The following hints are known to \CRANpkg{ergm} at this time:
 \itemize{
 \item Goodreau SM, Handcock MS, Hunter DR, Butts CT, Morris M (2008a).  A
 \pkg{statnet} Tutorial. \emph{Journal of Statistical Software}, 24(8).
-\url{https://www.jstatsoft.org/v24/i08/}.
+\doi{10.18637/jss.v024.i08}
 \item Hunter, D. R. and Handcock, M. S. (2006) \emph{Inference in curved
 exponential family models for networks}, Journal of Computational and
 Graphical Statistics.
 \item Hunter DR, Handcock MS, Butts CT, Goodreau SM, Morris M (2008b).
 \pkg{ergm}: A Package to Fit, Simulate and Diagnose Exponential-Family
 Models for Networks.  \emph{Journal of Statistical Software}, 24(3).
-\url{https://www.jstatsoft.org/v24/i03/}.
+\doi{10.18637/jss.v024.i03}
 \item Karwa V, Krivitsky PN, and Slavkovi\'c AB (2016). Sharing Social Network
 Data: Differentially Private Estimation of Exponential-Family Random Graph
 Models. \emph{Journal of the Royal Statistical Society, Series C}, 66(3):
@@ -78,7 +78,7 @@ Networks. \emph{Electronic Journal of Statistics}, 6, 1100-1128.
 \doi{10.1214/12-EJS696}
 \item Morris M, Handcock MS, Hunter DR (2008).  Specification of
 Exponential-Family Random Graph Models: Terms and Computational Aspects.
-\emph{Journal of Statistical Software}, 24(4). \url{https://www.jstatsoft.org/v24/i04/}.
+\emph{Journal of Statistical Software}, 24(4). \doi{10.18637/jss.v024.i04}
 }
 }
 \keyword{models}
