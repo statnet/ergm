@@ -217,7 +217,7 @@ ergm_MCMC_sample <- function(state, control, theta=NULL,
           pred.ss <- howmuchmore(control.parallel$MCMC.effectiveSize, NVL(nrow(sms[[1]]),0), eS, best.burnin$burnin)
           damp.ss <- pred.ss*(eS/(control.parallel$MCMC.effectiveSize.damp+eS))+control.parallel$MCMC.samplesize*(1-eS/(control.parallel$MCMC.effectiveSize.damp+eS))
           samplesize <- round(damp.ss)
-          if(verbose>1) message("Predicted additional sample size: ",pred.ss, " dampened to ",damp.ss, ", so running ", samplesize, " steps forward.")
+          if(verbose>1) message("Predicted additional sample size: ", format(pred.ss), " dampened to ", format(damp.ss), ", so running ", samplesize, " steps forward.")
         }
       }
         
@@ -254,14 +254,14 @@ ergm_MCMC_sample <- function(state, control, theta=NULL,
       }
       burnin.pval <- best.burnin$pval
       if(is.na(burnin.pval) | burnin.pval <= control$MCMC.effectiveSize.burnin.pval){
-        if(verbose>1) message("Selected burn-in ", format(start(esteq)+best.burnin$burnin*thin(esteq), digits=2, scientific=TRUE), " (",round(best.burnin$burnin/niter(esteq)*100,2),"%) p-value = ", burnin.pval, " is below the threshold of ",control$MCMC.effectiveSize.burnin.pval,".")
+        if(verbose>1) message("Selected burn-in ", format(start(esteq)+best.burnin$burnin*thin(esteq), digits=2, scientific=TRUE), " (",round(best.burnin$burnin/niter(esteq)*100,2),"%) p-value = ", format(burnin.pval), " is below the threshold of ",control$MCMC.effectiveSize.burnin.pval,".")
         next
       }
       postburnin.mcmc <- window(esteq, start=start(esteq)+best.burnin$burnin*thin(esteq))
       
       eS <- niter(postburnin.mcmc)*nchain(postburnin.mcmc)/attr(spectrum0.mvar(postburnin.mcmc, order.max=control$MCMC.effectiveSize.order.max),"infl")
       
-      if(verbose) message("ESS of ",eS," attained with burn-in of ", round(best.burnin$burnin/niter(esteq)*100,2),"%; convergence p-value = ", burnin.pval, ".")
+      if(verbose) message("ESS of ", format(eS)," attained with burn-in of ", round(best.burnin$burnin/niter(esteq)*100,2),"%; convergence p-value = ", format(burnin.pval), ".")
 
       if(eS>=control.parallel$MCMC.effectiveSize){
         if(burnin.pval > control$MCMC.effectiveSize.burnin.pval){

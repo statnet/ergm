@@ -445,7 +445,7 @@ ergm.MCMLE <- function(init, nw, model,
     }else if(control$MCMLE.termination=='confidence'){
       if(!is.null(estdiff.prev)){
         d2.prev <- xTAx(estdiff.prev, iVm)
-        if(verbose) message("Distance from origin on tolerance region scale: ", d2, " (previously ", d2.prev, ").")
+        if(verbose) message("Distance from origin on tolerance region scale: ", format(d2), " (previously ", format(d2.prev), ").")
         d2.not.improved <- d2.not.improved[-1] 
         if(d2 >= d2.prev){
           d2.not.improved <- c(d2.not.improved,TRUE)
@@ -486,14 +486,14 @@ ergm.MCMLE <- function(init, nw, model,
             T2 <- try(.ellipsoid_mahalanobis(estdiff, estcov, iVm[!hotel$novar, !hotel$novar]), silent=TRUE) # Distance to the nearest point on the tolerance region boundary.
             T2nullity <- attr(T2,"nullity")
             T2param <- hotel$parameter["param"] - T2nullity
-            if(T2nullity && verbose) message("Estimated covariance matrix of the statistics has nullity ", T2nullity, ". Effective parameter number adjusted to ", T2param, ".")
+            if(T2nullity && verbose) message("Estimated covariance matrix of the statistics has nullity ", format(T2nullity), ". Effective parameter number adjusted to ", format(T2param), ".")
             if(inherits(T2, "try-error")){ # Within tolerance ellipsoid, but cannot be tested.
               message("Unable to test for convergence; increasing sample size.")
               .boost_samplesize(control$MCMLE.confidence.boost)
             }else{ # Within tolerance ellipsoid, can be tested.
               nonconv.pval <- .ptsq(T2, T2param, hotel$parameter["df"], lower.tail=FALSE)
-              if(verbose) message("Test statistic: T^2 = ",T2,", with ",
-                                  T2param, " free parameters and ",hotel$parameter["df"], " degrees of freedom.")
+              if(verbose) message("Test statistic: T^2 = ", format(T2),", with ",
+                                  format(T2param), " free parameters and ", format(hotel$parameter["df"]), " degrees of freedom.")
               message("Convergence test p-value: ", fixed.pval(nonconv.pval, 4), ". ", appendLF=FALSE)
               if(nonconv.pval < 1-control$MCMLE.confidence){
                 message("Converged with ",control$MCMLE.confidence*100,"% confidence.")
@@ -501,7 +501,7 @@ ergm.MCMLE <- function(init, nw, model,
               }else{
                 message("Not converged with ",control$MCMLE.confidence*100,"% confidence; increasing sample size.")
                 critval <- .qtsq(control$MCMLE.confidence, T2param, hotel$parameter["df"])
-                if(verbose) message(control$MCMLE.confidence*100,"% confidence critical value = ",critval,".")
+                if(verbose) message(control$MCMLE.confidence*100,"% confidence critical value = ",format(critval),".")
                 boost <- min((critval/T2),control$MCMLE.confidence.boost) # I.e., we want to increase the denominator far enough to reach the critical value.
                 .boost_samplesize(boost)
               }
