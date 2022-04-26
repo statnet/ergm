@@ -25,7 +25,7 @@
 #' vcov(gest, sources="estimation")
 #' vcov(gest, sources="all") # the default
 #' }
-#' @rawNamespace import(stats, except=c(var))
+#' @import stats
 #' @export
 vcov.ergm <- function(object, sources=c("all","model","estimation"), ...){
   sources <- match.arg(sources)
