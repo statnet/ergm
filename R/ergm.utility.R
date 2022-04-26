@@ -7,19 +7,6 @@
 #
 #  Copyright 2003-2021 Statnet Commons
 ################################################################################
-#==============================================================
-# This file contains the following 21 utility functions:
-#      <ostar2deg>                  
-#      <is.invertible>          <summary.statsmatrix.ergm>
-#      <is.ergm>                <ergm.t.summary>
-#      <is.latent>
-#      <degreedist>             <is.latent.cluster>
-#      <espartnerdist>          <dspartnerdist>         
-#      <rspartnerdist>         
-#      <twopathdist>            <copy.named>
-#      <compress.data.frame>    <sort.data.frame>
-#      <catchToList>
-#==============================================================      
 
 #' @rdname ergm
 #' @importFrom methods is
@@ -118,81 +105,6 @@ degreedist.network <- function(object, print=TRUE, ...)
   }
  }
  invisible(degrees)
-}
-
-
-###############################################################################
-# The <ergm.t.summary> function conducts a t test for comparing the mean of a
-# given vector and a hypothesized mean
-#
-# --PARAMETERS--
-#   x          : a numeric vector
-#   alternative: a string to indicate whether the test is two-sided or one-
-#                sided to the left or right, as either "two.sided", "less",
-#                or "greater"; default="two.sided"
-#   mu         : the hypothesized mean; default = 0
-#
-# --IGNORED PARAMETERS--
-#   var.equal : whether the variance of ?? is ??; default=FALSE
-#   conf.level: the confidence level; default=0.95
-#   ...       : ??
-#
-# --RETURNED--
-#   rval: a vetor of the standard error, the t statistic, the p value, and the
-#         standard deviation, consistent with 'alternative'; if the length of
-#         x is <2, this vector will be predominently NA's
-#
-###############################################################################
-
-ergm.t.summary <-
-function(x, alternative = c("two.sided", "less", "greater"),
-         mu = 0, var.equal = FALSE, conf.level = 0.95,
-         ...)
-{
-    alternative <- match.arg(alternative)
-
-    if(!missing(mu) && (length(mu) != 1 || is.na(mu)))
-        stop("mu must be a single number")
-    if(!missing(conf.level) &&
-       (length(conf.level) != 1 || !is.finite(conf.level) ||
-        conf.level < 0 || conf.level > 1))
-        stop("conf.level must be a single number between 0 and 1")
-
-    dname <- deparse(substitute(x))
-    xok <- !is.na(x)
-    yok <- NULL
-    x <- x[xok]
-    nx <- length(x)
-    mx <- mean(x)
-    rval <- c(NA, mx, NA, NA)
-    names(rval) <- c("std. err.","std. t units.","p.value dev.","std. dev.")
-    if(nx < 2){
-#     stop("not enough x observations")
-      return(rval)
-    }
-    vx <- var(x)
-    estimate <- mx
-    df <- nx-1
-    stddev <- sqrt(vx)
-    stderr <- sqrt(vx/nx)
-    if(stderr < 10 *.Machine$double.eps * abs(mx)){
-#       stop("data are essentially constant")
-        return(rval)
-    }
-    tstat <- (mx-mu)/stderr
-    method <- "One Sample t-test"
-    names(estimate) <- "mean of x"
-    if (alternative == "less") {
-	pval <- pt(tstat, df)
-    }
-    else if (alternative == "greater") {
-	pval <- pt(tstat, df, lower.tail = FALSE)
-    }
-    else {
-	pval <- 2 * pt(-abs(tstat), df)
-    }
-    rval[1:4] <- c(stderr, tstat, pval, stddev)
-    return(rval)
 }
 
 #' Copy network- and vertex-level attributes between two network objects
