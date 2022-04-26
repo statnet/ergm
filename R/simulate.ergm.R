@@ -276,9 +276,9 @@ simulate_formula <- function(object, ..., basis=eval_lhs.formula(object)) {
                              simplify=TRUE,
                              sequential=TRUE,
                                control=control.simulate.formula(),
-                             verbose=FALSE, ..., basis=ergm.getnetwork(object), do.sim=TRUE,
+                             verbose=FALSE, ..., basis=ergm.getnetwork(object), do.sim=NULL,
                              return.args = NULL){
-  if(!missing(do.sim)){
+  if(!missing(do.sim) && !is.null(do.sim)){
     .Deprecate_once(msg=paste0("Use of ",sQuote("do.sim=")," argument has been deprecated. Use ",sQuote("return.args=")," instead."))
     if(!do.sim) return.args <- "ergm_model"
   }
@@ -366,9 +366,9 @@ simulate.ergm_model <- function(object, nsim=1, seed=NULL,
                                 simplify=TRUE,
                                 sequential=TRUE,
                                 control=control.simulate.formula(),
-                                verbose=FALSE, ..., do.sim=TRUE,
+                                verbose=FALSE, ..., do.sim=NULL,
                                 return.args = NULL){
-  if(!missing(do.sim)){
+  if(!missing(do.sim) && !is.null(do.sim)){
     .Deprecate_once(msg=paste0("Use of ",sQuote("do.sim=")," argument has been deprecated. Use ",sQuote("return.args=")," instead."))
     if(!do.sim) return.args <- "ergm_state"
   }
