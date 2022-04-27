@@ -1,67 +1,12 @@
-# Blaunet
-
-<details>
-
-* Version: 2.1.0
-* GitHub: NA
-* Source code: https://github.com/cran/Blaunet
-* Date/Publication: 2020-05-22 08:10:11 UTC
-* Number of recursive dependencies: 86
-
-Run `revdep_details(, "Blaunet")` for more info
-
-</details>
-
-## In both
-
-*   checking examples ... ERROR
-    ```
-    Running examples in ‘Blaunet-Ex.R’ failed
-    The error most likely occurred in:
-    
-    > ### Name: blau
-    > ### Title: Converts raw data into an object for Blau status analysis
-    > ### Aliases: blau
-    > 
-    > ### ** Examples
-    > 
-    > ##simple example
-    ...
-    > ##example with relational data
-    > data(BSANet)
-    > square.data <- BSANet$square.data
-    > el <- BSANet$el
-    > 
-    > b <- blau(square.data, node.ids = 'person', ecology.ids = 'city', graph = el)
-    Error in Ops.factor(sources, targets) : 
-      level sets of factors are different
-    Calls: blau ... as.network.data.frame -> .validate_edge_df -> which -> Ops.factor
-    Execution halted
-    ```
-
-*   checking package dependencies ... NOTE
-    ```
-    Packages suggested but not available for checking:
-      'gWidgets', 'gWidgetsRGtk2'
-    ```
-
-*   checking dependencies in R code ... NOTE
-    ```
-    Namespaces in Imports field not imported from:
-      ‘RGtk2’ ‘cairoDevice’ ‘ergm’ ‘foreign’ ‘haven’ ‘plot3D’ ‘plot3Drgl’
-      ‘rgl’ ‘sna’ ‘statnet.common’
-      All declared Imports should be used.
-    ```
-
 # broom
 
 <details>
 
-* Version: 0.7.8
+* Version: 0.8.0
 * GitHub: https://github.com/tidymodels/broom
 * Source code: https://github.com/cran/broom
-* Date/Publication: 2021-06-24 08:50:02 UTC
-* Number of recursive dependencies: 297
+* Date/Publication: 2022-04-13 15:02:34 UTC
+* Number of recursive dependencies: 295
 
 Run `revdep_details(, "broom")` for more info
 
@@ -69,76 +14,62 @@ Run `revdep_details(, "broom")` for more info
 
 ## In both
 
+*   checking Rd cross-references ... WARNING
+    ```
+    Packages unavailable to check Rd xrefs: ‘spatialreg’, ‘epiR’
+    Missing link or links in documentation object 'glance.survfit.Rd':
+      ‘summary.survfit’
+    
+    See section 'Cross-references' in the 'Writing R Extensions' manual.
+    ```
+
 *   checking package dependencies ... NOTE
     ```
     Packages suggested but not available for checking:
-      'rgeos', 'spdep', 'spatialreg'
+      'epiR', 'rgeos', 'spdep', 'spatialreg'
     ```
 
-*   checking Rd cross-references ... NOTE
+*   checking dependencies in R code ... NOTE
     ```
-    Package unavailable to check Rd xrefs: ‘spatialreg’
+    Namespace in Imports field not imported from: ‘ggplot2’
+      All declared Imports should be used.
     ```
 
-# EpiModel
+# btergm
 
 <details>
 
-* Version: 2.1.0
-* GitHub: https://github.com/statnet/EpiModel
-* Source code: https://github.com/cran/EpiModel
-* Date/Publication: 2021-06-25 20:20:02 UTC
-* Number of recursive dependencies: 103
+* Version: 1.10.6
+* GitHub: https://github.com/leifeld/btergm
+* Source code: https://github.com/cran/btergm
+* Date/Publication: 2022-04-02 00:10:02 UTC
+* Number of recursive dependencies: 85
 
-Run `revdep_details(, "EpiModel")` for more info
+Run `revdep_details(, "btergm")` for more info
 
 </details>
 
 ## Newly broken
 
-*   checking examples ... ERROR
-    ```
-    Running examples in ‘EpiModel-Ex.R’ failed
-    The error most likely occurred in:
-    
-    > ### Name: plot.netsim
-    > ### Title: Plot Data from a Stochastic Network Epidemic Model
-    > ### Aliases: plot.netsim
-    > ### Keywords: plot
-    > 
-    > ### ** Examples
-    > 
-    ...
-    > 
-    > # Plot formation statistics
-    > par(mfrow = c(1,1), mar = c(3,3,1,1), mgp = c(2,1,0))
-    > plot(mod, type = "formation", grid = TRUE)
-    > plot(mod, type = "formation", plots.joined = FALSE)
-    > plot(mod, type = "formation", sims = 2:3)
-    > plot(mod, type = "formation", plots.joined = FALSE,
-    +      stats = c("edges", "concurrent"))
-    Error: One or more requested stats not contained in netsim object
-    Execution halted
-    ```
-
 *   checking tests ...
     ```
+      Running ‘testthat.R’
      ERROR
-    Running the tests in ‘tests/test-all.R’ failed.
+    Running the tests in ‘tests/testthat.R’ failed.
     Last 13 lines of output:
-      ── Failure (test-netstats.R:77:3): nw stats in tergmLite ───────────────────────
-      dim(nws) not equal to c(5, 7).
-      1/2 mismatches
-      [2] 3 - 7 == -4
-      ── Failure (test-netstats.R:88:3): nw stats in tergmLite ───────────────────────
-      names(nws) not equal to c("time", "sim", "edges", "nodefactor.status.s", "nodematch.status").
-      Lengths differ: 3 is not 5
-      ── Failure (test-netstats.R:90:3): nw stats in tergmLite ───────────────────────
-      dim(nws) not equal to c(5, 5).
-      1/2 mismatches
-      [2] 3 - 5 == -2
       
-      [ FAIL 8 | WARN 159 | SKIP 82 | PASS 392 ]
+      ══ Failed tests ════════════════════════════════════════════════════════════════
+      ── Failure (test-btergm.R:22:3): btergm estimation works ───────────────────────
+      names(coef(fit)) not equal to c("edges", "istar2", "edgecov.covariates[[i]]").
+      1/3 mismatches
+      x[3]: "edgecov."
+      y[3]: "edgecov.covariates[[i]]"
+      ── Failure (test-btergm.R:38:3): btergm estimation works ───────────────────────
+      round(mean(fit@effects$`edgecov.covariates[[i]]`), 4) not equal to -0.0144.
+      1/1 mismatches
+      [1] NA - -0.0144 == NA
+      
+      [ FAIL 2 | WARN 2 | SKIP 5 | PASS 50 ]
       Error: Test failures
       Execution halted
     ```
@@ -147,11 +78,11 @@ Run `revdep_details(, "EpiModel")` for more info
 
 <details>
 
-* Version: 4.0.1
+* Version: 4.1.2
 * GitHub: https://github.com/statnet/ergm
 * Source code: https://github.com/cran/ergm
-* Date/Publication: 2021-06-21 07:20:02 UTC
-* Number of recursive dependencies: 81
+* Date/Publication: 2021-07-27 13:40:02 UTC
+* Number of recursive dependencies: 85
 
 Run `revdep_details(, "ergm")` for more info
 
@@ -159,13 +90,95 @@ Run `revdep_details(, "ergm")` for more info
 
 ## In both
 
+*   checking re-building of vignette outputs ... ERROR
+    ```
+    Error(s) in re-building vignettes:
+    --- re-building ‘Network-Callback-API.Rmd’ using rmarkdown
+    --- finished re-building ‘Network-Callback-API.Rmd’
+    
+    --- re-building ‘Proposal-Lookup-API.Rmd’ using rmarkdown
+    --- finished re-building ‘Proposal-Lookup-API.Rmd’
+    
+    --- re-building ‘Terms-API.Rmd’ using rmarkdown
+    --- finished re-building ‘Terms-API.Rmd’
+    
+    ...
+    --- failed re-building ‘ergm.Rmd’
+    
+    --- re-building ‘nodal_attributes.Rmd’ using rmarkdown
+    --- finished re-building ‘nodal_attributes.Rmd’
+    
+    SUMMARY: processing the following file failed:
+      ‘ergm.Rmd’
+    
+    Error: Vignette re-building failed.
+    Execution halted
+    ```
+
+*   checking package dependencies ... NOTE
+    ```
+    Package suggested but not available for checking: ‘Rmpi’
+    ```
+
 *   checking installed package size ... NOTE
     ```
-      installed size is  8.3Mb
+      installed size is  6.6Mb
       sub-directories of 1Mb or more:
-        R      1.1Mb
-        doc    2.2Mb
-        libs   3.8Mb
+        R      1.0Mb
+        doc    1.9Mb
+        libs   2.4Mb
+    ```
+
+# ergm.ego
+
+<details>
+
+* Version: 1.0.0
+* GitHub: https://github.com/statnet/ergm.ego
+* Source code: https://github.com/cran/ergm.ego
+* Date/Publication: 2021-06-23 07:00:04 UTC
+* Number of recursive dependencies: 74
+
+Run `revdep_details(, "ergm.ego")` for more info
+
+</details>
+
+## Newly broken
+
+*   checking Rd cross-references ... WARNING
+    ```
+    Missing link or links in documentation object 'ergm.ego-terms.Rd':
+      ‘[ergm]{edges}’ ‘[ergm]{mutual}’ ‘[ergm]{transitiveties}’
+      ‘[ergm]{cyclicalties}’
+    
+    Missing link or links in documentation object 'mixingmatrix.egor.Rd':
+      ‘[ergm]{nodemix}’
+    
+    See section 'Cross-references' in the 'Writing R Extensions' manual.
+    ```
+
+# ergm.rank
+
+<details>
+
+* Version: 4.0.0
+* GitHub: https://github.com/statnet/ergm.rank
+* Source code: https://github.com/cran/ergm.rank
+* Date/Publication: 2021-06-20 19:30:02 UTC
+* Number of recursive dependencies: 58
+
+Run `revdep_details(, "ergm.rank")` for more info
+
+</details>
+
+## Newly broken
+
+*   checking Rd cross-references ... WARNING
+    ```
+    Missing link or links in documentation object 'ergm-terms.Rd':
+      ‘[ergm]{edgecov}’ ‘[ergm]{nodeicov}’
+    
+    See section 'Cross-references' in the 'Writing R Extensions' manual.
     ```
 
 # ergMargins
@@ -176,7 +189,7 @@ Run `revdep_details(, "ergm")` for more info
 * GitHub: NA
 * Source code: https://github.com/cran/ergMargins
 * Date/Publication: 2021-06-30 07:40:02 UTC
-* Number of recursive dependencies: 56
+* Number of recursive dependencies: 60
 
 Run `revdep_details(, "ergMargins")` for more info
 
@@ -204,7 +217,7 @@ Run `revdep_details(, "ergMargins")` for more info
 * GitHub: https://github.com/muriteams/ergmito
 * Source code: https://github.com/cran/ergmito
 * Date/Publication: 2020-08-10 21:40:02 UTC
-* Number of recursive dependencies: 62
+* Number of recursive dependencies: 66
 
 Run `revdep_details(, "ergmito")` for more info
 
@@ -214,68 +227,63 @@ Run `revdep_details(, "ergmito")` for more info
 
 *   checking installed package size ... NOTE
     ```
-      installed size is  7.1Mb
+      installed size is  7.5Mb
       sub-directories of 1Mb or more:
-        libs   5.7Mb
+        libs   6.1Mb
     ```
 
-# gwdegree
+# fergm
 
 <details>
 
-* Version: 0.1.1
-* GitHub: https://github.com/michaellevy/gwdegree
-* Source code: https://github.com/cran/gwdegree
-* Date/Publication: 2016-07-09 10:46:45
-* Number of recursive dependencies: 83
+* Version: 1.1.4
+* GitHub: https://github.com/benjamin-w-campbell/fergm
+* Source code: https://github.com/cran/fergm
+* Date/Publication: 2018-10-17 22:20:11 UTC
+* Number of recursive dependencies: 93
 
-Run `revdep_details(, "gwdegree")` for more info
+Run `revdep_details(, "fergm")` for more info
 
 </details>
 
 ## In both
 
-*   checking R code for possible problems ... NOTE
+*   checking contents of ‘data’ directory ... WARNING
     ```
-    simCCCent : <anonymous>: no visible global function definition for
-      ‘simulate.formula’
-    Undefined global functions or variables:
-      simulate.formula
+    Output for data("fergm.fit", package = "fergm"):
+      Warning: namespace ‘DBI’ is not available and has been replaced
+      by .GlobalEnv when processing object ‘fergm.fit’
+      Warning: namespace ‘DBI’ is not available and has been replaced
+      by .GlobalEnv when processing object ‘fergm.fit’
+      Warning: namespace ‘DBI’ is not available and has been replaced
+      by .GlobalEnv when processing object ‘fergm.fit’
+      Warning: namespace ‘DBI’ is not available and has been replaced
+      by .GlobalEnv when processing object ‘fergm.fit’
     ```
 
-*   checking LazyData ... NOTE
-    ```
-      'LazyData' is specified without a 'data' directory
-    ```
-
-# hergm
+# latentnet
 
 <details>
 
-* Version: 4.1-7
-* GitHub: NA
-* Source code: https://github.com/cran/hergm
-* Date/Publication: 2021-03-07 00:00:11 UTC
-* Number of recursive dependencies: 70
+* Version: 2.10.5
+* GitHub: https://github.com/statnet/latentnet
+* Source code: https://github.com/cran/latentnet
+* Date/Publication: 2020-03-22 08:50:02 UTC
+* Number of recursive dependencies: 102
 
-Run `revdep_details(, "hergm")` for more info
+Run `revdep_details(, "latentnet")` for more info
 
 </details>
 
-## In both
+## Newly broken
 
-*   checking R code for possible problems ... NOTE
+*   checking Rd cross-references ... WARNING
     ```
-    hergm: no visible global function definition for ‘ergm.Cprepare’
-    hergm.getnetwork: no visible global function definition for
-      ‘ergm.Cprepare’
-    hergm.mcmc: no visible global function definition for ‘ergm.Cprepare’
-    hergm.preprocess: no visible global function definition for
-      ‘ergm.Cprepare’
-    hergm.set.mcmc: no visible global function definition for
-      ‘ergm.Cprepare’
-    Undefined global functions or variables:
-      ergm.Cprepare
+    Missing link or links in documentation object 'ergmm-terms.Rd':
+      ‘edgecov’ ‘nodeocov’ ‘nodeofactor’ ‘nodecov’ ‘nodefactor’ ‘nodeicov’
+      ‘nodeifactor’
+    
+    See section 'Cross-references' in the 'Writing R Extensions' manual.
     ```
 
 # lolog
@@ -286,19 +294,45 @@ Run `revdep_details(, "hergm")` for more info
 * GitHub: https://github.com/statnet/lolog
 * Source code: https://github.com/cran/lolog
 * Date/Publication: 2021-07-01 07:50:06 UTC
-* Number of recursive dependencies: 78
+* Number of recursive dependencies: 81
 
 Run `revdep_details(, "lolog")` for more info
 
 </details>
 
+## Newly fixed
+
+*   R CMD check timed out
+    
+
 ## In both
 
 *   checking installed package size ... NOTE
     ```
-      installed size is 24.8Mb
+      installed size is 27.8Mb
       sub-directories of 1Mb or more:
-        libs  23.1Mb
+        libs  26.1Mb
+    ```
+
+# motifr
+
+<details>
+
+* Version: 1.0.0
+* GitHub: https://github.com/marioangst/motifr
+* Source code: https://github.com/cran/motifr
+* Date/Publication: 2020-12-10 15:40:02 UTC
+* Number of recursive dependencies: 120
+
+Run `revdep_details(, "motifr")` for more info
+
+</details>
+
+## In both
+
+*   checking package dependencies ... NOTE
+    ```
+    Package suggested but not available for checking: ‘pkgdown’
     ```
 
 # sand
@@ -309,7 +343,7 @@ Run `revdep_details(, "lolog")` for more info
 * GitHub: https://github.com/kolaczyk/sand
 * Source code: https://github.com/cran/sand
 * Date/Publication: 2020-07-02 07:20:06 UTC
-* Number of recursive dependencies: 164
+* Number of recursive dependencies: 160
 
 Run `revdep_details(, "sand")` for more info
 
@@ -317,9 +351,35 @@ Run `revdep_details(, "sand")` for more info
 
 ## In both
 
+*   checking package dependencies ... NOTE
+    ```
+    Package suggested but not available for checking: ‘ergm’
+    ```
+
 *   checking data for non-ASCII characters ... NOTE
     ```
       Note: found 6 marked UTF-8 strings
+    ```
+
+# statnet
+
+<details>
+
+* Version: 2019.6
+* GitHub: https://github.com/statnet/statnet
+* Source code: https://github.com/cran/statnet
+* Date/Publication: 2019-06-14 08:00:06 UTC
+* Number of recursive dependencies: 90
+
+Run `revdep_details(, "statnet")` for more info
+
+</details>
+
+## In both
+
+*   checking package dependencies ... NOTE
+    ```
+    Package suggested but not available for checking: ‘ndtv’
     ```
 
 # statnetWeb
@@ -330,7 +390,7 @@ Run `revdep_details(, "sand")` for more info
 * GitHub: NA
 * Source code: https://github.com/cran/statnetWeb
 * Date/Publication: 2020-08-05 18:00:03 UTC
-* Number of recursive dependencies: 54
+* Number of recursive dependencies: 55
 
 Run `revdep_details(, "statnetWeb")` for more info
 
