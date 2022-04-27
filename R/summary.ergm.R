@@ -32,14 +32,8 @@
 #' @details [summary.ergm()] tries to be smart about formatting the
 #' coefficients, standard errors, etc.
 #'
-#' @return The function [summary.ergm()] computes and returns a list of summary
-#'   statistics of the fitted [ergm()] model given in `object`. Note that for
-#'   backwards compatibility, it returns two coefficient tables: `$coefs` which
-#'   does not contain the z-statistics and `$coefficeints` which does (and is
-#'   therefore more similar to those returned by [stats::summary.lm()]).
-#'
-#'   The returned object is a list of class "ergm.summary" with the following
-#'   elements:
+#' @return The returned object is a list of class "ergm.summary" with
+#'   the following elements:
 #'   
 #' \item{formula}{ERGM model formula}
 #' \item{call}{R call used to fit the model}
@@ -52,7 +46,7 @@
 #' \item{null.lik.0}{It is `TRUE` of the null model likelihood has not been calculated. See [logLikNull()]}
 #' \item{devtext, devtable}{Deviance type and table}
 #' \item{aic, bic}{values of AIC and BIC}
-#' \item{coefs, coefficients}{data frames with model parameters and associated statistics}
+#' \item{coefficients}{matrices with model parameters and associated statistics}
 #' \item{asycov}{asymptotic covariance matrix}
 #' \item{asyse}{asymptotic standard error matrix}
 #' \item{offset, drop, estimate, iterations, mle.lik, null.lik}{
@@ -60,11 +54,8 @@
 #' }
 #'
 #' @seealso The model fitting function [ergm()], [print.ergm()], and
-#'   [base::summary()]. Function [stats::coef()] will extract the data frame of
+#'   [base::summary()]. Function [stats::coef()] will extract the matrix of
 #'   coefficients with standard errors, t-statistics and p-values.
-#'
-#'
-#'
 #'
 #' @keywords regression models
 #' @examples
