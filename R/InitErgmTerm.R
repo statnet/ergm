@@ -182,15 +182,15 @@ ergm_edgecov_args <- function(name, nw, a){
   # Process the arguments
   if(is.network(a$x)){
     if(!is.null(a$attrname) && !a$attrname %in% list.edge.attributes(a$x))
-      ergm_Init_abort("Specified network ", sQuote(deparse1(sys.call(-1)[[3]]$x)), " does not have an edge attribute ", sQuote(a$attrname), ".")
+      ergm_Init_abort("Specified network ", sQuote(deparse1(attr(a,"exprs")$x)), " does not have an edge attribute ", sQuote(a$attrname), ".")
     xm <- as.matrix(a$x, matrix.type="adjacency", a$attrname)
   }else if(is.character(a$x)){
     xm <- get.network.attribute(nw, a$x)
     if (is.null(xm)) ergm_Init_abort("There is no network attribute named ", sQuote(a$x), ".")
   }else xm <- as.matrix(a$x)
 
-  cn <- if(!is.null(a$attrname)) paste(name, deparse1(sys.call(-1)[[3]]$x), a$attrname, sep = ".")
-        else paste(name, as.character(sys.call(-1)[[3]]$x), sep = ".")
+  cn <- if(!is.null(a$attrname)) paste(name, a$attrname, sep = ".")
+        else paste(name, deparse1(attr(a,"exprs")$x), sep = ".")
 
   list(xm=xm, cn=cn)
 }
@@ -2797,7 +2797,8 @@ InitErgmTerm.dyadcov<-function (nw, arglist, ...) {
                       varnames = c("x","attrname"),
                       vartypes = c("matrix,network,character","character"),
                       defaultvalues = list(NULL,NULL),
-                      required = c(TRUE,FALSE))
+                      required = c(TRUE,FALSE),
+                      argexpr = substitute(arglist))
 
   l <- ergm_edgecov_args("dyadcov", nw, a); xm <- l$xm; cn <- l$cn
 
@@ -2858,7 +2859,8 @@ InitErgmTerm.edgecov <- function(nw, arglist, ...) {
                       varnames = c("x", "attrname"),
                       vartypes = c("matrix,network,character", "character"),
                       defaultvalues = list(NULL, NULL),
-                      required = c(TRUE, FALSE))
+                      required = c(TRUE, FALSE),
+                      argexpr = substitute(arglist))
 
   l <- ergm_edgecov_args("edgecov", nw, a); xm <- l$xm; cn <- l$cn
 

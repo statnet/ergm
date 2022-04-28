@@ -41,7 +41,9 @@ ergm_Init_warn_once <- once(ergm_Init_warn)
 #' @param varnames the vector of names of the possible arguments for
 #'   term X; default=NULL
 #' @param vartypes the vector of types of the possible arguments for
-#'   term X, separated by commas; an empty string (`""`) or `NA` disables the check for that argument, and also see Details; default=NULL
+#'   term X, separated by commas; an empty string (`""`) or `NA`
+#'   disables the check for that argument, and also see Details;
+#'   default=NULL
 #' @param defaultvalues the list of default values for the possible
 #'   arguments of term X; default=list()
 #' @param required the logical vector of whether each possible
@@ -52,11 +54,15 @@ ergm_Init_warn_once <- once(ergm_Init_warn)
 #'   will be issued if the user tries to pass it; if the element is a
 #'   character string, it will be used as a suggestion for
 #'   replacement.
+#' @param argexpr optional call typically obtained by calling
+#'   `substitute(arglist)`.
 #' @return A list of the values for each possible argument of term X;
 #'   user provided values are used when given, default values
 #'   otherwise. The list also has an `attr(,"missing")` attribute
 #'   containing a named logical vector indicating whether a particular
-#'   argument had been set to its default.
+#'   argument had been set to its default. If `argexpr=` argument is
+#'   provided, `attr(,"exprs")` attribute is also returned, containing
+#'   expressions.
 #'
 #' @details As a convenience, if an argument is optional *and* its
 #'   default is `NULL`, then `NULL` is assumed to be an acceptable
@@ -66,7 +72,8 @@ ergm_Init_warn_once <- once(ergm_Init_warn)
 #' @export check.ErgmTerm
 check.ErgmTerm <- function(nw, arglist, directed=NULL, bipartite=NULL, nonnegative=FALSE,
                            varnames=NULL, vartypes=NULL,
-                           defaultvalues=list(), required=NULL, dep.inform=rep(FALSE, length(required)), dep.warn=rep(FALSE, length(required))){
+                           defaultvalues=list(), required=NULL, dep.inform=rep(FALSE, length(required)), dep.warn=rep(FALSE, length(required)),
+                           argexpr=NULL){
   # Ensure that all inputs are of the correct type.
   ergm_Init_try(arglist <- as.list(arglist))
   varnames <- as.character(varnames)
@@ -124,6 +131,13 @@ check.ErgmTerm <- function(nw, arglist, directed=NULL, bipartite=NULL, nonnegati
   # Now, try calling it with the arglist.
   ergm_Init_try(out <- do.call(f, arglist, envir=baseenv(), quote=TRUE))
   # out is now a list containing elements of arglist in the correct order and defaults filled in.
+
+  # Do the same with elements of expression, if given.
+  attr(out, "exprs") <-
+    if(!is.null(argexpr)){
+      formals(f)[] <- rep(list(NULL), length(defaultvalues))
+      do.call(f, as.list(argexpr)[-1], envir=baseenv(), quote=TRUE)
+    }
 
   for(m in seq_along(out)){
     name <- names(out)[m]

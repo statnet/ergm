@@ -15,7 +15,8 @@ check.ErgmTerm(
   defaultvalues = list(),
   required = NULL,
   dep.inform = rep(FALSE, length(required)),
-  dep.warn = rep(FALSE, length(required))
+  dep.warn = rep(FALSE, length(required)),
+  argexpr = NULL
 )
 }
 \arguments{
@@ -36,7 +37,9 @@ nonnegative weights; default=FALSE}
 term X; default=NULL}
 
 \item{vartypes}{the vector of types of the possible arguments for
-term X, separated by commas; an empty string (\code{""}) or \code{NA} disables the check for that argument, and also see Details; default=NULL}
+term X, separated by commas; an empty string (\code{""}) or \code{NA}
+disables the check for that argument, and also see Details;
+default=NULL}
 
 \item{defaultvalues}{the list of default values for the possible
 arguments of term X; default=list()}
@@ -50,13 +53,18 @@ list is not \code{FALSE}, a \code{\link[=message]{message()}} or a \code{\link[=
 will be issued if the user tries to pass it; if the element is a
 character string, it will be used as a suggestion for
 replacement.}
+
+\item{argexpr}{optional call typically obtained by calling
+\code{substitute(arglist)}.}
 }
 \value{
 A list of the values for each possible argument of term X;
 user provided values are used when given, default values
 otherwise. The list also has an \code{attr(,"missing")} attribute
 containing a named logical vector indicating whether a particular
-argument had been set to its default.
+argument had been set to its default. If \verb{argexpr=} argument is
+provided, \code{attr(,"exprs")} attribute is also returned, containing
+expressions.
 }
 \description{
 Helper functions for implementing \code{\link[=ergm]{ergm()}}
