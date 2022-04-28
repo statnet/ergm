@@ -35,45 +35,6 @@ Run `revdep_details(, "broom")` for more info
       All declared Imports should be used.
     ```
 
-# btergm
-
-<details>
-
-* Version: 1.10.6
-* GitHub: https://github.com/leifeld/btergm
-* Source code: https://github.com/cran/btergm
-* Date/Publication: 2022-04-02 00:10:02 UTC
-* Number of recursive dependencies: 85
-
-Run `revdep_details(, "btergm")` for more info
-
-</details>
-
-## Newly broken
-
-*   checking tests ...
-    ```
-      Running ‘testthat.R’
-     ERROR
-    Running the tests in ‘tests/testthat.R’ failed.
-    Last 13 lines of output:
-      
-      ══ Failed tests ════════════════════════════════════════════════════════════════
-      ── Failure (test-btergm.R:22:3): btergm estimation works ───────────────────────
-      names(coef(fit)) not equal to c("edges", "istar2", "edgecov.covariates[[i]]").
-      1/3 mismatches
-      x[3]: "edgecov."
-      y[3]: "edgecov.covariates[[i]]"
-      ── Failure (test-btergm.R:38:3): btergm estimation works ───────────────────────
-      round(mean(fit@effects$`edgecov.covariates[[i]]`), 4) not equal to -0.0144.
-      1/1 mismatches
-      [1] NA - -0.0144 == NA
-      
-      [ FAIL 2 | WARN 2 | SKIP 5 | PASS 50 ]
-      Error: Test failures
-      Execution halted
-    ```
-
 # ergm
 
 <details>
@@ -113,11 +74,6 @@ Run `revdep_details(, "ergm")` for more info
     
     Error: Vignette re-building failed.
     Execution halted
-    ```
-
-*   checking package dependencies ... NOTE
-    ```
-    Package suggested but not available for checking: ‘Rmpi’
     ```
 
 *   checking installed package size ... NOTE
@@ -300,7 +256,7 @@ Run `revdep_details(, "lolog")` for more info
 
 </details>
 
-## Newly fixed
+## Newly broken
 
 *   R CMD check timed out
     

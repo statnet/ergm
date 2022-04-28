@@ -10,7 +10,7 @@
 |collate  |en_AU.UTF-8                   |
 |ctype    |en_AU.UTF-8                   |
 |tz       |Australia/Sydney              |
-|date     |2022-04-27                    |
+|date     |2022-04-28                    |
 |pandoc   |2.9.2.1 @ /usr/bin/pandoc     |
 
 # Dependencies
@@ -57,14 +57,19 @@
 
 # Revdeps
 
-## New problems (4)
+## Failed to check (1)
 
-|package                            |version |error  |warning |note |
-|:----------------------------------|:-------|:------|:-------|:----|
-|[btergm](problems.md#btergm)       |1.10.6  |__+1__ |        |     |
-|[ergm.ego](problems.md#ergmego)    |1.0.0   |       |__+1__  |     |
-|[ergm.rank](problems.md#ergmrank)  |4.0.0   |       |__+1__  |     |
-|[latentnet](problems.md#latentnet) |2.10.5  |       |__+1__  |     |
+|package                    |version |error  |warning |note |
+|:--------------------------|:-------|:------|:-------|:----|
+|[lolog](failures.md#lolog) |1.3     |__+1__ |        |1    |
+
+## New problems (3)
+
+|package                            |version |error |warning |note |
+|:----------------------------------|:-------|:-----|:-------|:----|
+|[ergm.ego](problems.md#ergmego)    |1.0.0   |      |__+1__  |     |
+|[ergm.rank](problems.md#ergmrank)  |4.0.0   |      |__+1__  |     |
+|[latentnet](problems.md#latentnet) |2.10.5  |      |__+1__  |     |
 
 ## All (29)
 
@@ -72,10 +77,10 @@
 |:---------------------------------------|:-------|:------|:-------|:----|
 |Bergm                                   |5.0.3   |       |        |     |
 |[broom](problems.md#broom)              |0.8.0   |       |1       |2    |
-|[btergm](problems.md#btergm)            |1.10.6  |__+1__ |        |     |
+|btergm                                  |1.10.6  |       |        |     |
 |dnr                                     |0.3.5   |       |        |     |
 |EpiModel                                |2.2.1   |       |        |     |
-|[ergm](problems.md#ergm)                |4.1.2   |1      |        |2    |
+|[ergm](problems.md#ergm)                |4.1.2   |1      |        |1    |
 |ergm.count                              |4.0.2   |       |        |     |
 |[ergm.ego](problems.md#ergmego)         |1.0.0   |       |__+1__  |     |
 |[ergm.rank](problems.md#ergmrank)       |4.0.0   |       |__+1__  |     |
@@ -85,7 +90,7 @@
 |[fergm](problems.md#fergm)              |1.1.4   |       |1       |     |
 |hergm                                   |4.1-8   |       |        |     |
 |[latentnet](problems.md#latentnet)      |2.10.5  |       |__+1__  |     |
-|[lolog](problems.md#lolog)              |1.3     |-1     |        |1    |
+|[lolog](failures.md#lolog)              |1.3     |__+1__ |        |1    |
 |lvm4net                                 |0.3     |       |        |     |
 |mlergm                                  |0.8     |       |        |     |
 |[motifr](problems.md#motifr)            |1.0.0   |       |        |1    |
