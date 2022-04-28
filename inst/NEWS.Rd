@@ -150,7 +150,7 @@
         Adaptive bridge sampling for likelihood calculation now shifts the bridge locations by an offset generated from a low-discrepancy sequence after each attempt in order to reduce bias due to finite number of bridges.
       }
 
-      \item{Hummel (2012) step length calculation now uses an improved algorithm (Krivitsky, Kuvelkar, and Hunter 2022) and uses \pkg{Rglpk} where available for better performance. \code{\link{is.inCH}} and the \code{Stepping} algorithms have been deprecated (the latter in favour of \code{MCMLE}.
+      \item{Hummel (2012) step length calculation now uses an improved algorithm (Krivitsky, Kuvelkar, and Hunter 2022) and uses \pkg{Rglpk} where available for better performance. \code{\link{is.inCH}} and the \code{Stepping} algorithms have been deprecated (the latter in favour of \code{MCMLE}).
       }
 
       \item{
@@ -187,26 +187,11 @@
     }
   }
 
-  \subsection{C-LEVEL FACILITIES}{
-    \itemize{
-    }
-  }
-
-  \subsection{UTILITIES}{
-    \itemize{
-      \item Likewise, "UTILITIES" is probably unnecessary.
-    }
-  }
-
-  \subsection{INSTALLATION}{
-    \itemize{
-      \item ... as is "INSTALLATION".
-    }
-  }
-
   \subsection{PACKAGE INSTALLATION}{
     \itemize{
-      \item ditto.
+      \item{
+        Package \pkg{Rglpk} is not strictly required and has additional external library requirements on some platforms, but it is strongly recommended, as it outperforms \pkg{lpSolve} in most situations.
+      }
     }
   }
 
