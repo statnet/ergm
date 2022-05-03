@@ -35,56 +35,6 @@ Run `revdep_details(, "broom")` for more info
       All declared Imports should be used.
     ```
 
-# ergm
-
-<details>
-
-* Version: 4.1.2
-* GitHub: https://github.com/statnet/ergm
-* Source code: https://github.com/cran/ergm
-* Date/Publication: 2021-07-27 13:40:02 UTC
-* Number of recursive dependencies: 85
-
-Run `revdep_details(, "ergm")` for more info
-
-</details>
-
-## In both
-
-*   checking re-building of vignette outputs ... ERROR
-    ```
-    Error(s) in re-building vignettes:
-    --- re-building ‘Network-Callback-API.Rmd’ using rmarkdown
-    --- finished re-building ‘Network-Callback-API.Rmd’
-    
-    --- re-building ‘Proposal-Lookup-API.Rmd’ using rmarkdown
-    --- finished re-building ‘Proposal-Lookup-API.Rmd’
-    
-    --- re-building ‘Terms-API.Rmd’ using rmarkdown
-    --- finished re-building ‘Terms-API.Rmd’
-    
-    ...
-    --- failed re-building ‘ergm.Rmd’
-    
-    --- re-building ‘nodal_attributes.Rmd’ using rmarkdown
-    --- finished re-building ‘nodal_attributes.Rmd’
-    
-    SUMMARY: processing the following file failed:
-      ‘ergm.Rmd’
-    
-    Error: Vignette re-building failed.
-    Execution halted
-    ```
-
-*   checking installed package size ... NOTE
-    ```
-      installed size is  6.6Mb
-      sub-directories of 1Mb or more:
-        R      1.0Mb
-        doc    1.9Mb
-        libs   2.4Mb
-    ```
-
 # ergm.ego
 
 <details>
@@ -225,7 +175,7 @@ Run `revdep_details(, "fergm")` for more info
 * GitHub: https://github.com/statnet/latentnet
 * Source code: https://github.com/cran/latentnet
 * Date/Publication: 2020-03-22 08:50:02 UTC
-* Number of recursive dependencies: 102
+* Number of recursive dependencies: 103
 
 Run `revdep_details(, "latentnet")` for more info
 
@@ -307,14 +257,35 @@ Run `revdep_details(, "sand")` for more info
 
 ## In both
 
-*   checking package dependencies ... NOTE
-    ```
-    Package suggested but not available for checking: ‘ergm’
-    ```
-
 *   checking data for non-ASCII characters ... NOTE
     ```
       Note: found 6 marked UTF-8 strings
+    ```
+
+# stargazer
+
+<details>
+
+* Version: 5.2.3
+* GitHub: NA
+* Source code: https://github.com/cran/stargazer
+* Date/Publication: 2022-03-04 11:50:02 UTC
+* Number of recursive dependencies: 0
+
+Run `revdep_details(, "stargazer")` for more info
+
+</details>
+
+## In both
+
+*   checking package dependencies ... NOTE
+    ```
+    Packages which this enhances but not available for checking:
+      'AER', 'betareg', 'brglm', 'censReg', 'dynlm', 'eha', 'erer',
+      'fGarch', 'gee', 'glmx', 'gmm', 'lfe', 'lme4', 'lmtest', 'mclogit',
+      'mgcv', 'mlogit', 'nlme', 'nnet', 'ordinal', 'plm', 'pscl',
+      'quantreg', 'rms', 'relevent', 'sampleSelection', 'spdep', 'survey',
+      'survival'
     ```
 
 # statnet
@@ -357,6 +328,40 @@ Run `revdep_details(, "statnetWeb")` for more info
 *   checking LazyData ... NOTE
     ```
       'LazyData' is specified without a 'data' directory
+    ```
+
+# texreg
+
+<details>
+
+* Version: 1.38.6
+* GitHub: https://github.com/leifeld/texreg
+* Source code: https://github.com/cran/texreg
+* Date/Publication: 2022-04-06 22:00:02 UTC
+* Number of recursive dependencies: 86
+
+Run `revdep_details(, "texreg")` for more info
+
+</details>
+
+## In both
+
+*   checking package dependencies ... NOTE
+    ```
+    Packages which this enhances but not available for checking:
+      'AER', 'alpaca', 'betareg', 'Bergm', 'bife', 'biglm', 'brglm',
+      'brms', 'btergm', 'dynlm', 'eha', 'erer', 'feisr', 'fGarch',
+      'fixest', 'forecast', 'gamlss', 'gamlss.inf', 'gee', 'glmmTMB',
+      'gmm', 'gnm', 'h2o', 'latentnet', 'lfe', 'lme4', 'lqmm', 'maxLik',
+      'metaSEM', 'mfx', 'mhurdle', 'miceadds', 'mlogit', 'mnlogit',
+      'MuMIn', 'nnet', 'oglmx', 'ordinal', 'pglm', 'plm', 'relevent',
+      'rms', 'robust', 'simex', 'spatialreg', 'spdep', 'speedglm',
+      'survival', 'truncreg', 'VGAM', 'Zelig'
+    ```
+
+*   checking Rd cross-references ... NOTE
+    ```
+    Packages unavailable to check Rd xrefs: ‘h2o’, ‘spatialreg’, ‘eha’, ‘MuMIn’, ‘Bergm’, ‘mfx’, ‘betareg’, ‘bife’, ‘biglm’, ‘brglm’, ‘brms’, ‘btergm’, ‘ordinal’, ‘survival’, ‘dynlm’, ‘latentnet’, ‘forecast’, ‘fGarch’, ‘alpaca’, ‘feisr’, ‘lfe’, ‘fixest’, ‘gamlss’, ‘gamlss.inf’, ‘gee’, ‘gmm’, ‘miceadds’, ‘lme4’, ‘glmmTMB’, ‘gnm’, ‘AER’, ‘robust’, ‘lqmm’, ‘rms’, ‘erer’, ‘maxLik’, ‘mhurdle’, ‘mlogit’, ‘nnet’, ‘oglmx’, ‘plm’, ‘pglm’, ‘relevent’, ‘simex’, ‘speedglm’, ‘truncreg’, ‘VGAM’, ‘metaSEM’
     ```
 
 # xergm.common
