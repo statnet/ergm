@@ -593,7 +593,7 @@ ergm_symmetrize.network <- function(x, rule=c("weak","strong","upper","lower"), 
 #'   the lower triangle of the LHS network.
 #'
 #' @usage
-#' # binary: Undir(formula, rule="weak")
+#' # binary: Symmetrize(formula, rule="weak")
 #' @template ergmTerm-formula
 #' @param rule one of `"weak"`, `"strong"`, `"upper"`, `"lower"`
 #'

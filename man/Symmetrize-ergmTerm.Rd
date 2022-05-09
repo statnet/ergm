@@ -5,7 +5,7 @@
 \alias{InitErgmTerm.Symmetrize}
 \title{Evaluation on symmetrized (undirected) network}
 \usage{
-# binary: Undir(formula, rule="weak")
+# binary: Symmetrize(formula, rule="weak")
 }
 \arguments{
 \item{formula}{a one-sided \code{\link[=ergm]{ergm()}}-style formula with the terms to be evaluated}
