@@ -392,8 +392,8 @@ InitErgmConstraint.blocks <- function(nw, arglist, ...) {
 
 
 #' @templateVar name hamming
-#' @title TODO
-#' @description TODO
+#' @title Preserve the hamming distance to the given network (BROKEN: Do NOT Use)
+#' @description This constraint is currently broken. Do not use.
 #'
 #' @usage
 #' # hamming
@@ -402,6 +402,7 @@ InitErgmConstraint.blocks <- function(nw, arglist, ...) {
 #' @concept directed
 #' @concept undirected
 InitErgmConstraint.hamming<-function(nw, arglist, ...){
+  stop("Constraint ", sQuote("hamming"), " is currently broken and will hopefully be fixed in a future release.")
   a <- check.ErgmTerm(nw, arglist)
   list(dependence = TRUE)
 }

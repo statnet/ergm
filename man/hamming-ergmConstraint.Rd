@@ -3,12 +3,12 @@
 \name{hamming-ergmConstraint}
 \alias{hamming-ergmConstraint}
 \alias{InitErgmConstraint.hamming}
-\title{TODO}
+\title{Preserve the hamming distance to the given network (BROKEN: Do NOT Use)}
 \usage{
 # hamming
 }
 \description{
-TODO
+This constraint is currently broken. Do not use.
 }
 \seealso{
 \code{\link{ergmConstraint}} for index of constraints and hints currently visible to the package.
