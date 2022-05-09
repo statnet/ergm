@@ -200,7 +200,7 @@ ergmTermCache <- local({
 .removeDefaultArguments <- function(usage) {
   expr <- str2lang(usage)
 
-  if (class(expr) != 'call') {
+  if (!inherits(expr, 'call')) {
     return(usage)
   } else {
     expr <- NVL3(names(expr), ifelse(. != "", ., as.character(expr)), as.character(expr))
