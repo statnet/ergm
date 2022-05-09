@@ -8,7 +8,7 @@
 # binary: gwb1dsp(decay=0, fixed=FALSE, cutoff=30)
 }
 \arguments{
-\item{decay}{decay parameter for the shared partner counts; required if \code{fixed=TRUE} and ignored with a warning otherwise.}
+\item{decay}{nonnegative decay parameter for the shared partner counts; required if \code{fixed=TRUE} and ignored with a warning otherwise.}
 
 \item{fixed}{optional argument indicating
 whether the \code{decay} parameter is fixed at the given value, or is to be fit as a curved

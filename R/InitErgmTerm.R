@@ -2976,7 +2976,7 @@ InitErgmTerm.esp<-function(nw, arglist, cache.sp=TRUE, ...) {
 #' # binary: gwb1degree(decay, fixed=FALSE, attr=NULL, cutoff=30, levels=NULL)
 #'
 #' @templateVar multiplicand first mode degree frequencies
-#' @template ergmTerm-decay-fixed
+#' @template ergmTerm-gw-decay-fixed
 #' @template ergmTerm-attr
 #' @templateVar underlying degree
 #' @template ergmTerm-gw-cutoff
@@ -3060,7 +3060,7 @@ InitErgmTerm.gwb1degree<-function(nw, arglist, gw.cutoff=30, ..., version=packag
 #' # binary: gwb1dsp(decay=0, fixed=FALSE, cutoff=30)
 #'
 #' @templateVar multiplicand shared partner counts
-#' @template ergmTerm-decay-fixed
+#' @template ergmTerm-gw-decay-fixed
 #' @templateVar underlying b1dsp
 #' @template ergmTerm-gw-cutoff
 #'
@@ -3118,7 +3118,7 @@ InitErgmTerm.gwb1dsp<-function(nw, arglist, cache.sp=TRUE, gw.cutoff=30, ...) {
 #' # binary: gwb2degree(decay, fixed=FALSE, attr=NULL, cutoff=30, levels=NULL)
 #'
 #' @templateVar multiplicand second mode degree frequencies
-#' @template ergmTerm-decay-fixed
+#' @template ergmTerm-gw-decay-fixed
 #' @template ergmTerm-attr
 #' @templateVar underlying degree
 #' @template ergmTerm-gw-cutoff
@@ -3202,7 +3202,7 @@ InitErgmTerm.gwb2degree<-function(nw, arglist, cache.sp=TRUE, gw.cutoff=30, ...,
 #' # binary: gwb2dsp(decay=0, fixed=FALSE, cutoff=30)
 #'
 #' @templateVar multiplicand shared partner counts
-#' @template ergmTerm-decay-fixed
+#' @template ergmTerm-gw-decay-fixed
 #' @templateVar underlying b2dsp
 #' @template ergmTerm-gw-cutoff
 #'
@@ -3257,7 +3257,7 @@ InitErgmTerm.gwb2dsp<-function(nw, arglist, cache.sp=TRUE, gw.cutoff=30, ...) {
 #' # binary: gwdegree(decay, fixed=FALSE, attr=NULL, cutoff=30, levels=NULL)
 #'
 #' @templateVar multiplicand degree frequencies
-#' @template ergmTerm-decay-fixed
+#' @template ergmTerm-gw-decay-fixed
 #' @template ergmTerm-attr
 #' @templateVar underlying degree
 #' @template ergmTerm-gw-cutoff
@@ -3335,7 +3335,7 @@ InitErgmTerm.gwdegree<-function(nw, arglist, gw.cutoff=30, ..., version=packageV
 #' # binary: gwdsp(decay, fixed=FALSE, cutoff=30)
 #'
 #' @templateVar multiplicand shared partner or directed 2-path count
-#' @template ergmTerm-decay-fixed
+#' @template ergmTerm-gw-decay-fixed
 #' @templateVar underlying DSP
 #' @template ergmTerm-gw-cutoff
 #'
@@ -3346,7 +3346,7 @@ InitErgmTerm.gwdegree<-function(nw, arglist, gw.cutoff=30, ..., version=packageV
 #' @templateVar see dgwdsp
 #' @template ergmTerm-sp-to-dsp
 #'
-#' @template ergmTerm-alpha-to-decay
+#' @template ergmTerm-gw-alpha-to-decay
 #'
 #' @concept directed
 #' @concept undirected
@@ -3395,7 +3395,7 @@ InitErgmTerm.gwdsp<-function(nw, arglist, cache.sp=TRUE, gw.cutoff=30, ...) {
 #' # binary: gwesp(decay, fixed=FALSE, cutoff=30)
 #'
 #' @templateVar multiplicand shared partner or directed 2-path count
-#' @template ergmTerm-decay-fixed
+#' @template ergmTerm-gw-decay-fixed
 #' @templateVar underlying ESP
 #' @template ergmTerm-gw-cutoff
 #'
@@ -3406,7 +3406,7 @@ InitErgmTerm.gwdsp<-function(nw, arglist, cache.sp=TRUE, gw.cutoff=30, ...) {
 #' @templateVar see dgwesp
 #' @template ergmTerm-sp-to-dsp
 #'
-#' @template ergmTerm-alpha-to-decay
+#' @template ergmTerm-gw-alpha-to-decay
 #'
 #' @concept frequently-used
 #' @concept directed
@@ -3453,7 +3453,7 @@ InitErgmTerm.gwesp<-function(nw, arglist, cache.sp=TRUE, gw.cutoff=30, ...) {
 #' # binary: gwidegree(decay, fixed=FALSE, attr=NULL, cutoff=30, levels=NULL)
 #'
 #' @templateVar multiplicand indegree frequencies
-#' @template ergmTerm-decay-fixed
+#' @template ergmTerm-gw-decay-fixed
 #' @template ergmTerm-attr
 #' @templateVar underlying degree
 #' @template ergmTerm-gw-cutoff
@@ -3531,7 +3531,7 @@ InitErgmTerm.gwidegree<-function(nw, arglist, gw.cutoff=30, ..., version=package
 #' # binary: gwnsp(decay, fixed=FALSE, cutoff=30)
 #'
 #' @templateVar multiplicand shared partner or directed 2-path count
-#' @template ergmTerm-decay-fixed
+#' @template ergmTerm-gw-decay-fixed
 #' @templateVar underlying NSP
 #' @template ergmTerm-gw-cutoff
 #'
@@ -3542,7 +3542,7 @@ InitErgmTerm.gwidegree<-function(nw, arglist, gw.cutoff=30, ..., version=package
 #' @templateVar see dgwnsp
 #' @template ergmTerm-sp-to-dsp
 #'
-#' @template ergmTerm-alpha-to-decay
+#' @template ergmTerm-gw-alpha-to-decay
 #'
 #' @concept directed
 #' @concept undirected
@@ -3587,7 +3587,7 @@ InitErgmTerm.gwnsp<-function(nw, arglist, cache.sp=TRUE, gw.cutoff=30, ...) {
 #' # binary: gwodegree(decay, fixed=FALSE, attr=NULL, cutoff=30, levels=NULL)
 #'
 #' @templateVar multiplicand outdegree frequencies
-#' @template ergmTerm-decay-fixed
+#' @template ergmTerm-gw-decay-fixed
 #' @template ergmTerm-attr
 #' @templateVar underlying degree
 #' @template ergmTerm-gw-cutoff

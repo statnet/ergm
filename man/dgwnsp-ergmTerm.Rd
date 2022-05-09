@@ -8,7 +8,7 @@
 # binary: dgwnsp(decay, fixed=FALSE, cutoff=30, type="OTP")
 }
 \arguments{
-\item{decay}{decay parameter for the shared partner or selected directed analogue count; required if \code{fixed=TRUE} and ignored with a warning otherwise.}
+\item{decay}{nonnegative decay parameter for the shared partner or selected directed analogue count; required if \code{fixed=TRUE} and ignored with a warning otherwise.}
 
 \item{fixed}{optional argument indicating
 whether the \code{decay} parameter is fixed at the given value, or is to be fit as a curved

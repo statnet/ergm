@@ -211,7 +211,7 @@ InitErgmTerm.desp<-function(nw, arglist, cache.sp=TRUE, ...) {
 #' # binary: dgwesp(decay, fixed=FALSE, cutoff=30, type="OTP")
 #'
 #' @templateVar multiplicand shared partner or selected directed analogue count
-#' @template ergmTerm-decay-fixed
+#' @template ergmTerm-gw-decay-fixed
 #' @templateVar underlying ESP
 #' @template ergmTerm-gw-cutoff
 #' @param type one of `c("OTP", "ITP", "RTP", "OSP", "ISP")`.
@@ -219,7 +219,7 @@ InitErgmTerm.desp<-function(nw, arglist, cache.sp=TRUE, ...) {
 #'
 #' @template ergmTerm-sp-types
 #'
-#' @template ergmTerm-alpha-to-decay
+#' @template ergmTerm-gw-alpha-to-decay
 #'
 #' @concept directed
 InitErgmTerm.dgwesp<-function(nw, arglist, cache.sp=TRUE, gw.cutoff=30, ...) {
@@ -360,7 +360,7 @@ InitErgmTerm.ddsp<-function(nw, arglist, cache.sp=TRUE, ...) {
 #' # binary: dgwdsp(decay, fixed=FALSE, cutoff=30, type="OTP")
 #'
 #' @templateVar multiplicand shared partner or selected directed analogue count
-#' @template ergmTerm-decay-fixed
+#' @template ergmTerm-gw-decay-fixed
 #' @templateVar underlying DSP
 #' @template ergmTerm-gw-cutoff
 #' @param type one of `c("OTP", "ITP", "RTP", "OSP", "ISP")`
@@ -371,7 +371,7 @@ InitErgmTerm.ddsp<-function(nw, arglist, cache.sp=TRUE, ...) {
 #'
 #' @note The GWDSP statistic is equal to the sum of GWNSP plus GWESP.
 #'
-#' @template ergmTerm-alpha-to-decay
+#' @template ergmTerm-gw-alpha-to-decay
 #'
 #' @concept directed
 InitErgmTerm.dgwdsp<-function(nw, arglist, cache.sp=TRUE, gw.cutoff=30, ...) {
@@ -514,7 +514,7 @@ InitErgmTerm.dnsp<-function(nw, arglist, cache.sp=TRUE, ...) {
 #' # binary: dgwnsp(decay, fixed=FALSE, cutoff=30, type="OTP")
 #'
 #' @templateVar multiplicand shared partner or selected directed analogue count
-#' @template ergmTerm-decay-fixed
+#' @template ergmTerm-gw-decay-fixed
 #' @templateVar underlying NSP
 #' @template ergmTerm-gw-cutoff
 #' @param type one of `c("OTP", "ITP", "RTP", "OSP", "ISP")`
@@ -523,7 +523,7 @@ InitErgmTerm.dnsp<-function(nw, arglist, cache.sp=TRUE, ...) {
 #'
 #' @template ergmTerm-sp-types
 #'
-#' @template ergmTerm-alpha-to-decay
+#' @template ergmTerm-gw-alpha-to-decay
 #'
 #' @concept directed
 InitErgmTerm.dgwnsp<-function(nw, arglist, cache.sp=TRUE, gw.cutoff=30, ...) {
