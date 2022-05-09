@@ -126,7 +126,7 @@
       }
 
       \item{
-        Miscellaneous documentation fixes and improvements.
+        Miscellaneous documentation fixes and improvements. (regular contributors, and Fabio A. Correa and Jiahao Wang)
       }
     }
   }
@@ -183,6 +183,14 @@
 
       \item{
         In \code{\link{summary.ergm}()} output, \code{$coefs} is no longer returned.
+      }
+
+      \item{
+        \code{\link{check.ErgmTerm}()} helper function can now also capture the expressions resulting in term arguments. This incidentally fixes a regression in statistic naming of \code{\link{edgecov-ergmTerm}} and \code{\link{dyadcov-ergmTerm}} effects.
+      }
+
+      \item{
+        \code{main.method="Robbins-Monro"} implementation is broken and has been disabled pending either fixing in the next release or removal. (There is nothing it can do that \code{"Stochastic-Approimation"} doesn't do better.
       }
     }
   }
