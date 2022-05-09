@@ -10,7 +10,7 @@
 |collate  |en_AU.UTF-8                   |
 |ctype    |en_AU.UTF-8                   |
 |tz       |Australia/Sydney              |
-|date     |2022-05-03                    |
+|date     |2022-05-09                    |
 |pandoc   |2.9.2.1 @ /usr/bin/pandoc     |
 
 # Dependencies
@@ -48,7 +48,7 @@
 |statnet.common |4.6.0        |4.6.0        |   |
 |stringi        |NA           |1.7.6        |*  |
 |stringr        |NA           |1.4.0        |*  |
-|tibble         |3.1.6        |3.1.6        |   |
+|tibble         |3.1.7        |3.1.7        |   |
 |trust          |0.1-8        |0.1-8        |   |
 |utf8           |1.2.2        |1.2.2        |   |
 |vctrs          |0.4.1        |0.4.1        |   |
@@ -57,12 +57,6 @@
 
 # Revdeps
 
-## Failed to check (1)
-
-|package                    |version |error  |warning |note |
-|:--------------------------|:-------|:------|:-------|:----|
-|[lolog](failures.md#lolog) |1.3     |__+1__ |        |1    |
-
 ## New problems (3)
 
 |package                            |version |error |warning |note |
@@ -70,39 +64,4 @@
 |[ergm.ego](problems.md#ergmego)    |1.0.0   |      |__+1__  |     |
 |[ergm.rank](problems.md#ergmrank)  |4.0.0   |      |__+1__  |     |
 |[latentnet](problems.md#latentnet) |2.10.5  |      |__+1__  |     |
-
-## All (30)
-
-|package                                 |version |error  |warning |note |
-|:---------------------------------------|:-------|:------|:-------|:----|
-|Bergm                                   |5.0.3   |       |        |     |
-|[broom](problems.md#broom)              |0.8.0   |       |1       |2    |
-|btergm                                  |1.10.6  |       |        |     |
-|dnr                                     |0.3.5   |       |        |     |
-|EpiModel                                |2.2.1   |       |        |     |
-|ergm.count                              |4.0.2   |       |        |     |
-|[ergm.ego](problems.md#ergmego)         |1.0.0   |       |__+1__  |     |
-|[ergm.rank](problems.md#ergmrank)       |4.0.0   |       |__+1__  |     |
-|ergm.userterms                          |3.10.0  |       |        |     |
-|[ergMargins](problems.md#ergmargins)    |0.1.3   |       |        |2    |
-|[ergmito](problems.md#ergmito)          |0.3-0   |       |        |1    |
-|[fergm](problems.md#fergm)              |1.1.4   |       |1       |     |
-|hergm                                   |4.1-8   |       |        |     |
-|[latentnet](problems.md#latentnet)      |2.10.5  |       |__+1__  |     |
-|[lolog](failures.md#lolog)              |1.3     |__+1__ |        |1    |
-|lvm4net                                 |0.3     |       |        |     |
-|mlergm                                  |0.8     |       |        |     |
-|[motifr](problems.md#motifr)            |1.0.0   |       |        |1    |
-|NetMix                                  |0.2.0   |       |        |     |
-|RDS                                     |0.9-3   |       |        |     |
-|[sand](problems.md#sand)                |2.0.0   |       |        |1    |
-|[stargazer](problems.md#stargazer)      |5.2.3   |       |        |1    |
-|[statnet](problems.md#statnet)          |2019.6  |       |        |1    |
-|[statnetWeb](problems.md#statnetweb)    |0.5.6   |       |        |1    |
-|tergm                                   |4.0.2   |       |        |     |
-|tergmLite                               |2.5.5   |       |        |     |
-|[texreg](problems.md#texreg)            |1.38.6  |       |        |2    |
-|tsna                                    |0.3.5   |       |        |     |
-|VBLPCM                                  |2.4.8   |       |        |     |
-|[xergm.common](problems.md#xergmcommon) |1.7.8   |       |        |1    |
 
