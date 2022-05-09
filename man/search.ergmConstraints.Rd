@@ -36,7 +36,7 @@ Keyword tags will only return a match if all of the specified tags are
 included in the constraint
 }
 \examples{
-
+\donttest{
 # find all of the constraint that mention degrees
 search.ergmConstraints('degree')
 
@@ -48,7 +48,7 @@ search.ergmConstraints(name='b1degrees')
 
 # request the bipartite keyword in the ergm package
 search.ergmConstraints(keywords='directed', packages='ergm')
-
+}
 }
 \seealso{
 See also \code{\link{ergm.constraints}} for the complete documentation

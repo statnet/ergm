@@ -39,7 +39,7 @@ Keyword tags will only return a match if all of the specified tags are
 included in the term.
 }
 \examples{
-
+\donttest{
 # find all of the terms that mention triangles
 search.ergmTerms('triangle')
 
@@ -60,7 +60,7 @@ search.ergmTerms(name='b2factor')
 
 # request the bipartite keyword in the ergm package
 search.ergmTerms(keywords='bipartite', packages='ergm')
-
+}
 }
 \seealso{
 See also \code{\link{ergm.terms}} for the complete documentation

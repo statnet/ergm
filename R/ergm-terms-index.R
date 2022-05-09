@@ -690,7 +690,7 @@ search.ergmTermType <-function(term.type, search, net, keywords, name, packages)
 #' @author skyebend@uw.edu
 #' @seealso See also \code{\link{ergm.terms}} for the complete documentation
 #' @examples
-#' 
+#' \donttest{
 #' # find all of the terms that mention triangles
 #' search.ergmTerms('triangle')
 #' 
@@ -711,7 +711,7 @@ search.ergmTermType <-function(term.type, search, net, keywords, name, packages)
 #'
 #' # request the bipartite keyword in the ergm package
 #' search.ergmTerms(keywords='bipartite', packages='ergm')
-#'
+#' }
 #' @importFrom utils capture.output
 #' @export search.ergmTerms
 search.ergmTerms <- function(search, net, keywords, name, packages) {
@@ -743,7 +743,7 @@ search.ergmTerms <- function(search, net, keywords, name, packages) {
 #' @author skyebend@uw.edu
 #' @seealso See also \code{\link{ergm.references}} for the complete documentation
 #' @examples
-#'
+#' \donttest{
 #' # find all of the references that mention dyad
 #' search.ergmReferences('dyad')
 #'
@@ -755,7 +755,7 @@ search.ergmTerms <- function(search, net, keywords, name, packages) {
 #'
 #' # request the bipartite keyword in the ergm package
 #' search.ergmReferences(keywords='binary', packages='ergm')
-#'
+#' }
 #' @importFrom utils capture.output
 #' @export search.ergmReferences
 search.ergmReferences <- function(search, keywords, name, packages)
@@ -786,7 +786,7 @@ search.ergmReferences <- function(search, keywords, name, packages)
 #' @author skyebend@uw.edu
 #' @seealso See also \code{\link{ergm.constraints}} for the complete documentation
 #' @examples
-#'
+#' \donttest{
 #' # find all of the constraint that mention degrees
 #' search.ergmConstraints('degree')
 #'
@@ -798,7 +798,7 @@ search.ergmReferences <- function(search, keywords, name, packages)
 #'
 #' # request the bipartite keyword in the ergm package
 #' search.ergmConstraints(keywords='directed', packages='ergm')
-#'
+#' }
 #' @importFrom utils capture.output
 #' @export search.ergmConstraints
 search.ergmConstraints <- function(search, keywords, name, packages)
@@ -828,7 +828,7 @@ search.ergmConstraints <- function(search, keywords, name, packages)
 #' the full definition for the named term.
 #' @seealso See also \code{\link{ergm.proposals}} for the complete documentation
 #' @examples
-#'
+#' \donttest{
 #' # find all of the proposals that mention triangles
 #' search.ergmProposals('MH algorithm')
 #'
@@ -843,7 +843,7 @@ search.ergmConstraints <- function(search, keywords, name, packages)
 #'
 #' # request proposals that mention triangle in the ergm package
 #' search.ergmProposals('MH algorithm', packages='ergm')
-#'
+#' }
 #' @importFrom utils capture.output
 #' @export search.ergmProposals
 search.ergmProposals <- function(search, name, reference, constraints, packages) {

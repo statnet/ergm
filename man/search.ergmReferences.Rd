@@ -36,7 +36,7 @@ Keyword tags will only return a match if all of the specified tags are
 included in the term.
 }
 \examples{
-
+\donttest{
 # find all of the references that mention dyad
 search.ergmReferences('dyad')
 
@@ -48,7 +48,7 @@ search.ergmReferences(name='Bernoulli')
 
 # request the bipartite keyword in the ergm package
 search.ergmReferences(keywords='binary', packages='ergm')
-
+}
 }
 \seealso{
 See also \code{\link{ergm.references}} for the complete documentation

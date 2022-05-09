@@ -37,7 +37,7 @@ Keyword tags will only return a match if all of the specified tags are
 included in the proposal
 }
 \examples{
-
+\donttest{
 # find all of the proposals that mention triangles
 search.ergmProposals('MH algorithm')
 
@@ -52,7 +52,7 @@ search.ergmProposals(reference='Bernoulli')
 
 # request proposals that mention triangle in the ergm package
 search.ergmProposals('MH algorithm', packages='ergm')
-
+}
 }
 \seealso{
 See also \code{\link{ergm.proposals}} for the complete documentation
