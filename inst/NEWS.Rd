@@ -192,6 +192,14 @@
       \item{
         \code{main.method="Robbins-Monro"} implementation is broken and has been disabled pending either fixing in the next release or removal. (There is nothing it can do that \code{"Stochastic-Approimation"} doesn't do better.
       }
+
+      \item{
+        Term \code{\link{hamming-ergmConstraint}} implementation is broken and has been disabled pending a fix.
+      }
+
+      \item{
+        Messages about inconsistent arguments for geometrically weighted terms are now a bit more consistent, as is their documentation.
+      }
     }
   }
 
