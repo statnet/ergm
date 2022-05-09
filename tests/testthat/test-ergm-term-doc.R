@@ -39,55 +39,55 @@ test_that("test search ergm term", {
   # crude checks for search.ergmTerms are in the search.ergmTerms man page
 
   # expect to find at least eight terms mentioning triangles
-  expect_equal(length(search.ergmTerms('triangle')), 9)
+  expect_equal(length(search.ergmTerms('triangle', packages='ergm')), 9)
 
   # search using a bipartite net as a template
   myNet<-network.initialize(5,bipartite=3,directed=FALSE)
   expect_equal(length(search.ergmTerms(net=myNet)), 31)
 
-  expect_equal(length(search.ergmTerms(keywords = 'bipartite')), 31)
+  expect_equal(length(search.ergmTerms(keywords = 'bipartite', packages='ergm')), 31)
 
-  expect_gt(length(search.ergmTerms(name = 'b2factor')), 0)
-  expect_equal(length(search.ergmTerms(name = 'b3factor')), 0)
+  expect_gt(length(search.ergmTerms(name = 'b2factor', packages='ergm')), 0)
+  expect_equal(length(search.ergmTerms(name = 'b3factor', packages='ergm')), 0)
 
   expect_equal(length(search.ergmTerms(keywords = 'bipartite', packages='ergm')), 31)
 
-  expect_gt(length(search.ergmTerms(keywords = 'valued')), 44)
+  ## expect_gt(length(search.ergmTerms(keywords = 'valued')), 44)
   expect_equal(length(search.ergmTerms(keywords = 'valued', packages='ergm')), 44)
-  expect_gt(length(search.ergmTerms(keywords = 'valued', packages=c('ergm', 'ergm.count'))), 44)
+  ## expect_gt(length(search.ergmTerms(keywords = 'valued', packages=c('ergm', 'ergm.count'))), 44)
 })
 
 test_that("test search ergm reference", {
-  expect_equal(length(search.ergmReferences('dyad')), 7)
+  expect_equal(length(search.ergmReferences('dyad', packages='ergm')), 4)
 
-  expect_equal(length(search.ergmReferences(keywords = 'binary')), 1)
+  ## expect_equal(length(search.ergmReferences(keywords = 'binary')), 1)
   expect_equal(length(search.ergmReferences(keywords = 'binary', packages='blah')), 0)
   expect_equal(length(search.ergmReferences(keywords = 'binary', packages='ergm')), 1)
 
-  expect_gt(length(search.ergmReferences(name = 'Bernoulli')), 0)
-  expect_equal(length(search.ergmReferences(name = 'Cernoulli')), 0)
+  expect_gt(length(search.ergmReferences(name = 'Bernoulli', packages='ergm')), 0)
+  expect_equal(length(search.ergmReferences(name = 'Cernoulli', packages='ergm')), 0)
 })
 
 test_that("test search ergm constraint", {
-  expect_equal(length(search.ergmConstraints('degree')), 9)
+  expect_equal(length(search.ergmConstraints('degree', packages='ergm')), 9)
 
-  expect_equal(length(search.ergmConstraints(keywords = 'directed')), 16)
+  ## expect_equal(length(search.ergmConstraints(keywords = 'directed')), 16)
   expect_equal(length(search.ergmConstraints(keywords = 'directed', packages='blah')), 0)
   expect_equal(length(search.ergmConstraints(keywords = 'directed', packages='ergm')), 16)
 
-  expect_gt(length(search.ergmConstraints(name = 'b1degrees')), 0)
-  expect_equal(length(search.ergmConstraints(name = 'b3degrees')), 0)
+  expect_gt(length(search.ergmConstraints(name = 'b1degrees', packages='ergm')), 0)
+  expect_equal(length(search.ergmConstraints(name = 'b3degrees', packages='ergm')), 0)
 })
 
 test_that("test search ergm proposal", {
-  expect_equal(length(search.ergmProposals('bipartite')), 2)
+  expect_equal(length(search.ergmProposals('bipartite', packages='ergm')), 2)
 
-  expect_equal(length(search.ergmProposals(constraints='.dyads')), 3)
+  expect_equal(length(search.ergmProposals(constraints='.dyads', packages='ergm')), 3)
 
-  expect_equal(length(search.ergmProposals(reference='Bernoulli')), 17)
+  ## expect_equal(length(search.ergmProposals(reference='Bernoulli')), 17)
   expect_equal(length(search.ergmProposals(reference='Bernoulli', packages='ergm.count')), 0)
   expect_equal(length(search.ergmProposals(reference='Bernoulli', packages='ergm')), 17)
 
-  expect_equal(length(search.ergmProposals(name = 'randomtoggle')), 1)
-  expect_equal(length(search.ergmProposals(name = 'mandomtoggle')), 0)
+  expect_equal(length(search.ergmProposals(name = 'randomtoggle', packages='ergm')), 1)
+  expect_equal(length(search.ergmProposals(name = 'mandomtoggle', packages='ergm')), 0)
 })
