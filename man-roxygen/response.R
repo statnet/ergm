@@ -1,3 +1,12 @@
+#  File man-roxygen/response.R in package ergm, part of the
+#  Statnet suite of packages for network analysis, https://statnet.org .
+#
+#  This software is distributed under the GPL-3 license.  It is free,
+#  open source, and has the attribution requirements (GPL Section 7) at
+#  https://statnet.org/attribution .
+#
+#  Copyright 2003-2022 Statnet Commons
+################################################################################
 #' @param response Either a character string, a formula, or `NULL` (the default), to specify the response attributes and whether the ERGM is binary or valued. Interpreted as follows: \describe{
 #'
 #' \item{`NULL`}{Model simple presence or absence, via a binary ERGM.}

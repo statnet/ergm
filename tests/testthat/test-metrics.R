@@ -5,7 +5,7 @@
 #  open source, and has the attribution requirements (GPL Section 7) at
 #  https://statnet.org/attribution .
 #
-#  Copyright 2003-2021 Statnet Commons
+#  Copyright 2003-2022 Statnet Commons
 ################################################################################
 theta0err<- 1 # Perturbation in the initial values
 tolerance<-5 # Result must be within 5*MCMCSE of truth.

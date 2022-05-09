@@ -5,8 +5,8 @@
 #  open source, and has the attribution requirements (GPL Section 7) at
 #  https://statnet.org/attribution .
 #
-#  Copyright 2003-2021 Statnet Commons
-#######################################################################
+#  Copyright 2003-2022 Statnet Commons
+################################################################################
 
 #' @templateVar name coincidence
 #' @title Coincident node count for the second mode in a bipartite (aka two-mode) network

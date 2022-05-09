@@ -5,7 +5,7 @@
  *  open source, and has the attribution requirements (GPL Section 7) at
  *  https://statnet.org/attribution .
  *
- *  Copyright 2003-2021 Statnet Commons
+ *  Copyright 2003-2022 Statnet Commons
  */
 #pragma message ("warning: The header file \"changestat.h\" has been deprecated in favor of \"ergm_changestat.h\" and may be removed in the future.")
 #include "ergm_changestat.h"
