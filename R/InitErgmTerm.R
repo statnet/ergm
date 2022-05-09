@@ -201,6 +201,21 @@ ergm_edgecov_args <- function(name, nw, a){
 # will need to be set to -1 either here or by search-and-replace.
 LEVELS_BASE1 <- NULL
 
+decay_vs_fixed <- function(a, name, no_curved_attrarg=TRUE){
+  if(!is.null(a$alpha)){
+    ergm_Init_abort("For consistency with ", sQuote("gw*degree"), " terms, in all ", sQuote("gw*sp"), " and ", sQuote("dgw*sp"), " terms the argument ", sQuote("alpha"), " has been renamed to " ,sQuote("decay"), ".")
+  }
+
+  if(a$fixed){
+    if(is.null(a$decay)) ergm_Init_abort("Using ", sQuote('fixed=TRUE')," requires a decay parameter ", sQuote('decay'), ".")
+  }else{
+    if(!is.null(a$decay)) ergm_Init_warn("Decay parameter ", sQuote('decay')," passed with ", sQuote('fixed=FALSE'), ". ", sQuote('decay')," will be ignored. To specify an initial value for ", sQuote('decay'),", use the ", sQuote('control.ergm()'), " parameter ", sQuote('init='), ".")
+
+    if(no_curved_attrarg && !is.null(NVL(a$attrname,a$attr))) ergm_Init_abort("Using ", sQuote('fixed=FALSE'), " with an attribute is not implemented at this time. Use ", sQuote('fixed=TRUE'), ".")
+  }
+}
+
+
 #=======================InitErgmTerm functions:  A============================#
 
 
@@ -2960,11 +2975,8 @@ InitErgmTerm.esp<-function(nw, arglist, cache.sp=TRUE, ...) {
 #' @usage
 #' # binary: gwb1degree(decay, fixed=FALSE, attr=NULL, cutoff=30, levels=NULL)
 #'
-#' @param decay,fixed the same as theta_s in
-#'   equation (14) in Hunter (2007). The value supplied for
-#'   this parameter may be fixed (if `fixed=TRUE` ),
-#'   or it may be used as merely the starting value for the estimation
-#'   in a curved exponential family model (the default).
+#' @templateVar multiplicand first mode degree frequencies
+#' @template ergmTerm-decay-fixed
 #' @template ergmTerm-attr
 #' @templateVar underlying degree
 #' @template ergmTerm-gw-cutoff
@@ -2999,26 +3011,19 @@ InitErgmTerm.gwb1degree<-function(nw, arglist, gw.cutoff=30, ..., version=packag
     levels <- a$levels
   }
   ### Process the arguments
+  decay_vs_fixed(a, 'gwb1degree')
   decay<-a$decay; fixed<-a$fixed
   cutoff<-a$cutoff
   nb1 <- get.network.attribute(nw,"bipartite")
-# d <- 1:(network.size(nw) - nb1)
   maxesp <- min(cutoff, network.size(nw)-nb1)
 
   d <- 1:maxesp
-  if (!is.null(attrarg) && !fixed) {
-    ergm_Init_abort("The gwb1degree term cannot yet handle a nonfixed decay ",
-                    "term with an attribute. Use fixed=TRUE.")
-  }
   if(!fixed){# This is a curved exponential family model
-    if(!is.null(a$decay)) warning("In term 'gwb1degree': decay parameter 'decay' passed with 'fixed=FALSE'. 'decay' will be ignored. To specify an initial value for 'decay', use the 'init' control parameter.", call.=FALSE)
     ld<-length(d)
     if(ld==0){return(NULL)}
     c(list(minval=0, maxval=network.size(nw), dependence=TRUE, name="b1degree", coef.names=paste("gwb1degree#",d,sep=""), inputs=c(d),
            conflicts.constraints="b1degreedist", params=list(gwb1degree=NULL,gwb1degree.decay=decay)), GWDECAY)
   } else {
-    if(is.null(a$decay)) stop("Term 'gwb1degree' with 'fixed=TRUE' requires a decay parameter 'decay'.", call.=FALSE)
-
     if(!is.null(attrarg)) {
       nodecov <- ergm_get_vattr(attrarg, nw, bip="b1")
       attrname <- attr(nodecov, "name")
@@ -3054,10 +3059,8 @@ InitErgmTerm.gwb1degree<-function(nw, arglist, gw.cutoff=30, ..., version=packag
 #' @usage
 #' # binary: gwb1dsp(decay=0, fixed=FALSE, cutoff=30)
 #'
-#' @param decay,fixed This value non-negative which should be non-negative. The value supplied for
-#'   this parameter may be fixed (if `fixed=TRUE` ),
-#'   or it may be used instead as the starting value for the estimation of `decay`
-#'   in a curved exponential family model (when `fixed=FALSE` , the default) (see Hunter and Handcock, 2006).
+#' @templateVar multiplicand shared partner counts
+#' @template ergmTerm-decay-fixed
 #' @templateVar underlying b1dsp
 #' @template ergmTerm-gw-cutoff
 #'
@@ -3114,11 +3117,8 @@ InitErgmTerm.gwb1dsp<-function(nw, arglist, cache.sp=TRUE, gw.cutoff=30, ...) {
 #' @usage
 #' # binary: gwb2degree(decay, fixed=FALSE, attr=NULL, cutoff=30, levels=NULL)
 #'
-#' @param decay,fixed the same as theta_s in
-#'   equation (14) in Hunter (2007). The value supplied for
-#'   this parameter may be fixed (if `fixed=TRUE` ),
-#'   or it may be used as merely the starting value for the estimation
-#'   in a curved exponential family model (the default).
+#' @templateVar multiplicand second mode degree frequencies
+#' @template ergmTerm-decay-fixed
 #' @template ergmTerm-attr
 #' @templateVar underlying degree
 #' @template ergmTerm-gw-cutoff
@@ -3154,24 +3154,19 @@ InitErgmTerm.gwb2degree<-function(nw, arglist, cache.sp=TRUE, gw.cutoff=30, ...,
   }
   
   ### Process the arguments  
+  decay_vs_fixed(a, 'gwb2degree')
   decay<-a$decay; fixed<-a$fixed
   cutoff<-a$cutoff
   nb1 <- get.network.attribute(nw,"bipartite")
 # d <- 1:nb1
   maxesp <- min(cutoff,nb1)
   d <- 1:maxesp
-  if (!is.null(attrarg) && !fixed) {
-      ergm_Init_abort("The gwb2degree term cannot yet handle a nonfixed decay ",
-                      "term with an attribute. Use fixed=TRUE.") }
   if(!fixed){# This is a curved exponential family model
-    if(!is.null(a$decay)) warning("In term 'gwb2degree': decay parameter 'decay' passed with 'fixed=FALSE'. 'decay' will be ignored. To specify an initial value for 'decay', use the 'init' control parameter.", call.=FALSE)
     ld<-length(d)
     if(ld==0){return(NULL)}
     c(list(minval=0, maxval=network.size(nw), dependence=TRUE, name="b2degree", coef.names=paste("gwb2degree#",d,sep=""), inputs=c(d),
            conflicts.constraints="b2degreedist", params=list(gwb2degree=NULL,gwb2degree.decay=decay)), GWDECAY)
-  } else { 
-    if(is.null(a$decay)) stop("Term 'gwb2degree' with 'fixed=TRUE' requires a decay parameter 'decay'.", call.=FALSE)
-
+  } else {
     if(!is.null(attrarg)) {
       nodecov <- ergm_get_vattr(attrarg, nw, bip="b2")
       attrname <- attr(nodecov, "name")
@@ -3206,12 +3201,8 @@ InitErgmTerm.gwb2degree<-function(nw, arglist, cache.sp=TRUE, gw.cutoff=30, ...,
 #' @usage
 #' # binary: gwb2dsp(decay=0, fixed=FALSE, cutoff=30)
 #'
-#' @param decay decay parmeter for the model
-#' @param fixed optional argument indicating
-#'   whether the `decay` parameter is fixed at the given value, or is to be fit as a curved
-#'   exponential-family model (see Hunter and Handcock, 2006). The
-#'   default is `FALSE` , which means the scale parameter is not
-#'   fixed and thus the model is a CEF model. 
+#' @templateVar multiplicand shared partner counts
+#' @template ergmTerm-decay-fixed
 #' @templateVar underlying b2dsp
 #' @template ergmTerm-gw-cutoff
 #'
@@ -3265,12 +3256,8 @@ InitErgmTerm.gwb2dsp<-function(nw, arglist, cache.sp=TRUE, gw.cutoff=30, ...) {
 #' @usage
 #' # binary: gwdegree(decay, fixed=FALSE, attr=NULL, cutoff=30, levels=NULL)
 #'
-#' @param decay the same as theta_s in equation (14) in Hunter (2007)
-#' @param fixed optional argument indicating
-#'   whether the `decay` parameter is fixed at the given value, or is to be fit as a curved
-#'   exponential-family model (see Hunter and Handcock, 2006). The
-#'   default is `FALSE` , which means the scale parameter is not
-#'   fixed and thus the model is a CEF model. 
+#' @templateVar multiplicand degree frequencies
+#' @template ergmTerm-decay-fixed
 #' @template ergmTerm-attr
 #' @templateVar underlying degree
 #' @template ergmTerm-gw-cutoff
@@ -3300,24 +3287,18 @@ InitErgmTerm.gwdegree<-function(nw, arglist, gw.cutoff=30, ..., version=packageV
     attrarg <- a$attr
     levels <- a$levels  
   }
+
+  decay_vs_fixed(a, 'gwdegree')
   decay<-a$decay; fixed<-a$fixed  
   cutoff<-a$cutoff
-# d <- 1:(network.size(nw)-1)
    maxesp <- min(cutoff,network.size(nw)-1)
   d <- 1:maxesp
-  if (!is.null(attrarg) && !fixed) {
-    ergm_Init_abort("The gwdegree term cannot yet handle a nonfixed decay ",
-                        "term with an attribute. Use fixed=TRUE.")
-  }
   if(!fixed){ # This is a curved exponential family model
-    if(!is.null(a$decay)) warning("In term 'gwdegree': decay parameter 'decay' passed with 'fixed=FALSE'. 'decay' will be ignored. To specify an initial value for 'decay', use the 'init' control parameter.", call.=FALSE)
     ld<-length(d)
     if(ld==0){return(NULL)}
     c(list(minval=0, maxval=network.size(nw), dependence=TRUE, name="degree", coef.names=paste("gwdegree#",d,sep=""), inputs=c(d),
            conflicts.constraints="degreedist", params=list(gwdegree=NULL,gwdegree.decay=decay)), GWDECAY)
   } else {
-    if(is.null(a$decay)) stop("Term 'gwdegree' with 'fixed=TRUE' requires a decay parameter 'decay'.", call.=FALSE)
-
     if(!is.null(attrarg)) {
       nodecov <- ergm_get_vattr(attrarg, nw)
       attrname <- attr(nodecov, "name")
@@ -3353,12 +3334,8 @@ InitErgmTerm.gwdegree<-function(nw, arglist, gw.cutoff=30, ..., version=packageV
 #' @usage
 #' # binary: gwdsp(decay, fixed=FALSE, cutoff=30)
 #'
-#' @param decay decay parameter to the model
-#' @param fixed optional argument indicating
-#'   whether the `decay` parameter is fixed at the given value, or is to be fit as a curved
-#'   exponential-family model (see Hunter and Handcock, 2006). The
-#'   default is `FALSE` , which means the scale parameter is not
-#'   fixed and thus the model is a CEF model. 
+#' @templateVar multiplicand shared partner or directed 2-path count
+#' @template ergmTerm-decay-fixed
 #' @templateVar underlying DSP
 #' @template ergmTerm-gw-cutoff
 #'
@@ -3369,6 +3346,8 @@ InitErgmTerm.gwdegree<-function(nw, arglist, gw.cutoff=30, ..., version=packageV
 #' @templateVar see dgwdsp
 #' @template ergmTerm-sp-to-dsp
 #'
+#' @template ergmTerm-alpha-to-decay
+#'
 #' @concept directed
 #' @concept undirected
 #' @concept curved
@@ -3378,15 +3357,10 @@ InitErgmTerm.gwdsp<-function(nw, arglist, cache.sp=TRUE, gw.cutoff=30, ...) {
                       vartypes = c("numeric","logical","numeric","numeric"),
                       defaultvalues = list(NULL, FALSE, gw.cutoff, NULL),
                       required = c(FALSE, FALSE, FALSE, FALSE))
-  if(!is.null(a$alpha)){
-    ergm_Init_abort("For consistency with gw*degree terms, in all gw*sp and dgw*sp terms the argument ", sQuote("alpha"), " has been renamed to " ,sQuote("decay"), ".")
-  }
-  
+  decay_vs_fixed(a, 'gwdsp')
   decay<-a$decay;fixed<-a$fixed
   cutoff<-a$cutoff
   if(!fixed){ # This is a curved exponential family model
-    if(!is.null(a$decay)) warning("In term 'gwdsp': decay parameter 'decay' passed with 'fixed=FALSE'. 'decay' will be ignored. To specify an initial value for 'decay', use the 'init' control parameter.", call.=FALSE)
-#   d <- 1:(network.size(nw)-1)
     maxesp <- min(cutoff,network.size(nw)-2)
     d <- 1:maxesp
     ld<-length(d)
@@ -3396,10 +3370,8 @@ InitErgmTerm.gwdsp<-function(nw, arglist, cache.sp=TRUE, gw.cutoff=30, ...) {
            inputs=c(d), params=list(gwdsp=NULL,gwdsp.decay=decay), auxiliaries=if(cache.sp) .spcache.aux(if(is.directed(nw)) "OTP" else "UTP") else NULL),
       GWDECAY)
   }else{
-    if(is.null(a$decay)) stop("Term 'gwdsp' with 'fixed=TRUE' requires a decay parameter 'decay'.", call.=FALSE)
-
-    if (!fixed) # First pass to get MPLE coefficient
-      coef.names <- "gwdsp"   # must match params$gwdsp above
+    if (!fixed)
+      coef.names <- "gwdsp"
     else  # fixed == TRUE
       coef.names <- paste("gwdsp.fixed.",decay,sep="")
   if(is.directed(nw)){dname <- "gwtdsp"}else{dname <- "gwdsp"}
@@ -3422,12 +3394,8 @@ InitErgmTerm.gwdsp<-function(nw, arglist, cache.sp=TRUE, gw.cutoff=30, ...) {
 #' @usage
 #' # binary: gwesp(decay, fixed=FALSE, cutoff=30)
 #'
-#' @param decay decay parameter to the model
-#' @param fixed optional argument indicating
-#'   whether the `decay` parameter is fixed at the given value, or is to be fit as a curved
-#'   exponential-family model (see Hunter and Handcock, 2006). The
-#'   default is `FALSE` , which means the scale parameter is not
-#'   fixed and thus the model is a CEF model. 
+#' @templateVar multiplicand shared partner or directed 2-path count
+#' @template ergmTerm-decay-fixed
 #' @templateVar underlying ESP
 #' @template ergmTerm-gw-cutoff
 #'
@@ -3437,6 +3405,8 @@ InitErgmTerm.gwdsp<-function(nw, arglist, cache.sp=TRUE, gw.cutoff=30, ...) {
 #' @templateVar kind (directed) edge `i -> j`
 #' @templateVar see dgwesp
 #' @template ergmTerm-sp-to-dsp
+#'
+#' @template ergmTerm-alpha-to-decay
 #'
 #' @concept frequently-used
 #' @concept directed
@@ -3448,18 +3418,12 @@ InitErgmTerm.gwesp<-function(nw, arglist, cache.sp=TRUE, gw.cutoff=30, ...) {
                       vartypes = c("numeric","logical","numeric", "numeric"),
                       defaultvalues = list(NULL, FALSE, gw.cutoff, NULL),
                       required = c(FALSE, FALSE, FALSE, FALSE))
-  if(!is.null(a$alpha)){
-    ergm_Init_abort("For consistency with gw*degree terms, in all gw*sp and dgw*sp terms the argument ", sQuote("alpha"), " has been renamed to " ,sQuote("decay"), ".")
-  }
-  
+  decay_vs_fixed(a, 'gwesp')
   decay<-a$decay;fixed<-a$fixed
   cutoff<-a$cutoff
   decay=decay[1] # Not sure why anyone would enter a vector here, but...
   if(!fixed){ # This is a curved exponential family model
-    if(!is.null(a$decay)) warning("In term 'gwesp': decay parameter 'decay' passed with 'fixed=FALSE'. 'decay' will be ignored. To specify an initial value for 'decay', use the 'init' control parameter.", call.=FALSE)
-
-    #   d <- 1:(network.size(nw)-2)
-     maxesp <- min(cutoff,network.size(nw)-2)
+    maxesp <- min(cutoff,network.size(nw)-2)
     d <- 1:maxesp
     ld<-length(d)
     if(ld==0){return(NULL)}
@@ -3468,8 +3432,6 @@ InitErgmTerm.gwesp<-function(nw, arglist, cache.sp=TRUE, gw.cutoff=30, ...) {
          inputs=c(d), params=list(gwesp=NULL,gwesp.decay=decay), auxiliaries=if(cache.sp) .spcache.aux(if(is.directed(nw)) "OTP" else "UTP") else NULL),
       GWDECAY)
   }else{
-    if(is.null(a$decay)) stop("Term 'gwesp' with 'fixed=TRUE' requires a decay parameter 'decay'.", call.=FALSE)
-
     coef.names <- paste("gwesp.fixed.",decay,sep="")
     if(is.directed(nw)){dname <- "gwtesp"}else{dname <- "gwesp"}
     list(name=dname, coef.names=coef.names, inputs=c(decay), auxiliaries=if(cache.sp) .spcache.aux(if(is.directed(nw)) "OTP" else "UTP") else NULL)
@@ -3490,12 +3452,8 @@ InitErgmTerm.gwesp<-function(nw, arglist, cache.sp=TRUE, gw.cutoff=30, ...) {
 #' @usage
 #' # binary: gwidegree(decay, fixed=FALSE, attr=NULL, cutoff=30, levels=NULL)
 #'
-#' @param decay This parameter was called `alpha` prior to `ergm 3.7`
-#' @param fixed optional argument indicating
-#'   whether the `decay` parameter is fixed at the given value, or is to be fit as a curved
-#'   exponential-family model (see Hunter and Handcock, 2006). The
-#'   default is `FALSE` , which means the scale parameter is not
-#'   fixed and thus the model is a CEF model. 
+#' @templateVar multiplicand indegree frequencies
+#' @template ergmTerm-decay-fixed
 #' @template ergmTerm-attr
 #' @templateVar underlying degree
 #' @template ergmTerm-gw-cutoff
@@ -3524,25 +3482,17 @@ InitErgmTerm.gwidegree<-function(nw, arglist, gw.cutoff=30, ..., version=package
     attrarg <- a$attr
     levels <- a$levels  
   }
+  decay_vs_fixed(a, 'gwidegree')
   decay<-a$decay; fixed<-a$fixed  
   cutoff<-a$cutoff
-# d <- 1:(network.size(nw)-1)
   maxesp <- min(cutoff,network.size(nw)-1)
   d <- 1:maxesp
-  if (!is.null(attrarg) && !fixed ) {
-    ergm_Init_abort("The gwidegree term cannot yet handle a nonfixed decay ",
-                        "term with an attribute. Use fixed=TRUE.")
-    
-  }
   if(!fixed){ # This is a curved exponential family model
-    if(!is.null(a$decay)) warning("In term 'gwidegree': decay parameter 'decay' passed with 'fixed=FALSE'. 'decay' will be ignored. To specify an initial value for 'decay', use the 'init' control parameter.", call.=FALSE)
     ld<-length(d)
     if(ld==0){return(NULL)}
     c(list(minval=0, maxval=network.size(nw), dependence=TRUE, name="idegree", coef.names=paste("gwidegree#",d,sep=""), inputs=c(d),
            conflicts.constraints="idegreedist", params=list(gwidegree=NULL,gwidegree.decay=decay)), GWDECAY)
   } else { 
-    if(is.null(a$decay)) stop("Term 'gwidegree' with 'fixed=TRUE' requires a decay parameter 'decay'.", call.=FALSE)
-
     if(!is.null(attrarg)) {
       nodecov <- ergm_get_vattr(attrarg, nw)
       attrname <- attr(nodecov, "name")
@@ -3580,12 +3530,8 @@ InitErgmTerm.gwidegree<-function(nw, arglist, gw.cutoff=30, ..., version=package
 #' @usage
 #' # binary: gwnsp(decay, fixed=FALSE, cutoff=30)
 #'
-#' @param decay This parameter was called `alpha` prior to `ergm 3.7`.
-#' @param fixed optional argument indicating
-#'   whether the `decay` parameter is fixed at the given value, or is to be fit as a curved
-#'   exponential-family model (see Hunter and Handcock, 2006). The
-#'   default is `FALSE` , which means the scale parameter is not
-#'   fixed and thus the model is a CEF model. 
+#' @templateVar multiplicand shared partner or directed 2-path count
+#' @template ergmTerm-decay-fixed
 #' @templateVar underlying NSP
 #' @template ergmTerm-gw-cutoff
 #'
@@ -3596,6 +3542,8 @@ InitErgmTerm.gwidegree<-function(nw, arglist, gw.cutoff=30, ..., version=package
 #' @templateVar see dgwnsp
 #' @template ergmTerm-sp-to-dsp
 #'
+#' @template ergmTerm-alpha-to-decay
+#'
 #' @concept directed
 #' @concept undirected
 #' @concept curved
@@ -3605,18 +3553,12 @@ InitErgmTerm.gwnsp<-function(nw, arglist, cache.sp=TRUE, gw.cutoff=30, ...) {
                       vartypes = c("numeric","logical","numeric", "numeric"),
                       defaultvalues = list(NULL, FALSE, gw.cutoff, NULL),
                       required = c(FALSE, FALSE, FALSE, FALSE))
-  if(!is.null(a$alpha)){
-    ergm_Init_abort("For consistency with gw*degree terms, in all gw*sp and dgw*sp terms the argument ", sQuote("alpha"), " has been renamed to " ,sQuote("decay"), ".")
-  }
-
+  decay_vs_fixed(a, 'gwnsp')
   decay<-a$decay;fixed<-a$fixed
   cutoff<-a$cutoff
   decay=decay[1] # Not sure why anyone would enter a vector here, but...
   if(!fixed){ # This is a curved exponential family model
-    if(!is.null(a$decay)) warning("In term 'gwnsp': decay parameter 'decay' passed with 'fixed=FALSE'. 'decay' will be ignored. To specify an initial value for 'decay', use the 'init' control parameter.", call.=FALSE)
-
-#   d <- 1:(network.size(nw)-1)
-     maxesp <- min(cutoff,network.size(nw)-2)
+    maxesp <- min(cutoff,network.size(nw)-2)
     d <- 1:maxesp
     ld<-length(d)
     if(ld==0){return(NULL)}
@@ -3625,8 +3567,6 @@ InitErgmTerm.gwnsp<-function(nw, arglist, cache.sp=TRUE, gw.cutoff=30, ...) {
            inputs=c(d), params=list(gwnsp=NULL,gwnsp.decay=decay), auxiliaries=if(cache.sp) .spcache.aux(if(is.directed(nw)) "OTP" else "UTP") else NULL),
       GWDECAY)
   }else{
-    if(is.null(decay)) stop("Term 'gwnsp' with 'fixed=TRUE' requires a decay parameter 'decay'.", call.=FALSE)
-
     coef.names <- paste("gwnsp.fixed.",decay,sep="")
     if(is.directed(nw)){dname <- "gwtnsp"}else{dname <- "gwnsp"}
     list(name=dname, coef.names=coef.names, inputs=c(decay), auxiliaries=if(cache.sp) .spcache.aux(if(is.directed(nw)) "OTP" else "UTP") else NULL)    
@@ -3646,12 +3586,8 @@ InitErgmTerm.gwnsp<-function(nw, arglist, cache.sp=TRUE, gw.cutoff=30, ...) {
 #' @usage
 #' # binary: gwodegree(decay, fixed=FALSE, attr=NULL, cutoff=30, levels=NULL)
 #'
-#' @param decay this parameter was called `alpha` prior to `ergm 3.7`
-#' @param fixed optional argument indicating
-#'   whether the `decay` parameter is fixed at the given value, or is to be fit as a curved
-#'   exponential-family model (see Hunter and Handcock, 2006). The
-#'   default is `FALSE` , which means the scale parameter is not
-#'   fixed and thus the model is a CEF model. 
+#' @templateVar multiplicand outdegree frequencies
+#' @template ergmTerm-decay-fixed
 #' @template ergmTerm-attr
 #' @templateVar underlying degree
 #' @template ergmTerm-gw-cutoff
@@ -3680,25 +3616,17 @@ InitErgmTerm.gwodegree<-function(nw, arglist, gw.cutoff=30, ..., version=package
     attrarg <- a$attr
     levels <- a$levels  
   }
+  decay_vs_fixed(a, 'gwodegree')
   decay<-a$decay; fixed<-a$fixed  
   cutoff<-a$cutoff
-# d <- 1:(network.size(nw)-1)
-   maxesp <- min(cutoff,network.size(nw)-1)
+  maxesp <- min(cutoff,network.size(nw)-1)
   d <- 1:maxesp
-  if (!is.null(attrarg) && !fixed ) {
-    ergm_Init_abort("The gwodegree term cannot yet handle a nonfixed decay ",
-                        "term with an attribute. Use fixed=TRUE.")
-    
-  }
   if(!fixed){ # This is a curved exponential family model
-    if(!is.null(a$decay)) warning("In term 'gwodegree': decay parameter 'decay' passed with 'fixed=FALSE'. 'decay' will be ignored. To specify an initial value for 'decay', use the 'init' control parameter.", call.=FALSE)
     ld<-length(d)
     if(ld==0){return(NULL)}
     c(list(minval=0, maxval=network.size(nw), dependence=TRUE, name="odegree", coef.names=paste("gwodegree#",d,sep=""), inputs=c(d),
            conflicts.constraints="odegreedist", params=list(gwodegree=NULL,gwodegree.decay=decay)), GWDECAY)
   } else {
-    if(is.null(a$decay)) stop("Term 'gwodegree' with 'fixed=TRUE' requires a decay parameter 'decay'.", call.=FALSE)
-
     if(!is.null(attrarg)) {
       nodecov <- ergm_get_vattr(attrarg, nw)
       attrname <- attr(nodecov, "name")

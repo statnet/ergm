@@ -8,13 +8,13 @@
 # binary: gwdegree(decay, fixed=FALSE, attr=NULL, cutoff=30, levels=NULL)
 }
 \arguments{
-\item{decay}{the same as theta_s in equation (14) in Hunter (2007)}
+\item{decay}{decay parameter for the degree frequencies; required if \code{fixed=TRUE} and ignored with a warning otherwise.}
 
 \item{fixed}{optional argument indicating
 whether the \code{decay} parameter is fixed at the given value, or is to be fit as a curved
 exponential-family model (see Hunter and Handcock, 2006). The
 default is \code{FALSE} , which means the scale parameter is not
-fixed and thus the model is a CEF model.}
+fixed and thus the model is a curved exponential family.}
 
 \item{attr}{quantitative attribute (see Specifying Vertex attributes and Levels (\code{?nodal_attributes}) for details.)}
 

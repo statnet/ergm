@@ -8,13 +8,13 @@
 # binary: gwdsp(decay, fixed=FALSE, cutoff=30)
 }
 \arguments{
-\item{decay}{decay parameter to the model}
+\item{decay}{decay parameter for the shared partner or directed 2-path count; required if \code{fixed=TRUE} and ignored with a warning otherwise.}
 
 \item{fixed}{optional argument indicating
 whether the \code{decay} parameter is fixed at the given value, or is to be fit as a curved
 exponential-family model (see Hunter and Handcock, 2006). The
 default is \code{FALSE} , which means the scale parameter is not
-fixed and thus the model is a CEF model.}
+fixed and thus the model is a curved exponential family.}
 
 \item{cutoff}{This optional argument sets the number of underlying DSP terms
 to use in computing the statistics when \code{fixed=FALSE}, in order to reduce
@@ -33,6 +33,8 @@ are counted.  In other words, for a (directed) dyad \verb{(i,j)} in a directed g
 shared partners counted by \code{gwdsp} is the number of nodes \code{k} that have edges
 \code{i -> k -> j}.  (These may also be called homogeneous shared partners.)  To
 count other types of shared partners instead, see \code{dgwdsp}.
+
+The \code{decay} parameter was called \code{alpha} prior to \code{ergm} 3.7.
 }
 \seealso{
 \code{\link{ergmTerm}} for index of model terms currently visible to the package.

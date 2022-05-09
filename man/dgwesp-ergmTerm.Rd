@@ -8,13 +8,13 @@
 # binary: dgwesp(decay, fixed=FALSE, cutoff=30, type="OTP")
 }
 \arguments{
-\item{decay}{Decay parameter to the model. This parameter was called \code{alpha} prior to \verb{ergm 3.7} and should be non-negative.}
+\item{decay}{decay parameter for the shared partner or selected directed analogue count; required if \code{fixed=TRUE} and ignored with a warning otherwise.}
 
 \item{fixed}{optional argument indicating
 whether the \code{decay} parameter is fixed at the given value, or is to be fit as a curved
 exponential-family model (see Hunter and Handcock, 2006). The
 default is \code{FALSE} , which means the scale parameter is not
-fixed and thus the model is a CEF model.}
+fixed and thus the model is a curved exponential family.}
 
 \item{cutoff}{This optional argument sets the number of underlying ESP terms
 to use in computing the statistics when \code{fixed=FALSE}, in order to reduce
@@ -48,6 +48,8 @@ pair \eqn{(i,j)} iff \eqn{k \to i, k \to j}{k->i, k->j}.
 By default, outgoing two-paths (\code{"OTP"}) are calculated. Note that Robins et al. (2009)
 define closely related statistics to several of the above, using slightly different terminology.
 }
+
+The \code{decay} parameter was called \code{alpha} prior to \code{ergm} 3.7.
 }
 \seealso{
 \code{\link{ergmTerm}} for index of model terms currently visible to the package.

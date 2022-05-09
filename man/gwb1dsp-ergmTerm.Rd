@@ -8,10 +8,13 @@
 # binary: gwb1dsp(decay=0, fixed=FALSE, cutoff=30)
 }
 \arguments{
-\item{decay, fixed}{This value non-negative which should be non-negative. The value supplied for
-this parameter may be fixed (if \code{fixed=TRUE} ),
-or it may be used instead as the starting value for the estimation of \code{decay}
-in a curved exponential family model (when \code{fixed=FALSE} , the default) (see Hunter and Handcock, 2006).}
+\item{decay}{decay parameter for the shared partner counts; required if \code{fixed=TRUE} and ignored with a warning otherwise.}
+
+\item{fixed}{optional argument indicating
+whether the \code{decay} parameter is fixed at the given value, or is to be fit as a curved
+exponential-family model (see Hunter and Handcock, 2006). The
+default is \code{FALSE} , which means the scale parameter is not
+fixed and thus the model is a curved exponential family.}
 
 \item{cutoff}{This optional argument sets the number of underlying b1dsp terms
 to use in computing the statistics when \code{fixed=FALSE}, in order to reduce

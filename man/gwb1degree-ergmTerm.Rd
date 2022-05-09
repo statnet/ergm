@@ -8,11 +8,13 @@
 # binary: gwb1degree(decay, fixed=FALSE, attr=NULL, cutoff=30, levels=NULL)
 }
 \arguments{
-\item{decay, fixed}{the same as theta_s in
-equation (14) in Hunter (2007). The value supplied for
-this parameter may be fixed (if \code{fixed=TRUE} ),
-or it may be used as merely the starting value for the estimation
-in a curved exponential family model (the default).}
+\item{decay}{decay parameter for the first mode degree frequencies; required if \code{fixed=TRUE} and ignored with a warning otherwise.}
+
+\item{fixed}{optional argument indicating
+whether the \code{decay} parameter is fixed at the given value, or is to be fit as a curved
+exponential-family model (see Hunter and Handcock, 2006). The
+default is \code{FALSE} , which means the scale parameter is not
+fixed and thus the model is a curved exponential family.}
 
 \item{attr}{quantitative attribute (see Specifying Vertex attributes and Levels (\code{?nodal_attributes}) for details.)}
 
