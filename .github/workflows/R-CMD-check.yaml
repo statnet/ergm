@@ -120,6 +120,7 @@ jobs:
       matrix: ${{fromJson(needs.Set-Matrix-Private.outputs.matrix)}}
 
     env:
+      HOMEBREW_NO_INSTALL_CLEANUP: 1
       R_REMOTES_NO_ERRORS_FROM_WARNINGS: true
       RSPM: ${{ matrix.config.rspm }}
 
@@ -175,6 +176,7 @@ jobs:
           do
             eval sudo $cmd
           done < <(Rscript -e 'writeLines(remotes::system_requirements("ubuntu", "20.04"))')
+          sudo apt-get install -y libcurl4-openssl-dev
 
       - name: Install dependencies
         run: |
