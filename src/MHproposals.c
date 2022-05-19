@@ -22,13 +22,13 @@
 /*********************
  void MH_randomtoggle
 
- Default MH algorithm
+ Default MH algorithm with dyad generator API.
 *********************/
 MH_I_FN(Mi_randomtoggle){
   ALLOC_STORAGE(1, StoreDyadGenAndDegreeBound, storage);
   storage->gen = DyadGenInitializeR(MHp->R, nwp, FALSE);
   storage->bd = DegreeBoundInitializeR(MHp->R, nwp);
-  MHp->ntoggles=1;
+  MHp->ntoggles = storage->gen->ndyads!=0 ? 1 : MH_FAILED;
 }
 
 MH_P_FN(MH_randomtoggle){
@@ -61,7 +61,7 @@ MH_I_FN(Mi_TNT){
   ALLOC_STORAGE(1, StoreDyadGenAndDegreeBound, storage);
   storage->gen = DyadGenInitializeR(MHp->R, nwp, TRUE);
   storage->bd = DegreeBoundInitializeR(MHp->R, nwp);
-  MHp->ntoggles=1;
+  MHp->ntoggles = storage->gen->ndyads!=0 ? 1 : MH_FAILED;
 }
 
 MH_P_FN(Mp_TNT){
