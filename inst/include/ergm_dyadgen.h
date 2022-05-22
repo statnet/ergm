@@ -166,7 +166,6 @@ static inline void DyadGenRandWtEdge(Vertex *tail, Vertex *head, double *weight,
       *weight = WtGetEdge(*tail, *head, gen->nwp.w);
     }
     else WtGetRandEdge(tail, head, weight, gen->nwp.w);
-    *weight = 1;
     break;
   default:
     error("Undefined dyad generator type.");
