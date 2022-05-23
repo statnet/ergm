@@ -330,6 +330,7 @@ ssolve <- function(a, b, ..., snnd = TRUE){
 }
 
 
+#' @importFrom MASS ginv
 sginv <- function(X, ..., snnd = TRUE){
   d <- diag(as.matrix(X))
   d <- ifelse(d==0, 1, 1/d)
@@ -360,6 +361,7 @@ srcond <- function(x, ..., snnd = TRUE){
   }
 }
 
+#' @importFrom Matrix nearPD
 snearPD <- function(x, ...){
   d <- abs(diag(as.matrix(x)))
   d[d==0] <- 1

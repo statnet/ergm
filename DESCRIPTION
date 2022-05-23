@@ -64,7 +64,7 @@ License_is_FOSS: yes
 License_restricts_use: no
 URL: https://statnet.org
 VignetteBuilder: knitr
-RoxygenNote: 7.1.2
+RoxygenNote: 7.2.0
 Roxygen: list(markdown = TRUE)
 Config/testthat/parallel: true
 Config/testthat/edition: 3

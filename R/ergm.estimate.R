@@ -212,8 +212,7 @@ ergm.estimate<-function(init, model, statsmatrices, statsmatrices.obs=NULL,
       # statistics not to change, but it is not possible for the
       # constrained sample to have a higher variance than the
       # unconstrained.
-      #' @importFrom Matrix nearPD
-      Lout <- list(hessian = -as.matrix(nearPD(V-V.obs,posd.tol=0)$mat))
+      Lout <- list(hessian = -as.matrix(snearPD(V-V.obs,posd.tol=0)$mat))
     } else {
       if (verbose) { message("Using log-normal approx (no optim)") }
       Lout <- list(hessian = -V)
@@ -224,7 +223,6 @@ ergm.estimate<-function(init, model, statsmatrices, statsmatrices.obs=NULL,
     # If there's an error, first try a robust matrix inverse.  This can often
     # happen if the matrix of simulated statistics does not ever change for one
     # or more statistics.
-    #' @importFrom MASS ginv
     if(inherits(Lout$par,"try-error")){
       Lout$par <- try(eta0 
                       + sginv(-Lout$hessian) %*%
@@ -233,12 +231,11 @@ ergm.estimate<-function(init, model, statsmatrices, statsmatrices.obs=NULL,
     }
     # If there's still an error, use the Matrix package to try to find an 
     # alternative Hessian approximant that has no zero eigenvalues.
-    #' @importFrom Matrix nearPD
     if(inherits(Lout$par,"try-error")){
       if (obsprocess) {
-        Lout <- list(hessian = -(as.matrix(nearPD(V-V.obs)$mat)))
+        Lout <- list(hessian = -(as.matrix(snearPD(V-V.obs)$mat)))
       }else{
-        Lout <- list(hessian = -(as.matrix(nearPD(V)$mat)))
+        Lout <- list(hessian = -(as.matrix(snearPD(V)$mat)))
       }
       Lout$par <- eta0 + ssolve(-Lout$hessian, xobs)
     }
