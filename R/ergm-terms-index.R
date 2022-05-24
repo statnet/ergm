@@ -67,7 +67,7 @@ DISPLAY_LATEX_TOC_PCT_WIDTHS <- function(n_concepts) c(2.4, rep(.7, n_concepts))
     ps <- .filterProposals(ps, proposal=comps[1])
 
     proposals = list()
-    for (i in 1:nrow(ps)) {
+    for (i in seq_len(nrow(ps))) {
       if (!stringr::str_detect(ps$Constraints[i], '[|&]') || stringr::str_detect(ps$Constraints[i], '\\+')) {
         constraints <- strsplit(ps$Constraints[i], '\\+')[[1]]
         constraints <- paste0(ifelse(constraints == '.dyads', '|', '&'), constraints)
@@ -253,7 +253,7 @@ ergmTermCache <- local({
   }
 
   if (length(proposals) == 0) return(NULL)
-  names(proposals) <- 1:length(proposals)
+  names(proposals) <- seq_along(proposals)
   proposals
 }
 
@@ -336,7 +336,7 @@ PROPOSAL_NOT_IN_TABLE <- "This proposal is not referenced in the lookup table."
 .formatProposalsHtml <- function(df, keepProposal=FALSE) {
   if (NROW(df) == 0) return(paste0("\\out{<p>", PROPOSAL_NOT_IN_TABLE, "</p>}"))
 
-  for (i in 1:length(df)) {
+  for (i in seq_along(df)) {
     df[[i]]$Proposal <- sprintf('<a href="../help/%1$s-ergmProposal">%1$s</a>', df[[i]]$Proposal)
     df[[i]]$Reference <- sprintf('<a href="../help/%1$s-ergmReference">%1$s</a>', df[[i]]$Reference)
     df[[i]]$Enforced <- if (length(df[[i]]$Enforced) > 0) paste(sprintf('<a href="../help/%1$s-ergmConstraint">%1$s</a>', df[[i]]$Enforced), collapse=' ') else ""
@@ -356,7 +356,7 @@ PROPOSAL_NOT_IN_TABLE <- "This proposal is not referenced in the lookup table."
 .formatProposalsLatex <- function(df, keepProposal=FALSE) {
   if (NROW(df) == 0) return(paste0("\\out{",PROPOSAL_NOT_IN_TABLE,"}"))
 
-  for (i in 1:length(df)) {
+  for (i in seq_along(df)) {
     df[[i]]$Enforced <- if (length(df[[i]]$Enforced) > 0) paste(df[[i]]$Enforced, collapse=' ') else ""
     df[[i]]$May_Enforce <- if (length(df[[i]]$May_Enforce) > 0) paste(df[[i]]$May_Enforce, collapse=' ') else ""
   }
@@ -378,7 +378,7 @@ PROPOSAL_NOT_IN_TABLE <- "This proposal is not referenced in the lookup table."
 .formatProposalsText <- function(df, keepProposal=FALSE) {
   if (NROW(df) == 0) return(PROPOSAL_NOT_IN_TABLE)
 
-  for (i in 1:length(df)) {
+  for (i in seq_along(df)) {
     df[[i]]$Enforced <- if (length(df[[i]]$Enforced) > 0) paste(df[[i]]$Enforced, collapse=' ') else ""
     df[[i]]$May_Enforce <- if (length(df[[i]]$May_Enforce) > 0) paste(df[[i]]$May_Enforce, collapse=' ') else ""
   }
@@ -422,7 +422,7 @@ PROPOSAL_NOT_IN_TABLE <- "This proposal is not referenced in the lookup table."
   empty_row <- sprintf('|%s|\n', paste(stringr::str_pad(rep('', length(DISPLAY_TEXT_INDEX_MAX_WIDTHS)), DISPLAY_TEXT_INDEX_MAX_WIDTHS), collapse='|'))
 
   r <- list()
-  for (i in 1:dim(df)[1]) {
+  for (i in seq_len(dim(df)[1])) {
     for (c in names(DISPLAY_TEXT_INDEX_MAX_WIDTHS)) {
       r[[c]] <- if (df[i, c] != '') line_wrap(df[i, c], DISPLAY_TEXT_INDEX_MAX_WIDTHS[[c]]) else c()
     }
@@ -432,7 +432,7 @@ PROPOSAL_NOT_IN_TABLE <- "This proposal is not referenced in the lookup table."
       r[[c]] <- pad_lines(r[[c]], max_lines)
     }
 
-    for (j in 1:max_lines) {
+    for (j in seq_len(max_lines)) {
       out <- sprintf('%s|%s|\n', out, paste(stringr::str_pad(sapply(r, "[[", j), DISPLAY_TEXT_INDEX_MAX_WIDTHS, side='right'), collapse='|'))
     }
     out <- paste(out, empty_row, sep='')
