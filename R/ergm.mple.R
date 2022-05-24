@@ -236,7 +236,7 @@ mple.existence <- function(pl) {
   e_n <- rep(1, nrow(X.bar))
   obj <- e_n%*%X.bar 
   lprec <- make.lp(nrow=nrow(X.bar), ncol=length(obj)) # set constraint and decision variables
-  for(k in 1:length(c(obj))){
+  for(k in seq_along(c(obj))){
     status <- set.column(lprec, k, X.bar[,k])
   }
   status <- set.objfn(lprec, c( obj) )

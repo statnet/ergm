@@ -61,7 +61,7 @@ ergm_model <- function(formula, nw=NULL, silent=FALSE, ..., term.options=list(),
                           terms = list(), networkstats.0 = numeric()),
                  class = "ergm_model")
 
-  for (i in 1:length(v)) {
+  for (i in seq_along(v)) {
     term <- v[[i]]
 
     if (is.call(term) && term[[1L]] == "offset"){ # Offset term
