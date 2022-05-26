@@ -64,7 +64,33 @@
 
 %% }
 
-\section{Changes in version 4.2.0}{
+
+\section{Changes in version 4.2.2}{
+
+  \subsection{NEW FEATURES}{
+    \itemize{
+      \item{
+        More \code{\link{ergmKeyword}}s have been added for dyadic and triadic covariates, and terms have been tagged appropriately.
+      }
+    }
+  }
+
+
+  \subsection{BUG FIXES}{
+    \itemize{
+      \item{
+        Robustification of step length calculation, documentation processing, numerical optimization, and elsewhere.
+      }
+
+      \item{
+        Minor documentation fixes and clarifications.
+      }
+    }
+  }
+}
+
+
+\section{Changes in version 4.2.1}{
 
   \subsection{NEW FEATURES}{
     \itemize{
