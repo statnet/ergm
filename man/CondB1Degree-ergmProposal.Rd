@@ -14,3 +14,4 @@ This ensures that the degrees of individual nodes in mode 1 are preserved.
 \if{text}{\Sexpr[results=rd,stage=render]{ergm:::.formatProposalsText(ergm:::.buildProposalsList(proposal="CondB1Degree"))}}
 \if{latex}{\Sexpr[results=rd,stage=render]{ergm:::.formatProposalsLatex(ergm:::.buildProposalsList(proposal="CondB1Degree"))}}
 }
+\keyword{internal}

@@ -14,3 +14,4 @@ T and H, then propose to toggle E and the dyad between T and A.
 \if{text}{\Sexpr[results=rd,stage=render]{ergm:::.formatProposalsText(ergm:::.buildProposalsList(proposal="CondDegreeDist"))}}
 \if{latex}{\Sexpr[results=rd,stage=render]{ergm:::.formatProposalsLatex(ergm:::.buildProposalsList(proposal="CondDegreeDist"))}}
 }
+\keyword{internal}

@@ -31,7 +31,7 @@ networks.
 \seealso{
 \code{\link{ergmTerm}} for index of model terms currently visible to the package.
 }
-\concept{categorical nodal attribute}
 \concept{directed}
 \concept{dyad-independent}
+\concept{quantitative dyadic attribute}
 \concept{undirected}

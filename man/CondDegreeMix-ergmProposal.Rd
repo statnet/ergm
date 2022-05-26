@@ -13,3 +13,4 @@ the toggle is proposed only if the mixing matrix of degrees is preserved before 
 \if{text}{\Sexpr[results=rd,stage=render]{ergm:::.formatProposalsText(ergm:::.buildProposalsList(proposal="CondDegreeMix"))}}
 \if{latex}{\Sexpr[results=rd,stage=render]{ergm:::.formatProposalsLatex(ergm:::.buildProposalsList(proposal="CondDegreeMix"))}}
 }
+\keyword{internal}

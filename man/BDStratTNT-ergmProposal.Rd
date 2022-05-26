@@ -17,3 +17,4 @@ Implements a TNT proposal with any subset of the following features:
 \if{text}{\Sexpr[results=rd,stage=render]{ergm:::.formatProposalsText(ergm:::.buildProposalsList(proposal="BDStratTNT"))}}
 \if{latex}{\Sexpr[results=rd,stage=render]{ergm:::.formatProposalsLatex(ergm:::.buildProposalsList(proposal="BDStratTNT"))}}
 }
+\keyword{internal}

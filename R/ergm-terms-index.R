@@ -80,7 +80,7 @@ DISPLAY_LATEX_TOC_PCT_WIDTHS <- function(n_concepts) c(2.4, rep(.7, n_concepts))
       proposals[[length(proposals) + 1]] <- list(
         Proposal=ps$Proposal[i],
         Reference=ps$Reference[i],
-        Enforced=constraints %>% keep("enforce") %>% map("name") %>% unlist,
+        Enforces=constraints %>% keep("enforce") %>% map("name") %>% unlist,
         May_Enforce=constraints %>% discard("enforce") %>% map("name") %>% unlist,
         Priority=ps$Priority[i],
         Weight=ps$Weights[i],
@@ -339,7 +339,7 @@ PROPOSAL_NOT_IN_TABLE <- "This proposal is not referenced in the lookup table."
   for (i in seq_along(df)) {
     df[[i]]$Proposal <- sprintf('<a href="../help/%1$s-ergmProposal">%1$s</a>', df[[i]]$Proposal)
     df[[i]]$Reference <- sprintf('<a href="../help/%1$s-ergmReference">%1$s</a>', df[[i]]$Reference)
-    df[[i]]$Enforced <- if (length(df[[i]]$Enforced) > 0) paste(sprintf('<a href="../help/%1$s-ergmConstraint">%1$s</a>', df[[i]]$Enforced), collapse=' ') else ""
+    df[[i]]$Enforces <- if (length(df[[i]]$Enforces) > 0) paste(sprintf('<a href="../help/%1$s-ergmConstraint">%1$s</a>', df[[i]]$Enforces), collapse=' ') else ""
     df[[i]]$May_Enforce <- if (length(df[[i]]$May_Enforce) > 0) paste(sprintf('<a href="../help/%1$s-ergmConstraint">%1$s</a>', df[[i]]$May_Enforce), collapse=' ') else ""
   }
 
@@ -357,12 +357,12 @@ PROPOSAL_NOT_IN_TABLE <- "This proposal is not referenced in the lookup table."
   if (NROW(df) == 0) return(paste0("\\out{",PROPOSAL_NOT_IN_TABLE,"}"))
 
   for (i in seq_along(df)) {
-    df[[i]]$Enforced <- if (length(df[[i]]$Enforced) > 0) paste(df[[i]]$Enforced, collapse=' ') else ""
+    df[[i]]$Enforces <- if (length(df[[i]]$Enforces) > 0) paste(df[[i]]$Enforces, collapse=' ') else ""
     df[[i]]$May_Enforce <- if (length(df[[i]]$May_Enforce) > 0) paste(df[[i]]$May_Enforce, collapse=' ') else ""
   }
 
   df <- as.data.frame(do.call(rbind.data.frame, df))
-  names(df) <- c('Proposal', 'Reference', 'Enforced', 'May Enforce', 'Priority', 'Weight', 'Class')
+  names(df) <- c('Proposal', 'Reference', 'Enforces', 'May Enforce', 'Priority', 'Weight', 'Class')
   df[, 'Class'] = ifelse(df[, 'Class'] == 'cross-sectional', 'c', 't')
 
   if (!keepProposal) {
@@ -379,7 +379,7 @@ PROPOSAL_NOT_IN_TABLE <- "This proposal is not referenced in the lookup table."
   if (NROW(df) == 0) return(PROPOSAL_NOT_IN_TABLE)
 
   for (i in seq_along(df)) {
-    df[[i]]$Enforced <- if (length(df[[i]]$Enforced) > 0) paste(df[[i]]$Enforced, collapse=' ') else ""
+    df[[i]]$Enforces <- if (length(df[[i]]$Enforces) > 0) paste(df[[i]]$Enforces, collapse=' ') else ""
     df[[i]]$May_Enforce <- if (length(df[[i]]$May_Enforce) > 0) paste(df[[i]]$May_Enforce, collapse=' ') else ""
   }
 
@@ -887,7 +887,7 @@ search.ergmProposals <- function(search, name, reference, constraints, packages)
     for (constraint in constraints) {
       for (t in which(found)) {
         term <-terms[[t]]
-        if (!constraint %in% (term$rules %>% map('Enforced') %>% unlist) && !constraint %in% (term$rules %>% map("May_Enforce") %>% unlist)) {
+        if (!constraint %in% (term$rules %>% map('Enforces') %>% unlist) && !constraint %in% (term$rules %>% map("May_Enforce") %>% unlist)) {
           found[t]<-FALSE
         }
       }
@@ -923,8 +923,8 @@ search.ergmProposals <- function(search, name, reference, constraints, packages)
           cat(sprintf('    Reference: %s Class: %s\n%s%s\n',
             rule$Reference,
             rule$Class,
-            if (length(rule$Enforced) > 0) paste("    Enfored:", paste(rule$Enforced, collapse=" "), "\n") else "",
-            if (length(rule$May_Enforce) > 0) paste("    May Enfore:", paste(rule$May_Enforce, collapse=" "), "\n") else ""))
+            if (length(rule$Enforces) > 0) paste("    Enforces:", paste(rule$Enforces, collapse=" "), "\n") else "",
+            if (length(rule$May_Enforce) > 0) paste("    May Enforce:", paste(rule$May_Enforce, collapse=" "), "\n") else ""))
         }
       }
     }

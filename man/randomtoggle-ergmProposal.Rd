@@ -12,3 +12,4 @@ Propose a randomly selected dyad to toggle
 \if{text}{\Sexpr[results=rd,stage=render]{ergm:::.formatProposalsText(ergm:::.buildProposalsList(proposal="randomtoggle"))}}
 \if{latex}{\Sexpr[results=rd,stage=render]{ergm:::.formatProposalsLatex(ergm:::.buildProposalsList(proposal="randomtoggle"))}}
 }
+\keyword{internal}
