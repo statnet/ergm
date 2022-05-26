@@ -34,6 +34,6 @@ Function to check whether an ERGM fit or some aspect of it is valued
 
 \item \code{ergm}: a method for \code{\link{ergm}} objects.
 
-\item \code{network}: a method for \code{\link{network}} objects.
+\item \code{network}: a method for \code{\link{network}} objects that tests whether the network has been instrumented with a valued \code{\link{\%ergmlhs\%}} \code{"response"} specification, typically by \code{\link[=ergm_preprocess_response]{ergm_preprocess_response()}}. Note that it is \emph{not} a test for whether a network has edge attributes. This method is primarily for internal use.
 }}
 
