@@ -277,8 +277,7 @@ ergm.estimate<-function(init, model, statsmatrices, statsmatrices.obs=NULL,
                       dampening.min.ess=dampening.min.ess,
                       dampening.level=dampening.level,
                       eta0=eta0, etamap=etamap.no),
-            silent=FALSE)
-    Lout$par<-Lout$argument
+                silent=FALSE)
     if(inherits(Lout,"try-error")) {
       message("MLE could not be found. Trying Nelder-Mead...")
       Lout <- try(optim(par=guess, 
@@ -302,7 +301,7 @@ ergm.estimate<-function(init, model, statsmatrices, statsmatrices.obs=NULL,
         message("Non-convergence after ", nr.maxit, " iterations.")
       }
       message("Nelder-Mead Log-likelihood ratio is ", Lout$value," ")
-    }
+    } else Lout$par<-Lout$argument
   }
 
   theta <- init
