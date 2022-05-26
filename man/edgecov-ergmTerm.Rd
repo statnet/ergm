@@ -34,4 +34,5 @@ networks.
 \concept{directed}
 \concept{dyad-independent}
 \concept{frequently-used}
+\concept{quantitative dyadic attribute}
 \concept{undirected}

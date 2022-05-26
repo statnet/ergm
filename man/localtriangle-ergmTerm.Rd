@@ -26,6 +26,7 @@ within the same neighborhood.
 \seealso{
 \code{\link{ergmTerm}} for index of model terms currently visible to the package.
 }
+\concept{categorical dyadic attribute}
 \concept{directed}
 \concept{triad-related}
 \concept{undirected}

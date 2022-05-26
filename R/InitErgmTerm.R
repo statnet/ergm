@@ -2804,7 +2804,7 @@ InitErgmTerm.dsp<-function(nw, arglist, cache.sp=TRUE, ...) {
 #' @concept dyad-independent
 #' @concept directed
 #' @concept undirected
-#' @concept categorical nodal attribute
+#' @concept quantitative dyadic attribute
 InitErgmTerm.dyadcov<-function (nw, arglist, ...) {
   a <- check.ErgmTerm(nw, arglist,
                       varnames = c("x","attrname"),
@@ -2866,6 +2866,7 @@ InitErgmTerm.dyadcov<-function (nw, arglist, ...) {
 #' @concept directed
 #' @concept undirected
 #' @concept frequently-used
+#' @concept quantitative dyadic attribute
 InitErgmTerm.edgecov <- function(nw, arglist, ...) {
   ### Check the network and arguments to make sure they are appropriate.
   a <- check.ErgmTerm(nw, arglist, 
@@ -4373,6 +4374,7 @@ InitErgmTerm.kstar<-function(nw, arglist, ..., version=packageVersion("ergm")) {
 #' @concept triad-related
 #' @concept directed
 #' @concept undirected
+#' @concept categorical dyadic attribute
 InitErgmTerm.localtriangle<-function (nw, arglist, ...) {
   a <- check.ErgmTerm(nw, arglist,
                       varnames = c("x", "attrname"),
