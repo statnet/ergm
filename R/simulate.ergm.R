@@ -308,14 +308,21 @@ simulate_formula <- function(object, ..., basis=eval_lhs.formula(object)) {
   
   # Construct the proposal; this needs to be done here so that the
   # auxiliary requests could be passed to ergm_model().
-  proposal <- if(inherits(constraints, "ergm_proposal")) constraints
-                else ergm_proposal(constraints,arguments=if(observational) control$obs.MCMC.prop.args else control$MCMC.prop.args,
-                                   nw=nw, hints=if(observational) control$obs.MCMC.prop else control$MCMC.prop, weights=if(observational) control$obs.MCMC.prop.weights else control$MCMC.prop.weights, class="c",reference=reference, term.options=control$term.options)
+  if(!is(constraints, "ergm_proposal")){
+    if (verbose) message("Initializing unconstrained Metropolis-Hastings proposal: ", appendLF=FALSE)
+    proposal <- ergm_proposal(constraints,arguments=if(observational) control$obs.MCMC.prop.args else control$MCMC.prop.args,
+                              nw=nw, hints=if(observational) control$obs.MCMC.prop else control$MCMC.prop, weights=if(observational) control$obs.MCMC.prop.weights else control$MCMC.prop.weights, class="c",reference=reference, term.options=control$term.options)
+    if (verbose) message(sQuote(paste0(proposal$pkgname,":MH_",proposal$name)),".")
+  }else proposals <- constraints
+
   
-  # Prepare inputs to ergm.getMCMCsample
+  # Construct the model.
+  if (verbose) message("Initializing model...")
   m <- ergm_model(object, nw, extra.aux=list(proposal=proposal$auxiliaries), term.options=control$term.options)
   proposal$aux.slots <- m$slots.extra.aux$proposal
+  if (verbose) message("Model initialized.")
 
+  # Pass the inputs to the simualte method for ergm_model.
     out <- simulate(m, nsim=nsim, seed=seed,
                     coef=coef,
                     constraints=proposal,

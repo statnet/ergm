@@ -69,7 +69,7 @@ ergm_keyword <- local({
   empty_row <- sprintf('|%s|\n', paste(stringr::str_pad(rep('', length(DISPLAY_TEXT_KW_INDEX_MAX_WIDTHS)), DISPLAY_TEXT_KW_INDEX_MAX_WIDTHS), collapse='|'))
 
   r <- list()
-  for (i in 1:dim(df)[1]) {
+  for (i in seq_len(dim(df)[1])) {
     print(df[i, ])
     for (c in names(DISPLAY_TEXT_KW_INDEX_MAX_WIDTHS)) {
       r[[c]] <- if (df[i, c] != '') line_wrap(df[i, c], DISPLAY_TEXT_KW_INDEX_MAX_WIDTHS[[c]]) else character(0)
@@ -80,7 +80,7 @@ ergm_keyword <- local({
       r[[c]] <- pad_lines(r[[c]], max_lines)
     }
 
-    for (j in 1:max_lines) {
+    for (j in seq_len(max_lines)) {
       out <- sprintf('%s|%s|\n', out, paste(stringr::str_pad(sapply(r, "[[", j), DISPLAY_TEXT_KW_INDEX_MAX_WIDTHS, side='right'), collapse='|'))
     }
     out <- paste(out, empty_row, sep='')
