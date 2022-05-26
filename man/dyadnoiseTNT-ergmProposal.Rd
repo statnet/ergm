@@ -12,3 +12,4 @@ TODO
 \if{text}{\Sexpr[results=rd,stage=render]{ergm:::.formatProposalsText(ergm:::.buildProposalsList(proposal="dyadnoiseTNT"))}}
 \if{latex}{\Sexpr[results=rd,stage=render]{ergm:::.formatProposalsLatex(ergm:::.buildProposalsList(proposal="dyadnoiseTNT"))}}
 }
+\keyword{internal}

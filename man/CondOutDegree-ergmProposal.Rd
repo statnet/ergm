@@ -13,3 +13,4 @@ common tail node, one having an edge and one not, and propose to swap the tie fr
 \if{text}{\Sexpr[results=rd,stage=render]{ergm:::.formatProposalsText(ergm:::.buildProposalsList(proposal="CondOutDegree"))}}
 \if{latex}{\Sexpr[results=rd,stage=render]{ergm:::.formatProposalsLatex(ergm:::.buildProposalsList(proposal="CondOutDegree"))}}
 }
+\keyword{internal}

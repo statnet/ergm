@@ -13,3 +13,4 @@ MHp for \eqn{constraints= ~idegreedist}. For directed networks, similar to
 \if{text}{\Sexpr[results=rd,stage=render]{ergm:::.formatProposalsText(ergm:::.buildProposalsList(proposal="CondInDegreeDist"))}}
 \if{latex}{\Sexpr[results=rd,stage=render]{ergm:::.formatProposalsLatex(ergm:::.buildProposalsList(proposal="CondInDegreeDist"))}}
 }
+\keyword{internal}

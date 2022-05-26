@@ -12,3 +12,4 @@ TODO
 \if{text}{\Sexpr[results=rd,stage=render]{ergm:::.formatProposalsText(ergm:::.buildProposalsList(proposal="UnifNonObserved"))}}
 \if{latex}{\Sexpr[results=rd,stage=render]{ergm:::.formatProposalsLatex(ergm:::.buildProposalsList(proposal="UnifNonObserved"))}}
 }
+\keyword{internal}

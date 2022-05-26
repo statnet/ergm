@@ -13,3 +13,4 @@ common head node, one having an edge one not, and propose to swap the tie from o
 \if{text}{\Sexpr[results=rd,stage=render]{ergm:::.formatProposalsText(ergm:::.buildProposalsList(proposal="CondInDegree"))}}
 \if{latex}{\Sexpr[results=rd,stage=render]{ergm:::.formatProposalsLatex(ergm:::.buildProposalsList(proposal="CondInDegree"))}}
 }
+\keyword{internal}

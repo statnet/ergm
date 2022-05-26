@@ -15,3 +15,4 @@ because it gives at least 50\\% chance of proposing a toggle of an existing edge
 \if{text}{\Sexpr[results=rd,stage=render]{ergm:::.formatProposalsText(ergm:::.buildProposalsList(proposal="TNT"))}}
 \if{latex}{\Sexpr[results=rd,stage=render]{ergm:::.formatProposalsLatex(ergm:::.buildProposalsList(proposal="TNT"))}}
 }
+\keyword{internal}
