@@ -194,7 +194,7 @@ shrink_into_CH <- function(p, M, m = NULL, verbose=FALSE, ..., solver = c("glpk"
   g <- Inf
   for (i in seq_len(np)) { # Iterate over test points.
     if (verbose >= 3) message("Test point ", i)
-    if (all((x <- p[i,]) == 0)) next # Test point is at centroid. TODO: Tolerance?
+    if (all(abs((x <- p[i,])) <= sqrt(.Machine$double.eps))) next # Test point is at centroid. TODO: Allow the user to specify tolerance?
 
     if(solver == "lpsolve"){
       set.objfn(lprec, x)
@@ -204,7 +204,7 @@ shrink_into_CH <- function(p, M, m = NULL, verbose=FALSE, ..., solver = c("glpk"
       o <- Rglpk::Rglpk_solve_LP(x, M, dir, rhs, list(lower=list(ind=seq_len(d), val=lb)), control=list(..., verbose=max(0,verbose-3)))$optimum
     }
 
-    g <- min(g, -1/o)
+    g <- min(g, abs(-1/o)) # abs() guards against optimum being numerically equivalent to 0 with -1/0 = -Inf.
 
     if (verbose >= 3) message("Step length is now ", g, ".")
   }
