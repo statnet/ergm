@@ -45,7 +45,7 @@ as.ergm_model(x, ...)
 formula of the form \code{network ~ model.term(s)} or \code{~
 model.term(s)}.}
 
-\item{nw}{The network of interest; if passed, the LHS of \code{formula} is ignored. This is the recommended usage.}
+\item{nw}{The network of interest, optionally instrumented with \code{\link[=ergm_preprocess_response]{ergm_preprocess_response()}} to have a response attribute specification; if passed, the LHS of \code{formula} is ignored. This is the recommended usage.}
 
 \item{silent}{logical, whether to print the warning messages from the
 initialization of each model term.}
@@ -103,8 +103,10 @@ initialized via the \code{InitErgmTerm} functions to create a
 
 \note{
 This API is not to be considered fixed and may change between versions. However, an effort will be made to ensure that the methods of this class remain stable.
+
+Earlier versions also had an optional \verb{response=} parameter that, if not \code{NULL}, switched to valued mode and used the edge attribute named in \verb{response=} as the response. This is no longer used; instead, the response is to be set on \code{nw} via \code{ergm_preprocess_response(nw, response)}.
 }
 \seealso{
-\code{\link[=summary.ergm_model]{summary.ergm_model()}}
+\code{\link[=summary.ergm_model]{summary.ergm_model()}}, \code{\link[=ergm_preprocess_response]{ergm_preprocess_response()}}
 }
 \keyword{internal}
