@@ -83,7 +83,15 @@
       }
 
       \item{
-        Minor documentation fixes and clarifications.
+        Minor documentation and vignettes fixes and clarifications.
+      }
+    }
+  }
+
+  \subsection{INSTALLATION}{
+    \itemize{
+      \item{
+        Package \pkg{ergm.userterms} for implementing custom ERGM terms is no longer maintained on CRAN and is instead maintained on GitHub at \url{https://github.com/statnet/ergm.userterms}. It is no longer listed as a Suggested package.
       }
     }
   }

@@ -146,7 +146,7 @@ desired.
 \subsection{Custom \code{ergm} terms}{
 
 Users and other packages may build custom terms, and package
-\code{\link[ergm.userterms:ergm.userterms-package]{ergm.userterms}} provides
+\pkg{ergm.userterms} (\url{https://github.com/statnet/ergm.userterms}) provides
 tools for implementing them.
 
 The current recommendation for any package implementing additional terms is

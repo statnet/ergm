@@ -24,7 +24,7 @@
 #' @param formula An [ergm()]
 #' formula of the form \code{network ~ model.term(s)} or \code{~
 #' model.term(s)}.
-#' @param nw The network of interest; if passed, the LHS of `formula` is ignored. This is the recommended usage.
+#' @param nw The network of interest, optionally instrumented with [ergm_preprocess_response()] to have a response attribute specification; if passed, the LHS of `formula` is ignored. This is the recommended usage.
 #' @param silent logical, whether to print the warning messages from the
 #' initialization of each model term.
 #' @param \dots additional parameters for model formulation
@@ -33,13 +33,14 @@
 #' @param env a throwaway argument needed to prevent conflicts with some usages of `ergm_model`. The initialization environment is *always* taken from the `formula`.
 #' @param offset.decorate logical; whether offset coefficient and parameter names should be enclosed in `"offset()"`. 
 #' @param object An `ergm_model` object.
+#' @note Earlier versions also had an optional `response=` parameter that, if not `NULL`, switched to valued mode and used the edge attribute named in `response=` as the response. This is no longer used; instead, the response is to be set on `nw` via `ergm_preprocess_response(nw, response)`.
 #' @return `ergm_model` returns an  `ergm_model` object as a list
 #' containing:
 #' \item{terms}{a list of terms and 'term components' initialized by the
 #' appropriate \code{InitErgmTerm.X} function.}
 #' \item{etamap}{the theta -> eta mapping as a list returned from
 #' <ergm.etamap>}
-#' @seealso [summary.ergm_model()]
+#' @seealso [summary.ergm_model()], [ergm_preprocess_response()]
 #' @keywords internal
 #' @export
 ergm_model <- function(formula, nw=NULL, silent=FALSE, ..., term.options=list(), extra.aux=list(), env=globalenv(), offset.decorate=TRUE){

@@ -24,7 +24,7 @@ library(ergm)
 
 ## Interactive searching
 
-It is possible to search the `ergm-terms` help page and search for specific keywords of terms using the `search.ergmTerms` command.  For example to find all the terms that mention 'triangle' in their description:
+It is possible to search the `ergm` terms help page and search for specific keywords of terms using the `search.ergmTerms` command.  For example to find all the terms that mention 'triangle' in their description:
 
 ```{r}
 search.ergmTerms(search='triangle')
