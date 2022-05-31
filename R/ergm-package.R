@@ -45,13 +45,13 @@
 #' \code{\link{mcmc.diagnostics}} and \code{\link{gof.ergm}}).
 #' 
 #' A number of Statnet Project packages extend and enhance
-#' \code{\link[=ergm-package]{ergm}}. These include
-#' \code{\link[tergm:tergm-package]{tergm}} (Temporal ERGM), which provides
+#' \pkg{\link[=ergm-package]{ergm}}. These include
+#' \pkg{\link[tergm:tergm-package]{tergm}} (Temporal ERGM), which provides
 #' extensions for modeling evolution of networks over time;
-#' \code{\link[ergm.count:ergm.count-package]{ergm.count}}, which facilitates
+#' \pkg{\link[ergm.count:ergm.count-package]{ergm.count}}, which facilitates
 #' exponential family modeling for networks whose dyadic measurements are
 #' counts; and
-#' \code{\link[ergm.userterms:ergm.userterms-package]{ergm.userterms}}, which
+#' \pkg{ergm.userterms}, available on GitHub at \url{https://github.com/statnet/ergm.userterms}, which
 #' allows users to implement their own ERGM terms.
 #' 
 #' For detailed information on how to download and install the software, go to
@@ -289,7 +289,7 @@ NULL
 #' 
 #' ## Custom `ergm` terms
 #' Users and other packages may build custom terms, and package
-#' \code{\link[ergm.userterms:ergm.userterms-package]{ergm.userterms}} provides
+#' \pkg{ergm.userterms} (\url{https://github.com/statnet/ergm.userterms}) provides
 #' tools for implementing them.
 #' 
 #' The current recommendation for any package implementing additional terms is

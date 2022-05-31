@@ -500,7 +500,7 @@ The terms that can be used in a model also depend on the type of network being a
 
 There is a `statnet` package --- `ergm.userterms` ---
 that facilitates the writing of new
-`ergm` terms. The package is available on CRAN, and installing it will
+`ergm` terms. The package is available [on GitHub](https://github.com/statnet/ergm.userterms), and installing it will
 include the tutorial (ergmuserterms.pdf).  The tutorial can 
 also be found in the 
 [*Journal of Statistical Software 52(2)*](http://www.jstatsoft.org/v52/i02), 
