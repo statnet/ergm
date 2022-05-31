@@ -107,18 +107,20 @@ tutorial, and links to more information are provided in
 [section 3.](#model-terms-available-for-ergm-estimation-and-simulation).
 
 You can get the list of all available terms, and the syntax for using them, by typing:
-
 ```{r, eval=FALSE}
-?'ergm-terms'
+ergmTerm
+```
+and you can look up help for a specific term, say, `edges`, by typing:
+```{r, eval=FALSE}
+ergmTerm?edges
 ```
 
 You can also search for terms with keywords:
-
 ```{r}
 search.ergmTerms(keyword='homophily')
 ```
 
-For more information, see the vignette on `ergm-terms`:
+For more information, see the vignette on `ergm` terms:
 ```{r, eval=FALSE}
 vignette('ergm-term-crossRef')
 ```
@@ -228,7 +230,7 @@ plot(flomarriage,
 
 We begin with a simple model, 
 containing only one term that represents the total number of
-edges in the network, $\sum{y_{ij}}$. The name of this ergm-term is `edges`, 
+edges in the network, $\sum{y_{ij}}$. The name of this `ergm` term is `edges`,
 and when included in an ERGM its 
 coefficient controls the overall density of the network.
 
@@ -267,11 +269,11 @@ is $20/`r 16*15/2` = `r round(20/(16*15/2),2)`$.
 
 Let's add a term often thought to be a measure of
 "clustering": the number of completed triangles in the network, or $\sum{y_{ij}y_{ik}y_{jk}} \div 3$.  
-The name for this ergm-term is `triangle`.
+The name for this `ergm` term is `triangle`.
 
 This is an example of a dyad dependent term: The status of any triangle containing
 dyad $y_{ij}$ depends on the status of dyads of the form $y_{ik}$ and $y_{jk}$.
-This means that any model containing the ergm-term `triangle` has the property
+This means that any model containing the `ergm` term `triangle` has the property
 that dyads are not probabilistically independent of one another.
 As a result, the estimation algorithm automatically changes to MCMC, and because this 
 is a form of stochastic estimation your results may differ slightly.
@@ -322,7 +324,7 @@ coef(flomodel.02) # you can extract/inspect individual components
 #### Nodal covariates: effects on mean degree
 
 We saw earlier that wealth appeared to be associated with higher
-degree in this network.  We can use `ergm` to test this.  Wealth is a nodal covariate, so we use the ergm-term **nodecov**.
+degree in this network.  We can use `ergm` to test this.  Wealth is a nodal covariate, so we use the `ergm` term `nodecov`.
 
 ```{r}
 summary(wealth) # summarize the distribution of wealth
@@ -356,11 +358,11 @@ $-2.59 + 0.01*(146+146) = 0.33$
 $-2.59 + 0.01*(146+3) = -1.1$
 * The corresponding probabilities are 0.07, 0.58, and 0.25.
 
-This model specification does not include a term for homophily by wealth, i.e., a term accounting for similarity in wealth of the two end nodes of a potential tie.  It just specifies a relation between wealth and mean degree.  To specify homophily on wealth, you could use the ergm-term ***absdiff***. [See section 3 below for more information on ergm-terms.?faux](ergm_tutorial.html#model-terms-available-for-ergm-estimation-and-simulation)
+This model specification does not include a term for homophily by wealth, i.e., a term accounting for similarity in wealth of the two end nodes of a potential tie.  It just specifies a relation between wealth and mean degree.  To specify homophily on wealth, you could use the `ergm` term `absdiff`. [See section 3 below for more information on ergm-terms.?faux](ergm_tutorial.html#model-terms-available-for-ergm-estimation-and-simulation)
 
 #### Nodal covariates:  Homophily
 
-Let's try a larger network, a simulated mutual friendship network based on one of the schools from the AddHealth study.  Here, we'll examine the homophily in friendships by grade and race.  Both are discrete attributes so we use the ergm-term ***nodematch***.
+Let's try a larger network, a simulated mutual friendship network based on one of the schools from the AddHealth study.  Here, we'll examine the homophily in friendships by grade and race.  Both are discrete attributes so we use the `ergm` term `nodematch`.
 
 ```{r}
 data(faux.mesa.high) 
@@ -403,11 +405,11 @@ summary(mesa ~edges  +
 ```
 **Moral**:  It's important to check the descriptive statistics of a model in the observed network before fitting the model.
 
-See also the ergm-terms ***nodemix*** and ***mm*** for fitting mixing patterns other than homophily on discrete nodal attributes.
+See also the `ergm` terms `nodemix` and `mm` for fitting mixing patterns other than homophily on discrete nodal attributes.
 
 #### Directed ties
 
-Let's try a model for a directed network, and examine the tendency for ties to be reciprocated ("mutuality").  The ergm-term for this is ***mutual***.  We'll fit this model to the third wave of the classic Sampson Monastery data, and we'll start by taking a look at the network.
+Let's try a model for a directed network, and examine the tendency for ties to be reciprocated ("mutuality").  The `ergm` term for this is `mutual`.  We'll fit this model to the third wave of the classic Sampson Monastery data, and we'll start by taking a look at the network.
 
 ```{r}
 data(samplk) 
@@ -423,7 +425,7 @@ summary(sampmodel.01)
 ```
 There is a strong and significant mutuality effect.  The coefficients for the edges and mutual terms roughly cancel for a mutual tie, so the conditional log-odds of a mutual tie are about zero, which means the probability is about 50%.  (Do you see why a log-odds of zero corresponds to a probability of 50%?)  By contrast, a non-mutual tie has a conditional log-odds of -2.16, or 10% probability.
 
-Triangle terms in directed networks can have many different configurations, given the directional ties.  Many of these configurations are coded as ergm-terms (and we'll talk about these more below).
+Triangle terms in directed networks can have many different configurations, given the directional ties.  Many of these configurations are coded as `ergm` terms (and we'll talk about these more below).
 
 ## 2. Missing data
 It is important to distinguish between the absence of a tie and the absence of data on whether a tie exists.  The former is an observed zero, whereas the latter is unobserved.  You should not code both of these as "0".  The `ergm` package recognizes and handles missing data appropriately, as long as you identify the data as missing.  Let's explore this with a simple example.
@@ -494,16 +496,16 @@ Many ERGM terms are simple counts of configurations (e.g., edges, nodal degrees,
 The terms that can be used in a model also depend on the type of network being analyzed:  directed or undirected, one-mode or two-mode ("bipartite"), binary or valued edges.
 
 
-### Coding new ergm-terms
+### Coding new `ergm` terms
 
 There is a `statnet` package --- `ergm.userterms` ---
 that facilitates the writing of new
-ergm-terms. The package is available on CRAN, and installing it will 
+`ergm` terms. The package is available on CRAN, and installing it will
 include the tutorial (ergmuserterms.pdf).  The tutorial can 
 also be found in the 
 [*Journal of Statistical Software 52(2)*](http://www.jstatsoft.org/v52/i02), 
 and some introductory slides and installation instructions from the workshop 
-we teach on coding ergm-terms can be found
+we teach on coding `ergm` terms can be found
 [here](https://github.com/statnet/Workshops/tree/master/ergm.userterms).
 
 Note that writing up new `ergm` terms requires some knowledge of 
@@ -580,7 +582,7 @@ Voila. Of course, yours will look somewhat different.
 ERGMs can be seen as generative models when they represent
 the process that governs the global patterns of tie prevalence 
 from a local perspective:  the perspective of the nodes involved 
-in the particular micro-configurations represented by the ergm-terms in the model.
+in the particular micro-configurations represented by the `ergm` terms in the model.
 The locally generated
 processes in turn aggregate up to produce characteristic global network
 properties, even though these global properties are not explicit terms
@@ -593,7 +595,7 @@ We do this by choosing a network statistic that is not
 in the model, and comparing the value of this statistic observed in
 the original network to the distribution of values we get in simulated networks from our model, using the **gof** function.
 
-The **gof** function is a bit different than the **summary**, **ergm**, and **simulate** functions, in that it currently only takes 3 ergm-terms as arguments:  degree, esp (edgwise share partners), and distance (geodesic distances).  Each of these terms captures an aggregate network distribution, at either the node level (degree), the edge level (esp), or the dyad level (distance).
+The **gof** function is a bit different than the **summary**, **ergm**, and **simulate** functions, in that it currently only takes 3 `ergm` terms as arguments:  degree, esp (edgwise share partners), and distance (geodesic distances).  Each of these terms captures an aggregate network distribution, at either the node level (degree), the edge level (esp), or the dyad level (distance).
 
 
 ```{r}
@@ -632,7 +634,7 @@ is what we call "model degneracy."
 For more detailed discussion of model degeneracy in the ERGM context,
 see the papers by Mark Handcock referenced [below.](ergm_tutorial.html#References)
 
-In that worst case scenario, we end up not being able to obtain coefficent estimates, so we can't use the GOF function to identify how the model simulations deviate from the observed data.  We can, however, still use the MCMC diagnostics to observe what is happening with the simulation algorithm, and this (plus some experience and intuition about the behavior of ergm-terms) can help us improve the model specification.
+In that worst case scenario, we end up not being able to obtain coefficent estimates, so we can't use the GOF function to identify how the model simulations deviate from the observed data.  We can, however, still use the MCMC diagnostics to observe what is happening with the simulation algorithm, and this (plus some experience and intuition about the behavior of `ergm` terms) can help us improve the model specification.
 
 
 The computational algorithms in `ergm` use MCMC to estimate

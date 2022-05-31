@@ -10,17 +10,6 @@
 
 library(ergm.count)
 
-# tests to veryify the structure of the ergm-terms documentation
-# this executes functions similar to what would be run when building the ergm=term=crossRef.Rmd file
-# and verifys that the structure of ergm-terms.Rd matches what the parser expects
-## test_that("check terms keywords", {
-##   # every term must include at least one of 'directed', 'undirected', or 'operator'
-##   for (term in ergm:::ergmTermCache('ergmTerm')) {
-##     expect_true(any(c('directed','undirected','operator')%in%term$concepts))
-##     expect_true(any(c('binary','valued')%in%term$concepts))
-##   }
-## })
-
 test_that("check initialisation functions", {
   for (term in ergm:::ergmTermCache('ergmTerm')) {
     # every term must include either 'valued' or 'binary'

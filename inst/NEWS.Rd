@@ -83,7 +83,7 @@
       }
 
       \item{
-        Minor documentation fixes and clarifications.
+        Minor documentation and vignettes fixes and clarifications.
       }
     }
   }
