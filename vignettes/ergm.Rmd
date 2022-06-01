@@ -607,7 +607,7 @@ plot(flomodel.03.gof)
 ```{r}
 mesamodel.02 <- ergm(mesa~edges)
 mesamodel.02.gof <- gof(mesamodel.02~degree + esp + distance, 
-                        control = control.gof.formula(nsim=10))
+                        control = control.gof.ergm(nsim=10))
 plot(mesamodel.02.gof)
 
 ```
@@ -812,7 +812,7 @@ look at the "reverse depends" of the `ergm` package on
 
 ### The `statnet` development team
 
-Pavel N. Krivitsky pavel@uow.edu.au 
+Pavel N. Krivitsky pavel@uow.edu.au  
 Martina Morris morrism@u.washington.edu  
 Mark S. Handcock handcock@stat.ucla.edu  
 David R. Hunter dhunter@stat.psu.edu  
