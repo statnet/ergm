@@ -812,7 +812,7 @@ look at the "reverse depends" of the `ergm` package on
 
 ### The `statnet` development team
 
-Pavel N. Krivitsky pavel@uow.edu.au  
+Pavel N. Krivitsky p.krivitsky@unsw.edu.au  
 Martina Morris morrism@u.washington.edu  
 Mark S. Handcock handcock@stat.ucla.edu  
 David R. Hunter dhunter@stat.psu.edu  
