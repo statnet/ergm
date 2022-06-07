@@ -138,17 +138,19 @@ nvattr.copy.network <- function(to, from, ignore=c("bipartite","directed","hyper
   to
 }
 
+#' @importFrom tibble tibble
 single.impute.dyads <- function(nw, constraints=NULL, constraints.obs=NULL, min_informative=NULL, default_density=NULL, output=c("network","ergm_state"), verbose=FALSE){
   output <- match.arg(output)
+  response <- nw %ergmlhs% "response"
   stopifnot(!is.null(constraints)||is.null(constraints.obs))
 
   if(!is.null(constraints)){
     imputable <- as.rlebdm(constraints, constraints.obs, "missing")
     nae <- NVL3(imputable, sum(.), 0)
-    if(nae) na.el <- as.edgelist(imputable) # FIXME: Avoid creating edgelists.
+    if(nae) na.el <- as.edgelist(imputable, output="tibble") # FIXME: Avoid creating edgelists.
   }else{
     nae <- network.naedgecount(nw)
-    if(nae) na.el <- as.edgelist(is.na(nw))
+    if(nae) na.el <- as.edgelist(is.na(nw), output="tibble")
   }
   if(nae==0){
     if(output=="network") return(nw)
@@ -178,9 +180,8 @@ single.impute.dyads <- function(nw, constraints=NULL, constraints.obs=NULL, min_
         message("Number of informative dyads is too low. Imputing valued relations is not possible.")
         return(nw)
       }
-      x <- as.edgelist(nw,attrname=nw%ergmlhs%"response")
-      x.el <- x[,1:2,drop=FALSE]
-      x <- x.el[! el2s(x.el)%in%el2s(na.el),3]
+      x <- as.edgelist(nw, attrname=response, output="tibble")
+      x <- x[[3L]][! el2s(x[1:2])%in%el2s(na.el)]
       zeros <- sum(informative) - length(x)
     }
   }else{ # No Constraints
@@ -196,8 +197,8 @@ single.impute.dyads <- function(nw, constraints=NULL, constraints.obs=NULL, min_
         message("Number of informative dyads is too low. Imputing valued relations is not possible.")
         return(nw)
       }
-      x <- as.edgelist(nw,attrname=nw%ergmlhs%"response")[,3]
-      zeros <- network.dyadcount(nw,na.omit=TRUE)-length(x)
+      x <- as.edgelist(nw, attrname=response, output="tibble")[[3]]
+      zeros <- network.dyadcount(nw,na.omit=TRUE) - length(x)
     }
   }
   
@@ -212,19 +213,21 @@ single.impute.dyads <- function(nw, constraints=NULL, constraints.obs=NULL, min_
       toadd <- union(setdiff(i.new, i.cur), intersect(i.na, i.new))
       nw[na.el[c(todel,toadd),,drop=FALSE]] <- rep(0:1, c(length(todel),length(toadd)))
     }else{ # edgelist
-      el <- s2el(union(setdiff(el2s(as.edgelist(nw)), el2s(na.el)), el2s(na.el[i.new,,drop=FALSE])))
+      el <- s2el(union(setdiff(el2s(as.edgelist(nw, output="tibble")), el2s(na.el)), el2s(na.el[i.new,,drop=FALSE])))
       colnames(el) <- c(".tail",".head")
       nw <- ergm_state(el, nw=nw)
     }
   }else{
     if(output=="network"){
-      nw[na.el,names.eval=nw%ergmlhs%"response",add.edges=TRUE] <- sample(c(0,x),nae,replace=TRUE,prob=c(zeros,rep(1,length(x))))
+      nw[na.el,names.eval=response,add.edges=TRUE] <- sample(c(0,x),nae,replace=TRUE,prob=c(zeros,rep(1,length(x))))
     }else{ # edgelist
-      el <- as.edgelist(nw, attrname=nw%ergmlhs%"response")
-      el <- el[!el2s(el[,-3,drop=FALSE])%in%el2s(na.el),,drop=FALSE]
-      el <- rbind(el, cbind(na.el, sample(c(0,x),nae,replace=TRUE,prob=c(zeros,rep(1,length(x))))))
-      el <- el[el[,3]!=0,,drop=FALSE]
-      colnames(el) <- c(".tail",".head",nw%ergmlhs%"response")
+      el <- as.edgelist(nw, attrname=response, output="tibble")
+      el <- el[!el2s(el[1:2])%in%el2s(na.el),,drop=FALSE]
+      na.el <- cbind(na.el, sample(c(0,x),nae,replace=TRUE,prob=c(zeros,rep(1,length(x)))))
+      colnames(na.el)[3] <- response
+      el <- rbind(el, na.el)
+      el <- el[el[[3L]]!=0,,drop=FALSE]
+      colnames(el) <- c(".tail",".head",response)
       nw <- ergm_state(el, nw=nw)
     }
   }

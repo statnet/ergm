@@ -301,16 +301,21 @@ as.rlebdm.ergm <- function(x, ...){
 #' @describeIn rlebdm
 #'
 #' Convert an [`rlebdm`] object to an [`edgelist`]: a two-column
-#' integer matrix giving the cells with `TRUE` values.
+#' integer matrix or [`tibble`] giving the cells with `TRUE` values.
 #'
 #' @param prototype an optional network with network attributes that
 #'   are transferred to the edgelist and will filter it (e.g., if the
 #'   prototype network is given and does not allow self-loops, the
 #'   edgelist will not have self-loops either,e ven if the dyad matrix
 #'   has non-`FALSE` diagonal).
+#' @param output a string specifying whether the result should be a
+#'   matrix or a [`tibble`].
 #' @importFrom network as.edgelist
+#' @seealso [as.edgelist()]
 #' @export
-as.edgelist.rlebdm <- function(x, prototype=NULL, ...){
+as.edgelist.rlebdm <- function(x, prototype=NULL, ..., output=c("matrix", "tibble")){
+  output <- match.arg(output)
+
   dir <- NVL3(prototype, is.directed(.), TRUE)
   loop <- NVL3(prototype, has.loops(.), TRUE)
   bip <- NVL3(prototype, . %n% "bipartite", FALSE)
@@ -328,13 +333,15 @@ as.edgelist.rlebdm <- function(x, prototype=NULL, ...){
                mapply(function(s,e,v){
                  cbind(s:e,v)
                }, starts, ends, values, SIMPLIFY=FALSE))
-  
-  el <- cbind((d[,1]-1) %% n + 1, (d[,1]-1) %/% n + 1)
-  if(!is.logical(values)) el <- cbind(el, d[,2])
 
-  if(!dir) el <- el[el[,1]<=el[,2],]
-  if(!loop) el <- el[el[,1]!=el[,2],]
-  if(bip) el <- el[(el[,1]<=bip) != (el[,2]<=bip),]
+  el <- tibble(.tail = as.integer((d[,1L]-1L) %% n + 1L),
+               .head = as.integer((d[,1L]-1L) %/% n + 1L))
+
+  if(!is.logical(values)) el <- cbind(el, .values = d[, 2L])
+
+  if(!dir) el <- el[el[[1L]]<=el[[2L]], , drop=FALSE]
+  if(!loop) el <- el[el[[1L]]!=el[[2L]], , drop=FALSE]
+  if(bip) el <- el[(el[[1L]]<=bip) != (el[[2L]]<=bip), , drop=FALSE]
 
   if(!is.null(prototype)){
     attr(el, "directed") <- dir
@@ -343,7 +350,10 @@ as.edgelist.rlebdm <- function(x, prototype=NULL, ...){
   }
     
   attr(el, "n") <- n
-  class(el) <- c("edgelist","matrix")
+
+  if(output=="matrix") el <- as.matrix(el)
+
+  class(el) <- c(paste0(output, "_edgelist"), "edgelist", class(el))
   el
 }
 
