@@ -37,7 +37,7 @@ as.rlebdm(x, ...)
 
 \method{compress}{rlebdm}(x, ...)
 
-\method{as.edgelist}{rlebdm}(x, prototype = NULL, ...)
+\method{as.edgelist}{rlebdm}(x, prototype = NULL, ..., output = c("matrix", "tibble"))
 }
 \arguments{
 \item{x}{for \code{\link[=rlebdm]{rlebdm()}}, an \code{\link[=rle]{rle()}} object or a vector that is converted to one; it will be coerced to \code{\link[=logical]{logical()}} before processing; for \code{\link[=as.rlebdm.matrix]{as.rlebdm.matrix()}}, a matrix.}
@@ -55,6 +55,9 @@ are transferred to the edgelist and will filter it (e.g., if the
 prototype network is given and does not allow self-loops, the
 edgelist will not have self-loops either,e ven if the dyad matrix
 has non-\code{FALSE} diagonal).}
+
+\item{output}{a string specifying whether the result should be a
+matrix or a \code{\link{tibble}}.}
 }
 \description{
 A simple class representing boolean (logical) square matrix
@@ -77,7 +80,7 @@ whose other cells are set to \code{FALSE}.
 \code{rlebdm} by merging successive runs with identical values.
 
 \item \code{as.edgelist}: Convert an \code{\link{rlebdm}} object to an \code{\link{edgelist}}: a two-column
-integer matrix giving the cells with \code{TRUE} values.
+integer matrix or \code{\link{tibble}} giving the cells with \code{TRUE} values.
 }}
 
 \note{
@@ -102,5 +105,7 @@ stopifnot(length(big)==50000^2)
 }
 \seealso{
 \code{\link[=as.rlebdm.ergm_conlist]{as.rlebdm.ergm_conlist()}}
+
+\code{\link[=as.edgelist]{as.edgelist()}}
 }
 \keyword{internal}
