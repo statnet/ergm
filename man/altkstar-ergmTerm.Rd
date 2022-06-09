@@ -3,7 +3,7 @@
 \name{altkstar-ergmTerm}
 \alias{altkstar-ergmTerm}
 \alias{InitErgmTerm.altkstar}
-\title{Alternating k-star}
+\title{Alternating \eqn{k}-star}
 \usage{
 # binary: altkstar(lambda,
 #                 fixed=FALSE)
@@ -18,7 +18,7 @@ parameter is not fixed and thus the model is a CEF model.}
 }
 \description{
 Add one network statistic to the model equal to a weighted alternating
-sequence of k-star statistics with weight parameter \code{lambda}.
+sequence of \eqn{k}-star statistics with weight parameter \code{lambda}.
 }
 \details{
 This is the version given in Snijders et al. (2006). The \code{gwdegree} and

@@ -29,13 +29,13 @@ attributes and Levels (\code{\link[=nodal_attributes]{?nodal_attributes}}) for d
 \description{
 When \code{diff=FALSE} , this term adds one network statistic
 to the model, which counts the number of edges \eqn{(i,j)} for which
-\code{attr(i)==attr(j)} . This is also called ''uniform homophily,'' because each group is assumed to have the same propensity for within-group ties. When multiple attribute names are given, the
+\code{attr(i)==attr(j)} . This is also called \dQuote{uniform homophily}, because each group is assumed to have the same propensity for within-group ties. When multiple attribute names are given, the
 statistic counts only ties for which all of the attributes
 match. When \code{diff=TRUE} , \eqn{p} network statistics are added
 to the model, where \eqn{p} is the number of unique values of the
 \code{attr} attribute. The \eqn{k} th such statistic counts the
-number of edges \eqn{(i,j)} for which \verb{attr(i) == } \code{	attr(j) == value(k)} , where \code{value(k)} is the \eqn{k} th
-smallest unique value of the \code{attr} attribute. This is also called ''differential homophily,'' because each group is allowed to have a unique propensity for within-group ties. Note that a statistical test of uniform vs. differential homophily should be conducted using the ANOVA function.
+number of edges \eqn{(i,j)} for which \verb{attr(i) == attr(j) == value(k)} , where \code{value(k)} is the \eqn{k} th
+smallest unique value of the \code{attr} attribute. This is also called \dQuote{differential homophily}, because each group is allowed to have a unique propensity for within-group ties. Note that a statistical test of uniform vs. differential homophily should be conducted using the ANOVA function.
 
 By default, matches on all levels \eqn{k} are
 counted. This works for both
