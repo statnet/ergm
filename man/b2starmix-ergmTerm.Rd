@@ -3,7 +3,7 @@
 \name{b2starmix-ergmTerm}
 \alias{b2starmix-ergmTerm}
 \alias{InitErgmTerm.b2starmix}
-\title{Mixing matrix for k-stars centered on the second mode of a bipartite network}
+\title{Mixing matrix for \eqn{k}-stars centered on the second mode of a bipartite network}
 \usage{
 # binary: b2starmix(k, attr, base=NULL, diff=TRUE)
 }
@@ -17,7 +17,7 @@
 \item{diff}{whether a different statistic is created for each value seen in a b1 node. When \code{diff=TRUE},
 the default, a different statistic is created for each value and thus the behavior of this term is reminiscent of the
 \code{nodemix} term, from which it takes its name; when \code{diff=FALSE} ,
-all homophilous k-stars are counted together, though these k-stars are still
+all homophilous \eqn{k}-stars are counted together, though these \eqn{k}-stars are still
 categorized according to the value of the central b1 node.}
 }
 \description{

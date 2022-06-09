@@ -3,7 +3,7 @@
 \name{kstar-ergmTerm}
 \alias{kstar-ergmTerm}
 \alias{InitErgmTerm.kstar}
-\title{k-Stars}
+\title{\eqn{k}-stars}
 \usage{
 # binary: kstar(k, attr=NULL, levels=NULL)
 }

@@ -10,11 +10,11 @@
 \arguments{
 \item{attr}{quantitative attribute (see Specifying Vertex attributes and Levels (\code{?nodal_attributes}) for details.) If specified, only symmetric pairs that match on the vertex attribute are counted.}
 
-\item{diff}{Used in the same way as for the \code{nodematch} term. (See \code{nodematch} (\code{?nodematch}) for details.)}
+\item{diff}{Used in the same way as for the \code{nodematch} term. (See \code{nodematch} (\code{ergmTerm?nodematch}) for details.)}
 
 \item{keep}{deprecated}
 
-\item{level}{Used in the same way as for the \code{nodematch} term. (See \code{nodematch} (\code{?nodematch}) for details.)}
+\item{level}{Used in the same way as for the \code{nodematch} term. (See \code{nodematch} (\code{ergmTerm?nodematch}) for details.)}
 }
 \description{
 This term adds one network statistic to the model equal to the
