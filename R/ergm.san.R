@@ -93,8 +93,7 @@ san.default <- function(object,...)
 #' \code{simulate.ergm}, defaults to using the same constraints as those with
 #' which \code{object} was fitted.
 #' @param target.stats A vector of the same length as the number of non-offset statistics
-#' implied by the formula, which is either \code{object} itself in the case of
-#' \code{san.formula} or \code{object$formula} in the case of \code{san.ergm}.
+#' implied by the formula.
 #' @param nsim Number of networks to generate. Deprecated: just use [replicate()].
 #' @param basis If not NULL, a \code{network} object used to start the Markov
 #' chain.  If NULL, this is taken to be the network named in the formula.
@@ -385,32 +384,6 @@ san.ergm_model <- function(object, reference=~Bernoulli, constraints=~., target.
       stats = out.mat
     )
   }
-}
-
-#' @describeIn ergm-deprecated The developers are not aware of a use case for this function. Please contact them if you would like to prevent its removal.
-#' @export
-san.ergm <- function(object, formula=object$formula, 
-                     constraints=object$constraints, 
-                     target.stats=object$target.stats,
-                     nsim=NULL, basis=NULL,
-                     output=c("network","edgelist","ergm_state"),
-                     only.last=TRUE,
-                     control=object$control$SAN,
-                     verbose=FALSE, 
-                     offset.coef=NULL,
-                     ...) {
-  .Deprecate_once('The developers are not aware of a use case for this function. Please contact them if you would like to prevent its removal.')
-  output <- match.arg(output)
-  san.formula(formula, nsim=nsim, 
-              target.stats=target.stats,
-              basis=basis,
-              reference = object$reference,
-              output=output,
-              only.last=only.last,
-              constraints=constraints,
-              control=control,
-              verbose=verbose, 
-              offset.coef=offset.coef, ...)
 }
 
 #' Internal Function to Perform Simulated Annealing

@@ -77,8 +77,7 @@ documentation for a similar argument for \code{\link{ergm}} and see
 which \code{object} was fitted.}
 
 \item{target.stats}{A vector of the same length as the number of non-offset statistics
-implied by the formula, which is either \code{object} itself in the case of
-\code{san.formula} or \code{object$formula} in the case of \code{san.ergm}.}
+implied by the formula.}
 
 \item{nsim}{Number of networks to generate. Deprecated: just use \code{\link[=replicate]{replicate()}}.}
 
