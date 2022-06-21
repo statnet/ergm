@@ -83,7 +83,7 @@ and "d" default="c".}
 \item{constraints}{A one-sided formula specifying one or more constraints on
 the support of the distribution of the networks being simulated. See the
 documentation for a similar argument for \code{\link{ergm}} and see
-\link[=ergmConstraint]{list of implemented constraints} for more information.}
+\code{\link{ergmConstraint}} for more information.}
 }
 \value{
 Returns an ergm_proposal object: a list with class \code{ergm_proposal}

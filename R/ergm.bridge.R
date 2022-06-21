@@ -21,7 +21,7 @@
 #' @param constraints,obs.constraints One-sided formulas specifying
 #'   one or more constraints on the support of the distribution of the
 #'   networks being simulated and on the observation process
-#'   respectively. See the documentation for a similar argument for
+#'   respectively. See the documentation for similar arguments for
 #'   \code{\link{ergm}} for more information.
 #' @param reference {A one-sided formula specifying the reference
 #'   measure (\eqn{h(y)}) to be used.  (Defaults to

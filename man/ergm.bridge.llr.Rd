@@ -69,7 +69,7 @@ measure (\eqn{h(y)}) to be used.  (Defaults to
 \item{constraints, obs.constraints}{One-sided formulas specifying
 one or more constraints on the support of the distribution of the
 networks being simulated and on the observation process
-respectively. See the documentation for a similar argument for
+respectively. See the documentation for similar arguments for
 \code{\link{ergm}} for more information.}
 
 \item{from, to}{The initial and final parameter vectors.}

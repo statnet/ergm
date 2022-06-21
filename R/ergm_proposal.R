@@ -395,7 +395,7 @@ ergm_reference.formula <- function(object, nw, ..., term.options=list()) {
 #' @param constraints A one-sided formula specifying one or more constraints on
 #' the support of the distribution of the networks being simulated. See the
 #' documentation for a similar argument for \code{\link{ergm}} and see
-#' [list of implemented constraints][ergmConstraint] for more information.
+#' [`ergmConstraint`] for more information.
 #' @export
 ergm_proposal.formula <- function(object, arguments, nw, hints=trim_env(~sparse), ..., term.options=list()) {
   NVL(hints) <- trim_env(~sparse)

@@ -16,12 +16,11 @@
 constraints. \code{NULL} is treated as a placeholder for no constraint
 (i.e., a constant matrix of \code{TRUE}).}
 
-\item{constraints.obs}{observation process constraints; defaults to
-\code{NULL} for all dyads observed (i.e., a constant matrix of
-\code{FALSE}).}
+\item{constraints.obs}{an \code{\link{ergm_conlist}} object specifying the
+observation process constraints; defaults to \code{NULL} for all dyads
+observed (i.e., a constant matrix of \code{FALSE}).}
 
-\item{which}{which aspect of the constraint to extract:
-\describe{
+\item{which}{which aspect of the constraint to extract: \describe{
 
 \item{\code{free}}{for dyads that \emph{may} be toggled under the constraints
 \code{x}; ignores \code{constraints.obs};}

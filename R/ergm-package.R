@@ -43,7 +43,7 @@
 #' \code{\link{ergm}}). The package also provides tools for simulating networks
 #' (via \code{\link{simulate.ergm}}) and assessing model goodness-of-fit (see
 #' \code{\link{mcmc.diagnostics}} and \code{\link{gof.ergm}}).
-#' 
+#'
 #' A number of Statnet Project packages extend and enhance
 #' \pkg{\link[=ergm-package]{ergm}}. These include
 #' \pkg{\link[tergm:tergm-package]{tergm}} (Temporal ERGM), which provides
@@ -58,6 +58,10 @@
 #' the \code{\link[=ergm-package]{ergm}} website: \url{https://statnet.org}. A
 #' tutorial, support newsgroup, references and links to further resources are
 #' provided there.
+#'
+#' @seealso [`ergmTerm`], [`ergmConstraint`], [`ergmReference`],
+#'   [`ergmHint`], and [`ergmProposal`] for indices of model
+#'   specification and estimation components visible to the \CRANpkg{ergm}'s API at any given time.
 #' 
 #' @name ergm-package
 #' @docType package
@@ -168,7 +172,7 @@ NULL
 #' @name ergmTerm
 #' @aliases ergm-terms ergm.terms terms-ergm terms.ergm InitErgmTerm InitErgmWtTerm
 #' @docType package
-#' @description This page explains how to specify the network statistics \eqn{g(y)} to functions in the [`ergm`][ergm-package] package and packages that extend it. It also provides an indexed list of the possible terms (and hence network statistics) visible to the \CRANpkg{ergm} API. Terms can also be searched via [`search.ergmTerms`].
+#' @description This page explains how to specify the network statistics \eqn{g(y)} to functions in the [`ergm`][ergm-package] package and packages that extend it. It also provides an indexed list of the possible terms (and hence network statistics) visible to the \CRANpkg{ergm} API. Terms can also be searched via [`search.ergmTerms`], and help for an individual term can be obtained with `ergmTerm?<term>` or `help("<term>-ergmTerm")`.
 #'
 #' @section Specifying models:
 #' \ERGMspec
@@ -180,7 +184,7 @@ NULL
 #' [`network`] function, then add nodal attributes to it
 #' using the `%v%` operator if necessary.
 #' 
-#' ## Operator terms
+#' ## Term operators
 #' Operator terms like `B` and `F` take
 #' formulas with other `ergm` terms as their arguments and transform them
 #' by modifying their inputs (e.g., the network they evaluate) and/or their
@@ -406,7 +410,7 @@ NULL
 #' @aliases ergm-constraints constraints-ergm ergm.constraints constraints.ergm
 #' @docType package
 #' @description This page describes how to specify the constraints on the network sample space (the set of possible networks \eqn{Y}, the set of networks \eqn{y} for which \eqn{h(y)>0}) and sometimes the baseline weights \eqn{h(y)} to functions in the [`ergm`][ergm-package]
-#' package. It also provides an indexed list of the constraints visible to the \CRANpkg{ergm}'s API.
+#' package. It also provides an indexed list of the constraints visible to the \CRANpkg{ergm}'s API. Constraints can also be searched via [`search.ergmConstraints`], and help for an individual constraint can be obtained with `ergmConstraint?<constraint>` or `help("<constraint>-ergmConstraint")`.
 #'
 #' @section Specifying constraints:
 #' \ERGMspec
@@ -501,7 +505,7 @@ NULL
 #' @aliases ergm-hints hints-ergm ergm.hints hints.ergm hints
 #' @docType package
 #' @description This page describes how to provide to the
-#'   \CRANpkg{ergm}'s MCMC algorithms information about the sample space.
+#'   \CRANpkg{ergm}'s MCMC algorithms information about the sample space. Hints can also be searched via [`search.ergmHints`], and help for an individual hint can be obtained with `ergmHint?<hint>` or `help("<hint>-ergmHint")`.
 #'
 #' @section \dQuote{Hints} for MCMC:
 #' \ERGMspec
@@ -580,7 +584,7 @@ NULL
 #' @docType package
 #' @description This page describes how to specify the reference measures (baseline distributions)
 #' (the set of possible networks \eqn{Y} and the baseline weights \eqn{h(y)} to functions in the [`ergm`][ergm-package]
-#' package. It also provides an indexed list of the references visible to the \CRANpkg{ergm}'s API.
+#' package. It also provides an indexed list of the references visible to the \CRANpkg{ergm}'s API. References can also be searched via [`search.ergmReferences`], and help for an individual reference can be obtained with `ergmHint?<reference>` or `help("<reference>-ergmReference")`.
 #'
 #' @section Specifying reference measures:
 #' \ERGMspec
@@ -630,7 +634,7 @@ NULL
 #'   opposite value. The probability of accepting the proposed change is determined by the MH acceptance ratio.
 #'   The role of the different MH methods implemented in \code{\link{ergm}} is to vary how the sets of dyads are
 #'   selected for toggle proposals.  This is used in some cases to improve the performance (speed and mixing) of
-#'   the algorithm, and in other cases to constrain the sample space.
+#'   the algorithm, and in other cases to constrain the sample space. Proposals can also be searched via [`search.ergmProposals`], and help for an individual proposal can be obtained with `ergmProposal?<proposal>` or `help("<proposal>-ergmProposal")`.
 #'
 #' @section Implemented proposals for ergm models:
 #' \if{html}{\Sexpr[results=rd,stage=render]{ergm:::.formatProposalsHtml(ergm:::.buildProposalsList(), keepProposal=TRUE)}}

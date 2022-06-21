@@ -85,13 +85,7 @@ san.default <- function(object,...)
 #' @template reference
 #' @param formula (By default, the \code{formula} is taken from the \code{ergm}
 #' object.  If a different \code{formula} object is wanted, specify it here.
-#' @param constraints A one-sided formula specifying one or more constraints on
-#' the support of the distribution of the networks being simulated. See the
-#' documentation for a similar argument for \code{\link{ergm}} and see
-#' [list of implemented constraints][ergmConstraint] for more information. For
-#' \code{simulate.formula}, defaults to no constraints. For
-#' \code{simulate.ergm}, defaults to using the same constraints as those with
-#' which \code{object} was fitted.
+#' @template constraints
 #' @param target.stats A vector of the same length as the number of non-offset statistics
 #' implied by the formula.
 #' @param nsim Number of networks to generate. Deprecated: just use [replicate()].

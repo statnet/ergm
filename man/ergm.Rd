@@ -66,62 +66,49 @@ the reference measure (\eqn{h(y)}) to be used.
 See help for \link[=ergm-references]{ERGM reference measures} implemented in the
 \strong{\link[=ergm-package]{ergm}} package.}
 
-\item{constraints}{{A formula specifying one or more constraints
-on the support of the distribution of the networks being modeled,
-using syntax similar to the \code{formula} argument, on the
-right-hand side. Multiple constraints
-may be given, separated by \dQuote{+} and \dQuote{-} operators. (See
-\link[=ergmConstraint]{ERGM constraints} for the explanation of
-their semantics.)
+\item{constraints}{A formula specifying one or more constraints
+on the support of the distribution of the networks being modeled. Multiple constraints
+may be given, separated by \dQuote{+} and \dQuote{-} operators. See
+\code{\link{ergmConstraint}} for the detailed explanation of
+their semantics and also for an indexed list of the constraints visible to the \CRANpkg{ergm} package.
+
+The default is to have no constraints except those provided through
+the \code{\link{ergmlhs}} API.
+
 Together with the model terms in the formula and the reference measure, the constraints
 define the distribution of networks being modeled.
 
-It is also possible to specify a proposal function directly
-either by passing a string with the function's name (in which case,
+It is also possible to specify a proposal function directly either
+by passing a string with the function's name (in which case,
 arguments to the proposal should be specified through the
-\code{prop.args} argument to \code{\link{control.ergm}}) or by
-giving it on the LHS of the constraints formula, in which case it
-will override the one chosen automatically.
-
-The default is \code{~.}, for an unconstrained model.
-
-See the \link[=ergmConstraint]{ERGM constraints} documentation for
-the constraints implemented in the \strong{\link[=ergm-package]{ergm}}
-package. Other packages may add their own constraints.
+\code{MCMC.prop.args} argument to the relevant control function, or
+by giving it on the LHS of the hints formula to \code{MCMC.prop}
+argument to the control function. This will override
+the one chosen automatically.
 
 Note that not all possible combinations of constraints and reference
 measures are supported. However, for relatively simple constraints
 (i.e., those that simply permit or forbid specific dyads or sets of
-dyads from changing), arbitrary combinations should be possible.
-}}
+dyads from changing), arbitrary combinations should be possible.}
 
-\item{obs.constraints}{{ A one-sided formula specifying one or more
+\item{obs.constraints}{A one-sided formula specifying one or more
 constraints or other modification \emph{in addition} to those
-specified by \code{constraints} that had affected the observation
-process for the network, using syntax similar to the
-\code{formula} argument. Multiple constraints may be given,
-separated by \dQuote{+} operators.
+specified by \code{constraints}, following the same syntax as the
+\code{constraints} argument.
 
 This allows the domain of the integral in the numerator of the
 partially obseved network face-value likelihoods of Handcock and
 Gile (2010) and Karwa et al. (2017) to be specified explicitly.
 
-The default is \code{~observed}, to constrain the integral to
-only integrate over the missing dyads. (It is dropped
-automatically if the network is completely observed.)
+The default is to constrain the integral to only integrate over
+the missing dyads (if present), after incorporating constraints
+provided through the \code{\link{ergmlhs}} API.
 
 It is also possible to specify a proposal function directly by
-passing a string with the function's name. In that case,
+passing a string with the function's name of the \code{obs.MCMC.prop}
+argument to the relevant control function. In that case,
 arguments to the proposal should be specified through the
-\code{obs.prop.args} argument to \code{\link{control.ergm}}.
-
-See the \link[=ergmConstraint]{ERGM constraints} documentation for
-the constraints implemented in the \strong{\link[=ergm-package]{ergm}}
-package. Other packages may add their own constraints.
-
-Note that not all possible combinations of constraints and
-reference measures are supported.
-}}
+\code{obs.prop.args} argument to the relevant control function.}
 
 \item{offset.coef}{{A vector of coefficients for the offset terms.}}
 

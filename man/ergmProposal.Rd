@@ -18,7 +18,7 @@ each MCMC step, \eqn{n} (\eqn{n=1} in the simple case) toggles are proposed to c
 opposite value. The probability of accepting the proposed change is determined by the MH acceptance ratio.
 The role of the different MH methods implemented in \code{\link{ergm}} is to vary how the sets of dyads are
 selected for toggle proposals.  This is used in some cases to improve the performance (speed and mixing) of
-the algorithm, and in other cases to constrain the sample space.
+the algorithm, and in other cases to constrain the sample space. Proposals can also be searched via \code{\link{search.ergmProposals}}, and help for an individual proposal can be obtained with \verb{ergmProposal?<proposal>} or \code{help("<proposal>-ergmProposal")}.
 }
 \section{Implemented proposals for ergm models}{
 

@@ -10,7 +10,7 @@
 \title{Sample Space Constraints for Exponential-Family Random Graph Models}
 \description{
 This page describes how to specify the constraints on the network sample space (the set of possible networks \eqn{Y}, the set of networks \eqn{y} for which \eqn{h(y)>0}) and sometimes the baseline weights \eqn{h(y)} to functions in the \code{\link[=ergm-package]{ergm}}
-package. It also provides an indexed list of the constraints visible to the \CRANpkg{ergm}'s API.
+package. It also provides an indexed list of the constraints visible to the \CRANpkg{ergm}'s API. Constraints can also be searched via \code{\link{search.ergmConstraints}}, and help for an individual constraint can be obtained with \verb{ergmConstraint?<constraint>} or \code{help("<constraint>-ergmConstraint")}.
 }
 \section{Specifying constraints}{
 

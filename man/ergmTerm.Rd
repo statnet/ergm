@@ -11,7 +11,7 @@
 \alias{InitErgmWtTerm}
 \title{Terms used in Exponential Family Random Graph Models}
 \description{
-This page explains how to specify the network statistics \eqn{g(y)} to functions in the \code{\link[=ergm-package]{ergm}} package and packages that extend it. It also provides an indexed list of the possible terms (and hence network statistics) visible to the \CRANpkg{ergm} API. Terms can also be searched via \code{\link{search.ergmTerms}}.
+This page explains how to specify the network statistics \eqn{g(y)} to functions in the \code{\link[=ergm-package]{ergm}} package and packages that extend it. It also provides an indexed list of the possible terms (and hence network statistics) visible to the \CRANpkg{ergm} API. Terms can also be searched via \code{\link{search.ergmTerms}}, and help for an individual term can be obtained with \verb{ergmTerm?<term>} or \code{help("<term>-ergmTerm")}.
 }
 \section{Specifying models}{
 
@@ -23,7 +23,7 @@ object, and \verb{<term 1>}, \verb{<term 2>}, etc, are each terms chosen
 from the list given below.  To create a network object in , use the
 \code{\link{network}} function, then add nodal attributes to it
 using the \verb{\%v\%} operator if necessary.
-\subsection{Operator terms}{
+\subsection{Term operators}{
 
 Operator terms like \code{B} and \code{F} take
 formulas with other \code{ergm} terms as their arguments and transform them

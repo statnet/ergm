@@ -208,11 +208,10 @@ Math.rlebdm <- function(x, ...){
 #' @param x an [`ergm_conlist`] object: a list of initialised
 #'   constraints. `NULL` is treated as a placeholder for no constraint
 #'   (i.e., a constant matrix of `TRUE`).
-#' @param constraints.obs observation process constraints; defaults to
-#'   `NULL` for all dyads observed (i.e., a constant matrix of
-#'   `FALSE`).
-#' @param which which aspect of the constraint to extract:
-#' \describe{
+#' @param constraints.obs an [`ergm_conlist`] object specifying the
+#'   observation process constraints; defaults to `NULL` for all dyads
+#'   observed (i.e., a constant matrix of `FALSE`).
+#' @param which which aspect of the constraint to extract: \describe{
 #' 
 #' \item{`free`}{for dyads that *may* be toggled under the constraints
 #'   `x`; ignores `constraints.obs`;}

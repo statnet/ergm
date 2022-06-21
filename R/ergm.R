@@ -140,62 +140,27 @@
 #'
 #' @template response
 #' @template reference
-#' @param constraints {A formula specifying one or more constraints
-#' on the support of the distribution of the networks being modeled,
-#' using syntax similar to the \code{formula} argument, on the
-#' right-hand side. Multiple constraints
-#' may be given, separated by \dQuote{+} and \dQuote{-} operators. (See
-#' [ERGM constraints][ergmConstraint] for the explanation of
-#' their semantics.)
-#' Together with the model terms in the formula and the reference measure, the constraints
-#' define the distribution of networks being modeled.
-#' 
-#' It is also possible to specify a proposal function directly
-#' either by passing a string with the function's name (in which case,
-#' arguments to the proposal should be specified through the
-#' \code{prop.args} argument to \code{\link{control.ergm}}) or by
-#' giving it on the LHS of the constraints formula, in which case it
-#' will override the one chosen automatically.
-#' 
-#' The default is \code{~.}, for an unconstrained model.
-#' 
-#' See the [ERGM constraints][ergmConstraint] documentation for
-#' the constraints implemented in the **[ergm][ergm-package]**
-#' package. Other packages may add their own constraints.
-#' 
-#' Note that not all possible combinations of constraints and reference
-#' measures are supported. However, for relatively simple constraints
-#' (i.e., those that simply permit or forbid specific dyads or sets of
-#' dyads from changing), arbitrary combinations should be possible.
-#' }
+#' @template constraints
 #'
-#' @param obs.constraints { A one-sided formula specifying one or more
+#' @param obs.constraints A one-sided formula specifying one or more
 #'   constraints or other modification \emph{in addition} to those
-#'   specified by \code{constraints} that had affected the observation
-#'   process for the network, using syntax similar to the
-#'   \code{formula} argument. Multiple constraints may be given,
-#'   separated by \dQuote{+} operators.
-#' 
+#'   specified by \code{constraints}, following the same syntax as the
+#'   `constraints` argument.
+#'
 #'   This allows the domain of the integral in the numerator of the
 #'   partially obseved network face-value likelihoods of Handcock and
 #'   Gile (2010) and Karwa et al. (2017) to be specified explicitly.
-#' 
-#'   The default is \code{~observed}, to constrain the integral to
-#'   only integrate over the missing dyads. (It is dropped
-#'   automatically if the network is completely observed.)
-#'     
+#'
+#'   The default is to constrain the integral to only integrate over
+#'   the missing dyads (if present), after incorporating constraints
+#'   provided through the [`ergmlhs`] API.
+#'
 #'   It is also possible to specify a proposal function directly by
-#'   passing a string with the function's name. In that case,
+#'   passing a string with the function's name of the `obs.MCMC.prop`
+#'   argument to the relevant control function. In that case,
 #'   arguments to the proposal should be specified through the
-#'   \code{obs.prop.args} argument to \code{\link{control.ergm}}.
+#'   \code{obs.prop.args} argument to the relevant control function.
 #' 
-#'   See the [ERGM constraints][ergmConstraint] documentation for
-#'   the constraints implemented in the **[ergm][ergm-package]**
-#'   package. Other packages may add their own constraints.
-#'     
-#'   Note that not all possible combinations of constraints and
-#'   reference measures are supported.
-#' } 
 #' @param offset.coef {A vector of coefficients for the offset terms.}
 #' @param target.stats {vector of "observed network statistics,"
 #' if these statistics are for some reason different than the 
