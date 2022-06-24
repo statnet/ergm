@@ -42,16 +42,18 @@
 }
 
 #' @templateVar name blockdiag
-#' @title Force a block-diagonal structure on the network
-#' @description  Only dyads \eqn{(i,j)} for which `attr(i)==attr(j)` can have edges. 
-#'   
+#' @title Block-diagonal structure constraint
+#' @description Force a block-diagonal structure (and its bipartite analogue) on
+#'   the network. Only dyads \eqn{(i,j)} for which
+#'   `attr(i)==attr(j)` can have edges.
+#'
 #'   Note that the current implementation requires that blocks be
 #'   contiguous for unipartite graphs, and for bipartite
 #'   graphs, they must be contiguous within a partition and must have
 #'   the same ordering in both partitions. (They do not, however,
 #'   require that all blocks be represented in both partitions, but
 #'   those that overlap must have the same order.)
-#'   
+#'
 #'   If multiple block-diagonal constraints are given, or if
 #'   `attr` is a vector with multiple attribute names, blocks
 #'   will be constructed on all attributes matching.
