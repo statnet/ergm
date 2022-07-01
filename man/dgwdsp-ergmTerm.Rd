@@ -21,7 +21,7 @@ to use in computing the statistics when \code{fixed=FALSE}, in order to reduce
 the computational burden.  Its default value can also be controlled by the
 \code{gw.cutoff} term option control parameter. (See \code{?control.ergm}.)}
 
-\item{type}{A string indicating the type of shared partner or path to be considered: one of \code{"UTP"} (only option for undirected), \code{"OTP"} (default for directed), \code{"ITP"}, \code{"RTP"}, \code{"OSP"}, and \code{"ISP"}. See the section below on Shared partner types for details.}
+\item{type}{A string indicating the type of shared partner or path to be considered for directed networks: \code{"OTP"} (default for directed), \code{"ITP"}, \code{"RTP"}, \code{"OSP"}, and \code{"ISP"}; has no effect for undirected. See the section below on Shared partner types for details.}
 }
 \description{
 This term adds one network statistic to the model equal to the geometrically weighted dyadwise shared partner distribution with decay parameter \code{decay} parameter.

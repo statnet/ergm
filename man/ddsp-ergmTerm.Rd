@@ -10,7 +10,7 @@
 \arguments{
 \item{d}{a vector of distinct integers}
 
-\item{type}{A string indicating the type of shared partner or path to be considered: one of \code{"UTP"} (only option for undirected), \code{"OTP"} (default for directed), \code{"ITP"}, \code{"RTP"}, \code{"OSP"}, and \code{"ISP"}. See the section below on Shared partner types for details.}
+\item{type}{A string indicating the type of shared partner or path to be considered for directed networks: \code{"OTP"} (default for directed), \code{"ITP"}, \code{"RTP"}, \code{"OSP"}, and \code{"ISP"}; has no effect for undirected. See the section below on Shared partner types for details.}
 }
 \description{
 This term adds one network statistic to the model for each element in \code{d} where the \eqn{i} th such statistic equals the number of dyads in the network with exactly \code{d[i]} shared partners.
