@@ -21,13 +21,16 @@ to use in computing the statistics when \code{fixed=FALSE}, in order to reduce
 the computational burden.  Its default value can also be controlled by the
 \code{gw.cutoff} term option control parameter. (See \code{?control.ergm}.)}
 
-\item{type}{one of \code{c("OTP", "ITP", "RTP", "OSP", "ISP")}}
+\item{type}{A string indicating the type of shared partner or path to be considered: one of \code{"UTP"} (only option for undirected), \code{"OTP"} (default for directed), \code{"ITP"}, \code{"RTP"}, \code{"OSP"}, and \code{"ISP"}. See the section below on Shared partner types for details.}
 }
 \description{
 This term is just like gwesp and gwdsp except it adds a statistic equal to the geometrically weighted nonedgewise (that is, over dyads that do not have an edge) shared partner distribution with decay parameter \code{decay} parameter.
 }
 \note{
-While there is only one shared partner configuration in the undirected
+The \code{decay} parameter was called \code{alpha} prior to \code{ergm} 3.7.
+}
+\section{Shared partner types}{
+ While there is only one shared partner configuration in the undirected
 case, nine distinct configurations are possible for directed graphs, selected
 using the \code{type} argument. Currently, terms may be defined with respect to
 five of these configurations; they are defined here as follows (using
@@ -48,9 +51,8 @@ pair \eqn{(i,j)} iff \eqn{k \to i, k \to j}{k->i, k->j}.
 By default, outgoing two-paths (\code{"OTP"}) are calculated. Note that Robins et al. (2009)
 define closely related statistics to several of the above, using slightly different terminology.
 }
-
-The \code{decay} parameter was called \code{alpha} prior to \code{ergm} 3.7.
 }
+
 \seealso{
 \code{\link{ergmTerm}} for index of model terms currently visible to the package.
 }

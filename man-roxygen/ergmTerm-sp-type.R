@@ -1,0 +1,1 @@
+#' @param type A string indicating the type of shared partner or path to be considered: one of `"UTP"` (only option for undirected), `"OTP"` (default for directed), `"ITP"`, `"RTP"`, `"OSP"`, and `"ISP"`. See the section below on Shared partner types for details.

@@ -7,7 +7,7 @@
 #
 #  Copyright 2003-2022 Statnet Commons
 ################################################################################
-#' @note While there is only one shared partner configuration in the undirected
+#' @section Shared partner types: While there is only one shared partner configuration in the undirected
 #'   case, nine distinct configurations are possible for directed graphs, selected
 #'   using the `type` argument. Currently, terms may be defined with respect to
 #'   five of these configurations; they are defined here as follows (using

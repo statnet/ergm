@@ -10,15 +10,16 @@
 \arguments{
 \item{d}{a vector of distinct integers}
 
-\item{type}{one of \code{c("OTP", "ITP", "RTP", "OSP", "ISP")}.}
+\item{type}{A string indicating the type of shared partner or path to be considered: one of \code{"UTP"} (only option for undirected), \code{"OTP"} (default for directed), \code{"ITP"}, \code{"RTP"}, \code{"OSP"}, and \code{"ISP"}. See the section below on Shared partner types for details.}
 }
 \description{
 This term adds one network statistic to the model for each element in \code{d} where the \eqn{i} th such statistic equals the number of non-edges in the network with exactly \code{d[i]} shared partners.
 }
 \note{
 This term can only be used with directed networks.
-
-While there is only one shared partner configuration in the undirected
+}
+\section{Shared partner types}{
+ While there is only one shared partner configuration in the undirected
 case, nine distinct configurations are possible for directed graphs, selected
 using the \code{type} argument. Currently, terms may be defined with respect to
 five of these configurations; they are defined here as follows (using
@@ -40,6 +41,7 @@ By default, outgoing two-paths (\code{"OTP"}) are calculated. Note that Robins e
 define closely related statistics to several of the above, using slightly different terminology.
 }
 }
+
 \seealso{
 \code{\link{ergmTerm}} for index of model terms currently visible to the package.
 }
