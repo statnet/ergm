@@ -11,7 +11,7 @@
 \description{
 This page describes how to specify the reference measures (baseline distributions)
 (the set of possible networks \eqn{Y} and the baseline weights \eqn{h(y)} to functions in the \code{\link[=ergm-package]{ergm}}
-package. It also provides an indexed list of the references visible to the \CRANpkg{ergm}'s API. References can also be searched via \code{\link{search.ergmReferences}}, and help for an individual reference can be obtained with \verb{ergmHint?<reference>} or \code{help("<reference>-ergmReference")}.
+package. It also provides an indexed list of the references visible to the \CRANpkg{ergm}'s API. References can also be searched via \code{\link[=search.ergmReferences]{search.ergmReferences()}}, and help for an individual reference can be obtained with \verb{ergmReference?<reference>} or \code{help("<reference>-ergmReference")}.
 }
 \section{Specifying reference measures}{
 

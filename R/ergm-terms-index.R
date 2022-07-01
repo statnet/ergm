@@ -663,11 +663,13 @@ search.ergmTermType <-function(term.type, search, net, keywords, name, packages)
 
 # function to look up the set of terms applicable for a specific network
 
-#' Search the ERGM terms
+#' Search ERGM terms, constraints, references, hints, and proposals
 #' 
-#' Searches through the \code{\link{ergm.terms}} help page and prints out a
-#' list of terms appropriate for the specified network's structural
-#' constraints, optionally restricting by additional keywords and search term
+#' Searches through the database of [`ergmTerm`]s,
+#' [`ergmConstraints`]s, [`ergmReferences`]s, [`ergmHints`]s, and
+#' [`ergmProposals`]s and prints out a list of terms and term-alikes
+#' appropriate for the specified network's structural constraints,
+#' optionally restricting by additional keywords and search term
 #' matches.
 #' 
 #' Uses \code{\link{grep}} internally to match the search terms against the term
@@ -688,7 +690,9 @@ search.ergmTermType <-function(term.type, search, net, keywords, name, packages)
 #' invisibly returns them as a list.  If \code{name} is specified, prints out
 #' the full definition for the named term.
 #' @author skyebend@uw.edu
-#' @seealso See also \code{\link{ergm.terms}} for the complete documentation
+#' @seealso See also [`ergmTerm`],
+#' [`ergmConstraints`], [`ergmReferences`], [`ergmHints`], and
+#' [`ergmProposals`], for lists of terms and term-alikes visible to \pkg{ergm}.
 #' @examples
 #' \donttest{
 #' # find all of the terms that mention triangles
@@ -717,78 +721,14 @@ search.ergmTermType <-function(term.type, search, net, keywords, name, packages)
 search.ergmTerms <- function(search, net, keywords, name, packages) {
   search.ergmTermType("ergmTerm", search, net, keywords, name, packages)
 }
-
-#' Search the ERGM References
-#'
-#' Searches through the \code{\link{ergm.references}} help page and prints out a
-#' list of terms appropriate for the specified network's structural
-#' constraints, optionally restricting by additional keywords and search term
-#' matches.
-#'
-#' Uses \code{\link{grep}} internally to match the search terms against the term
-#' description, so \code{search} is currently matched as a single phrase.
-#' Keyword tags will only return a match if all of the specified tags are
-#' included in the term.
-#'
-#' @param search optional character search term to search for in the text of the
-#' term descriptions. Only matching terms will be returned. Matching is case
-#' insensitive.
-#' @param keywords optional character vector of keyword tags to use to
-#' restrict the results (i.e. 'curved', 'triad-related')
-#' @param name optional character name of a specific term to return
-#' @param packages optional character vector indicating the subset of packages in which to search
-#' @return prints out the name and short description of matching terms, and
-#' invisibly returns them as a list.  If \code{name} is specified, prints out
-#' the full definition for the named term.
-#' @author skyebend@uw.edu
-#' @seealso See also \code{\link{ergm.references}} for the complete documentation
-#' @examples
-#' \donttest{
-#' # find all of the references that mention dyad
-#' search.ergmReferences('dyad')
-#'
-#' # search on multiple keywords
-#' search.ergmReferences(keywords=c('binary','discrete'))
-#'
-#' # print out the content for a specific reference
-#' search.ergmReferences(name='Bernoulli')
-#'
-#' # request the bipartite keyword in the ergm package
-#' search.ergmReferences(keywords='binary', packages='ergm')
-#' }
-#' @importFrom utils capture.output
-#' @export search.ergmReferences
-search.ergmReferences <- function(search, keywords, name, packages)
-  search.ergmTermType("ergmReference", search=search, keywords=keywords, name=name, packages=packages)
-
-#' Search the ERGM Constraint
-#'
-#' Searches through the \code{\link{ergm.constraints}} help page and prints out a
-#' list of constraints appropriate for the specified network's structural
-#' constraints, optionally restricting by additional keywords and search term
-#' matches.
-#'
-#' Uses \code{\link{grep}} internally to match the search terms against the constraint
-#' description, so \code{search} is currently matched as a single phrase.
-#' Keyword tags will only return a match if all of the specified tags are
-#' included in the constraint
-#'
-#' @param search optional character search term to search for in the text of the
-#' constraint descriptions. Only matching constraints will be returned. Matching is case
-#' insensitive.
-#' @param keywords optional character vector of keyword tags to use to
-#' restrict the results (i.e. 'curved', 'triad-related')
-#' @param name optional character name of a specific constraint to return
-#' @param packages optional character vector indicating the subset of packages in which to search
-#' @return prints out the name and short description of matching constraints, and
-#' invisibly returns them as a list.  If \code{name} is specified, prints out
-#' the full definition for the named constraint.
-#' @author skyebend@uw.edu
-#' @seealso See also \code{\link{ergm.constraints}} for the complete documentation
+#' @rdname search.ergmTerms
 #' @examples
 #' \donttest{
 #' # find all of the constraint that mention degrees
 #' search.ergmConstraints('degree')
+#'
+#' # search for hints only
+#' search.ergmConstraints(keywords='hint')
 #'
 #' # search on multiple keywords
 #' search.ergmConstraints(keywords=c('directed','dyad-independent'))
@@ -804,29 +744,27 @@ search.ergmReferences <- function(search, keywords, name, packages)
 search.ergmConstraints <- function(search, keywords, name, packages)
   search.ergmTermType("ergmConstraint", search=search, keywords=keywords, name=name, packages=packages)
 
-#' Search the ERGM Proposals
-#'
-#' Searches through the \code{\link{ergm.proposals}} help page and prints out a
-#' list of proposals appropriate for the specified network's structural
-#' constraints, optionally restricting by additional keywords and search term
-#' matches.
-#'
-#' Uses \code{\link{grep}} internally to match the search terms against the proposal
-#' description, so \code{search} is currently matched as a single phrase.
-#' Keyword tags will only return a match if all of the specified tags are
-#' included in the proposal
-#'
-#' @param search optional character search term to search for in the text of the
-#' term descriptions. Only matching terms will be returned. Matching is case
-#' insensitive.
-#' @param name optional character name of a specific proposal to return
-#' @param reference optional character to limit proposals to only those with a matching reference
-#' @param constraints optional character vector to limit proposals to only those with matching hard or soft constraints
-#' @param packages optional character vector indicating the subset of packages in which to search
-#' @return prints out the name and short description of matching terms, and
-#' invisibly returns them as a list.  If \code{name} is specified, prints out
-#' the full definition for the named term.
-#' @seealso See also \code{\link{ergm.proposals}} for the complete documentation
+#' @rdname search.ergmTerms
+#' @examples
+#' \donttest{
+#' # find all discrete references
+#' search.ergmReferences(keywords='discrete')
+#' }
+#' @export search.ergmReferences
+search.ergmReferences <- function(search, keywords, name, packages)
+  search.ergmTermType("ergmReference", search=search, keywords=keywords, name=name, packages=packages)
+
+#' @rdname search.ergmTerms
+#' @examples
+#' \donttest{
+#' # find all of the hints
+#' search.ergmHints('degree')
+#' }
+#' @export search.ergmHints
+search.ergmHints <- function(search, keywords, name, packages)
+  search.ergmTermType("ergmHint", search=search, keywords=keywords, name=name, packages=packages)
+
+#' @rdname search.ergmTerms
 #' @examples
 #' \donttest{
 #' # find all of the proposals that mention triangles

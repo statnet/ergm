@@ -584,7 +584,7 @@ NULL
 #' @docType package
 #' @description This page describes how to specify the reference measures (baseline distributions)
 #' (the set of possible networks \eqn{Y} and the baseline weights \eqn{h(y)} to functions in the [`ergm`][ergm-package]
-#' package. It also provides an indexed list of the references visible to the \CRANpkg{ergm}'s API. References can also be searched via [`search.ergmReferences`], and help for an individual reference can be obtained with `ergmHint?<reference>` or `help("<reference>-ergmReference")`.
+#' package. It also provides an indexed list of the references visible to the \CRANpkg{ergm}'s API. References can also be searched via [search.ergmReferences()], and help for an individual reference can be obtained with `ergmReference?<reference>` or `help("<reference>-ergmReference")`.
 #'
 #' @section Specifying reference measures:
 #' \ERGMspec
