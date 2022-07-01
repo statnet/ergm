@@ -13,7 +13,6 @@ InitErgmConstraint.TNT<-function(nw, arglist, ...){
 }
 
 #' @templateVar name sparse
-#' @aliases sparse-ergmConstraint
 #' @title Sparse network
 #' @description The network is sparse. This typically results in a Tie-Non-Tie (TNT) proposal regime.
 #'
@@ -34,7 +33,6 @@ InitErgmConstraint.Strat<-function(nw, arglist, ...){
 }
 
 #' @templateVar name strat
-#' @aliases strat-ergmConstraint
 #' @title Stratified dyads
 #' @description The dyads in the network are stratified according to
 #'   an attribute combination.  This typically results in stratifying
