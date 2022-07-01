@@ -42,7 +42,7 @@
 #' 
 #' \item{`gw.cutoff`}{In geometrically weighted terms (`gwesp`, `gwdegree`, etc.) the highest number of shared partners, degrees, etc. for which to compute the statistic. This usually defaults to 30.}
 #'
-#' \item{`cache.sp`}{Whether the [`gwesp`][gwesp-ergmTerm], [`dgwesp`][dgwesp-ergmTerm], and similar terms need should use a cache for the dyadwise number of shared partners. This usually improves performance significantly and therefore defaults to `TRUE`, but it can be disabled.}
+#' \item{`cache.sp`}{Whether the [`gwesp`][gwesp-ergmTerm], [`dgwesp`][dgwesp-ergmTerm], and similar terms need should use a cache for the dyadwise number of shared partners. This usually improves performance significantly at a modest memory cost, and therefore defaults to `TRUE`, but it can be disabled.}
 #'
 #' \item{`interact.dependent`}{Whether to allow and how to handle the user attempting to interact dyad-dependent terms (e.g., `absdiff("age"):triangles` or `absdiff("age")*triangles` as opposed to `absdiff("age"):nodefactor("sex")`). Possible values are `"error"` (the default), `"message"`, and `"warning"`, for their respective actions, and `"silent"` for simply processing the term.}
 #'

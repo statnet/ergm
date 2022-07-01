@@ -147,6 +147,7 @@
 #' @param d a vector of distinct integers
 #' @template ergmTerm-sp-type
 #'
+#' @template ergmTerm-cache-sp
 #' @template ergmTerm-general
 #'
 #' @template ergmTerm-directed
@@ -216,6 +217,7 @@ InitErgmTerm.desp<-function(nw, arglist, cache.sp=TRUE, ...) {
 #' @template ergmTerm-gw-cutoff
 #' @template ergmTerm-sp-type
 #'
+#' @template ergmTerm-cache-sp
 #' @template ergmTerm-general
 #'
 #' @template ergmTerm-sp-types
@@ -301,6 +303,7 @@ InitErgmTerm.dgwesp<-function(nw, arglist, cache.sp=TRUE, gw.cutoff=30, ...) {
 #' @param d a vector of distinct integers
 #' @template ergmTerm-sp-type
 #'
+#' @template ergmTerm-cache-sp
 #' @template ergmTerm-general
 #'
 #' @template ergmTerm-directed
@@ -366,6 +369,7 @@ InitErgmTerm.ddsp<-function(nw, arglist, cache.sp=TRUE, ...) {
 #' @template ergmTerm-gw-cutoff
 #' @template ergmTerm-sp-type
 #'
+#' @template ergmTerm-cache-sp
 #' @template ergmTerm-general
 #'
 #' @template ergmTerm-sp-types
@@ -456,6 +460,7 @@ InitErgmTerm.dgwdsp<-function(nw, arglist, cache.sp=TRUE, gw.cutoff=30, ...) {
 #' @param d a vector of distinct integers
 #' @template ergmTerm-sp-type
 #'
+#' @template ergmTerm-cache-sp
 #' @template ergmTerm-general
 #'
 #' @template ergmTerm-directed
@@ -521,6 +526,7 @@ InitErgmTerm.dnsp<-function(nw, arglist, cache.sp=TRUE, ...) {
 #' @template ergmTerm-sp-type
 #'
 #' @template ergmTerm-sp-types
+#' @template ergmTerm-cache-sp
 #' @template ergmTerm-general
 #'
 #' @template ergmTerm-gw-alpha-to-decay

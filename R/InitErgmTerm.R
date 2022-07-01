@@ -910,6 +910,7 @@ InitErgmTerm.b1degree <- function(nw, arglist, ..., version=packageVersion("ergm
 #'
 #' @param d a vector of distinct integers. 
 #'
+#' @template ergmTerm-cache-sp
 #' @template ergmTerm-general
 #'
 #' @concept bipartite
@@ -1654,6 +1655,7 @@ InitErgmTerm.b2degree <- function(nw, arglist, ..., version=packageVersion("ergm
 #'
 #' @param d a vector of distinct integers
 #'
+#' @template ergmTerm-cache-sp
 #' @template ergmTerm-general
 #'
 #' @concept bipartite
@@ -2738,6 +2740,7 @@ InitErgmTerm.diff <- function(nw, arglist, ..., version=packageVersion("ergm")) 
 #'
 #' @param d a vector of distinct integers
 #'
+#' @template ergmTerm-cache-sp
 #' @template ergmTerm-general
 #'
 #' @templateVar fn dsp
@@ -2932,6 +2935,7 @@ InitErgmTerm.edges<-function(nw, arglist, ...) {
 #'
 #' @param d a vector of distinct integers
 #'
+#' @template ergmTerm-cache-sp
 #' @template ergmTerm-general
 #'
 #' @templateVar fn esp
@@ -3063,6 +3067,7 @@ InitErgmTerm.gwb1degree<-function(nw, arglist, gw.cutoff=30, ..., version=packag
 #' @templateVar underlying b1dsp
 #' @template ergmTerm-gw-cutoff
 #'
+#' @template ergmTerm-cache-sp
 #' @template ergmTerm-general
 #'
 #' @concept bipartite
@@ -3129,7 +3134,7 @@ InitErgmTerm.gwb1dsp<-function(nw, arglist, cache.sp=TRUE, gw.cutoff=30, ...) {
 #' @concept bipartite
 #' @concept undirected
 #' @concept curved
-InitErgmTerm.gwb2degree<-function(nw, arglist, cache.sp=TRUE, gw.cutoff=30, ..., version=packageVersion("ergm")) {
+InitErgmTerm.gwb2degree<-function(nw, arglist, gw.cutoff=30, ..., version=packageVersion("ergm")) {
   if(version <= as.package_version("3.9.4")){
     ### Check the network and arguments to make sure they are appropriate.
     a <- check.ErgmTerm(nw, arglist, directed=FALSE, bipartite=TRUE,
@@ -3205,6 +3210,7 @@ InitErgmTerm.gwb2degree<-function(nw, arglist, cache.sp=TRUE, gw.cutoff=30, ...,
 #' @templateVar underlying b2dsp
 #' @template ergmTerm-gw-cutoff
 #'
+#' @template ergmTerm-cache-sp
 #' @template ergmTerm-general
 #'
 #' @concept bipartite
@@ -3338,6 +3344,7 @@ InitErgmTerm.gwdegree<-function(nw, arglist, gw.cutoff=30, ..., version=packageV
 #' @templateVar underlying DSP
 #' @template ergmTerm-gw-cutoff
 #'
+#' @template ergmTerm-cache-sp
 #' @template ergmTerm-general
 #'
 #' @templateVar fn gwdsp
@@ -3398,6 +3405,7 @@ InitErgmTerm.gwdsp<-function(nw, arglist, cache.sp=TRUE, gw.cutoff=30, ...) {
 #' @templateVar underlying ESP
 #' @template ergmTerm-gw-cutoff
 #'
+#' @template ergmTerm-cache-sp
 #' @template ergmTerm-general
 #'
 #' @templateVar fn gwesp
@@ -3534,6 +3542,7 @@ InitErgmTerm.gwidegree<-function(nw, arglist, gw.cutoff=30, ..., version=package
 #' @templateVar underlying NSP
 #' @template ergmTerm-gw-cutoff
 #'
+#' @template ergmTerm-cache-sp
 #' @template ergmTerm-general
 #'
 #' @templateVar fn gwnsp
@@ -5461,6 +5470,7 @@ InitErgmTerm.nodeofactor<-function (nw, arglist, ..., version=packageVersion("er
 #'
 #' @param d a vector of distinct integers
 #'
+#' @template ergmTerm-cache-sp
 #' @template ergmTerm-general
 #'
 #' @templateVar fn nsp

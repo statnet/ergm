@@ -27,6 +27,11 @@ the computational burden.  Its default value can also be controlled by the
 This term is just like gwesp and gwdsp except it adds a statistic equal to the geometrically weighted nonedgewise (that is, over dyads that do not have an edge) shared partner distribution with decay parameter \code{decay} parameter.
 }
 \note{
+This term takes an additional term option (see
+\code{\link[=ergm-options]{options?ergm}}), \code{cache.sp}, controlling whether
+the implementation will cache the number of shared partners for
+each dyad in the network; this is usually enabled by default.
+
 The \code{decay} parameter was called \code{alpha} prior to \code{ergm} 3.7.
 }
 \section{Shared partner types}{

@@ -28,6 +28,11 @@ weighted dyadwise shared partner distribution with decay parameter
 This term can be used with directed and undirected networks.
 }
 \note{
+This term takes an additional term option (see
+\code{\link[=ergm-options]{options?ergm}}), \code{cache.sp}, controlling whether
+the implementation will cache the number of shared partners for
+each dyad in the network; this is usually enabled by default.
+
 For directed networks, only outgoing two-path ("OTP") shared partners
 are counted.  In other words, for a (directed) dyad \verb{(i,j)} in a directed graph, the number of
 shared partners counted by \code{gwdsp} is the number of nodes \code{k} that have edges
