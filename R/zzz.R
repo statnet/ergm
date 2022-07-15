@@ -30,6 +30,7 @@
   .RegisterKeywords()
 }
 
+## BEGIN boilerplate: should be kept in sync with statnet.common.
 # TODO: Figure out some automatic way to keep this in sync with statnet.common.
 #' @name snctrl
 #'
@@ -47,10 +48,8 @@
 NULL
 #' @export
 snctrl <- statnet.common::snctrl
-## BEGIN boilerplate: should be kept in sync with statnet.common.
-
-
 eval(UPDATE_MY_SCTRL_EXPR)
+## END boilerplate: should be kept in sync with statnet.common.
 
 .RegisterProposals <- function(){
   ergm_proposal_table("c", "Bernoulli", "|.dyads|bd",  -2, "random", "randomtoggle")
