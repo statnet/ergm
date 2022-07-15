@@ -19,7 +19,7 @@
 
 #define MH_AUX_STORAGE (/* (stored_type *) */ MHp->aux_storage)
 #define MH_GET_AUX_STORAGE(stored_type, store_into) stored_type *store_into = MH_AUX_STORAGE[MHp->aux_slots[0]];
-#define MH_AUX_STORAGE_NUM(ind) (/* (stored_type *) */ MH_AUX_STORAGE[MHp->aux_slots[ind]]
+#define MH_AUX_STORAGE_NUM(ind) /* (stored_type *) */ MH_AUX_STORAGE[MHp->aux_slots[ind]]
 #define MH_GET_AUX_STORAGE_NUM(stored_type, store_into, ind) stored_type *store_into = MH_AUX_STORAGE_NUM(ind);
 
 #ifdef STUBFILE
