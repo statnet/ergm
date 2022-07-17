@@ -20,11 +20,11 @@
                                      target.stats=NULL) {
 
   # We have constraint information.
-  constraints <- NVL3(nw%ergmlhs%"constraints", nonsimp_update.formula(., constraints), constraints)
+  constraints <- NVL3(nw%ergmlhs%"constraints", nonsimp_update.formula(., constraints, from.new=TRUE), constraints)
 
   if(!is.null(obs.constraints)){
     # We have observational process information.
-    obs.constraints <- NVL3(nw%ergmlhs%"obs.constraints", nonsimp_update.formula(., obs.constraints), obs.constraints)
+    obs.constraints <- NVL3(nw%ergmlhs%"obs.constraints", nonsimp_update.formula(., obs.constraints, from.new=TRUE), obs.constraints)
 
     # If no missing edges, remove the "observed" constraint.
     if(network.naedgecount(nw)==0){
