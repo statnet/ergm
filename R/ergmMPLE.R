@@ -149,20 +149,20 @@ ergmMPLE <- function(formula, constraints=~., obs.constraints=~-observed, output
 
   # Handle the observation process constraints.
   tmp <- .handle.auto.constraints(nw, constraints, obs.constraints)
-  nw <- tmp$nw; constraints <- tmp$constraints; constraints.obs <- tmp$constraints.obs
+  nw <- tmp$nw; conterms <- tmp$conterms; conterms.obs <- tmp$conterms.obs
   
   if("constraints" %in% names(control$MCMC.prop.args)){
     conlist <- prune.ergm_conlist(control$MCMC.prop.args$constraints)
     class(conlist) <- "ergm_conlist"
   }else{
-    conlist <- ergm_conlist(constraints, nw, term.options=control$term.options)
+    conlist <- ergm_conlist(conterms, nw, term.options=control$term.options)
   }
 
   if("constraints" %in% names(control$obs.MCMC.prop.args)){
     conlist.obs <- prune.ergm_conlist(control$obs.MCMC.prop.args$constraints)
     class(conlist.obs) <- "ergm_conlist"
   }else{
-    conlist.obs <- ergm_conlist(constraints.obs, nw, term.options=control$term.options)
+    conlist.obs <- ergm_conlist(conterms.obs, nw, term.options=control$term.options)
   }
 
   fd <- as.rlebdm(conlist, conlist.obs, which="informative")

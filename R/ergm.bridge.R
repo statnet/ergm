@@ -301,7 +301,7 @@ ergm.bridge.dindstart.llk<-function(object, response=NULL, constraints=~., coef,
   rng <- function(x, from, to) if(to>=from) x[from:to]
   
   tmp <- .handle.auto.constraints(nw, constraints, obs.constraints, target.stats); nw <- tmp$nw
-  if(!is.dyad.independent(ergm_conlist(tmp$constraints,nw,term.options=control$term.options), ergm_conlist(tmp$constraints.obs,nw,term.options=control$term.options))) stop("Bridge sampling with dyad-independent start does not work with dyad-dependent constraints.")
+  if(!is.dyad.independent(ergm_conlist(tmp$conterms,nw,term.options=control$term.options), ergm_conlist(tmp$conterms.obs,nw,term.options=control$term.options))) stop("Bridge sampling with dyad-independent start does not work with dyad-dependent constraints.")
 
   # If target.stats are given, then we need between passed network and
   # target stats, if any. It also means that the dyad-independent

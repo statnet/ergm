@@ -8,6 +8,22 @@
 #  Copyright 2003-2022 Statnet Commons
 ################################################################################
 
+# Meta-constraint for a dot placeholder
+InitErgmConstraint.. <- function(nw, arglist, ...){
+  a <- check.ErgmTerm(nw, arglist)
+  list(dependence = FALSE)
+}
+
+# Meta-constraint selecting a specific proposal.
+InitErgmConstraint..select <- function(nw, arglist, ...){
+  a <- check.ErgmTerm(nw, arglist,
+                      varnames = c("proposal"),
+                      vartypes = c("character"),
+                      defaultvalues = list(NULL),
+                      required = c(TRUE))
+  list(dependence = TRUE, proposal = a$proposal)
+}
+
 # Baseline constraint incorporating network attributes such as
 # directedness, bipartitedness, and self-loops.
 InitErgmConstraint..attributes <- function(nw, arglist, ...){

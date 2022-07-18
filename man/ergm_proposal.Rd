@@ -6,6 +6,7 @@
 \alias{ergm_proposal.ergm_proposal}
 \alias{ergm_proposal.character}
 \alias{ergm_proposal.formula}
+\alias{ergm_proposal.term_list}
 \alias{ergm_proposal.ergm_conlist}
 \alias{ergm_proposal.ergm}
 \title{Functions to initialize the ergm_proposal object}
@@ -23,6 +24,15 @@ ergm_proposal(object, ...)
 )
 
 \method{ergm_proposal}{formula}(
+  object,
+  arguments,
+  nw,
+  hints = trim_env(~sparse),
+  ...,
+  term.options = list()
+)
+
+\method{ergm_proposal}{term_list}(
   object,
   arguments,
   nw,
@@ -114,6 +124,9 @@ Metropolis-Hastings proposal types.
 giving the \R name of the proposal.
 
 \item \code{formula}: \code{object} argument is an ERGM constraint formula; constructs the \code{\link{ergm_conlist}} object and hands off to \code{ergm_proposal.ergm_conlist()}.
+
+\item \code{term_list}: \code{object} argument is a \code{\link{term_list}};
+same implementation as the \code{formula} method.
 
 \item \code{ergm_conlist}: \code{object} argument is an ERGM constraint
 list; constructs the internal \code{ergm_reference} object, looks up the

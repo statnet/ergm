@@ -300,21 +300,21 @@ simulate_formula <- function(object, ..., basis=eval_lhs.formula(object)) {
 
   mon.m <- if(!is.null(monitor)) as.ergm_model(monitor, nw, term.options=control$term.options)
 
-  if(!is.list(constraints)) constraints <- list(constraints)
-    constraints <- rep(constraints, length.out=2)
-  # Inherit constraints from nw if needed.
-  tmp <- .handle.auto.constraints(nw, constraints[[1]], constraints[[2]], NULL)
-  nw <- tmp$nw; constraints <- if(observational) tmp$constraints.obs else tmp$constraints
-  
   # Construct the proposal; this needs to be done here so that the
   # auxiliary requests could be passed to ergm_model().
-  if(!is(constraints, "ergm_proposal")){
+  if(is(constraints, "ergm_proposal")) proposal <- constraints
+  else{
+    if(!is.list(constraints)) constraints <- list(constraints)
+    constraints <- rep(constraints, length.out=2)
+    # Inherit constraints from nw if needed.
+    tmp <- .handle.auto.constraints(nw, constraints[[1]], constraints[[2]], NULL)
+    nw <- tmp$nw; conterms <- if(observational) tmp$conterms.obs else tmp$conterms
+
     if (verbose) message("Initializing unconstrained Metropolis-Hastings proposal: ", appendLF=FALSE)
-    proposal <- ergm_proposal(constraints,arguments=if(observational) control$obs.MCMC.prop.args else control$MCMC.prop.args,
+    proposal <- ergm_proposal(conterms, arguments=if(observational) control$obs.MCMC.prop.args else control$MCMC.prop.args,
                               nw=nw, hints=if(observational) control$obs.MCMC.prop else control$MCMC.prop, weights=if(observational) control$obs.MCMC.prop.weights else control$MCMC.prop.weights, class="c",reference=reference, term.options=control$term.options)
     if (verbose) message(sQuote(paste0(proposal$pkgname,":MH_",proposal$name)),".")
-  }else proposals <- constraints
-
+  }
   
   # Construct the model.
   if (verbose) message("Initializing model...")
@@ -421,17 +421,20 @@ simulate.ergm_model <- function(object, nsim=1, seed=NULL,
     if(nparam(m)!=length(coef)) stop("coef has ", length(coef) - nparam(monitor), " elements, while the model requires ",nparam(m) - nparam(monitor)," parameters.")
   }
 
-  proposal <- if(inherits(constraints, "ergm_proposal")) constraints
-              else{
-                if(is.ergm_state(nw)) warning(sQuote("simulate.ergm_model()"), " has been passed a network in ", sQuote("ergm_state"), " form but not a pre-initialized proposal. Information about missing dyads may be lost.")
-                if(!is.list(constraints)) constraints <- list(constraints)
-                constraints <- rep(constraints, length.out=2)
-                # Inherit constraints from nw if needed.
-                tmp <- .handle.auto.constraints(nw0, constraints[[1]], constraints[[2]], NULL)
-                nw0 <- tmp$nw; constraints <- if(observational) tmp$constraints.obs else tmp$constraints
-                ergm_proposal(constraints,arguments=control$MCMC.prop.args,
+  if(is(constraints, "ergm_proposal")) proposal <- constraints
+  else{
+    if(is.ergm_state(nw)) warning(sQuote("simulate.ergm_model()"), " has been passed a network in ", sQuote("ergm_state"), " form but not a pre-initialized proposal. Information about missing dyads may be lost.")
+    if(!is.list(constraints)) constraints <- list(constraints)
+    constraints <- rep(constraints, length.out=2)
+    # Inherit constraints from nw if needed.
+    tmp <- .handle.auto.constraints(nw0, constraints[[1]], constraints[[2]], NULL)
+    nw0 <- tmp$nw; conterms <- if(observational) tmp$conterms.obs else tmp$conterms
+
+    if (verbose) message("Initializing unconstrained Metropolis-Hastings proposal: ", appendLF=FALSE)
+    proposal <- ergm_proposal(conterms, arguments=control$MCMC.prop.args,
                               nw=nw0, hints=control$MCMC.prop, weights=control$MCMC.prop.weights, class="c",reference=reference, term.options=control$term.options)
-              }
+    if (verbose) message(sQuote(paste0(proposal$pkgname,":MH_",proposal$name)),".")
+  }
 
   if(length(proposal$auxiliaries) && !length(m$slots.extra.aux$proposal))
     stop("The proposal appears to be requesting auxiliaries, but the initialized model does not export any proposal auxiliaries.")

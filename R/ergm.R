@@ -519,14 +519,14 @@ ergm <- function(formula, response=NULL,
     # Handle the observation process and other "automatic" constraints.
     tmp <- .handle.auto.constraints(nw, constraints, obs.constraints, target.stats)
     nw <- tmp$nw
-    constraints.obs <- tmp$constraints.obs
-    constraints <- tmp$constraints
+    conterms.obs <- tmp$conterms.obs
+    conterms <- tmp$conterms
   }else if(!is(obs.constraints, "ergm_proposal")){
-  # Handle the observation process and other "automatic" constraints.
+    # Handle the observation process and other "automatic" constraints.
     tmp <- .handle.auto.constraints(nw, trim_env(~.), obs.constraints, target.stats)
     nw <- tmp$nw
-    constraints.obs <- tmp$constraints.obs
-    constraints <- tmp$constraints
+    conterms.obs <- tmp$conterms.obs
+    conterms <- tmp$conterms
   }
   
   if(!is(constraints, "ergm_proposal")){
@@ -537,7 +537,7 @@ ergm <- function(formula, response=NULL,
     warn(paste0("The default Bernoulli reference distribution operates in the binary (",sQuote("response=NULL"),") mode only. Did you specify the ",sQuote("reference")," argument?"))
   }
     
-    proposal <- ergm_proposal(constraints, hints=control$MCMC.prop, weights=control$MCMC.prop.weights, control$MCMC.prop.args, nw, class=proposalclass,reference=reference, term.options=control$term.options)
+    proposal <- ergm_proposal(conterms, hints=control$MCMC.prop, weights=control$MCMC.prop.weights, control$MCMC.prop.args, nw, class=proposalclass,reference=reference, term.options=control$term.options)
   }else proposal <- constraints
   
   if (verbose) message(sQuote(paste0(proposal$pkgname,":MH_",proposal$name)),".")
@@ -548,9 +548,9 @@ ergm <- function(formula, response=NULL,
   if (verbose) message("Model initialized.")
   
   if(!is(obs.constraints, "ergm_proposal")){
-    if(!is.null(constraints.obs)){
+    if(!is.null(conterms.obs)){
       if (verbose) message("Initializing constrained Metropolis-Hastings proposal: ", appendLF=FALSE)
-      proposal.obs <- ergm_proposal(constraints.obs, hints=control$obs.MCMC.prop, weights=control$obs.MCMC.prop.weights, control$obs.MCMC.prop.args, nw, class=proposalclass, reference=reference, term.options=control$term.options)
+      proposal.obs <- ergm_proposal(conterms.obs, hints=control$obs.MCMC.prop, weights=control$obs.MCMC.prop.weights, control$obs.MCMC.prop.args, nw, class=proposalclass, reference=reference, term.options=control$term.options)
       if (verbose) message(sQuote(paste0(proposal.obs$pkgname,":MH_",proposal.obs$name)), appendLF=FALSE)
       
       if(!is.null(proposal.obs$auxiliaries)){
