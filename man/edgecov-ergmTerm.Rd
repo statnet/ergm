@@ -11,12 +11,13 @@
 # valued: edgecov(x, attrname=NULL, form="sum")
 }
 \arguments{
-\item{x, attrname}{either a square matrix of covariates, one for each possible
-edge in the network, the name of a network attribute of covariates,
-or a network; if the latter, optional argument \code{attrname} provides
-the name of the quantitative edge attribute to use for covariate values
-(in this case, missing edges in \code{x} are assigned a covariate value
-of zero).}
+\item{x, attrname}{either a square matrix of covariates, one for
+each possible edge in the network, the name of a network
+attribute of covariates, or a network; if the latter, or if the
+network attribute named by \code{x} is itself a network, optional
+argument \code{attrname} provides the name of the quantitative edge
+attribute to use for covariate values (in this case, missing
+edges in \code{x} are assigned a covariate value of zero).}
 
 \item{form}{character how to aggregate tie values in a valued ERGM}
 }

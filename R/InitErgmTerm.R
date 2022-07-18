@@ -186,7 +186,12 @@ ergm_edgecov_args <- function(name, nw, a){
     xm <- as.matrix(a$x, matrix.type="adjacency", a$attrname)
   }else if(is.character(a$x)){
     xm <- get.network.attribute(nw, a$x)
-    if (is.null(xm)) ergm_Init_abort("There is no network attribute named ", sQuote(a$x), ".")
+    if(is.null(xm) || !is.matrix(xm)) ergm_Init_abort("There is no network attribute named ", sQuote(a$x), " or it is not a matrix.")
+    if(is.network(xm)){
+      if(!is.null(a$attrname) && !a$attrname %in% list.edge.attributes(xm)) ergm_Init_abort("Network at attribute named ", sQuote(a$x), " does not have an edge attribute ", sQuote(a$attrname), ".")
+      xm <- as.matrix(xm, matrix.type="adjacency", attrname=a$attrname)
+      name <- paste(name, a$x, sep=".")
+    }
   }else xm <- as.matrix(a$x)
 
   cn <- if(!is.null(a$attrname)) paste(name, a$attrname, sep = ".")
