@@ -666,8 +666,8 @@ search.ergmTermType <-function(term.type, search, net, keywords, name, packages)
 #' Search ERGM terms, constraints, references, hints, and proposals
 #' 
 #' Searches through the database of [`ergmTerm`]s,
-#' [`ergmConstraints`]s, [`ergmReferences`]s, [`ergmHints`]s, and
-#' [`ergmProposals`]s and prints out a list of terms and term-alikes
+#' [`ergmConstraint`]s, [`ergmReference`]s, [`ergmHint`]s, and
+#' [`ergmProposal`]s and prints out a list of terms and term-alikes
 #' appropriate for the specified network's structural constraints,
 #' optionally restricting by additional keywords and search term
 #' matches.
@@ -685,14 +685,15 @@ search.ergmTermType <-function(term.type, search, net, keywords, name, packages)
 #' @param keywords optional character vector of keyword tags to use to
 #' restrict the results (i.e. 'curved', 'triad-related')
 #' @param name optional character name of a specific term to return
+#' @param reference,constraints optional names of references and constraints to narrow down the proposal
 #' @param packages optional character vector indicating the subset of packages in which to search
 #' @return prints out the name and short description of matching terms, and
 #' invisibly returns them as a list.  If \code{name} is specified, prints out
 #' the full definition for the named term.
 #' @author skyebend@uw.edu
 #' @seealso See also [`ergmTerm`],
-#' [`ergmConstraints`], [`ergmReferences`], [`ergmHints`], and
-#' [`ergmProposals`], for lists of terms and term-alikes visible to \pkg{ergm}.
+#' [`ergmConstraint`], [`ergmReference`], [`ergmHint`], and
+#' [`ergmProposal`], for lists of terms and term-alikes visible to \pkg{ergm}.
 #' @examples
 #' \donttest{
 #' # find all of the terms that mention triangles

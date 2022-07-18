@@ -32,6 +32,8 @@ restrict the results (i.e. 'curved', 'triad-related')}
 \item{name}{optional character name of a specific term to return}
 
 \item{packages}{optional character vector indicating the subset of packages in which to search}
+
+\item{reference, constraints}{optional names of references and constraints to narrow down the proposal}
 }
 \value{
 prints out the name and short description of matching terms, and
@@ -40,8 +42,8 @@ the full definition for the named term.
 }
 \description{
 Searches through the database of \code{\link{ergmTerm}}s,
-\code{\link{ergmConstraints}}s, \code{\link{ergmReferences}}s, \code{\link{ergmHints}}s, and
-\code{\link{ergmProposals}}s and prints out a list of terms and term-alikes
+\code{\link{ergmConstraint}}s, \code{\link{ergmReference}}s, \code{\link{ergmHint}}s, and
+\code{\link{ergmProposal}}s and prints out a list of terms and term-alikes
 appropriate for the specified network's structural constraints,
 optionally restricting by additional keywords and search term
 matches.
@@ -118,8 +120,8 @@ search.ergmProposals('MH algorithm', packages='ergm')
 }
 \seealso{
 See also \code{\link{ergmTerm}},
-\code{\link{ergmConstraints}}, \code{\link{ergmReferences}}, \code{\link{ergmHints}}, and
-\code{\link{ergmProposals}}, for lists of terms and term-alikes visible to \pkg{ergm}.
+\code{\link{ergmConstraint}}, \code{\link{ergmReference}}, \code{\link{ergmHint}}, and
+\code{\link{ergmProposal}}, for lists of terms and term-alikes visible to \pkg{ergm}.
 }
 \author{
 skyebend@uw.edu
