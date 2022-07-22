@@ -40,6 +40,7 @@
 #' appropriate \code{InitErgmTerm.X} function.}
 #' \item{etamap}{the theta -> eta mapping as a list returned from
 #' <ergm.etamap>}
+#' \item{uid}{a random string generated with the model; different models are guaranteed to have different strings, but identical models are not guaranteed to have the same string}
 #' @seealso [summary.ergm_model()], [ergm_preprocess_response()]
 #' @keywords internal
 #' @export
@@ -115,6 +116,7 @@ ergm_model <- function(formula, nw=NULL, silent=FALSE, ..., term.options=list(),
   ergm.MCMC.packagenames(unlist(sapply(model$terms, "[[", "pkgname")))
 
   class(model) <- "ergm_model"
+  model$uid <- .GUID()
   model
 }
 
@@ -290,6 +292,7 @@ c.ergm_model <- function(...){
   assert_aux_dependencies(o$terms)
 
   o$etamap <- ergm.etamap(o)
+  o$uid <- .GUID()
   o
 }
 

@@ -44,7 +44,7 @@
 #' \item{stats}{a numeric vector of network statistics or some other
 #' statistics used to resume.}
 #'
-#' \item{hashes}{a named list of hexadecimal strings containing MD5 hashes obtained by [`digest`] of contents `model` and/or `proposal`; for the `ergm_state_send` and `ergm_state_receive`, the hash may be retained even if these values are set to `NULL`}
+#' \item{uids}{a named list of globally unique ID strings associated with a `model` and/or `proposal`; for the `ergm_state_send` and `ergm_state_receive`, these strings may be retained even if these values are set to `NULL`}
 #' }
 #'
 #' @details
@@ -95,7 +95,7 @@ ergm_state.edgelist <- function(x, nw0, model=NULL, proposal=NULL, stats=NULL, e
     out <- .reconcile_ergm_state(out)
   }
 
-  out <- .generate_ergm_state_hash(out)
+  out <- .copy_state_uids(out)
   structure(out, class=c("ergm_state_full", "ergm_state_send", "ergm_state_receive", "ergm_state"))
 }
 
@@ -232,13 +232,13 @@ update.ergm_state_full <- function(object, el=NULL, nw0=NULL, model=NULL, propos
     if(!is(model, "ergm_model")) stop("New model is not an ergm_model.")
     object$model <- model
     object$ext.flag <- ERGM_STATE_R_CHANGED
-    object$hashes$model <- NULL
+    object$uids$model <- NULL
   }
 
   if(!is.null(proposal)){
     if(!is(proposal, "ergm_proposal")) stop("New proposal is not an ergm_proposal.")
     object$proposal <- proposal
-    object$hashes$proposal <- NULL
+    object$uids$proposal <- NULL
   }
 
   if(!is.null(stats)) object$stats <- as.double(stats)
@@ -249,7 +249,7 @@ update.ergm_state_full <- function(object, el=NULL, nw0=NULL, model=NULL, propos
     object$ext.flag <- ERGM_STATE_C_CHANGED
   }
 
-  object <- .generate_ergm_state_hash(object)
+  object <- .copy_state_uids(object)
   .reconcile_ergm_state(object)
 }
 
@@ -302,10 +302,9 @@ ERGM_STATE_RECONCILED <- 0L
   object
 }
 
-#' @importFrom digest digest
-.generate_ergm_state_hash <- function(object){
-  if(is.null(object$hashes$model)) object$hashes$model <- digest(object$model)
-  if(is.null(object$hashes$proposal)) object$hashes$proposal <- digest(object$proposal)
+.copy_state_uids <- function(object){
+  if(is.null(object$uids$model)) object$uids$model <- object$model$uid
+  if(is.null(object$uids$proposal)) object$uids$proposal <- object$proposal$uid
   object
 }
 
@@ -333,8 +332,8 @@ ergm_state_send.ergm_state_full <- function(x, ...){
 #' @rdname ergm_state
 #' @export
 ergm_state_send.ergm_state_receive <- function(x, ...){
-  if(!is.null(x$hashes$model)) x$model <- ergm_state_cache("get", x$hashes$model)
-  if(!is.null(x$hashes$proposal)) x$proposal <- ergm_state_cache("get", x$hashes$proposal)
+  if(!is.null(x$uids$model)) x$model <- ergm_state_cache("get", x$uids$model)
+  if(!is.null(x$uids$proposal)) x$proposal <- ergm_state_cache("get", x$uids$proposal)
   structure(x, class=c("ergm_state_send","ergm_state_receive","ergm_state"))
 }
 

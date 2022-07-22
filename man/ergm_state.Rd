@@ -177,7 +177,7 @@ on how it is used:
 \item{stats}{a numeric vector of network statistics or some other
 statistics used to resume.}
 
-\item{hashes}{a named list of hexadecimal strings containing MD5 hashes obtained by \code{\link{digest}} of contents \code{model} and/or \code{proposal}; for the \code{ergm_state_send} and \code{ergm_state_receive}, the hash may be retained even if these values are set to \code{NULL}}
+\item{uids}{a named list of globally unique ID strings associated with a \code{model} and/or \code{proposal}; for the \code{ergm_state_send} and \code{ergm_state_receive}, these strings may be retained even if these values are set to \code{NULL}}
 }
 }
 \description{

@@ -6,7 +6,7 @@
 \usage{
 ergm_state_cache(
   comm = c("pass", "all", "clear", "insert", "get", "check", "list"),
-  hash,
+  key,
   object
 )
 }
@@ -15,18 +15,18 @@ ergm_state_cache(
 default argument above for permitted values and Details for
 meanings; partial matching is supported.}
 
-\item{hash}{a character string, typically a \code{\link[=digest]{digest()}} of the
-object.}
+\item{key}{a character string, typically a \code{digest::digest()} of
+the object or a random string.}
 
 \item{object}{the object to be stored.
 
 Supported tasks are, respectively, to do nothing (the default),
 return all entries (mainly useful for testing), clear the cache,
-insert into cache, retrieve an object by hash, check if a hash is
-present, or list hashes defined.
+insert into cache, retrieve an object by key, check if a key is
+present, or list keys defined.
 
 Deleting an entry can be accomplished by inserting a \code{NULL} for
-that hash.
+that key.
 
 Cache is limited to a hard-coded size (currently 4). This should
 accommodate an \code{\link{ergm_model}} and an \code{\link{ergm_proposal}} for
