@@ -179,6 +179,12 @@
 #' concatenated, and if a total of one network had been simulated, the
 #' network itself will be returned.
 #'
+#' @note The actual [`network`] method for [simulate_formula()] is
+#'   actually called `.simulate_formula.network()` and is also
+#'   exported as an object. This allows it to be overridden by
+#'   extension packages, such as `tergm`, but also accessed directly
+#'   when needed.
+#'
 #' @seealso \code{\link{ergm}}, \code{\link[network]{network}},
 #'   [ergm_MCMC_sample()] for a demonstration of `return.args=`.
 #' @keywords models
@@ -265,6 +271,7 @@ simulate_formula <- function(object, ..., basis=eval_lhs.formula(object)) {
 #' @rawNamespace S3method(simulate_formula,network,.simulate_formula.network)
 #' @aliases simulate_formula.network
 #' @method simulate_formula network
+#' @export .simulate_formula.network
 .simulate_formula.network <- function(object, nsim=1, seed=NULL,
                                coef, response=NULL, reference=~Bernoulli,
                              constraints=~.,

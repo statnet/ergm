@@ -325,6 +325,12 @@ More information can be found by looking at the documentation of
 }}
 
 \note{
+The actual \code{\link{network}} method for \code{\link[=simulate_formula]{simulate_formula()}} is
+actually called \code{.simulate_formula.network()} and is also
+exported as an object. This allows it to be overridden by
+extension packages, such as \code{tergm}, but also accessed directly
+when needed.
+
 \code{\link[=simulate.ergm_model]{simulate.ergm_model()}} is a lower-level interface, providing
 a \code{\link[=simulate]{simulate()}} method for \code{\link{ergm_model}} class. The \code{basis}
 argument is required; \code{monitor}, if passed, must be an
