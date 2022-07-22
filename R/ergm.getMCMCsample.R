@@ -144,11 +144,11 @@ ergm_MCMC_sample <- function(state, control, theta=NULL,
 
     for(item in c("model", "proposal")){
       have_item <- unlist(clusterMap(ergm.getCluster(control), call_state_cache,
-                                     list("check"), map(state0, c("hashes", item))))
+                                     list("check"), map(state0, c("uids", item))))
       if(verbose>1 && all(have_item)) message("State cache for ", item, " already populated.")
       if(!all(have_item))
         clusterMap(ergm.getCluster(control), call_state_cache,
-                   ifelse(have_item, "pass", "insert"), map(state0, c("hashes", item)), ifelse(have_item, list(NULL), map(state0, item)))
+                   ifelse(have_item, "pass", "insert"), map(state0, c("uids", item)), ifelse(have_item, list(NULL), map(state0, item)))
     }
   }
 

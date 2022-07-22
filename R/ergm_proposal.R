@@ -134,6 +134,7 @@ prune.ergm_conlist <- function(conlist){
 #' the `InitErgmProposal` function; in particular,
 #' \describe{
 #' \item{`constraints`}{list of constraints}
+#' \item{`uid`}{a globally unique ID; two different proposals are guaranteed to have different IDs, but identical proposals are not guaranteed to have the same ID}
 #' }
 #' }
 #' @seealso \code{\link{InitErgmProposal}}
@@ -204,6 +205,7 @@ ergm_proposal.character <- function(object, arguments, nw, ..., reference=ergm_r
   ergm.MCMC.packagenames(proposal$pkgname)
   
   class(proposal)<-"ergm_proposal"
+  proposal$uid <- .GUID()
   proposal
 }
 
