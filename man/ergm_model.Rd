@@ -43,7 +43,7 @@ as.ergm_model(x, ...)
 \arguments{
 \item{formula}{An \code{\link[=ergm]{ergm()}}
 formula of the form \code{network ~ model.term(s)} or \code{~
-model.term(s)}.}
+model.term(s)} or a \code{\link{term_list}} object, typically constructed from a formula's LHS.}
 
 \item{nw}{The network of interest, optionally instrumented with \code{\link[=ergm_preprocess_response]{ergm_preprocess_response()}} to have a response attribute specification; if passed, the LHS of \code{formula} is ignored. This is the recommended usage.}
 
@@ -85,7 +85,7 @@ appropriate \code{InitErgmTerm.X} function.}
 \description{
 These methods are generally not called directly by users, but may
 be employed by other depending packages.
-\code{ergm_model} constructs it from a formula. Each term is
+\code{ergm_model} constructs it from a formula or a term list. Each term is
 initialized via the \code{InitErgmTerm} functions to create a
 \code{ergm_model} object.
 }

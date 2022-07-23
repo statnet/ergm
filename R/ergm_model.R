@@ -17,13 +17,13 @@
 #' 
 #' These methods are generally not called directly by users, but may
 #' be employed by other depending packages.
-#' `ergm_model` constructs it from a formula. Each term is
+#' `ergm_model` constructs it from a formula or a term list. Each term is
 #' initialized via the \code{InitErgmTerm} functions to create a
 #' \code{ergm_model} object.
 #' @note This API is not to be considered fixed and may change between versions. However, an effort will be made to ensure that the methods of this class remain stable.
 #' @param formula An [ergm()]
 #' formula of the form \code{network ~ model.term(s)} or \code{~
-#' model.term(s)}.
+#' model.term(s)} or a [`term_list`] object, typically constructed from a formula's LHS.
 #' @param nw The network of interest, optionally instrumented with [ergm_preprocess_response()] to have a response attribute specification; if passed, the LHS of `formula` is ignored. This is the recommended usage.
 #' @param silent logical, whether to print the warning messages from the
 #' initialization of each model term.
@@ -45,8 +45,8 @@
 #' @keywords internal
 #' @export
 ergm_model <- function(formula, nw=NULL, silent=FALSE, ..., term.options=list(), extra.aux=list(), env=globalenv(), offset.decorate=TRUE){
-  if (!is(formula, "formula"))
-    stop("Invalid model formula of class ",sQuote(class(formula)),".", call.=FALSE)
+  if (!is(formula, "formula") && !is(formula, "term_list"))
+    stop("Invalid model specification of class ",sQuote(class(formula)),".", call.=FALSE)
   
   #' @importFrom statnet.common eval_lhs.formula
   if(is.null(nw)) nw <- eval_lhs.formula(formula)
@@ -55,9 +55,7 @@ ergm_model <- function(formula, nw=NULL, silent=FALSE, ..., term.options=list(),
   nw <- as.network(nw, populate=FALSE) # In case it's an ergm_state.
   
   #' @importFrom statnet.common list_rhs.formula
-  v<-list_rhs.formula(formula)
-  
-  formula.env<-environment(formula)
+  v <- if(is(formula, "formula")) list_rhs.formula(formula) else v
   
   model <- structure(list(coef.names = character(),
                           terms = list(), networkstats.0 = numeric()),
@@ -65,10 +63,11 @@ ergm_model <- function(formula, nw=NULL, silent=FALSE, ..., term.options=list(),
 
   for (i in seq_along(v)) {
     term <- v[[i]]
+    term.env <- attr(v,"env")[[i]]
 
     if (is.call(term) && term[[1L]] == "offset"){ # Offset term
       offset <-
-        if(length(term)==3) eval(term[[3]], formula.env)
+        if(length(term)==3) eval(term[[3]], term.env)
         else TRUE
       term <- term[[2L]]
     }else offset <- FALSE
@@ -77,7 +76,7 @@ ergm_model <- function(formula, nw=NULL, silent=FALSE, ..., term.options=list(),
     
     if(!is.call(term) && term==".") next
     
-    outlist <- call.ErgmTerm(term, formula.env, nw, term.options=term.options, ...)
+    outlist <- call.ErgmTerm(term, term.env, nw, term.options=term.options, ...)
     
     # If initialization fails without error (e.g., all statistics have been dropped), continue.
     if(is.null(outlist)){
