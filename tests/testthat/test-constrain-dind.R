@@ -8,8 +8,6 @@
 #  Copyright 2003-2022 Statnet Commons
 ################################################################################
 
-logit <- function(p) log(p/(1-p))
-
 mean_mat <- function(Mmin, Mmax){
   Mmin <- statnet.common::NVL(Mmin, Mmax)
   Mmax <- statnet.common::NVL(Mmax, Mmin)

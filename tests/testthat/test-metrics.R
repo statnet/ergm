@@ -7,6 +7,8 @@
 #
 #  Copyright 2003-2022 Statnet Commons
 ################################################################################
+attach(MLE.tools)
+
 theta0err<- 1 # Perturbation in the initial values
 tolerance<-5 # Result must be within 5*MCMCSE of truth.
 
@@ -16,27 +18,8 @@ d<-.1 # Density
 ms <-c(0,.05) # Missingness rates
 metrics <- c("naive", "lognormal", "Median.Likelihood")
 
-logit<-function(p) log(p/(1-p))
-
-mk.missnet<-function(n,d,m,directed=TRUE,bipartite=FALSE){
-  y<-network.initialize(n, directed=directed, bipartite=bipartite)
-  y<-simulate(y~edges, coef=logit(d), control=control.simulate(MCMC.burnin=2*n^2))
-  if(m>0){
-    y.miss<-simulate(y~edges, coef=logit(m))
-    y[as.edgelist(y.miss)]<-NA
-  }
-  y
-}
-
-correct.edges.theta<-function(y){
-  e<-network.edgecount(y)
-  d<-network.dyadcount(y)
-
-  logit(e/d)
-}
-
 run.metric.test<-function(y){
-  truth<-correct.edges.theta(y)
+  truth<-edges.theta(y)
 
   for(metric in metrics){
     test_that(paste0("Metric test for: ", metric, ", n = ", n, ", naive density = ", network.edgecount(y)/network.dyadcount(y), ", missing fraction = ", network.naedgecount(y)/network.dyadcount(y), "."), {
@@ -52,3 +35,5 @@ for(m in ms){
   y<-mk.missnet(n, d, m, TRUE, FALSE)
   run.metric.test(y)
 }
+
+detach(MLE.tools)

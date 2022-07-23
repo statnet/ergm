@@ -8,18 +8,10 @@
 #  Copyright 2003-2022 Statnet Commons
 ################################################################################
 
+attach(MLE.tools)
+
 library(ergm)
 library(statnet.common)
-
-logit <- function(p) log(p/(1-p))
-expit <- function(e) exp(e)/(1+exp(e))
-l <- function(nw, ets=NULL, theta=NULL){
-  e <- NVL(ets, network.edgecount(nw))
-  d <- network.dyadcount(nw)
-  NVL(theta) <- logit(e/d)
-
-  e*log(expit(theta)) + (d-e)*log(expit(-theta))
-}
 
 data(florentine)
 y <- flomarriage
@@ -28,7 +20,7 @@ test_that("Log-likelihood with attainable target statistics",{
   set.seed(1)
   ts <- 3
   llk.ergm <- as.vector(logLik(ergm(flomarriage~edges, target.stats=ts)))
-  llk <- l(y,ts)
+  llk <- edges.llk(y,e=ts)
   expect_equal(llk,llk.ergm)
 })
 
@@ -36,7 +28,7 @@ test_that("Log-likelihood with unattainable target statistics",{
   set.seed(1)
   ts <- 3.5
   llk.ergm <- as.vector(logLik(ergm(flomarriage~edges, target.stats=ts)))
-  llk <- l(y,ts)
+  llk <- edges.llk(y,e=ts)
   expect_equal(llk,llk.ergm,tolerance=0.05)
 })
 
@@ -66,3 +58,5 @@ for (theta in c(mle, rnorm(1, -0.5, 0.25))) { # MLE and a random value
     expect_lt((llk0$llk - llk1$llk)^2 / (llk0$vcov.llr + llk1$vcov.llr), 9)
   })
 }
+
+detach(MLE.tools)

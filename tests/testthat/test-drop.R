@@ -11,7 +11,6 @@
 
 library(statnet.common)
 opttest({
-logit <- function(p) log(p/(1-p))
 data(sampson)
 
 # Just one covariate. Note that the .mcmc tests mainly test detection

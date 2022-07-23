@@ -8,6 +8,8 @@
 #  Copyright 2003-2022 Statnet Commons
 ################################################################################
 
+attach(MLE.tools)
+
 library(statnet.common)
 opttest({
 library(ergm)
@@ -21,48 +23,22 @@ b<-3 # Bipartite split
 d<-.1 # Density
 m<-.05 # Missingness rate
 
-logit<-function(p) log(p/(1-p))
-
 cat("n=",n,", density=",d,", missing=",m,"\n",sep="")
-mk.missnet<-function(n,d,m,directed=TRUE,bipartite=FALSE){
-  y<-network.initialize(n, directed=directed, bipartite=bipartite)
-  y<-simulate(y~edges, coef=logit(d), control=control.simulate(MCMC.burnin=2*n^2))
-  if(m>0){
-    y.miss<-simulate(y~edges, coef=logit(m))
-    y[as.edgelist(y.miss)]<-NA
-  }
-  y
-}
-
-correct.edges.theta<-function(y){
-  e<-network.edgecount(y)
-  d<-network.dyadcount(y)
-
-  logit(e/d)
-}
-
-correct.edges.llk<-function(y){
-  e<-network.edgecount(y)
-  d<-network.dyadcount(y)
-
-  e*log(e/d) + (d-e)*log(1-e/d)
-}
-
 
 run.miss.test<-function(y){
-  theta <- correct.edges.theta(y)
-  llk <- correct.edges.llk(y)
-  cat("Correct estimate =",theta,"with log-likelihood",llk,".\n")
+  theta <- edges.theta(y)
+  cat("Correct estimate =",theta,"with log-likelihood",edges.llk(y),".\n")
 
   mplefit<-ergm(y~edges, eval.loglik=TRUE)
   mple.theta.OK<-all.equal(theta,coef(mplefit),check.attributes=FALSE)
-  mple.llk.OK<-all.equal(llk,as.vector(logLik(mplefit)),check.attributes=FALSE)
+  mple.llk.OK<-all.equal(edges.llk(y, coef(mplefit)),
+                         as.vector(logLik(mplefit)),check.attributes=FALSE)
   cat("MPLE estimate =", coef(mplefit),"with log-likelihood",logLik(mplefit), if(isTRUE(mple.theta.OK)&&isTRUE(mple.llk.OK)) "OK.","\n")
 
   mcmcfit<-ergm(y~edges, control=snctrl(force.main=TRUE, init=theta+theta0err, bridge.target.se=bridge.target.se), verbose=TRUE, eval.loglik=TRUE)
   mcmc.diagnostics(mcmcfit)
   mcmc.theta.OK<-abs(theta-coef(mcmcfit))/sqrt(diag(vcov(mcmcfit, source="estimation")))
-  mcmc.llk.OK<-abs(llk-logLik(mcmcfit))/bridge.target.se
+  mcmc.llk.OK<-abs(edges.llk(y, coef(mcmcfit))-logLik(mcmcfit))/bridge.target.se
 
   cat("MCMCMLE estimate =", coef(mcmcfit),"with log-likelihood",logLik(mcmcfit), if(mcmc.theta.OK<tolerance&&mcmc.llk.OK<tolerance) "OK.","\n")
 
@@ -96,7 +72,7 @@ test_that("Bipartite Undirected Network", {
 # Add the curved+missing test here for now
 test_that("curved+missing", {
   set.seed(321)
-  n <- 50
+  n <- 100
   y <- network.initialize(n, directed=FALSE) # Create an empty network
   y <- simulate(y~edges, coef=logit(0.12), control=control.simulate(MCMC.burnin=2*n^2))
   y.miss <- simulate(y~edges, coef=logit(0.01))
@@ -104,7 +80,7 @@ test_that("curved+missing", {
 
   cat("Network statistics:\n")
   print(summary(y~edges+gwesp()))
-  truth<-correct.edges.theta(y)
+  truth<-edges.theta(y)
   cat("Correct estimate =",truth,"\n")
 
   set.seed(654)
@@ -113,3 +89,5 @@ test_that("curved+missing", {
   expect_lt(abs(coef(mcmcfit)[1]-truth)/sqrt(mcmcfit$covar[1]), tolerance)
 })
 }, "missing data")
+
+detach(MLE.tools)
