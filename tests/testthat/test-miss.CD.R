@@ -8,6 +8,8 @@
 #  Copyright 2003-2022 Statnet Commons
 ################################################################################
 
+attach(MLE.tools)
+
 library(statnet.common)
 opttest({
 library(ergm)
@@ -22,31 +24,10 @@ b<-7 # Bipartite split
 d<-.1 # Density
 m<-.1 # Missingness rate
 
-logit<-function(p) log(p/(1-p))
-
 cat("n=",n,", density=",d,", missing=",m,"\n",sep="")
-mk.missnet<-function(n,d,m,directed=TRUE,bipartite=FALSE){
-  y<-network.initialize(n, directed=directed, bipartite=bipartite)
-  y<-simulate(y~edges, coef=logit(d), control=control.simulate(MCMC.burnin=2*n^2))
-  if(m>0){
-    y.miss<-simulate(y~edges, coef=logit(m))
-    y[as.edgelist(y.miss)]<-NA
-  }
-  y
-}
-
-correct.edges.theta<-function(y){
-  e<-summary(y~edges)
-  d<-network.dyadcount(y)
-  m<-network.naedgecount(y)
-
-  logit(e/d)
-}
-
 
 run.miss.test<-function(y){
-  truth<-correct.edges.theta(y)
-  cat("Correct estimate =",truth,"\n")
+  truth<-edges.theta(y)
 
   ### Needs more work.
   ## cdfit<-ergm(y~edges, estimate="CD")
@@ -54,34 +35,28 @@ run.miss.test<-function(y){
   ## cat("CD estimate =", coef(cdfit), if(isTRUE(cdOK)) "OK" else cdOK,"\n")
 
   cd2fit<-ergm(y~edges, control=control.ergm(CD.nsteps=50, MCMC.samplesize=100), estimate="CD")
-  cd2OK<-all.equal(truth, coef(cd2fit), ignore_attr=TRUE, tolerance=tolerance.CD)
-  cat("CD2 estimate =", coef(cd2fit), if(isTRUE(cd2OK)) "OK" else cd2OK,"\n")
-
-
-  return(
-      ## isTRUE(cdOK) &&
-      isTRUE(cd2OK))
+  expect_equal(truth, coef(cd2fit), ignore_attr=TRUE, tolerance=tolerance.CD)
 }
 
 # Directed
 test_that("directed network", {
   set.seed(123)
   y<-mk.missnet(n, d, m, TRUE, FALSE)
-  expect_true(run.miss.test(y))
+  run.miss.test(y)
 })
 
 # Undirected
 test_that("undirected network", {
   set.seed(456)
   y<-mk.missnet(n, d, m, FALSE, FALSE)
-  expect_true(run.miss.test(y))
+  run.miss.test(y)
 })
 
 # Bipartite Undirected
 test_that("bipartite undirected network", {
   set.seed(789)
   y<-mk.missnet(n, d, m, FALSE, b)
-  expect_true(run.miss.test(y))
+  run.miss.test(y)
 })
 
 # Add the curved+missing test here for now
@@ -95,7 +70,7 @@ test_that("curved+missing", {
 
   cat("Network statistics:\n")
   print(summary(y~edges+gwesp()))
-  truth<-correct.edges.theta(y)
+  truth<-edges.theta(y)
   cat("Correct estimate =",truth,"\n")
 
   set.seed(654)
@@ -105,3 +80,5 @@ test_that("curved+missing", {
 })
 
 }, "CD missing data")
+
+detach(MLE.tools)
