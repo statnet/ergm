@@ -119,6 +119,8 @@ prune.ergm_conlist <- function(conlist){
 
 .delete_term <- function(tl, terms) discard(tl, ~any(as.character(.)[1] %in% terms))
 .keep_term <- function(tl, terms) keep(tl, ~any(as.character(.)[1] %in% terms))
+.delete_constraint <- function(cl, constraints) discard(cl, ~any(.$constrain %in% constraints))
+.keep_constraint <- function(cl, constraints) keep(cl, ~any(.$constrain %in% constraints))
 
 #' Functions to initialize the ergm_proposal object
 #' 
@@ -307,9 +309,9 @@ c.ergm_conlist <- function(...) NextMethod() %>% prune.ergm_conlist()
 
 select_ergm_proposal <- function(conlist, class, ref, weights){
   # Extract directly selected proposal, if given, check that it's unique, and discard its constraint and other placeholders.
-  name <- conlist %>% .keep_term(".select") %>% map_chr("proposal") %>% unique()
+  name <- conlist %>% .keep_constraint(".select") %>% map_chr("proposal") %>% unique()
   if(length(name) > 1) stop("Error in direct proposal selection: two distinct proposals selected: ", paste.and(sQuote(name)), ".", call.=FALSE)
-  conlist <- conlist %>% .delete_term(c(".", ".select"))
+  conlist <- conlist %>% .delete_constraint(c(".", ".select"))
 
   # Initial narrowing down of the proposal table.
   candidates <- ergm_proposal_table()
