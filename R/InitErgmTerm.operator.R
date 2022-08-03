@@ -656,6 +656,7 @@ InitErgmTerm.Symmetrize <- function(nw, arglist, ...){
 #'
 #' @template ergmTerm-general
 #'
+#' @aliases Sum-ergmTerm
 #' @concept operator
 InitErgmTerm.Sum <- function(nw, arglist,...){
   a <- check.ErgmTerm(nw, arglist,

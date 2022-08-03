@@ -4,6 +4,7 @@
 \name{Sum-operator-ergmTerm}
 \alias{Sum-operator-ergmTerm}
 \alias{InitErgmTerm.Sum}
+\alias{Sum-ergmTerm}
 \alias{InitWtErgmTerm.Sum}
 \title{A sum (or an arbitrary linear combination) of one or more formulas}
 \usage{
