@@ -116,14 +116,14 @@ check.ErgmTerm <- function(nw, arglist, directed=NULL, bipartite=NULL, nonnegati
   # Construct a dummy function that copies all its arguments into a
   # list and sets an attribute indicating whether they are missing.
   f <- function(){
-    ..n <- names(formals())
-    ..l <- structure(vector("list", length(..n)), names=..n)
-    ..m <- structure(logical(length(..n)), names=..n)
+    ..n <- base::names(base::formals())
+    ..l <- base::structure(base::vector("list", base::length(..n)), names=..n)
+    ..m <- base::structure(base::logical(base::length(..n)), names=..n)
     for(..arg in ..n){
-      ..m[..arg] <- do.call(missing,list(as.name(..arg)))
-      ..l[..arg] <- list(get(..arg, inherits=FALSE))
+      ..m[..arg] <- base::do.call(base::missing,base::list(base::as.name(..arg)))
+      ..l[..arg] <- base::list(base::get(..arg, inherits=FALSE))
     }
-    structure(..l, missing=..m)
+    base::structure(..l, missing=..m)
   }
 
   # Set the argument names and their defaults (if not required).
