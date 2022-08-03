@@ -37,22 +37,22 @@ Functions that have been superceed, were never documented, or will be removed fr
 }
 \section{Functions}{
 \itemize{
-\item \code{coef.ergm}: extracts the \code{ergm} parameters; may be
+\item \code{coef(ergm)}: extracts the \code{ergm} parameters; may be
 removed in favour of the default method once the number of \code{ergm}
 objects with \verb{$coef} elements in the wild is sufficiently low.
 
-\item \code{$.ergm}: accesses elements of \code{ergm} objects;
+\item \code{$}: accesses elements of \code{ergm} objects;
 needed for backwards compatibility when components get renamed.
 
-\item \code{InitErgmTerm.degreepopularity}: Use \code{\link[=degree1.5-ergmTerm]{degree1.5}} instead.
+\item \code{InitErgmTerm.degreepopularity()}: Use \code{\link[=degree1.5-ergmTerm]{degree1.5}} instead.
 
-\item \code{InitErgmTerm.idegreepopularity}: Use \code{\link[=idegree1.5-ergmTerm]{idegree1.5}} instead.
+\item \code{InitErgmTerm.idegreepopularity()}: Use \code{\link[=idegree1.5-ergmTerm]{idegree1.5}} instead.
 
-\item \code{InitErgmTerm.odegreepopularity}: Use \code{\link[=odegree1.5-ergmTerm]{odegree1.5}} instead.
+\item \code{InitErgmTerm.odegreepopularity()}: Use \code{\link[=odegree1.5-ergmTerm]{odegree1.5}} instead.
 
-\item \code{offset.info.formula}: \code{offset.info.formula} returns the offset
+\item \code{offset.info.formula()}: \code{offset.info.formula} returns the offset
 vectors associated with a formula.
-}}
 
+}}
 \keyword{internal}
 \keyword{misc}

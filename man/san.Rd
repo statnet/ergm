@@ -181,11 +181,11 @@ contribution and the offset contribution (with the product capped at one).
 }
 \section{Methods (by class)}{
 \itemize{
-\item \code{formula}: Sufficient statistics are specified by a \code{\link{formula}}.
+\item \code{san(formula)}: Sufficient statistics are specified by a \code{\link{formula}}.
 
-\item \code{ergm_model}: A lower-level function that expects a pre-initialized \code{\link{ergm_model}}.
+\item \code{san(ergm_model)}: A lower-level function that expects a pre-initialized \code{\link{ergm_model}}.
+
 }}
-
 \examples{
 \donttest{
 # initialize x to a random undirected network with 50 nodes and a density of 0.1

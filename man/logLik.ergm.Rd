@@ -68,13 +68,13 @@ necessary. If the log-likelihood was not computed for
 }
 \section{Functions}{
 \itemize{
-\item \code{deviance.ergm}: A \code{\link[=deviance]{deviance()}} method.
+\item \code{deviance(ergm)}: A \code{\link[=deviance]{deviance()}} method.
 
-\item \code{AIC.ergm}: An \code{\link[=AIC]{AIC()}} method.
+\item \code{AIC(ergm)}: An \code{\link[=AIC]{AIC()}} method.
 
-\item \code{BIC.ergm}: A \code{\link[=BIC]{BIC()}} method.
+\item \code{BIC(ergm)}: A \code{\link[=BIC]{BIC()}} method.
+
 }}
-
 \examples{
 
 # See help(ergm) for a description of this model. The likelihood will

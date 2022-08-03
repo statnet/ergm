@@ -26,8 +26,8 @@ This is a generic that returns the number of parameters associated with a model 
 }
 \section{Methods (by class)}{
 \itemize{
-\item \code{default}: By default, the length of the \code{\link[=coef]{coef()}} vector is returned.
+\item \code{nparam(default)}: By default, the length of the \code{\link[=coef]{coef()}} vector is returned.
 
-\item \code{ergm}: A method to return the number of parameters of an \code{\link{ergm}} fit.
+\item \code{nparam(ergm)}: A method to return the number of parameters of an \code{\link{ergm}} fit.
+
 }}
-

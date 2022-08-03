@@ -45,10 +45,10 @@ control.ergm(
   MCMC.packagenames = c(),
   SAN.maxit = 4,
   SAN.nsteps.times = 8,
-  SAN = control.san(term.options = term.options, SAN.maxit = SAN.maxit,
-    SAN.prop.weights = MCMC.prop.weights, SAN.prop.args = MCMC.prop.args, SAN.nsteps =
-    EVL(MCMC.burnin, 16384) * SAN.nsteps.times, SAN.samplesize = EVL(MCMC.samplesize,
-    1024), SAN.packagenames = MCMC.packagenames, parallel = parallel, parallel.type =
+  SAN = control.san(term.options = term.options, SAN.maxit = SAN.maxit, SAN.prop.weights
+    = MCMC.prop.weights, SAN.prop.args = MCMC.prop.args, SAN.nsteps = EVL(MCMC.burnin,
+    16384) * SAN.nsteps.times, SAN.samplesize = EVL(MCMC.samplesize, 1024),
+    SAN.packagenames = MCMC.packagenames, parallel = parallel, parallel.type =
     parallel.type, parallel.version.check = parallel.version.check),
   MCMLE.termination = c("confidence", "Hummel", "Hotelling", "precision", "none"),
   MCMLE.maxit = 60,
@@ -143,8 +143,7 @@ control.ergm(
   CD.conv.min.pval = 0.5,
   CD.NR.maxit = 100,
   CD.NR.reltol = sqrt(.Machine$double.eps),
-  CD.metric = c("naive", "lognormal", "logtaylor", "Median.Likelihood",
-    "EF.Likelihood"),
+  CD.metric = c("naive", "lognormal", "logtaylor", "Median.Likelihood", "EF.Likelihood"),
   CD.method = c("BFGS", "Nelder-Mead"),
   CD.dampening = FALSE,
   CD.dampening.min.ess = 20,

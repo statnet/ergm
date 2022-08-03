@@ -10,8 +10,7 @@ control.ergm.bridge(
   bridge.target.se = NULL,
   bridge.bidirectional = TRUE,
   MCMC.burnin = MCMC.interval * 128,
-  MCMC.burnin.between = max(ceiling(MCMC.burnin/sqrt(bridge.nsteps)), MCMC.interval *
-    16),
+  MCMC.burnin.between = max(ceiling(MCMC.burnin/sqrt(bridge.nsteps)), MCMC.interval * 16),
   MCMC.interval = 128,
   MCMC.samplesize = 16384,
   obs.MCMC.burnin = obs.MCMC.interval * 128,

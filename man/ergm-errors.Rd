@@ -34,11 +34,11 @@ end-users, but may be useful to developers.
 }
 \section{Functions}{
 \itemize{
-\item \code{ergm_Init_try}: A helper function that evaluates the
+\item \code{ergm_Init_try()}: A helper function that evaluates the
 specified expression in the caller's environment, passing any
 errors to \code{\link[=ergm_Init_abort]{ergm_Init_abort()}}.
-}}
 
+}}
 \seealso{
 \code{\link[=stop]{stop()}}, \code{\link[=abort]{abort()}}
 
