@@ -55,7 +55,9 @@ ergm_model <- function(formula, nw=NULL, silent=FALSE, ..., term.options=list(),
   nw <- as.network(nw, populate=FALSE) # In case it's an ergm_state.
   
   #' @importFrom statnet.common list_rhs.formula
-  v <- if(is(formula, "formula")) list_rhs.formula(formula) else v
+  v <- if(is(formula, "formula")) list_rhs.formula(formula)
+       else if(is(formula, "term_list")) formula
+       else stop("Invalid format for formula= argument: must be either an R formula or a term_list object.")
   
   model <- structure(list(coef.names = character(),
                           terms = list(), networkstats.0 = numeric()),
