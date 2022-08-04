@@ -10,12 +10,20 @@
 data(florentine)
 
 test_that("Simulation for Passthrough() and .submodel() and .summary()", {
-  text <- capture.output(out <- simulate(flomarriage~edges+degree(0)+absdiff("wealth")+Passthrough(~edges+degree(0)+absdiff("wealth"))+submodel.test(~edges+degree(0)+absdiff("wealth"))+summary.test(~edges+degree(0)+absdiff("wealth")), output="stats", nsim=20, control=control.simulate.formula(MCMC.burnin=0, MCMC.interval=1), coef=numeric(10)))
+  text <- capture.output(
+    out <- simulate(
+      flomarriage ~ edges+degree(0)+absdiff("wealth")+
+        Passthrough(~edges+degree(0)+absdiff("wealth"))+
+        Passthrough(~edges+degree(0)+absdiff("wealth"), submodel=FALSE)+
+        submodel.test(~edges+degree(0)+absdiff("wealth"))+
+        summary.test(~edges+degree(0)+absdiff("wealth")),
+      output="stats", nsim=20, control=control.simulate.formula(MCMC.burnin=0, MCMC.interval=1), coef=numeric(13)))
   text.out <- matrix(scan(textConnection(paste(text, collapse="")),quiet=TRUE),byrow=TRUE,ncol=3)
   text.out <- text.out[nrow(text.out)-nrow(out)+seq_len(nrow(out)),]
   
   expect_equal(out[,1:3],out[,4:6], ignore_attr=TRUE)
   expect_equal(out[,1:3],out[,7:9], ignore_attr=TRUE)
+  expect_equal(out[,1:3],out[,10:12], ignore_attr=TRUE)
   expect_equal(out[,1:3],text.out, ignore_attr=TRUE)
 })
 

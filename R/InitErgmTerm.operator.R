@@ -60,6 +60,14 @@ wrap.ergm_model <- function(m, nw, namewrap = identity){
   list(map=map, gradient=gradient, params=params, minpar=minpar, maxpar=maxpar, coef.names=coef.names, emptynwstats=emptynwstats, dependence=!is.dyad.independent(m), offset=offsettheta)
 }
 
+ergm_rename_terms <- function(model, namewrap){
+  for(i in seq_along(model$terms)){
+    model$terms[[i]]$coef.names <- namewrap(model$terms[[i]]$coef.names)
+    if(!is.null(model$terms[[i]]$params)) names(model$terms[[i]]$params) <- namewrap(names(model$terms[[i]]$params))
+  }
+  model
+}
+
 #' Combine an operator term's and a subterm's name in a standard fashion.
 #'
 #' @param opname Name of the operator (or an abbreviation thereof).
@@ -135,16 +143,23 @@ ergm_no_ext.encode <- function(submodel) {
 ##
 InitErgmTerm.Passthrough <- function(nw, arglist, ...){
   a <- check.ErgmTerm(nw, arglist,
-                      varnames = c("formula", "label"),
-                      vartypes = c("formula", "logical"),
-                      defaultvalues = list(NULL, FALSE),
-                      required = c(TRUE, FALSE))
+                      varnames = c("formula", "label", "submodel"),
+                      vartypes = c("formula", "logical", "logical"),
+                      defaultvalues = list(NULL, FALSE, TRUE),
+                      required = c(TRUE, FALSE, FALSE))
 
-  m <- ergm_model(a$formula, nw, ..., offset.decorate=FALSE)
-  
-  c(list(name="passthrough_term", submodel=m),
-    ergm_propagate_ext.encode(m),
-    wrap.ergm_model(m, nw, if(a$label) ergm_mk_std_op_namewrap('Passthrough') else identity))
+  if(a$submodel){
+    m <- ergm_model(a$formula, nw, ..., offset.decorate=FALSE)
+
+    c(list(name="passthrough_term", submodel=m),
+      ergm_propagate_ext.encode(m),
+      wrap.ergm_model(m, nw, if(a$label) ergm_mk_std_op_namewrap('Passthrough') else identity))
+  }else{
+    m <- ergm_model(a$formula, nw, ..., offset.decorate=FALSE, terms.only=TRUE)
+
+    namewrap <- if(a$label) ergm_mk_std_op_namewrap('Passthrough') else identity
+    ergm_rename_terms(m, namewrap)
+  }
 }
 
 #' @templateVar name Label
@@ -656,6 +671,7 @@ InitErgmTerm.Symmetrize <- function(nw, arglist, ...){
 #'
 #' @template ergmTerm-general
 #'
+#' @aliases Sum-ergmTerm
 #' @concept operator
 InitErgmTerm.Sum <- function(nw, arglist,...){
   a <- check.ErgmTerm(nw, arglist,
@@ -862,7 +878,7 @@ InitErgmTerm.S <- function(nw, arglist, ...){
 #' @usage
 #' # binary: Curve(formula, params, map, gradient=NULL, minpar=-Inf, maxpar=+Inf, cov=NULL)
 #' @template ergmTerm-formula
-#' @param params a named list whos names are the curved parameter names, may also be a character vector with names.
+#' @param params a named list whose names are the curved parameter names, may also be a character vector with names.
 #' @param map the mapping from curved to canonical. May have the following forms:
 #' - a `function(x, n, ...)` treated as in the API: called with `x` set to the curved parameter vector, `n` to the length of output expected, and `cov` , if present, passed in `...` . The function must return a numeric vector of length `n` .
 #' - a numeric vector to fix the output coefficients, like in an offset.
