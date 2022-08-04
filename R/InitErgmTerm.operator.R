@@ -1146,9 +1146,5 @@ InitErgmTerm.ForEach <- function(nw, arglist, ...){
                      terms
                    }))
 
-  m <- ergm_model(terms, nw, ...)
-
-  c(list(name="passthrough_term", submodel=m),
-    ergm_propagate_ext.encode(m),
-    wrap.ergm_model(m, nw, identity))
+  ergm_model(terms, nw, ..., terms.only=TRUE)
 }
