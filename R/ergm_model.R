@@ -31,7 +31,8 @@
 #' @template term_options
 #' @param extra.aux a list of auxiliary request formulas required elsewhere; if named, the resulting `slots.extra.aux` will also be named.
 #' @param env a throwaway argument needed to prevent conflicts with some usages of `ergm_model`. The initialization environment is *always* taken from the `formula`.
-#' @param offset.decorate logical; whether offset coefficient and parameter names should be enclosed in `"offset()"`. 
+#' @param offset.decorate logical; whether offset coefficient and parameter names should be enclosed in `"offset()"`.
+#' @param terms.only logical; whether auxiliaries, eta map, and UID constructions should be skipped. This is useful for submodels.
 #' @param object An `ergm_model` object.
 #' @note Earlier versions also had an optional `response=` parameter that, if not `NULL`, switched to valued mode and used the edge attribute named in `response=` as the response. This is no longer used; instead, the response is to be set on `nw` via `ergm_preprocess_response(nw, response)`.
 #' @return `ergm_model` returns an  `ergm_model` object as a list
@@ -44,7 +45,7 @@
 #' @seealso [summary.ergm_model()], [ergm_preprocess_response()]
 #' @keywords internal
 #' @export
-ergm_model <- function(formula, nw=NULL, silent=FALSE, ..., term.options=list(), extra.aux=list(), env=globalenv(), offset.decorate=TRUE){
+ergm_model <- function(formula, nw=NULL, silent=FALSE, ..., term.options=list(), extra.aux=list(), env=globalenv(), offset.decorate=TRUE, terms.only=FALSE){
   if (!is(formula, "formula") && !is(formula, "term_list"))
     stop("Invalid model specification of class ",sQuote(class(formula)),".", call.=FALSE)
   
@@ -59,9 +60,8 @@ ergm_model <- function(formula, nw=NULL, silent=FALSE, ..., term.options=list(),
        else if(is(formula, "term_list")) formula
        else stop("Invalid format for formula= argument: must be either an R formula or a term_list object.")
   
-  model <- structure(list(coef.names = character(),
-                          terms = list(), networkstats.0 = numeric()),
-                 class = "ergm_model")
+  model <- structure(list(terms = list()),
+                     class = "ergm_model")
 
   for (i in seq_along(v)) {
     term <- v[[i]]
@@ -79,21 +79,34 @@ ergm_model <- function(formula, nw=NULL, silent=FALSE, ..., term.options=list(),
     if(!is.call(term) && term==".") next
     
     outlist <- call.ErgmTerm(term, term.env, nw, term.options=term.options, ...)
-    
+
     # If initialization fails without error (e.g., all statistics have been dropped), continue.
     if(is.null(outlist)){
-      if(!silent) message("Note: Term ", deparse(v[[i]])," skipped because it contributes no statistics.")
+      if(!silent) message("Note: Term ", sQuote(deparse1(v[[i]])), " skipped because it contributes no statistics.")
       model$term.skipped <- c(model$term.skipped, TRUE)
       next
     }else model$term.skipped <- c(model$term.skipped, FALSE)
 
+    # If an ergm_model is returned, paste it terms in after some sanity checks.
+    if(is(outlist, "ergm_model")){
+      subterms <- outlist$terms
+      aux_terms <- subterms %>% map("coef.names") %>% map_int(length)==0
+      if(any(aux_terms) || !is.null(outlist$etamap)){
+        warning("Submodel returned by ", sQuote(deparse1(v[[i]])), " has auxiliaries and/or an eta map. This is probably an implementation bug in the term, which should pass ", sQuote("terms.only=TRUE"), " to ", sQuote("ergm_model()"), ".")
+        subterms <- subterms[!aux_terms]
+        for(i in seq_along(subterms)) attr(subterms[[i]], "aux.slots")[] <- 0L
+      }
+    }else subterms <- list(outlist)
+
     # Now it is necessary to add the output to the model formula
-    model <- updatemodel.ErgmTerm(model, outlist, offset=offset, offset.decorate=offset.decorate, silent=silent)
+    for(outlist in subterms) model <- updatemodel.ErgmTerm(model, outlist, offset=offset, offset.decorate=offset.decorate, silent=silent)
   }
 
-  model <- ergm.auxstorage(model, nw, term.options=term.options, ..., extra.aux=extra.aux)
-  
-  model$etamap <- ergm.etamap(model)
+  if(!terms.only){
+    model <- ergm.auxstorage(model, nw, term.options=term.options, ..., extra.aux=extra.aux)
+    model$etamap <- ergm.etamap(model)
+    model$uid <- .GUID()
+  }
 
   if(offset.decorate){
     if(length(model$etamap$offsetmap)){
@@ -117,7 +130,6 @@ ergm_model <- function(formula, nw=NULL, silent=FALSE, ..., term.options=list(),
   ergm.MCMC.packagenames(unlist(sapply(model$terms, "[[", "pkgname")))
 
   class(model) <- "ergm_model"
-  model$uid <- .GUID()
   model
 }
 

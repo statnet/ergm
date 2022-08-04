@@ -32,7 +32,7 @@
 \arguments{
 \item{formula}{a one-sided \code{\link[=ergm]{ergm()}}-style formula with the terms to be evaluated}
 
-\item{params}{a named list whos names are the curved parameter names, may also be a character vector with names.}
+\item{params}{a named list whose names are the curved parameter names, may also be a character vector with names.}
 
 \item{map}{the mapping from curved to canonical. May have the following forms:
 \itemize{

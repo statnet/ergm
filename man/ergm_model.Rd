@@ -21,7 +21,8 @@ ergm_model(
   term.options = list(),
   extra.aux = list(),
   env = globalenv(),
-  offset.decorate = TRUE
+  offset.decorate = TRUE,
+  terms.only = FALSE
 )
 
 \method{c}{ergm_model}(...)
@@ -59,6 +60,8 @@ initialization of each model term.}
 \item{env}{a throwaway argument needed to prevent conflicts with some usages of \code{ergm_model}. The initialization environment is \emph{always} taken from the \code{formula}.}
 
 \item{offset.decorate}{logical; whether offset coefficient and parameter names should be enclosed in \code{"offset()"}.}
+
+\item{terms.only}{logical; whether auxiliaries, eta map, and UID constructions should be skipped. This is useful for submodels.}
 
 \item{x}{object to be converted to an \code{ergm_model}.}
 
