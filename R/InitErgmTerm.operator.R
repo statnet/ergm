@@ -1109,7 +1109,6 @@ InitErgmTerm.Prod <- function(nw, arglist, ..., env=baseenv()){
 #'
 #' @usage
 #' # binary: ForEach(formula, counter, list)
-#' @template ergmTerm-formula
 #' @param formula a one-sided [ergm()]-style formula with the terms to be evaluated; it should contain a placeholder indicated by `counter`
 #' @param counter a string giving the name of the counter
 #' @param list a [`list`] of values to substitute for the counter, or a function with one argument or a one sided [`formula`] to construct the list from the network
@@ -1145,6 +1144,79 @@ InitErgmTerm.ForEach <- function(nw, arglist, ...){
                      }
                      terms
                    }))
+
+  ergm_model(terms, nw, ..., terms.only=TRUE)
+}
+
+#' @templateVar name For
+#' @title A [`for`] operator for terms
+#' @description This operator evaluates the formula given to it,
+#'   substituting the specified loop counter variable with each
+#'   element in a sequence.
+#'
+#' @usage
+#' # binary: For(...)
+#' @param ... in any order, \itemize{
+#'
+#'   \item one *unnamed* one-sided [ergm()]-style formula with the
+#'   terms to be evaluated, containing one or more placeholders
+#'   \var{VAR} *and*
+#' 
+#'   \item one or more *named* expressions of the form \code{\var{VAR}
+#'   = \var{SEQ}} specifying the placeholder and its range. See
+#'   Details below.
+#'
+#' }
+#'
+#' @details Placeholders are specified in the style of `foreach`, as
+#'   \code{\var{VAR} = \var{SEQ}}. \var{VAR} can be any valid \R
+#'   variable name, and \var{SEQ} can be a vector, a list, a function
+#'   of one argument, or a one-sided formula.  The vector or list will
+#'   be used directly, whereas a function will be called with the
+#'   network as its argument to produced the list, and the formula
+#'   will be used analogously to [purrr::as_mapper()], its RHS
+#'   evaluated in an environment in which the network itself will be
+#'   accessible as `.`.
+#'
+#'   If more than one named expression is given, they will be expanded
+#'   as one would expect in a nested [`for`] loop: earlier expressions
+#'   will form the outer loops and latter expressions the inner loops.
+#'
+#' @template ergmTerm-general
+#'
+#' @concept operator
+InitErgmTerm.For <- function(nw, arglist, ...){
+  counters <- names(arglist)
+  if(length(i <- which(counters=="")) != 1) ergm_Init_abort("Exactly one argument (the model formula) must be unnamed.")
+  if(length(loops <- arglist[-i]) < 1) ergm_Init_abort("At least one counter must be provided.")
+
+  loops <- map(loops,
+               function(l){
+                 if(is(l, "formula")){
+                   vlist <- lst(`.`=nw)
+                   e <- ult(l)
+                   ergm_Init_try({eval(e, envir=vlist, enclos=environment(l))})
+                 }else if(is.function(l)){
+                   ergm_Init_try({l(nw)})
+                 }else l
+               })
+
+  valid <- loops %>% map_lgl(is.vector)
+  if(!all(valid)) ergm_Init_abort("Loop variable(s) ", paste.and(sQuote(names(loops)[!valid])), " does not contain a valid sequence.")
+
+  terms <- list_rhs.formula(arglist[[i]])
+
+  for(i in rev(seq_along(loops))){
+    counter <- names(loops)[i]
+    loop <- loops[[i]]
+    terms <- do.call(c,
+                     map(loop, function(.x){
+                       for(j in seq_along(terms)){
+                         terms[[j]] <- do.call(substitute, list(terms[[j]], structure(list(.x), names=counter)))
+                       }
+                       terms
+                     }))
+  }
 
   ergm_model(terms, nw, ..., terms.only=TRUE)
 }
