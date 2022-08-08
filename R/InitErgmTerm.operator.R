@@ -1161,28 +1161,69 @@ InitErgmTerm.ForEach <- function(nw, arglist, ...){
 #'   \item one *unnamed* one-sided [ergm()]-style formula with the
 #'   terms to be evaluated, containing one or more placeholders
 #'   \var{VAR} *and*
-#' 
+#'
 #'   \item one or more *named* expressions of the form \code{\var{VAR}
 #'   = \var{SEQ}} specifying the placeholder and its range. See
 #'   Details below.
 #'
 #' }
 #'
-#' @details Placeholders are specified in the style of `foreach`, as
-#'   \code{\var{VAR} = \var{SEQ}}. \var{VAR} can be any valid \R
-#'   variable name, and \var{SEQ} can be a vector, a list, a function
-#'   of one argument, or a one-sided formula.  The vector or list will
-#'   be used directly, whereas a function will be called with the
-#'   network as its argument to produced the list, and the formula
-#'   will be used analogously to [purrr::as_mapper()], its RHS
-#'   evaluated in an environment in which the network itself will be
-#'   accessible as `.`.
+#' @details Placeholders are specified in the style of
+#'   `foreach::foreach()`, as \code{\var{VAR} = \var{SEQ}}. \var{VAR}
+#'   can be any valid \R variable name, and \var{SEQ} can be a vector,
+#'   a list, a function of one argument, or a one-sided formula.  The
+#'   vector or list will be used directly, whereas a function will be
+#'   called with the network as its argument to produce the list, and
+#'   the formula will be used analogously to [purrr::as_mapper()], its
+#'   RHS evaluated in an environment in which the network itself will
+#'   be accessible as `.` or `.nw`.
 #'
 #'   If more than one named expression is given, they will be expanded
 #'   as one would expect in a nested [`for`] loop: earlier expressions
-#'   will form the outer loops and latter expressions the inner loops.
+#'   will form the outer loops and later expressions the inner loops.
 #'
 #' @template ergmTerm-general
+#'
+#' @examples
+#' #
+#' # The following are equivalent ways to compute differential
+#' # homophily.
+#' #
+#'
+#' data(sampson)
+#' (groups <- sort(unique(samplike%v%"group"))) # Sorted list of groups.
+#'
+#' # The "normal" way:
+#' summary(samplike ~ nodematch("group", diff=TRUE))
+#'
+#' # One element at a time, specifying a list:
+#' summary(samplike ~ For(~nodematch("group", levels=., diff=TRUE),
+#'                        . = groups))
+#'
+#' # One element at a time, specifying a function that returns a list:
+#' summary(samplike ~ For(~nodematch("group", levels=., diff=TRUE),
+#'                        . = function(nw) sort(unique(nw%v%"group"))))
+#'
+#' # One element at a time, specifying a formula whose RHS expression
+#' # returns a list:
+#' summary(samplike ~ For(~nodematch("group", levels=., diff=TRUE),
+#'                        . = ~sort(unique(.%v%"group"))))
+#'
+#' #
+#' # Multiple iterators are possible, in any order. Here, absdiff() is
+#' # being computed for each combination of attribute and power.
+#' #
+#'
+#' data(florentine)
+#'
+#' # The "normal" way:
+#' summary(flomarriage ~ absdiff("wealth", pow=1) + absdiff("priorates", pow=1) +
+#'                       absdiff("wealth", pow=2) + absdiff("priorates", pow=2) +
+#'                       absdiff("wealth", pow=3) + absdiff("priorates", pow=3))
+#'
+#' # With a loop; note that the attribute (a) is being iterated within
+#' # power (.):
+#' summary(flomarriage ~ For(. = 1:3, a = c("wealth", "priorates"), ~absdiff(a, pow=.)))
 #'
 #' @concept operator
 InitErgmTerm.For <- function(nw, arglist, ...){
@@ -1193,7 +1234,7 @@ InitErgmTerm.For <- function(nw, arglist, ...){
   loops <- map(loops,
                function(l){
                  if(is(l, "formula")){
-                   vlist <- lst(`.`=nw)
+                   vlist <- lst(`.`=nw, `.nw`=nw)
                    e <- ult(l)
                    ergm_Init_try({eval(e, envir=vlist, enclos=environment(l))})
                  }else if(is.function(l)){
