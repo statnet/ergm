@@ -34,7 +34,7 @@ For the purposes of this overview, the following information is relevant, and is
 
 * Each term has a a pointer `void *mtp->storage` to private storage
 * Each term has a pointer to an array of pointers to public storage `void **mtp->aux_storage`. (The pointer is to the same location for all terms of a model.)
-* Each term has some subset of five functions on the C side: initializers (`i_`), updaters (`u_`), change stats (`c_`), difference stats (`d_`), finalizers (`f_`), writers (`w_`), and "eXtended" functions (`x_`).
+* Each term has some subset of five functions on the `C` side: initializers (`i_`), updaters (`u_`), change stats (`c_`), difference stats (`d_`), finalizers (`f_`), writers (`w_`), and "eXtended" functions (`x_`).
 * An `InitErgmTerm.` function's output list can have an additional element, `auxiliaries`, a one-sided formula.
 
 1. The user passes a formula to the procedure (`ergm`, `summary`, etc.); this formula may only have statistics.
@@ -51,15 +51,15 @@ For the purposes of this overview, the following information is relevant, and is
 1. The `ergm_state` is constructed from an edgelist (`state$el`), an empty network (`state$nw0`), a model (`state$model`), and (optionally) a proposal (`state$proposal`) and a statistics vector (`state$stats`).
 1. `update.ergm_state()` is called.
     1. It iterates through the formula terms, calling `term$ext.encode()` (if defined) to construct a vector `state$ext.state`. `state$ext.flag` is set to reconciled.
-1. The `ergm_state` is passed to the C code.
+1. The `ergm_state` is passed to the `C` code.
 1. `Redgelist2Network()` initializes the network.
 1. `ModelInitialize()` is called:
     1. `ModelInitialize()` initializes all terms (statistic and auxiliaries), also counting up the number of auxiliaries (distinguished by having no `c_`, `d_`, or `s_` functions). A term can export both a `c_` function and a `d_` function. In that case, it is responsible for deleting one of them when its `i_` function is called.
     1. It counts up the number of auxiliaries and allocates an array of `void *`s, one for each auxiliary. The `mtp->aux_storage` pointer for each term is set to point to that (one) array.
-    1. It assigns `attr(model$terms[[i]], "aux.slotes")` to `mtp->aux_slots`.
+    1. It assigns `attr(model$terms[[i]], "aux.slots")` to `mtp->aux_slots`.
     1. It assigns the `ergm_model` `SEXP` to `model->R`, in case it's needed.
     1. It assigns the `ergm_model$terms[[i]]` `SEXP` to `mtp->R`, in case it's needed.
-    1. It calls `InitStats()` is called, calling the initializer (`i_` function) of each term or, if not found, an updater (`u_` function) with invalid input (i.e., toggle $(0,0)$) is called in case the term developer prefers a one-function implementation.
+    1. It calls `InitStats()`, which calls the initializer (`i_` function) of each term or, if not found, an updater (`u_` function) with invalid input (i.e., toggle $(0,0)$) is called in case the term developer prefers a one-function implementation.
     * The terms are initialized in reverse order, so auxiliaries are initialized before the statistics are, and statistics and auxiliaries can count on their auxiliaries being initialized by the time they are initialized.
 1. For each iteration, a proposal is made.
     1. `ChangeStats()` is called.
@@ -79,46 +79,129 @@ For the purposes of this overview, the following information is relevant, and is
 1. `ErgmStateRSave()` is called:
     1. `Network2Redgelist()` is called, returning a `SEXP` with the state.
     1. For each term, a writer (`w_` function) is called if defined, returning a `SEXP` with the extended state.
-    1. These are stored in a vector `state$ext.state`. Element `state$ext.flag` is set to signal that a change was made on the C side.
+    1. These are stored in a vector `state$ext.state`. Element `state$ext.flag` is set to signal that a change was made on the `C` side.
 1. `NetworkDestroy()` is called.
-1. States and other outputs are passed back to R.
+1. States and other outputs are passed back to `R`.
 1. `update.ergm_state()` is called.
     1. It iterates through the formula terms, calling `term$ext.decode()` (if defined) to update `state$nw0` or other aspects of the network. `state$ext.flag` is set to reconciled.
 
 # Formal API definition
 
-## New struct elements
-
-`void *mtp->storage`: A pointer to private storage.
-
-`void **mtp->aux_storage`: An array of pointers to public storage, referring to the same memory location for all terms in the model.
-
 ## Evaluation API
 
 ### `R` side
 
-Unchanged.
+The following is adapted from the header of `R/InitErgmTerm.R`
+
+#### `InitErgmTerm.*` and `InitWtErgmTerm.*` functions
+
+The following are the minimal arguments of these functions:
+
+`function(nw, arglist, ...)`
+
+##### Expects
+
+`nw`: a `network` object taken from the LHS of the model formula or the `basis=` argument (if given); valued networks are instrumented with `%ergmlhs% "response"` information.
+
+`arglist`: a `list` of arguments passed to the term call on the formula. If arguments are passed with names, the list is named. Typically, helper function `check.ErgmTerm()` is used to preprocess this list with the equivalent of R's `match.call()`. Notably, thanks to R's lazy evaluation, it is possible to obtain the argument expressions without evaluating them by calling `substitute(arglist)`. See `InitErgmTerm.:` and `InitErgmTerm.*` in `R/InitErgmTerm.interaction.R` for examples.
+
+`env`: an environment, typically of the `formula` from which the term was extracted.
+
+Any term options are passed as direct arguments (not `arglist`). See `options?ergm` for details.
+
+##### Returns
+
+Three return types are possible:
+
+1. `NULL`, to indicate that this term does not add to the model. (E.g., `nodefactor("a", levels=FALSE)`.)
+2. An `ergm_model` object, in which case its terms are "pasted" into the model. This is useful for some term operators.
+3. A named `list` defining the properties of the term. The following names have special meanings; but any other elements can be included and will be accessible on the `C` side.
+
+In the following, let $p = \dim(\eta) = \dim(g(y))$, the dimension of the statistic $g(y)$ being computed and of the canonical parameter $\eta$. If the model is curved, the model parameter vector $\theta$ is first mapped onto $\eta=\eta(\theta)$; otherwise, $\eta\equiv\theta$. Let $q=\dim(\theta)$.
+
+`name` (required): a string containing the term's `C`-side name: `ergm` will search for `name` prepended with `"c_"` for change statistics, `"d_"` for difference, `"s_"` for summary, etc.. This is the only required element.
+
+`coef.names`: a character vector of length $p$ of names for the elements of the canonical statistic of the model (and canonical parameters); can be absent or zero-length for auxiliaries.
+
+`inputs`: a vector of (double-precision) numeric inputs that will be made available to the `C`-side implementation as a `double` vector; optionally,`inputs` may have an attribute named `"ParamsBeforeCov"`, which is used primarily for backwards compatibility, but can also be used to more conveniently separate, e.g., metadata elements from vertex attribute elements.
+
+`iinputs`: a vector of integer inputs that will be made available to the `C`-side implementation as an `int` vector; optionally,`iinputs` may have an attribute named `"ParamsBeforeCov"`, which is used primarily for backwards compatibility, but can also be used to more conveniently separate, e.g., metadata elements from vertex attribute elements.
+
+`pkgname`: a string containing the name of the `R` package containing the `C` implementation; if not specified, the package in which the `Init*ErgmTerm.*` function was found is assumed.
+
+`dependence`: a logical value indicating whether the addition of this term to the model induces dyadic-dependence; if all terms have `dependence` set to `FALSE`, the model is inferred to be dyad-independent; if not specified, `TRUE` is assumed.
+
+`emptynwstats`: a numeric vector of length $p$ providing the value of the statistic if evaluated on an empty network; if not specified or NULL, assumed to be a vector of zeros. (See `InitErgmTerm.degree()` in `R/InitEergmTerm.R` for an example.)
+
+`minpar` and `maxpar`: numeric vectors of length $q$ giving the bounds on the valid values for the model's parameters; if not specified, `-Inf` and `+Inf` vectors are assumed.
+
+`offset`: a logical vector of length $q$ that allows the term to mark some of its own statistics as having fixed parameters.
+
+For curved terms, all of the following must be present except `cov`:
+
+`params`: a list whose names correspond to element names of the curved parameter vector $\theta$; the items in the list are there for historical reasons and are ignored.
+
+`map`: a function taking at least two arguments, `x` (a numeric $q$-vector containing $\theta$), `n`$=p$ (the length of the output) and an optional `cov` parameter; it is to return a numeric vector of length `n` containing $\eta(\theta)$.
+
+`gradient`: a function taking the same arguments as `map` and returning the gradient of `map` ($\eta'(\theta)$) as a $q\times p$ numeric matrix.
+
+`cov`: an optional arbitrary data structure that if present is passed to `map` and `gradient`.
 
 ### `C` side
+
+#### `ModelTerm` and `WtModelTerm` data structures
+
+The data structure contains information accessible to the `C`-side statistics. Here, `outlist` refers to the list returned by the `Init*ErgmTerm.*` function.
+
+A number of its elements are for internal use and should generally not be considered a part of the API or accessed by the term (with some rare exceptions). These include: `c_func`, `d_func`, `i_func`, `u_func`, `f_func`, `s_func`, `w_func`, `x_func`, `z_func`, `statspos`, `statcache`, `emptynwstats`.
+
+Furthermore, elements `aux_storage` and `aux_slots` should not be accessed directly but only with helper described in the auxiliary storage API below.
+
+The following elements are a part of the API:
+
+`double *attrib` (`INPUT_ATTRIB`, `DINPUT_ATTRIB`): contents of `outlist$inputs`, shifted by `ParamsBeforeCov` attribute if given. (Rarely used.)
+
+`int *iattrib` (`IINPUT_ATTRIB`): contents of `outlist$iinputs`, shifted by `ParamsBeforeCov` attribute if given. (Rarely used.)
+
+`int nstats` (`N_CHANGE_STATS`): value of $p$, the length of the statistic vector.
+
+`double *dstats` (`CHANGE_STAT`): a $p$-vector to be overwritten with statistic value.
+
+`int ninputparams` (`N_INPUT_PARAMS`, `N_DINPUT_PARAMS`): length of `outlist$inputs`.
+
+`double *inputparams`: contents of `outlist$inputs`.
+
+`int niinputparams` (`N_IINPUT_PARAMS`): length of `outlist$iinputs`.
+
+`int *iinputparams` (`IINPUT_PARAMS`): contents of `outlist$iinputs`.
+
+`void *storage` (`STORAGE`): a pointer managed by the term to its private storage space.
+
+`unsigned int n_aux` (`N_AUX`): number of auxiliaries associated with this term; typically the number requested, plus one if the term is itself an auxiliary.
+
+`SEXP R`: the contents of `outlist` as an `R` expression.
+
+`SEXP ext_state`: Location of the extended state information for the term. See below.
 
 #### `c_`, `d_`, and `s_` functions
 
 `d_` functions are the original difference statistics. `c_` functions are new, while `s_` functions have been around for a long time, but never formally documented.
 
-Change statistic (binary): `void c_<NAME>(Vertex tail, Vertex head, Model *mtp, Network *nwp, Rboolean edgestate)`
+Change statistic (binary): `void c_<NAME>(Vertex tail, Vertex head, ModelTerm *mtp, Network *nwp, Rboolean edgestate)`
 
-Change statistic (valued): `void c_<NAME>(Vertex tail, Vertex head, double weight, WtModel *mtp, WtNetwork *nwp, double edgestate)`
+Change statistic (valued): `void c_<NAME>(Vertex tail, Vertex head, double weight, WtModelTerm *mtp, WtNetwork *nwp, double edgestate)`
 
-Difference statistic (binary): `void d_<NAME>(Vertex *tails, Vertex *heads, Model *mtp, Network *nwp)`
+Difference statistic (binary): `void d_<NAME>(Vertex *tails, Vertex *heads, ModelTerm *mtp, Network *nwp)`
 
-Difference statistic (valued): `void d_<NAME>(Vertex *tails, Vertex *heads, double *weights, WtModel *mtp, WtNetwork *nwp)`
+Difference statistic (valued): `void d_<NAME>(Vertex *tails, Vertex *heads, double *weights, WtModelTerm *mtp, WtNetwork *nwp)`
 
-Summary statistic (binary): `void s_<NAME>(Model *mtp, Network *nwp)`
+Summary statistic (binary): `void s_<NAME>(ModelTerm *mtp, Network *nwp)`
 
-Summary statistic (valued): `void s_<NAME>(WtModel *mtp, WtNetwork *nwp)`
+Summary statistic (valued): `void s_<NAME>(WtModelTerm *mtp, WtNetwork *nwp)`
 
 ##### Expects
-###### Parameters
+
+**Parameters**
 
 `Edge ntgoggles`: Number of edges to be toggled or updated.
 
@@ -134,7 +217,7 @@ Summary statistic (valued): `void s_<NAME>(WtModel *mtp, WtNetwork *nwp)`
 
 `double *weights`: An array of new weights for the dyads to be toggled or updated.
 
-`Model *mtp`: A pointer to a `Model` of interest.
+`ModelTerm *mtp`: A pointer to the `ModelTerm` data structure. See `inst/include/ergm_changestat.h` and `inst/include/ergm_wtchangestat.h` for details.
 
 `Network *nwp`: A pointer to the `Network` of interest before any toggles are applied.
 
@@ -142,7 +225,7 @@ Summary statistic (valued): `void s_<NAME>(WtModel *mtp, WtNetwork *nwp)`
 
 `double edgestate`: The weight of dyad `(tail,head)` in the network `nwp` pre-update.
 
-###### Storage
+**Storage**
 
 All functions except for `s_` expect any storage they need to be initialized and up to date (consistent with `nwp`). In particular, if their statistic requested $k$ auxiliary terms, the $k$ (`mtp->n_aux`) elements of its `mtp->aux_slots` vector will be the indexes of `mtp->aux_storage` where they can find the respective objects.
 
@@ -183,21 +266,23 @@ Valued: `void i_<NAME>(WtModel *mtp, WtNetwork *nwp)`
 
 In general, `i_` function expects to be called after `ModelInitialize()` and `NetworkInitialize()`, before any `c_` or `d_` functions. That is, the network must be populated with the ties of its initial state and have `mtp->aux_storage` vector allocated.
 
-###### Private storage
+**Private storage**
 
 Network populated with initial ties and initialized model.
 
-###### Public storage
+**Public storage**
 
 The first element of `mtp->aux_slots` is the index of the element of `mtp->aux_storage` to be managed by this auxiliary. That is `mtp->aux_storage[mtp->aux_slots[0]]` is a `void *` to point to the data to be public.
 
 The other data passed from the `InitErgmTerm.` are shifted over to make room for it.
 
 ##### Side-effects
-###### Private storage
+
+**Private storage**
+
 Allocates memory for the information to be stored and overwrites `mtp->storage` with a pointer to it, then updates the stored information to be consistent with `*nwp`.
 
-####### Public storage
+**Public storage**
 
 Allocates memory for the information to be stored and overwrites `mtp->aux_storage[mtp->aux_slots[0]]` with a pointer to it, then updates the stored information to be consistent with `*nwp`.
 
@@ -257,7 +342,9 @@ Binary: `void x_<NAME>(unsigned int type, void *data, Model *mtp, Network *nwp)`
 Valued: `void x_<NAME>(unsigned int type, void *data, Model *mtp, Network *nwp)`
 
 ##### Expects
-###### Parameters
+
+**Parameters**
+
 `type`: a magic constant identifying the type of signal being sent. Based on it, the function can ignore the signal, or determine how to interpret `data`.
 
 `data`: arbitrary data to be sent to the function; it is up to the extension writer to determine how it is formatted and interpreted.
