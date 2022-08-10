@@ -1103,51 +1103,6 @@ InitErgmTerm.Prod <- function(nw, arglist, ..., env=baseenv()){
 }
 
 
-#' @templateVar name ForEach
-#' @title A [`for`] operator for terms
-#' @description This operator evaluates the formula given to it for each value of the counter.
-#'
-#' @usage
-#' # binary: ForEach(formula, counter, list)
-#' @param formula a one-sided [ergm()]-style formula with the terms to be evaluated; it should contain a placeholder indicated by `counter`
-#' @param counter a string giving the name of the counter
-#' @param list a [`list`] of values to substitute for the counter, or a function with one argument or a one sided [`formula`] to construct the list from the network
-#'
-#' @template ergmTerm-general
-#'
-#' @details `list` can be a function of one argument or a one-sided formula. If the former, it will be called with the network as its argument, and if the latter, the expression on the RHS of the formula will be
-#' evaluated in an environment in which the network itself will be accessible as `.`.
-#'
-#' @concept operator
-InitErgmTerm.ForEach <- function(nw, arglist, ...){
-  a <- check.ErgmTerm(nw, arglist,
-                      varnames = c("formula", "counter", "list"),
-                      vartypes = c("formula", "character", "vector,function,formula"),
-                      defaultvalues = list(NULL, NULL, NULL),
-                      required = c(TRUE, TRUE, TRUE))
-
-  l <-
-    if(is(a$list, "formula")){
-      vlist <- lst(`.`=nw)
-      e <- ult(a$list)
-      ergm_Init_try({eval(e, envir=vlist, enclos=environment(a$list))})
-    }else if(is.function(a$list)){
-      ergm_Init_try({a$list(nw)})
-    }else a$list
-
-  terms <- list_rhs.formula(a$formula)
-
-  terms <- do.call(c,
-                   lapply(l, function(.x){
-                     for(i in seq_along(terms)){
-                       terms[[i]] <- do.call(substitute, list(terms[[i]], structure(list(.x), names=a$counter)))
-                     }
-                     terms
-                   }))
-
-  ergm_model(terms, nw, ..., terms.only=TRUE)
-}
-
 #' @templateVar name For
 #' @title A [`for`] operator for terms
 #' @description This operator evaluates the formula given to it,
