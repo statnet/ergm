@@ -134,7 +134,7 @@ prune.ergm_conlist <- function(conlist){
 #' the `InitErgmProposal` function; in particular,
 #' \describe{
 #' \item{`constraints`}{list of constraints}
-#' \item{`uid`}{a globally unique ID; two different proposals are guaranteed to have different IDs, but identical proposals are not guaranteed to have the same ID}
+#' \item{uid}{a string generated with the proposal, \UIDalgo; different proposals are, generally, guaranteed to have different strings, but identical proposals are not guaranteed to have the same string}
 #' }
 #' }
 #' @seealso \code{\link{InitErgmProposal}}
