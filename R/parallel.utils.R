@@ -491,4 +491,7 @@ ergm_state_cache <- local({
   }
 })
 
-.GUID <- function() paste(c(as.integer(Sys.time()),Sys.getpid(),round(.Machine$integer.max*runif(3))), collapse="-")
+.GUID <- local({
+  counter <- -.Machine$integer.max
+  function() paste(c(unclass(Sys.time()), Sys.getpid(), (counter<<-counter+1)), collapse="-")
+})

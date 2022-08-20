@@ -83,7 +83,7 @@ containing:
 appropriate \code{InitErgmTerm.X} function.}
 \item{etamap}{the theta -> eta mapping as a list returned from
 <ergm.etamap>}
-\item{uid}{a random string generated with the model; different models are guaranteed to have different strings, but identical models are not guaranteed to have the same string}
+\item{uid}{a string generated with the model, \UIDalgo; different models are, generally, guaranteed to have different strings, but identical models are not guaranteed to have the same string}
 }
 \description{
 These methods are generally not called directly by users, but may
