@@ -46,11 +46,11 @@ serialization of the edgelist matrix.
 }
 \section{Methods (by class)}{
 \itemize{
-\item \code{network}: Method for \code{\link{network}} objects.
+\item \code{to_ergm_Cdouble(network)}: Method for \code{\link{network}} objects.
 
-\item \code{matrix}: Method for \code{\link{matrix}} objects, assumed to be edgelists.
+\item \code{to_ergm_Cdouble(matrix)}: Method for \code{\link{matrix}} objects, assumed to be edgelists.
 
-\item \code{rlebdm}: Method for \code{\link{rlebdm}} objects.
+\item \code{to_ergm_Cdouble(rlebdm)}: Method for \code{\link{rlebdm}} objects.
+
 }}
-
 \keyword{internal}

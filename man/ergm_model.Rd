@@ -21,7 +21,8 @@ ergm_model(
   term.options = list(),
   extra.aux = list(),
   env = globalenv(),
-  offset.decorate = TRUE
+  offset.decorate = TRUE,
+  terms.only = FALSE
 )
 
 \method{c}{ergm_model}(...)
@@ -43,9 +44,9 @@ as.ergm_model(x, ...)
 \arguments{
 \item{formula}{An \code{\link[=ergm]{ergm()}}
 formula of the form \code{network ~ model.term(s)} or \code{~
-model.term(s)}.}
+model.term(s)} or a \code{\link{term_list}} object, typically constructed from a formula's LHS.}
 
-\item{nw}{The network of interest; if passed, the LHS of \code{formula} is ignored. This is the recommended usage.}
+\item{nw}{The network of interest, optionally instrumented with \code{\link[=ergm_preprocess_response]{ergm_preprocess_response()}} to have a response attribute specification; if passed, the LHS of \code{formula} is ignored. This is the recommended usage.}
 
 \item{silent}{logical, whether to print the warning messages from the
 initialization of each model term.}
@@ -59,6 +60,8 @@ initialization of each model term.}
 \item{env}{a throwaway argument needed to prevent conflicts with some usages of \code{ergm_model}. The initialization environment is \emph{always} taken from the \code{formula}.}
 
 \item{offset.decorate}{logical; whether offset coefficient and parameter names should be enclosed in \code{"offset()"}.}
+
+\item{terms.only}{logical; whether auxiliaries, eta map, and UID constructions should be skipped. This is useful for submodels.}
 
 \item{x}{object to be converted to an \code{ergm_model}.}
 
@@ -76,36 +79,38 @@ coefficients for each term.}
 \value{
 \code{ergm_model} returns an  \code{ergm_model} object as a list
 containing:
-\item{coef.names}{a vector of coefficient names}
 \item{terms}{a list of terms and 'term components' initialized by the
 appropriate \code{InitErgmTerm.X} function.}
 \item{etamap}{the theta -> eta mapping as a list returned from
 <ergm.etamap>}
+\item{uid}{a string generated with the model, \UIDalgo; different models are, generally, guaranteed to have different strings, but identical models are not guaranteed to have the same string}
 }
 \description{
 These methods are generally not called directly by users, but may
 be employed by other depending packages.
-\code{ergm_model} constructs it from a formula. Each term is
+\code{ergm_model} constructs it from a formula or a term list. Each term is
 initialized via the \code{InitErgmTerm} functions to create a
 \code{ergm_model} object.
 }
 \section{Methods (by generic)}{
 \itemize{
-\item \code{c}: A method for concatenating terms of two or more initialized models.
+\item \code{c(ergm_model)}: A method for concatenating terms of two or more initialized models.
 
-\item \code{is.curved}: Tests whether the model is curved.
+\item \code{is.curved(ergm_model)}: Tests whether the model is curved.
 
-\item \code{is.dyad.independent}: Tests whether the model is dyad-independent.
+\item \code{is.dyad.independent(ergm_model)}: Tests whether the model is dyad-independent.
 
-\item \code{nparam}: Number of parameters of the model.
+\item \code{nparam(ergm_model)}: Number of parameters of the model.
 
-\item \code{param_names}: Parameter names of the model.
+\item \code{param_names(ergm_model)}: Parameter names of the model.
+
 }}
-
 \note{
 This API is not to be considered fixed and may change between versions. However, an effort will be made to ensure that the methods of this class remain stable.
+
+Earlier versions also had an optional \verb{response=} parameter that, if not \code{NULL}, switched to valued mode and used the edge attribute named in \verb{response=} as the response. This is no longer used; instead, the response is to be set on \code{nw} via \code{ergm_preprocess_response(nw, response)}.
 }
 \seealso{
-\code{\link[=summary.ergm_model]{summary.ergm_model()}}
+\code{\link[=summary.ergm_model]{summary.ergm_model()}}, \code{\link[=ergm_preprocess_response]{ergm_preprocess_response()}}
 }
 \keyword{internal}

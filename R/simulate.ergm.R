@@ -5,7 +5,7 @@
 #  open source, and has the attribution requirements (GPL Section 7) at
 #  https://statnet.org/attribution .
 #
-#  Copyright 2003-2021 Statnet Commons
+#  Copyright 2003-2022 Statnet Commons
 ################################################################################
 #========================================================================
 # This file contains the following 2 functions for simulating ergms
@@ -41,7 +41,7 @@
 #' \code{\link{ergm}} object.  The \code{\link{formula}} should be of the form
 #' \code{y ~ <model terms>}, where \code{y} is a network object or a matrix
 #' that can be coerced to a \code{\link[network]{network}} object.  For the
-#' details on the possible \code{<model terms>}, see \code{\link{ergm-terms}}.
+#' details on the possible \code{<model terms>}, see \code{\link{ergmTerm}}.
 #' To create a \code{\link[network]{network}} object in , use the
 #' \code{network()} function, then add nodal attributes to it using the
 #' \code{\%v\%} operator if necessary.
@@ -57,20 +57,13 @@
 #' 
 #' @template response
 #' @template reference
-#' @param constraints A one-sided formula specifying one or more
-#'   constraints on the support of the distribution of the networks
-#'   being simulated. See the documentation for a similar argument for
-#'   \code{\link{ergm}} and see [list of implemented
-#'   constraints][ergm-constraints] for more information. For
-#'   \code{simulate.formula}, defaults to no constraints. For
-#'   \code{simulate.ergm}, defaults to using the same constraints as
-#'   those with which \code{object} was fitted.
+#' @template constraints
 #'
 #' @param observational Inherit observational constraints rather than model
 #'   constraints.
 #' 
 #' @param monitor A one-sided formula specifying one or more terms
-#'   whose value is to be monitored. These terms are appeneded to the
+#'   whose value is to be monitored. These terms are appended to the
 #'   model, along with a coefficient of 0, so their statistics are
 #'   returned. An [`ergm_model`] objectcan be passed as well.
 #'
@@ -179,6 +172,12 @@
 #' concatenated, and if a total of one network had been simulated, the
 #' network itself will be returned.
 #'
+#' @note The actual [`network`] method for [simulate_formula()] is
+#'   actually called `.simulate_formula.network()` and is also
+#'   exported as an object. This allows it to be overridden by
+#'   extension packages, such as `tergm`, but also accessed directly
+#'   when needed.
+#'
 #' @seealso \code{\link{ergm}}, \code{\link[network]{network}},
 #'   [ergm_MCMC_sample()] for a demonstration of `return.args=`.
 #' @keywords models
@@ -265,6 +264,7 @@ simulate_formula <- function(object, ..., basis=eval_lhs.formula(object)) {
 #' @rawNamespace S3method(simulate_formula,network,.simulate_formula.network)
 #' @aliases simulate_formula.network
 #' @method simulate_formula network
+#' @export .simulate_formula.network
 .simulate_formula.network <- function(object, nsim=1, seed=NULL,
                                coef, response=NULL, reference=~Bernoulli,
                              constraints=~.,
@@ -276,9 +276,9 @@ simulate_formula <- function(object, ..., basis=eval_lhs.formula(object)) {
                              simplify=TRUE,
                              sequential=TRUE,
                                control=control.simulate.formula(),
-                             verbose=FALSE, ..., basis=ergm.getnetwork(object), do.sim=TRUE,
+                             verbose=FALSE, ..., basis=ergm.getnetwork(object), do.sim=NULL,
                              return.args = NULL){
-  if(!missing(do.sim)){
+  if(!missing(do.sim) && !is.null(do.sim)){
     .Deprecate_once(msg=paste0("Use of ",sQuote("do.sim=")," argument has been deprecated. Use ",sQuote("return.args=")," instead."))
     if(!do.sim) return.args <- "ergm_model"
   }
@@ -300,22 +300,29 @@ simulate_formula <- function(object, ..., basis=eval_lhs.formula(object)) {
 
   mon.m <- if(!is.null(monitor)) as.ergm_model(monitor, nw, term.options=control$term.options)
 
-  if(!is.list(constraints)) constraints <- list(constraints)
-    constraints <- rep(constraints, length.out=2)
-  # Inherit constraints from nw if needed.
-  tmp <- .handle.auto.constraints(nw, constraints[[1]], constraints[[2]], NULL)
-  nw <- tmp$nw; constraints <- if(observational) tmp$constraints.obs else tmp$constraints
-  
   # Construct the proposal; this needs to be done here so that the
   # auxiliary requests could be passed to ergm_model().
-  proposal <- if(inherits(constraints, "ergm_proposal")) constraints
-                else ergm_proposal(constraints,arguments=if(observational) control$obs.MCMC.prop.args else control$MCMC.prop.args,
-                                   nw=nw, hints=if(observational) control$obs.MCMC.prop else control$MCMC.prop, weights=if(observational) control$obs.MCMC.prop.weights else control$MCMC.prop.weights, class="c",reference=reference, term.options=control$term.options)
+  if(is(constraints, "ergm_proposal")) proposal <- constraints
+  else{
+    if(!is.list(constraints)) constraints <- list(constraints)
+    constraints <- rep(constraints, length.out=2)
+    # Inherit constraints from nw if needed.
+    tmp <- .handle.auto.constraints(nw, constraints[[1]], constraints[[2]], NULL)
+    nw <- tmp$nw; conterms <- if(observational) tmp$conterms.obs else tmp$conterms
+
+    if (verbose) message("Initializing unconstrained Metropolis-Hastings proposal: ", appendLF=FALSE)
+    proposal <- ergm_proposal(conterms, arguments=if(observational) control$obs.MCMC.prop.args else control$MCMC.prop.args,
+                              nw=nw, hints=if(observational) control$obs.MCMC.prop else control$MCMC.prop, weights=if(observational) control$obs.MCMC.prop.weights else control$MCMC.prop.weights, class="c",reference=reference, term.options=control$term.options)
+    if (verbose) message(sQuote(paste0(proposal$pkgname,":MH_",proposal$name)),".")
+  }
   
-  # Prepare inputs to ergm.getMCMCsample
+  # Construct the model.
+  if (verbose) message("Initializing model...")
   m <- ergm_model(object, nw, extra.aux=list(proposal=proposal$auxiliaries), term.options=control$term.options)
   proposal$aux.slots <- m$slots.extra.aux$proposal
+  if (verbose) message("Model initialized.")
 
+  # Pass the inputs to the simualte method for ergm_model.
     out <- simulate(m, nsim=nsim, seed=seed,
                     coef=coef,
                     constraints=proposal,
@@ -366,9 +373,9 @@ simulate.ergm_model <- function(object, nsim=1, seed=NULL,
                                 simplify=TRUE,
                                 sequential=TRUE,
                                 control=control.simulate.formula(),
-                                verbose=FALSE, ..., do.sim=TRUE,
+                                verbose=FALSE, ..., do.sim=NULL,
                                 return.args = NULL){
-  if(!missing(do.sim)){
+  if(!missing(do.sim) && !is.null(do.sim)){
     .Deprecate_once(msg=paste0("Use of ",sQuote("do.sim=")," argument has been deprecated. Use ",sQuote("return.args=")," instead."))
     if(!do.sim) return.args <- "ergm_state"
   }
@@ -414,17 +421,20 @@ simulate.ergm_model <- function(object, nsim=1, seed=NULL,
     if(nparam(m)!=length(coef)) stop("coef has ", length(coef) - nparam(monitor), " elements, while the model requires ",nparam(m) - nparam(monitor)," parameters.")
   }
 
-  proposal <- if(inherits(constraints, "ergm_proposal")) constraints
-              else{
-                if(is.ergm_state(nw)) warning(sQuote("simulate.ergm_model()"), " has been passed a network in ", sQuote("ergm_state"), " form but not a pre-initialized proposal. Information about missing dyads may be lost.")
-                if(!is.list(constraints)) constraints <- list(constraints)
-                constraints <- rep(constraints, length.out=2)
-                # Inherit constraints from nw if needed.
-                tmp <- .handle.auto.constraints(nw0, constraints[[1]], constraints[[2]], NULL)
-                nw0 <- tmp$nw; constraints <- if(observational) tmp$constraints.obs else tmp$constraints
-                ergm_proposal(constraints,arguments=control$MCMC.prop.args,
+  if(is(constraints, "ergm_proposal")) proposal <- constraints
+  else{
+    if(is.ergm_state(nw)) warning(sQuote("simulate.ergm_model()"), " has been passed a network in ", sQuote("ergm_state"), " form but not a pre-initialized proposal. Information about missing dyads may be lost.")
+    if(!is.list(constraints)) constraints <- list(constraints)
+    constraints <- rep(constraints, length.out=2)
+    # Inherit constraints from nw if needed.
+    tmp <- .handle.auto.constraints(nw0, constraints[[1]], constraints[[2]], NULL)
+    nw0 <- tmp$nw; conterms <- if(observational) tmp$conterms.obs else tmp$conterms
+
+    if (verbose) message("Initializing unconstrained Metropolis-Hastings proposal: ", appendLF=FALSE)
+    proposal <- ergm_proposal(conterms, arguments=control$MCMC.prop.args,
                               nw=nw0, hints=control$MCMC.prop, weights=control$MCMC.prop.weights, class="c",reference=reference, term.options=control$term.options)
-              }
+    if (verbose) message(sQuote(paste0(proposal$pkgname,":MH_",proposal$name)),".")
+  }
 
   if(length(proposal$auxiliaries) && !length(m$slots.extra.aux$proposal))
     stop("The proposal appears to be requesting auxiliaries, but the initialized model does not export any proposal auxiliaries.")

@@ -6,6 +6,7 @@
 \alias{ergm_proposal.ergm_proposal}
 \alias{ergm_proposal.character}
 \alias{ergm_proposal.formula}
+\alias{ergm_proposal.term_list}
 \alias{ergm_proposal.ergm_conlist}
 \alias{ergm_proposal.ergm}
 \title{Functions to initialize the ergm_proposal object}
@@ -17,12 +18,20 @@ ergm_proposal(object, ...)
   arguments,
   nw,
   ...,
-  reference = ergm_reference(trim_env(~Bernoulli), nw, term.options = term.options,
-    ...),
+  reference = ergm_reference(trim_env(~Bernoulli), nw, term.options = term.options, ...),
   term.options = list()
 )
 
 \method{ergm_proposal}{formula}(
+  object,
+  arguments,
+  nw,
+  hints = trim_env(~sparse),
+  ...,
+  term.options = list()
+)
+
+\method{ergm_proposal}{term_list}(
   object,
   arguments,
   nw,
@@ -55,7 +64,7 @@ ergm_proposal(object, ...)
 }
 \arguments{
 \item{object}{Either a character, a \code{\link{formula}} or an
-\code{\link{ergm}} object.  The \code{\link{formula}} should be of the format documented in the \code{constraints} argument of \code{\link[=ergm]{ergm()}} and in the \link[=ergm-constraints]{ERGM constraints} documentation.}
+\code{\link{ergm}} object.  The \code{\link{formula}} should be of the format documented in the \code{constraints} argument of \code{\link[=ergm]{ergm()}} and in the \link[=ergmConstraint]{ERGM constraints} documentation.}
 
 \item{\dots}{Further arguments passed to other functions.}
 
@@ -83,7 +92,7 @@ and "d" default="c".}
 \item{constraints}{A one-sided formula specifying one or more constraints on
 the support of the distribution of the networks being simulated. See the
 documentation for a similar argument for \code{\link{ergm}} and see
-\link[=ergm-constraints]{list of implemented constraints} for more information.}
+\code{\link{ergmConstraint}} for more information.}
 }
 \value{
 Returns an ergm_proposal object: a list with class \code{ergm_proposal}
@@ -97,6 +106,7 @@ can be found (usually \code{"ergm"})}
 the \code{InitErgmProposal} function; in particular,
 \describe{
 \item{\code{constraints}}{list of constraints}
+\item{uid}{a string generated with the proposal, \UIDalgo; different proposals are, generally, guaranteed to have different strings, but identical proposals are not guaranteed to have the same string}
 }
 }
 }
@@ -109,18 +119,21 @@ Metropolis-Hastings proposal types.
 }
 \section{Methods (by class)}{
 \itemize{
-\item \code{character}: \code{object} argument is a character string
+\item \code{ergm_proposal(character)}: \code{object} argument is a character string
 giving the \R name of the proposal.
 
-\item \code{formula}: \code{object} argument is an ERGM constraint formula; constructs the \code{\link{ergm_conlist}} object and hands off to \code{ergm_proposal.ergm_conlist()}.
+\item \code{ergm_proposal(formula)}: \code{object} argument is an ERGM constraint formula; constructs the \code{\link{ergm_conlist}} object and hands off to \code{ergm_proposal.ergm_conlist()}.
 
-\item \code{ergm_conlist}: \code{object} argument is an ERGM constraint
+\item \code{ergm_proposal(term_list)}: \code{object} argument is a \code{\link{term_list}};
+same implementation as the \code{formula} method.
+
+\item \code{ergm_proposal(ergm_conlist)}: \code{object} argument is an ERGM constraint
 list; constructs the internal \code{ergm_reference} object, looks up the
 proposal, and hands off to \code{ergm_proposal.character()}.
 
-\item \code{ergm}: \code{object} argument is an \code{\link{ergm}} fit whose proposals are extracted which is reproduced as best as possible.
-}}
+\item \code{ergm_proposal(ergm)}: \code{object} argument is an \code{\link{ergm}} fit whose proposals are extracted which is reproduced as best as possible.
 
+}}
 \seealso{
 \code{\link{InitErgmProposal}}
 }

@@ -5,7 +5,7 @@
 #  open source, and has the attribution requirements (GPL Section 7) at
 #  https://statnet.org/attribution .
 #
-#  Copyright 2003-2021 Statnet Commons
+#  Copyright 2003-2022 Statnet Commons
 ################################################################################
 #==========================================================================
 # This file contains the following 5 functions for computing summary stats
@@ -22,7 +22,7 @@
 #' Most generally, this function computes those summaries of the
 #' object on the LHS of the formula that are specified by its RHS.  In
 #' particular, if given a network as its LHS and
-#' \code{\link{ergm-terms}} on its RHS, it computes the sufficient
+#' \code{\link{ergmTerm}} on its RHS, it computes the sufficient
 #' statistics associated with those terms.
 #' 
 #' 
@@ -38,7 +38,7 @@
 #'   `methods('summary_formula') for the possible LHS types.
 #' @param \dots further arguments passed to or used by methods.
 #' @return A vector of statistics specified in RHS of the formula.
-#' @seealso [ergm()], [network()], [ergm-terms]
+#' @seealso [ergm()], [network()], [`ergmTerm`]
 #' @keywords models
 #' @examples
 #' 
@@ -71,7 +71,7 @@ summary.formula <- function(object, ...){
 #' @param basis Optional object of the same class as the LHS of the formula, substituted in place of the LHS.
 #' @param \dots further arguments passed to or used by methods.
 #' @return A vector of statistics measured on the network.
-#' @seealso [ergm()], [network()], [ergm-terms]
+#' @seealso [ergm()], [network()], [`ergmTerm`]
 #' @keywords models
 #' @examples
 #' 

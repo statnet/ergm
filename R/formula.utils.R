@@ -5,7 +5,7 @@
 #  open source, and has the attribution requirements (GPL Section 7) at
 #  https://statnet.org/attribution .
 #
-#  Copyright 2003-2021 Statnet Commons
+#  Copyright 2003-2022 Statnet Commons
 ################################################################################
 ###################################################################
 ## This file has utilities whose primary purpose is examining or ##
@@ -143,11 +143,11 @@ model.transform.formula <- function(object, theta, recipes, ...){
 #' parameters are fixed. Note that each term has to be treated as a special
 #' case.
 #' 
-#' Some ERGM terms such as \code{\link{gwesp}} and \code{\link{gwdegree}} have
+#' Some ERGM terms such as [`gwesp`][gwesp-ergmTerm] and [`gwdegree`][gwdegree-ergmTerm] have
 #' two forms: a curved form, for which their decay or similar parameters are to
 #' be estimated, and whose canonical statistics is a vector of the term's
-#' components (\code{\link{esp}(1)}, \code{\link{esp}(2)}, \dots{} and
-#' \code{\link{degree}(1)}, \code{\link{degree}(2)}, \dots{}, respectively) and
+#' components ([`esp(1)`][esp-ergmTerm], [`esp(2)`][esp-ergmTerm], \dots{} and
+#' [`degree(1)`][degree-ergmTerm], [`degree(2)`][degree-ergmTerm], \dots{}, respectively) and
 #' a "fixed" form where the decay or similar parameters are fixed, and whose
 #' canonical statistic is just the term itself. It is often desirable to fit a
 #' model estimating the curved parameters but simulate the "fixed" statistic.

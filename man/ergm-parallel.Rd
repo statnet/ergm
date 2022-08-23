@@ -43,7 +43,7 @@ if started, or no cluster otherwise.}
 
 \item{verbose}{A logical or an integer to control the amount of
 progress and diagnostic information to be printed. \code{FALSE}/\code{0}
-produces minimal output, wit higher values producing more
+produces minimal output, with higher values producing more
 detail. Note that very high values (5+) may significantly slow
 down processing.}
 
@@ -182,7 +182,7 @@ that is compatible with \code{snow} or \code{parallel} packages.
 benefit from parallel execution.
 \item The more expensive the terms in the model are, the more benefit
 from parallel execution. For example, models with terms like
-\code{\link{gwdsp}} will generally get more benefit than models where all
+\code{\link[=gwdsp-ergmTerm]{gwdsp}} will generally get more benefit than models where all
 terms are dyad-independent.
 \item Sampling more dense networks will generally get more benefit than
 sparse networks. Network size has little, if any, effect.

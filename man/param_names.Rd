@@ -19,6 +19,6 @@ This is a generic that returns a vector giving the names of the parameters assoc
 }
 \section{Methods (by class)}{
 \itemize{
-\item \code{default}: By default, the names of the \code{\link[=coef]{coef()}} vector is returned.
-}}
+\item \code{param_names(default)}: By default, the names of the \code{\link[=coef]{coef()}} vector is returned.
 
+}}

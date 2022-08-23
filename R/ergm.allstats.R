@@ -5,7 +5,7 @@
 #  open source, and has the attribution requirements (GPL Section 7) at
 #  https://statnet.org/attribution .
 #
-#  Copyright 2003-2021 Statnet Commons
+#  Copyright 2003-2022 Statnet Commons
 ################################################################################
 #=========================================================================
 # This file contains the 2 following functions for calculating exact
@@ -69,7 +69,7 @@
 #' @param formula an \code{\link{formula}} object of the form \code{y ~ <model
 #' terms>}, where \code{y} is a network object or a matrix that can be coerced
 #' to a \code{\link[network]{network}} object.  For the details on the possible
-#' \code{<model terms>}, see \code{\link{ergm-terms}}.  To create a
+#' \code{<model terms>}, see \code{\link{ergmTerm}}.  To create a
 #' \code{\link[network]{network}} object in , use the \code{network()}
 #' function, then add nodal attributes to it using the \code{\%v\%} operator if
 #' necessary.
@@ -201,7 +201,7 @@ ergm.allstats <- function(formula, zeroobs = TRUE, force = FALSE,
 #' @param formula an \code{link{formula}} object of the form \code{y ~ <model
 #' terms>}, where \code{y} is a network object or a matrix that can be coerced
 #' to a \code{\link[network]{network}} object.  For the details on the possible
-#' \code{<model terms>}, see \code{\link{ergm-terms}}.  To create a
+#' \code{<model terms>}, see \code{\link{ergmTerm}}.  To create a
 #' \code{\link[network]{network}} object in , use the \code{network()}
 #' function, then add nodal attributes to it using the \code{\%v\%} operator if
 #' necessary.

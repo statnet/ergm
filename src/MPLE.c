@@ -5,11 +5,40 @@
  *  open source, and has the attribution requirements (GPL Section 7) at
  *  https://statnet.org/attribution .
  *
- *  Copyright 2003-2021 Statnet Commons
+ *  Copyright 2003-2022 Statnet Commons
  */
 #include "MPLE.h"
 #include "ergm_changestat.h"
 #include "ergm_rlebdm.h"
+
+static double **MPLE_workspace = NULL;
+static StoreDVecMapENE *MPLE_covfreq = NULL;
+static khint_t MPLE_nalloc = 0;
+static khint_t MPLE_nalloc_max = 0;
+
+// TODO: Consider preallocating space for these vectors parcelling them out.
+static inline double *MPLE_workspace_push(double *ptr){
+  if(MPLE_nalloc == MPLE_nalloc_max)
+    MPLE_workspace = Realloc(MPLE_workspace, (MPLE_nalloc_max = MAX(MPLE_nalloc_max, 1u) * 2u), double*);
+
+  MPLE_workspace[MPLE_nalloc++] = ptr;
+  return ptr;
+}
+
+SEXP MPLE_workspace_free(){
+  if(MPLE_covfreq){
+    kh_destroy(DVecMapENE, MPLE_covfreq);
+    MPLE_covfreq = NULL;
+  }
+
+  if(MPLE_workspace){
+    for(unsigned int i = 0; i < MPLE_nalloc; i++) Free(MPLE_workspace[i]);
+    Free(MPLE_workspace);
+    MPLE_nalloc_max = MPLE_nalloc = 0;
+  }
+
+  return R_NilValue;
+}
 
 /* *****************
  void MPLE_wrapper
@@ -26,8 +55,6 @@
    statistics.  Note that two sets of statistics are considered
    unique in this context if the corresponding response values
    (i.e., dyad values, edge or no edge) are unequal.
-   The value maxNumDyadTypes is the largest allowable number of
-   unique sets of change statistics.
  Re-rewritten by Pavel Krivitsky to make compression fast. ;)
  *****************/
 
@@ -37,7 +64,7 @@
 SEXP MPLE_wrapper(SEXP stateR,
                   // MPLE settings
                   SEXP wl,
-		  SEXP maxNumDyads, SEXP maxNumDyadTypes){
+		  SEXP maxNumDyads){
   GetRNGstate(); /* Necessary for R random number generator */
   ErgmState *s = ErgmStateInit(stateR, ERGM_STATE_NO_INIT_PROP);
 
@@ -46,77 +73,57 @@ SEXP MPLE_wrapper(SEXP stateR,
   double *tmp = REAL(wl);
   RLEBDM1D wlm = unpack_RLEBDM1D(&tmp);
 
-  SEXP responsevec = PROTECT(allocVector(INTSXP, asInteger(maxNumDyadTypes)));
-  memset(INTEGER(responsevec), 0, asInteger(maxNumDyadTypes)*sizeof(int));
-  SEXP covmat = PROTECT(allocVector(REALSXP, asInteger(maxNumDyadTypes)*m->n_stats));
-  memset(REAL(covmat), 0, asInteger(maxNumDyadTypes)*m->n_stats*sizeof(double));
-  SEXP weightsvector = PROTECT(allocVector(INTSXP, asInteger(maxNumDyadTypes)));
-  memset(INTEGER(weightsvector), 0, asInteger(maxNumDyadTypes)*sizeof(int));
+  StoreDVecMapENE *covfreq = MpleInit_hash_wl_RLE(s, &wlm, asInteger(maxNumDyads));
 
-  const char *outn[] = {"y", "x", "weightsvector", ""};
+  // Now, unpack the hash table.
+  unsigned int ntypes = kh_size(covfreq), nstats = m->n_stats;
+  // R expects column-major order, so give it that.
+  SEXP responsemat = PROTECT(allocMatrix(INTSXP, 2, ntypes));
+  SEXP covmat = PROTECT(allocMatrix(REALSXP, nstats, ntypes));
+  int *y = INTEGER(responsemat);
+  double *x = REAL(covmat);
+
+  // Save the results.
+  double *k;
+  ENE v;
+  unsigned int i = 0;
+  kh_foreach(covfreq, k, v, {
+      memcpy(x + i*nstats, k, nstats*sizeof(double));
+      // R's glm() expects (successes,failures)
+      y[i*2u+1] = v.nonedges;
+      y[i*2u] = v.edges;
+      i++;
+    });
+
+  MPLE_workspace_free();
+
+  const char *outn[] = {"y", "x", ""};
   SEXP outl = PROTECT(mkNamed(VECSXP, outn));
-  SET_VECTOR_ELT(outl, 0, responsevec);
+  SET_VECTOR_ELT(outl, 0, responsemat);
   SET_VECTOR_ELT(outl, 1, covmat);
-  SET_VECTOR_ELT(outl, 2, weightsvector);
-
-  MpleInit_hash_wl_RLE(s, INTEGER(responsevec), REAL(covmat), INTEGER(weightsvector), &wlm, asInteger(maxNumDyads), asInteger(maxNumDyadTypes));
 
   ErgmStateDestroy(s);
   PutRNGstate(); /* Must be called after GetRNGstate before returning to R */
-  UNPROTECT(4);
+  UNPROTECT(3);
   return outl;
 }
 
-/*************
-Hashes the covariates, offset, and response onto an unsigned integer in the interval [0,numRows).
-Uses Jenkins One-at-a-Time hash.
 
-numRows should, ideally, be a power of 2, but doesn't have to be.
-**************/
-static inline unsigned int hashCovMatRow(double *newRow, unsigned int rowLength, unsigned int numRows,
-                                         int response){
-  /* Cast all pointers to unsigned char pointers, since data need to 
-     be fed to the hash function one byte at a time. */
-  unsigned char *cnewRow = (unsigned char *) newRow,
-    *cresponse = (unsigned char *) &response;
-  unsigned int crowLength = rowLength * sizeof(double);
-  
-  unsigned int hash=0;
+static inline void insCovMatRow(StoreDVecMapENE *h, double *pred, int response){
+  size_t nstat = h->l;
+  int ret;
 
-#define HASH_LOOP(hash, keybyte){ hash+=keybyte; hash+=(hash<<10); hash^= (hash>>6); }
-  for(unsigned int i=0; i<crowLength; i++) HASH_LOOP(hash, cnewRow[i]);
-  for(unsigned int i=0; i<sizeof(int); i++) HASH_LOOP(hash, cresponse[i]);
-#undef HASH_LOOP
-
-  hash += (hash<<3);
-  hash ^= (hash>>11);
-  hash += (hash<<15);
-
-  return(hash % numRows);
-}
-
-static inline unsigned int insCovMatRow(double *newRow, double *matrix, unsigned int rowLength, unsigned int numRows,
-			  int response, int *responsevec,
-			  int *weights ){
-  unsigned int hash_pos = hashCovMatRow(newRow, rowLength, numRows, response), pos, round;
-  
-  for(/*unsigned int*/ pos=hash_pos, round=0; !round ; pos = (pos+1)%numRows, round+=(pos==hash_pos)?1:0){
-//    Rprintf("pos %d round %d hash_pos %d\n",pos,round,hash_pos);
-    if(weights[pos]==0){ /* Space is unoccupied. */
-      weights[pos]=1;
-      responsevec[pos]=response;
-      memcpy(matrix+rowLength*pos,newRow,rowLength*sizeof(double));
-      return TRUE;
-    }else {
-      
-      if(responsevec[pos]==response &&
-      memcmp(matrix+rowLength*pos,newRow,rowLength*sizeof(double))==0 ){ /* Rows are identical. */
-        weights[pos]++;
-        return TRUE;
-      }
-    }
+  khiter_t pos = kh_put(DVecMapENE, h, pred, &ret);
+  if(ret){ // New element inserted:
+    // Copy and replace the key, since it'll get overwritten later.
+    double *newpred = MPLE_workspace_push(Calloc(nstat, double));
+    memcpy(newpred, pred, nstat*sizeof(double));
+    kh_key(h, pos) = newpred;
+    kh_val(h, pos) = (ENE){0,0}; // Initialize the counters, just in case.
   }
-  return FALSE; /* Insertion unsuccessful: the table is full. */
+
+  if(response) kh_val(h, pos).edges++;
+  else kh_val(h, pos).nonedges++;
 }
 
 // Euclid's Algorithm to compute Greatest Common Divisor of a and b.
@@ -125,11 +132,13 @@ Dyad gcd(Dyad a, Dyad b){
   else return gcd(b, a%b);
 }
 
-void MpleInit_hash_wl_RLE(ErgmState *s, int *responsevec, double *covmat, int *weightsvector,
-			  RLEBDM1D *wl, 
-			  Edge maxNumDyads, Edge maxNumDyadTypes){
+StoreDVecMapENE *MpleInit_hash_wl_RLE(ErgmState *s, RLEBDM1D *wl, Edge maxNumDyads){
   Network *nwp = s->nwp;
   Model *m = s->m;
+
+  // Initialise the output.
+  StoreDVecMapENE *covfreq = MPLE_covfreq = kh_init(DVecMapENE);
+  covfreq->l = m->n_stats;
 
   // Number of free dyads.
   Dyad dc = wl->ndyads;
@@ -155,15 +164,10 @@ void MpleInit_hash_wl_RLE(ErgmState *s, int *responsevec, double *covmat, int *w
 	  m->workspace[l] = -m->workspace[l];
 	}
       }
-      /* In next command, if there is an offset vector then its total
-	 number of entries should match the number of times through the 
-	 inner loop (i.e., the number of dyads in the network) */          
-      if(!insCovMatRow(m->workspace, covmat, m->n_stats,
-		       maxNumDyadTypes, response, 
-		       responsevec, weightsvector)) {
-	warning("Too many unique dyads. MPLE is approximate, and MPLE standard errors are suspect.");
-	break;
-      }
+
+      insCovMatRow(covfreq, m->workspace, response);
     }
   } // End scope for loop variables.
+
+  return covfreq;
 }

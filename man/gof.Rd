@@ -89,7 +89,7 @@ checking.}
 
 \item{verbose}{A logical or an integer to control the amount of
 progress and diagnostic information to be printed. \code{FALSE}/\code{0}
-produces minimal output, wit higher values producing more
+produces minimal output, with higher values producing more
 detail. Note that very high values (5+) may significantly slow
 down processing.}
 
@@ -142,26 +142,29 @@ argument described above.
 }
 \section{Methods (by class)}{
 \itemize{
-\item \code{ergm}: Perform simulation to evaluate goodness-of-fit for
+\item \code{gof(ergm)}: Perform simulation to evaluate goodness-of-fit for
 a specific \code{\link[=ergm]{ergm()}} fit.
 
-\item \code{formula}: Perform simulation to evaluate goodness-of-fit for
+\item \code{gof(formula)}: Perform simulation to evaluate goodness-of-fit for
 a model configuration specified by a \code{\link{formula}}, coefficient,
 constraints, and other settings.
 
-\item \code{gof}: \code{\link{print.gof}} summaries the diagnostics such as the
+}}
+\section{Methods (by generic)}{
+\itemize{
+\item \code{print(gof)}: \code{\link{print.gof}} summaries the diagnostics such as the
 degree distribution, geodesic distances, shared partner
 distributions, and reachability for the goodness-of-fit of
 exponential family random graph models.  See \code{\link{ergm}} for
 more information on these models. (\code{summary.gof} is a deprecated
 alias that may be repurposed in the future.)
 
-\item \code{gof}: \code{\link{plot.gof}} plots diagnostics such as the degree
+\item \code{plot(gof)}: \code{\link{plot.gof}} plots diagnostics such as the degree
 distribution, geodesic distances, shared partner distributions, and
 reachability for the goodness-of-fit of exponential family random graph
 models.  See \code{\link{ergm}} for more information on these models.
-}}
 
+}}
 \note{
 For \code{gof.ergm} and \code{gof.formula}, default behavior depends on the
 directedness of the network involved; if undirected then degree, espartners,

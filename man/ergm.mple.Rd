@@ -12,7 +12,6 @@ ergm.mple(
   init = NULL,
   MPLEtype = "glm",
   family = "binomial",
-  save.glm = TRUE,
   save.xmat = TRUE,
   control = NULL,
   verbose = FALSE,
@@ -45,10 +44,6 @@ or "logitreg"; default="glm"}
 \code{\link{glm}}; only applicable if "glm" is the 'MPLEtype';
 default="binomial"}
 
-\item{save.glm}{whether the mple fit and the null mple fit should
-be returned (T or F); if false, NULL is returned for both;
-default==TRUE}
-
 \item{control}{A list of control parameters for algorithm tuning,
 typically constructed with \code{\link[=control.ergm]{control.ergm()}}. Its documentation
 gives the the list of recognized control parameters and their
@@ -58,7 +53,7 @@ functions and limited argument name checking.}
 
 \item{verbose}{A logical or an integer to control the amount of
 progress and diagnostic information to be printed. \code{FALSE}/\code{0}
-produces minimal output, wit higher values producing more
+produces minimal output, with higher values producing more
 detail. Note that very high values (5+) may significantly slow
 down processing.}
 
@@ -134,7 +129,7 @@ starting points for the MCMC algorithm.
 Hunter DR, Handcock MS, Butts CT, Goodreau SM, Morris and
 Martina (2008).  "ergm: A Package to Fit, Simulate and Diagnose
 Exponential-Family Models for Networks." \emph{Journal of Statistical Software},
-\emph{24}(3), pp. 1-29. \url{https://www.jstatsoft.org/article/view/v024i03}
+\emph{24}(3), pp. 1-29. \doi{10.18637/jss.v024.i03}
 
 van Duijn MAJ, Gile K, Handcock MS (2009).  "Comparison of Maximum Pseudo
 Likelihood and Maximum Likelihood Estimation of Exponential Family Random

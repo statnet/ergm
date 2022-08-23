@@ -5,7 +5,7 @@
 #  open source, and has the attribution requirements (GPL Section 7) at
 #  https://statnet.org/attribution .
 #
-#  Copyright 2003-2021 Statnet Commons
+#  Copyright 2003-2022 Statnet Commons
 ################################################################################
 
 #' Use Simulated Annealing to attempt to match a network to a vector of mean
@@ -59,7 +59,7 @@
 #'   [`formula`] should be of the form \code{y ~ <model terms>}, where
 #'   \code{y} is a network object or a matrix that can be coerced to a
 #'   [`network`] object.  For the details on the possible \code{<model
-#'   terms>}, see \code{\link{ergm-terms}}.  To create a
+#'   terms>}, see \code{\link{ergmTerm}}.  To create a
 #'   \code{\link[network]{network}} object in , use the
 #'   \code{network()} function, then add nodal attributes to it using
 #'   the \code{\%v\%} operator if necessary.
@@ -85,16 +85,9 @@ san.default <- function(object,...)
 #' @template reference
 #' @param formula (By default, the \code{formula} is taken from the \code{ergm}
 #' object.  If a different \code{formula} object is wanted, specify it here.
-#' @param constraints A one-sided formula specifying one or more constraints on
-#' the support of the distribution of the networks being simulated. See the
-#' documentation for a similar argument for \code{\link{ergm}} and see
-#' [list of implemented constraints][ergm-constraints] for more information. For
-#' \code{simulate.formula}, defaults to no constraints. For
-#' \code{simulate.ergm}, defaults to using the same constraints as those with
-#' which \code{object} was fitted.
+#' @template constraints
 #' @param target.stats A vector of the same length as the number of non-offset statistics
-#' implied by the formula, which is either \code{object} itself in the case of
-#' \code{san.formula} or \code{object$formula} in the case of \code{san.ergm}.
+#' implied by the formula.
 #' @param nsim Number of networks to generate. Deprecated: just use [replicate()].
 #' @param basis If not NULL, a \code{network} object used to start the Markov
 #' chain.  If NULL, this is taken to be the network named in the formula.
@@ -198,11 +191,15 @@ san.formula <- function(object, response=NULL, reference=~Bernoulli, constraints
 
   # Inherit constraints from nw if needed.
   tmp <- .handle.auto.constraints(nw, constraints, NULL, NULL)
-  nw <- tmp$nw; constraints <- tmp$constraints
+  nw <- tmp$nw; conterms <- tmp$conterms
 
-  proposal<-ergm_proposal(constraints,arguments=control$SAN.prop.args,nw=nw, hints=control$SAN.prop, weights=control$SAN.prop.weights, class="c",reference=reference, term.options=control$term.options)
+  if (verbose) message("Initializing unconstrained Metropolis-Hastings proposal: ", appendLF=FALSE)
+  proposal<-ergm_proposal(conterms,arguments=control$SAN.prop.args,nw=nw, hints=control$SAN.prop, weights=control$SAN.prop.weights, class="c",reference=reference, term.options=control$term.options)
+  if (verbose) message(sQuote(paste0(proposal$pkgname,":MH_",proposal$name)),".")
+  if (verbose) message("Initializing model...")
   model <- ergm_model(formula, nw, extra.aux=list(proposal=proposal$auxiliaries), term.options=control$term.options)
   proposal$aux.slots <- model$slots.extra.aux$proposal
+  if (verbose) message("Model initialized.")
 
   
   if(length(offset.coef) != sum(model$etamap$offsettheta)) {
@@ -265,14 +262,16 @@ san.ergm_model <- function(object, reference=~Bernoulli, constraints=~., target.
          " the 'target.stats' argument")
   }
 
-  proposal <- if(inherits(constraints, "ergm_proposal")) constraints
-              else{
-                # Inherit constraints from nw if needed.
-                tmp <- .handle.auto.constraints(nw, constraints, NULL, NULL)
-                nw <- tmp$nw; constraints <- tmp$constraints
-                ergm_proposal(constraints,arguments=control$SAN.prop.args,
+  if(inherits(constraints, "ergm_proposal")) proposal <- constraints
+  else{
+    # Inherit constraints from nw if needed.
+    tmp <- .handle.auto.constraints(nw, constraints, NULL, NULL)
+    nw <- tmp$nw; conterms <- tmp$conterms
+    if (verbose) message("Initializing unconstrained Metropolis-Hastings proposal: ", appendLF=FALSE)
+    proposal <- ergm_proposal(conterms,arguments=control$SAN.prop.args,
                               nw=nw, hints=control$SAN.prop, weights=control$SAN.prop.weights, class="c",reference=reference, term.options=control$term.options)
-              }
+    if (verbose) message(sQuote(paste0(proposal$pkgname,":MH_",proposal$name)),".")
+  }
 
   if(length(proposal$auxiliaries) && !length(model$slots.extra.aux$proposal))
     stop("The proposal appears to be requesting auxiliaries, but the initialized model does not export any proposal auxiliaries.")
@@ -337,8 +336,8 @@ san.ergm_model <- function(object, reference=~Bernoulli, constraints=~., target.
     stats <- sm[nrow(sm),]
     # Use *proposal* distribution of statistics for weights.
     invcov <-
-      if(control$SAN.invcov.diag) ginv(diag(diag(cov(sm.prop)), ncol(sm.prop)), tol=.Machine$double.eps)
-      else ginv(cov(sm.prop), tol=.Machine$double.eps)
+      if(control$SAN.invcov.diag) sginv(diag(diag(cov(sm.prop)), ncol(sm.prop)), tol=.Machine$double.eps)
+      else sginv(cov(sm.prop), tol=.Machine$double.eps)
 
     # Ensure no statistic has weight 0:
     diag(invcov)[abs(diag(invcov))<.Machine$double.eps] <- min(diag(invcov)[abs(diag(invcov))>=.Machine$double.eps],1)
@@ -385,32 +384,6 @@ san.ergm_model <- function(object, reference=~Bernoulli, constraints=~., target.
       stats = out.mat
     )
   }
-}
-
-#' @describeIn ergm-deprecated The developers are not aware of a use case for this function. Please contact them if you would like to prevent its removal.
-#' @export
-san.ergm <- function(object, formula=object$formula, 
-                     constraints=object$constraints, 
-                     target.stats=object$target.stats,
-                     nsim=NULL, basis=NULL,
-                     output=c("network","edgelist","ergm_state"),
-                     only.last=TRUE,
-                     control=object$control$SAN,
-                     verbose=FALSE, 
-                     offset.coef=NULL,
-                     ...) {
-  .Deprecate_once('The developers are not aware of a use case for this function. Please contact them if you would like to prevent its removal.')
-  output <- match.arg(output)
-  san.formula(formula, nsim=nsim, 
-              target.stats=target.stats,
-              basis=basis,
-              reference = object$reference,
-              output=output,
-              only.last=only.last,
-              constraints=constraints,
-              control=control,
-              verbose=verbose, 
-              offset.coef=offset.coef, ...)
 }
 
 #' Internal Function to Perform Simulated Annealing

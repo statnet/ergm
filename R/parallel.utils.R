@@ -5,7 +5,7 @@
 #  open source, and has the attribution requirements (GPL Section 7) at
 #  https://statnet.org/attribution .
 #
-#  Copyright 2003-2021 Statnet Commons
+#  Copyright 2003-2022 Statnet Commons
 ################################################################################
 # Save the cluster we are in charge of.
 ergm.cluster.started <- local({
@@ -154,7 +154,7 @@ ergm.MCMC.packagenames <- local({
 #' 
 #' * The more expensive the terms in the model are, the more benefit
 #'   from parallel execution. For example, models with terms like
-#'   [`gwdsp`] will generally get more benefit than models where all
+#'   [`gwdsp`][gwdsp-ergmTerm] will generally get more benefit than models where all
 #'   terms are dyad-independent.
 #'
 #' * Sampling more dense networks will generally get more benefit than
@@ -410,3 +410,88 @@ nthreads.control.list <- function(clinfo=NULL, ...){
   clinfo <- clinfo$parallel
   nthreads(clinfo, ...)
 }
+
+
+#' A rudimentary cache for large objects
+#'
+#' This cache is intended to store large, infrequently changing data
+#' structures such as [`ergm_model`]s and [`ergm_proposal`]s on worker
+#' nodes.
+#'
+#' @param comm a character string giving the desired function; see the
+#'   default argument above for permitted values and Details for
+#'   meanings; partial matching is supported.
+#' @param key a character string, typically a `digest::digest()` of
+#'   the object or a random string.
+#' @param object the object to be stored.
+#'
+#'
+#' Supported tasks are, respectively, to do nothing (the default),
+#' return all entries (mainly useful for testing), clear the cache,
+#' insert into cache, retrieve an object by key, check if a key is
+#' present, or list keys defined.
+#'
+#' Deleting an entry can be accomplished by inserting a `NULL` for
+#' that key.
+#'
+#' Cache is limited to a hard-coded size (currently 4). This should
+#' accommodate an [`ergm_model`] and an [`ergm_proposal`] for
+#' unconstrained and constrained MCMC. When additional objects are
+#' stored, the oldest object is purged and garbage-collected.
+#'
+#' @note If called via, say, `clusterMap(cl, ergm_state_cache, ...)`
+#'   the function will not accomplish anything. This is because
+#'   `parallel` package will serialise the `ergm_state_cache()`
+#'   function object, send it to the remote node, evaluate it there,
+#'   and fetch the return value. This will leave the environment of
+#'   the worker's `ergm_state_cache()` unchanged. To actually
+#'   evaluate it on the worker nodes, it is recommended to wrap it in
+#'   an empty function whose environment is set to [globalenv()]. See
+#'   Examples below.
+#'
+#' @examples
+#' \dontrun{
+#' # Wrap ergm_state_cache() and call it explicitly from ergm:
+#' call_ergm_state_cache <- function(...) ergm::ergm_state_cache(...)
+#'
+#' # Reset the function's environment so that it does not get sent to
+#' # worker nodes (who have their own instance of ergm namespace
+#' # loaded).
+#' environment(call_ergm_state_cache) <- globalenv()
+#'
+#' # Now, call the the wrapper function, with ... below replaced by
+#' # lists of desired arguments.
+#' clusterMap(cl, call_ergm_state_cache, ...)
+#' }
+#'
+#' @export
+ergm_state_cache <- local({
+  size <- 4
+  objects <- list()
+
+  function(comm = c("pass", "all", "clear", "insert", "get", "check", "list"),
+           key, object){
+    comm <- match.arg(comm)
+
+    if(comm == "all") objects
+    else if(comm == "clear") objects <<- list()
+    else if(comm == "insert"){
+      objects[[key]] <<- object # Add object to cache.
+      if(length(objects) > size){
+        objects <<- objects[-1] # If too many, clear the oldest.
+        gc()
+      }
+      invisible(NULL)
+    }
+    else if(comm == "get") objects[[key]]
+    else if(comm == "check") key %in% names(objects)
+    else if(comm == "pass") invisible(NULL)
+    else if(comm == "list") names(objects)
+    else stop("Unknown command.")
+  }
+})
+
+.GUID <- local({
+  counter <- -.Machine$integer.max
+  function() paste(c(unclass(Sys.time()), Sys.getpid(), (counter<<-counter+1)), collapse="-")
+})

@@ -5,7 +5,7 @@
 #  open source, and has the attribution requirements (GPL Section 7) at
 #  https://statnet.org/attribution .
 #
-#  Copyright 2003-2021 Statnet Commons
+#  Copyright 2003-2022 Statnet Commons
 ################################################################################
 
 # a bipartite nw
@@ -86,12 +86,12 @@ test_that("Undirected mm() summary with expression, levels selector, no terms", 
 
 test_that("Directed mm() ERGM", {
   e.a <- ergm(samplike ~ mm("group", levels2=TRUE))
-  expect_equivalent(coef(e.a),
-                    c(0.191055236762708, -3.29583686600359,
-                      -2.17475172140943, -2.5649493574587,
-                      1.6094379124341, -3.29583686600359,
-                      -1.49165487677766, -1.09861228866811,
-                      0.916290731874155))
+  expect_equal(coef(e.a),
+               c(0.191055236762708, -3.29583686600359,
+                 -2.17475172140943, -2.5649493574587,
+                 1.6094379124341, -3.29583686600359,
+                 -1.49165487677766, -1.09861228866811,
+                 0.916290731874155), ignore_attr=TRUE)
 })
 
 test_that("Bipartite mm() summary", {
@@ -105,9 +105,9 @@ test_that("Bipartite mm() summary", {
 
 test_that("Bipartite mm() ERGM with level2 filter", {
   e.ab <- ergm(bipnw ~ mm("Letter", levels2=-(2:6)))
-  expect_equivalent(coef(e.ab),
-                    c(-3.49650756126405, -4.43081679479004,
-                      -3.98898404450688, -3.98898404450688 ))
+  expect_equal(coef(e.ab),
+               c(-3.49650756126405, -4.43081679479004,
+                 -3.98898404450688, -3.98898404450688), ignore_attr=TRUE)
 })
 
 fmh.mm.Race <-
@@ -123,32 +123,32 @@ fmh.mm.Race <-
 
 test_that("Undirected mm() summary with level2 filter", {
   s.ab2 <- summary(fmh ~ mm("Race", levels2=-1))
-  expect_equivalent(s.ab2, fmh.mm.Race[-1])
+  expect_equal(s.ab2, fmh.mm.Race[-1], ignore_attr=TRUE)
 })
 
 test_that("Undirected mm() summary with level2 filter by logical matrix", {
   M <- matrix(TRUE, 5, 5)
   M[1,1] <- M[3,2] <- M[2,3] <- FALSE
   s.ab2 <- summary(fmh ~ mm("Race", levels2=M))
-  expect_equivalent(s.ab2, fmh.mm.Race[M[upper.tri(M, TRUE)]])
+  expect_equal(s.ab2, fmh.mm.Race[M[upper.tri(M, TRUE)]], ignore_attr=TRUE)
 })
 
 test_that("Undirected mm() summary with level2 filter by numeric matrix", {
   M <- cbind(2,3)
   s.ab2 <- summary(fmh ~ mm("Race", levels2=M))
-  expect_equivalent(s.ab2, fmh.mm.Race[5])
+  expect_equal(s.ab2, fmh.mm.Race[5], ignore_attr=TRUE)
 })
 
 test_that("Directed mm() ERGM with level2 filter", {
   e.ab2 <- ergm(samplike ~ mm("Trinity", levels2=-(3:9)))
-  expect_equivalent(coef(e.ab2),
-                    c(-1.01160091056776, -0.693147180549145))
+  expect_equal(coef(e.ab2),
+               c(-1.01160091056776, -0.693147180549145), ignore_attr=TRUE)
 })
 
 test_that("Directed mm() ERGM with level2 filter", {
   e.ab2 <- ergm(samplike ~ mm("Trinity", levels2=-(3:9)))
-  expect_equivalent(coef(e.ab2),
-                    c(-1.01160091056776, -0.693147180549145))
+  expect_equal(coef(e.ab2),
+               c(-1.01160091056776, -0.693147180549145), ignore_attr=TRUE)
 })
 
 samp.mm.Trinity <-
@@ -163,7 +163,7 @@ test_that("Directed mm() summary with level2 matrix filter", {
   M <- matrix(FALSE, 3, 3)
   M[1,2] <- M[1,3] <- TRUE
   s.ab2 <- summary(samplike ~ mm("Trinity", levels2=M))
-  expect_equivalent(s.ab2, samp.mm.Trinity[c(M)])
+  expect_equal(s.ab2, samp.mm.Trinity[c(M)], ignore_attr=TRUE)
 })
 
 test_that("Undirected mm() marginal summary", {
@@ -179,7 +179,7 @@ test_that("Undirected mm() asymmetric two-sided summary", {
     (function(x) data.frame(Race=factor(fmh%v%"Race")[x[,1]], Grade=factor(fmh%v%"Grade")[x[,2]])) %>%
     table()
   s.a <- summary(fmh ~ mm(Race~Grade, levels2=TRUE))
-  expect_equivalent(s.a, c(s.a.tab))
+  expect_equal(s.a, c(s.a.tab), ignore_attr=TRUE)
 })
 
 test_that("Undirected mm() asymmetric two-sided summary and pipe operator on one side", {
@@ -191,12 +191,12 @@ test_that("Undirected mm() asymmetric two-sided summary and pipe operator on one
     (function(x) data.frame(Grade=Grade[x[,2]], Race=Race[x[,1]])) %>%
     table()
   s.a <- summary(fmh ~ mm(Grade~(~Race) %>% COLLAPSE_SMALLEST(3,"BWO"), levels2=TRUE))
-  expect_equivalent(s.a, c(s.a.tab))
+  expect_equal(s.a, c(s.a.tab), ignore_attr=TRUE)
 })
 
 test_that("Undirected mm() marginal summary with fixed levels set", {
   s.a <- summary(fmh ~ mm(.~Grade, levels=I(c(7,6,9,8)), levels2=TRUE))
-  expect_equivalent(s.a, c(153, 0, 65, 75))
+  expect_equal(s.a, c(153, 0, 65, 75), ignore_attr=TRUE)
 })
 
 test_that("Undirected mm() summary with fixed levels set", {

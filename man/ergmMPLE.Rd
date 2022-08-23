@@ -8,7 +8,6 @@ ergmMPLE(
   formula,
   constraints = ~.,
   obs.constraints = ~-observed,
-  fitmodel = FALSE,
   output = c("matrix", "array", "dyadlist", "fit"),
   expand.bipartite = FALSE,
   control = control.ergm(),
@@ -20,8 +19,6 @@ ergmMPLE(
 \arguments{
 \item{formula, constraints, obs.constraints}{An ERGM formula and
 (optional) constraint specification formulas. See \code{\link{ergm}}.}
-
-\item{fitmodel}{Deprecated. Use \code{output="fit"} instead.}
 
 \item{output}{Character, partially matched. See Value.}
 
@@ -36,7 +33,7 @@ functions and limited argument name checking.}
 
 \item{verbose}{A logical or an integer to control the amount of
 progress and diagnostic information to be printed. \code{FALSE}/\code{0}
-produces minimal output, wit higher values producing more
+produces minimal output, with higher values producing more
 detail. Note that very high values (5+) may significantly slow
 down processing.}
 
@@ -77,6 +74,9 @@ be 0; and for a unipartite undirected network, lower triangle of each
 \code{predictor[,,k]} matrix will be set to \code{NA}, with the lower
 triangle of \code{weights} being set to 0.
 
+To all of the above output types, \code{attr(., "etamap")} is attached
+containing the \link[=ergm.eta]{mapping and offset information}.
+
 If \code{output=="fit"}, then \code{ergmMPLE} simply calls the
 \code{\link{ergm}} function with the \code{estimate="MPLE"} option set,
 returning an object of class \code{ergm} that gives the fitted
@@ -101,10 +101,6 @@ the corresponding edge exists or not).
 Using \code{output="matrix"}, note that the result of the fit may be
 obtained from the \code{\link{glm}} function, as shown in the examples
 below.
-
-When \code{output="array"}, the \code{MPLE.max.dyad.types} control parameter
-must be greater than \code{network.dyadcount(.)} of the response network, or
-not all elements of the array that ought to be filled in will be.
 }
 \examples{
 

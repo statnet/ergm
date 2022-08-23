@@ -62,14 +62,8 @@ as "<\code{eps.Pvalue}".}
 \item{print.formula, print.fitinfo, print.coefmat, print.message, print.deviances, print.drop, print.offset, print.call}{which components of the fit summary to print.}
 }
 \value{
-The function \code{\link[=summary.ergm]{summary.ergm()}} computes and returns a list of summary
-statistics of the fitted \code{\link[=ergm]{ergm()}} model given in \code{object}. Note that for
-backwards compatibility, it returns two coefficient tables: \verb{$coefs} which
-does not contain the z-statistics and \verb{$coefficeints} which does (and is
-therefore more similar to those returned by \code{\link[stats:summary.lm]{stats::summary.lm()}}).
-
-The returned object is a list of class "ergm.summary" with the following
-elements:
+The returned object is a list of class "ergm.summary" with
+the following elements:
 
 \item{formula}{ERGM model formula}
 \item{call}{R call used to fit the model}
@@ -82,7 +76,7 @@ elements:
 \item{null.lik.0}{It is \code{TRUE} of the null model likelihood has not been calculated. See \code{\link[=logLikNull]{logLikNull()}}}
 \item{devtext, devtable}{Deviance type and table}
 \item{aic, bic}{values of AIC and BIC}
-\item{coefs, coefficients}{data frames with model parameters and associated statistics}
+\item{coefficients}{matrices with model parameters and associated statistics}
 \item{asycov}{asymptotic covariance matrix}
 \item{asyse}{asymptotic standard error matrix}
 \item{offset, drop, estimate, iterations, mle.lik, null.lik}{
@@ -119,7 +113,7 @@ also \code{\link[=vcov.ergm]{vcov.ergm()}} and its \code{sources} argument.
 }
 \seealso{
 The model fitting function \code{\link[=ergm]{ergm()}}, \code{\link[=print.ergm]{print.ergm()}}, and
-\code{\link[base:summary]{base::summary()}}. Function \code{\link[stats:coef]{stats::coef()}} will extract the data frame of
+\code{\link[base:summary]{base::summary()}}. Function \code{\link[stats:coef]{stats::coef()}} will extract the matrix of
 coefficients with standard errors, t-statistics and p-values.
 }
 \keyword{models}

@@ -5,7 +5,7 @@
 #  open source, and has the attribution requirements (GPL Section 7) at
 #  https://statnet.org/attribution .
 #
-#  Copyright 2003-2021 Statnet Commons
+#  Copyright 2003-2022 Statnet Commons
 ################################################################################
 ############################################################################
 # The <ergm.MCMLE> function provides one of the styles of maximum
@@ -358,10 +358,10 @@ ergm.MCMLE <- function(init, nw, model,
       # ellipsoid is workable, if flat.) Special handling is required
       # if some statistic has a variance of exactly 0.
       novar <- diag(Vm) == 0
-      Vm[!novar,!novar] <- as.matrix(nearPD(Vm[!novar,!novar,drop=FALSE], posd.tol=0)$mat)
-      iVm <- ginv(Vm)
+      Vm[!novar,!novar] <- snearPD(Vm[!novar,!novar,drop=FALSE], posd.tol=0, base.matrix=TRUE)$mat
+      iVm <- sginv(Vm)
       diag(Vm)[novar] <- sqrt(.Machine$double.xmax) # Virtually any nonzero difference in estimating functions will map to a very large number.
-      d2 <- estdiff%*%iVm%*%estdiff
+      d2 <- xTAx(estdiff, iVm)
       if(d2<2) last.adequate <- TRUE
     }
 
@@ -371,8 +371,8 @@ ergm.MCMLE <- function(init, nw, model,
         steplen <- .Hummel.steplength(
           if(control$MCMLE.steplength.esteq) esteq else statsmatrix[,!model$etamap$offsetmap,drop=FALSE],
           if(control$MCMLE.steplength.esteq) esteq.obs else statsmatrix.obs[,!model$etamap$offsetmap,drop=FALSE],
-          control$MCMLE.steplength.margin, control$MCMLE.steplength, point.gamma.exp=control$MCMLE.steplength.point.exp, steplength.prev=steplen, x1.prefilter=control$MCMLE.steplength.prefilter, x2.prefilter=control$MCMLE.steplength.prefilter, precision=control$MCMLE.steplength.precision, min=control$MCMLE.steplength.min, verbose=verbose,
-          x2.num.max=control$MCMLE.steplength.miss.sample, parallel=control$MCMLE.steplength.parallel, steplength.maxit=control$MCMLE.steplength.maxit, control=control
+          control$MCMLE.steplength.margin, control$MCMLE.steplength, verbose=verbose,
+          x2.num.max=control$MCMLE.steplength.miss.sample, parallel=control$MCMLE.steplength.parallel, control=control
         )
 
         # If the step length margin is negative and signals convergence,
@@ -383,8 +383,8 @@ ergm.MCMLE <- function(init, nw, model,
           .Hummel.steplength(
               if(control$MCMLE.steplength.esteq) esteq else statsmatrix[,!model$etamap$offsetmap,drop=FALSE],
               if(control$MCMLE.steplength.esteq) esteq.obs else statsmatrix.obs[,!model$etamap$offsetmap,drop=FALSE],
-              0, control$MCMLE.steplength, steplength.prev=steplen, point.gamma.exp=control$MCMLE.steplength.point.exp, x1.prefilter=control$MCMLE.steplength.prefilter, x2.prefilter=control$MCMLE.steplength.prefilter, precision=control$MCMLE.steplength.precision, min=control$MCMLE.steplength.min, verbose=verbose,
-            x2.num.max=control$MCMLE.steplength.miss.sample, steplength.maxit=control$MCMLE.steplength.maxit,
+              0, control$MCMLE.steplength, verbose=verbose,
+            x2.num.max=control$MCMLE.steplength.miss.sample,
             parallel=control$MCMLE.steplength.parallel, control=control
           )
           else steplen
@@ -418,7 +418,7 @@ ergm.MCMLE <- function(init, nw, model,
                        method=control$MCMLE.method,
                        metric=control$MCMLE.metric,
                        control.llik=control.llik,
-                       steplen=steplen, steplen.point.exp=control$MCMLE.steplength.point.exp,
+                       steplen=steplen,
                        verbose=verbose,
                        estimateonly=!calc.MCSE)
         message("The log-likelihood improved by ", fixed.pval(v$loglikelihood, 4), ".")
@@ -447,8 +447,8 @@ ergm.MCMLE <- function(init, nw, model,
       }
     }else if(control$MCMLE.termination=='confidence'){
       if(!is.null(estdiff.prev)){
-        d2.prev <- estdiff.prev%*%iVm%*%estdiff.prev
-        if(verbose) message("Distance from origin on tolerance region scale: ", d2, " (previously ", d2.prev, ").")
+        d2.prev <- xTAx(estdiff.prev, iVm)
+        if(verbose) message("Distance from origin on tolerance region scale: ", format(d2), " (previously ", format(d2.prev), ").")
         d2.not.improved <- d2.not.improved[-1] 
         if(d2 >= d2.prev){
           d2.not.improved <- c(d2.not.improved,TRUE)
@@ -484,24 +484,27 @@ ergm.MCMLE <- function(init, nw, model,
           estdiff <- estdiff[!hotel$novar]
           estcov <- estcov[!hotel$novar, !hotel$novar]
 
-          d2e <- estdiff%*%iVm[!hotel$novar, !hotel$novar]%*%estdiff
+          d2e <- xTAx(estdiff, iVm[!hotel$novar, !hotel$novar])
           if(d2e<1){ # Update ends within tolerance ellipsoid.
             T2 <- try(.ellipsoid_mahalanobis(estdiff, estcov, iVm[!hotel$novar, !hotel$novar]), silent=TRUE) # Distance to the nearest point on the tolerance region boundary.
+            T2nullity <- attr(T2,"nullity")
+            T2param <- hotel$parameter["param"] - T2nullity
+            if(T2nullity && verbose) message("Estimated covariance matrix of the statistics has nullity ", format(T2nullity), ". Effective parameter number adjusted to ", format(T2param), ".")
             if(inherits(T2, "try-error")){ # Within tolerance ellipsoid, but cannot be tested.
               message("Unable to test for convergence; increasing sample size.")
               .boost_samplesize(control$MCMLE.confidence.boost)
             }else{ # Within tolerance ellipsoid, can be tested.
-              nonconv.pval <- .ptsq(T2, hotel$parameter["param"], hotel$parameter["df"], lower.tail=FALSE)
-              if(verbose) message("Test statistic: T^2 = ",T2,", with ",
-                                  hotel$parameter["param"], " free parameters and ",hotel$parameter["df"], " degrees of freedom.")
+              nonconv.pval <- .ptsq(T2, T2param, hotel$parameter["df"], lower.tail=FALSE)
+              if(verbose) message("Test statistic: T^2 = ", format(T2),", with ",
+                                  format(T2param), " free parameters and ", format(hotel$parameter["df"]), " degrees of freedom.")
               message("Convergence test p-value: ", fixed.pval(nonconv.pval, 4), ". ", appendLF=FALSE)
               if(nonconv.pval < 1-control$MCMLE.confidence){
                 message("Converged with ",control$MCMLE.confidence*100,"% confidence.")
                 break
               }else{
                 message("Not converged with ",control$MCMLE.confidence*100,"% confidence; increasing sample size.")
-                critval <- .qtsq(control$MCMLE.confidence, hotel$parameter["param"], hotel$parameter["df"])
-                if(verbose) message(control$MCMLE.confidence*100,"% confidence critical value = ",critval,".")
+                critval <- .qtsq(control$MCMLE.confidence, T2param, hotel$parameter["df"])
+                if(verbose) message(control$MCMLE.confidence*100,"% confidence critical value = ",format(critval),".")
                 boost <- min((critval/T2),control$MCMLE.confidence.boost) # I.e., we want to increase the denominator far enough to reach the critical value.
                 .boost_samplesize(boost)
               }
@@ -634,16 +637,17 @@ ergm.MCMLE <- function(init, nw, model,
 #' @noRd
 .ellipsoid_mahalanobis <- function(y, W, U){
   y <- c(y)
-  if(y%*%U%*%y>=1) stop("Point is not in the interior of the ellipsoid.")
+  if(xTAx(y,U)>=1) stop("Point is not in the interior of the ellipsoid.")
   I <- diag(length(y))
   WU <- W%*%U
   x <- function(l) c(solve(I+l*WU, y)) # Singluar for negative reciprocals of eigenvalues of WiU.
-  zerofn <- function(l) ERRVL(try({x <- x(l); c(x%*%U%*%x)-1}, silent=TRUE), +Inf)
+  zerofn <- function(l) ERRVL(try({x <- x(l); xTAx(x,U)-1}, silent=TRUE), +Inf)
 
   # For some reason, WU sometimes has 0i element in its eigenvalues.
   eig <- Re(eigen(WU, only.values=TRUE)$values)
   lmin <- -1/max(eig)
   l <- uniroot(zerofn, lower=lmin, upper=0, tol=sqrt(.Machine$double.xmin))$root
   x <- x(l)
-  (y-x)%*%solve(W)%*%(y-x)
+
+  xTAx_qrsolve(y-x, W)
 }

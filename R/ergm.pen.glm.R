@@ -5,7 +5,7 @@
 #  open source, and has the attribution requirements (GPL Section 7) at
 #  https://statnet.org/attribution .
 #
-#  Copyright 2003-2021 Statnet Commons
+#  Copyright 2003-2022 Statnet Commons
 ################################################################################
 #===================================================================
 # This file contains the following 3 files for penalized glm fits
@@ -101,12 +101,12 @@ ergm.pen.glm <- function(formula,
    iter <- iter + 1
    XW2 <- sweep(x, 1, (weights*(pi * (1 - pi)))^0.5, "*") #### X' (W ^ 1/2)
    Fisher <- crossprod(XW2)  #### X' W  X
-   covs <- ginv(Fisher)  ### (X' W  X) ^ -1
+   covs <- sginv(Fisher)  ### (X' W  X) ^ -1
 #  H <- crossprod(XW2, covs) %*% XW2
 #  H <- XW2 %*% covs %*% t(XW2)
    diagH <- pi
    for(i in seq(along=diagH)){
-    diagH[i] <- XW2[i,] %*% covs %*% XW2[i,]
+    diagH[i] <- xTAx(XW2[i,], covs)
    }
 #  U.star <- crossprod(x, y - pi)
 #  U.star <- crossprod(x, (y - pi)*weights)
@@ -136,9 +136,6 @@ ergm.pen.glm <- function(formula,
               df = (k-int), 
               loglik = loglik,
               deviance = -2*loglik,
-#             loglik = logistftest(formula=formula, data=data, 
-#                                  test=coltotest,
-#                                  weights=weights),
               iter = iter, n = n, 
               terms = colnames(x), y = y, 
               formula = as.formula(formula), call=match.call(),

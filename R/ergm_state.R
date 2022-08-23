@@ -5,7 +5,7 @@
 #  open source, and has the attribution requirements (GPL Section 7) at
 #  https://statnet.org/attribution .
 #
-#  Copyright 2003-2021 Statnet Commons
+#  Copyright 2003-2022 Statnet Commons
 ################################################################################
 #' A Representation of ERGM state
 #' 
@@ -42,7 +42,10 @@
 #' \item{ext.flag}{one of `ERGM_STATE_R_CHANGED`, `ERGM_STATE_C_CHANGED`, and `ERGM_STATE_R_RECONCILED`.}
 #'
 #' \item{stats}{a numeric vector of network statistics or some other
-#' statistics used to resume.}}
+#' statistics used to resume.}
+#'
+#' \item{uids}{a named list of globally unique ID strings associated with a `model` and/or `proposal`; for the `ergm_state_send` and `ergm_state_receive`, these strings may be retained even if these values are set to `NULL`}
+#' }
 #'
 #' @details
 #'
@@ -91,6 +94,8 @@ ergm_state.edgelist <- function(x, nw0, model=NULL, proposal=NULL, stats=NULL, e
     out$ext.flag <- ERGM_STATE_R_CHANGED
     out <- .reconcile_ergm_state(out)
   }
+
+  out <- .copy_state_uids(out)
   structure(out, class=c("ergm_state_full", "ergm_state_send", "ergm_state_receive", "ergm_state"))
 }
 
@@ -227,11 +232,13 @@ update.ergm_state_full <- function(object, el=NULL, nw0=NULL, model=NULL, propos
     if(!is(model, "ergm_model")) stop("New model is not an ergm_model.")
     object$model <- model
     object$ext.flag <- ERGM_STATE_R_CHANGED
+    object$uids$model <- NULL
   }
 
   if(!is.null(proposal)){
     if(!is(proposal, "ergm_proposal")) stop("New proposal is not an ergm_proposal.")
     object$proposal <- proposal
+    object$uids$proposal <- NULL
   }
 
   if(!is.null(stats)) object$stats <- as.double(stats)
@@ -242,6 +249,7 @@ update.ergm_state_full <- function(object, el=NULL, nw0=NULL, model=NULL, propos
     object$ext.flag <- ERGM_STATE_C_CHANGED
   }
 
+  object <- .copy_state_uids(object)
   .reconcile_ergm_state(object)
 }
 
@@ -294,6 +302,12 @@ ERGM_STATE_RECONCILED <- 0L
   object
 }
 
+.copy_state_uids <- function(object){
+  if(is.null(object$uids$model)) object$uids$model <- object$model$uid
+  if(is.null(object$uids$proposal)) object$uids$proposal <- object$proposal$uid
+  object
+}
+
 #' @rdname ergm_state
 #' @export
 ergm_state_send <- function(x, ...){
@@ -314,6 +328,15 @@ ergm_state_send.ergm_state_full <- function(x, ...){
     x <- .reconcile_ergm_state(x)
   NextMethod("ergm_state_send")
 }
+
+#' @rdname ergm_state
+#' @export
+ergm_state_send.ergm_state_receive <- function(x, ...){
+  if(!is.null(x$uids$model)) x$model <- ergm_state_cache("get", x$uids$model)
+  if(!is.null(x$uids$proposal)) x$proposal <- ergm_state_cache("get", x$uids$proposal)
+  structure(x, class=c("ergm_state_send","ergm_state_receive","ergm_state"))
+}
+
 
 #' @rdname ergm_state
 #' @export

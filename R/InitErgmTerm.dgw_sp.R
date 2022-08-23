@@ -5,7 +5,7 @@
 #  open source, and has the attribution requirements (GPL Section 7) at
 #  https://statnet.org/attribution .
 #
-#  Copyright 2003-2021 Statnet Commons
+#  Copyright 2003-2022 Statnet Commons
 ################################################################################
 
 #  ------------------------------------------------------------------ 
@@ -136,7 +136,25 @@
 #the original behavior of esp/gwesp.  In the undirected case, the UTP
 #routine is used (since it is safe for undirected graphs), irrespective of
 #the user's selection.  UTP cannot be chosen otherwise, since it won't work.
-#
+
+#' @templateVar name desp
+#' @title Directed edgewise shared partners
+#' @description This term adds one network statistic to the model for each element in `d` where the \eqn{i} th such statistic equals the number of edges in the network with exactly `d[i]` shared partners.
+#'   
+#' @usage
+#' # binary: desp(d, type="OTP")
+#'
+#' @param d a vector of distinct integers
+#' @template ergmTerm-sp-type
+#'
+#' @template ergmTerm-cache-sp
+#' @template ergmTerm-general
+#'
+#' @template ergmTerm-directed
+#'
+#' @template ergmTerm-sp-types
+#'
+#' @concept directed
 InitErgmTerm.desp<-function(nw, arglist, cache.sp=TRUE, ...) {
   a <- check.ErgmTerm(nw, arglist,
                       varnames = c("d","type"),
@@ -185,17 +203,35 @@ InitErgmTerm.desp<-function(nw, arglist, cache.sp=TRUE, ...) {
 #the original behavior of esp/gwesp.  In the undirected case, UTP is
 #always used (since it is directedness-safe), and the user's input is
 #overridden.  UTP cannot be chosen otherwise, since it won't work.
-#
+
+#' @templateVar name dgwesp
+#' @title Geometrically weighted edgewise shared partner distribution
+#' @description This term adds a statistic equal to the geometrically weighted edgewise (not dyadwise) shared partner distribution with decay parameter `decay` parameter.
+#'   
+#' @usage
+#' # binary: dgwesp(decay, fixed=FALSE, cutoff=30, type="OTP")
+#'
+#' @templateVar multiplicand shared partner or selected directed analogue count
+#' @template ergmTerm-gw-decay-fixed
+#' @templateVar underlying ESP
+#' @template ergmTerm-gw-cutoff
+#' @template ergmTerm-sp-type
+#'
+#' @template ergmTerm-cache-sp
+#' @template ergmTerm-general
+#'
+#' @template ergmTerm-sp-types
+#'
+#' @template ergmTerm-gw-alpha-to-decay
+#'
+#' @concept directed
 InitErgmTerm.dgwesp<-function(nw, arglist, cache.sp=TRUE, gw.cutoff=30, ...) {
   a <- check.ErgmTerm(nw, arglist,
                       varnames = c("decay","fixed","cutoff","type", "alpha"),
                       vartypes = c("numeric","logical","numeric","character", "numeric"),
                       defaultvalues = list(NULL, FALSE, gw.cutoff,"OTP", NULL),
                       required = c(FALSE, FALSE, FALSE, FALSE, FALSE))
-  if(!is.null(a$alpha)){
-    ergm_Init_abort("For consistency with gw*degree terms, in all gw*sp and dgw*sp terms the argument ", sQuote("alpha"), " has been renamed to " ,sQuote("decay"), ".")
-  }
-  
+  decay_vs_fixed(a, 'dgwesp')
   decay<-a$decay;fixed<-a$fixed
   cutoff<-a$cutoff
   decay=decay[1] # Not sure why anyone would enter a vector here, but...
@@ -215,8 +251,6 @@ InitErgmTerm.dgwesp<-function(nw, arglist, cache.sp=TRUE, gw.cutoff=30, ...) {
   }
   
   if(!fixed){ # This is a curved exponential family model
-    if(!is.null(a$decay)) warning("In term 'dgwesp': decay parameter 'decay' passed with 'fixed=FALSE'. 'decay' will be ignored. To specify an initial value for 'decay', use the 'init' control parameter.", call.=FALSE)
-
     maxesp <- min(cutoff,network.size(nw)-2)
     d <- 1:maxesp
     ld<-length(d)
@@ -228,8 +262,6 @@ InitErgmTerm.dgwesp<-function(nw, arglist, cache.sp=TRUE, gw.cutoff=30, ...) {
            coef.names=if(is.directed(nw)) paste("esp.",type,"#",d,sep="") else paste("esp#",d,sep=""), 
            inputs=c(typecode,d), params=params, auxiliaries=if(cache.sp) .spcache.aux(type) else NULL), GWDECAY)
   }else{
-    if(is.null(a$decay)) stop("Term 'dgwesp' with 'fixed=TRUE' requires a decay parameter 'decay'.", call.=FALSE)
-
     dname<-"dgwesp"
     maxesp <- min(cutoff,network.size(nw)-2)
     if(is.directed(nw))
@@ -260,6 +292,25 @@ InitErgmTerm.dgwesp<-function(nw, arglist, cache.sp=TRUE, gw.cutoff=30, ...) {
 #routine is used (since it is safe for undirected graphs), irrespective of
 #the user's selection.  UTP cannot be chosen otherwise, since it won't work.
 #
+
+#' @templateVar name ddsp
+#' @title Directed dyadwise shared partners
+#' @description This term adds one network statistic to the model for each element in `d` where the \eqn{i} th such statistic equals the number of dyads in the network with exactly `d[i]` shared partners.
+#'   
+#' @usage
+#' # binary: ddsp(d, type="OTP")
+#'
+#' @param d a vector of distinct integers
+#' @template ergmTerm-sp-type
+#'
+#' @template ergmTerm-cache-sp
+#' @template ergmTerm-general
+#'
+#' @template ergmTerm-directed
+#'
+#' @template ergmTerm-sp-types
+#'
+#' @concept directed
 InitErgmTerm.ddsp<-function(nw, arglist, cache.sp=TRUE, ...) {
   a <- check.ErgmTerm(nw, arglist,
                       varnames = c("d","type"),
@@ -304,16 +355,37 @@ InitErgmTerm.ddsp<-function(nw, arglist, cache.sp=TRUE, ...) {
 
 
 ################################################################################
+
+#' @templateVar name dgwdsp
+#' @title Geometrically weighted dyadwise shared partner distribution
+#' @description This term adds one network statistic to the model equal to the geometrically weighted dyadwise shared partner distribution with decay parameter `decay` parameter.
+#'   
+#' @usage
+#' # binary: dgwdsp(decay, fixed=FALSE, cutoff=30, type="OTP")
+#'
+#' @templateVar multiplicand shared partner or selected directed analogue count
+#' @template ergmTerm-gw-decay-fixed
+#' @templateVar underlying DSP
+#' @template ergmTerm-gw-cutoff
+#' @template ergmTerm-sp-type
+#'
+#' @template ergmTerm-cache-sp
+#' @template ergmTerm-general
+#'
+#' @template ergmTerm-sp-types
+#'
+#' @note The GWDSP statistic is equal to the sum of GWNSP plus GWESP.
+#'
+#' @template ergmTerm-gw-alpha-to-decay
+#'
+#' @concept directed
 InitErgmTerm.dgwdsp<-function(nw, arglist, cache.sp=TRUE, gw.cutoff=30, ...) {
   a <- check.ErgmTerm(nw, arglist,
                       varnames = c("decay","fixed","cutoff","type", "alpha"),
                       vartypes = c("numeric","logical","numeric","character", "numeric"),
                       defaultvalues = list(NULL, FALSE, gw.cutoff,"OTP", NULL),
                       required = c(FALSE, FALSE, FALSE, FALSE, FALSE))
-  if(!is.null(a$alpha)){
-    ergm_Init_abort("For consistency with gw*degree terms, in all gw*sp and dgw*sp terms the argument ", sQuote("alpha"), " has been renamed to " ,sQuote("decay"), ".")
-  }
-  
+  decay_vs_fixed(a, 'dgwdsp')
   decay<-a$decay;fixed<-a$fixed
   cutoff<-a$cutoff
   decay=decay[1] # Not sure why anyone would enter a vector here, but...
@@ -335,9 +407,6 @@ InitErgmTerm.dgwdsp<-function(nw, arglist, cache.sp=TRUE, gw.cutoff=30, ...) {
   }
 
   if(!fixed){ # This is a curved exponential family model
-    if(!is.null(a$decay)) warning("In term 'dgwdsp': decay parameter 'decay' passed with 'fixed=FALSE'. 'decay' will be ignored. To specify an initial value for 'decay', use the 'init' control parameter.", call.=FALSE)
-
-    #   d <- 1:(network.size(nw)-1)
     maxesp <- min(cutoff,network.size(nw)-2)
     d <- 1:maxesp
     ld<-length(d)
@@ -351,8 +420,6 @@ InitErgmTerm.dgwdsp<-function(nw, arglist, cache.sp=TRUE, gw.cutoff=30, ...) {
            inputs=c(typecode,d), params=params, auxiliaries=if(cache.sp) .spcache.aux(type) else NULL),
       GWDECAY)
   }else{
-    if(is.null(a$decay)) stop("Term 'dgwdsp' with 'fixed=TRUE' requires a decay parameter 'decay'.", call.=FALSE)
-
     dname<-"dgwdsp"
     maxesp <- min(cutoff,network.size(nw)-2)
     if (is.directed(nw)) 
@@ -382,6 +449,25 @@ InitErgmTerm.dgwdsp<-function(nw, arglist, cache.sp=TRUE, gw.cutoff=30, ...) {
 #routine is used (since it is safe for undirected graphs), irrespective of
 #the user's selection.  UTP cannot be chosen otherwise, since it won't work.
 #
+
+#' @templateVar name dnsp
+#' @title Directed non-edgewise shared partners
+#' @description This term adds one network statistic to the model for each element in `d` where the \eqn{i} th such statistic equals the number of non-edges in the network with exactly `d[i]` shared partners.
+#'   
+#' @usage
+#' # binary: dnsp(d, type="OTP")
+#'
+#' @param d a vector of distinct integers
+#' @template ergmTerm-sp-type
+#'
+#' @template ergmTerm-cache-sp
+#' @template ergmTerm-general
+#'
+#' @template ergmTerm-directed
+#'
+#' @template ergmTerm-sp-types
+#'
+#' @concept directed
 InitErgmTerm.dnsp<-function(nw, arglist, cache.sp=TRUE, ...) {
   a <- check.ErgmTerm(nw, arglist,
                       varnames = c("d","type"),
@@ -425,16 +511,34 @@ InitErgmTerm.dnsp<-function(nw, arglist, cache.sp=TRUE, ...) {
 
 
 ################################################################################
+
+#' @templateVar name dgwnsp
+#' @title Geometrically weighted non-edgewise shared partner distribution
+#' @description This term is just like gwesp and gwdsp except it adds a statistic equal to the geometrically weighted nonedgewise (that is, over dyads that do not have an edge) shared partner distribution with decay parameter `decay` parameter.
+#'   
+#' @usage
+#' # binary: dgwnsp(decay, fixed=FALSE, cutoff=30, type="OTP")
+#'
+#' @templateVar multiplicand shared partner or selected directed analogue count
+#' @template ergmTerm-gw-decay-fixed
+#' @templateVar underlying NSP
+#' @template ergmTerm-gw-cutoff
+#' @template ergmTerm-sp-type
+#'
+#' @template ergmTerm-sp-types
+#' @template ergmTerm-cache-sp
+#' @template ergmTerm-general
+#'
+#' @template ergmTerm-gw-alpha-to-decay
+#'
+#' @concept directed
 InitErgmTerm.dgwnsp<-function(nw, arglist, cache.sp=TRUE, gw.cutoff=30, ...) {
   a <- check.ErgmTerm(nw, arglist,
                       varnames = c("decay","fixed","cutoff","type", "alpha"),
                       vartypes = c("numeric","logical","numeric","character", "numeric"),
                       defaultvalues = list(NULL, FALSE, gw.cutoff,"OTP", NULL),
                       required = c(FALSE, FALSE, FALSE, FALSE, FALSE))
-  if(!is.null(a$alpha)){
-    ergm_Init_abort("For consistency with gw*degree terms, in all gw*sp and dgw*sp terms the argument ", sQuote("alpha"), " has been renamed to " ,sQuote("decay"), ".")
-  }
-  
+  decay_vs_fixed(a, 'dgwnsp')
   decay<-a$decay;fixed<-a$fixed
   cutoff<-a$cutoff
   decay=decay[1] # Not sure why anyone would enter a vector here, but...
@@ -456,9 +560,6 @@ InitErgmTerm.dgwnsp<-function(nw, arglist, cache.sp=TRUE, gw.cutoff=30, ...) {
   }
   
   if(!fixed){ # This is a curved exponential family model
-    if(!is.null(a$decay)) warning("In term 'dgwnsp': decay parameter 'decay' passed with 'fixed=FALSE'. 'decay' will be ignored. To specify an initial value for 'decay', use the 'init' control parameter.", call.=FALSE)
-
-    #   d <- 1:(network.size(nw)-1)
     maxesp <- min(cutoff,network.size(nw)-2)
     d <- 1:maxesp
     ld<-length(d)
@@ -472,8 +573,6 @@ InitErgmTerm.dgwnsp<-function(nw, arglist, cache.sp=TRUE, gw.cutoff=30, ...) {
            
            inputs=c(typecode,d), params=params, auxiliaries=if(cache.sp) .spcache.aux(type) else NULL),GWDECAY)
   }else{
-    if(is.null(a$decay)) stop("Term 'dgwnsp' with 'fixed=TRUE' requires a decay parameter 'decay'.", call.=FALSE)
-
     dname<-"dgwnsp"
     maxesp <- min(cutoff,network.size(nw)-2)
     if (is.directed(nw)) 

@@ -13,7 +13,6 @@ control.ergm(
   main.hessian = TRUE,
   checkpoint = NULL,
   resume = NULL,
-  MPLE.max.dyad.types = 1e+06,
   MPLE.samplesize = .Machine$integer.max,
   init.MPLE.samplesize = function(d, e) max(sqrt(d), e, 40) * 8,
   MPLE.type = c("glm", "penalized", "logitreg"),
@@ -32,6 +31,12 @@ control.ergm(
   MCMC.effectiveSize.damp = 10,
   MCMC.effectiveSize.maxruns = 16,
   MCMC.effectiveSize.burnin.pval = 0.2,
+  MCMC.effectiveSize.burnin.min = 0.05,
+  MCMC.effectiveSize.burnin.max = 0.5,
+  MCMC.effectiveSize.burnin.nmin = 16,
+  MCMC.effectiveSize.burnin.nmax = 128,
+  MCMC.effectiveSize.burnin.PC = FALSE,
+  MCMC.effectiveSize.burnin.scl = 32,
   MCMC.effectiveSize.order.max = NULL,
   MCMC.return.stats = TRUE,
   MCMC.runtime.traceplot = FALSE,
@@ -41,10 +46,10 @@ control.ergm(
   MCMC.esteq.exclude.statistics = NULL,
   SAN.maxit = 4,
   SAN.nsteps.times = 8,
-  SAN = control.san(term.options = term.options, SAN.maxit = SAN.maxit,
-    SAN.prop.weights = MCMC.prop.weights, SAN.prop.args = MCMC.prop.args, SAN.nsteps =
-    EVL(MCMC.burnin, 16384) * SAN.nsteps.times, SAN.samplesize = EVL(MCMC.samplesize,
-    1024), SAN.packagenames = MCMC.packagenames, parallel = parallel, parallel.type =
+  SAN = control.san(term.options = term.options, SAN.maxit = SAN.maxit, SAN.prop.weights
+    = MCMC.prop.weights, SAN.prop.args = MCMC.prop.args, SAN.nsteps = EVL(MCMC.burnin,
+    16384) * SAN.nsteps.times, SAN.samplesize = EVL(MCMC.samplesize, 1024),
+    SAN.packagenames = MCMC.packagenames, parallel = parallel, parallel.type =
     parallel.type, parallel.version.check = parallel.version.check),
   MCMLE.termination = c("confidence", "Hummel", "Hotelling", "precision", "none"),
   MCMLE.maxit = 60,
@@ -81,11 +86,8 @@ control.ergm(
   MCMLE.dampening.min.ess = 20,
   MCMLE.dampening.level = 0.1,
   MCMLE.steplength.margin = 0.05,
-  MCMLE.steplength.point.exp = 1,
-  MCMLE.steplength.prefilter = FALSE,
   MCMLE.steplength = NVL2(MCMLE.steplength.margin, 1, 0.5),
-  MCMLE.steplength.parallel = c("observational", "always", "never"),
-  MCMLE.steplength.precision = 0.25,
+  MCMLE.steplength.parallel = c("observational", "never"),
   MCMLE.sequential = TRUE,
   MCMLE.density.guard.min = 10000,
   MCMLE.density.guard = exp(3),
@@ -102,10 +104,10 @@ control.ergm(
   obs.MCMLE.samplesize = NULL,
   obs.MCMLE.interval = round(MCMLE.interval * obs.MCMC.interval.mul),
   obs.MCMLE.burnin = round(MCMLE.burnin * obs.MCMC.burnin.mul),
+  MCMLE.steplength.solver = c("glpk", "lpsolve"),
   MCMLE.last.boost = 4,
   MCMLE.steplength.esteq = TRUE,
   MCMLE.steplength.miss.sample = function(x1) ceiling(sqrt(ncol(rbind(x1)))),
-  MCMLE.steplength.maxit = NVL3(MCMLE.steplength.margin, if (. < 0) 5 else 25),
   MCMLE.steplength.min = 1e-04,
   MCMLE.effectiveSize.interval_drop = 2,
   MCMLE.save_intermediates = NULL,
@@ -143,8 +145,7 @@ control.ergm(
   CD.conv.min.pval = 0.5,
   CD.NR.maxit = 100,
   CD.NR.reltol = sqrt(.Machine$double.eps),
-  CD.metric = c("naive", "lognormal", "logtaylor", "Median.Likelihood",
-    "EF.Likelihood"),
+  CD.metric = c("naive", "lognormal", "logtaylor", "Median.Likelihood", "EF.Likelihood"),
   CD.method = c("BFGS", "Nelder-Mead"),
   CD.dampening = FALSE,
   CD.dampening.min.ess = 20,
@@ -154,9 +155,9 @@ control.ergm(
   CD.adaptive.epsilon = 0.01,
   CD.steplength.esteq = TRUE,
   CD.steplength.miss.sample = function(x1) ceiling(sqrt(ncol(rbind(x1)))),
-  CD.steplength.maxit = 25,
   CD.steplength.min = 1e-04,
   CD.steplength.parallel = c("observational", "always", "never"),
+  CD.steplength.solver = c("glpk", "lpsolve"),
   loglik = control.logLik.ergm(),
   term.options = NULL,
   seed = NULL,
@@ -222,7 +223,7 @@ being fit. See Handcock (2000) and Hunter and Handcock (2006) for details.
 
 Note that in recent versions of ERGM, the enhancements of \code{Stepping}
 have been folded into the default \code{MCMLE}, which is able to handle more
-modeling scenarios.}
+modeling scenarios; and \code{Stepping} may be removed in a future version.}
 
 \item{force.main}{Logical: If TRUE, then force MCMC-based estimation method,
 even if the exact MLE can be computed via maximum pseudolikelihood
@@ -245,7 +246,7 @@ be reused, except for those whose value passed via
 network, the model, or some critical settings differ between
 runs, the results may be undefined.}
 
-\item{MPLE.samplesize, init.MPLE.samplesize, MPLE.max.dyad.types}{These parameters control the maximum number of dyads (potential
+\item{MPLE.samplesize, init.MPLE.samplesize}{These parameters control the maximum number of dyads (potential
 ties) that will be used by the MPLE to construct the predictor
 matrix for its logistic regression. In general, the algorithm
 visits dyads in a systematic sample that, if it does not hit one
@@ -257,9 +258,7 @@ by the algorithm before the limit was exceeded will be used.
 \code{MPLE.samplesize} limits the number of dyads visited, unless the
 MPLE is being computed for the purpose of being the initial value
 for MCMC-based estimation, in which case \code{init.MPLE.samplesize}
-is used instead, \code{MPLE.max.dyad.types} limits the number of
-unique values of change statistic vectors that will be
-stored. All of these can be specified either as numbers or as
+is used instead, All of these can be specified either as numbers or as
 \verb{function(d,e)} taking the number of informative dyads and
 informative edges. Specifying or returning a larger number than
 the number of informative dyads is safe.}
@@ -332,22 +331,40 @@ Metropolis-Hastings algorithm.  Increasing sample size may increase the
 precision in the estimates by reducing MCMC error, at the expense of time.
 Set it higher for larger networks, or when using parallel functionality.}
 
-\item{MCMC.effectiveSize, MCMC.effectiveSize.damp, MCMC.effectiveSize.maxruns, MCMC.effectiveSize.burnin.pval, MCMC.effectiveSize.order.max}{Set \code{MCMC.effectiveSize} to a non-NULL value to adaptively
+\item{MCMC.effectiveSize, MCMC.effectiveSize.damp, MCMC.effectiveSize.maxruns, MCMC.effectiveSize.burnin.pval, MCMC.effectiveSize.burnin.min, MCMC.effectiveSize.burnin.max, MCMC.effectiveSize.burnin.nmin, MCMC.effectiveSize.burnin.nmax, MCMC.effectiveSize.burnin.PC, MCMC.effectiveSize.burnin.scl, MCMC.effectiveSize.order.max}{Set \code{MCMC.effectiveSize} to a non-NULL value to adaptively
 determine the burn-in and the MCMC length needed to get the
 specified effective size; 50 is a reasonable value. In the
 adaptive MCMC mode, MCMC is run forward repeatedly
 (\code{MCMC.samplesize*MCMC.interval} steps, up to
 \code{MCMC.effectiveSize.maxruns} times) until the target effective
-sample size is reached or exceeded. After each run, the returned
-statistics are mapped to the estimating function scale, then a
-broken stick model is fit to each statistic to find the candidate
-burn-in. If its Geweke diagnostic produces a \eqn{p}-value higher
-than \code{MCMC.effectiveSize.burnin.pval}, it is accepted. The
-effective size of the post-burn-in sample is computed via Vats,
-Flegal, and Jones (2015), and compared to the target effective
-size. If it is not matched, the MCMC run is resumed, with the
-additional draws needed linearly extrapolated but weighted in
-favor of the baseline \code{MCMC.samplesize} by the weighting factor
+sample size is reached or exceeded.
+
+After each run, the returned statistics are mapped to the
+estimating function scale, then an exponential decay model is fit
+to the scaled statistics to find that burn-in which would reduce
+the difference between the initial values of statistics and their
+equilibrium values by a factor of \code{MCMC.effectiveSize.burnin.scl}
+of what it initially was, bounded by \code{MCMC.effectiveSize.min} and
+\code{MCMC.effectiveSize.max} as proportions of sample size. If the
+best-fitting decay exceeds \code{MCMC.effectiveSize.max}, the
+exponential model is considered to be unsuitable and
+\code{MCMC.effectiveSize.min} is used.
+
+A Geweke diagnostic is then run, after thinning the sample to
+\code{MCMC.effectiveSize.burnin.nmax}. If this Geweke diagnostic
+produces a \eqn{p}-value higher than
+\code{MCMC.effectiveSize.burnin.pval}, it is accepted.
+
+If \code{MCMC.effectiveSize.burnin.PC>0}, instead of using the full
+sample for burn-in estimation, at most this many principal
+components are used instead.
+
+The effective
+size of the post-burn-in sample is computed via Vats, Flegal, and
+Jones (2015), and compared to the target effective size. If it is
+not matched, the MCMC run is resumed, with the additional draws
+needed linearly extrapolated but weighted in favor of the
+baseline \code{MCMC.samplesize} by the weighting factor
 \code{MCMC.effectiveSize.damp} (higher = less damping). Lastly, if
 after an MCMC run, the number of samples equals or exceeds
 \code{2*MCMC.samplesize}, the chain will be thinned by 2 until it
@@ -512,16 +529,6 @@ to \code{NULL} to use fixed step length. Note that this parameter is
 required to be non-\code{NULL} for MCMLE termination using Hummel or
 precision criteria.}
 
-\item{MCMLE.steplength.point.exp}{For observation process ERGMs,
-allows the step length to scale the spread of points differently
-from the amount of shift towards the centroid by exponentiating
-the former by \code{MCMLE.steplength.point.exp}.}
-
-\item{MCMLE.steplength.prefilter}{Whether to enable
-pre-filtering of target and test points in the Hummel step length
-calculation. May improve performance for large MCMC sample sizes
-with missing data MLE.}
-
 \item{MCMLE.steplength}{Multiplier for step length (on the
 mean-value parameter scale), which may (for values less than one)
 make fitting more stable at the cost of computational efficiency.
@@ -535,12 +542,9 @@ will preclude using Hummel or precision as termination criteria.}
 \item{MCMLE.steplength.parallel}{Whether parallel multisection
 search (as opposed to a bisection search) for the Hummel step
 length should be used if running in multiple threads. Possible
-values (partially matched) are \code{"always"}, \code{"never"}, and
+values (partially matched) are \code{"never"}, and
 (default) \code{"observational"} (i.e., when missing data MLE is
 used).}
-
-\item{MCMLE.steplength.precision}{Required relative precision of the step
-length calculation: \eqn{(u-l)/l}.}
 
 \item{MCMLE.sequential}{Logical: If TRUE, the next iteration of the fit uses
 the last network sampled as the starting network.  If FALSE, always use the
@@ -564,6 +568,15 @@ function of the number of (curved) parameters in the model, and
 \code{MCMLE.samplesize.min} sets the minimum sample size regardless of
 their number.}
 
+\item{MCMLE.steplength.solver}{The linear program solver to use for
+MCMLE step length calculation. Can be either \code{"glpk"} to use
+\CRANpkg{Rglpk} or \code{"lpsolve"} to use \CRANpkg{lpSolveAPI}.
+\CRANpkg{Rglpk} can be orders of magnitude faster, particularly
+for models with many parameters and with large sample sizes, so
+it is used where available; but it requires an external library
+to install under some operating systems, so fallback to
+\CRANpkg{lpSolveAPI} provided.}
+
 \item{MCMLE.last.boost}{For the Hummel termination criterion, increase the
 MCMC sample size of the last iteration by this factor.}
 
@@ -582,9 +595,6 @@ procedure, a sample is taken of the points most likely to be
 outside it.  This parameter specifies the sample size or a
 function of the unconstrained sample matrix to determine the
 sample size.}
-
-\item{MCMLE.steplength.maxit}{Maximum number of iterations in searching for the
-best step length.}
 
 \item{MCMLE.steplength.min}{Stops MCMLE estimation when the step length gets
 stuck below this minimum value.}
@@ -633,7 +643,7 @@ optimization chooses a step length equal to the largest possible multiple of
 \item{Step.burnin, Step.interval, Step.samplesize}{Sets the corresponding
 \verb{MCMC.*} parameters when \code{main.method="Stepping"}.}
 
-\item{CD.samplesize.per_theta, obs.CD.samplesize.per_theta, CD.maxit, CD.conv.min.pval, CD.NR.maxit, CD.NR.reltol, CD.metric, CD.method, CD.dampening, CD.dampening.min.ess, CD.dampening.level, CD.steplength.margin, CD.steplength, CD.steplength.parallel, CD.adaptive.epsilon, CD.steplength.esteq, CD.steplength.miss.sample, CD.steplength.maxit, CD.steplength.min}{Miscellaneous tuning parameters of the CD sampler and
+\item{CD.samplesize.per_theta, obs.CD.samplesize.per_theta, CD.maxit, CD.conv.min.pval, CD.NR.maxit, CD.NR.reltol, CD.metric, CD.method, CD.dampening, CD.dampening.min.ess, CD.dampening.level, CD.steplength.margin, CD.steplength, CD.steplength.parallel, CD.adaptive.epsilon, CD.steplength.esteq, CD.steplength.miss.sample, CD.steplength.min, CD.steplength.solver}{Miscellaneous tuning parameters of the CD sampler and
 optimizer. These have the same meaning as their \verb{MCMLE.*} and
 \verb{MCMC.*} counterparts.
 

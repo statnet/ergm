@@ -5,7 +5,7 @@
  *  open source, and has the attribution requirements (GPL Section 7) at
  *  https://statnet.org/attribution .
  *
- *  Copyright 2003-2021 Statnet Commons
+ *  Copyright 2003-2022 Statnet Commons
  */
 /* The MIT License
 
@@ -385,10 +385,12 @@ static const double __ac_HASH_UPPER = 0.77;
 		if (h->n_occupied >= h->upper_bound) { /* update the hash table */ \
 			if (h->n_buckets > (h->size<<1)) {							\
 				if (kh_resize_##name(h, h->n_buckets - 1) < 0) { /* clear "deleted" elements */ \
-					if(ret) *ret = -1; return kh_none;     \
+					if(ret) *ret = -1;											\
+					return kh_none;												\
 				}														\
 			} else if (kh_resize_##name(h, h->n_buckets + 1) < 0) { /* expand the hash table */ \
-				if(ret) *ret = -1; return kh_none;							\
+				if(ret) *ret = -1;												\
+				return kh_none;													\
 			}															\
 		} /* TODO: to implement automatically shrinking; resize() already support shrinking */ \
 		{																\

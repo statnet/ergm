@@ -5,18 +5,17 @@
 #  open source, and has the attribution requirements (GPL Section 7) at
 #  https://statnet.org/attribution .
 #
-#  Copyright 2003-2021 Statnet Commons
+#  Copyright 2003-2022 Statnet Commons
 ################################################################################
 #' Internal ergm Objects
 #' 
 #' Internal \code{\link[=ergm-package]{ergm}} functions.
 #' 
 #' Most of these are not to be called by the user (or in some cases are just
-#' waiting for proper documentation to be written :).
+#' waiting for proper documentation to be written.
 #' 
 #' @name ergm-internal
-#' @aliases ergm.logisticdeviance ergm.logitreg logistftest ergm_conlist
-#' summary.statsmatrix.ergm geweke.diag.ar
+#' @aliases ergm.logitreg ergm_conlist
 #' @seealso ergm-package
 #' @keywords internal
 NULL

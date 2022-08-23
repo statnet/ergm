@@ -5,7 +5,7 @@
  *  open source, and has the attribution requirements (GPL Section 7) at
  *  https://statnet.org/attribution .
  *
- *  Copyright 2003-2021 Statnet Commons
+ *  Copyright 2003-2022 Statnet Commons
  */
 #include "ergm_dyadgen.h"
 #include "ergm_Rutil.h"
@@ -110,12 +110,9 @@ DyadGen *DyadGenInitializeR(SEXP pR, void *any_nwp, Rboolean el){
 
   DyadGenType type = asInteger(getListElement(dgR, "type"));
 
-  DyadGen *gen = Calloc(1, DyadGen);
-  gen->type = type;
-
   void *track = el ? any_nwp : NULL;
 
-  switch(gen->type){
+  switch(type){
   case RandDyadGen:
   case WtRandDyadGen:
     return DyadGenInitialize(type, any_nwp, track);

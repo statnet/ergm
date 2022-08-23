@@ -29,6 +29,7 @@ Globals
         * `$dependence` (defaulting to `TRUE`) specifying whether the constraint is dyad-dependent;
         * `$priority` (defaulting to `Inf`) specifying how important it is that the constraint is met (with `Inf` meaning that it *must* be met); and
         * `$implies`/`$impliedby` specifying which other constraints this constraint enforces or is enforced by, and this can include itself for constraints, such as `edges` that can only be applied once.
+        * `$free_dyads` either an RLEBDM or a function with no arguments that returns an RLEBDM specifying which dyads are not constrained by this constraint.
 
 Arguments
 
@@ -52,7 +53,7 @@ Most of this is implemented in the `ergm_proposal.formula()` method:
 1. Proposal candidates returned by `ergm_proposal_table()` are filtered by `Class`, `Reference`, `Weights` (if `MCMC.prop.weights` differs from `"default"`), and `Proposal` (if the LHS of `MCMC.prop` is provided).
 1. Each candidate proposal is "scored" as follows:
     1. If a proposal **does** enforce a constraint that is not among the requested by the constraints list, it is discarded.
-    1. If a proposal cannot enforce a constraint that is among the requested with `priority=Inf`, it is discarded.
+    1. If a proposal cannot enforce a constraint that is among the requested with `priority==Inf`, it is discarded.
     1. For each constraint that is among requested with `priority<Inf` *and* that the proposal **does**n't and **can**'t enforce, its (innate, specified in the column of the `ergm_proposal_table()`) `Priority` value is penalised by the `priority` of that constraint.
 1. If there are no candidate proposals left, an error is raised.
 1. If more than one is left, the proposal with the highest priority (after being penalised for unmet constraints) is selected.

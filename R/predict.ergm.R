@@ -5,7 +5,7 @@
 #  open source, and has the attribution requirements (GPL Section 7) at
 #  https://statnet.org/attribution .
 #
-#  Copyright 2003-2021 Statnet Commons
+#  Copyright 2003-2022 Statnet Commons
 ################################################################################
 #' ERGM-based tie probabilities
 #' 
@@ -115,8 +115,7 @@ predict.formula <- function(object, theta,
   
   predmat <- ergmMPLE(
     statnet.common::nonsimp_update.formula(object, . ~ indices + . ),
-    output = "matrix",
-    control = control.ergm(MPLE.max.dyad.types = Inf), # reduced to number of informative dyads in ergm.pl
+    output = "matrix", # reduced to number of informative dyads in ergm.pl
     ...
   )$predictor
   stopifnot(length(theta) == (ncol(predmat)-2))

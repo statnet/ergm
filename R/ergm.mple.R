@@ -5,7 +5,7 @@
 #  open source, and has the attribution requirements (GPL Section 7) at
 #  https://statnet.org/attribution .
 #
-#  Copyright 2003-2021 Statnet Commons
+#  Copyright 2003-2022 Statnet Commons
 ################################################################################
 
 #' Find a maximizer to the psuedolikelihood function
@@ -45,9 +45,6 @@
 #' @param family the family to use in the R native routine
 #'   \code{\link{glm}}; only applicable if "glm" is the 'MPLEtype';
 #'   default="binomial"
-#' @param save.glm whether the mple fit and the null mple fit should
-#'   be returned (T or F); if false, NULL is returned for both;
-#'   default==TRUE
 #'
 #' @templateVar mycontrol control.ergm
 #' @template control
@@ -64,16 +61,15 @@
 #' @references Hunter DR, Handcock MS, Butts CT, Goodreau SM, Morris and
 #' Martina (2008).  "ergm: A Package to Fit, Simulate and Diagnose
 #' Exponential-Family Models for Networks." _Journal of Statistical Software_,
-#' *24*(3), pp. 1-29. \url{https://www.jstatsoft.org/article/view/v024i03}
+#' *24*(3), pp. 1-29. \doi{10.18637/jss.v024.i03}
 #' 
 #' van Duijn MAJ, Gile K, Handcock MS (2009).  "Comparison of Maximum Pseudo
 #' Likelihood and Maximum Likelihood Estimation of Exponential Family Random
 #' Graph Models." _Social Networks_, *31*, pp. 52-62.
 ergm.mple<-function(nw, fd, m, init=NULL,
                     MPLEtype="glm", family="binomial",
-                    save.glm=TRUE,
                     save.xmat=TRUE,
-		    control=NULL,
+                    control=NULL,
                     verbose=FALSE,
                     ...) {
   message("Starting maximum pseudolikelihood estimation (MPLE):")
@@ -149,9 +145,6 @@ ergm.mple<-function(nw, fd, m, init=NULL,
   theta[!m$etamap$offsettheta] <- real.coef
   names(theta) <- param_names(m, FALSE)
 
-#
-# Old end
-#
   gradient <- rep(NA, length(theta))
 
   # FIXME: Actually, if case-control sampling was used, this should be positive.
@@ -169,7 +162,7 @@ ergm.mple<-function(nw, fd, m, init=NULL,
   covar[!is.na(theta)&!m$etamap$offsettheta,
         !is.na(theta)&!m$etamap$offsettheta] <- real.cov
   hess[!is.na(theta)&!m$etamap$offsettheta,
-        !is.na(theta)&!m$etamap$offsettheta] <- if(length(real.cov)) -ginv(real.cov) else matrix(0,0,0)
+        !is.na(theta)&!m$etamap$offsettheta] <- if(length(real.cov)) -sginv(real.cov) else matrix(0,0,0)
 #
   iteration <-  mplefit$iter 
 
@@ -189,21 +182,24 @@ ergm.mple<-function(nw, fd, m, init=NULL,
     }
   }
 
-  if(save.glm){
-    glm <- mplefit
-    glm.null <- mplefit.null
-  }else{
-    glm <- list(deviance=mplefit$deviance)
-    glm.null <- list(deviance=mplefit.null$deviance)
-  }
+  nobs <- sum(pl$wend)
+  df <- nparam(m, offset=FALSE)
+
   message("Finished MPLE.")
   # Output results as ergm-class object
   structure(list(coefficients=theta,
       iterations=iteration, 
       MCMCtheta=theta, gradient=gradient,
-      hessian=NULL, covar=covar, failure=FALSE,
-      glm = glm, glm.null = glm.null, xmat.full = if(save.xmat) pl$xmat.full),
-     class="ergm")
+      hessian=hess, covar=covar, failure=FALSE,
+      mple.lik = structure(
+        ERRVL(try(logLik(mplefit), silent=TRUE), -mplefit$deviance/2),
+        nobs = nobs, df = df, class="logLik"),
+      mple.lik.null = structure(
+        ERRVL(try(logLik(mplefit.null), silent=TRUE), -mplefit.null$deviance/2),
+        nobs = nobs, df = df, class="logLik"),
+      xmat.full = if(save.xmat) pl$xmat.full
+      ),
+      class="ergm")
 }
 
 #' Test whether the MPLE exists
@@ -240,7 +236,7 @@ mple.existence <- function(pl) {
   e_n <- rep(1, nrow(X.bar))
   obj <- e_n%*%X.bar 
   lprec <- make.lp(nrow=nrow(X.bar), ncol=length(obj)) # set constraint and decision variables
-  for(k in 1:length(c(obj))){
+  for(k in seq_along(c(obj))){
     status <- set.column(lprec, k, X.bar[,k])
   }
   status <- set.objfn(lprec, c( obj) )

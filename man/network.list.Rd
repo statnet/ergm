@@ -39,11 +39,11 @@ by \code{\link{simulate.ergm}} among others.
 }
 \section{Methods (by generic)}{
 \itemize{
-\item \code{print}: A \code{\link[=print]{print()}} method for network lists.
+\item \code{print(network.list)}: A \code{\link[=print]{print()}} method for network lists.
 
-\item \code{summary}: A \code{\link[=summary]{summary()}} method for network lists.
+\item \code{summary(network.list)}: A \code{\link[=summary]{summary()}} method for network lists.
+
 }}
-
 \examples{
 
 # Draw from a Bernoulli model with 16 nodes

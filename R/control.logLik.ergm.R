@@ -5,7 +5,7 @@
 #  open source, and has the attribution requirements (GPL Section 7) at
 #  https://statnet.org/attribution .
 #
-#  Copyright 2003-2021 Statnet Commons
+#  Copyright 2003-2022 Statnet Commons
 ################################################################################
 
 
@@ -38,7 +38,7 @@ control.logLik.ergm<-function(bridge.nsteps=16,
                               obs.MCMC.prop.weights=MCMC.prop.weights,
                               obs.MCMC.prop.args=MCMC.prop.args,
 
-                              MCMC.maxedges=NULL,
+                              MCMC.maxedges=Inf,
                               MCMC.packagenames=NULL,
                               
                               term.options=NULL,

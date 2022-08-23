@@ -40,7 +40,7 @@ is.ergm(object)
 \code{\link[network]{network}} object or a matrix that can be
 coerced to a \code{\link[network]{network}} object.  For the
 details on the possible \code{<model terms>}, see
-\code{\link{ergm-terms}} and Morris, Handcock and Hunter (2008)
+\code{\link{ergmTerm}} and Morris, Handcock and Hunter (2008)
 for binary ERGM terms and Krivitsky (2012) for valued ERGM terms
 (terms for weighted edges).  To create a
 \code{\link[network]{network}} object in \R, use the
@@ -66,62 +66,49 @@ the reference measure (\eqn{h(y)}) to be used.
 See help for \link[=ergm-references]{ERGM reference measures} implemented in the
 \strong{\link[=ergm-package]{ergm}} package.}
 
-\item{constraints}{{A formula specifying one or more constraints
-on the support of the distribution of the networks being modeled,
-using syntax similar to the \code{formula} argument, on the
-right-hand side. Multiple constraints
-may be given, separated by \dQuote{+} and \dQuote{-} operators. (See
-\link[=ergm-constraints]{ERGM constraints} for the explanation of
-their semantics.)
+\item{constraints}{A formula specifying one or more constraints
+on the support of the distribution of the networks being modeled. Multiple constraints
+may be given, separated by \dQuote{+} and \dQuote{-} operators. See
+\code{\link{ergmConstraint}} for the detailed explanation of
+their semantics and also for an indexed list of the constraints visible to the \CRANpkg{ergm} package.
+
+The default is to have no constraints except those provided through
+the \code{\link{ergmlhs}} API.
+
 Together with the model terms in the formula and the reference measure, the constraints
 define the distribution of networks being modeled.
 
-It is also possible to specify a proposal function directly
-either by passing a string with the function's name (in which case,
+It is also possible to specify a proposal function directly either
+by passing a string with the function's name (in which case,
 arguments to the proposal should be specified through the
-\code{prop.args} argument to \code{\link{control.ergm}}) or by
-giving it on the LHS of the constraints formula, in which case it
-will override the one chosen automatically.
-
-The default is \code{~.}, for an unconstrained model.
-
-See the \link[=ergm-constraints]{ERGM constraints} documentation for
-the constraints implemented in the \strong{\link[=ergm-package]{ergm}}
-package. Other packages may add their own constraints.
+\code{MCMC.prop.args} argument to the relevant control function, or
+by giving it on the LHS of the hints formula to \code{MCMC.prop}
+argument to the control function. This will override
+the one chosen automatically.
 
 Note that not all possible combinations of constraints and reference
 measures are supported. However, for relatively simple constraints
 (i.e., those that simply permit or forbid specific dyads or sets of
-dyads from changing), arbitrary combinations should be possible.
-}}
+dyads from changing), arbitrary combinations should be possible.}
 
-\item{obs.constraints}{{ A one-sided formula specifying one or more
+\item{obs.constraints}{A one-sided formula specifying one or more
 constraints or other modification \emph{in addition} to those
-specified by \code{constraints} that had affected the observation
-process for the network, using syntax similar to the
-\code{formula} argument. Multiple constraints may be given,
-separated by \dQuote{+} operators.
+specified by \code{constraints}, following the same syntax as the
+\code{constraints} argument.
 
 This allows the domain of the integral in the numerator of the
 partially obseved network face-value likelihoods of Handcock and
 Gile (2010) and Karwa et al. (2017) to be specified explicitly.
 
-The default is \code{~observed}, to constrain the integral to
-only integrate over the missing dyads. (It is dropped
-automatically if the network is completely observed.)
+The default is to constrain the integral to only integrate over
+the missing dyads (if present), after incorporating constraints
+provided through the \code{\link{ergmlhs}} API.
 
 It is also possible to specify a proposal function directly by
-passing a string with the function's name. In that case,
+passing a string with the function's name of the \code{obs.MCMC.prop}
+argument to the relevant control function. In that case,
 arguments to the proposal should be specified through the
-\code{obs.prop.args} argument to \code{\link{control.ergm}}.
-
-See the \link[=ergm-constraints]{ERGM constraints} documentation for
-the constraints implemented in the \strong{\link[=ergm-package]{ergm}}
-package. Other packages may add their own constraints.
-
-Note that not all possible combinations of constraints and
-reference measures are supported.
-}}
+\code{obs.prop.args} argument to the relevant control function.}
 
 \item{offset.coef}{{A vector of coefficients for the offset terms.}}
 
@@ -162,7 +149,7 @@ functions and limited argument name checking.}
 
 \item{verbose}{A logical or an integer to control the amount of
 progress and diagnostic information to be printed. \code{FALSE}/\code{0}
-produces minimal output, wit higher values producing more
+produces minimal output, with higher values producing more
 detail. Note that very high values (5+) may significantly slow
 down processing.}
 
@@ -215,7 +202,7 @@ Hessian of the approximated loglikelihood evaluated at the maximizer.}
 \item{network}{Network passed on the left-hand side of \code{formula}. If \code{target.stats} are passed, it is replaced by the network returned by \code{\link[=san]{san()}}.}
 \item{newnetworks}{A list of the final networks at the end of the MCMC
 simulation, one for each thread.}
-\item{newnetwork}{The first (possibly only) element of \code{netwonetworks}.}
+\item{newnetwork}{The first (possibly only) element of \code{newnetworks}.}
 \item{coef.init}{The initial value of \eqn{\theta}.}
 \item{est.cov}{The covariance matrix of the model statistics in the final MCMC sample.}
 \item{coef.hist, steplen.hist, stats.hist, stats.obs.hist}{
@@ -276,14 +263,14 @@ on a similar scheme.
 }
 \section{Methods (by generic)}{
 \itemize{
-\item \code{nobs}: Return the number of informative dyads of a model fit.
+\item \code{nobs(ergm)}: Return the number of informative dyads of a model fit.
 
-\item \code{print}: 
+\item \code{print(ergm)}: 
 
-\item \code{vcov}: extracts the variance-covariance matrix of
+\item \code{vcov(ergm)}: extracts the variance-covariance matrix of
 parameter estimates.
-}}
 
+}}
 \section{Notes on model specification}{
 
 Although each of the statistics in a given model is a summary
@@ -412,7 +399,7 @@ Bender-deMoll S, Morris M, Moody J (2008).
 Prototype Packages for Managing and Animating Longitudinal
 Network Data: \pkg{dynamicnetwork} and \pkg{rSoNIA}.
 \emph{Journal of Statistical Software}, 24(7).
-\url{https://www.jstatsoft.org/v24/i07/}.
+\doi{10.18637/jss.v024.i07}
 
 Butts CT (2007).
 \pkg{sna}: Tools for Social Network Analysis.
@@ -421,7 +408,7 @@ R package version 2.3-2. \url{https://cran.r-project.org/package=sna}.
 Butts CT (2008).
 \pkg{network}: A Package for Managing Relational Data in \R.
 \emph{Journal of Statistical Software}, 24(2).
-\url{https://www.jstatsoft.org/v24/i02/}.
+\doi{10.18637/jss.v024.i02}
 
 Butts C (2015).
 \pkg{network}: The Statnet Project (https://statnet.org). R package version 1.12.0, \url{https://cran.r-project.org/package=network}.
@@ -429,7 +416,7 @@ Butts C (2015).
 Goodreau SM, Handcock MS, Hunter DR, Butts CT, Morris M (2008a).
 A \pkg{statnet} Tutorial.
 \emph{Journal of Statistical Software}, 24(8).
-\url{https://www.jstatsoft.org/v24/i08/}.
+\doi{10.18637/jss.v024.i08}
 
 Goodreau SM, Kitts J, Morris M (2008b).
 Birds of a Feather, or Friend of a Friend? Using Exponential
@@ -471,7 +458,7 @@ Hunter DR, Handcock MS, Butts CT, Goodreau SM, Morris M (2008b).
 \pkg{ergm}: A Package to Fit, Simulate and Diagnose
 Exponential-Family Models for Networks.
 \emph{Journal of Statistical Software}, 24(3).
-\url{https://www.jstatsoft.org/v24/i03/}.
+\doi{10.18637/jss.v024.i03}
 
 Karwa V, Krivitsky PN, and Slavkovi\'{c} AB (2017). Sharing Social Network
 Data: Differentially Private Estimation of Exponential-Family Random
@@ -486,7 +473,7 @@ Morris M, Handcock MS, Hunter DR (2008).
 Specification of Exponential-Family Random Graph Models:
 Terms and Computational Aspects.
 \emph{Journal of Statistical Software}, 24(4).
-\url{https://www.jstatsoft.org/v24/i04/}.
+\doi{10.18637/jss.v024.i04}
 
 Snijders, T.A.B. (2002),
 Markov Chain Monte Carlo Estimation of Exponential Random Graph Models.
@@ -495,7 +482,7 @@ Available from
 \url{https://www.cmu.edu/joss/content/articles/volume3/Snijders.pdf}.
 }
 \seealso{
-\code{\link{network}}, \code{\link{\%v\%}}, \code{\link{\%n\%}}, \link{ergm-terms}, \code{\link{ergmMPLE}},
+\code{\link{network}}, \code{\link{\%v\%}}, \code{\link{\%n\%}}, \code{\link{ergmTerm}}, \code{\link{ergmMPLE}},
 \code{\link[=summary.ergm]{summary.ergm()}}
 }
 \keyword{models}

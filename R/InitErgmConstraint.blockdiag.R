@@ -5,13 +5,13 @@
 #  open source, and has the attribution requirements (GPL Section 7) at
 #  https://statnet.org/attribution .
 #
-#  Copyright 2003-2021 Statnet Commons
+#  Copyright 2003-2022 Statnet Commons
 ################################################################################
 
 ## FIXME: There is almost certainly a better way to do this.
 .consensus.order <- function(x1, x2){
   o <- intersect(x1, x2)
-  if(!all(x1[x1 %in% o] == x2[x2 %in% o])) stop("Current implementation of block-diagonal sampling requires the common blocks of egos and blocks of alters to have the same order. See help('ergm-constraints') for more information.")
+  if(!all(x1[x1 %in% o] == x2[x2 %in% o])) stop("Current implementation of block-diagonal sampling requires the common blocks of egos and blocks of alters to have the same order. See ", sQuote("ergmConstraint?blockdiag"), "for more information.")
   o1 <- c(0, which(x1 %in% o),length(x1)+1)
   o2 <- c(0, which(x2 %in% o),length(x2)+1)
   n <- length(o1) - 1
@@ -41,6 +41,32 @@
   list(values=o, lengths1=l1, lengths2=l2)
 }
 
+#' @templateVar name blockdiag
+#' @title Block-diagonal structure constraint
+#' @description Force a block-diagonal structure (and its bipartite analogue) on
+#'   the network. Only dyads \eqn{(i,j)} for which
+#'   `attr(i)==attr(j)` can have edges.
+#'
+#'   Note that the current implementation requires that blocks be
+#'   contiguous for unipartite graphs, and for bipartite
+#'   graphs, they must be contiguous within a partition and must have
+#'   the same ordering in both partitions. (They do not, however,
+#'   require that all blocks be represented in both partitions, but
+#'   those that overlap must have the same order.)
+#'
+#'   If multiple block-diagonal constraints are given, or if
+#'   `attr` is a vector with multiple attribute names, blocks
+#'   will be constructed on all attributes matching.
+#'
+#' @usage
+#' # blockdiag(attr)
+#' @template ergmTerm-attr
+#'
+#' @template ergmConstraint-general
+#'
+#' @concept dyad-independent
+#' @concept directed
+#' @concept undirected
 #' @import rle
 InitErgmConstraint.blockdiag<-function(lhs.nw, attr=NULL, ...){
   if(length(list(...)))
@@ -54,7 +80,7 @@ InitErgmConstraint.blockdiag<-function(lhs.nw, attr=NULL, ...){
            bip <- lhs.nw %n% "bipartite"
            ea <- a[seq_len(bip)]
            aa <- a[bip+seq_len(n-bip)]
-           if(length(rle(ea)$lengths)!=length(unique(rle(ea)$values)) || length(rle(aa)$lengths)!=length(unique(rle(aa)$values))) stop("Current implementation of block-diagonal sampling requires that the blocks of the egos and the alters be contiguous. See help('ergm-constraints') for more information.")
+           if(length(rle(ea)$lengths)!=length(unique(rle(ea)$values)) || length(rle(aa)$lengths)!=length(unique(rle(aa)$values))) stop("Current implementation of block-diagonal sampling requires that the blocks of the egos and the alters be contiguous. See ", sQuote("ergmConstraint?blockdiag"), " for more information.")
 
            tmp <- .double.rle(ea, aa)
            el <- tmp$lengths1

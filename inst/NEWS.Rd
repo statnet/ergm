@@ -5,7 +5,7 @@
 %  open source, and has the attribution requirements (GPL Section 7) at
 %  https://statnet.org/attribution .
 %
-%  Copyright 2003-2021 Statnet Commons
+%  Copyright 2003-2022 Statnet Commons
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \name{NEWS}
 \title{NEWS file for the \code{\link[=ergm-package]{ergm}} package}
@@ -63,6 +63,238 @@
   % }
 
 %% }
+
+
+\section{Changes in version 4.2.2}{
+
+  \subsection{NEW FEATURES}{
+    \itemize{
+      \item{
+        More \code{\link{ergmKeyword}}s have been added for dyadic and triadic covariates, and terms have been tagged appropriately.
+      }
+    }
+  }
+
+
+  \subsection{BUG FIXES}{
+    \itemize{
+      \item{
+        Robustification of step length calculation, documentation processing, numerical optimization, and elsewhere.
+      }
+
+      \item{
+        Minor documentation and vignettes fixes and clarifications.
+      }
+    }
+  }
+
+  \subsection{INSTALLATION}{
+    \itemize{
+      \item{
+        Package \pkg{ergm.userterms} for implementing custom ERGM terms is no longer maintained on CRAN and is instead maintained on GitHub at \url{https://github.com/statnet/ergm.userterms}. It is no longer listed as a Suggested package.
+      }
+    }
+  }
+}
+
+
+\section{Changes in version 4.2.1}{
+
+  \subsection{NEW FEATURES}{
+    \itemize{
+      \item{
+        A new framework for documenting and cross-referencing ERGM terms and term-like constructs (constraints, hints, references, and proposals) has been implemented. Each term documentation is now generated in an Roxygen block for its initialization function, generating a function-like documentation entry, e.g., \code{\link{edges-ergmTerm}}, \code{\link{edges-ergmConstraint}}, \code{\link{sparse-ergmHint}}, \code{\link{Unif-ergmReference}}, and \code{\link{TNT-ergmProposal}}, which can be invoked with \code{ergmTerm?edges} etc.. Visible terms are dynamically indexed in \code{\link{ergmTerm}}, \code{\link{ergmConstraint}}, \code{\link{ergmHint}}, \code{\link{ergmReference}}, and \code{\link{ergmProposal}}. (Joyce Cheng)
+      }
+
+      \item{
+        Indexing can be done by keyword (using R's concepts), whose meanings can be looked up in \code{\link{ergmKeyword}}. Terms cane be searched via \code{\link{search.ergmTerms}}, \code{\link{search.ergmConstraints}}, etc.. (Joyce Cheng)
+      }
+
+      \item{
+        Term \code{\link[=nodemix-ergmTerm]{nodemix}} can now be passed a \code{levels2} argument that is a \code{\link{factor}} or \code{\link{character}} and optionally a matrix, allowing multiple cells to be mapped to the same statistic. (Joyce Cheng)
+      }
+
+      \item{
+        An API has been added for caching state information on worker nodes; in particular, when making repeated calls to MCMC sampling, \code{\link{ergm_model}} and \code{\link{ergm_proposal}} objects are only sent the first time, and subsequent MCMC runs from the same terms and proposal use the cache. This means that they do not need to be serialized and send through the link.
+      }
+    }
+  }
+
+
+  \subsection{BUG FIXES}{
+    \itemize{
+      \item{
+        Calculations are now somewhat more robust for models whose statistics have vastly different magnitudes: in particular, covariance matrices are now generally converted to correlation matrices before inversion and then scaled back, avoiding false positives for signularness detection.
+      }
+
+      \item{
+        \code{\link[=Dyads-ergmConstraint]{Dyads}} constraint now detects if any of the terms passed to it are dyad-dependent and stops with an error.
+      }
+
+      \item{
+        \code{\link[=fixallbut-ergmConstraint]{fixallbut}} constraint now works for matrix input.
+      }
+
+      \item{
+        The \code{"confidence"} convergence criterion is now more robust to nonidentifiable models.
+      }
+
+      \item{
+        \code{\link[=edgecov-ergmTerm]{edgecov}} and \code{\link[=dyadcov-ergmTerm]{dyadcov}} now detect and stop with an error when the specified network attribute is not found.
+      }
+
+      \item{
+        Bugfixes in \code{\link{gof}} handling of bipartite networks. (Michal Bojanowski)
+      }
+
+      \item{
+        \code{\link{as.matrix}} is called in a number of places where \code{\link{as.matrix.network}} was called directly.
+      }
+
+      \item{
+        \code{\link{gof.ergm}} now handles missing data networks more or less correctly again.
+      }
+
+      \item{
+        Log-likelihood calculation for missing data has been partially rewritten. This fixes some corner cases, as well improve speed and memory efficiency.
+      }
+
+      \item{
+        Miscellaneous documentation fixes and improvements. (regular contributors, and Fabio A. Correa and Jiahao Wang)
+      }
+    }
+  }
+
+
+  \subsection{OTHER USER-VISIBLE CHANGES}{
+    \itemize{
+      \item{
+        Almost all tests now use the \code{testthat} 3 framework. (Joyce Cheng and Chad Klumb)
+      }
+
+      \item{
+        \code{\link{ergm_GWDECAY}} curved ERGM pattern is now exported.
+      }
+
+      \item{
+        MPLE predictor matrix calculation now uses a dynamically growing hash table as its back end, which means that \code{MPLE.max.dyad.types=} is deprecated and does not need to be specified.
+      }
+
+      \item{
+        Adaptive bridge sampling for likelihood calculation now shifts the bridge locations by an offset generated from a low-discrepancy sequence after each attempt in order to reduce bias due to finite number of bridges.
+      }
+
+      \item{Hummel (2012) step length calculation now uses an improved algorithm (Krivitsky, Kuvelkar, and Hunter 2022) and uses \pkg{Rglpk} where available for better performance. \code{\link{is.inCH}} and the \code{Stepping} algorithms have been deprecated (the latter in favour of \code{MCMLE}).
+      }
+
+      \item{
+        Adaptive MCMC's burn-in detection now models the burning in as exponential decay to the stationary distribution, and selects burn-in based on a given amount of bias due to burning in.
+      }
+
+      \item{
+        \code{\link{approx.hotelling.diff.test}} with \code{var.equal=TRUE} now uses a pooled estimate of autocovariance, so \code{\link{spectrum0.mvar}} is only called once.
+      }
+
+      \item{
+        MPLE estimation now returns the Hessian as well. (Previously, it was only MCMC-based methods that did.)
+      }
+
+      \item{
+        \code{\link{ergmMPLE}} no longer has the \code{fitmodel=} argument.
+      }
+
+      \item{
+        \code{\link{ergmMPLE}} with output types other than \code{"fit"} now attach eta map information as an attribute.
+      }
+
+      \item{
+        ERGM MPLE calculation no longer returns \code{$glm} and \code{$glm.null} elements, instead returning \code{$mple.lik} and \code{$mple.null.lik}.
+      }
+
+      \item{
+        \code{\link{ergm_model}()} no longer sets an element \code{$coef.names}, and \code{offset()} decorator is set on each term's \code{coef.names}.
+      }
+
+      \item{
+        In \code{\link{summary.ergm}()} output, \code{$coefs} is no longer returned.
+      }
+
+      \item{
+        \code{\link{check.ErgmTerm}()} helper function can now also capture the expressions resulting in term arguments. This incidentally fixes a regression in statistic naming of \code{\link{edgecov-ergmTerm}} and \code{\link{dyadcov-ergmTerm}} effects.
+      }
+
+      \item{
+        \code{main.method="Robbins-Monro"} implementation is broken and has been disabled pending either fixing in the next release or removal. (There is nothing it can do that \code{"Stochastic-Approimation"} doesn't do better.
+      }
+
+      \item{
+        Term \code{\link{hamming-ergmConstraint}} implementation is broken and has been disabled pending a fix.
+      }
+
+      \item{
+        Messages about inconsistent arguments for geometrically weighted terms are now a bit more consistent, as is their documentation.
+      }
+    }
+  }
+
+  \subsection{PACKAGE INSTALLATION}{
+    \itemize{
+      \item{
+        Package \pkg{Rglpk} is not strictly required and has additional external library requirements on some platforms, but it is strongly recommended, as it outperforms \pkg{lpSolve} in most situations.
+      }
+    }
+  }
+
+}
+
+
+\section{Changes in version 4.1.2}{
+
+  \subsection{NEW FEATURES}{
+    \itemize{
+      \item{
+        \code{\link{F}()} operator's filter formula can now be a simple logical or comparison expression.
+      }
+      \item{
+        \code{\link{Passthrough}()} operator now takes an optional boolean label= argument, which controls whether Passthrough~ will be prepended to the coefficient name; it defaults to \code{TRUE} for backwards compatibility, though this may change in the future.
+      }
+    }
+  }
+
+
+  \subsection{BUG FIXES}{
+    \itemize{
+      \item{
+        In \code{\link{summary.ergm}()} output, the \code{$coefficients} element is now a matrix rather than a dataframe. This fixes some issues with duplicate term names. \code{$coefs} is no longer returned.
+      }
+      \item{
+        \code{\link{check.ErgmTerm}()} no longer skips argument type check if the passed argument is \code{NULL}. For backwards compatibility, the check is skipped if the argument is optional \emph{and} the default value is \code{NULL}. A constant \code{ERGM_VATTR_SPEC_NULL} has been added for when \code{NULL} is a valid (but not default) input for nodal attribute specification.
+      }
+      \item{
+        A serious bug in calculation of geodesic distance distribution in \code{\link{gof.formula}()} has been fixed. (Thanks to Jeffrey Alan Smith (University of Nebraska at Lincoln) for reporting it.)
+      }
+      \item{
+        Documentation corrections, fixes, and clean-ups.
+      }
+      \item{
+        A number of memory leaks have been fixed.
+      }
+    }
+  }
+
+
+  \subsection{OTHER USER-VISIBLE CHANGES}{
+    \itemize{
+      \item{
+        Miscellaneous improvements to the \code{BDStrat*} family of proposals.
+      }
+      \item{
+        In adaptive MCMC, burn-in detection now fits an exponential decay rather than a broken stick model.
+      }
+    }
+  }
+}
+
 
 \section{Changes in version 4.0.1}{
 
@@ -303,7 +535,7 @@
         Term initialization traceback printing has been robustified.
       }
       \item{
-        Term \code{\link{nodeisqrtcovar}} now initializes without error. Thanks to Yu-Lun Chen (NYU) for reporting the issue.
+        Term \code{\link{nodeisqrtcovar}} now initializes without error. (Thanks to Yu-Lun Chen (NYU) for reporting the issue.)
       }
       \item{
         The MPLE code has been robustified for some corner cases (e.g., a model with 0 free parameters).
@@ -355,7 +587,7 @@
       \item{
         The convex hull testing now uses the \code{\link{lpSolveAPI-package}} and is faster and more robust as a result. (Thanks to Christian Schmid (PSU).)
       }
-      
+
       \item{
 	\code{\link{enformulate.curved}} family of functions has been
 	deprecated.

@@ -5,7 +5,7 @@
 #  open source, and has the attribution requirements (GPL Section 7) at
 #  https://statnet.org/attribution .
 #
-#  Copyright 2003-2021 Statnet Commons
+#  Copyright 2003-2022 Statnet Commons
 ################################################################################
 
 #' Auxiliary for Controlling ERGM Simulation
@@ -71,6 +71,12 @@ control.simulate.formula.ergm<-function(MCMC.burnin=MCMC.interval*16,
                                         MCMC.effectiveSize.damp=10,
                                         MCMC.effectiveSize.maxruns=1000,
                                         MCMC.effectiveSize.burnin.pval=0.2,
+                                        MCMC.effectiveSize.burnin.min=0.05,
+                                        MCMC.effectiveSize.burnin.max=0.5,
+                                        MCMC.effectiveSize.burnin.nmin=16,
+                                        MCMC.effectiveSize.burnin.nmax=128,
+                                        MCMC.effectiveSize.burnin.PC=FALSE,
+                                        MCMC.effectiveSize.burnin.scl=1024,
                                         MCMC.effectiveSize.order.max=NULL,
                                         
                                         MCMC.maxedges=Inf,
@@ -127,6 +133,12 @@ control.simulate.ergm<-function(MCMC.burnin=NULL,
                                 MCMC.effectiveSize.damp=10,
                                 MCMC.effectiveSize.maxruns=1000,
                                 MCMC.effectiveSize.burnin.pval=0.2,
+                                MCMC.effectiveSize.burnin.min=0.05,
+                                MCMC.effectiveSize.burnin.max=0.5,
+                                MCMC.effectiveSize.burnin.nmin=16,
+                                MCMC.effectiveSize.burnin.nmax=128,
+                                MCMC.effectiveSize.burnin.PC=FALSE,
+                                MCMC.effectiveSize.burnin.scl=1024,
                                 MCMC.effectiveSize.order.max=NULL,
                                 
                                 MCMC.maxedges=Inf,

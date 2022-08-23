@@ -5,7 +5,7 @@
 #  open source, and has the attribution requirements (GPL Section 7) at
 #  https://statnet.org/attribution .
 #
-#  Copyright 2003-2021 Statnet Commons
+#  Copyright 2003-2022 Statnet Commons
 ################################################################################
 #=========================================================================
 # This file contains the following 2 functions for computing changestat
@@ -88,17 +88,18 @@ ergm.godfather <- function(formula, changes=NULL, response=NULL,
   ncols <- sapply(changes, ncol)
   if(!all_identical(ncols) || ncols[1]<2 || ncols[1]>3 || (is.valued(nw)&&ncols[1]==2)) abort("Invalid format for list of changes. See help('ergm.godfather').")
 
-  if(!is.directed(nw)) changes <- lapply(changes, function(x){
-    x[,1:2] <- t(apply(x[,1:2,drop=FALSE], 1, sort))
-    x
-  })
-
   m <- ergm_model(formula, nw, term.options=control$term.options)
   state <- ergm_state(nw, model=m)
   state <- update(state, stats = if(changes.only) numeric(nparam(state,canonical=TRUE)) else summary(state))
 
   changem <- changes %>% map(~rbind(0L,.)) %>% do.call(rbind, .) # 0s are sentinels indicating next iteration.
   if(!stats.start) changem <- changem[-1,,drop=FALSE] # I.e., overwrite the initial statistic rather than advancing past it first thing.
+  if(!is.directed(nw)) {
+    tails <- changem[,1]
+    heads <- changem[,2]
+    changem[,1] <- pmin(tails, heads)
+    changem[,2] <- pmax(tails, heads)
+  }
   
   if(verbose) message_print("Applying changes...\n")
   z <-

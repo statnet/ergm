@@ -5,7 +5,7 @@
 #  open source, and has the attribution requirements (GPL Section 7) at
 #  https://statnet.org/attribution .
 #
-#  Copyright 2003-2021 Statnet Commons
+#  Copyright 2003-2022 Statnet Commons
 ################################################################################
 # The last home for functions to removed from ergm.
 
@@ -107,4 +107,9 @@ as.network.uncompressed<-function(...) .Defunct(msg="No longer used.")
 standardize.network <- function(...) .Defunct(msg=paste0("Obviated by improvements to ", sQuote("network"), " package."))
 
 #' @rdname ergm-defunct
-newnw.extract<-function(...) .Defunct('pending_network_update "API"')
+newnw.extract<-function(...) .Defunct('ergm_state "API"')
+
+# The following were defunct-ed 2022-06-21.
+
+#' @rdname ergm-defunct
+san.ergm <- function(...) .Defunct(msg="Removed due to no meaningful use case.")

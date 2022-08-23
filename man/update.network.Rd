@@ -50,17 +50,17 @@ to the sociomatrix or edge list specified by \code{new}.
 }
 \section{Functions}{
 \itemize{
-\item \code{update_network}: dispatcher for network update based on the type of updating information.
+\item \code{update_network()}: dispatcher for network update based on the type of updating information.
 
-\item \code{update_network.matrix_edgelist}: a method for updating a network based on a matrix-form edgelist
+\item \code{update_network(matrix_edgelist)}: a method for updating a network based on a matrix-form edgelist
 
-\item \code{update_network.data.frame}: a method for updating a network based on an edgelist
+\item \code{update_network(data.frame)}: a method for updating a network based on an edgelist
 
-\item \code{update_network.matrix}: a method for updating a network based on a matrix
+\item \code{update_network(matrix)}: a method for updating a network based on a matrix
 
-\item \code{update_network.ergm_state}: a method for updating a network based on an \code{\link{ergm_state}} object.
+\item \code{update_network(ergm_state)}: a method for updating a network based on an \code{\link{ergm_state}} object.
+
 }}
-
 \examples{
 
 #

@@ -5,7 +5,7 @@
 #  open source, and has the attribution requirements (GPL Section 7) at
 #  https://statnet.org/attribution .
 #
-#  Copyright 2003-2021 Statnet Commons
+#  Copyright 2003-2022 Statnet Commons
 ################################################################################
 #' Function to check whether an ERGM fit or some aspect of it is valued
 #' @param object the object to be tested.
@@ -31,7 +31,7 @@ is.valued.ergm <- function(object, ...){
   is.valued(object$network)
 }
 
-#' @describeIn is.valued a method for [`network`] objects.
+#' @describeIn is.valued a method for [`network`] objects that tests whether the network has been instrumented with a valued [`%ergmlhs%`] `"response"` specification, typically by [ergm_preprocess_response()]. Note that it is *not* a test for whether a network has edge attributes. This method is primarily for internal use.
 #' @export
 is.valued.network <- function(object, ...){
   NVL(attr(object %ergmlhs% "response", "valued"), FALSE)

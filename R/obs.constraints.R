@@ -5,60 +5,58 @@
 #  open source, and has the attribution requirements (GPL Section 7) at
 #  https://statnet.org/attribution .
 #
-#  Copyright 2003-2021 Statnet Commons
+#  Copyright 2003-2022 Statnet Commons
 ################################################################################
-
-.delete_from_conform_rhs <- function(f, del){
-  ff <- filter_rhs.formula(f, `!=`, del)
-  if(length(ff)!=length(f)) ff[[length(ff)+1]] <- as.name('.')
-  ff
-}
 
 .handle.auto.constraints <- function(nw,
                                      constraints=trim_env(~.),
                                      obs.constraints=trim_env(~.-observed),
-                                     target.stats=NULL) {
-
-  # We have constraint information.
-  constraints <- NVL3(nw%ergmlhs%"constraints", nonsimp_update.formula(., constraints), constraints)
-
-  if(!is.null(obs.constraints)){
-    # We have observational process information.
-    obs.constraints <- NVL3(nw%ergmlhs%"obs.constraints", nonsimp_update.formula(., obs.constraints), obs.constraints)
-
+                                     target.stats=NULL){
+  .preproc_constraints <- function(...){
+    # Embed the LHS as a .select() constraint.
+    tll <- list(...) %>% compact() %>% map(.embed_constraint_lhs) %>% map(list_rhs.formula)
     # If no missing edges, remove the "observed" constraint.
-    if(network.naedgecount(nw)==0){
-      obs.constraints <- .delete_from_conform_rhs(obs.constraints, "observed")
+    if(network.naedgecount(nw)==0) tll <- map(tll, .delete_term, "observed")
+
+    if(length(tll) == 0) return(NULL)
+
+    # Go through the constraint lists, substituting the earlier ones into the dots in the later ones.
+    otl <- tll[[1]]
+    for(i in seq_along(tll)[-1]){
+      ntl <- tll[[i]]
+
+      # Find the substitution positions.
+      pos <- which(ntl %>% map_chr(~as.character(.)[1]) == ".")
+      # Substitute (working backwards, to prevent pos from changing).
+      for(p in rev(pos))
+        ntl <- c(ntl[seq_len(pos-1)], otl, ntl[-seq_len(pos)])
+
+      otl <- ntl
     }
 
+    # Delete remaining dots, just in case.
+    .delete_term(otl, ".")
+  }
+
+  tl <- .preproc_constraints(nw%ergmlhs%"constraints", constraints)
+  obs.tl <- .preproc_constraints(nw%ergmlhs%"obs.constraints", obs.constraints)
+
+  # Do any of the observational constraints formulas have terms?
+  if(length(obs.tl)){
     # Observation process handling only needs to happen if the
     # sufficient statistics are not specified. If the sufficient
     # statistics are specified, the nw's dyad states are irrelevant.
     if(!is.null(target.stats)){
-      if(obs.constraints!=trim_env(~.) || network.naedgecount(nw)) message("Target statistics specified in a network with missing dyads and/or a nontrivial observation process. Since (by sufficiency) target statistics provide all the information needed to fit the model, missingness and observation process will not affect estimation.")
+      message("Target statistics specified in a network with missing dyads and/or a nontrivial observation process. Since (by sufficiency) target statistics provide all the information needed to fit the model, missingness and observation process will not affect estimation.")
       if(network.naedgecount(nw)) nw[as.matrix(is.na(nw),matrix.type="edgelist")] <- 0
-      obs.constraints <- trim_env(~.)
+      obs.tl <- NULL
     }
+  }
 
-    constraints.obs<-obs.constraints
-
-    constraints.sub <- constraints
-    if(length(constraints.sub)==2){
-      constraints.sub[[3]] <- constraints.sub[[2]]
-      constraints.sub[[2]] <- as.name(".")
-    }
-    ult(constraints.sub) <- call('+', as.name('.'), ult(constraints.sub))
-
-    constraints.obs <- nonsimp_update.formula(constraints.obs, constraints.sub, from.new=TRUE)
-    constraints.obs <- .delete_from_conform_rhs(constraints.obs, ".")
-    if(identical(ult(constraints),ult(constraints.obs))) constraints.obs<-NULL
-
-  }else constraints.obs<-NULL
-  
-  list(nw = nw, constraints = constraints, constraints.obs = constraints.obs)
+  list(nw = nw, conterms = tl, conterms.obs = if(length(obs.tl)) c(obs.tl, tl))
 }
 
-has.obs.constraints <- function(...) !is.null(.handle.auto.constraints(...)$constraints.obs)
+has.obs.constraints <- function(...) length(.handle.auto.constraints(...)$conterms.obs) > 0
 
 .align.target.stats.offset <- function(model, target.stats){
   om <- model$etamap$offsetmap

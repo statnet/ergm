@@ -5,9 +5,8 @@
 #  open source, and has the attribution requirements (GPL Section 7) at
 #  https://statnet.org/attribution .
 #
-#  Copyright 2003-2021 Statnet Commons
+#  Copyright 2003-2022 Statnet Commons
 ################################################################################
-local_edition(3)
 data(florentine)
 
 test_that("target+offset in a non-curved ERGM", {

@@ -19,3 +19,4 @@ A list understood by the C \code{DyadGen} API.
 \description{
 A helper function to select and construct a dyad generator for C.
 }
+\keyword{internal}

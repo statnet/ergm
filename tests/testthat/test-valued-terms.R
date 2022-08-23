@@ -5,7 +5,7 @@
 #  open source, and has the attribution requirements (GPL Section 7) at
 #  https://statnet.org/attribution .
 #
-#  Copyright 2003-2021 Statnet Commons
+#  Copyright 2003-2022 Statnet Commons
 ################################################################################
 
 # Correct values. Note that for undirected networks, this needs to be
@@ -49,12 +49,12 @@ test_that("valued triadic effects in undirected networks", {
   
   y.m <- as.matrix(y, a="w")
 
-  expect_equivalent(y.summ[1], transitiveweights(y.m, pmin, max, min)/2)
-  expect_equivalent(y.summ[2], transitiveweights(y.m, pmin, sum, min)/2)
-  expect_equivalent(y.summ[3], transitiveweights(y.m, pgeomean, sum, pgeomean)/2)
-  expect_equivalent(y.summ[4], cyclicalweights(y.m, pmin, max, min)/2)
-  expect_equivalent(y.summ[5], cyclicalweights(y.m, pmin, sum, min)/2)
-  expect_equivalent(y.summ[6], cyclicalweights(y.m, pgeomean, sum, pgeomean)/2)
+  expect_equal(y.summ[1], transitiveweights(y.m, pmin, max, min)/2, ignore_attr=TRUE)
+  expect_equal(y.summ[2], transitiveweights(y.m, pmin, sum, min)/2, ignore_attr=TRUE)
+  expect_equal(y.summ[3], transitiveweights(y.m, pgeomean, sum, pgeomean)/2, ignore_attr=TRUE)
+  expect_equal(y.summ[4], cyclicalweights(y.m, pmin, max, min)/2, ignore_attr=TRUE)
+  expect_equal(y.summ[5], cyclicalweights(y.m, pmin, sum, min)/2, ignore_attr=TRUE)
+  expect_equal(y.summ[6], cyclicalweights(y.m, pgeomean, sum, pgeomean)/2, ignore_attr=TRUE)
 
   # Check d_ statistics against the s_ statistics
   
@@ -63,7 +63,7 @@ test_that("valued triadic effects in undirected networks", {
   s_results <- t(sapply(y.sim, summary.call))
   d_results <- attr(y.sim,"stats")
 
-  expect_equivalent(s_results,as.matrix(d_results))
+  expect_equal(s_results,as.matrix(d_results), ignore_attr=TRUE)
 })
 
 test_that("valued triadic effects in directed networks", {
@@ -77,12 +77,12 @@ test_that("valued triadic effects in directed networks", {
   
   y.m <- as.matrix(y, a="w")
   
-  expect_equivalent(y.summ[1], transitiveweights(y.m, pmin, max, min))
-  expect_equivalent(y.summ[2], transitiveweights(y.m, pmin, sum, min))
-  expect_equivalent(y.summ[3], transitiveweights(y.m, pgeomean, sum, pgeomean))
-  expect_equivalent(y.summ[4], cyclicalweights(y.m, pmin, max, min))
-  expect_equivalent(y.summ[5], cyclicalweights(y.m, pmin, sum, min))
-  expect_equivalent(y.summ[6], cyclicalweights(y.m, pgeomean, sum, pgeomean))
+  expect_equal(y.summ[1], transitiveweights(y.m, pmin, max, min), ignore_attr=TRUE)
+  expect_equal(y.summ[2], transitiveweights(y.m, pmin, sum, min), ignore_attr=TRUE)
+  expect_equal(y.summ[3], transitiveweights(y.m, pgeomean, sum, pgeomean), ignore_attr=TRUE)
+  expect_equal(y.summ[4], cyclicalweights(y.m, pmin, max, min), ignore_attr=TRUE)
+  expect_equal(y.summ[5], cyclicalweights(y.m, pmin, sum, min), ignore_attr=TRUE)
+  expect_equal(y.summ[6], cyclicalweights(y.m, pgeomean, sum, pgeomean), ignore_attr=TRUE)
   
   # Check d_ statistics against the s_ statistics
   
@@ -91,5 +91,5 @@ test_that("valued triadic effects in directed networks", {
   s_results <- t(sapply(y.sim, summary.call))
   d_results <- attr(y.sim,"stats")
 
-  expect_equivalent(s_results,as.matrix(d_results))
+  expect_equal(s_results,as.matrix(d_results), ignore_attr=TRUE)
 })

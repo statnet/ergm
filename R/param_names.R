@@ -5,7 +5,7 @@
 #  open source, and has the attribution requirements (GPL Section 7) at
 #  https://statnet.org/attribution .
 #
-#  Copyright 2003-2021 Statnet Commons
+#  Copyright 2003-2022 Statnet Commons
 ################################################################################
 #' Names of the parameters associated with an object.
 #'
@@ -38,6 +38,6 @@ param_names.ergm_model <- function(object, canonical=FALSE, offset=NA, ...){
     else if(offset) tocount
     else if(!offset) !tocount
 
-  if(canonical) object$coef.names[tocount]
+  if(canonical) unlist(lapply(object$terms, function(term) term$coef.names))[tocount]
   else unlist(lapply(object$terms, function(term) NVL(names(term$params),term$coef.names)))[tocount]
 }

@@ -5,7 +5,7 @@
  *  open source, and has the attribution requirements (GPL Section 7) at
  *  https://statnet.org/attribution .
  *
- *  Copyright 2003-2021 Statnet Commons
+ *  Copyright 2003-2022 Statnet Commons
  */
 #include "MHproposals.h"
 #include "ergm_edgelist.h"
@@ -22,13 +22,13 @@
 /*********************
  void MH_randomtoggle
 
- Default MH algorithm
+ Default MH algorithm with dyad generator API.
 *********************/
 MH_I_FN(Mi_randomtoggle){
   ALLOC_STORAGE(1, StoreDyadGenAndDegreeBound, storage);
   storage->gen = DyadGenInitializeR(MHp->R, nwp, FALSE);
   storage->bd = DegreeBoundInitializeR(MHp->R, nwp);
-  MHp->ntoggles=1;
+  MHp->ntoggles = storage->gen->ndyads!=0 ? 1 : MH_FAILED;
 }
 
 MH_P_FN(MH_randomtoggle){
@@ -61,7 +61,7 @@ MH_I_FN(Mi_TNT){
   ALLOC_STORAGE(1, StoreDyadGenAndDegreeBound, storage);
   storage->gen = DyadGenInitializeR(MHp->R, nwp, TRUE);
   storage->bd = DegreeBoundInitializeR(MHp->R, nwp);
-  MHp->ntoggles=1;
+  MHp->ntoggles = storage->gen->ndyads!=0 ? 1 : MH_FAILED;
 }
 
 MH_P_FN(Mp_TNT){
@@ -150,6 +150,8 @@ MH_I_FN(Mi_BDStratTNT) {
     
   sto->blocks = BDStratBlocksInitialize(sto->maxout, 
                                         sto->maxin,
+                                        NULL,
+                                        NULL,
                                         sto->strat_vattr, 
                                         sto->nstratlevels, 
                                         sto->nmixtypes, 
@@ -210,6 +212,7 @@ MH_I_FN(Mi_BDStratTNT) {
   sto->hash = Calloc(sto->nmixtypes, HashEL *);
   for(int i = 0; i < sto->nmixtypes; i++) {
     sto->hash[i] = HashELInitialize(els[i]->nedges, els[i]->tails ? els[i]->tails + 1 : els[i]->tails, els[i]->heads ? els[i]->heads + 1 : els[i]->heads, FALSE, DIRECTED);
+    Free(els[i]);
   }
   Free(els);
   
@@ -235,7 +238,7 @@ MH_I_FN(Mi_BDStratTNT) {
     }
   }
     
-  sto->wtp = WtPopInitialize(sto->nmixtypes, currentprobvec, 'B');
+  sto->wtp = WtPopInitialize(sto->nmixtypes, currentprobvec, asInteger(getListElement(MHp->R, "dyad_indep")) ? 'W' : 'B');
   Free(currentprobvec);
 
   for(Vertex vertex = 1; vertex <= N_NODES; vertex++) {

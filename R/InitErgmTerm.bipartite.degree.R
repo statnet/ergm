@@ -5,7 +5,7 @@
 #  open source, and has the attribution requirements (GPL Section 7) at
 #  https://statnet.org/attribution .
 #
-#  Copyright 2003-2021 Statnet Commons
+#  Copyright 2003-2022 Statnet Commons
 ################################################################################
 
 #NOTE: a number of undocumented terms have been removed from this file
@@ -16,6 +16,24 @@
 
 ###########  InitErgmTerm.b1mindegree  ###################
 
+#' @templateVar name b1mindegree
+#' @title Minimum degree for the first mode in a bipartite network
+#' @description This term adds one network statistic to the model for
+#'   each element in `d` ; the \eqn{i} th such statistic equals the number of
+#'   nodes in the first mode of a bipartite network with at least degree `d[i]` .
+#'   The first mode of a bipartite network object is sometimes known as the "actor" mode.
+#'   
+#' @usage
+#' # binary: b1mindegree(d)
+#'
+#' @param d a vector of distinct integers. 
+#'
+#' @template ergmTerm-general
+#'
+#' @template ergmTerm-bipartite
+#'
+#' @concept bipartite
+#' @concept undirected
 InitErgmTerm.b1mindegree <- function(nw, arglist, ...) {
   ### Check the network and arguments to make sure they are appropriate.
   a <- check.ErgmTerm (nw, arglist, directed=FALSE, bipartite=TRUE,
@@ -41,6 +59,24 @@ InitErgmTerm.b1mindegree <- function(nw, arglist, ...) {
 
 ###########  InitErgmTerm.b2mindegree  ###################
 
+#' @templateVar name b2mindegree
+#' @title Minimum degree for the second mode in a bipartite network
+#' @description This term adds one network statistic to the model for
+#'   each element in `d` ; the \eqn{i} th such statistic equals the number of
+#'   nodes in the second mode of a bipartite network with at least degree `d[i]` .
+#'   The second mode of a bipartite network object is sometimes known as the "event" mode.
+#'   
+#' @usage
+#' # binary: b2mindegree(d)
+#'
+#' @param d a vector of distinct integers
+#'
+#' @template ergmTerm-general
+#'
+#' @template ergmTerm-bipartite
+#'
+#' @concept bipartite
+#' @concept undirected
 InitErgmTerm.b2mindegree <- function(nw, arglist, ...) {
   ### Check the network and arguments to make sure they are appropriate.
   a <- check.ErgmTerm (nw, arglist, directed=FALSE, bipartite=TRUE,

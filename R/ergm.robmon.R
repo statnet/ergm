@@ -5,7 +5,7 @@
 #  open source, and has the attribution requirements (GPL Section 7) at
 #  https://statnet.org/attribution .
 #
-#  Copyright 2003-2021 Statnet Commons
+#  Copyright 2003-2022 Statnet Commons
 ################################################################################
 ############################################################################
 # The <ergm.robmon> function provides one of the styles of maximum
@@ -49,6 +49,8 @@ ergm.robmon <- function(init, nw, model,
                         proposal,
                         verbose=FALSE, 
                         control=control.ergm() ){
+  stop("Robbins-Monro implementation is currently broken and is likely to be removed. Use Stochastic-Approximation instead: it uses the same algorithm but is much faster and supports curved ERGMs.")
+  
   # Start cluster if required (just in case we haven't already).
   ergm.getCluster(control, max(verbose-1,0))
 

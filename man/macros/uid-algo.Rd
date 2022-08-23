@@ -1,0 +1,1 @@
+\newcommand{\UIDalgo}{concatenating the UNIX time (\code{\link{Sys.time}()}) to maximum available precision, process ID (\code{\link{Sys.getpid}()}), and a counter that starts at \code{-\link{.Machine}$integer.max} and increments by 1 with every call}

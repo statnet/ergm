@@ -53,19 +53,19 @@ method.
 }
 \section{Methods (by class)}{
 \itemize{
-\item \code{ergm}: an \code{\link{ergm}} fit method, extracting its model from the fit.
+\item \code{summary_formula(ergm)}: an \code{\link{ergm}} fit method, extracting its model from the fit.
 
-\item \code{network.list}: a method for a \code{\link{network.list}} on the LHS of the formula.
+\item \code{summary_formula(network.list)}: a method for a \code{\link{network.list}} on the LHS of the formula.
 
-\item \code{network}: a method for a \code{\link{network}} on the LHS of the formula.
+\item \code{summary_formula(network)}: a method for a \code{\link{network}} on the LHS of the formula.
 
-\item \code{ergm_state}: a method for the semi-internal \code{\link{ergm_state}} on the LHS of the formula.
+\item \code{summary_formula(ergm_state)}: a method for the semi-internal \code{\link{ergm_state}} on the LHS of the formula.
 
-\item \code{matrix}: a method for a \code{\link{matrix}} on the LHS of the formula.
+\item \code{summary_formula(matrix)}: a method for a \code{\link{matrix}} on the LHS of the formula.
 
-\item \code{default}: a fallback method.
+\item \code{summary_formula(default)}: a fallback method.
+
 }}
-
 \examples{
 
 #
@@ -82,7 +82,7 @@ summary(m ~ edges, directed=FALSE) # Now it's correct
 
 }
 \seealso{
-\code{\link[=ergm]{ergm()}}, \code{\link[=network]{network()}}, \link{ergm-terms}
+\code{\link[=ergm]{ergm()}}, \code{\link[=network]{network()}}, \code{\link{ergmTerm}}
 
 \code{\link[=summary.ergm_model]{summary.ergm_model()}}
 }

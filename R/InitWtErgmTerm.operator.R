@@ -5,7 +5,7 @@
 #  open source, and has the attribution requirements (GPL Section 7) at
 #  https://statnet.org/attribution .
 #
-#  Copyright 2003-2021 Statnet Commons
+#  Copyright 2003-2022 Statnet Commons
 ################################################################################
 InitWtErgmTerm.Passthrough <- function(nw, arglist, ...){
   out <- InitErgmTerm.Passthrough(nw, arglist, ...)
@@ -13,6 +13,57 @@ InitWtErgmTerm.Passthrough <- function(nw, arglist, ...){
   out
 }
 
+#' @templateVar name B
+#' @title Wrap binary terms for use in valued models
+#' @description Wraps binary `ergm` terms for use in valued models, with `formula` specifying which terms
+#'   are to be wrapped and `form` specifying how they are to be
+#'   used and how the binary network they are evaluated on is to be constructed. 
+#'   
+#' @details For example, `B(~nodecov("a"), form="sum")` is equivalent to
+#'   `nodecov("a", form="sum")` and similarly with
+#'   `form="nonzero"` .
+#'   
+#'   When a valued implementation is available, it should be
+#'   preferred, as it is likely to be faster.
+#'
+#' @usage
+#' # valued: B(formula, form)
+#' @param formula a one-sided [ergm()]-style formula whose RHS contains the
+#'   binary ergm terms to be evaluated. Which terms may be used
+#'   depends on the argument `form`
+#' @param form One of three values:
+#'   - `"sum"`: see section "Generalizations of
+#'   binary terms" in [`ergmTerm`] help; all terms in `formula` must
+#'   be dyad-independent.
+#'   - `"nonzero"`: section "Generalizations of
+#'   binary terms" in [`ergmTerm`] help; any binary `ergm` terms
+#'   may be used in `formula` .
+#'   - a one-sided formula value-dependent
+#'   network. `form` must contain one "valued" `ergm` term, with
+#'   the following properties:
+#'     - dyadic independence;
+#'     - dyadwise contribution of either 0 or 1; and
+#'     - dyadwise contribution of 0 for a 0-valued dyad.
+#'   
+#'     Formally, this means that it is expressable as
+#'     \deqn{g(y) = \sum_{i,j} f_{i,j}(y_{i,j}),}{sum[i,j] f[i,j] (y[i,j]),}
+#'     where for all \eqn{i}, \eqn{j}, and \eqn{y},
+#'     \eqn{f_{i,j}(y_{i,j})} is either 0 or 1 and, in particular,
+#'     \eqn{f_{i,j}(0)=0}{f[i,j] (0)=0}.
+#'   
+#'     Examples of such terms include `nonzero` ,
+#'     `ininterval()` , `atleast()` , `atmost()` ,
+#'     `greaterthan()` , `lessthen()` , and `equalto()` .
+#'   
+#'     Then, the value of the statistic will be the value of the
+#'     statistics in `formula` evaluated on a binary network that is
+#'     defined to have an edge if and only if the corresponding
+#'     dyad of the valued network adds 1 to the valued term in
+#'     `form` .
+#'
+#' @template ergmTerm-general
+#'
+#' @concept operator
 InitWtErgmTerm.B <- function(nw, arglist, ...){
   a <- check.ErgmTerm(nw, arglist,
                       varnames = c("formula", "form"),
@@ -79,6 +130,9 @@ InitWtErgmTerm..binary.formula.net <- function(nw, arglist, ...){
 }
 
 # Arguments and outputs are identical to the binary version, except for the C routine names.
+#' @rdname Sum-operator-ergmTerm
+#' @usage
+#' # valued: Sum(formulas, label)
 InitWtErgmTerm.Sum <- function(...){
   # Rename the function to avoid the extra nesting level in the
   # diagnostic messages.
@@ -88,13 +142,19 @@ InitWtErgmTerm.Sum <- function(...){
   term
 }
 
+#' @rdname Label-ergmTerm
+#' @usage
+#' # valued: Label(formula, label, pos)
 InitWtErgmTerm.Label <- function(nw, arglist, ...){
   out <- InitErgmTerm.Label(nw, arglist, ...)
   out$name <- "wtpassthrough_term"
   out
 }
 
-InitWtErgmTerm.Parametrise <- InitWtErgmTerm.Parametrize <- InitWtErgmTerm.Curve <- function(nw, arglist, ...){
+#' @rdname Curve-ergmTerm
+#' @usage
+#' # valued: Curve(formula, params, map, gradient=NULL, minpar=-Inf, maxpar=+Inf, cov=NULL)
+InitWtErgmTerm.Curve <- function(nw, arglist, ...){
   out <- InitErgmTerm.Curve(nw, arglist, ...)
   out$name <- "wtpassthrough_term"
   out
@@ -106,17 +166,37 @@ InitWtErgmTerm..submodel_and_summary <- function(nw, arglist, ...){
   out
 }
 
+#' @rdname Curve-ergmTerm
+#' @usage
+#' # valued: Parametrise(formula, params, map, gradient=NULL, minpar=-Inf, maxpar=+Inf,
+#' #           cov=NULL)
+InitWtErgmTerm.Parametrise <- InitWtErgmTerm.Curve
 
+#' @rdname Curve-ergmTerm
+#' @usage
+#' # valued: Parametrize(formula, params, map, gradient=NULL, minpar=-Inf, maxpar=+Inf,
+#' #           cov=NULL)
+InitWtErgmTerm.Parametrize <- InitWtErgmTerm.Curve
+
+#' @rdname Exp-ergmTerm
+#' @usage
+#' # valued: Exp(formula)
 InitWtErgmTerm.Exp <- function(nw, arglist, ...){
   out <- InitErgmTerm.Exp(nw, arglist, ...)
   out$name <- "wtExp"
   out
 }
 
+#' @rdname Log-ergmTerm
+#' @usage
+#' # valued: Log(formula, log0=-1/sqrt(.Machine$double.eps))
 InitWtErgmTerm.Log <- function(nw, arglist, ...){
   out <- InitErgmTerm.Log(nw, arglist, ...)
   out$name <- "wtLog"
   out
 }
 
+#' @rdname Prod-ergmTerm
+#' @usage
+#' # valued: Prod(formulas, label)
 InitWtErgmTerm.Prod <- InitErgmTerm.Prod

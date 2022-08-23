@@ -5,7 +5,7 @@
 #  open source, and has the attribution requirements (GPL Section 7) at
 #  https://statnet.org/attribution .
 #
-#  Copyright 2003-2021 Statnet Commons
+#  Copyright 2003-2022 Statnet Commons
 ################################################################################
 
 nwd <- network.initialize(4, dir=TRUE)
@@ -36,11 +36,11 @@ test_that("ergm.godfather() with toggles", {
                                                                ncol=2,byrow=TRUE)),
                        stats.start=TRUE)
 
-  expect_equivalent(as.matrix(gf),
-                    matrix(c(8,8,
-                             6,2,
-                             6,3),
-                           ncol=2,byrow=TRUE))
+  expect_equal(as.matrix(gf),
+               matrix(c(8,8,
+                        6,2,
+                        6,3),
+                      ncol=2,byrow=TRUE), ignore_attr=TRUE)
 })
 
 test_that("ergm.godfather() with toggles, relative statistics", {
@@ -52,10 +52,10 @@ test_that("ergm.godfather() with toggles, relative statistics", {
                                                                ncol=2,byrow=TRUE)),
                        changes.only=TRUE)
 
-  expect_equivalent(as.matrix(gf),
-                    matrix(c(-2,-6,
-                             -2,-5),
-                           ncol=2,byrow=TRUE))
+  expect_equal(as.matrix(gf),
+               matrix(c(-2,-6,
+                        -2,-5),
+                      ncol=2,byrow=TRUE), ignore_attr=TRUE)
 })
 
 test_that("ergm.godfather() with values", {
@@ -66,10 +66,10 @@ test_that("ergm.godfather() with values", {
                                                                  2,3,1),
                                                                ncol=3,byrow=TRUE)))
 
-  expect_equivalent(as.matrix(gf),
-                    matrix(c(7,4,
-                             8,8),
-                           ncol=2,byrow=TRUE))
+  expect_equal(as.matrix(gf),
+               matrix(c(7,4,
+                        8,8),
+                      ncol=2,byrow=TRUE), ignore_attr=TRUE)
 })
 
 test_that("undirected ergm.godfather() with toggles", {
@@ -81,11 +81,11 @@ test_that("undirected ergm.godfather() with toggles", {
                                                                ncol=2,byrow=TRUE)),
                        stats.start=TRUE)
 
-  expect_equivalent(as.matrix(gf),
-                    matrix(c(4,1,
-                             2,0,
-                             2,0),
-                           ncol=2,byrow=TRUE))
+  expect_equal(as.matrix(gf),
+               matrix(c(4,1,
+                        2,0,
+                        2,0),
+                      ncol=2,byrow=TRUE), ignore_attr=TRUE)
 })
 
 
@@ -97,10 +97,10 @@ test_that("undirected ergm.godfather() with values", {
                                                                  2,3,1),
                                                                ncol=3,byrow=TRUE)))
 
-  expect_equivalent(as.matrix(gf),
-                    matrix(c(3,0,
-                             4,1),
-                           ncol=2,byrow=TRUE))
+  expect_equal(as.matrix(gf),
+               matrix(c(3,0,
+                        4,1),
+                      ncol=2,byrow=TRUE), ignore_attr=TRUE)
 })
 
 
@@ -113,10 +113,10 @@ test_that("valued ergm.godfather()", {
                                              2,3,1),
                                            ncol=3,byrow=TRUE)))
 
-  expect_equivalent(as.matrix(gf),
-                    matrix(c(7,13,3,
-                             8,13,5),
-                           ncol=3,byrow=TRUE))
+  expect_equal(as.matrix(gf),
+               matrix(c(7,13,3,
+                        8,13,5),
+                      ncol=3,byrow=TRUE), ignore_attr=TRUE)
 })
 
 
@@ -130,14 +130,14 @@ test_that("valued ergm.godfather() returning the network", {
                                            ncol=3,byrow=TRUE)),
                        end.network=TRUE)
 
-  expect_equivalent(as.matrix(gf, attrname="w"),
-                    matrix(c(0,1,1,0,
-                             0,0,1,3,
-                             1,0,0,0,
-                             1,4,1,0),
-                           4,4,
-                           byrow=TRUE)
-                    )
+  expect_equal(as.matrix(gf, attrname="w"),
+               matrix(c(0,1,1,0,
+                        0,0,1,3,
+                        1,0,0,0,
+                        1,4,1,0),
+                      4,4,
+                      byrow=TRUE), ignore_attr=TRUE
+               )
 })
 
 
@@ -150,10 +150,10 @@ test_that("undirected valued ergm.godfather()", {
                                              2,3,1),
                                            ncol=3,byrow=TRUE)))
 
-  expect_equivalent(as.matrix(gf),
-                    matrix(c(3,6,0,
-                             4,6,3),
-                           ncol=3,byrow=TRUE))
+  expect_equal(as.matrix(gf),
+               matrix(c(3,6,0,
+                        4,6,3),
+                      ncol=3,byrow=TRUE), ignore_attr=TRUE)
 })
 
 
@@ -167,13 +167,13 @@ test_that("undirected valued ergm.godfather() returning the network", {
                                            ncol=3,byrow=TRUE)),
                        end.network=TRUE)
 
-  expect_equivalent(as.matrix(gf, attrname="w"),
-                    matrix(c(0,1,1,0,
-                             1,0,1,3,
-                             1,1,0,0,
-                             0,3,0,0),
-                           4,4,
-                           byrow=TRUE)
-                    )
+  expect_equal(as.matrix(gf, attrname="w"),
+               matrix(c(0,1,1,0,
+                        1,0,1,3,
+                        1,1,0,0,
+                        0,3,0,0),
+                      4,4,
+                      byrow=TRUE), ignore_attr=TRUE
+               )
 })
 

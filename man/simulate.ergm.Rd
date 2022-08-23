@@ -36,7 +36,7 @@ simulate_formula(object, ..., basis = eval_lhs.formula(object))
   verbose = FALSE,
   ...,
   basis = ergm.getnetwork(object),
-  do.sim = TRUE,
+  do.sim = NULL,
   return.args = NULL
 )
 
@@ -59,7 +59,7 @@ simulate_formula(object, ..., basis = eval_lhs.formula(object))
   verbose = FALSE,
   ...,
   basis = ergm.getnetwork(object),
-  do.sim = TRUE,
+  do.sim = NULL,
   return.args = NULL
 )
 
@@ -80,7 +80,7 @@ simulate_formula(object, ..., basis = eval_lhs.formula(object))
   control = control.simulate.formula(),
   verbose = FALSE,
   ...,
-  do.sim = TRUE,
+  do.sim = NULL,
   return.args = NULL
 )
 
@@ -125,7 +125,7 @@ simulate_formula(object, ..., basis = eval_lhs.formula(object))
 \code{\link{ergm}} object.  The \code{\link{formula}} should be of the form
 \code{y ~ <model terms>}, where \code{y} is a network object or a matrix
 that can be coerced to a \code{\link[network]{network}} object.  For the
-details on the possible \code{<model terms>}, see \code{\link{ergm-terms}}.
+details on the possible \code{<model terms>}, see \code{\link{ergmTerm}}.
 To create a \code{\link[network]{network}} object in , use the
 \code{network()} function, then add nodal attributes to it using the
 \code{\%v\%} operator if necessary.}
@@ -161,19 +161,36 @@ the reference measure (\eqn{h(y)}) to be used.
 See help for \link[=ergm-references]{ERGM reference measures} implemented in the
 \strong{\link[=ergm-package]{ergm}} package.}
 
-\item{constraints}{A one-sided formula specifying one or more
-constraints on the support of the distribution of the networks
-being simulated. See the documentation for a similar argument for
-\code{\link{ergm}} and see \link[=ergm-constraints]{list of implemented constraints} for more information. For
-\code{simulate.formula}, defaults to no constraints. For
-\code{simulate.ergm}, defaults to using the same constraints as
-those with which \code{object} was fitted.}
+\item{constraints}{A formula specifying one or more constraints
+on the support of the distribution of the networks being modeled. Multiple constraints
+may be given, separated by \dQuote{+} and \dQuote{-} operators. See
+\code{\link{ergmConstraint}} for the detailed explanation of
+their semantics and also for an indexed list of the constraints visible to the \CRANpkg{ergm} package.
+
+The default is to have no constraints except those provided through
+the \code{\link{ergmlhs}} API.
+
+Together with the model terms in the formula and the reference measure, the constraints
+define the distribution of networks being modeled.
+
+It is also possible to specify a proposal function directly either
+by passing a string with the function's name (in which case,
+arguments to the proposal should be specified through the
+\code{MCMC.prop.args} argument to the relevant control function, or
+by giving it on the LHS of the hints formula to \code{MCMC.prop}
+argument to the control function. This will override
+the one chosen automatically.
+
+Note that not all possible combinations of constraints and reference
+measures are supported. However, for relatively simple constraints
+(i.e., those that simply permit or forbid specific dyads or sets of
+dyads from changing), arbitrary combinations should be possible.}
 
 \item{observational}{Inherit observational constraints rather than model
 constraints.}
 
 \item{monitor}{A one-sided formula specifying one or more terms
-whose value is to be monitored. These terms are appeneded to the
+whose value is to be monitored. These terms are appended to the
 model, along with a coefficient of 0, so their statistics are
 returned. An \code{\link{ergm_model}} objectcan be passed as well.}
 
@@ -217,7 +234,7 @@ checking.}
 
 \item{verbose}{A logical or an integer to control the amount of
 progress and diagnostic information to be printed. \code{FALSE}/\code{0}
-produces minimal output, wit higher values producing more
+produces minimal output, with higher values producing more
 detail. Note that very high values (5+) may significantly slow
 down processing.}
 
@@ -321,10 +338,16 @@ More information can be found by looking at the documentation of
 }
 \section{Functions}{
 \itemize{
-\item \code{simulate.ergm_state_full}: a low-level function to simulate from an \code{\link{ergm_state}} object.
-}}
+\item \code{simulate(ergm_state_full)}: a low-level function to simulate from an \code{\link{ergm_state}} object.
 
+}}
 \note{
+The actual \code{\link{network}} method for \code{\link[=simulate_formula]{simulate_formula()}} is
+actually called \code{.simulate_formula.network()} and is also
+exported as an object. This allows it to be overridden by
+extension packages, such as \code{tergm}, but also accessed directly
+when needed.
+
 \code{\link[=simulate.ergm_model]{simulate.ergm_model()}} is a lower-level interface, providing
 a \code{\link[=simulate]{simulate()}} method for \code{\link{ergm_model}} class. The \code{basis}
 argument is required; \code{monitor}, if passed, must be an

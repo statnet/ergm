@@ -5,7 +5,7 @@
 #  open source, and has the attribution requirements (GPL Section 7) at
 #  https://statnet.org/attribution .
 #
-#  Copyright 2003-2021 Statnet Commons
+#  Copyright 2003-2022 Statnet Commons
 ################################################################################
 
 options(ergm.eval.loglik=FALSE)
@@ -19,7 +19,7 @@ test_that("Stochastic Approximation produces similar results to MCMLE (linear ER
 
   mod.mcmle <- ergm(flomarriage~edges+triangle)
 
-  expect_equivalent(coef(mod.sa), coef(mod.mcmle), tolerance = 0.1)
+  expect_equal(coef(mod.sa), coef(mod.mcmle), tolerance = 0.1, ignore_attr=TRUE)
 })
 
 test_that("Stochastic Approximation produces similar results to MCMLE (curved ERGM)",{
@@ -29,7 +29,7 @@ test_that("Stochastic Approximation produces similar results to MCMLE (curved ER
 
   mod.mcmle <- ergm(flomarriage~edges+gwdegree())
 
-  expect_equivalent(coef(mod.sa), coef(mod.mcmle), tolerance = 0.1)
+  expect_equal(coef(mod.sa), coef(mod.mcmle), tolerance = 0.1, ignore_attr=TRUE)
 })
 
 
@@ -42,5 +42,5 @@ test_that("Stochastic Approximation produces similar results to MCMLE (valued ER
 
   mod.mcmle <- ergm(flomarriage~edges+transitiveweights, response="w", reference=~DiscUnif(0,1))
 
-  expect_equivalent(coef(mod.sa), coef(mod.mcmle), tolerance = 0.1)
+  expect_equal(coef(mod.sa), coef(mod.mcmle), tolerance = 0.1, ignore_attr=TRUE)
 })

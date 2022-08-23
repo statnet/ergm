@@ -5,7 +5,7 @@
  *  open source, and has the attribution requirements (GPL Section 7) at
  *  https://statnet.org/attribution .
  *
- *  Copyright 2003-2021 Statnet Commons
+ *  Copyright 2003-2022 Statnet Commons
  */
 #include "ergm_wtMHproposal.h"
 #include "ergm_Rutil.h"
@@ -66,7 +66,7 @@ WtMHProposal *WtMHProposalInitialize(SEXP pR, WtNetwork *nwp, void **aux_storage
 
   MHp->aux_storage = aux_storage;
   SEXP aux_slotsR = getListElement(pR,"aux.slots");
-  if(length(aux_slotsR)){
+  if((MHp->n_aux = length(aux_slotsR))){
     MHp->aux_slots = (unsigned int *) INTEGER(aux_slotsR);
   }else MHp->aux_slots = NULL;
   

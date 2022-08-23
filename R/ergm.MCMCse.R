@@ -5,7 +5,7 @@
 #  open source, and has the attribution requirements (GPL Section 7) at
 #  https://statnet.org/attribution .
 #
-#  Copyright 2003-2021 Statnet Commons
+#  Copyright 2003-2022 Statnet Commons
 ################################################################################
 
 #' Compute the MCMC standard errors
@@ -119,11 +119,10 @@ ergm.MCMCse <- function(model, theta, init, statsmatrices, statsmatrices.obs,
 
   mc.cov <- matrix(NA,ncol=length(novar),nrow=length(novar))
 
-  if(sum(!novar)==0 || inherits(try(solve(H,tol=1e-20),silent=TRUE),"try-error")){
+  if(sum(!novar)==0 || srcond(-H) < .Machine$double.eps){
     warning("Approximate Hessian matrix is singular. Standard errors due to MCMC approximation of the likelihood cannot be evaluated. This is likely due to insufficient MCMC sample size or highly correlated model terms.", call.=FALSE)
   }else{
-    mc.cov0 <- solve(H, cov.zbar, tol=1e-20)
-    mc.cov0 <- solve(H, t(mc.cov0), tol=1e-20)
+    mc.cov0 <- sandwich_ssolve(-H, cov.zbar)
     mc.cov[!novar,!novar] <- mc.cov0
   }
 

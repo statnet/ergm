@@ -5,9 +5,8 @@
 #  open source, and has the attribution requirements (GPL Section 7) at
 #  https://statnet.org/attribution .
 #
-#  Copyright 2003-2021 Statnet Commons
+#  Copyright 2003-2022 Statnet Commons
 ################################################################################
-local_edition(3)
 
 net1 <- network.initialize(10,directed=FALSE)
 net1[,] <- 1
@@ -54,7 +53,7 @@ test_that("fixedas with network input", {
 
 test_that("fixallbut with network input", {
   net1 <- network(10,directed=FALSE,density=0.5)
-  free.dyads <- as.edgelist(matrix(sample(1:10,8,replace=FALSE),4,2),n=10,directed=FALSE)
+  free.dyads <- matrix(sample(2:9,8,replace=FALSE),4,2)
 
   t1 <- ergm(net1~edges, constraint = ~fixallbut(free.dyads = free.dyads))
   s1 <- simulate(t1, 100)
@@ -66,7 +65,6 @@ test_that("fixallbut with network input", {
 })
 
 test_that("constraint conflict is detected", {
-  local_edition(3)
   data(florentine)
   conwarn <- "^The specified model's sample space constraint holds statistic\\(s\\) edges  constant. They will be ignored.$"
   dyadwarn <- "^The number of observed dyads in this network is ill-defined due to complex constraints on the sample space..*$"

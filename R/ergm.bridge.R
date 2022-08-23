@@ -5,7 +5,7 @@
 #  open source, and has the attribution requirements (GPL Section 7) at
 #  https://statnet.org/attribution .
 #
-#  Copyright 2003-2021 Statnet Commons
+#  Copyright 2003-2022 Statnet Commons
 ################################################################################
 
 #' Bridge sampling to evaluate ERGM log-likelihoods and log-likelihood ratios
@@ -21,7 +21,7 @@
 #' @param constraints,obs.constraints One-sided formulas specifying
 #'   one or more constraints on the support of the distribution of the
 #'   networks being simulated and on the observation process
-#'   respectively. See the documentation for a similar argument for
+#'   respectively. See the documentation for similar arguments for
 #'   \code{\link{ergm}} for more information.
 #' @param reference {A one-sided formula specifying the reference
 #'   measure (\eqn{h(y)}) to be used.  (Defaults to
@@ -90,8 +90,34 @@ ergm.bridge.llr<-function(object, response=NULL, reference=~Bernoulli, constrain
   
   ergm_preprocess_response(basis, response)
 
-  ## Generate the path.
-  path <- t(rbind(sapply(seq(from = 0 + 1 / 2 / control$bridge.nsteps, to = 1 - 1 / 2 / control$bridge.nsteps, length.out = control$bridge.nsteps), function(u) cbind(to * u + from * (1 - u)))))
+  ## Generate a path of n points shifted by shift in [-1/2, +1/2] as a
+  ## fraction of the width of a bridge.
+  ##
+  ## The weight of each bridge is the size of the Voronoi partition
+  ## for that bridge.
+  mkpath <- function(n, shift = 0, reverse = FALSE) {
+    stopifnot(shift >= -1/2, shift <= 1/2)
+    u0 <- seq(from = 0 + 1 / 2 / n, to = 1 - 1 / 2 / n, length.out = n)
+    u <- u0 + shift / n
+    if (reverse) u <- rev(u)
+    list(
+      theta = t(rbind(sapply(u, function(u) cbind(to * u + from * (1 - u))))),
+      u = u
+    )
+  }
+
+  uweights <- function(u) {
+    o <- order(u)
+    u <- u[o]
+    halfgap <- c(u[1], diff(u)/2, 1 - ult(u))
+    (head(halfgap, -1) + tail(halfgap, -1))[order(o)]
+  }
+
+  # A low-discrepancy sequence: Kronecker Recurrence using inverse
+  # Golden Ratio (0.6180...) step size.
+  KR <- function(i, shift = 0) (shift + 0.61803398874989479 * i) %% 1
+  # Ensure that shifts are in [-1/2, +1/2] and the first shift is 0.
+  pathshift <- function(i) KR(i, shift = -KR(1) + 1/2) - 1/2
 
   # Determine whether an observation process is in effect.
   obs <- has.obs.constraints(basis, constraints, obs.constraints, target.stats)
@@ -127,7 +153,7 @@ ergm.bridge.llr<-function(object, response=NULL, reference=~Bernoulli, constrain
   }
 
   ## Miscellaneous settings
-  Dtheta.Du <- (to-from)[!state[[1]]$model$etamap$offsettheta] / control$bridge.nsteps
+  Dtheta.Du <- (to-from)[!state[[1]]$model$etamap$offsettheta]
   x.exclude <- match("Taper_Penalty",names(Dtheta.Du))
   if(!is.na(x.exclude)){
     Dtheta.Du <- Dtheta.Du[-x.exclude]
@@ -162,12 +188,12 @@ ergm.bridge.llr<-function(object, response=NULL, reference=~Bernoulli, constrain
   repeat{
     attempt <- length(path.hist) + 1
     # Bridge in reverse order on even-numbered attempts, if bidirectional bridging used.
-    if(control$bridge.bidirectional && attempt > 1) path <- path[nrow(path):1, , drop = FALSE]
+    path <- mkpath(control$bridge.nsteps, shift = pathshift(attempt), reverse = control$bridge.bidirectional && attempt %% 2 == 0)
     llrs <- numeric(control$bridge.nsteps)
     vcov.llrs <- numeric(control$bridge.nsteps)
 
     for(i in seq_len(control$bridge.nsteps)){
-      theta<-path[i,]
+      theta <- path$theta[i, ]
       if(verbose==0) message(i," ",appendLF=FALSE)
       if(verbose>0) message("Running theta=[",paste(format(theta),collapse=","),"].")
 
@@ -196,8 +222,9 @@ ergm.bridge.llr<-function(object, response=NULL, reference=~Bernoulli, constrain
     vcov.llr.hist[[attempt]] <- vcov.llrs
     path.hist[[attempt]] <- path
 
-    llr <- sum(unlist(llr.hist)) / attempt
-    vcov.llr <- sum(unlist(vcov.llr.hist)) / attempt^2
+    w <- uweights(unlist(lapply(path.hist, `[[`, "u")))
+    llr <- sum(unlist(llr.hist)*w)
+    vcov.llr <- sum(unlist(vcov.llr.hist)*w^2)
 
     if(is.null(control$bridge.target.se) || vcov.llr <= control$bridge.target.se^2) break
     else message("Estimated standard error (", format(sqrt(vcov.llr)), ") above target (", format(control$bridge.target.se), "). Drawing additional samples.")
@@ -281,7 +308,7 @@ ergm.bridge.dindstart.llk<-function(object, response=NULL, constraints=~., coef,
   rng <- function(x, from, to) if(to>=from) x[from:to]
   
   tmp <- .handle.auto.constraints(nw, constraints, obs.constraints, target.stats); nw <- tmp$nw
-  if(!is.dyad.independent(ergm_conlist(tmp$constraints,nw,term.options=control$term.options), ergm_conlist(tmp$constraints.obs,nw,term.options=control$term.options))) stop("Bridge sampling with dyad-independent start does not work with dyad-dependent constraints.")
+  if(!is.dyad.independent(ergm_conlist(tmp$conterms,nw,term.options=control$term.options), ergm_conlist(tmp$conterms.obs,nw,term.options=control$term.options))) stop("Bridge sampling with dyad-independent start does not work with dyad-dependent constraints.")
 
   # If target.stats are given, then we need between passed network and
   # target stats, if any. It also means that the dyad-independent
@@ -319,25 +346,29 @@ ergm.bridge.dindstart.llk<-function(object, response=NULL, constraints=~., coef,
   }
 
   message("Fitting the dyad-independent submodel...")
-  ergm.dind<-suppressMessages(suppressWarnings(ergm(dind,estimate="MPLE",constraints=constraints,obs.constraints=obs.constraints,eval.loglik=FALSE,control=control.ergm(drop=FALSE, term.options=control$term.options, MPLE.max.dyad.types=control$MPLE.max.dyad.types), offset.coef = offset.dind)))
-  
   if(is.null(coef.dind)){
+    ergm.dind<-suppressMessages(suppressWarnings(ergm(dind,basis=nw,estimate="MPLE",constraints=constraints,obs.constraints=obs.constraints,eval.loglik=FALSE,control=control.ergm(drop=FALSE, term.options=control$term.options, MPLE.max.dyad.types=control$MPLE.max.dyad.types), offset.coef = offset.dind)))
+    etamap.dind <- ergm.dind$etamap
+    stats.dind <- ergm.dind$nw.stats
+
     eta.dind <- ergm.eta(coef(ergm.dind), ergm.dind$etamap)[!ergm.dind$etamap$offsetmap]
     eta.dind <- ifelse(is.na(eta.dind),0,eta.dind)
-    llk.dind<- -ergm.dind$glm$deviance/2 - -ergm.dind$glm.null$deviance/2
+    llk.dind <- ergm.dind$mple.lik
   }else{
-    eta.dind <- ergm.eta(coef(ergm.dind), ergm.dind$etamap)
-    lin.pred <- model.matrix(ergm.dind$glm) %*% eta.dind
-    llk.dind <- 
-      crossprod(lin.pred,ergm.dind$glm$y*ergm.dind$glm$prior.weights)-sum(log1p(exp(lin.pred))*ergm.dind$glm$prior.weights) -
-      (network.dyadcount(ergm.dind$network,FALSE) - network.edgecount(NVL(as.rlebdm(ergm.dind$constrained, ergm.dind$constrained.obs,which="missing"),network.initialize(1))))*log(1/2)
+    mple.dind <- suppressMessages(suppressWarnings(ergmMPLE(dind, output="matrix", constraints=constraints,obs.constraints=obs.constraints, control=control.ergm(drop=FALSE, term.options=control$term.options, MPLE.max.dyad.types=control$MPLE.max.dyad.types))))
+    etamap.dind <- attr(ergm.dind, "etamap")
+    stats.dind <- summary(dind, basis=nw)
+
+    eta.dind <- ergm.eta(coef.dind, etamap.dind)
+    lin.pred <- mple.dind$x %*% eta.dind
+    llk.dind <- crossprod(lin.pred, mple.dind$response*mple.dind$weights)-sum(log1p(exp(mple.dind$predictor))*mple.dind$weights)
   }
-  
+
   # If there are target.stats we need to adjust the log-likelihood in
   # case they are different from those to which the dyad-independent
   # submodel was actually fit:
   # l(theta,ts)-l(theta,ns)=sum(theta*(ts-ns)).
-  if(!is.null(target.stats)) llk.dind <- llk.dind + c(crossprod(eta.dind, NVL(c(ts.dind), ergm.dind$nw.stats[!ergm.dind$etamap$offsetmap]) - ergm.dind$nw.stats[!ergm.dind$etamap$offsetmap]))
+  if(!is.null(target.stats)) llk.dind <- llk.dind + c(crossprod(eta.dind, NVL(c(ts.dind), stats.dind[!etamap.dind$offsetmap]) - stats.dind[!etamap.dind$offsetmap]))
 
   coef.dind <- numeric(length(dindmap))
   coef.dind[dindmap] <- replace(coef(ergm.dind), is.na(coef(ergm.dind)), 0)

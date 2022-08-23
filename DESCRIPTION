@@ -1,6 +1,6 @@
 Package: ergm
-Version: 4.0-6519
-Date: 2021-06-24
+Version: 4.3-6983
+Date: 2022-08-20
 Title: Fit, Simulate and Diagnose Exponential-Family Models for Networks
 Authors@R: c(
              person("Mark S.", "Handcock", role=c("aut"), email="handcock@stat.ucla.edu"),
@@ -8,16 +8,17 @@ Authors@R: c(
              person("Carter T.", "Butts", role=c("aut"), email="buttsc@uci.edu"),
              person("Steven M.", "Goodreau", role=c("aut"), email="goodreau@u.washington.edu"),
              person("Pavel N.", "Krivitsky", role=c("aut","cre"), email="pavel@statnet.org", comment=c(ORCID="0000-0002-9101-3362")),
-     	     person("Martina", "Morris", role=c("aut"), email="morrism@u.washington.edu"),
+             person("Martina", "Morris", role=c("aut"), email="morrism@u.washington.edu"),
              person("Li","Wang",role=c("ctb"),email="lxwang@gmail.com"),
              person("Kirk","Li",role=c("ctb"),email="kirkli@u.washington.edu"),
-	     person("Skye", "Bender-deMoll", role=c("ctb"), email="skyebend@u.washington.edu"),
+             person("Skye", "Bender-deMoll", role=c("ctb"), email="skyebend@u.washington.edu"),
              person("Chad", "Klumb", role=c("ctb"), email="cklumb@gmail.com"),
-             person("Michał", " Bojanowski", role=c("ctb"), email="mbojanowski@kozminski.edu.pl"),
+             person("Michał", " Bojanowski", role=c("ctb"), email="michal2992@gmail.com", comment=c(ORCID="0000-0001-7503-852X")),
              person("Ben", "Bolker", role=c("ctb"), email="bbolker+lme4@gmail.com"),
-             person("Christian", "Schmid", role=c("ctb"), email="cxs5700@psu.edu"))
+             person("Christian", "Schmid", role=c("ctb"), email="cxs5700@psu.edu"),
+             person("Joyce", "Cheng", role=c("ctb"), email="joyce.cheng@student.unsw.edu.au"))
 Depends:
-    R (>= 3.5),
+    R (>= 4.0),
     network (>= 1.17.0)
 Imports:
     robustbase (>= 0.93.7),
@@ -26,14 +27,17 @@ Imports:
     Matrix (>= 1.3.2),
     lpSolveAPI (>= 5.5.2.0.17.7),
     MASS (>= 7.3.53.1),
-    statnet.common (>= 4.5.0),
+    statnet.common (>= 4.7.0),
     rle (>= 0.9.2),
     purrr (>= 0.3.4),
     rlang (>= 0.4.10),
     memoise (>= 2.0.0),
     tibble (>= 3.1.0),
+    magrittr (>= 2.0.1),
     parallel,
-    methods
+    methods,
+    knitr,
+    stringr
 Suggests:
     lattice (>= 0.20.41),
     latticeExtra (>= 0.6.29),
@@ -41,16 +45,17 @@ Suggests:
     snow (>= 0.4.3),
     latentnet (>= 2.10.5),
     rmarkdown,
-    knitr,
     Rmpi (>= 0.6.9.1),
     testthat (>= 3.0.2),
-    magrittr (>= 2.0.1),
     tergm (>= 4.0.0),
     ergm.count (>= 4.0),
     ergm.userterms (>= 3.10.0),
     ergm.tapered (>= 1.0.0),
     networkDynamic (>= 0.10.1),
-    covr
+    withr,
+    covr,
+    Rglpk,
+    slam
 SystemRequirements: OpenMPI
 BugReports: https://github.com/statnet/ergm/issues
 Description: An integrated set of tools to analyze and simulate networks based on exponential-family random graph models (ERGMs). 'ergm' is a part of the Statnet suite of packages for network analysis. See Hunter, Handcock, Butts, Goodreau, and Morris (2008) <doi:10.18637/jss.v024.i03> and Krivitsky, Hunter, Morris, and Klumb (2021) <arXiv:2106.04997>.
@@ -59,8 +64,10 @@ License_is_FOSS: yes
 License_restricts_use: no
 URL: https://statnet.org
 VignetteBuilder: knitr
-RoxygenNote: 7.1.1
+RoxygenNote: 7.2.1
 Roxygen: list(markdown = TRUE)
+Config/testthat/parallel: true
+Config/testthat/edition: 3
 Encoding: UTF-8
 Collate: 
     'InitErgmConstraint.R'
@@ -102,10 +109,10 @@ Collate:
     'control.simulate.R'
     'data.R'
     'ergm-defunct.R'
-    'ergm-disambiguation.R'
     'ergm-internal.R'
     'ergm-options.R'
     'ergm-package.R'
+    'ergm-terms-index.R'
     'ergm.CD.fixed.R'
     'ergm.Cprepare.R'
     'ergm.MCMCse.R'
@@ -141,6 +148,7 @@ Collate:
     'ergm.utility.R'
     'ergmMPLE.R'
     'ergm_estfun.R'
+    'ergm_keyword.R'
     'ergm_model.R'
     'ergm_model.utils.R'
     'ergm_proposal.R'
@@ -180,5 +188,6 @@ Collate:
     'vcov.ergm.R'
     'wtd.median.R'
     'zzz.R'
-Remotes: github::statnet/tergm@master,
+Remotes: github::statnet/statnet.common@master,
+    github::statnet/tergm@master,
     github::statnet/ergm.count@master

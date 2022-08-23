@@ -5,7 +5,7 @@
 #  open source, and has the attribution requirements (GPL Section 7) at
 #  https://statnet.org/attribution .
 #
-#  Copyright 2003-2021 Statnet Commons
+#  Copyright 2003-2022 Statnet Commons
 ################################################################################
 ## A function to compute and return the log-likelihood of an ERGM MLE.
 
@@ -105,7 +105,7 @@ logLik.ergm<-function(object, add=FALSE, force.reeval=FALSE, eval.loglik=add || 
        || (is.dyad.independent(object, term.options=control$term.options)
          && is.null(object$sample)
          && !is.valued(object)))
-      structure(-glm$deviance/2 - -glm.null$deviance/2, vcov = 0)
+      structure(mple.lik, vcov = 0)
     ## If dyad-dependent but not valued and has a dyad-independent constraint, bridge from a dyad-independent model.
     else if(is.dyad.independent(object$constrained, object$constrained.obs)
                    && !is.valued(object))
@@ -130,10 +130,6 @@ logLik.ergm<-function(object, add=FALSE, force.reeval=FALSE, eval.loglik=add || 
     class(llk)<-"logLik"
     attr(llk,"df")<-nparam(object, offset=FALSE)
     attr(llk,"nobs")<- nobs(object, ...)
-  }
-
-  if(!is.null(object$null.lik) && !is.na(object$null.lik)){ # If Null likelihood is defined, shift the MLE likelihood.
-    llk[] <- c(llk + object$null.lik) # The brackets are important to preserve attr()s on llk, and the c() is important to strip the ones from the sum.
   }
   
   if(add){
@@ -203,7 +199,7 @@ nobs.ergm <- function(object, ...){
     warning("The number of observed dyads in this network is ill-defined due to complex constraints on the sample space. Disable this warning with ",sQuote("options(ergm.loglik.warn_dyads=FALSE)"),".")
   }
   
-  NVL3(NVL(object$null.lik, object$mle.lik),
+  NVL3(NVL(object$mple.null.lik, object$mple.lik, object$null.lik, object$mle.lik),
        attr(.,"nobs"),
        sum(as.rlebdm(object, which="informative")))
 }

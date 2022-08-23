@@ -5,7 +5,7 @@
 #  open source, and has the attribution requirements (GPL Section 7) at
 #  https://statnet.org/attribution .
 #
-#  Copyright 2003-2021 Statnet Commons
+#  Copyright 2003-2022 Statnet Commons
 ################################################################################
 
 #' Internal Function to Sample Networks and Network Statistics
@@ -134,17 +134,49 @@ ergm_MCMC_sample <- function(state, control, theta=NULL,
 
   flush.console()
 
+  force(eta)
   state0 <- state
-  state <- lapply(state, ergm_state_send) # Don't carry around nw0.
+
+  send_model_proposal <- function(){
+    if(verbose>1) message("Populating the state cache on worker nodes.")
+    call_state_cache <- function(...) ergm::ergm_state_cache(...)
+    environment(call_state_cache) <- globalenv()
+
+    for(item in c("model", "proposal")){
+      have_item <- unlist(clusterMap(ergm.getCluster(control), call_state_cache,
+                                     list("check"), map(state0, c("uids", item))))
+      if(verbose>1 && all(have_item)) message("State cache for ", item, " already populated.")
+      if(!all(have_item))
+        clusterMap(ergm.getCluster(control), call_state_cache,
+                   ifelse(have_item, "pass", "insert"), map(state0, c("uids", item)), ifelse(have_item, list(NULL), map(state0, item)))
+    }
+  }
+
+  if(!is.null(ergm.getCluster(control))){ # Populate cache and
+    send_model_proposal()
+    state <- lapply(state, ergm_state_receive) # Don't carry around nw0, model, or proposal.
+    # Don't carry the environment with the function.
+    call_MCMC_worker <- function(...) ergm::ergm_MCMC_slave(...)
+    environment(call_MCMC_worker) <- globalenv()
+  }else state <- lapply(state, ergm_state_send) # Don't carry around nw0.
   
   #' @importFrom parallel clusterMap
   doruns <- function(burnin=NULL, samplesize=NULL, interval=NULL){
-    out <- if(!is.null(ergm.getCluster(control))) persistEvalQ({clusterMap(ergm.getCluster(control),ergm_MCMC_slave,
-                                                                    state=state, MoreArgs=list(eta=eta,control=control.parallel,verbose=verbose,...,burnin=burnin,samplesize=samplesize,interval=interval))}, retries=getOption("ergm.cluster.retries"), beforeRetry={ergm.restartCluster(control,verbose)})
-    else list(ergm_MCMC_slave(state[[1]], burnin=burnin,samplesize=samplesize,interval=interval,eta=eta,control=control.parallel,verbose=verbose,...))
-    # Note: the return value's state will be a ergm_state_receive.
-    for(i in seq_along(out)) out[[i]]$state <- update(state[[i]], out[[i]]$state)
-    out
+    if(!is.null(ergm.getCluster(control)))
+      persistEvalQ({
+        clusterMap(ergm.getCluster(control), call_MCMC_worker,
+                   state=state, MoreArgs=list(eta=eta,control=control.parallel,verbose=verbose,...,burnin=burnin,samplesize=samplesize,interval=interval))},
+        retries = getOption("ergm.cluster.retries"),
+        beforeRetry = {
+          ergm.restartCluster(control,verbose)
+          send_model_proposal()
+        })
+    else{
+      out <- list(ergm_MCMC_slave(state[[1]], burnin=burnin,samplesize=samplesize,interval=interval,eta=eta,control=control.parallel,verbose=verbose,...))
+      # Note: the return value's state will be a ergm_state_receive.
+      for(i in seq_along(out)) out[[i]]$state <- update(state[[i]], out[[i]]$state)
+      out
+    }
   }
 
   handle_statuses <- function(outl){
@@ -185,7 +217,7 @@ ergm_MCMC_sample <- function(state, control, theta=NULL,
           pred.ss <- howmuchmore(control.parallel$MCMC.effectiveSize, NVL(nrow(sms[[1]]),0), eS, best.burnin$burnin)
           damp.ss <- pred.ss*(eS/(control.parallel$MCMC.effectiveSize.damp+eS))+control.parallel$MCMC.samplesize*(1-eS/(control.parallel$MCMC.effectiveSize.damp+eS))
           samplesize <- round(damp.ss)
-          if(verbose>1) message("Predicted additional sample size: ",pred.ss, " dampened to ",damp.ss, ", so running ", samplesize, " steps forward.")
+          if(verbose>1) message("Predicted additional sample size: ", format(pred.ss), " dampened to ", format(damp.ss), ", so running ", samplesize, " steps forward.")
         }
       }
         
@@ -207,6 +239,7 @@ ergm_MCMC_sample <- function(state, control, theta=NULL,
         if(verbose) message("Increasing thinning to ",interval,".")
       }
       
+<
       esteq <- lapply(sms, function(sm) NVL3(theta, ergm.estfun(sm, ., as.ergm_model(state[[1]]), exclude=control$MCMC.esteq.exclude.statistics), sm[,!as.ergm_model(state[[1]])$etamap$offsetmap,drop=FALSE])) %>%
         lapply.mcmc.list(mcmc, start=1, thin=interval) %>% lapply.mcmc.list(`-`)
 
@@ -215,21 +248,21 @@ ergm_MCMC_sample <- function(state, control, theta=NULL,
             ,ask=FALSE,smooth=TRUE,density=FALSE)
       }
 
-      best.burnin <- .find_OK_burnin(esteq, order.max=control$MCMC.effectiveSize.order.max)
+      best.burnin <- .find_OK_burnin(esteq, control)
       if(is.na(best.burnin$burnin)){
         if(verbose>1) message("Can not compute a valid burn-in. Setting burn-in to",interval,".")
         best.burnin$burnin <- interval
       }
       burnin.pval <- best.burnin$pval
       if(is.na(burnin.pval) | burnin.pval <= control$MCMC.effectiveSize.burnin.pval){
-        if(verbose>1) message("Selected burn-in p-value = ", burnin.pval, " is below the threshold of ",control$MCMC.effectiveSize.burnin.pval,".")
+        if(verbose>1) message("Selected burn-in ", format(start(esteq)+best.burnin$burnin*thin(esteq), digits=2, scientific=TRUE), " (",round(best.burnin$burnin/niter(esteq)*100,2),"%) p-value = ", format(burnin.pval), " is below the threshold of ",control$MCMC.effectiveSize.burnin.pval,".")
         next
       }
       postburnin.mcmc <- window(esteq, start=start(esteq)+best.burnin$burnin*thin(esteq))
       
       eS <- niter(postburnin.mcmc)*nchain(postburnin.mcmc)/attr(spectrum0.mvar(postburnin.mcmc, order.max=control$MCMC.effectiveSize.order.max),"infl")
       
-      if(verbose) message("ESS of ",eS," attained with burn-in of ", round(best.burnin$burnin/niter(esteq)*100,2),"%; convergence p-value = ", burnin.pval, ".")
+      if(verbose) message("ESS of ", format(eS)," attained with burn-in of ", round(best.burnin$burnin/niter(esteq)*100,2),"%; convergence p-value = ", format(burnin.pval), ".")
 
       if(eS>=control.parallel$MCMC.effectiveSize){
         if(burnin.pval > control$MCMC.effectiveSize.burnin.pval){
@@ -260,7 +293,8 @@ ergm_MCMC_sample <- function(state, control, theta=NULL,
     if(!is.null(nws)) nws <- map(outl, "saved")
     
     if(control.parallel$MCMC.runtime.traceplot){
-      lapply(sms, function(sm) NVL3(theta, ergm.estfun(sm, ., as.ergm_model(state[[1]]), exclude=control$MCMC.esteq.exclude.statistics), sm[,!as.ergm_model(state[[1]])$etamap$offsetmap,drop=FALSE])) %>% lapply(mcmc, start=control.parallel$MCMC.burnin+1, thin=control.parallel$MCMC.interval) %>% as.mcmc.list() %>% window(., thin=thin(.)*max(1,floor(niter(.)/1000))) %>% plot(ask=FALSE,smooth=TRUE,density=FALSE)
+      lapply(sms, function(sm) NVL3(theta, ergm.estfun(sm, ., as.ergm_model(state0[[1]])
+exclude=control$MCMC.esteq.exclude.statistics), sm[,!as.ergm_model(state0[[1]])$etamap$offsetmap,drop=FALSE])) %>% lapply(mcmc, start=control.parallel$MCMC.burnin+1, thin=control.parallel$MCMC.interval) %>% as.mcmc.list() %>% window(., thin=thin(.)*max(1,floor(niter(.)/1000))) %>% plot(ask=FALSE,smooth=TRUE,density=FALSE)
     }
   }
 
@@ -291,18 +325,21 @@ ergm_MCMC_sample <- function(state, control, theta=NULL,
 #' @description The \code{ergm_MCMC_slave} function calls the actual C
 #'   routine and does minimal preprocessing.
 #'
-#' @param burnin,samplesize,interval MCMC paramters that can
-#'   be used to temporarily override those in the `control` list.
+#' @param burnin,samplesize,interval MCMC paramters that can be used
+#'   to temporarily override those in the `control` list.
 #' @return \code{ergm_MCMC_slave} returns the MCMC sample as a list of
 #'   the following: \item{s}{the matrix of statistics.}
 #'   \item{state}{an [`ergm_state`] object for the new network.}
-#'   \item{status}{success or failure code: `0` is
-#'   success, `1` for too many edges, and `2` for a
-#'   Metropolis-Hastings proposal failing.}
+#'   \item{status}{success or failure code: `0` is success, `1` for
+#'   too many edges, and `2` for a Metropolis-Hastings proposal failing,
+#'   `-1` for [`ergm_model`] or [`ergm_proposal`] not passed and
+#'   missing from the cache.}
 #' @useDynLib ergm
 #' @export
 ergm_MCMC_slave <- function(state, eta,control,verbose,..., burnin=NULL, samplesize=NULL, interval=NULL){
   on.exit(ergm_Cstate_clear())
+  state <- ergm_state_send(state)
+  if(is.null(state$model) || is.null(state$proposal)) return(list(status=-1L))
 
   NVL(burnin) <- control$MCMC.burnin
   NVL(samplesize) <- control$MCMC.samplesize
@@ -345,26 +382,63 @@ ergm_MCMC_slave <- function(state, eta,control,verbose,..., burnin=NULL, samples
 }
 
 
-.find_OK_burnin <- function(x, ...){
-  n <- nrow(x[[1]])
-  ssr <- function(b, s){
-    b <- round(b)
-    a <- lm(s ~ c(seq_len(b) - 1, rep(b, n - b)))
-    sum(sigma(a)^2)
+.find_OK_burnin <- function(x, control){
+  if(niter(x) < control$MCMC.effectiveSize.burnin.nmin) warning("The per-thread sample size for estimating burn-in is very small. This should probably be fixed in the calling function.")
+
+  if((pc <- control$MCMC.effectiveSize.burnin.PC)>0 && pc<nvar(x)){
+    v <- svd(scale(as.matrix(x)), nu=0, nv=pc)$v
+    x <- lapply.mcmc.list(x, `%*%`, v)
   }
+
+  nit <- niter(x)
+  p <- nvar(x)
+  bscl <- control$MCMC.effectiveSize.burnin.scl
+
+  ssr <- function(decay, y, results=FALSE){
+    # decay is basically the number of steps corresponding to halving of
+    # the difference in the expected value of the variable at the
+    # current MCMC draw from the ultimate expected value.
+
+    x <- rep(2^(-seq_len(nit)/decay), length.out = NROW(y))
+    a <- try(lm(y ~ x, x=results, y=results))
+    if(results) structure(a, decay=decay) else sum(sigma(a)^2)
+  }
+
+  fit_decay <- function(y, interval){
+    if(is.list(y)) y <- do.call(rbind, y)
+
+    y <- y %>% scale %>% `[`(,attr(.,"scaled:scale")>0, drop=FALSE)
+
+    if(ncol(y) == 0) return(NULL)
+
+    decay <- optimize(ssr, interval, y=y)$minimum
+
+    ssr(decay, y, results=TRUE)
+  }
+
   geweke <- function(b){
     if(b>0) x <- window(x, start=start(x) + b * thin(x))
-    p.val <- suppressWarnings(geweke.diag.mv(x, ...)$p.value)
+    if(niter(x)*nchain(x) > (nmax <- max(control$MCMC.effectiveSize.burnin.nmax, nvar(x)*2*4)))
+    x <- lapply.mcmc.list(x, `[`, round(seq(from=1,to=niter(x),length.out=round(nmax/nchain(x)))), , drop=FALSE)
+
+    p.val <- suppressWarnings(geweke.diag.mv(x, order.max=control$MCMC.effectiveSize.order.max)$p.value)
     if(is.na(p.val)) 0 else p.val
   }
 
-  FAIL <- list(burnin=round(n/2), pval=0)
-  xs <- x %>% map(scale) %>% map(~.[,attr(.,"scaled:scale")>0,drop=FALSE]) %>% discard(~ncol(.)==0)
-  if(length(xs)==0) return(FAIL)
+  best_burnin <- function(coef, decay, s) -decay * log2(s/bscl/abs(coef))
+  best_burnin.lm <- function(fit) best_burnin(if(is.matrix(coef(fit))) coef(fit)[2,] else coef(fit)[2], attr(fit,"decay"), sigma(fit))
 
-  best <- sapply(xs, function(x) optimize(ssr, c(0, n/2), s=x, tol=1)$minimum)
+  FAIL <- list(burnin=round(nit*control$MCMC.effectiveSize.burnin.max), pval=0)
+
+  bestfits <- unlist(lapply(x, function(chain) lapply(seq_len(p), function(i) fit_decay(chain[,i], c(0,nit*log2(bscl)*8)))), recursive=FALSE) %>% compact
+
+  best <- ifelse(sapply(bestfits, function(fit) sd(resid(fit))/sd(fit$y)<1-1/bscl*2),
+                 sapply(bestfits, best_burnin.lm),
+                 round(nit*control$MCMC.effectiveSize.burnin.min))
+
+  best <- sqrt(mean(pmin(pmax(best,0),nit*control$MCMC.effectiveSize.burnin.max)^2, na.rm=TRUE))
+
   if(all(is.na(best) | is.infinite(best))) return(FAIL)
 
-  best <- max(best, na.rm=TRUE)
   list(burnin=round(best), pval=geweke(round(best)))
 }

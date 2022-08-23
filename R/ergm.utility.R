@@ -5,21 +5,8 @@
 #  open source, and has the attribution requirements (GPL Section 7) at
 #  https://statnet.org/attribution .
 #
-#  Copyright 2003-2021 Statnet Commons
+#  Copyright 2003-2022 Statnet Commons
 ################################################################################
-#==============================================================
-# This file contains the following 21 utility functions:
-#      <ostar2deg>                  
-#      <is.invertible>          <summary.statsmatrix.ergm>
-#      <is.ergm>                <ergm.t.summary>
-#      <is.latent>
-#      <degreedist>             <is.latent.cluster>
-#      <espartnerdist>          <dspartnerdist>         
-#      <rspartnerdist>         
-#      <twopathdist>            <copy.named>
-#      <compress.data.frame>    <sort.data.frame>
-#      <catchToList>
-#==============================================================      
 
 #' @rdname ergm
 #' @importFrom methods is
@@ -55,7 +42,7 @@ is.ergm <- function(object)
 #' distribution (number of vertices in the network with each degree
 #' value) for a given network. This help page documents the
 #' function. For help about [the ERGM sample space constraint with
-#' that name][degreedist-constraint], try
+#' that name][degreedist-ergmConstraint], try
 #' `help("degreedist-constraint")`.
 #' 
 #' @param object a \code{network} object or some other object for
@@ -120,87 +107,6 @@ degreedist.network <- function(object, print=TRUE, ...)
  invisible(degrees)
 }
 
-
-summary.statsmatrix.ergm <- function(object, ...){
- c(summary(round(object,digits=8), ...),
-   round(ergm.t.summary(object),5))
-}
-
-
-###############################################################################
-# The <ergm.t.summary> function conducts a t test for comparing the mean of a
-# given vector and a hypothesized mean
-#
-# --PARAMETERS--
-#   x          : a numeric vector
-#   alternative: a string to indicate whether the test is two-sided or one-
-#                sided to the left or right, as either "two.sided", "less",
-#                or "greater"; default="two.sided"
-#   mu         : the hypothesized mean; default = 0
-#
-# --IGNORED PARAMETERS--
-#   var.equal : whether the variance of ?? is ??; default=FALSE
-#   conf.level: the confidence level; default=0.95
-#   ...       : ??
-#
-# --RETURNED--
-#   rval: a vetor of the standard error, the t statistic, the p value, and the
-#         standard deviation, consistent with 'alternative'; if the length of
-#         x is <2, this vector will be predominently NA's
-#
-###############################################################################
-
-ergm.t.summary <-
-function(x, alternative = c("two.sided", "less", "greater"),
-         mu = 0, var.equal = FALSE, conf.level = 0.95,
-         ...)
-{
-    alternative <- match.arg(alternative)
-
-    if(!missing(mu) && (length(mu) != 1 || is.na(mu)))
-        stop("mu must be a single number")
-    if(!missing(conf.level) &&
-       (length(conf.level) != 1 || !is.finite(conf.level) ||
-        conf.level < 0 || conf.level > 1))
-        stop("conf.level must be a single number between 0 and 1")
-
-    dname <- deparse(substitute(x))
-    xok <- !is.na(x)
-    yok <- NULL
-    x <- x[xok]
-    nx <- length(x)
-    mx <- mean(x)
-    rval <- c(NA, mx, NA, NA)
-    names(rval) <- c("std. err.","std. t units.","p.value dev.","std. dev.")
-    if(nx < 2){
-#     stop("not enough x observations")
-      return(rval)
-    }
-    vx <- var(x)
-    estimate <- mx
-    df <- nx-1
-    stddev <- sqrt(vx)
-    stderr <- sqrt(vx/nx)
-    if(stderr < 10 *.Machine$double.eps * abs(mx)){
-#       stop("data are essentially constant")
-        return(rval)
-    }
-    tstat <- (mx-mu)/stderr
-    method <- "One Sample t-test"
-    names(estimate) <- "mean of x"
-    if (alternative == "less") {
-	pval <- pt(tstat, df)
-    }
-    else if (alternative == "greater") {
-	pval <- pt(tstat, df, lower.tail = FALSE)
-    }
-    else {
-	pval <- 2 * pt(-abs(tstat), df)
-    }
-    rval[1:4] <- c(stderr, tstat, pval, stddev)
-    return(rval)
-}
-
 #' Copy network- and vertex-level attributes between two network objects
 #' 
 #' An internal ergm utility function to copy the network-level attributes and
@@ -232,17 +138,19 @@ nvattr.copy.network <- function(to, from, ignore=c("bipartite","directed","hyper
   to
 }
 
+#' @importFrom tibble tibble
 single.impute.dyads <- function(nw, constraints=NULL, constraints.obs=NULL, min_informative=NULL, default_density=NULL, output=c("network","ergm_state"), verbose=FALSE){
   output <- match.arg(output)
+  response <- nw %ergmlhs% "response"
   stopifnot(!is.null(constraints)||is.null(constraints.obs))
 
   if(!is.null(constraints)){
     imputable <- as.rlebdm(constraints, constraints.obs, "missing")
     nae <- NVL3(imputable, sum(.), 0)
-    if(nae) na.el <- as.edgelist(imputable) # FIXME: Avoid creating edgelists.
+    if(nae) na.el <- as.edgelist(imputable, output="tibble") # FIXME: Avoid creating edgelists.
   }else{
     nae <- network.naedgecount(nw)
-    if(nae) na.el <- as.edgelist(is.na(nw))
+    if(nae) na.el <- as.edgelist(is.na(nw), output="tibble")
   }
   if(nae==0){
     if(output=="network") return(nw)
@@ -272,9 +180,8 @@ single.impute.dyads <- function(nw, constraints=NULL, constraints.obs=NULL, min_
         message("Number of informative dyads is too low. Imputing valued relations is not possible.")
         return(nw)
       }
-      x <- as.edgelist(nw,attrname=nw%ergmlhs%"response")
-      x.el <- x[,1:2,drop=FALSE]
-      x <- x.el[! el2s(x.el)%in%el2s(na.el),3]
+      x <- as.edgelist(nw, attrname=response, output="tibble")
+      x <- x[[3L]][! el2s(x[1:2])%in%el2s(na.el)]
       zeros <- sum(informative) - length(x)
     }
   }else{ # No Constraints
@@ -290,8 +197,8 @@ single.impute.dyads <- function(nw, constraints=NULL, constraints.obs=NULL, min_
         message("Number of informative dyads is too low. Imputing valued relations is not possible.")
         return(nw)
       }
-      x <- as.edgelist(nw,attrname=nw%ergmlhs%"response")[,3]
-      zeros <- network.dyadcount(nw,na.omit=TRUE)-length(x)
+      x <- as.edgelist(nw, attrname=response, output="tibble")[[3]]
+      zeros <- network.dyadcount(nw,na.omit=TRUE) - length(x)
     }
   }
   
@@ -306,19 +213,21 @@ single.impute.dyads <- function(nw, constraints=NULL, constraints.obs=NULL, min_
       toadd <- union(setdiff(i.new, i.cur), intersect(i.na, i.new))
       nw[na.el[c(todel,toadd),,drop=FALSE]] <- rep(0:1, c(length(todel),length(toadd)))
     }else{ # edgelist
-      el <- s2el(union(setdiff(el2s(as.edgelist(nw)), el2s(na.el)), el2s(na.el[i.new,,drop=FALSE])))
+      el <- s2el(union(setdiff(el2s(as.edgelist(nw, output="tibble")), el2s(na.el)), el2s(na.el[i.new,,drop=FALSE])))
       colnames(el) <- c(".tail",".head")
       nw <- ergm_state(el, nw=nw)
     }
   }else{
     if(output=="network"){
-      nw[na.el,names.eval=nw%ergmlhs%"response",add.edges=TRUE] <- sample(c(0,x),nae,replace=TRUE,prob=c(zeros,rep(1,length(x))))
+      nw[na.el,names.eval=response,add.edges=TRUE] <- sample(c(0,x),nae,replace=TRUE,prob=c(zeros,rep(1,length(x))))
     }else{ # edgelist
-      el <- as.edgelist(nw, attrname=nw%ergmlhs%"response")
-      el <- el[!el2s(el[,-3,drop=FALSE])%in%el2s(na.el),,drop=FALSE]
-      el <- rbind(el, cbind(na.el, sample(c(0,x),nae,replace=TRUE,prob=c(zeros,rep(1,length(x))))))
-      el <- el[el[,3]!=0,,drop=FALSE]
-      colnames(el) <- c(".tail",".head",nw%ergmlhs%"response")
+      el <- as.edgelist(nw, attrname=response, output="tibble")
+      el <- el[!el2s(el[1:2])%in%el2s(na.el),,drop=FALSE]
+      na.el <- cbind(na.el, sample(c(0,x),nae,replace=TRUE,prob=c(zeros,rep(1,length(x)))))
+      colnames(na.el)[3] <- response
+      el <- rbind(el, na.el)
+      el <- el[el[[3L]]!=0,,drop=FALSE]
+      colnames(el) <- c(".tail",".head",response)
       nw <- ergm_state(el, nw=nw)
     }
   }
@@ -383,4 +292,119 @@ is.SPD <- function(x, tol = .Machine$double.eps){
     all(x == t(x)) &&
     rcond(x) >= tol &&
     all(eigen(x, symmetric=TRUE, only.values=TRUE)$values > 0)
+}
+
+# ssolve() and sginv() (for *s*caled) are thin wrappers around
+# base::solve() and MASS::ginv() that first scale the matrix's rows
+# and/or columns by its diagonal elements and then undo the scaling on
+# the result. rcond() returns the reciprocal condition number net of
+# the above scaling. snearPD() wraps nearPD() to scale the diagonal
+# as well.
+#
+# This is useful when dealing with covariance matrices of variables
+# with very different orders of magnitude. Such matrices have very
+# large ratios between their greatest and their least eigenvalues,
+# causing them to appear to their algorithms to be near-singular when
+# they are actually very much SPD.
+#
+# snnd mode assumes that the matrix is symmetric non-negative definite
+# (SNND). If it's "obvious" that it's not (e.g., negative diagonal
+# elements), an error is raised.
+#
+# NB: In R, vector * matrix and matrix * vector always scales
+# corresponding rows.
+ssolve <- function(a, b, ..., snnd = TRUE){
+  if(missing(b)){
+    b <- diag(1, nrow(a))
+    colnames(b) <- rownames(a)
+  }
+
+  d <- diag(as.matrix(a))
+  d <- ifelse(d==0, 1, 1/d)
+
+  if(snnd){
+    d <- sqrt(d)
+    if(anyNA(d)) stop("Matrix a has negative elements on the diagonal, and snnd=TRUE.")
+    a <- a * d * rep(d, each = length(d))
+    solve(a, b*d, ...) * d
+  }else{
+    solve(a*d, b*d, ...)
+  }
+}
+
+
+#' @importFrom MASS ginv
+sginv <- function(X, ..., snnd = TRUE){
+  d <- diag(as.matrix(X))
+  d <- ifelse(d==0, 1, 1/d)
+
+  if(snnd){
+    d <- sqrt(d)
+    if(anyNA(d)) stop("Matrix a has negative elements on the diagonal, and snnd=TRUE.")
+    dd <- rep(d, each = length(d)) * d
+    X <- X * dd
+    ginv(X, ...) * dd
+  }else{
+    dd <- rep(d, each = length(d))
+    ginv(X*d, ...) * dd
+  }
+}
+
+srcond <- function(x, ..., snnd = TRUE){
+  d <- diag(as.matrix(x))
+  d <- ifelse(d==0, 1, 1/d)
+
+  if(snnd){
+    d <- sqrt(d)
+    if(anyNA(d)) stop("Matrix a has negative elements on the diagonal, and snnd=TRUE.")
+    dd <- rep(d, each = length(d)) * d
+    rcond(x*dd)
+  }else{
+    rcond(x*d, ...)
+  }
+}
+
+#' @importFrom Matrix nearPD
+snearPD <- function(x, ...){
+  d <- abs(diag(as.matrix(x)))
+  d[d==0] <- 1
+  d <- sqrt(d)
+  if(anyNA(d)) stop("Matrix x has negative elements on the diagonal.")
+  dd <- rep(d, each = length(d)) * d
+  x <- nearPD(x / dd, ...)
+  x$mat <- x$mat * dd
+  x
+}
+
+# These are somewhat inspired by emulator::quad.form.inv() and others.
+
+# x^T A x
+xTAx <- function(x, A){
+  drop(crossprod(crossprod(A, x), x))
+}
+# x A x^T
+xAxT <- function(x, A){
+  drop(x %*% tcrossprod(A, x))
+}
+
+# xT A^-1 x
+xTAx_ssolve <- function(x, A, ...){
+  drop(crossprod(x, ssolve(A, x, ...)))
+}
+
+# xT A^-1 x, but using QR decomposition and confirming that x is in
+# the span of A if A is singular; returns rank and nullity as
+# attributes just in case subsequent calculations (e.g., hypothesis
+# test degrees of freedom) are affected
+xTAx_qrsolve <- function(x, A, tol = 1e-07, ...){
+  Aqr <- qr(A, tol=tol, ...)
+  nullity <- NCOL(A) - Aqr$rank
+  if(nullity && !all(abs(crossprod(qr.Q(Aqr)[,-seq_len(Aqr$rank), drop=FALSE], x))<tol))
+    stop("x is not in the span of A")
+  structure(sum(x*qr.coef(Aqr, x), na.rm=TRUE), rank=Aqr$rank, nullity=nullity)
+}
+
+# Evaluate A^-1 B (A^T)^-1, minimising matrix inversion.
+sandwich_ssolve <- function(A, B, ...){
+  ssolve(A, t(ssolve(A, B, ...)), ...)
 }

@@ -13,8 +13,7 @@ mcmc.diagnostics(object, ...)
   center = TRUE,
   esteq = TRUE,
   vars.per.page = 3,
-  which = c("plots", "texts", "summary", "autocorrelation", "crosscorrelation",
-    "burnin"),
+  which = c("plots", "texts", "summary", "autocorrelation", "crosscorrelation", "burnin"),
   ...
 )
 }
@@ -86,9 +85,9 @@ More information can be found by looking at the documentation of
 }
 \section{Methods (by class)}{
 \itemize{
-\item \code{ergm}: 
-}}
+\item \code{mcmc.diagnostics(ergm)}: 
 
+}}
 \examples{
 
 \dontrun{

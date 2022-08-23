@@ -5,8 +5,24 @@
 #  open source, and has the attribution requirements (GPL Section 7) at
 #  https://statnet.org/attribution .
 #
-#  Copyright 2003-2021 Statnet Commons
+#  Copyright 2003-2022 Statnet Commons
 ################################################################################
+
+# Meta-constraint for a dot placeholder
+InitErgmConstraint.. <- function(nw, arglist, ...){
+  a <- check.ErgmTerm(nw, arglist)
+  list(dependence = FALSE)
+}
+
+# Meta-constraint selecting a specific proposal.
+InitErgmConstraint..select <- function(nw, arglist, ...){
+  a <- check.ErgmTerm(nw, arglist,
+                      varnames = c("proposal"),
+                      vartypes = c("character"),
+                      defaultvalues = list(NULL),
+                      required = c(TRUE))
+  list(dependence = TRUE, proposal = a$proposal)
+}
 
 # Baseline constraint incorporating network attributes such as
 # directedness, bipartitedness, and self-loops.
@@ -61,51 +77,183 @@ InitErgmConstraint..attributes <- function(nw, arglist, ...){
     dependence = FALSE)
 }
 
+#' @templateVar name .dyads
+#' @title A meta-constraint indicating handling of arbitrary dyadic constraints
+#' @description This is a flag in the proposal table indicating that the proposal can enforce arbitrary combinations of dyadic constraints. It cannot be invoked directly by the user.
+#'
+#' @template ergmConstraint-general
+NULL
+
+#' @templateVar name edges
+#' @title Preserve the edge count of the given network
+#' @description Only networks
+#'   having the same number of edges as the network passed
+#'   in the model formula have non-zero probability.
+#'
+#' @usage
+#' # edges
+#'
+#' @template ergmConstraint-general
 InitErgmConstraint.edges<-function(nw, arglist, ...){
   a <- check.ErgmTerm(nw, arglist)
   list(dependence = TRUE, implies = "edges")
 }
 
-InitErgmConstraint.degrees<-InitErgmConstraint.nodedegrees<-function(nw, arglist, ...){
+#' @templateVar name degrees
+#' @title Preserve the degree of each vertex of the given network
+#' @description Only networks
+#'   whose vertex degrees are the same as those in the network passed
+#'   in the model formula have non-zero probability. If the network is
+#'   directed, both indegree and outdegree are preserved.
+#'
+#' @usage
+#' # degrees
+#'
+#' @template ergmConstraint-general
+#'
+#' @concept directed
+#' @concept undirected
+InitErgmConstraint.degrees<-function(nw, arglist, ...){
   a <- check.ErgmTerm(nw, arglist)
   list(dependence = TRUE, constrain = "degrees", implies = c("degrees", "edges", "idegrees", "odegrees", "idegreedist", "odegreedist", "degreedist", "bd"))
 }
 
+#' @rdname degrees-ergmConstraint
+#' @aliases nodedegrees-ergmConstraint
+#' @usage
+#' # nodedegrees
+InitErgmConstraint.nodedegrees<-InitErgmConstraint.degrees
+
+#' @templateVar name odegrees
+#' @title Preserve outdegree for directed networks
+#' @description For directed networks, preserve the outdegree of each vertex of the given
+#'   network, while allowing indegree to vary
+#'
+#' @usage
+#' # odegrees
+#'
+#' @template ergmConstraint-general
+#'
+#' @concept directed
 InitErgmConstraint.odegrees<-function(nw, arglist, ...){
   a <- check.ErgmTerm(nw, arglist, directed=TRUE)
   list(dependence = TRUE, implies = c("odegrees", "edges", "odegreedist"))
 }
 
+#' @templateVar name idegrees
+#' @title Preserve indegree for directed networks
+#' @description For directed networks, preserve the indegree of each vertex of the given
+#'   network, while allowing outdegree to vary
+#'
+#' @usage
+#' # idegrees
+#'
+#' @template ergmConstraint-general
+#'
+#' @concept directed
 InitErgmConstraint.idegrees<-function(nw, arglist, ...){
   a <- check.ErgmTerm(nw, arglist, directed=TRUE)
   list(dependence = TRUE, implies = c("idegrees", "edges", "idegreedist"))
 }
 
+#' @templateVar name b1degrees
+#' @title Preserve the actor degree for bipartite networks
+#' @description For bipartite networks, preserve the degree for the first mode of each vertex of the given
+#'   network, while allowing the degree for the second mode to vary.
+#'
+#' @usage
+#' # b1degrees
+#'
+#' @template ergmConstraint-general
+#'
+#' @concept bipartite
 InitErgmConstraint.b1degrees<-function(nw, arglist, ...){
   a <- check.ErgmTerm(nw, arglist, bipartite=TRUE)
   list(dependence = TRUE, implies = c("b1degrees", "edges"))
 }
 
+#' @templateVar name b2degrees
+#' @title Preserve the receiver degree for bipartite networks
+#' @description For bipartite networks, preserve the degree for the second mode of each vertex of the given
+#'   network, while allowing the degree for the first mode to vary.
+#'
+#' @usage
+#' # b2degrees
+#'
+#' @template ergmConstraint-general
+#'
+#' @concept bipartite
 InitErgmConstraint.b2degrees<-function(nw, arglist, ...){
   a <- check.ErgmTerm(nw, arglist, bipartite=TRUE)
   list(dependence = TRUE, implies = c("b2degrees", "edges"))
 }
 
+#' @templateVar name degreedist
+#' @title Preserve the degree distribution of the given network
+#' @description Only networks
+#'   whose degree distributions are the same as those in the network passed
+#'   in the model formula have non-zero probability.
+#'
+#' @usage
+#' # degreedist
+#'
+#' @template ergmConstraint-general
+#'
+#' @concept directed
+#' @concept undirected
 InitErgmConstraint.degreedist<-function(nw, arglist, ...){
   a <- check.ErgmTerm(nw, arglist)
   list(dependence = TRUE, implies = c("degreedist", "edges", "idegreedist", "odegreedist"))
 }
 
+#' @templateVar name idegreedist
+#' @title Preserve the indegree distribution
+#' @description Preserve the indegree distribution of the given network.
+#'
+#' @usage
+#' # idegreedist
+#'
+#' @template ergmConstraint-general
+#'
+#' @concept directed
 InitErgmConstraint.idegreedist<-function(nw, arglist, ...){
   a <- check.ErgmTerm(nw, arglist, directed=TRUE)
   list(dependence = TRUE, implies = c("idegreedist", "edges"))
 }
 
+#' @templateVar name odegreedist
+#' @title Preserve the outdegree distribution
+#' @description Preserve the outdegree distribution of the given network.
+#'
+#' @usage
+#' # odegreedist
+#'
+#' @template ergmConstraint-general
+#'
+#' @concept directed
 InitErgmConstraint.odegreedist<-function(nw, arglist, ...){
   a <- check.ErgmTerm(nw, arglist, directed=TRUE)
   list(dependence = TRUE, implies = c("odegreedist", "edges"))
 }
 
+#' @templateVar name bd
+#' @title Constrain maximum and minimum vertex degree
+#' @description Condition on the number of inedge or outedges posessed by a node. 
+#' See Placing Bounds on Degrees section for more information. ([`?ergmConstraint`][ergmConstraint])
+#'
+#' @usage
+#' # bd(attribs, maxout, maxin, minout, minin)
+#' @param attribs a matrix of logicals with dimension `(n_nodes, attrcount)` for the attributes on which we are
+#'   conditioning, where `attrcount` is the number of distinct attributes values to condition on.
+#' @param maxout,maxin,minout,minin matrices of alter attributes with the same dimension as `attribs` when used
+#'   in conjunction with `attribs`. Otherwise, vectors of integers specifying the relevant limits.
+#'   If the vector is of length 1, the limit is applied to all nodes. If an individual entry is `NA`,
+#'   then there is no restriction of that kind is applied.
+#'
+#' @template ergmConstraint-general
+#'
+#' @concept directed
+#' @concept undirected
 InitErgmConstraint.bd<-function(nw, arglist, ...){
   a <- check.ErgmTerm(nw, arglist,
                       varnames = c("attribs", "maxout", "maxin", "minout", "minin"),
@@ -122,6 +270,20 @@ InitErgmConstraint.bd<-function(nw, arglist, ...){
    list(constrain=constrain, attribs=a$attribs, maxout=a$maxout, maxin=a$maxin, minout=a$minout, minin=a$minin)
 }
 
+#' @templateVar name blocks
+#' @title Constrain "blocks" of dyads
+#' @description Any dyad whose toggle would produce a nonzero change statistic for a `nodemix` term with the same arguments will be fixed. Note that the `levels2` argument has a different default value for `blocks` than it does for `nodemix` .
+#'
+#' @usage
+#' # blocks(attr=NULL, levels=NULL, levels2=FALSE, b1levels=NULL, b2levels=NULL)
+#'
+#' @template ergmConstraint-general
+#' @template ergmTerm-attr
+#' @param b1levels,b2levels,levels,level2 control what statistics are included in the model and the order in which they appear. `levels2` apply to all networks; `levels` applies to unipartite networks; `b1levels` and `b2levels` apply to bipartite networks (see Specifying Vertex attributes and Levels (`?nodal_attributes`) for details)
+#'
+#' @concept dyad-independent
+#' @concept directed
+#' @concept undirected
 InitErgmConstraint.blocks <- function(nw, arglist, ...) {
   a <- check.ErgmTerm(nw, arglist,
                       varnames = c("attr", "b1levels", "b2levels", "levels", "levels2"),
@@ -245,17 +407,53 @@ InitErgmConstraint.blocks <- function(nw, arglist, ...) {
 }
 
 
+#' @templateVar name hamming
+#' @title Preserve the hamming distance to the given network (BROKEN: Do NOT Use)
+#' @description This constraint is currently broken. Do not use.
+#'
+#' @usage
+#' # hamming
+#'
+#' @template ergmConstraint-general
+#' @concept directed
+#' @concept undirected
 InitErgmConstraint.hamming<-function(nw, arglist, ...){
+  stop("Constraint ", sQuote("hamming"), " is currently broken and will hopefully be fixed in a future release.")
   a <- check.ErgmTerm(nw, arglist)
   list(dependence = TRUE)
 }
 
+#' @templateVar name observed
+#' @title Preserve the observed dyads of the given network
+#' @description Preserve the observed dyads of the given network.
+#'
+#' @usage
+#' # observed
+#'
+#' @template ergmConstraint-general
+#'
+#' @concept dyad-independent
+#' @concept directed
+#' @concept undirected
 InitErgmConstraint.observed <- function(nw, arglist, ...){
   a <- check.ErgmTerm(nw, arglist)
   list(free_dyads = as.rlebdm(as.edgelist(is.na(nw))),
        dependence = FALSE, implies = c("observed"))
 }
 
+#' @templateVar name fixedas
+#' @title Preserve and preclude edges
+#' @description Preserve the edges in 'present' and preclude the edges in 'absent'.
+#'
+#' @usage
+#' # fixedas(present, absent)
+#' @param present,absent edgelist or network
+#'
+#' @template ergmConstraint-general
+#'
+#' @concept dyad-independent
+#' @concept directed
+#' @concept undirected
 InitErgmConstraint.fixedas<-function(nw, arglist,...){
   a <- check.ErgmTerm(nw, arglist,
                       varnames = c("present", "absent"),
@@ -286,7 +484,19 @@ InitErgmConstraint.fixedas<-function(nw, arglist,...){
     dependence = FALSE)
 }
 
-
+#' @templateVar name fixallbut
+#' @title Preserve the dyad status in all but the given edges
+#' @description Preserve the dyad status in all but `free.dyads`.
+#'
+#' @usage
+#' # fixallbut(free.dyads)
+#' @param free.dyads edgelist or network. Networks will be converted to the corresponding edgelist.
+#'
+#' @template ergmConstraint-general
+#'
+#' @concept dyad-independent
+#' @concept directed
+#' @concept undirected
 InitErgmConstraint.fixallbut<-function(nw, arglist,...){
   a <- check.ErgmTerm(nw, arglist,
                       varnames = c("free.dyads"),
@@ -298,16 +508,37 @@ InitErgmConstraint.fixallbut<-function(nw, arglist,...){
   list(
     free_dyads = function(){
       if(is.network(free.dyads)) free.dyads <- as.edgelist(free.dyads)
-      fixed <- as.edgelist(free.dyads,
-                           n=nw%n%"n",
-                           directed=nw%n%"directed",
-                           bipartite=nw%n%"bipartite",
-                           loops=nw%n%"loops")
+      else free.dyads <- as.edgelist(free.dyads,
+                                     n=nw%n%"n",
+                                     directed=nw%n%"directed",
+                                     bipartite=nw%n%"bipartite",
+                                     loops=nw%n%"loops")
       as.rlebdm(free.dyads)
     },
     dependence = FALSE)
 }
 
+#' @templateVar name dyadnoise
+#' @title A soft constraint to adjust the sampled distribution for
+#'   dyad-level noise with known perturbation probabilities
+#' @description It is assumed that the observed LHS network is a noisy observation of
+#'   some unobserved true network, with `p01` giving the dyadwise
+#'   probability of erroneously observing a tie where the true network
+#'   had a non-tie and `p10` giving the dyadwise probability of
+#'   erroneously observing a nontie where the true network had a tie.
+#'   
+#' @usage
+#' # dyadnoise(p01, p10)
+#' @param p01,p10 can both be scalars or both be adjacency matrices of the same dimension as that of the
+#'    LHS network giving these probabilities.
+#'
+#' @template ergmConstraint-general
+#'
+#' @note See Karwa et al. (2016) for an application.
+#' @concept soft
+#' @concept dyad-independent
+#' @concept directed
+#' @concept undirected
 InitErgmConstraint.dyadnoise<-function(nw, arglist, ...){
   a <- check.ErgmTerm(nw, arglist,
                       varnames = c("p01", "p10"),
@@ -323,6 +554,20 @@ InitErgmConstraint.dyadnoise<-function(nw, arglist, ...){
   list(p01=p01, p10=p10)
 }
 
+#' @templateVar name egocentric
+#' @title Preserve values of dyads incident on vertices with given attribute
+#' @description Preserve values of dyads incident on vertices with attribute `attr` being `TRUE` or if `attrname` is `NULL` , the vertex attribute `"na"` being `FALSE`.
+#'
+#' @usage
+#' # egocentric(attr=NULL, direction="both")
+#' @template ergmTerm-attr
+#' @param direction one of `"both"`, `"out"` and `"in"`, only applies to directed networks. `"out"` only preserves the out-dyads of those actors and `"in"` preserves their in-dyads.
+#'
+#' @template ergmConstraint-general
+#'
+#' @concept dyad-independent
+#' @concept directed
+#' @concept undirected
 InitErgmConstraint.egocentric <- function(nw, arglist, ...){
   a <- check.ErgmTerm(nw, arglist,
                       varnames = c("attr", "direction"),
@@ -357,6 +602,20 @@ InitErgmConstraint.egocentric <- function(nw, arglist, ...){
   )
 }
 
+#' @templateVar name Dyads
+#' @title Constrain fixed or varying dyad-independent terms
+#' @description This is an "operator" constraint that takes one or two [`ergmTerm`] dyad-independent formulas. For the terms in the `vary=` formula, only those that change at least one of the terms will be allowed to vary, and all others will be fixed. If both formulas are given, the dyads that vary either for one or for the other will be allowed to vary. Note that a formula passed to `Dyads` without an argument name will default to `fix=` .
+#'
+#' @usage
+#' # Dyads(fix=NULL, vary=NULL)
+#' @param fix,vary formula with only dyad-independent terms
+#'
+#' @template ergmConstraint-general
+#'
+#' @concept dyad-independent
+#' @concept operator
+#' @concept directed
+#' @concept undirected
 InitErgmConstraint.Dyads<-function(nw, arglist, ...){
   a <- check.ErgmTerm(nw, arglist,
                       varnames = c("fix", "vary"),
@@ -367,6 +626,12 @@ InitErgmConstraint.Dyads<-function(nw, arglist, ...){
 
   if(is.null(fix) & is.null(vary))
     ergm_Init_abort(paste("Dyads constraint takes at least one argument, either",sQuote("fix"),"or",sQuote("vary"),"or both."))
+
+  for(f in c(fix, vary)){
+    f[[3]] <- f[[2]]
+    f[[2]] <- nw
+    if(!is.dyad.independent(f)) ergm_Init_abort(paste("Terms passed to the Dyads constraint must be dyad-independent."))
+  }
 
   list(
     free_dyads = function(){

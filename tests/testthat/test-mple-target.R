@@ -5,7 +5,7 @@
 #  open source, and has the attribution requirements (GPL Section 7) at
 #  https://statnet.org/attribution .
 #
-#  Copyright 2003-2021 Statnet Commons
+#  Copyright 2003-2022 Statnet Commons
 ################################################################################
 n<-500
 base.net <- network.initialize(n=n,directed=FALSE)
@@ -19,7 +19,7 @@ cat("Average degree among nodes with degree 2 or higher:", (2*norm.stats[1]-norm
 ergm.ts.fit<-ergm(base.net~edges+degree(c(0,1)),target.stats=n*norm.stats,estimate="MPLE")
 
 test_that("internal SAN call achieves the target statistics", {
-  expect_equivalent(summary(ergm.ts.fit$newnetwork~edges+degree(c(0,1)),estimate="MPLE"),target.stats)
+  expect_equal(summary(ergm.ts.fit$newnetwork~edges+degree(c(0,1)),estimate="MPLE"),target.stats, ignore_attr=TRUE)
 })
 
 test_that("estimate with target.stats matches that with LHS", {

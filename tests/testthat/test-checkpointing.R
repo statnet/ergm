@@ -5,25 +5,24 @@
 #  open source, and has the attribution requirements (GPL Section 7) at
 #  https://statnet.org/attribution .
 #
-#  Copyright 2003-2021 Statnet Commons
+#  Copyright 2003-2022 Statnet Commons
 ################################################################################
 
 data(florentine)
 set.seed(0)
-tmpf <- tempfile()
-
-teardown({
-  unlink(paste0(tmpf,"_00",1:2,".RData"))
-})
 
 niterations <- NA
+tmpf <- tempfile()
+checkpoints <- paste0(tmpf,"_00",1:2,".RData")
 
-test_that("checkpointing works",{
-  gest <- ergm(flomarriage ~ kstar(1:2) + absdiff("wealth") + triangle, control=control.ergm(MCMLE.termination="Hummel", checkpoint=paste0(tmpf,"_%03d.RData")))
-  niterations <<- gest$iterations # Save for later.
-})
+withr::local_file(checkpoints, {
+  test_that("checkpointing works",{
+    expect_error(gest <- ergm(flomarriage ~ kstar(1:2) + absdiff("wealth") + triangle, control=control.ergm(MCMLE.termination="Hummel", checkpoint=paste0(tmpf,"_%03d.RData"))), NA)
+    niterations <<- gest$iterations # Save for later.
+  })
 
-test_that("resuming works",{
-  gest <- ergm(flomarriage ~ kstar(1:2) + absdiff("wealth") + triangle, control=control.ergm(MCMLE.termination="Hummel", resume=sprintf(paste0(tmpf,"_%03d.RData"),niterations)))
-  expect_equal(gest$iterations, 1) # It'll take at least 2 if resume fails.
+  test_that("resuming works",{
+    gest <- ergm(flomarriage ~ kstar(1:2) + absdiff("wealth") + triangle, control=control.ergm(MCMLE.termination="Hummel", resume=sprintf(paste0(tmpf,"_%03d.RData"),niterations)))
+    expect_equal(gest$iterations, 1) # It'll take at least 2 if resume fails.
+  })
 })

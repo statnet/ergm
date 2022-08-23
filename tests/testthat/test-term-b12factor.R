@@ -5,7 +5,7 @@
 #  open source, and has the attribution requirements (GPL Section 7) at
 #  https://statnet.org/attribution .
 #
-#  Copyright 2003-2021 Statnet Commons
+#  Copyright 2003-2022 Statnet Commons
 ################################################################################
 
 bipnet<-network.initialize(4,bipartite=2,directed=FALSE)
@@ -19,5 +19,5 @@ test_that("NA check works for b1factor", {
 
 test_that("Correct statistics for b2factor()", {
   o <- summary(bipnet~b2factor('felines'))
-  expect_equivalent(o, 1)
+  expect_equal(o, 1, ignore_attr=TRUE)
 })

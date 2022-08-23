@@ -10,10 +10,10 @@ ergm_proposal_table(Class, Reference, Constraints, Priority, Weights, Proposal)
 \item{Class}{default to "c"}
 
 \item{Reference}{The reference measure used in the model. For the list of
-reference measures, see \code{\link{ergm-references}}}
+reference measures, see \code{\link{ergmReference}}}
 
 \item{Constraints}{The constraints used in the model. For the list
-of constraints, see \code{\link{ergm-constraints}}. They are
+of constraints, see \code{\link{ergmConstraint}}. They are
 specified as a single string of text, with each contrast prefixed
 by either \code{&} for constraints that the proposal \emph{always} enforces
 or \code{|} for constraints that the proposal \emph{can} enforce if needed.}

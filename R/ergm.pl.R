@@ -5,7 +5,7 @@
 #  open source, and has the attribution requirements (GPL Section 7) at
 #  https://statnet.org/attribution .
 #
-#  Copyright 2003-2021 Statnet Commons
+#  Copyright 2003-2022 Statnet Commons
 ################################################################################
 
 #' @rdname ergm.mple
@@ -46,6 +46,7 @@ ergm.pl<-function(nw, fd, m, theta.offset=NULL,
                     control, ignore.offset=FALSE,
                     verbose=FALSE) {
   on.exit(ergm_Cstate_clear())
+  on.exit(PL_workspace_clear(), add=TRUE)
 
   state <- ergm_state(nw, model=m)
   d <- sum(fd)
@@ -53,97 +54,94 @@ ergm.pl<-function(nw, fd, m, theta.offset=NULL,
   elfd <- as.rlebdm(el) & fd
   e <- sum(elfd)
 
-  maxNumDyadTypes <- as.integer(min(if(is.function(control$MPLE.max.dyad.types)) control$MPLE.max.dyad.types(d=d, e=e) else control$MPLE.max.dyad.types,
-                         1.05*d)) # a little larger than d so the hash table doesn't bog down
   maxDyads <- if(is.function(control$MPLE.samplesize)) control$MPLE.samplesize(d=d, e=e) else control$MPLE.samplesize
-
-  if(as.double(maxNumDyadTypes)*nparam(m, canonical=TRUE) > .Machine$integer.max) {
-    stop("The maximum number of unique dyad types times the number of statistics exceeds 32 bit limits, so the MPLE cannot proceed; try reducing either MPLE.max.dyad.types or the number of terms in the model.")
-  }
 
   z <- .Call("MPLE_wrapper",
              state,
              # MPLE settings
              as.double(to_ergm_Cdouble(fd)),
              as.integer(maxDyads),
-             as.integer(maxNumDyadTypes),
              PACKAGE="ergm")
-  uvals <- z$weightsvector!=0
-  if (verbose) {
-    message(paste("MPLE covariate matrix has", sum(uvals), "rows."))
-  }
-  zy <- z$y[uvals]
-  wend <- as.numeric(z$weightsvector[uvals])
-  xmat <- matrix(z$x, ncol=nparam(m,canonical=TRUE), byrow=TRUE)[uvals,,drop=FALSE]
-  colnames(xmat) <- param_names(m,canonical=TRUE)
-  rm(z,uvals)
+  y <- z$y
+  x <- z$x
+  rm(z)
+  rownames(x) <- param_names(m,canonical=TRUE)
+
+  if(verbose) message(paste("MPLE covariate matrix has",ncol(y), "rows."))
 
   # If we ran out of space, AND we have a sparse network, then, use
   # case-control MPLE.
-  if(sum(wend)<d && mean(zy)<1/2){
+  if(sum(y)<d && sum(y[1,])/sum(y)<1/2){
     if(verbose) message("A sparse network with too many unique dyads encountered. Using case-control MPLE.")
     # Strip out the rows associated with ties.
-    wend <- wend[zy==0]
-    xmat <- xmat[zy==0,,drop=FALSE]
-    zy <- zy[zy==0]
-
-    ## Run a whitelist PL over all of the toggleable edges in the network.
-    maxNumDyadTypes <- min(maxNumDyadTypes, e)
+    tokeep <- y[2,] != 0
+    x <- x[, tokeep, drop=FALSE]
+    y <- y[, tokeep, drop=FALSE]
+    y[1,] <- 0L
 
     z <- .Call("MPLE_wrapper",
                state,
                # MPLE settings
                as.double(to_ergm_Cdouble(elfd)),
                as.integer(.Machine$integer.max), # maxDyads
-               as.integer(maxNumDyadTypes),
                PACKAGE="ergm")
-    uvals <- z$weightsvector!=0
-    zy.e <- z$y[uvals]
-    wend.e <- as.numeric(z$weightsvector[uvals])
-    xmat.e <- matrix(z$x, ncol=nparam(m,canonical=TRUE), byrow=TRUE)[uvals,,drop=FALSE]
-    colnames(xmat.e) <- param_names(m,canonical=TRUE)
-    rm(z,uvals)
+
+    y.e <- z$y
+    x.e <- z$x
+    rm(z)
+    rownames(x.e) <- param_names(m,canonical=TRUE)
+
+    if(verbose) message(paste("MPLE covariate matrix has", ncol(y), "rows."))
 
     # Divvy up the sampling weight of the ties:
-    wend.e <- wend.e / sum(wend.e) * e
+    y.e <- y.e / sum(y.e) * e
 
     # Divvy up the sampling weight of the nonties:
-    wend <- wend / sum(wend) * (d-e)
+    y <- y / sum(y) * (d-e)
 
-    zy <- c(zy,zy.e)
-    wend <- c(wend, wend.e)
-    xmat <- rbind(xmat, xmat.e)
-
-    rm(zy.e, wend.e, xmat.e)
+    y <- cbind(y, y.e)
+    x <- cbind(x, x.e)
   }
 
   #
   # Adjust for the offset
   #
 
-  xmat.full <- xmat
+  x.full <- x
 
   if(any(m$etamap$offsettheta) && !ignore.offset){
     if(any(is.na(theta.offset[m$etamap$offsettheta]))){
       stop("Offset terms without offset coefficients specified!")
     }
     # Compute the offset's effect.
-    foffset <- .multiply.with.inf(xmat[,m$etamap$offsetmap,drop=FALSE], 
+    foffset <- .multiply.with.inf(t(x[m$etamap$offsetmap,,drop=FALSE]),
                                   cbind(ergm.eta(theta.offset,m$etamap)[m$etamap$offsetmap]))
     
     # Remove offset covariate columns.
-    xmat <- xmat[,!m$etamap$offsettheta,drop=FALSE] 
-    colnames(xmat) <- param_names(m,canonical=TRUE)[!m$etamap$offsettheta]
+    x <- x[!m$etamap$offsettheta,,drop=FALSE]
     # Now, iff a row's offset effect is infinite, then it carries no
     # further information whatsoever, so it should be dropped.
-    xmat <- xmat[is.finite(foffset),,drop=FALSE]
-    zy <- zy[is.finite(foffset)]
-    wend <- wend[is.finite(foffset)]
+    x <- x[,is.finite(foffset),drop=FALSE]
+    y <- y[,is.finite(foffset),drop=FALSE]
     foffset <- foffset[is.finite(foffset)]
   }else{
-    foffset <- rep(0, length=length(zy))
+    foffset <- rep(0, length=ncol(y))
   }
-  
-  list(xmat=xmat, zy=zy, foffset=foffset, wend=wend,
-       xmat.full=xmat.full)
+
+  # Convert the new-style MPLE results into old-style.
+  y0 <- which(y[2,] != 0)
+  y1 <- which(y[1,] != 0)
+  x <- t(x[,c(y0, y1), drop=FALSE])
+  x.full <- t(x.full[,c(y0, y1), drop=FALSE])
+  foffset <- foffset[c(y0,y1)]
+  list(zy = rep(c(0L,1L), c(length(y0), length(y1))),
+       xmat = x,
+       foffset=foffset,
+       xmat.full=x.full,
+       wend = c(y[2,y0],y[1,y1])
+       )
+}
+
+PL_workspace_clear <- function(){
+  .Call("MPLE_workspace_free", PACKAGE="ergm")
 }

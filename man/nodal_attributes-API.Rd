@@ -19,10 +19,13 @@
 \alias{ergm_attr_levels.function}
 \alias{ergm_attr_levels.formula}
 \alias{ERGM_VATTR_SPEC}
+\alias{ERGM_VATTR_SPEC_NULL}
 \alias{ERGM_LEVELS_SPEC}
 \title{Helper functions for specifying nodal attribute levels}
 \format{
 An object of class \code{character} of length 3.
+
+An object of class \code{character} of length 1.
 
 An object of class \code{character} of length 1.
 
@@ -95,6 +98,8 @@ ergm_attr_levels(object, attr, nw, levels = sort(unique(attr)), ...)
 \method{ergm_attr_levels}{formula}(object, attr, nw, levels = sort(unique(attr)), ...)
 
 ERGM_VATTR_SPEC
+
+ERGM_VATTR_SPEC_NULL
 
 ERGM_LEVELS_SPEC
 }

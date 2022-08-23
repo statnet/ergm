@@ -5,16 +5,18 @@
 #  open source, and has the attribution requirements (GPL Section 7) at
 #  https://statnet.org/attribution .
 #
-#  Copyright 2003-2021 Statnet Commons
+#  Copyright 2003-2022 Statnet Commons
 ################################################################################
 o <- options(ergm.eval.loglik=FALSE)
 
 data(florentine)
 
 test_that("Nonidentifiable model produces a warning.", {
-  expect_warning(ergm(flomarriage~edges+nodecov(~wealth)+nodecov(~-wealth/2+1)),".*nodecov\\.-wealth/2\\+1.*\\bnonidentifiable\\b.*")
-  expect_warning(ergm(flomarriage~edges+nodecov(~wealth)+nodecov(~-wealth/2+1), control=control.ergm(init.method="CD")),".*nodecov\\.-wealth/2\\+1.*\\bnonidentifiable\\b.*")
-  expect_warning(ergm(flomarriage~edges+nodecov(~wealth)+nodecov(~-wealth/2+1)+gwesp(fixed=FALSE), control=control.ergm(MCMLE.maxit=1)),".*nodecov\\.-wealth/2\\+1.*\\bnonidentifiable\\b.*")
+  warnpat <- ".*nodecov\\.-wealth/2\\+1.*\\bnonidentifiable\\b.*"
+  expect_warning(ergm(flomarriage~edges+nodecov(~wealth)+nodecov(~-wealth/2+1)), warnpat)
+  expect_warning(ergm(flomarriage~edges+nodecov(~wealth)+nodecov(~-wealth/2+1), control=control.ergm(init.method="CD")), warnpat)
+  warns <- capture_warnings(ergm(flomarriage~edges+nodecov(~wealth)+nodecov(~-wealth/2+1)+gwesp(fixed=FALSE), control=control.ergm(MCMLE.maxit=1)))
+  expect_match(warns, warnpat, all=FALSE)
 })
 
 test_that("Model identifiable only due to offsets does not.", {

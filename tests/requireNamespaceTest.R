@@ -5,11 +5,19 @@
 #  open source, and has the attribution requirements (GPL Section 7) at
 #  https://statnet.org/attribution .
 #
-#  Copyright 2003-2021 Statnet Commons
+#  Copyright 2003-2022 Statnet Commons
 ################################################################################
 library(network)
 data(flo)
-requireNamespace('ergm')   #load the namespace, but don't attach the package
+
+# Also, while we are at it, test the options setting in .onLoad().
+options(ergm.eval.loglik=FALSE) # .onLoad() should not clobber this.
+
+requireNamespace('ergm') # Load the namespace, but don't attach the package.
+
+# Check that options are either set to default or preserved.
+stopifnot(getOption("ergm.eval.loglik")==FALSE)
+stopifnot(getOption("ergm.loglik.warn_dyads")==TRUE)
 
 # run a summary
 ergm::summary_formula(as.network(flo)~density)
@@ -23,6 +31,7 @@ data(sampson, package="ergm")
 fit <- ergm::ergm(samplike~edges)
 stopifnot(isTRUE(all.equal(-log(1/(network.edgecount(samplike)/network.dyadcount(samplike))-1), coef(fit), check.attributes=FALSE)))
 
-# check that we get an appropriate error if no term exists
-# should generate an 'unable to locate termed named ... ' error
-# ergm::summary_formula.formula(as.network(flo)~foobar)
+library(ergm) # Now, attach the package.
+# Check that options are either set to default or preserved.
+stopifnot(getOption("ergm.eval.loglik")==FALSE)
+stopifnot(getOption("ergm.loglik.warn_dyads")==TRUE)

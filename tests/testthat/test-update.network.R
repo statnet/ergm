@@ -5,9 +5,8 @@
 #  open source, and has the attribution requirements (GPL Section 7) at
 #  https://statnet.org/attribution .
 #
-#  Copyright 2003-2021 Statnet Commons
+#  Copyright 2003-2022 Statnet Commons
 ################################################################################
-local_edition(3)
 
 aaa <- network.initialize(10,directed=TRUE,loops=TRUE)
 aaa %v% 'race' <- rep(c('B','W'),10)

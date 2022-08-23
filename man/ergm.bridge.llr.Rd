@@ -69,7 +69,7 @@ measure (\eqn{h(y)}) to be used.  (Defaults to
 \item{constraints, obs.constraints}{One-sided formulas specifying
 one or more constraints on the support of the distribution of the
 networks being simulated and on the observation process
-respectively. See the documentation for a similar argument for
+respectively. See the documentation for similar arguments for
 \code{\link{ergm}} for more information.}
 
 \item{from, to}{The initial and final parameter vectors.}
@@ -83,7 +83,7 @@ left-hand-side of the \code{object}.}
 
 \item{verbose}{A logical or an integer to control the amount of
 progress and diagnostic information to be printed. \code{FALSE}/\code{0}
-produces minimal output, wit higher values producing more
+produces minimal output, with higher values producing more
 detail. Note that very high values (5+) may significantly slow
 down processing.}
 

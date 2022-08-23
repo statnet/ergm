@@ -5,7 +5,7 @@
 #  open source, and has the attribution requirements (GPL Section 7) at
 #  https://statnet.org/attribution .
 #
-#  Copyright 2003-2021 Statnet Commons
+#  Copyright 2003-2022 Statnet Commons
 ################################################################################
 test_that("simulate.formula() returns the same number of networks and stats regardless of batch size and they are (on average) similar", {
   nw0 <- network.initialize(10)
@@ -27,7 +27,8 @@ test_that("simulate.formula() returns the same number of networks and stats rega
 test_that("simulate.formula() returns the same number of networks and stats regardless of batch size and they are (on average) similar, with parallel", {
   nw0 <- network.initialize(10)
 
-  cl <- parallel::makeCluster(2)
+  # NB: setup_strategy= is a workaround an issue in OSX: see https://github.com/rstudio/rstudio/issues/6692 .
+  cl <- parallel::makeCluster(2, setup_strategy = "sequential")
 
   unbatched <- simulate(nw0 ~ edges, nsim = 30, coef = -1, control = snctrl(parallel = cl), simplify = FALSE)
   batched1 <- simulate(nw0 ~ edges, nsim = 30, coef = -1, control = snctrl(MCMC.batch = 1, parallel = cl), simplify = FALSE)

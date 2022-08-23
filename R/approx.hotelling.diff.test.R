@@ -5,7 +5,7 @@
 #  open source, and has the attribution requirements (GPL Section 7) at
 #  https://statnet.org/attribution .
 #
-#  Copyright 2003-2021 Statnet Commons
+#  Copyright 2003-2022 Statnet Commons
 ################################################################################
 .dtsq <- function(x, param, df, log = FALSE){
   fx <- x*(df - param + 1)/(param*df)
@@ -85,22 +85,25 @@ approx.hotelling.diff.test<-function(x,y=NULL, mu0=0, assume.indep=FALSE, var.eq
 
   vars <- list(x=list(v=x))
   if(!is.null(y)) vars$y <- list(v=y)
+  else var.equal <- FALSE
 
   vars <- lapply(if(is.null(y)) list(x=x) else list(x=x,y=y), function(v, ...){
     vm <- as.matrix(v)
     vcov.indep <- cov(vm)
     if(assume.indep){
       vcov <- vcov.indep
-    }else{
+      infl <- 1
+    }else if(!var.equal){
       vcov <- ERRVL(try(spectrum0.mvar(v, ...), silent=TRUE),
                     stop("Unable to compute autocorrelation-adjusted standard errors."))
+      infl <- attr(vcov, "infl")
+    }else{
+      infl <- vcov <- NULL
     }
     m <- colMeans(vm)
     n <- nrow(vm)
     
-    infl <- if(assume.indep) 1 else attr(vcov, "infl")
     neff <- n / infl
-    
     vcov.m <- vcov/n # Here, vcov already incorporates the inflation due to autocorrelation.
 
     list(v=v, vm=vm, m=m, n=n, vcov.indep=vcov.indep, vcov=vcov, infl=infl, neff=neff, vcov.m=vcov.m)
@@ -115,6 +118,38 @@ approx.hotelling.diff.test<-function(x,y=NULL, mu0=0, assume.indep=FALSE, var.eq
   if(!is.null(y)){
     d <- d - y$m
     if(var.equal){
+      # If we are pooling variances *and* estimating autocorrelation, then pool the two variables before calling spectrum0.mvar().
+      if(!assume.indep){
+        # Center both variables about the same mean.
+        xp <- sweep.mcmc.list(x$v, x$m)
+        yp <- sweep.mcmc.list(y$v, y$m)
+
+        if(nchain(xp) == nchain(yp)){
+          # Equal numbers of chains -> concatenate.
+          xyp <- as.mcmc.list(mapply(function(x,y) as.mcmc(rbind(x, matrix(NA, ceiling(10*log10(niter(xp) + niter(yp))), nvar(xp)), y)), xp, yp, SIMPLIFY=FALSE))
+        }else{
+          # Differing numbers of chains -> pad the shorter of the variables (if any) with NAs.
+          padto <- max(niter(x$v), niter(y$v))
+          xp <-
+            if((xpad <- padto - niter(x$v)) > 0) lapply.mcmc.list(xp, function(z) rbind(z, matrix(NA, xpad, nvar(x$v))))
+            else lapply.mcmc.list(xp, function(z) as.matrix(xp)) # To avoid MCMC burnin/interval inconsistency.
+          yp <-
+            if((ypad <- padto - niter(y$v)) > 0) lapply.mcmc.list(yp, function(z) rbind(z, matrix(NA, xpad, nvar(y$v))))
+            else lapply.mcmc.list(yp, function(z) as.matrix(xp))  # To avoid MCMC burnin/interval inconsistency.
+
+          # Now simply treat them as different chains of an MCMC sample.
+          xyp <- as.mcmc.list(c(unclass(xp), unclass(yp)))
+        }
+
+        vcov <- x$vcov <- y$vcov <- ERRVL(try(spectrum0.mvar(xyp, ...), silent=TRUE),
+                                  stop("Unable to compute autocorrelation-adjusted standard errors."))
+        infl <- x$infl <- y$infl <- attr(vcov, "infl")
+        x$neff <- x$n / infl
+        y$neff <- y$n / infl
+        x$vcov.m <- vcov / x$n
+        y$vcov.m <- vcov / y$n
+      }
+
       vcov.pooled <- (x$vcov*(x$n-1) + y$vcov*(y$n-1))/(x$n+y$n-2)
       vcov.d <- vcov.pooled * (1/x$n + 1/y$n)
     }else{
@@ -131,7 +166,7 @@ approx.hotelling.diff.test<-function(x,y=NULL, mu0=0, assume.indep=FALSE, var.eq
 
   if(p==0) stop("data are essentially constant")
   
-  ivcov.d <-ginv(vcov.d[!novar,!novar,drop=FALSE])
+  ivcov.d <-sginv(vcov.d[!novar,!novar,drop=FALSE])
   
   method <- paste0("Hotelling's ",
                   NVL2(y, "Two", "One"),
@@ -154,7 +189,7 @@ approx.hotelling.diff.test<-function(x,y=NULL, mu0=0, assume.indep=FALSE, var.eq
                    " do not vary in x or in y but have differences equal to mu0"),
               "; they have been ignored for the purposes of testing.")
     }
-    T2 <- c(t((d-mu0)[!novar])%*%ivcov.d%*%(d-mu0)[!novar])
+    T2 <- xTAx((d-mu0)[!novar], ivcov.d)
   }
 
   NANVL <- function(z, ifNAN) ifelse(is.nan(z),ifNAN,z)
@@ -268,15 +303,22 @@ geweke.diag.mv <- function(x, frac1 = 0.1, frac2 = 0.5, split.mcmc.list = FALSE,
 #' @export spectrum0.mvar
 spectrum0.mvar <- function(x, order.max=NULL, aic=is.null(order.max), tol=.Machine$double.eps^0.5, ...){
   breaks <- if(is.mcmc.list(x)) c(0,cumsum(sapply(x, niter))) else NULL
-  x <- as.matrix(x)
-  n <- nrow(x)
+  x.full <- as.matrix(x)
+  x <- na.omit(x.full)
   p <- ncol(x)
   
   v <- matrix(0,p,p)
-  novar <- abs(apply(x,2,stats::sd))<tol
-  x <- x[,!novar,drop=FALSE]
 
+  # Save the scale of each variable, then drop nonvarying and standardise.
+  # TODO: What if the variable actually has a tiny magnitude?
+  xscl <- apply(x, 2L, stats::sd)
+  novar <- xscl < tol
+  x <- x[,!novar,drop=FALSE]
+  x.full <- x.full[,!novar,drop=FALSE]
+  xscl <- xscl[!novar]
   if(ncol(x) == 0) stop("All variables are constant.")
+  x <- sweep(x, 2L, xscl, "/", check.margin = FALSE)
+  x.full <- sweep(x.full, 2L, xscl, "/", check.margin = FALSE)
 
   # Index of the first local minimum in a sequence.
   first_local_min <- function(x){
@@ -286,15 +328,14 @@ spectrum0.mvar <- function(x, order.max=NULL, aic=is.null(order.max), tol=.Machi
   
   # Map the variables onto their principal components, dropping
   # redundant (linearly-dependent) dimensions. Here, we keep the
-  # eigenvectors such that the reciprocal condition number defined
-  # as s.min/s.max, where s.min and s.max are the smallest and the
-  # biggest singular values, respectively, is greater than the
-  # tolerance.
+  # eigenvectors such that the reciprocal condition number defined as
+  # s.min/s.max, where s.min and s.max are the smallest and the
+  # biggest eigenvalues, respectively, is greater than the tolerance.
   e <- eigen(cov(x), symmetric=TRUE)
   Q <- e$vectors[,sqrt(pmax(e$values,0)/max(e$values))>tol*2,drop=FALSE]
-  xr <- x%*%Q # Columns of xr are guaranteed to be linearly independent.
+  xr <- x.full%*%Q # Columns of xr are guaranteed to be linearly independent.
 
-  ind.var <- cov(xr) # Get the sample variance of the transformed columns.
+  ind.var <- cov(xr, use="complete.obs") # Get the sample variance of the transformed columns.
 
   # Convert back into an mcmc.list object.
   xr <-
@@ -324,13 +365,12 @@ spectrum0.mvar <- function(x, order.max=NULL, aic=is.null(order.max), tol=.Machi
   arcoefs <- NVL2(dim(arcoefs), apply(arcoefs,2:3,base::sum), sum(arcoefs))
   
   adj <- diag(1,nrow=ncol(xr)) - arcoefs
-  iadj <- solve(adj)
-  v.var <- iadj %*% arvar %*% t(iadj)
+  v.var <- sandwich_ssolve(adj, arvar)
 
   infl <- exp((determinant(v.var)$modulus-determinant(ind.var)$modulus)/ncol(ind.var))
   
   # Reverse the mapping for the variance estimate.
-  v.var <- Q%*%v.var%*%t(Q)
+  v.var <- xAxT(xscl*Q, v.var)
   
   v[!novar,!novar] <- v.var
   

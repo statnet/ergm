@@ -5,7 +5,7 @@
 #  open source, and has the attribution requirements (GPL Section 7) at
 #  https://statnet.org/attribution .
 #
-#  Copyright 2003-2021 Statnet Commons
+#  Copyright 2003-2022 Statnet Commons
 ################################################################################
 
 #' @describeIn ergm extracts the variance-covariance matrix of
@@ -39,7 +39,7 @@ vcov.ergm <- function(object, sources=c("all","model","estimation"), ...){
     if(is.null(object$hessian) && is.null(object$covar)){
       object$covar <- matrix(NA, p, p)
     }
-    v.mod <- NVL(object$covar, ginv(-object$hessian))
+    v.mod <- NVL(object$covar, sginv(-object$hessian))
     v.mod[is.na(diag(v.mod))|diag(v.mod)<0|is.infinite(coef(object)),] <- NA
     v.mod[,is.na(diag(v.mod))|diag(v.mod)<0|is.infinite(coef(object))] <- NA
     v.mod[object$offset,] <- 0

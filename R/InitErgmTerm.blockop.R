@@ -5,11 +5,25 @@
 #  open source, and has the attribution requirements (GPL Section 7) at
 #  https://statnet.org/attribution .
 #
-#  Copyright 2003-2021 Statnet Commons
+#  Copyright 2003-2022 Statnet Commons
 ################################################################################
 ## Creates a submodel that ignores any edges not within the
 ## blocks.
 
+#' @templateVar name NodematchFilter
+#' @title Filtering on nodematch
+#' @description Evaluates the terms specified in `formula` on a network
+#'   constructed by taking \eqn{y} and removing any edges for which
+#'   `attrname(i)!=attrname(j)` .
+#'
+#' @usage
+#' # binary: NodematchFilter(formula, attrname)
+#' @param formula formula to be evaluated
+#' @param attrname a character vector giving one or more names of attributes in the network's vertex attribute list.
+#'
+#' @template ergmTerm-general
+#'
+#' @concept operator
 InitErgmTerm.NodematchFilter <- function(nw, arglist, ...){
   a <- check.ErgmTerm(nw, arglist,
                       varnames = c("formula", "attrname"),

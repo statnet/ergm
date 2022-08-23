@@ -5,11 +5,32 @@
 #  open source, and has the attribution requirements (GPL Section 7) at
 #  https://statnet.org/attribution .
 #
-#  Copyright 2003-2021 Statnet Commons
+#  Copyright 2003-2022 Statnet Commons
 ################################################################################
 # This new InitErgmTerm function still needs to be tested:
 
 #################################################################################
+
+#' @templateVar name transitiveties
+#' @title Transitive ties
+#' @description This term adds one statistic, equal to the number of ties
+#'   \eqn{i\rightarrow j}{i-->j} such that there exists a two-path from
+#'   \eqn{i} to \eqn{j} . (Related to the `ttriple` term.)
+#'
+#' @usage
+#' # binary: transitiveties(attr=NULL, levels=NULL)
+#'
+#' @param attr quantitative attribute (see Specifying Vertex attributes and Levels (`?nodal_attributes`) for details.) If set, all three nodes involved ( \eqn{i} , \eqn{j} , and the node on the two-path) must match
+#'   on this attribute in order for \eqn{i\rightarrow j}{i-->j} to be counted.
+#' @templateVar explain TODO
+#' @template ergmTerm-levels-doco
+#'
+#' @template ergmTerm-general
+#'
+#' @concept directed
+#' @concept undirected
+#' @concept triad-related
+#' @concept categorical nodal attribute
 InitErgmTerm.transitiveties<-function (nw, arglist, ..., version=packageVersion("ergm")) {
   if(version <= as.package_version("3.9.4")){
     a <- check.ErgmTerm(nw, arglist,
@@ -56,6 +77,24 @@ InitErgmTerm.transitiveties<-function (nw, arglist, ..., version=packageVersion(
 }
 
 #################################################################################
+
+#' @templateVar name cyclicalties
+#' @title Cyclical ties
+#' @description This term adds one statistic, equal to the number of ties
+#'   \eqn{i\rightarrow j}{i-->j} such that there exists a two-path from
+#'   \eqn{j} to \eqn{i} . (Related to the `ttriple` term.)
+#'
+#' @usage
+#' # binary: cyclicalties(attr=NULL, levels=NULL)
+#' @param attr quantitative attribute (see Specifying Vertex attributes and Levels (`?nodal_attributes`) for details.) If set, all three nodes involved ( \eqn{i} , \eqn{j} , and the node on the two-path) must match
+#'   on this attribute in order for \eqn{i\rightarrow j}{i-->j} to be counted.
+#' @templateVar explain TODO
+#' @template ergmTerm-levels-doco
+#'
+#' @template ergmTerm-general
+#'
+#' @concept directed
+#' @concept undirected
 InitErgmTerm.cyclicalties<-function (nw, arglist, ..., version=packageVersion("ergm")) {
   if(version <= as.package_version("3.9.4")){
     a <- check.ErgmTerm(nw, arglist,

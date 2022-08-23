@@ -5,7 +5,7 @@
 #  open source, and has the attribution requirements (GPL Section 7) at
 #  https://statnet.org/attribution .
 #
-#  Copyright 2003-2021 Statnet Commons
+#  Copyright 2003-2022 Statnet Commons
 ################################################################################
 
 #' Conduct Goodness-of-Fit Diagnostics on a Exponential Family Random Graph
@@ -257,7 +257,7 @@ gof.formula <- function(object, ...,
   }
 
   if(is.bipartite(nw)){
-    nb1 <- nw %v% "bipratite"
+    nb1 <- nw %n% "bipartite"
     nb2 <- n-nb1
   }else{
     nb1 <- nb2 <- n
@@ -274,7 +274,7 @@ gof.formula <- function(object, ...,
   }
 
   GVMAP <- list(model=list('model', NULL, function(x) summary(object, basis=x, term.options=control$term.options)),
-                distance=list('dist', 1:n, function(x){o <- ergm.geodistdist(nw); o[o==Inf]<-n; o}),
+                distance=list('dist', 1:n, function(x){o <- ergm.geodistdist(x); o[o==Inf]<-n; o}),
                 odegree=list('odeg', 0:(n-1), function(x) summ_form(x, 'odegree', 0:(n-1))),
                 idegree=list('ideg', 0:(n-1), function(x) summ_form(x, 'idegree', 0:(n-1))),
                 degree=list('deg', 0:(n-1), function(x) summ_form(x, 'degree', 0:(n-1))),
@@ -291,7 +291,7 @@ gof.formula <- function(object, ...,
     obsname <- paste("obs", gv, sep=".")
 
     obs <- if(!network.naedgecount(nw) | !unconditional) calc(nw)
-           else SimCond[[obs]]
+           else colMeans(SimCond[[simname]])
     assign(obsname, obs, parent.frame())
 
     sim <- array(0,

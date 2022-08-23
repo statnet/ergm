@@ -5,7 +5,7 @@
  *  open source, and has the attribution requirements (GPL Section 7) at
  *  https://statnet.org/attribution .
  *
- *  Copyright 2003-2021 Statnet Commons
+ *  Copyright 2003-2022 Statnet Commons
  */
 #include "ergm_model.h"
 #include "ergm_storage.h"
@@ -142,6 +142,4 @@ F_CHANGESTAT_FN(f_main_interact){
   Model *m = store->m;
 
   ModelDestroy(nwp, m);
-
-  STORAGE=NULL;
 }

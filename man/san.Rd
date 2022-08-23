@@ -46,7 +46,7 @@ san(object, ...)
 \code{\link{formula}} should be of the form \code{y ~ <model terms>}, where
 \code{y} is a network object or a matrix that can be coerced to a
 \code{\link{network}} object.  For the details on the possible \code{<model
-  terms>}, see \code{\link{ergm-terms}}.  To create a
+  terms>}, see \code{\link{ergmTerm}}.  To create a
 \code{\link[network]{network}} object in , use the
 \code{network()} function, then add nodal attributes to it using
 the \code{\%v\%} operator if necessary.}
@@ -68,17 +68,33 @@ the reference measure (\eqn{h(y)}) to be used.
 See help for \link[=ergm-references]{ERGM reference measures} implemented in the
 \strong{\link[=ergm-package]{ergm}} package.}
 
-\item{constraints}{A one-sided formula specifying one or more constraints on
-the support of the distribution of the networks being simulated. See the
-documentation for a similar argument for \code{\link{ergm}} and see
-\link[=ergm-constraints]{list of implemented constraints} for more information. For
-\code{simulate.formula}, defaults to no constraints. For
-\code{simulate.ergm}, defaults to using the same constraints as those with
-which \code{object} was fitted.}
+\item{constraints}{A formula specifying one or more constraints
+on the support of the distribution of the networks being modeled. Multiple constraints
+may be given, separated by \dQuote{+} and \dQuote{-} operators. See
+\code{\link{ergmConstraint}} for the detailed explanation of
+their semantics and also for an indexed list of the constraints visible to the \CRANpkg{ergm} package.
+
+The default is to have no constraints except those provided through
+the \code{\link{ergmlhs}} API.
+
+Together with the model terms in the formula and the reference measure, the constraints
+define the distribution of networks being modeled.
+
+It is also possible to specify a proposal function directly either
+by passing a string with the function's name (in which case,
+arguments to the proposal should be specified through the
+\code{MCMC.prop.args} argument to the relevant control function, or
+by giving it on the LHS of the hints formula to \code{MCMC.prop}
+argument to the control function. This will override
+the one chosen automatically.
+
+Note that not all possible combinations of constraints and reference
+measures are supported. However, for relatively simple constraints
+(i.e., those that simply permit or forbid specific dyads or sets of
+dyads from changing), arbitrary combinations should be possible.}
 
 \item{target.stats}{A vector of the same length as the number of non-offset statistics
-implied by the formula, which is either \code{object} itself in the case of
-\code{san.formula} or \code{object$formula} in the case of \code{san.ergm}.}
+implied by the formula.}
 
 \item{nsim}{Number of networks to generate. Deprecated: just use \code{\link[=replicate]{replicate()}}.}
 
@@ -101,7 +117,7 @@ functions and limited argument name checking.}
 
 \item{verbose}{A logical or an integer to control the amount of
 progress and diagnostic information to be printed. \code{FALSE}/\code{0}
-produces minimal output, wit higher values producing more
+produces minimal output, with higher values producing more
 detail. Note that very high values (5+) may significantly slow
 down processing.}
 
@@ -165,11 +181,11 @@ contribution and the offset contribution (with the product capped at one).
 }
 \section{Methods (by class)}{
 \itemize{
-\item \code{formula}: Sufficient statistics are specified by a \code{\link{formula}}.
+\item \code{san(formula)}: Sufficient statistics are specified by a \code{\link{formula}}.
 
-\item \code{ergm_model}: A lower-level function that expects a pre-initialized \code{\link{ergm_model}}.
+\item \code{san(ergm_model)}: A lower-level function that expects a pre-initialized \code{\link{ergm_model}}.
+
 }}
-
 \examples{
 \donttest{
 # initialize x to a random undirected network with 50 nodes and a density of 0.1

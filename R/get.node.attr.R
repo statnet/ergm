@@ -5,7 +5,7 @@
 #  open source, and has the attribution requirements (GPL Section 7) at
 #  https://statnet.org/attribution .
 #
-#  Copyright 2003-2021 Statnet Commons
+#  Copyright 2003-2022 Statnet Commons
 ################################################################################
 ###############################################################################
 # The <get.node.attr> function returns the vector of covariates for the given
@@ -457,7 +457,7 @@ ergm_get_vattr <- function(object, nw, accept="character", bip=c("n","b1","b2","
 }
 
 #' @rdname nodal_attributes-API
-#' @importFrom purrr "%>%" map pmap_chr map_chr discard
+#' @importFrom purrr map pmap_chr map_chr discard
 #' @importFrom rlang set_names
 #' @export
 ergm_get_vattr.AsIs <- function(object, nw, accept="character", bip=c("n","b1","b2","a"), multiple=if(accept=="character") "paste" else "stop", ...){
@@ -471,7 +471,7 @@ ergm_get_vattr.AsIs <- function(object, nw, accept="character", bip=c("n","b1","
 }
 
 #' @rdname nodal_attributes-API
-#' @importFrom purrr "%>%" map pmap_chr
+#' @importFrom purrr map pmap_chr
 #' @importFrom rlang set_names
 #' @export
 ergm_get_vattr.character <- function(object, nw, accept="character", bip=c("n","b1","b2","a"), multiple=if(accept=="character") "paste" else "stop", ...){
@@ -511,7 +511,7 @@ ergm_get_vattr.function <- function(object, nw, accept="character", bip=c("n","b
 
 
 #' @rdname nodal_attributes-API
-#' @importFrom purrr "%>%" map when
+#' @importFrom purrr map when
 #' @importFrom tibble lst
 #' @export
 ergm_get_vattr.formula <- function(object, nw, accept="character", bip=c("n","b1","b2","a"), multiple=if(accept=="character") "paste" else "stop", ...){
@@ -643,6 +643,10 @@ ergm_attr_levels.formula <- function(object, attr, nw, levels=sort(unique(attr))
 #' @rdname nodal_attributes-API
 #' @export
 ERGM_VATTR_SPEC <- "function,formula,character,AsIs"
+
+#' @rdname nodal_attributes-API
+#' @export
+ERGM_VATTR_SPEC_NULL <- "function,formula,character,AsIs,NULL"
 
 #' @rdname nodal_attributes-API
 #' @export

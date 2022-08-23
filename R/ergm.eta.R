@@ -5,7 +5,7 @@
 #  open source, and has the attribution requirements (GPL Section 7) at
 #  https://statnet.org/attribution .
 #
-#  Copyright 2003-2021 Statnet Commons
+#  Copyright 2003-2022 Statnet Commons
 ################################################################################
 ##############################################################################
 # The <ergm.eta> function calculates and returns eta, mapped from
@@ -63,7 +63,7 @@
 #' @return For \code{ergm.eta}, the canonical eta parameters as mapped
 #'   from theta.
 #'
-#' @seealso \code{\link{ergm-terms}}
+#' @seealso \code{\link{ergmTerm}}
 #' @references \itemize{ \item Hunter, D. R. and M. S. Handcock
 #'   (2006).  Inference in curved exponential family models for
 #'   networks. \emph{Journal of Computational and Graphical

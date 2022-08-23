@@ -5,7 +5,7 @@
  *  open source, and has the attribution requirements (GPL Section 7) at
  *  https://statnet.org/attribution .
  *
- *  Copyright 2003-2021 Statnet Commons
+ *  Copyright 2003-2022 Statnet Commons
  */
 #ifndef _ERGM_DYADGEN_H_
 #define _ERGM_DYADGEN_H_
@@ -166,7 +166,6 @@ static inline void DyadGenRandWtEdge(Vertex *tail, Vertex *head, double *weight,
       *weight = WtGetEdge(*tail, *head, gen->nwp.w);
     }
     else WtGetRandEdge(tail, head, weight, gen->nwp.w);
-    *weight = 1;
     break;
   default:
     error("Undefined dyad generator type.");
