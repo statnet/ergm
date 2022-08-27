@@ -26,6 +26,7 @@ control.ergm.bridge(
   obs.MCMC.prop.args = MCMC.prop.args,
   MCMC.maxedges = Inf,
   MCMC.packagenames = c(),
+  MCMC.esteq.exclude.statistics = NULL,
   term.options = list(),
   seed = NULL,
   parallel = 0,
@@ -51,7 +52,7 @@ control.logLik.ergm(
   obs.MCMC.prop = MCMC.prop,
   obs.MCMC.prop.weights = MCMC.prop.weights,
   obs.MCMC.prop.args = MCMC.prop.args,
-  MCMC.maxedges = NULL,
+  MCMC.maxedges = Inf,
   MCMC.packagenames = NULL,
   term.options = NULL,
   seed = NULL,
@@ -112,6 +113,9 @@ specifying additional arguments to proposal.}
 \item{MCMC.packagenames}{Names of packages in which to look for change
 statistic functions in addition to those autodetected. This argument should
 not be needed outside of very strange setups.}
+
+\item{MCMC.esteq.exclude.statistics}{character string pattern. statistics with names that contain this string will be excluded from
+the estimating equations. For example, this supports tapering models which may have terms with non-specific means.}
 
 \item{term.options}{A list of additional arguments to be passed to term initializers. See \code{\link[=term.options]{? term.options}}.}
 

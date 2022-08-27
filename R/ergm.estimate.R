@@ -194,7 +194,7 @@ ergm.estimate<-function(init, model, statsmatrices, statsmatrices.obs=NULL,
                         logtaylor=llik.hessian.IS,
                         Median.Likelihood=llik.hessian.IS,
                         EF.Likelihood=llik.hessian.IS,
-                        Kpenalty=ergm.tapered::llik.hessian.Kpenalty,
+                        Kpenalty=llik.hessian.IS,
                         llik.hessian.IS)
   }
   
@@ -276,7 +276,6 @@ ergm.estimate<-function(init, model, statsmatrices, statsmatrices.obs=NULL,
                       eta0=eta0, etamap=etamap.no,
                       control.llik=control.llik),
             silent=FALSE)
-    Lout$par<-Lout$argument
 
     if(inherits(Lout,"try-error")) {
       message("MLE could not be found. Trying Nelder-Mead...")

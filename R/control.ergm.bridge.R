@@ -41,6 +41,8 @@
 #' @template control_MCMC_parallel
 #' @template seed
 #' @template control_MCMC_packagenames
+#' @param MCMC.esteq.exclude.statistics character string pattern. statistics with names that contain this string will be excluded from 
+#' the estimating equations. For example, this supports tapering models which may have terms with non-specific means.
 #' @template control_dots
 #' @return A list with arguments as components.
 #' @seealso [ergm.bridge.llr()]
@@ -69,6 +71,7 @@ control.ergm.bridge<-function(bridge.nsteps=16, # Number of geometric bridges to
 
                               MCMC.maxedges=Inf,
                               MCMC.packagenames=c(),
+                              MCMC.esteq.exclude.statistics=NULL,
                               
                               term.options=list(),
                               seed=NULL,

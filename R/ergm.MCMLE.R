@@ -297,7 +297,12 @@ ergm.MCMLE <- function(init, nw, model,
     }
 
     # Compute the sample estimating equations and the convergence p-value. 
-    esteqs <- ergm.estfun(statsmatrices, theta=mcmc.init, model=model, exclude=control$MCMC.esteq.exclude.statistics)
+    #esteqs <- ergm.estfun(statsmatrices, theta=mcmc.init, model=model, exclude=control$MCMC.esteq.exclude.statistics)
+    esteqs <- ergm.estfun(statsmatrices, theta=mcmc.init, model=model)
+    if(!is.null(control$MCMC.esteq.exclude.statistics)){
+      x.exclude <- match(control$MCMC.esteq.exclude.statistics,colnames(esteqs[[1]]))
+      if(!is.na(x.exclude)){ esteqs[[1]] <- esteqs[[1]][,-x.exclude,drop=FALSE] }
+    }
     esteq <- as.matrix(esteqs)
     if(isTRUE(all.equal(apply(esteq,2,stats::sd), rep(0,ncol(esteq)), check.names=FALSE))&&!all(esteq==0))
       stop("Unconstrained MCMC sampling did not mix at all. Optimization cannot continue.")
@@ -552,7 +557,7 @@ ergm.MCMLE <- function(init, nw, model,
           control$MCMC.effectiveSize <- round(control$MCMC.effectiveSize * prec.scl)
           if(control$MCMC.effectiveSize/control$MCMC.samplesize>control$MCMLE.MCMC.max.ESS.frac) control$MCMC.samplesize <- control$MCMC.effectiveSize/control$MCMLE.MCMC.max.ESS.frac
           # control$MCMC.samplesize <- round(control$MCMC.samplesize * prec.scl)
-          message("Increasing target MCMC sample size to ", control$MCMC.samplesize, ", ESS to",control$MCMC.effectiveSize,".")
+          message("Increasing target MCMC sample size to ", control$MCMC.samplesize, ", ESS to ",control$MCMC.effectiveSize,".")
         } else { # Fixed-interval sampling
           control$MCMC.samplesize <- round(control$MCMC.samplesize * prec.scl)
           control$MCMC.burnin <- round(control$MCMC.burnin * prec.scl)
