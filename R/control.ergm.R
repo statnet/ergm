@@ -128,6 +128,9 @@
 #'   necessary. Note that this can be very dangerous unless you know
 #'   what you are doing.
 #'
+#' @param MPLE.save.xmat If `TRUE`, the design matrix of change statistics
+#'   from the pseudo-likelihood computation will be returned.
+#'
 #' @template control_MCMC_prop
 #'
 #' @param MCMC.interval Number of proposals between sampled statistics.
@@ -484,6 +487,7 @@ control.ergm<-function(drop=TRUE,
                        MPLE.nonident=c("warning","message","error"),
                        MPLE.nonident.tol=1e-10,
                        MPLE.constraints.ignore=FALSE,
+                       MPLE.save.xmat=FALSE,
 
                        MCMC.prop=trim_env(~sparse),
                        MCMC.prop.weights="default", MCMC.prop.args=list(),

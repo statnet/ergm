@@ -21,6 +21,7 @@ control.ergm(
   MPLE.nonident = c("warning", "message", "error"),
   MPLE.nonident.tol = 1e-10,
   MPLE.constraints.ignore = FALSE,
+  MPLE.save.xmat = FALSE,
   MCMC.prop = trim_env(~sparse),
   MCMC.prop.weights = "default",
   MCMC.prop.args = list(),
@@ -295,6 +296,9 @@ missingness. This can be used to avert evaluating and storing the
 \code{\link{rlebdm}}s for very large networks except where absolutely
 necessary. Note that this can be very dangerous unless you know
 what you are doing.}
+
+\item{MPLE.save.xmat}{If \code{TRUE}, the design matrix of change statistics
+from the pseudo-likelihood computation will be returned.}
 
 \item{MCMC.prop}{Specifies the proposal (directly) and/or
 a series of "hints" about the structure of the model being
