@@ -239,8 +239,8 @@ ergm_MCMC_sample <- function(state, control, theta=NULL,
         if(verbose) message("Increasing thinning to ",interval,".")
       }
       
-      esteq <- lapply(sms, function(sm) NVL3(theta, ergm.estfun(sm, ., as.ergm_model(state[[1]]),
-        exclude=control$MCMC.esteq.exclude.statistics), sm[,!as.ergm_model(state[[1]])$etamap$offsetmap,drop=FALSE])) %>%
+      esteq <- lapply(sms, function(sm) NVL3(theta, ergm.estfun(sm, ., as.ergm_model(state0[[1]]),
+        exclude=control$MCMC.esteq.exclude.statistics), sm[,!as.ergm_model(state0[[1]])$etamap$offsetmap,drop=FALSE])) %>%
         lapply.mcmc.list(mcmc, start=1, thin=interval) %>% lapply.mcmc.list(`-`)
 
       if("Taper_Penalty" %in% dimnames(esteq[[1]])[[2]]) {browser()}
