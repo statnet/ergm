@@ -51,7 +51,7 @@ control.logLik.ergm(
   obs.MCMC.prop = MCMC.prop,
   obs.MCMC.prop.weights = MCMC.prop.weights,
   obs.MCMC.prop.args = MCMC.prop.args,
-  MCMC.maxedges = NULL,
+  MCMC.maxedges = Inf,
   MCMC.packagenames = NULL,
   term.options = NULL,
   seed = NULL,
