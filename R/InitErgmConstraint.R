@@ -34,7 +34,7 @@ InitErgmConstraint..attributes <- function(nw, arglist, ...){
   dir <- is.directed(nw)
   loops <- has.loops(nw)
   bip <- EVL(as.integer(nw%n%"bipartite"), FALSE)
-  rm(nw) # All needed information has now been extracted from nw.
+  rm(nw, arglist, "...") # All needed information has now been extracted.
 
   list(
     free_dyads = function(){
@@ -375,7 +375,7 @@ InitErgmConstraint.blocks <- function(nw, arglist, ...) {
     b2 <- 0L
   }
   
-  rm(nw) # All needed information has now been extracted from nw.
+  rm(nw, arglist, "...") # All needed information has now been extracted.
 
   free_dyads <- function() {
     rle_list <- vector(mode = "list", length = nc + 1)
