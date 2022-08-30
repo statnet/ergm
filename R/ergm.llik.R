@@ -32,7 +32,7 @@
 #                of the 'etamap'
 #   xsim       : the matrix of simulated statistics 
 #   probs      : the probability weight for each row of the stats matrix
-#   varweight  : the weight by which the variance of the base predictions will be 
+#   control.llik$MCMLE.varweight  : the weight by which the variance of the base predictions will be 
 #                scaled; the name of this param was changed from 'penalty' to better 
 #                reflect what this parameter actually is; default=0.5, which is the 
 #                "true"  weight, in the sense that the lognormal approximation is
@@ -60,9 +60,10 @@
 #####################################################################################
 
 llik.fun.lognormal <- function(theta, xsim, xsim.obs=NULL,
-                     varweight=0.5,
-                     dampening=FALSE,dampening.min.ess=100, dampening.level=0.1,
-                     eta0, etamap){
+                               eta0, etamap, 
+                               control.llik=control.logLik.ergm(),
+                               ...){
+
   # Convert theta to eta
   eta <- ergm.eta(theta, etamap)
 
@@ -72,7 +73,7 @@ llik.fun.lognormal <- function(theta, xsim, xsim.obs=NULL,
   basepred <- xsim %*% etaparam
   mb <- lweighted.mean(basepred,lrowweights(xsim))
   vb <- lweighted.var(basepred,lrowweights(xsim))
-  - mb - varweight*vb
+  - mb - control.llik$MCMLE.varweight*vb
 }
 
 
@@ -82,9 +83,9 @@ llik.fun.lognormal <- function(theta, xsim, xsim.obs=NULL,
 #####################################################################################
 
 llik.grad.IS <- function(theta, xsim,  xsim.obs=NULL,
-                     varweight=0.5,
-                     dampening=FALSE,dampening.min.ess=100, dampening.level=0.1,
-                     eta0, etamap){
+                         eta0, etamap, 
+                         control.llik=control.logLik.ergm(),
+                         ...){
 
   # Obtain canonical parameters incl. offsets and difference from sampled-from
   eta <- ergm.eta(theta, etamap)
@@ -114,9 +115,9 @@ llik.grad.IS <- function(theta, xsim,  xsim.obs=NULL,
 #       this is equation (3.5) of Hunter & Handcock (2006)
 #####################################################################################
 llik.hessian.IS <- function(theta, xsim, xsim.obs=NULL,
-                     varweight=0.5,
-                     dampening=FALSE,dampening.min.ess=100, dampening.level=0.1,
-                     eta0, etamap){
+                            eta0, etamap, 
+                            control.llik=control.logLik.ergm(),
+                            ...){
   # Obtain canonical parameters incl. offsets and difference from sampled-from
   eta <- ergm.eta(theta, etamap)
   etaparam <- eta-eta0
@@ -141,9 +142,9 @@ llik.hessian.IS <- function(theta, xsim, xsim.obs=NULL,
 #####################################################################################
 
 llik.fun.EF <- function(theta, xsim, xsim.obs=NULL,
-                     varweight=0.5,
-                     dampening=FALSE,dampening.min.ess=100, dampening.level=0.1,
-                     eta0, etamap){
+                        eta0, etamap, 
+                        control.llik=control.logLik.ergm(),
+                        ...){
   eta <- ergm.eta(theta, etamap)
   etaparam <- eta-eta0
   basepred <- xsim %*% etaparam
@@ -161,9 +162,9 @@ llik.fun.EF <- function(theta, xsim, xsim.obs=NULL,
 #####################################################################################
 
 llik.fun.IS <- function(theta, xsim, xsim.obs=NULL, 
-                     varweight=0.5,
-                     dampening=FALSE,dampening.min.ess=100, dampening.level=0.1,
-                     eta0, etamap){
+                        eta0, etamap, 
+                        control.llik=control.logLik.ergm(),
+                        ...){
   # Obtain canonical parameters incl. offsets and difference from sampled-from
   eta <- ergm.eta(theta, etamap)
   etaparam <- eta-eta0
@@ -179,9 +180,9 @@ llik.fun.IS <- function(theta, xsim, xsim.obs=NULL,
 #####################################################################################
 
 llik.fun.median <- function(theta, xsim, xsim.obs=NULL,
-                     varweight=0.5,
-                     dampening=FALSE,dampening.min.ess=100, dampening.level=0.1,
-                     eta0, etamap){
+                            eta0, etamap, 
+                            control.llik=control.logLik.ergm(),
+                            ...){
   # Convert theta to eta
   eta <- ergm.eta(theta, etamap)
 
@@ -201,27 +202,27 @@ llik.fun.median <- function(theta, xsim, xsim.obs=NULL,
 # 
 # This is the log-likelihood ratio (and not its negative)
 #
-  - (mb + varweight*sdb*sdb)
+  - (mb + control.llik$MCMLE.varweight*sdb*sdb)
 }
 
 llik.fun.logtaylor <- function(theta, xsim, xsim.obs=NULL, 
-		                     varweight=0.5,
-	 	                     dampening=FALSE,dampening.min.ess=100, dampening.level=0.1, 
-	 	                     eta0, etamap){ 
+                               eta0, etamap, 
+                               control.llik=control.logLik.ergm(),
+                               ...){
 	 	  # Convert theta to eta 
 	 	  eta <- ergm.eta(theta, etamap) 
  	 
  	  # Calculate approximation to l(eta) - l(eta0) using a lognormal approximation 
 	 	  etaparam <- eta-eta0 
 	 	  # 
-	 	  if (dampening) { 
+	 	  if (control.llik$MCMLE.dampening) { 
 	 	    #if theta_extended is (almost) outside convex hull don't trust theta 
-	 	    eta_extended <- eta + etaparam*dampening.level 
+	 	    eta_extended <- eta + etaparam*control.llik$MCMLE.dampening.level 
 	 	    expon_extended <- xsim %*% (eta_extended - eta0) 
 	 	    wts <- exp(expon_extended) 
 	 	    ess <- ceiling(sum(wts)^2/sum(wts^2)) 
 	 	#   https://xianblog.wordpress.com/2010/09/24/effective-sample-size/ 
-	 	    if(!is.na(ess) && {ess<dampening.min.ess}){ return(-Inf) } #.005*length(wts)) 
+	 	    if(!is.na(ess) && {ess<control.llik$MCMLE.dampening.min.ess}){ return(-Inf) } #.005*length(wts)) 
 	 	  } 
 	 	 
 	 	  basepred <- xsim %*% etaparam 

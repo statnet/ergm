@@ -33,7 +33,7 @@
 #   probs      : the probability weight for each row of the stats matrix
 #   xsim.obs  : the 'xsim' counterpart for observation process
 #   probs.obs : the 'probs' counterpart for observation process
-#   varweight  : the weight by which the variance of the base predictions will be
+#   control.llik$MCMLE.varweight  : the weight by which the variance of the base predictions will be
 #                scaled; the name of this param was changed from 'penalty' to better
 #                reflect what this parameter actually is; default=0.5, which is the
 #                "true"  weight, in the sense that the lognormal approximation is
@@ -58,9 +58,9 @@
 #        normally  distributed so that exp(eta * stats) is lognormal
 #####################################################################################                           
 llik.fun.obs.lognormal <- function(theta, xsim, xsim.obs=NULL,
-                     varweight=0.5,
-                     dampening=FALSE,dampening.min.ess=100, dampening.level=0.1,
-                     eta0, etamap){
+                                   eta0, etamap,
+                                   control.llik=control.logLik.ergm(),
+                                   ...){
   eta <- ergm.eta(theta, etamap)
   etaparam <- eta-eta0
 # These lines standardize:
@@ -78,7 +78,7 @@ llik.fun.obs.lognormal <- function(theta, xsim, xsim.obs=NULL,
 # 
 # This is the log-likelihood ratio (and not its negative)
 #
-  (mm + varweight*vm) - (mb + varweight*vb)
+  (mm + control.llik$MCMLE.varweight*vm) - (mb + control.llik$MCMLE.varweight*vb)
 }
 
 
@@ -88,9 +88,9 @@ llik.fun.obs.lognormal <- function(theta, xsim, xsim.obs=NULL,
 #   llg: the gradient of the not-offset eta parameters with ??
 #####################################################################################
 llik.grad.obs.IS <- function(theta, xsim,  xsim.obs=NULL,
-                      varweight=0.5,
-                      dampening=FALSE,dampening.min.ess=100, dampening.level=0.1,
-                      eta0, etamap){
+                             eta0, etamap,
+                             control.llik=control.logLik.ergm(),
+                             ...){
   # Obtain canonical parameters incl. offsets and difference from sampled-from
   eta <- ergm.eta(theta, etamap)
   etaparam <- eta-eta0
@@ -117,9 +117,9 @@ llik.grad.obs.IS <- function(theta, xsim,  xsim.obs=NULL,
 #####################################################################################
 
 llik.hessian.obs.IS <- function(theta, xsim, xsim.obs=NULL,
-                     varweight=0.5,
-                     dampening=FALSE,dampening.min.ess=100, dampening.level=0.1,
-                     eta0, etamap){
+                                eta0, etamap,
+                                control.llik=control.logLik.ergm(),
+                                ...){
   # Obtain canonical parameters incl. offsets and difference from sampled-from
   eta <- ergm.eta(theta, etamap)
   etaparam <- eta-eta0
@@ -149,9 +149,9 @@ llik.hessian.obs.IS <- function(theta, xsim, xsim.obs=NULL,
 #####################################################################################
 
 llik.fun.obs.IS <- function(theta, xsim, xsim.obs=NULL, 
-                     varweight=0.5,
-                     dampening=FALSE,dampening.min.ess=100, dampening.level=0.1,
-                     eta0, etamap){
+                            eta0, etamap,
+                            control.llik=control.logLik.ergm(),
+                            ...){
   # Obtain canonical parameters incl. offsets and difference from sampled-from
   eta <- ergm.eta(theta, etamap)
   etaparam <- eta-eta0
@@ -170,9 +170,9 @@ llik.fun.obs.IS <- function(theta, xsim, xsim.obs=NULL,
 #####################################################################################
 
 llik.fun.obs.robust<- function(theta, xsim, xsim.obs=NULL,
-                     varweight=0.5,
-                     dampening=FALSE,dampening.min.ess=100, dampening.level=0.1,
-                     eta0, etamap){
+                               eta0, etamap,
+                               control.llik=control.logLik.ergm(),
+                               ...){
   eta <- ergm.eta(theta, etamap)
   etaparam <- eta-eta0
 
@@ -191,7 +191,7 @@ llik.fun.obs.robust<- function(theta, xsim, xsim.obs=NULL,
 # 
 # This is the log-likelihood ratio (and not its negative)
 #
-  (mm + varweight*vm*vm) - (mb + varweight*vb*vb)
+  (mm + control.llik$MCMLE.varweight*vm*vm) - (mb + control.llik$MCMLE.varweight*vb*vb)
 }
 
 llik.fun.obs.robust<- llik.fun.obs.IS 

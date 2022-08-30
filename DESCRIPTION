@@ -49,6 +49,7 @@ Suggests:
     testthat (>= 3.0.2),
     tergm (>= 4.0.0),
     ergm.count (>= 4.0),
+    ergm.tapered (>= 1.0.0),
     networkDynamic (>= 0.10.1),
     withr,
     covr,

@@ -21,6 +21,7 @@ control.ergm(
   MPLE.nonident = c("warning", "message", "error"),
   MPLE.nonident.tol = 1e-10,
   MPLE.constraints.ignore = FALSE,
+  MPLE.save.xmat = FALSE,
   MCMC.prop = trim_env(~sparse),
   MCMC.prop.weights = "default",
   MCMC.prop.args = list(),
@@ -43,6 +44,7 @@ control.ergm(
   MCMC.maxedges = Inf,
   MCMC.addto.se = TRUE,
   MCMC.packagenames = c(),
+  MCMC.esteq.exclude.statistics = NULL,
   SAN.maxit = 4,
   SAN.nsteps.times = 8,
   SAN = control.san(term.options = term.options, SAN.maxit = SAN.maxit, SAN.prop.weights
@@ -74,11 +76,12 @@ control.ergm(
   obs.MCMC.impute.default_density = function(nw) 2/network.size(nw),
   MCMLE.min.depfac = 2,
   MCMLE.sampsize.boost.pow = 0.5,
+  MCMLE.varweight = 0.5,
   MCMLE.MCMC.precision = if (startsWith("confidence", MCMLE.termination[1])) 0.1 else
     0.005,
   MCMLE.MCMC.max.ESS.frac = 0.1,
   MCMLE.metric = c("lognormal", "logtaylor", "Median.Likelihood", "EF.Likelihood",
-    "naive"),
+    "Kpenalty", "naive"),
   MCMLE.method = c("BFGS", "Nelder-Mead"),
   MCMLE.dampening = FALSE,
   MCMLE.dampening.min.ess = 20,
@@ -294,6 +297,9 @@ missingness. This can be used to avert evaluating and storing the
 necessary. Note that this can be very dangerous unless you know
 what you are doing.}
 
+\item{MPLE.save.xmat}{If \code{TRUE}, the design matrix of change statistics
+from the pseudo-likelihood computation will be returned.}
+
 \item{MCMC.prop}{Specifies the proposal (directly) and/or
 a series of "hints" about the structure of the model being
 sampled. The specification is in the form of a one-sided formula
@@ -387,6 +393,9 @@ algorithm to the estimates' standard errors.}
 \item{MCMC.packagenames}{Names of packages in which to look for change
 statistic functions in addition to those autodetected. This argument should
 not be needed outside of very strange setups.}
+
+\item{MCMC.esteq.exclude.statistics}{character string pattern. statistics with names that contain this string will be excluded from
+the estimating equations. For example, this supports tapering models which may have terms with non-specific means.}
 
 \item{SAN.maxit}{When \code{target.stats} argument is passed to
 \code{\link[=ergm]{ergm()}}, the maximum number of attempts to use \code{\link{san}}
@@ -489,6 +498,9 @@ imputation density when number of non-missing dyads is too low.}
 
 \item{MCMLE.min.depfac, MCMLE.sampsize.boost.pow}{When using adaptive MCMC effective size, and methods that increase the MCMC sample size, use \code{MCMLE.sampsize.boost.pow} as the power of the boost amount (relative to the boost of the target effective size), but ensure that sample size is no less than \code{MCMLE.min.depfac} times the target effective size.}
 
+\item{MCMLE.varweight}{numeric multiplier for covariance term in loglikelihood
+where 0.5 is the "true" value but this can be increased or decreased.}
+
 \item{MCMLE.MCMC.precision, MCMLE.MCMC.max.ESS.frac}{\code{MCMLE.MCMC.precision} is a vector of upper bounds on the standard
 errors induced by the MCMC algorithm, expressed as a percentage of the total
 standard error. The MCMLE algorithm will terminate when the MCMC standard
@@ -499,7 +511,9 @@ If effective sample size is used (see \code{MCMC.effectiveSize}), then ergm
 may increase the target ESS to reduce the MCMC standard error.}
 
 \item{MCMLE.metric}{Method to calculate the loglikelihood approximation.
-See Hummel et al (2010) for an explanation of "lognormal" and "naive".}
+See Hummel et al (2010) for an explanation of "lognormal" and "naive".
+"Kpenalty" is used to specify the use of a tapering model with a penalty for
+kurtosis. It is used by the \code{ergm.tapered} package and is not usually user specified.}
 
 \item{MCMLE.method}{Deprecated. By default, ergm uses \code{trust}, and
 falls back to \code{optim} with Nelder-Mead method when \code{trust} fails.}

@@ -114,7 +114,7 @@ sampling by evaluating qualified terms' change statistics in
 multiple threads run in parallel. This is done using the
 \href{https://www.openmp.org/}{OpenMP} API.
 
-However, this introduces a nontrivial amont of computational
+However, this introduces a nontrivial amount of computational
 overhead. See below for a list of the major factors affecting
 whether it is worthwhile.}}
 

@@ -8,15 +8,15 @@
 \alias{ergm.estfun.mcmc.list}
 \title{Compute the Sample Estimating Function Values of an ERGM.}
 \usage{
-ergm.estfun(stats, theta, model, ...)
+ergm.estfun(stats, theta, model, exclude = NULL, ...)
 
-\method{ergm.estfun}{numeric}(stats, theta, model, ...)
+\method{ergm.estfun}{numeric}(stats, theta, model, exclude = NULL, ...)
 
-\method{ergm.estfun}{matrix}(stats, theta, model, ...)
+\method{ergm.estfun}{matrix}(stats, theta, model, exclude = NULL, ...)
 
-\method{ergm.estfun}{mcmc}(stats, theta, model, ...)
+\method{ergm.estfun}{mcmc}(stats, theta, model, exclude = NULL, ...)
 
-\method{ergm.estfun}{mcmc.list}(stats, theta, model, ...)
+\method{ergm.estfun}{mcmc.list}(stats, theta, model, exclude = NULL, ...)
 }
 \arguments{
 \item{stats}{An object representing sample statistics with observed values subtracted out.}

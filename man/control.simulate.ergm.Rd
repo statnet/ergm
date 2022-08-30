@@ -27,6 +27,7 @@ control.simulate.formula.ergm(
   MCMC.effectiveSize.order.max = NULL,
   MCMC.maxedges = Inf,
   MCMC.packagenames = c(),
+  MCMC.esteq.exclude.statistics = NULL,
   MCMC.runtime.traceplot = FALSE,
   network.output = "network",
   term.options = NULL,
@@ -57,6 +58,7 @@ control.simulate(
   MCMC.effectiveSize.order.max = NULL,
   MCMC.maxedges = Inf,
   MCMC.packagenames = c(),
+  MCMC.esteq.exclude.statistics = NULL,
   MCMC.runtime.traceplot = FALSE,
   network.output = "network",
   term.options = NULL,
@@ -87,6 +89,7 @@ control.simulate.formula(
   MCMC.effectiveSize.order.max = NULL,
   MCMC.maxedges = Inf,
   MCMC.packagenames = c(),
+  MCMC.esteq.exclude.statistics = NULL,
   MCMC.runtime.traceplot = FALSE,
   network.output = "network",
   term.options = NULL,
@@ -118,6 +121,7 @@ control.simulate.ergm(
   MCMC.effectiveSize.order.max = NULL,
   MCMC.maxedges = Inf,
   MCMC.packagenames = NULL,
+  MCMC.esteq.exclude.statistics = NULL,
   MCMC.runtime.traceplot = FALSE,
   network.output = "network",
   term.options = NULL,
@@ -208,6 +212,9 @@ sample size and the variance for the Geweke diagnostic.}
 statistic functions in addition to those autodetected. This argument should
 not be needed outside of very strange setups.}
 
+\item{MCMC.esteq.exclude.statistics}{character string pattern. statistics with names that contain this string will be excluded from
+the estimating equations. For example, this supports tapering models which may have terms with non-specific means.}
+
 \item{MCMC.runtime.traceplot}{Logical: If \code{TRUE}, plot traceplots of the MCMC
 sample.}
 
@@ -254,7 +261,7 @@ function.
 While the others supply a full set of simulation
 settings, \code{control.simulate.ergm} when passed as a control
 parameter to \code{\link[=simulate.ergm]{simulate.ergm()}} allows some settings to be
-inherited from the ERGM stimation while overriding others.
+inherited from the ERGM estimation while overriding others.
 }
 \details{
 This function is only used within a call to the \code{\link{simulate}}

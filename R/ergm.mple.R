@@ -95,6 +95,7 @@ ergm.mple<-function(nw, fd, m, init=NULL,
    mplefit.summary <- mplefit
   }else{
    if(MPLEtype=="logitreg"){
+    glm.result <- NULL
     mplefit <- model.matrix(terms(pl$zy ~ .-1,data=data.frame(pl$xmat)),
                            data=data.frame(pl$xmat))
     mplefit <- ergm.logitreg(x=mplefit, y=pl$zy, m=m, wt=pl$wend,
@@ -197,6 +198,7 @@ ergm.mple<-function(nw, fd, m, init=NULL,
       mple.lik.null = structure(
         ERRVL(try(logLik(mplefit.null), silent=TRUE), -mplefit.null$deviance/2),
         nobs = nobs, df = df, class="logLik"),
+      glm.result = if(save.xmat) glm.result,
       xmat.full = if(save.xmat) pl$xmat.full
       ),
       class="ergm")

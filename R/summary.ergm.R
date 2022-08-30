@@ -78,7 +78,7 @@ summary.ergm <- function (object, ...,
     warn(paste0("This object was fit with ", sQuote("ergm"), " version ", objver, " or earlier. Summarizing it with version ", nextver, " or later may return incorrect results or fail."))
   }
 
-  if("digits" %in% names(list(...))) warn("summary.ergm() no lnger takes a digits= argument.")
+  if("digits" %in% names(list(...))) warn("summary.ergm() no longer takes a digits= argument.")
   control <- object$control
   pseudolikelihood <- object$estimate=="MPLE"
   independence <- NVL(object$MPLE_is_MLE, is.dyad.independent(object))

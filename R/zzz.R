@@ -17,7 +17,7 @@
 }
 
 .onLoad <- function(libname, pkgname){
-  # . is used as a placeholder by stantet.common::NVL3().
+  # . is used as a placeholder by statnet.common::NVL3().
   utils::globalVariables(".")
 
   default_options(ergm.eval.loglik=TRUE,

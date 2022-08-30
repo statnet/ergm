@@ -207,8 +207,8 @@ mcmc.diagnostics.ergm <- function(object,
 
   if(esteq){
     if (!is.null(coef(object)) && !is.null(object$etamap)) {
-      sm <- ergm.estfun(sm, theta=coef(object), model=object$etamap) %>% lapply.mcmc.list(`-`)
-      if(!is.null(sm.obs)) sm.obs <- ergm.estfun(sm.obs, theta=coef(object), model=object$etamap) %>% lapply.mcmc.list(`-`)
+      sm <- ergm.estfun(sm, theta=coef(object), model=object$etamap, exclude=object$control$MCMC.esteq.exclude.statistics) %>% lapply.mcmc.list(`-`)
+      if(!is.null(sm.obs)) sm.obs <- ergm.estfun(sm.obs, theta=coef(object), model=object$etamap, exclude=object$control$MCMC.esteq.exclude.statistics) %>% lapply.mcmc.list(`-`)
     }
   }
 

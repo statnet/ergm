@@ -128,6 +128,9 @@
 #'   necessary. Note that this can be very dangerous unless you know
 #'   what you are doing.
 #'
+#' @param MPLE.save.xmat If `TRUE`, the design matrix of change statistics
+#'   from the pseudo-likelihood computation will be returned.
+#'
 #' @template control_MCMC_prop
 #'
 #' @param MCMC.interval Number of proposals between sampled statistics.
@@ -275,6 +278,8 @@
 #' may increase the target ESS to reduce the MCMC standard error.
 #' @param MCMLE.metric Method to calculate the loglikelihood approximation.
 #' See Hummel et al (2010) for an explanation of "lognormal" and "naive".
+#' "Kpenalty" is used to specify the use of a tapering model with a penalty for
+#' kurtosis. It is used by the \code{ergm.tapered} package and is not usually user specified.
 #' @param MCMLE.method Deprecated. By default, ergm uses \code{trust}, and
 #' falls back to \code{optim} with Nelder-Mead method when \code{trust} fails.
 #' @param MCMLE.dampening (logical) Should likelihood dampening be used?
@@ -420,6 +425,10 @@
 #'   for CD.
 #' 
 #' @param loglik See \code{\link{control.ergm.bridge}}
+#' @param MCMC.esteq.exclude.statistics character string pattern. statistics with names that contain this string will be excluded from 
+#' the estimating equations. For example, this supports tapering models which may have terms with non-specific means.
+#' @param MCMLE.varweight numeric multiplier for covariance term in loglikelihood
+#' where 0.5 is the "true" value but this can be increased or decreased.
 #' @template term_options
 #' @template control_MCMC_parallel
 #' @template seed
@@ -478,6 +487,7 @@ control.ergm<-function(drop=TRUE,
                        MPLE.nonident=c("warning","message","error"),
                        MPLE.nonident.tol=1e-10,
                        MPLE.constraints.ignore=FALSE,
+                       MPLE.save.xmat=FALSE,
 
                        MCMC.prop=trim_env(~sparse),
                        MCMC.prop.weights="default", MCMC.prop.args=list(),
@@ -500,6 +510,7 @@ control.ergm<-function(drop=TRUE,
                        MCMC.maxedges=Inf,
                        MCMC.addto.se=TRUE,
                        MCMC.packagenames=c(),
+                       MCMC.esteq.exclude.statistics=NULL,
 
                        SAN.maxit=4,
                        SAN.nsteps.times=8,
@@ -540,12 +551,13 @@ control.ergm<-function(drop=TRUE,
 
                        MCMLE.min.depfac=2,
                        MCMLE.sampsize.boost.pow=0.5,
+                       MCMLE.varweight=0.5,
 
                        MCMLE.MCMC.precision=if(startsWith("confidence", MCMLE.termination[1])) 0.1 else 0.005,
                        MCMLE.MCMC.max.ESS.frac=0.1,
                        MCMLE.metric=c("lognormal", "logtaylor",
                          "Median.Likelihood",
-                         "EF.Likelihood", "naive"),
+                         "EF.Likelihood", "Kpenalty", "naive"),
                        MCMLE.method=c("BFGS","Nelder-Mead"),
                        MCMLE.dampening=FALSE,
                        MCMLE.dampening.min.ess=20,
@@ -685,6 +697,9 @@ ADAPTIVE_MCMC_CONTROLS <- c("MCMC.effectiveSize", "MCMC.effectiveSize.damp", "MC
 PARALLEL_MCMC_CONTROLS <- c("parallel","parallel.type","parallel.version.check")
 OBS_MCMC_CONTROLS <- c("MCMC.base.samplesize", "MCMC.base.effectiveSize", "MCMC.samplesize", "MCMC.effectiveSize", "MCMC.interval", "MCMC.burnin")
 MPLE_CONTROLS <- c("MPLE.samplesize","MPLE.type","MPLE.maxit")
+STATIC_MCMLE_CONTROLS <- c("MCMC.esteq.exclude.statistics", "MCMLE.varweight", 
+                           "MCMLE.dampening", "MCMLE.dampening.min.ess", "MCMLE.dampening.level")
+STATIC_TAPERING_CONTROLS <- c("MCMLE.kurtosis.prior", "MCMLE.kurtosis.location", "MCMLE.kurtosis.scale", "MCMLE.kurtosis.penalty")
 
 remap_algorithm_MCMC_controls <- function(control, algorithm){
   CTRLS <- c(SCALABLE_MCMC_CONTROLS, STATIC_MCMC_CONTROLS, ADAPTIVE_MCMC_CONTROLS) %>% keep(startsWith,"MCMC.") %>% substr(6, 10000L)

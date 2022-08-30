@@ -56,6 +56,11 @@ ergm.robmon <- function(init, nw, model,
 
   control <- remap_algorithm_MCMC_controls(control, "RM")
 
+  control.llik <- list()
+  for(arg in STATIC_MCMLE_CONTROLS)
+    if(!is.null(control[[arg]]))
+      control.llik[arg] <- list(control[[arg]])
+
   #phase 1:  Estimate diagonal elements of D matrix (covariance matrix for init)
   n1 <- control$SA.phase1_n
   if(is.null(n1)) {n1 <- 7 + 3 * model$etamap$etalength} #default value
@@ -166,6 +171,7 @@ message(paste("theta new:",theta,""))
                    hessianflag=control$main.hessian,
                    method=control$MCMLE.method,
                    metric=control$MCMLE.metric,
+                   control.llik=control.llik,
                    verbose=verbose)
 
   ve$sample <- ergm.sample.tomcmc(ve$sample, control)

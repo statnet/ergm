@@ -154,6 +154,12 @@ ergm.bridge.llr<-function(object, response=NULL, reference=~Bernoulli, constrain
 
   ## Miscellaneous settings
   Dtheta.Du <- (to-from)[!state[[1]]$model$etamap$offsettheta]
+  if(!is.null(control$MCMC.esteq.exclude.statistics)){
+    x.exclude <- match(control$MCMC.esteq.exclude.statistics,names(Dtheta.Du))
+    if(!is.na(x.exclude)){
+      Dtheta.Du <- Dtheta.Du[-x.exclude]
+    }
+  }
 
   ## Handle target statistics, if passed.
   if(!is.null(target.stats)){
@@ -167,8 +173,11 @@ ergm.bridge.llr<-function(object, response=NULL, reference=~Bernoulli, constrain
 
   ## Helper function to calculate Dtheta.Du %*% Deta.Dtheta %*% g(y)
   llrsamp <- function(samp, theta){
-    if(is.mcmc.list(samp)) lapply.mcmc.list(ergm.estfun(samp, theta, state[[1]]$model$etamap), `%*%`, Dtheta.Du)
-    else sum(ergm.estfun(samp, theta, state[[1]]$model$etamap) * Dtheta.Du)
+    if(is.mcmc.list(samp)){
+      lapply.mcmc.list(ergm.estfun(samp, theta, state[[1]]$model$etamap, exclude=control$MCMC.esteq.exclude.statistics), `%*%`, Dtheta.Du)
+    }else{
+      sum(ergm.estfun(samp, theta, state[[1]]$model$etamap, exclude=control$MCMC.esteq.exclude.statistics) * Dtheta.Du)
+    }
   }
 
 
