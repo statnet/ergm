@@ -18,6 +18,7 @@ control.gof.formula(
   MCMC.packagenames = c(),
   MCMC.runtime.traceplot = FALSE,
   network.output = "network",
+  max.lag = NULL,
   seed = NULL,
   parallel = 0,
   parallel.type = NULL,
@@ -37,6 +38,7 @@ control.gof.ergm(
   MCMC.packagenames = NULL,
   MCMC.runtime.traceplot = FALSE,
   network.output = "network",
+  max.lag = NULL,
   seed = NULL,
   parallel = 0,
   parallel.type = NULL,
@@ -92,6 +94,11 @@ sample.}
 \item{network.output}{R class with which to output networks. The options are
 "network" (default) and "edgelist.compressed" (which saves space but only
 supports networks without vertex attributes)}
+
+\item{max.lag}{The maximum number of statistics to include for each GOF term. The default is
+the maximum possible for a network with the given number of nodes. Often this is
+excessive and a high proportion of the latter statistics are zero.
+This option focus attention on the earlier (non-zero) terms.}
 
 \item{seed}{Seed value (integer) for the random number generator.  See
 \code{\link[base]{set.seed}}.}

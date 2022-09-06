@@ -273,15 +273,16 @@ gof.formula <- function(object, ...,
     namestriadcensus <- c("0","1","2", "3")
   }
 
+  if(is.null(control$max.lag)) control$max.lag <- n
   GVMAP <- list(model=list('model', NULL, function(x) summary(object, basis=x, term.options=control$term.options)),
-                distance=list('dist', 1:n, function(x){o <- ergm.geodistdist(x); o[o==Inf]<-n; o}),
-                odegree=list('odeg', 0:(n-1), function(x) summ_form(x, 'odegree', 0:(n-1))),
-                idegree=list('ideg', 0:(n-1), function(x) summ_form(x, 'idegree', 0:(n-1))),
-                degree=list('deg', 0:(n-1), function(x) summ_form(x, 'degree', 0:(n-1))),
+                distance=list('dist', 1:control$max.lag, function(x){o <- ergm.geodistdist(x);o[o==Inf]<-control$max.lag; o[1:control$max.lag]}),
+                odegree=list('odeg', 0:(control$max.lag-1), function(x) summ_form(x, 'odegree', 0:(control$max.lag-1))),
+                idegree=list('ideg', 0:(control$max.lag-1), function(x) summ_form(x, 'idegree', 0:(control$max.lag-1))),
+                degree=list('deg', 0:(control$max.lag-1), function(x) summ_form(x, 'degree', 0:(control$max.lag-1))),
                 b1degree=list('b1deg', 0:nb2, function(x) summ_form(x, 'b1degree', 0:nb2)),
                 b2degree=list('b2deg', 0:nb1, function(x) summ_form(x, 'b2degree', 0:nb1)),
-                espartners=list('espart', 0:(n-2), function(x) summ_form(x, 'esp', 0:(n-2))),
-                dspartners=list('dspart', 0:(n-2), function(x) summ_form(x, 'dsp', 0:(n-2))),
+                espartners=list('espart', 0:(control$max.lag-2), function(x) summ_form(x, 'esp', 0:(control$max.lag-2))),
+                dspartners=list('dspart', 0:(control$max.lag-2), function(x) summ_form(x, 'dsp', 0:(control$max.lag-2))),
                 triadcensus=list('triadcensus', namestriadcensus, function(x) summ_form(x, 'triadcensus', triadcensus)))
 
   GVMAP <- GVMAP[names(GVMAP)%in%all.gof.vars]
@@ -510,9 +511,10 @@ plot.gof <- function(x, ...,
       
       i <- seq_len(if(is.finite(pval.max) & pval.max < n) pval.max
                    else ngs+1)
+      i[i > ngs] <- NA
     }
     if(idx == "infinite"){
-      i <- c(i, NA, n)
+      i <- c(i, NA, ngs+1)
     }
 
     if (plotlogodds) {
@@ -553,9 +555,9 @@ plot.gof <- function(x, ...,
     out <- gofstats$out
     out.obs <- gofstats$out.obs
     out.bds <- gofstats$out.bds
-    i <- gofstats$i
+    i <- gofstats$i[1:ncol(out)]
     ylab <- gofstats$ylab
-    pnames <- gofstats$pnames
+    pnames <- gofstats$pnames[1:ncol(out)]
 
     ymin <- min(min(out,na.rm=TRUE),min(out.obs,na.rm=TRUE))
     ymax <- max(max(out,na.rm=TRUE),max(out.obs,na.rm=TRUE))
