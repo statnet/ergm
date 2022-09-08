@@ -65,6 +65,75 @@
 %% }
 
 
+\section{Changes in version 4.3.0}{
+
+  \subsection{NEW FEATURES}{
+    \itemize{
+      \item{
+        New functions \code{\link{search.ergmHints}()} and \code{\link{search.ergmReferences}()} can now be used to search available \code{\link{ergmHints}} and \code{\link{ergmReferences}}, respectively.
+      }
+      \item{
+        In terms \code{\link[=edgecov-ergmTerm]{edgecov}()} and \code{\link[=dyadcov-ergmTerm]{dyadcov}()}, the argument can now be a network.
+      }
+      \item{
+        A new \code{\link[=For-ergmTerm]{For}()} term operator to construct a list of terms with some varying parameter.
+      }
+      \item{
+        Term API vignette is now more complete, and includes all API elements, not just the post-4.0 ones.
+      }
+    }
+  }
+
+
+  \subsection{BUG FIXES}{
+    \itemize{
+      \item{
+        Fixes to estimation for valued ERGMs with missing data.
+      }
+      \item{
+        Retrying and other robustification to \CRANpkg{lpSolve}-based step length calculation has been added back.
+      }
+      \item{
+        Typo fixed in a rarely used storage API macro.
+      }
+      \item{
+        \code{\link{check.ErgmTerm}()} no longer fails when a term has argument names that coincide with certain \R \code{base} functions.
+      }
+      \item{
+        Bridge sampling now disables the density guard (as some briges may result in much denser networks than observed).
+      }
+    }
+  }
+
+
+  \subsection{OTHER USER-VISIBLE CHANGES}{
+    \itemize{
+      \item{
+        Miscellaneous documentation improvements.
+      }
+      \item{
+        \code{\link{ergm_egecov_args}()} helper function can now handle network class input.
+      }
+      \item{
+        In the state caching, the hashes are now globally unique (with high probability) IDs regenerated at initialization. This saves the cost of computing the hash, at the cost of sometimes not detecting when a model is being reused.
+      }
+      \item{
+        \code{\link{.simulate_formula.network}()} is now exported explicitly. This means that extension packages overriding the \code{simulate_formula} method for \code{network} objects can call it directly.
+      }
+      \item{
+        Constraints and model construction code now uses the \code{\link[statnet.common:term_list]{term_list}} API from \CRANpkg{statnet.common} 4.7 and avoid formula manipulation.
+      }
+      \item{
+        In \code{\link{ergm}()}, the LHS no longer needs to be a network object, as long as \code{basis=} is provided.
+      }
+      \item{
+        Some constraints' implementations are now much more memory-efficient.
+      }
+    }
+  }
+}
+
+
 \section{Changes in version 4.2.2}{
 
   \subsection{NEW FEATURES}{
