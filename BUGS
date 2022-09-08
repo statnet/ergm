@@ -1,9 +1,11 @@
 Known bugs and issues
 
+Note that package issues are tracked on GitHub at https://github.com/statnet/ergm/issues .
+
 # Curved term cutoff #
 
-For now, the cutoff= in gw* functions is a hard bound, not adaptive in 
-any way, even if there exist values above it, to keep things simple and 
-stable. We may want to improve this later, or at least have the 
-initialization functions check if there are values above it.
-
+For now, the cutoff= in gw* functions is a hard bound, not adaptive in
+any way, even if there exist values above it, to keep things simple
+and stable. At this time, if, whether during summarization or during
+sampling, a network exceeding this cutoff is encountered, the terms
+will silently produce an error.
