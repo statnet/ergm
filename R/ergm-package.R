@@ -152,8 +152,7 @@
 #' 
 #' Krivitsky PN (2012). Exponential-Family Random Graph Models for Valued
 #' Networks. \emph{Electronic Journal of Statistics}, 2012, 6, 1100-1128.
-#' c("\\Sexpr[results=rd,stage=build]{tools:::Rd_expr_doi(\"#1\")}",
-#' "10.1214/12-EJS696")\Sexpr{tools:::Rd_expr_doi("10.1214/12-EJS696")}
+#' \doi{10.1214/12-EJS696}
 #' 
 #' Morris M, Handcock MS, Hunter DR (2008).  Specification of
 #' Exponential-Family Random Graph Models: Terms and Computational Aspects.
