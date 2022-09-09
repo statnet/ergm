@@ -1822,6 +1822,40 @@ C_CHANGESTAT_FN(c_degree) {
 }
 
 /*****************
+ changestat: c_degdist
+*****************/
+C_CHANGESTAT_FN(c_degdist) {
+  int echange = edgestate ? -1:+1;
+
+  Vertex *id = IN_DEG, *od = OUT_DEG,
+    otd = od[tail] + id[tail], ohd = od[head] + id[head],
+    ntd = otd + echange, nhd = ohd + echange;
+
+  if(otd > N_CHANGE_STATS || ohd > N_CHANGE_STATS || ntd > N_CHANGE_STATS || nhd > N_CHANGE_STATS){
+    const char *termname = CHAR(STRING_ELT(getListElement(mtp->R, "term.name"), 0)),
+      *argname = CHAR(STRING_ELT(getListElement(mtp->R, "arg.name"), 0)),
+      *optname = CHAR(STRING_ELT(getListElement(mtp->R, "opt.name"), 0));
+
+    /* Here, the extra '%s' are to "absorb" the empty strings. */
+    const char *msg = "%sChange statistic 'c_degdist' has encountered a network with a node whose degree is above the cut-off setting of %d.%s%s";
+    if(strlen(termname)){
+      if(strlen(argname) && strlen(optname)) msg = "Term %s has encountered a network with a node whose degree is above the cut-off setting of %d. This can usually be remedied by increasing the value of the term argument %s or the corresponding term option %s.";
+      else if(strlen(argname)) msg = "Term %s has encountered a network with a node whose degree is above the cut-off setting of %d. This can usually be remedied by increasing the value of the term argument %s.%s";
+      else if(strlen(optname)) msg = "Term %s has encountered a network with a node whose degree is above the cut-off setting of %d. This can usually be remedied by increasing the value of the term option %s%s.";
+    }else{
+      msg = "Term %s has encountered a network with a node whose degree is above the cut-off setting of %d. Please see the term documentation for how it may be adjusted.%s%s";
+    }
+
+    error(msg, termname, N_CHANGE_STATS, argname, optname);
+  }
+
+  if(otd) CHANGE_STAT[otd-1]--;
+  if(ohd) CHANGE_STAT[ohd-1]--;
+  if(ntd) CHANGE_STAT[ntd-1]++;
+  if(nhd) CHANGE_STAT[nhd-1]++;
+}
+
+/*****************
  changestat: d_degreepopularity
 *****************/
 C_CHANGESTAT_FN(c_degreepopularity) { 

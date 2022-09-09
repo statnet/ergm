@@ -3045,14 +3045,12 @@ InitErgmTerm.gwdegree<-function(nw, arglist, gw.cutoff=30, ..., version=packageV
 
   decay_vs_fixed(a, 'gwdegree')
   decay<-a$decay; fixed<-a$fixed  
-  cutoff<-a$cutoff
-   maxesp <- min(cutoff,network.size(nw)-1)
-  d <- 1:maxesp
+  md <- min(cutoff<-a$cutoff, network.size(nw)-1)
   if(!fixed){ # This is a curved exponential family model
-    ld<-length(d)
-    if(ld==0){return(NULL)}
-    c(list(minval=0, maxval=network.size(nw), dependence=TRUE, name="degree", coef.names=paste("gwdegree#",d,sep=""), inputs=c(d),
-           conflicts.constraints="degreedist", params=list(gwdegree=NULL,gwdegree.decay=decay)), GWDECAY)
+    if(!md){return(NULL)}
+    c(list(minval=0, maxval=network.size(nw), dependence=TRUE, name="degdist", coef.names=paste("gwdegree#",seq_len(md),sep=""),
+           term.name = sQuote("gwdegree"), arg.name = sQuote("cutoff"), opt.name = sQuote("gw.cutoff"),
+           conflicts.constraints="degreedist", params=list(gwdegree=NULL,gwdegree.decay=NULL)), GWDECAY)
   } else {
     if(!is.null(attrarg)) {
       nodecov <- ergm_get_vattr(attrarg, nw)
@@ -3061,7 +3059,7 @@ InitErgmTerm.gwdegree<-function(nw, arglist, gw.cutoff=30, ..., version=packageV
       nodecov <- match(nodecov,u,nomatch=length(u)+1) # Recode to numeric
       # Combine degree and u into 2xk matrix, where k=length(d)*length(u)
       lu <- length(u)
-      du <- rbind(rep(d,lu), rep(1:lu, rep(length(d), lu)))
+      du <- rbind(rep(seq_len(md),lu), rep(1:lu, rep(md, lu)))
       if(nrow(du)==0) {return(NULL)}
       #  No covariates here, so "ParamsBeforeCov" unnecessary
       name <- "gwdegree_by_attr"
