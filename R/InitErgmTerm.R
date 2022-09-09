@@ -2103,8 +2103,8 @@ InitErgmTerm.ctriple<-function (nw, arglist, ..., version=packageVersion("ergm")
   list(name="ctriple", coef.names=coef.names, inputs=inputs, minval = 0)
 }
 
-
-#' @rdname ctriple-ergmTerm
+#' @templateVar name ctriple
+#' @template ergmTerm-rdname
 #' @aliases ctriad-ergmTerm
 #' @usage
 #' # binary: ctriad
@@ -4433,7 +4433,8 @@ InitErgmTerm.nodecov<-function (nw, arglist, ..., version=packageVersion("ergm")
   list(name="nodecov", coef.names=coef.names, inputs=c(nodecov), dependence=FALSE)
 }
 
-#' @rdname nodecov-ergmTerm
+#' @templateVar name nodecov
+#' @template ergmTerm-rdname
 #' @aliases nodemain-ergmTerm
 #' @usage
 #' # binary: nodemain
@@ -5649,44 +5650,6 @@ InitErgmTerm.sociality<-function(nw, arglist, ..., version=packageVersion("ergm"
 
 ################################################################################
 
-#' @rdname threetrail-ergmTerm
-#' @aliases threepath-ergmTerm
-#' @usage
-#' # binary: threepath
-InitErgmTerm.threepath <- function(nw, arglist, ..., version=packageVersion("ergm")) {
-  ergm_Init_warn(paste("This term is inaccurately named and actually refers to a '3-trail' in that it counts repeated vertices: i-j-k-i is a 3-trail but not a 3-path. See", sQuote("ergmTerm?treepath"), "help for more information. This name has been deprecated and will be removed in a future version: if a 3-trail is what you want, use the term 'threetrail'."))
-  if(version <= as.package_version("3.9.4")){
-    ### Check the network and arguments to make sure they are appropriate.
-    a <- check.ErgmTerm (nw, arglist, 
-                         varnames = c("keep"),
-                         vartypes = c("numeric"),
-                         defaultvalues = list(NULL),
-                         required = c(FALSE),
-                         dep.inform = list("levels"))
-  }else{
-    a <- check.ErgmTerm (nw, arglist, 
-                         varnames = c("keep", "levels"),
-                         vartypes = c("numeric", ERGM_LEVELS_SPEC),
-                         defaultvalues = list(NULL, NULL),
-                         required = c(FALSE, FALSE),
-                         dep.inform = list("levels", FALSE))
-  }  
-  vals = c("RRR","RRL","LRR","LRL")
-  types <- ergm_attr_levels(a$levels, vals, nw, levels = vals)
-  if((!hasName(attr(a,"missing"), "levels") || attr(a,"missing")["levels"]) && !is.null(a$keep)) types <- types[a$keep]
-  indices = match(types, vals)  
-  if (is.directed(nw)) {
-    return(list(name = "threetrail", 
-                coef.names = paste("threetrail", types, sep="."),
-                inputs=indices, minval = 0))
-  }
-  else {
-    return(list(name = "threetrail", coef.names = "threetrail", minval = 0))
-  }
-}
-
-################################################################################
-
 #' @templateVar name threetrail
 #' @title Three-trails
 #' @description For an undirected network, this term adds one statistic equal to the number
@@ -5760,6 +5723,18 @@ InitErgmTerm.threetrail <- function(nw, arglist, ..., version=packageVersion("er
   else {
     return(list(name = "threetrail", coef.names = "threetrail", minval = 0))
   }
+}
+
+#' @templateVar name threetrail
+#' @template ergmTerm-rdname
+#' @aliases threepath-ergmTerm
+#' @usage
+#' # binary: threepath(keep=NULL, levels=NULL)
+InitErgmTerm.threepath <- function(nw, arglist, ..., version=packageVersion("ergm")) {
+  ergm_Init_warn(paste("This term is inaccurately named and actually refers to a '3-trail' in that it counts repeated vertices: i-j-k-i is a 3-trail but not a 3-path. See", sQuote("ergmTerm?treepath"), "help for more information. This name has been deprecated and will be removed in a future version: if a 3-trail is what you want, use the term 'threetrail'."))
+
+  f <- InitErgmTerm.threetrail
+  f(nw, arglist, ..., version=version)
 }
 
 ################################################################################
@@ -6103,7 +6078,8 @@ InitErgmTerm.ttriple<-function (nw, arglist, ..., version=packageVersion("ergm")
   list(name="ttriple", coef.names=coef.names, inputs=inputs, minval = 0)
 }
 
-#' @rdname ttriple-ergmTerm
+#' @templateVar name ttriple
+#' @template ergmTerm-rdname
 #' @aliases ttriad-ergmTerm
 #' @usage
 #' # binary: ttriad

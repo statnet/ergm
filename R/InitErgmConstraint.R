@@ -118,7 +118,8 @@ InitErgmConstraint.degrees<-function(nw, arglist, ...){
   list(dependence = TRUE, constrain = "degrees", implies = c("degrees", "edges", "idegrees", "odegrees", "idegreedist", "odegreedist", "degreedist", "bd"))
 }
 
-#' @rdname degrees-ergmConstraint
+#' @templateVar name degrees
+#' @template ergmConstraint-rdname
 #' @aliases nodedegrees-ergmConstraint
 #' @usage
 #' # nodedegrees

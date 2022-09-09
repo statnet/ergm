@@ -130,7 +130,8 @@ InitWtErgmTerm..binary.formula.net <- function(nw, arglist, ...){
 }
 
 # Arguments and outputs are identical to the binary version, except for the C routine names.
-#' @rdname Sum-operator-ergmTerm
+#' @templateVar name Sum
+#' @template ergmTerm-rdname
 #' @usage
 #' # valued: Sum(formulas, label)
 InitWtErgmTerm.Sum <- function(...){
@@ -142,7 +143,8 @@ InitWtErgmTerm.Sum <- function(...){
   term
 }
 
-#' @rdname Label-ergmTerm
+#' @templateVar name Label
+#' @template ergmTerm-rdname
 #' @usage
 #' # valued: Label(formula, label, pos)
 InitWtErgmTerm.Label <- function(nw, arglist, ...){
@@ -151,7 +153,8 @@ InitWtErgmTerm.Label <- function(nw, arglist, ...){
   out
 }
 
-#' @rdname Curve-ergmTerm
+#' @templateVar name Curve
+#' @template ergmTerm-rdname
 #' @usage
 #' # valued: Curve(formula, params, map, gradient=NULL, minpar=-Inf, maxpar=+Inf, cov=NULL)
 InitWtErgmTerm.Curve <- function(nw, arglist, ...){
@@ -166,19 +169,22 @@ InitWtErgmTerm..submodel_and_summary <- function(nw, arglist, ...){
   out
 }
 
-#' @rdname Curve-ergmTerm
+#' @templateVar name Curve
+#' @template ergmTerm-rdname
 #' @usage
 #' # valued: Parametrise(formula, params, map, gradient=NULL, minpar=-Inf, maxpar=+Inf,
 #' #           cov=NULL)
 InitWtErgmTerm.Parametrise <- InitWtErgmTerm.Curve
 
-#' @rdname Curve-ergmTerm
+#' @templateVar name Curve
+#' @template ergmTerm-rdname
 #' @usage
 #' # valued: Parametrize(formula, params, map, gradient=NULL, minpar=-Inf, maxpar=+Inf,
 #' #           cov=NULL)
 InitWtErgmTerm.Parametrize <- InitWtErgmTerm.Curve
 
-#' @rdname Exp-ergmTerm
+#' @templateVar name Exp
+#' @template ergmTerm-rdname
 #' @usage
 #' # valued: Exp(formula)
 InitWtErgmTerm.Exp <- function(nw, arglist, ...){
@@ -187,7 +193,8 @@ InitWtErgmTerm.Exp <- function(nw, arglist, ...){
   out
 }
 
-#' @rdname Log-ergmTerm
+#' @templateVar name Log
+#' @template ergmTerm-rdname
 #' @usage
 #' # valued: Log(formula, log0=-1/sqrt(.Machine$double.eps))
 InitWtErgmTerm.Log <- function(nw, arglist, ...){
@@ -196,7 +203,8 @@ InitWtErgmTerm.Log <- function(nw, arglist, ...){
   out
 }
 
-#' @rdname Prod-ergmTerm
+#' @templateVar name Prod
+#' @template ergmTerm-rdname
 #' @usage
 #' # valued: Prod(formulas, label)
 InitWtErgmTerm.Prod <- InitErgmTerm.Prod

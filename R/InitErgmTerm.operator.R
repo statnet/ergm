@@ -304,8 +304,7 @@ InitErgmTerm..submodel_and_summary <- function(nw, arglist, ...){
 
 # Roxygen converts the name to FALSE-ergmTerm if the name is not specified. This generates a warning but is probably the best we can do
 
-#' @name F-ergmTerm
-#' @templateVar name F
+#' @templateVar name 'F
 #' @title Filtering on arbitrary one-term model
 #' @description Evaluates the given `formula` on a network constructed by
 #'   taking \eqn{y} and removing any edges for which
@@ -638,7 +637,7 @@ InitErgmTerm.Symmetrize <- function(nw, arglist, ...){
                list(dependence=!is.dyad.independent(m) || rule%in%c("weak","strong"))))
 }
 
-#' @templateVar name Sum-operator
+#' @templateVar name Sum
 #' @title A sum (or an arbitrary linear combination) of one or more formulas
 #' @description This operator sums up the RHS statistics of the input formulas elementwise.
 #'   
@@ -667,11 +666,10 @@ InitErgmTerm.Symmetrize <- function(nw, arglist, ...){
 #'     - `"mean"` Network statistics of this formula will be averaged; equivalent to `matrix(1/p,1,p)` , where `p` is the length of the network statistic vector.
 #' @param label used to specify the names of the elements of the resulting term sum vector. If `label` is a character vector of length 1,
 #'   it will be recycled with indices appended. If a function is specified, `formulas` parameter names are extracted and their list of character vectors is passed `label`.
-#"   (For convenience, if only one formula is given, just a character vector is passed. Lastly, if `label` or result of its function call is an [`AsIs`] object, it is not wrapped in `Sum~...`.
+#"   (For convenience, if only one formula is given, just a character vector is passed. Lastly, if `label` or result of its function call is an [`AsIs`] object, it is not wrapped in `Sum~...`.)
 #'
 #' @template ergmTerm-general
 #'
-#' @aliases Sum-ergmTerm
 #' @concept operator
 InitErgmTerm.Sum <- function(nw, arglist,...){
   a <- check.ErgmTerm(nw, arglist,
@@ -973,14 +971,16 @@ InitErgmTerm.Curve <- function(nw, arglist,...){
     ergm_propagate_ext.encode(m))
 }
 
-#' @rdname Curve-ergmTerm
+#' @templateVar name Curve
+#' @template ergmTerm-rdname
 #' @aliases Parametrise-ergmTerm
 #' @usage
 #' # binary: Parametrise(formula, params, map, gradient=NULL, minpar=-Inf, maxpar=+Inf,
 #' #           cov=NULL)
 InitErgmTerm.Parametrise <- InitErgmTerm.Curve
 
-#' @rdname Curve-ergmTerm
+#' @templateVar name Curve
+#' @template ergmTerm-rdname
 #' @aliases Parametrize-ergmTerm
 #' @usage
 #' # binary: Parametrize(formula, params, map, gradient=NULL, minpar=-Inf, maxpar=+Inf,

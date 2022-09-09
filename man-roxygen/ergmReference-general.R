@@ -7,5 +7,9 @@
 #
 #  Copyright 2003-2022 Statnet Commons
 ################################################################################
+#' <% name <- if(startsWith(name, "'")) substr(name, 2, 1000) else name %>
 #' @name <%= name %>-ergmReference
+#' @rdname <%= ergm:::.term.rdname("ergmReference", name) %>
 #' @seealso [`ergmReference`] for index of reference distributions currently visible to the package.
+#'
+#' \Sexpr[results=rd,stage=render]{ergm:::.formatTermKeywords("ergmReference", "<%= name %>", "subsection")}

@@ -26,7 +26,8 @@ binary_dind_wrap <- function(name, nw, a, ..., cn=name){
   binary_wrap(get(paste0("InitErgmTerm.",name), mode="function"), nw, a, "form", list(...), namemap=~paste(.,form,sep="_"), cnmap=~sub(cn,paste(cn,form,sep="."), .))
 }
 
-#' @rdname absdiff-ergmTerm
+#' @templateVar name absdiff
+#' @template ergmTerm-rdname
 #' @usage
 #' # valued: absdiff(attr,
 #' #                 pow=1,
@@ -52,7 +53,8 @@ InitWtErgmTerm.absdiff <- function(nw, arglist, ..., version=packageVersion("erg
   binary_dind_wrap("absdiff", nw, a, ..., version=version)
 }
 
-#' @rdname absdiffcat-ergmTerm
+#' @templateVar name absdiffcat
+#' @template ergmTerm-rdname
 #' @usage
 #' # valued: absdiffcat(attr,
 #' #                 base=NULL,
@@ -140,7 +142,8 @@ InitWtErgmTerm.atmost<-function(nw, arglist, ...) {
        emptynwstats=ifelse(0<=a$threshold, network.dyadcount(nw,FALSE), 0))
 }
 
-#' @rdname b1cov-ergmTerm
+#' @templateVar name b1cov
+#' @template ergmTerm-rdname
 #' @usage
 #' # valued: b1cov(attr, form="sum")
 #' @template ergmTerm-form
@@ -161,7 +164,8 @@ InitWtErgmTerm.b1cov<-function (nw, arglist, ..., version=packageVersion("ergm")
   binary_dind_wrap("b1cov", nw, a, ..., version=version)
 }
 
-#' @rdname b1factor-ergmTerm
+#' @templateVar name b1factor
+#' @template ergmTerm-rdname
 #' @usage
 #' # valued: b1factor(attr, base=1, levels=-1, form="sum")
 #' @template ergmTerm-form
@@ -183,7 +187,8 @@ InitWtErgmTerm.b1factor<-function (nw, arglist, ..., version=packageVersion("erg
   binary_dind_wrap("b1factor", nw, a, ..., version=version)
 }
 
-#' @rdname b1sociality-ergmTerm
+#' @templateVar name b1sociality
+#' @template ergmTerm-rdname
 #' @usage
 #' # valued: b1sociality(nodes=-1, form="sum")
 #' @template ergmTerm-form
@@ -197,7 +202,8 @@ InitWtErgmTerm.b1sociality<-function(nw, arglist, ...) {
                       
 }
 
-#' @rdname b2cov-ergmTerm
+#' @templateVar name b2cov
+#' @template ergmTerm-rdname
 #' @usage
 #' # valued: b2cov(attr, form="sum")
 #' @template ergmTerm-form
@@ -219,7 +225,8 @@ InitWtErgmTerm.b2cov<-function (nw, arglist, ..., version=packageVersion("ergm")
   binary_dind_wrap("b2cov", nw, a, ..., version=version)
 }
 
-#' @rdname b2factor-ergmTerm
+#' @templateVar name b2factor
+#' @template ergmTerm-rdname
 #' @usage
 #' # valued: b2factor(attr, base=1, levels=-1, form="sum")
 #' @template ergmTerm-form
@@ -241,7 +248,8 @@ InitWtErgmTerm.b2factor<-function (nw, arglist, ..., version=packageVersion("erg
   binary_dind_wrap("b2factor", nw, a, ..., version=version)
 }
 
-#' @rdname b2sociality-ergmTerm
+#' @templateVar name b2sociality
+#' @template ergmTerm-rdname
 #' @usage
 #' # valued: b2sociality(nodes=-1, form="sum")
 #' @template ergmTerm-form
@@ -255,7 +263,8 @@ InitWtErgmTerm.b2sociality<-function(nw, arglist, ...) {
 }
 
 
-#' @rdname diff-ergmTerm
+#' @templateVar name diff
+#' @template ergmTerm-rdname
 #' @usage
 #' # valued: diff(attr, pow=1, dir="t-h", sign.action="identity", form ="sum")
 #' @template ergmTerm-form
@@ -278,7 +287,8 @@ InitWtErgmTerm.diff <- function(nw, arglist, ..., version=packageVersion("ergm")
   binary_dind_wrap("diff", nw, a, ..., version=version)
 }
 
-#' @rdname edgecov-ergmTerm
+#' @templateVar name edgecov
+#' @template ergmTerm-rdname
 #' @usage
 #' # valued: edgecov(x, attrname=NULL, form="sum")
 #' @template ergmTerm-form
@@ -529,7 +539,8 @@ InitWtErgmTerm.nodesqrtcovar<-function (nw, arglist, ...) {
   InitWtErgmTerm.nodecovar(nw, arglist, ...)
 }
 
-#' @rdname nodefactor-ergmTerm
+#' @templateVar name nodefactor
+#' @template ergmTerm-rdname
 #' @usage
 #' # valued: nodefactor(attr, base=1, levels=-1, form="sum")
 #' @template ergmTerm-form
@@ -552,7 +563,8 @@ InitWtErgmTerm.nodefactor<-function (nw, arglist, ..., version=packageVersion("e
   binary_dind_wrap("nodefactor", nw, a, ..., version=version)
 }
 
-#' @rdname sociality-ergmTerm
+#' @templateVar name sociality
+#' @template ergmTerm-rdname
 #' @usage
 #' # valued: sociality(attr=NULL, base=1, levels=NULL, nodes=-1, form="sum")
 #' @template ergmTerm-form
@@ -618,7 +630,8 @@ InitWtErgmTerm.nodeocovar<-function (nw, arglist, ...) {
        )
 }
 
-#' @rdname nodeofactor-ergmTerm
+#' @templateVar name nodeofactor
+#' @template ergmTerm-rdname
 #' @usage
 #' # valued: nodeofactor(attr, base=1, levels=-1, form="sum")
 #' @template ergmTerm-form
@@ -641,7 +654,8 @@ InitWtErgmTerm.nodeofactor<-function (nw, arglist, ..., version=packageVersion("
   binary_dind_wrap("nodeofactor", nw, a, ..., version=version)
 }
 
-#' @rdname sender-ergmTerm
+#' @templateVar name sender
+#' @template ergmTerm-rdname
 #' @usage
 #' # valued: sender(base=1, nodes=-1, form="sum")
 #' @template ergmTerm-form
@@ -708,7 +722,8 @@ InitWtErgmTerm.nodeicovar<-function (nw, arglist, ...) {
        )
 }
 
-#' @rdname nodeifactor-ergmTerm
+#' @templateVar name nodeifactor
+#' @template ergmTerm-rdname
 #' @usage
 #' # valued: nodeifactor(attr, base=1, levels=-1, form="sum")
 #' @template ergmTerm-form
@@ -731,7 +746,8 @@ InitWtErgmTerm.nodeifactor<-function (nw, arglist, ..., version=packageVersion("
   binary_dind_wrap("nodeifactor", nw, a, ..., version=version)
 }
 
-#' @rdname receiver-ergmTerm
+#' @templateVar name receiver
+#' @template ergmTerm-rdname
 #' @usage
 #' # valued: receiver(base=1, nodes=-1, form="sum")
 #' @template ergmTerm-form
@@ -754,7 +770,8 @@ InitWtErgmTerm.receiver<-function (nw, arglist, ..., version=packageVersion("erg
   binary_dind_wrap("receiver", nw, a, ..., version=version)
 }
 
-#' @rdname nodematch-ergmTerm
+#' @templateVar name nodematch
+#' @template ergmTerm-rdname
 #' @usage
 #' # valued: nodematch(attr, diff=FALSE, keep=NULL, levels=NULL, form="sum")
 #' @template ergmTerm-form
@@ -778,13 +795,15 @@ InitWtErgmTerm.nodematch<-function (nw, arglist, ..., version=packageVersion("er
   binary_dind_wrap("nodematch", nw, a, ..., version=version)
 }
 
-#' @rdname nodematch-ergmTerm
+#' @templateVar name nodematch
+#' @template ergmTerm-rdname
 #' @aliases match-ergmTerm
 #' @usage
 #' # valued: match(attr, diff=FALSE, keep=NULL, levels=NULL, form="sum")
 InitWtErgmTerm.match<-InitWtErgmTerm.nodematch
 
-#' @rdname nodemix-ergmTerm
+#' @templateVar name nodemix
+#' @template ergmTerm-rdname
 #' @usage
 #' # valued: nodemix(attr, base=NULL, b1levels=NULL, b2levels=NULL, levels=NULL,
 #' #                 levels2=-1, form="sum")
@@ -808,7 +827,8 @@ InitWtErgmTerm.nodemix<-function (nw, arglist, ..., version=packageVersion("ergm
   binary_dind_wrap("nodemix", nw, a, ..., version=version)
 }
 
-#' @rdname nodecov-ergmTerm
+#' @templateVar name nodecov
+#' @template ergmTerm-rdname
 #' @usage
 #' # valued: nodecov(attr, form="sum")
 #' @template ergmTerm-form
@@ -829,12 +849,14 @@ InitWtErgmTerm.nodecov<-function (nw, arglist, ..., version=packageVersion("ergm
   binary_dind_wrap("nodecov", nw, a, ..., version=version)
 }
 
-#' @rdname nodecov-ergmTerm
+#' @templateVar name nodecov
+#' @template ergmTerm-rdname
 #' @usage
 #' # valued: nodemain(attr, form="sum")
 InitWtErgmTerm.nodemain<-InitWtErgmTerm.nodecov
 
-#' @rdname nodeicov-ergmTerm
+#' @templateVar name nodeicov
+#' @template ergmTerm-rdname
 #' @usage
 #' # valued: nodeicov(attr, form="sum")
 #' @template ergmTerm-form
@@ -856,7 +878,8 @@ InitWtErgmTerm.nodeicov<-function (nw, arglist, ..., version=packageVersion("erg
   binary_dind_wrap("nodeicov", nw, a, ..., version=version)
 }
 
-#' @rdname nodeocov-ergmTerm
+#' @templateVar name nodeocov
+#' @template ergmTerm-rdname
 #' @usage
 #' # valued: nodeocov(attr, form="sum")
 #' @template ergmTerm-form
@@ -879,7 +902,8 @@ InitWtErgmTerm.nodeocov<-function (nw, arglist, ..., version=packageVersion("erg
 }
 
 
-#' @rdname edges-ergmTerm
+#' @templateVar name edges
+#' @template ergmTerm-rdname
 #' @aliases nonzero-ergmTerm
 #' @usage
 #' # valued: nonzero
@@ -896,12 +920,14 @@ InitWtErgmTerm.nonzero<-function(nw, arglist, ...) {
        minval=0, maxval=network.dyadcount(nw,FALSE))
 }
 
-#' @rdname edges-ergmTerm
+#' @templateVar name edges
+#' @template ergmTerm-rdname
 #' @usage
 #' # valued: edges
 InitWtErgmTerm.edges <- InitWtErgmTerm.nonzero
 
-#' @rdname mutual-ergmTerm
+#' @templateVar name mutual
+#' @template ergmTerm-rdname
 #' @usage
 #' # valued: mutual(form="min",threshold=0)
 #' @template ergmTerm-form
@@ -993,7 +1019,8 @@ InitWtErgmTerm.transitiveweights<-function (nw, arglist, ...) {
        minval = 0)
 }
 
-#' @rdname cyclicalties-ergmTerm
+#' @templateVar name cyclicalties
+#' @template ergmTerm-rdname
 #' @usage
 #' # valued: cyclicalties(threshold=0)
 InitWtErgmTerm.cyclicalties<-function (nw, arglist, ...) {
@@ -1064,7 +1091,8 @@ InitWtErgmTerm.cyclicalweights<-function (nw, arglist, ...) {
        minval = 0)
 }
 
-#' @rdname mm-ergmTerm
+#' @templateVar name mm
+#' @template ergmTerm-rdname
 #' @usage
 #' # valued: mm(attrs, levels=NULL, levels2=-1, form="sum")
 #' @template ergmTerm-form

@@ -9,7 +9,7 @@
 ################################################################################
 
 SUPPORTED_TERM_TYPES <- c('Term', 'Constraint', 'Reference', 'Hint', 'Proposal')
-SUPPORTED_TERM_TYPE_REGEX <- sprintf('-ergm(%s)(.Rd)?', paste(SUPPORTED_TERM_TYPES, collapse='|'))
+SUPPORTED_TERM_TYPE_REGEX <- sprintf('-ergm(%s)(-[0-9a-f]{8})?(.Rd)?', paste(SUPPORTED_TERM_TYPES, collapse='|'))
 
 DISPLAY_TEXT_INDEX_MAX_WIDTHS <- list('Term'=25, 'Pkg'=5, 'Description'=33, 'Concepts'=12)
 DISPLAY_TEXT_MAX_WIDTH <- sum(unlist(DISPLAY_TEXT_INDEX_MAX_WIDTHS)) + length(DISPLAY_TEXT_INDEX_MAX_WIDTHS) - 1
@@ -19,10 +19,11 @@ DISPLAY_LATEX_TOC_PCT_WIDTHS <- function(n_concepts) c(2.4, rep(.7, n_concepts))
 .fsub <- function(x, pattern, replacement, fixed = TRUE, ...) gsub(pattern, replacement, x, fixed = fixed, ...)
 
 # Return the index entry for a single term in the new format
-.parseTerm <- function(name, pkg, pkg_name) {
-  doc <- pkg[[name]]
-  name <- substr(name, 1, nchar(name) - 3)
+.parseTerm <- function(rdname, pkg, pkg_name) {
+  doc <- pkg[[rdname]]
+  rdname <- substr(rdname, 1, nchar(rdname) - 3)
   tags <- sapply(doc, attr, 'Rd_tag')
+  name <- doc[tags == '\\name'] %>% unlist
   comps <- strsplit(name, '-')[[1]]
   type <- comps[length(comps)]
 
@@ -51,7 +52,7 @@ DISPLAY_LATEX_TOC_PCT_WIDTHS <- function(n_concepts) c(2.4, rep(.7, n_concepts))
     }
 
     return(list(
-      link=name,
+      link=rdname,
       name=comps[1],
       type=type,
       alias=doc[tags == '\\alias'] %>% unlist,
@@ -88,7 +89,7 @@ DISPLAY_LATEX_TOC_PCT_WIDTHS <- function(n_concepts) c(2.4, rep(.7, n_concepts))
       )
     }
     return(list(
-      link=name,
+      link=rdname,
       name=comps[1],
       type=type,
       alias=doc[tags == '\\alias'] %>% unlist,
@@ -102,12 +103,14 @@ DISPLAY_LATEX_TOC_PCT_WIDTHS <- function(n_concepts) c(2.4, rep(.7, n_concepts))
 
 #' A simple dictionary to cache loaded terms
 #'
-#' @param the name of the term
-#' @param env the environment name for the function; if `NULL`, look
-#'   up in cache, otherwise insert or overwrite.
+#' @usage ergmTermCache(term_type)
 #'
-#' @return A character string giving the name of the environment
-#'   containing the function, or `NULL` if not in cache.
+#' @param term_type a type of term, e.g., `"ergmTerm"`, `"ergmConstraint"`, etc.
+#'
+#' @return
+#'
+#' A named list of terms of the specified type containing the information returned by `.parseTerm()`.
+#'
 #' @noRd
 ergmTermCache <- local({
   cache <- lapply(SUPPORTED_TERM_TYPES, function(x) list())
@@ -135,7 +138,7 @@ ergmTermCache <- local({
 
     for (term in lapply(converted, .parseTerm, pkg, pkg_name)) {
       if (!is.null(term)) {
-        cache[[term$type]][[term$link]] <<- term
+        cache[[term$type]][[term$name]] <<- term
       }
     }
   }
@@ -552,6 +555,27 @@ PROPOSAL_NOT_IN_TABLE <- "This proposal is not referenced in the lookup table."
   }
 
   out
+}
+
+.formatTermKeywords <- function(term.type, term.name, sec.format = c("describe", "section", "subsection"), ifnone = "None") {
+  sec.format <- match.arg(sec.format)
+  keywords <- ergmTermCache(term.type)[[term.name]]$concepts
+  keywords <-
+    if(length(keywords) == 0){
+      if(length(ifnone)==0 || isFALSE(ifnone)) return("")
+      else ifnone
+    }else{
+      paste(keywords, collapse=", ")
+    }
+
+  switch(sec.format,
+         describe = paste0("\\describe{\\item{Keywords:}{", keywords, "}}"),
+         section = paste0("\\section{Keywords}{", keywords, "}"),
+         subsection = paste0("\\subsection{Keywords}{", keywords, "}"))
+}
+
+.term.rdname <- function(term.type, term.name) {
+  gsub(".", "", paste(term.name, term.type, substr(rlang::hash(term.name), 1, 8), sep = "-"), fixed=TRUE)
 }
 
 search.ergmTermType <-function(term.type, search, net, keywords, name, packages) {
