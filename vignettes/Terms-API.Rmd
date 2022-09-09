@@ -203,6 +203,8 @@ Summary statistic (valued): `void s_<NAME>(WtModelTerm *mtp, WtNetwork *nwp)`
 
 **Parameters**
 
+**Note**: In undirected networks, it can be assumed that `tail` < `head` (and similarly with the multiple toggles). In bipartite networks, `tail`s are in the first partition and `head`s are in the second.
+
 `Edge ntgoggles`: Number of edges to be toggled or updated.
 
 `Vertex tail`: Tail of (1) dyad to be toggled or updated.
