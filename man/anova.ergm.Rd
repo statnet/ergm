@@ -39,13 +39,6 @@ model, the change in degrees of freedom and sum of squares is also given.
 conventional to list the models from smallest to largest, but this is up to
 the user.
 
-Optionally the table can include test statistics.  Normally the F statistic
-is most appropriate, which compares the mean square for a row to the
-residual sum of squares for the largest model considered.  If \code{scale}
-is specified chi-squared tests can be used. Mallows' \eqn{C_p}{Cp} statistic
-is the residual sum of squares plus twice the estimate of
-\eqn{\sigma^2}{sigma^2} times the residual degrees of freedom.
-
 If any of the objects do not have estimated log-likelihoods, produces an
 error, unless \code{eval.loglik=TRUE}.
 }

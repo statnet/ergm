@@ -25,8 +25,10 @@
 #' @rdname anova.ergm
 #' @export
 anova.ergmlist <- function(object, ..., eval.loglik = FALSE) {
-  objects <- list(object, ...)
-  responses <- as.character(lapply(objects, function(x) deparse(x$formula[[2]])))
+  objects <- list(object=object, ...)
+  if(!all(sapply(objects[-1], is.ergm))) stop("All arguments to ", sQuote("anova.ergm()"), " other than ", sQuote("eval.loglik="), " must be ", sQuote("ergm"), " fits.", call.=FALSE)
+
+  responses <- sapply(objects, function(x) deparse1(x$formula[[2]]))
   sameresp <- responses == responses[1]
   if (!all(sameresp)) {
     objects <- objects[sameresp]
@@ -58,7 +60,7 @@ anova.ergmlist <- function(object, ..., eval.loglik = FALSE) {
                               "Resid. Dev", "Pr(>|Chisq|)")
     rownames(table) <- c("NULL", 1:nmodels)
 
-  title <- "Analysis of Variance Table\n"
+  title <- "Analysis of Deviance Table\n"
   topnote <- paste("Model ", format(1:nmodels), ": ", variables, 
                    sep = "", collapse = "\n")
   structure(table, heading = c(title, topnote), class = c("anova", 
