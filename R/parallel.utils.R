@@ -125,7 +125,7 @@ ergm.MCMC.packagenames <- local({
 #'
 #' \item{MPI clusters}{ To use MPI to accelerate ERGM sampling,
 #' pass the control parameter `parallel.type="MPI"`.
-#' [ergm][ergm-package] requires the `snow` and `Rmpi` packages to
+#' [ergm][ergm-package] requires the \CRANpkg{snow} and \CRANpkg{Rmpi} packages to
 #' communicate with an MPI cluster.
 #'   
 #' Using MPI clusters requires the system to have an existing MPI
