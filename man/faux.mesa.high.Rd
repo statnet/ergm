@@ -42,7 +42,7 @@ the permuted attributes and with the same number of edges as in the original
 data.
 
 The processes for handling missing data and defining the race attribute are
-described in Hunter, Goodreau \& Handcock (2008).
+described in Hunter, Goodreau & Handcock (2008).
 }
 \usage{
 data(faux.mesa.high)

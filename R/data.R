@@ -341,7 +341,7 @@ NULL
 #' data.
 #' 
 #' The processes for handling missing data and defining the race attribute are
-#' described in Hunter, Goodreau \& Handcock (2008).
+#' described in Hunter, Goodreau & Handcock (2008).
 #' @keywords datasets
 NULL
 
@@ -351,14 +351,14 @@ NULL
 #' Florentine families. The data is originally from Padgett (1994) via
 #' \code{UCINET} and stored as a \code{\link[network]{network}} object.
 #' 
-#' Breiger \& Pattison (1986), in their discussion of local role analysis, use
+#' Breiger & Pattison (1986), in their discussion of local role analysis, use
 #' a subset of data on the social relations among Renaissance Florentine
 #' families (person aggregates) collected by John Padgett from historical
 #' documents. The two relations are business ties (\code{flobusiness} -
 #' specifically, recorded financial ties such as loans, credits and joint
 #' partnerships) and marriage alliances (\code{flomarriage}).
 #' 
-#' As Breiger \& Pattison point out, the original data are symmetrically coded.
+#' As Breiger & Pattison point out, the original data are symmetrically coded.
 #' This is acceptable perhaps for marital ties, but is unfortunate for the
 #' financial ties (which are almost certainly directed). To remedy this, the
 #' financial ties can be recoded as directed relations using some external
@@ -367,7 +367,7 @@ NULL
 #' thousands of lira); (2) \code{priorates} the number of priorates (seats on
 #' the civic council) held between 1282- 1344; and (3) \code{totalties} the
 #' total number of business or marriage ties in the total dataset of 116
-#' families (see Breiger \& Pattison (1986), p 239).
+#' families (see Breiger & Pattison (1986), p 239).
 #' 
 #' Substantively, the data include families who were locked in a struggle for
 #' political control of the city of Florence around 1430. Two factions were
