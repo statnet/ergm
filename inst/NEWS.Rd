@@ -81,6 +81,9 @@
       \item{
         Term API vignette is now more complete, and includes all API elements, not just the post-4.0 ones.
       }
+      \item{
+        Termalike documentation templates now also list the keywords/concepts in the termalike's documentation file. More generally, termalike documentation has been revamped to be more consistent.
+      }
     }
   }
 
@@ -101,6 +104,12 @@
       }
       \item{
         Bridge sampling now disables the density guard (as some briges may result in much denser networks than observed).
+      }
+      \item{
+        Syntactic fixes to documentation.
+      }
+      \item{
+        \code{\link{anova.ergm}()} now correctly labels its tables as analysis of \emph{deviance}; passing invalid inputs (e.g., non-\code{\link{ergm}} objects) now produces an informative error message.
       }
     }
   }
@@ -129,6 +138,18 @@
       \item{
         Some constraints' implementations are now much more memory-efficient.
       }
+      \item{
+        \code{\link{anova.ergm}()} documentation no longer discusses test statistics (which were never implemented in the first place).
+      }
+      \item{
+        Improvements to the API documentation in the Terms API vignette.
+      }
+    }
+  }
+
+  \subsection{INSTALLATION}{
+    \itemize{
+      \item Since \pkg{ergm} only interacts with MPI clusters through the standard \pkg{parallel} API, a separate test for MPI has been removed, and packages \CRANpkg{snow} and \CRANpkg{Rmpi} are no longer Suggested.
     }
   }
 }
@@ -2128,7 +2149,7 @@ fixes issue reported by Sebastian Daza}
       been re-implemented or fixed.
 
       \item Certain functions are now only exported if they haven't
-      already be defined (e.g., by
+      already been defined (e.g., by
       \code{\link[=latentnet-package]{latentnet}}).
 
       \item Documentation and citation information have been  cleaned up
