@@ -156,7 +156,7 @@ argument. See the second example below.}
 
 \item{MPI clusters}{ To use MPI to accelerate ERGM sampling,
 pass the control parameter \code{parallel.type="MPI"}.
-\link[=ergm-package]{ergm} requires the \code{snow} and \code{Rmpi} packages to
+\link[=ergm-package]{ergm} requires the \CRANpkg{snow} and \CRANpkg{Rmpi} packages to
 communicate with an MPI cluster.
 
 Using MPI clusters requires the system to have an existing MPI

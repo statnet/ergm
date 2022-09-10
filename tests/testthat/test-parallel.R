@@ -66,37 +66,6 @@ test_that("pre-made SOCK cluster", {
 
 }, "parallel")
 
-opttest({
-
-library(ergm)
-data(florentine)
-
-for(type in c("MPI")){
-  test_that(paste0("parallel MPI", type), {
-    gest <- ergm(flomarriage ~ edges + absdiff("wealth"),
-                 eval.loglik=TRUE,
-                 control=control.ergm(MCMC.burnin=1000, MCMC.interval=10, MCMLE.maxit=2, MCMC.samplesize=1000, force.main=TRUE,
-                                      parallel=2, parallel.type=type))
-
-    print(summary(gest))
-    mcmc.diagnostics(gest)
-
-    # FIXME: Set seeds and replace with actual values?
-    sim.STAT.SEQ <- simulate(gest, nsim=5, control=control.simulate.ergm(parallel=2, parallel.type=type), output="stats", sequential=TRUE)
-    expect_equal(nrow(sim.STAT.SEQ), 5)
-
-    sim.STAT.seq <- simulate(gest, nsim=5, control=control.simulate.ergm(parallel=2, parallel.type=type), output="stats", sequential=FALSE)
-    expect_equal(nrow(sim.STAT.seq), 5)
-
-    sim.stat.SEQ <- simulate(gest, nsim=5, control=control.simulate.ergm(parallel=2, parallel.type=type), output="network", sequential=TRUE)
-    expect_equal(length(sim.stat.SEQ), 5)
-
-    sim.stat.seq <- simulate(gest, nsim=5, control=control.simulate.ergm(parallel=2, parallel.type=type), output="network", sequential=FALSE)
-    expect_equal(length(sim.stat.seq), 5)
-  })
-}
-
-}, "parallel_MPI", testvar="ENABLE_MPI_TESTS")
 
 if(inherits(try(get.MT_terms(), silent=TRUE),"try-error")){
   message("Skipping OpenMP test. This package installation was built without OpenMP support.")
