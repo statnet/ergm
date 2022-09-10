@@ -144,6 +144,15 @@
       \item{
         Improvements to the API documentation in the Terms API vignette.
       }
+      \item{
+        The Stepping estimation method has been removed, since all of its improvements have been incorporated into MCMLE.
+      }
+      \item{
+        The Robbins-Monro estimation algorithm has been removed, since it is currently broken and everything it does Stochastic Approximation does better.
+      }
+      \item{
+        Function \code{is.inCH()} has been removed, having been deprecated in favour of \code{\link{shrink_to_CH}()}.
+      }
     }
   }
 
