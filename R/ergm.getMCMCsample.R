@@ -132,7 +132,7 @@ ergm_MCMC_sample <- function(state, control, theta=NULL,
   control.parallel <- control
   control.parallel$MCMC.samplesize <- NVL3(control$MCMC.samplesize, ceiling(. / nthreads(control)))
 
-  flush.console()
+  utils::flush.console()
 
   force(eta)
   state0 <- state

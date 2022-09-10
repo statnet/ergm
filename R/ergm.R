@@ -43,7 +43,6 @@
 #       <ergm>             = $
 #       <ergm.mainfitloop> = *
 #       <ergm.mple>        = !
-#       <ergm.stepping>    = @
 #       <ergm.stocapprox>  = %
 #       <ergm.estimate>    = ^
 #       <ergm.robmon>      = &
@@ -765,7 +764,7 @@ ergm <- function(formula, response=NULL,
                                                 MCMLE = "Monte Carlo ",
                                                 `Stochastic-Approximation`="Stochastic Approximation ",
                                                 `Robbins-Monro`="Robbins-Monro ",
-                                                `Stepping`="Hummel Stepping "),
+                                                control$main.method),
                                        "Maximum Likelihood"))
 
   if (!MCMCflag){ # Just return initial (non-MLE) fit and exit.
@@ -816,14 +815,6 @@ ergm <- function(formula, response=NULL,
                     "Stochastic-Approximation" = ergm.stocapprox(init, nw, model,
                                                                  control=control, proposal=proposal,
                                                                  verbose=verbose),
-                    "Stepping" = ergm.stepping(init, nw, model, initialfit, constraints,
-                                               #nstats=nstats, 
-                                               #approx=lognormapprox, filename.prefix=NULL, 
-                                               #control=control.ergm(nsim1=100, nsim2=1000, gridsize=100),  # simulation parameters
-                                               #plots=FALSE,  # currently useless, but plots can be reimplemented
-                                               control=control, 
-                                               proposal=proposal, proposal.obs=proposal.obs, 
-                                               verbose=verbose,...),
                     "MCMLE" = ergm.MCMLE(init, nw,
                                          model, 
                                          # no need to pass initialfit to MCMLE

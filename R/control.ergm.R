@@ -55,20 +55,16 @@
 #' 
 #' Valid initial methods for a given reference are set by the `InitErgmReference.*` function.
 #' @param main.method One of "MCMLE" (default),"Robbins-Monro",
-#' "Stochastic-Approximation", or "Stepping".  Chooses the estimation method
+#' or "Stochastic-Approximation".  Chooses the estimation method
 #' used to find the MLE.  \code{MCMLE} attempts to maximize an approximation to
 #' the log-likelihood function.  \code{Robbins-Monro} and
 #' \code{Stochastic-Approximation} are both stochastic approximation algorithms
 #' that try to solve the method of moments equation that yields the MLE in the
-#' case of an exponential family model.  Another alternative is a partial
-#' stepping algorithm (\code{Stepping}) as in Hummel et al. (2012).  The direct
+#' case of an exponential family model. The direct
 #' use of the likelihood function has many theoretical advantages over
 #' stochastic approximation, but the choice will depend on the model and data
 #' being fit. See Handcock (2000) and Hunter and Handcock (2006) for details.
-#' 
-#' Note that in recent versions of ERGM, the enhancements of \code{Stepping}
-#' have been folded into the default \code{MCMLE}, which is able to handle more
-#' modeling scenarios; and `Stepping` may be removed in a future version.
+#'
 #' @param force.main Logical: If TRUE, then force MCMC-based estimation method,
 #' even if the exact MLE can be computed via maximum pseudolikelihood
 #' estimation.
@@ -158,9 +154,6 @@
 #'
 #' @param RM.burnin,RM.interval,RM.samplesize Sets the corresponding
 #'   `MCMC.*` parameters when `main.method="Robbins-Monro"`.
-#'
-#' @param Step.burnin,Step.interval,Step.samplesize Sets the corresponding
-#'   `MCMC.*` parameters when `main.method="Stepping"`.
 #'
 #' @param MCMC.return.stats Logical: If TRUE, return the matrix of MCMC-sampled
 #' network statistics.  This matrix should have \code{MCMC.samplesize} rows.
@@ -383,11 +376,6 @@
 #' stochastic approximation algorithm.  See Snijders (2002) for details.
 #' @param RM.phase1n_base,RM.phase2n_base,RM.phase2sub,RM.init_gain,RM.phase3n
 #' The Robbins-Monro control parameters are not yet documented.
-#' @param Step.maxit Maximum number of iterations (steps) allowed by the
-#' "Stepping" method.
-#' @param Step.gridsize Integer \eqn{N} such that the "Stepping" style of
-#' optimization chooses a step length equal to the largest possible multiple of
-#' \eqn{1/N}.  See Hummel et al. (2012) for details.
 #' @param CD.nsteps,CD.multiplicity Main settings for contrastive divergence to
 #' obtain initial values for the estimation: respectively, the number of
 #' Metropolis--Hastings steps to take before reverting to the starting value
@@ -463,7 +451,7 @@ control.ergm<-function(drop=TRUE,
                        init.method=NULL,
                        
                        main.method=c("MCMLE","Robbins-Monro",
-                               "Stochastic-Approximation","Stepping"),
+                               "Stochastic-Approximation"),
                        force.main=FALSE,
                        main.hessian=TRUE,
 
@@ -596,12 +584,6 @@ control.ergm<-function(drop=TRUE,
                        RM.interval=1024,
                        RM.burnin=RM.interval*16,
                        RM.samplesize=1024,
-
-                       Step.maxit=50,
-                       Step.gridsize=100,
-                       Step.interval=1024,
-                       Step.burnin=Step.interval*16,
-                       Step.samplesize=1024,
 
                        CD.samplesize.per_theta=128,
                        obs.CD.samplesize.per_theta=128,

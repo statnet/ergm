@@ -113,3 +113,7 @@ newnw.extract<-function(...) .Defunct('ergm_state "API"')
 
 #' @rdname ergm-defunct
 san.ergm <- function(...) .Defunct(msg="Removed due to no meaningful use case.")
+
+# The following were defunct-ed 2022-09-10.
+#' @rdname ergm-defunct
+is.inCH <- function(...) .Defunct("shrink_into_CH")

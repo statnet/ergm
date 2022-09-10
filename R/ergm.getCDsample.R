@@ -19,7 +19,7 @@ ergm_CD_sample <- function(state, control, theta=NULL,
   control.parallel <- control
   control.parallel$CD.samplesize <- NVL3(control$CD.samplesize, ceiling(. / nthreads(control)))
 
-  flush.console()
+  utils::flush.console()
 
   state0 <- state
   state <- lapply(state, ergm_state_send) # Don't carry around nw0.

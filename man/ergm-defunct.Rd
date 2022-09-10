@@ -31,6 +31,7 @@
 \alias{standardize.network}
 \alias{newnw.extract}
 \alias{san.ergm}
+\alias{is.inCH}
 \title{Functions that have been removed from this package}
 \usage{
 sociality(object, ...)
@@ -92,6 +93,8 @@ standardize.network(...)
 newnw.extract(...)
 
 \method{san}{ergm}(...)
+
+is.inCH(...)
 }
 \arguments{
 \item{...}{Arguments to defunct functions.}
