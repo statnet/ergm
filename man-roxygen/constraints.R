@@ -1,3 +1,12 @@
+#  File man-roxygen/constraints.R in package ergm, part of the
+#  Statnet suite of packages for network analysis, https://statnet.org .
+#
+#  This software is distributed under the GPL-3 license.  It is free,
+#  open source, and has the attribution requirements (GPL Section 7) at
+#  https://statnet.org/attribution .
+#
+#  Copyright 2003-2022 Statnet Commons
+################################################################################
 #' @param constraints A formula specifying one or more constraints
 #' on the support of the distribution of the networks being modeled. Multiple constraints
 #' may be given, separated by \dQuote{+} and \dQuote{-} operators. See
