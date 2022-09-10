@@ -13,7 +13,7 @@ opttest({
 
 data(florentine)
 
-for(type in c("SOCK")){
+for(type in c("PSOCK")){
   test_that(paste0("parallel ", type), {
     gest <- ergm(flomarriage ~ edges + absdiff("wealth"),
                  eval.loglik=TRUE,
