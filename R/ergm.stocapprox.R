@@ -13,8 +13,6 @@
 # (2002), J of Social Structure and Snijders and van Duijn (2002) from
 # A Festscrift for Ove Frank.  Both papers are available from Tom Snijders'
 # web page:         https://stat.gamma.rug.nl/snijders/publ.htm
-# The other MLE styles are found in functions <ergm.robmon>, <ergm.stepping>
-# and <ergm.mainfitloop>
 #
 # --PARAMETERS--
 #   init    : the initial theta values
@@ -45,7 +43,7 @@ ergm.stocapprox <- function(init, nw, model,
                             control, proposal,
                             verbose=FALSE){
 
-  control <- remap_algorithm_MCMC_controls(control, "RM")
+  control <- remap_algorithm_MCMC_controls(control, "SA")
 
   #phase 1:  Estimate diagonal elements of D matrix (covariance matrix for init)
   n1 <- control$SA.phase1_n

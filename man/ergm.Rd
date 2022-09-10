@@ -282,14 +282,12 @@ a census of all triangles in the observed network is never
 taken; instead, only the change in the number of triangles
 is recorded for each edge toggle.
 
-In the implementation of \code{\link{ergm}}, the model is initialized
-in \R, then all the model information is passed to a C program
-that generates the sample of network statistics using MCMC.
-This sample is then returned to \R, which implements a
-simple Newton-Raphson algorithm to approximate the MLE.
-An alternative style of maximum likelihood estimation is to use a stochastic
-approximation algorithm. This can be chosen with the
-\code{control.ergm(style="Robbins-Monro")} option.
+In the implementation of \code{\link{ergm}}, the model is
+initialized in \R, then all the model information is passed to a C
+program that generates the sample of network statistics using MCMC.
+This sample is then returned to \R, which then uses one of several
+algorithms, selected by \verb{main.method=} \code{\link[=control.ergm]{control.ergm()}} parameter
+to update the estimate.
 
 The mechanism for proposing new networks for the MCMC sampling
 scheme, which is a Metropolis-Hastings algorithm, depends on

@@ -10,9 +10,7 @@
 ############################################################################
 # The <ergm.CD> function provides one of the styles of maximum
 # likelihood estimation that can be used. This one is the default and uses
-# optimization of an MCMC estimate of the log-likelihood.  (The other
-# MLE styles are found in functions <ergm.robmon>, <ergm.stocapprox>, and
-# <ergm.stepping> 
+# optimization of an MCMC estimate of the log-likelihood.
 #
 #
 # --PARAMETERS--
