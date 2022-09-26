@@ -65,6 +65,75 @@
 %% }
 
 
+\section{Changes in version 4.2.3}{
+
+  \subsection{NEW FEATURES}{
+    \itemize{
+      \item{
+        In terms \code{\link[=edgecov-ergmTerm]{edgecov}()} and \code{\link[=dyadcov-ergmTerm]{dyadcov}()}, the argument can now be a network.
+      }
+    }
+  }
+
+
+  \subsection{BUG FIXES}{
+    \itemize{
+      \item{
+        Fixes to estimation for valued ERGMs with missing data.
+      }
+      \item{
+        Retrying and other robustification to \CRANpkg{lpSolve}-based step length calculation has been added back.
+      }
+      \item{
+        Typo fixed in a rarely used storage API macro.
+      }
+      \item{
+        \code{\link{check.ErgmTerm}()} no longer fails when a term has argument names that coincide with certain \R \code{base} functions.
+      }
+      \item{
+        Bridge sampling now disables the density guard (as some briges may result in much denser networks than observed).
+      }
+      \item{
+        Syntactic fixes to documentation.
+      }
+      \item{
+        \code{\link{anova.ergm}()} now correctly labels its tables as analysis of \emph{deviance}; passing invalid inputs (e.g., non-\code{\link{ergm}} objects) now produces an informative error message.
+      }
+    }
+  }
+
+
+  \subsection{OTHER USER-VISIBLE CHANGES}{
+    \itemize{
+      \item{
+        Miscellaneous documentation improvements.
+      }
+      \item{
+        \code{\link{ergm_egecov_args}()} helper function can now handle network class input.
+      }
+      \item{
+        In the state caching, the hashes are now globally unique (with high probability) IDs regenerated at initialization. This saves the cost of computing the hash, at the cost of sometimes not detecting when a model is being reused.
+      }
+      \item{
+        \code{\link{.simulate_formula.network}()} is now exported explicitly. This means that extension packages overriding the \code{simulate_formula} method for \code{network} objects can call it directly.
+      }
+      \item{
+        In \code{\link{ergm}()}, the LHS no longer needs to be a network object, as long as \code{basis=} is provided.
+      }
+      \item{
+        \code{\link{anova.ergm}()} documentation no longer discusses test statistics (which were never implemented in the first place).
+      }
+    }
+  }
+
+  \subsection{INSTALLATION}{
+    \itemize{
+      \item Since \pkg{ergm} only interacts with MPI clusters through the standard \pkg{parallel} API, a separate test for MPI has been removed, and packages \CRANpkg{snow} and \CRANpkg{Rmpi} are no longer Suggested.
+    }
+  }
+}
+
+
 \section{Changes in version 4.2.2}{
 
   \subsection{NEW FEATURES}{
@@ -2059,7 +2128,7 @@ fixes issue reported by Sebastian Daza}
       been re-implemented or fixed.
 
       \item Certain functions are now only exported if they haven't
-      already be defined (e.g., by
+      already been defined (e.g., by
       \code{\link[=latentnet-package]{latentnet}}).
 
       \item Documentation and citation information have been  cleaned up
