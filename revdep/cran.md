@@ -1,21 +1,12 @@
 ## revdepcheck results
 
-We checked 29 reverse dependencies, comparing R CMD check results across CRAN and dev versions of this package.
+We checked 33 reverse dependencies, comparing R CMD check results across CRAN and dev versions of this package.
 
- * We saw 3 new problems
- * We failed to check 0 packages
+ * We saw 0 new problems
+ * We failed to check 1 packages
 
 Issues with CRAN packages are summarised below.
 
-### New problems
-(This reports the first line of each new failure)
+### Failed to check
 
-* ergm.ego
-  checking Rd cross-references ... WARNING
-
-* ergm.rank
-  checking Rd cross-references ... WARNING
-
-* latentnet
-  checking Rd cross-references ... WARNING
-
+* lolog (NA)

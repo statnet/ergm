@@ -1,77 +1,347 @@
-# ergm.ego
+# Blaunet
 
 <details>
 
-* Version: 1.0.0
-* GitHub: https://github.com/statnet/ergm.ego
-* Source code: https://github.com/cran/ergm.ego
-* Date/Publication: 2021-06-23 07:00:04 UTC
-* Number of recursive dependencies: 74
+* Version: 2.1.0
+* GitHub: NA
+* Source code: https://github.com/cran/Blaunet
+* Date/Publication: 2020-05-22 08:10:11 UTC
+* Number of recursive dependencies: 67
 
-Run `revdep_details(, "ergm.ego")` for more info
+Run `revdep_details(, "Blaunet")` for more info
 
 </details>
 
-## Newly broken
+## In both
 
-*   checking Rd cross-references ... WARNING
+*   checking examples ... ERROR
     ```
-    Missing link or links in documentation object 'ergm.ego-terms.Rd':
-      ‘[ergm]{edges}’ ‘[ergm]{mutual}’ ‘[ergm]{transitiveties}’
-      ‘[ergm]{cyclicalties}’
+    Running examples in ‘Blaunet-Ex.R’ failed
+    The error most likely occurred in:
     
-    Missing link or links in documentation object 'mixingmatrix.egor.Rd':
-      ‘[ergm]{nodemix}’
-    
-    See section 'Cross-references' in the 'Writing R Extensions' manual.
+    > ### Name: active
+    > ### Title: Quick summary of blau object.
+    > ### Aliases: active
+    > 
+    > ### ** Examples
+    > 
+    > data(TwoCities)
+    > b <- blau(TwoCities, node.ids = 'respID', ecology.ids = 'samp')
+    Error in dimnames(x) <- dn : 
+      length of 'dimnames' [1] not equal to array extent
+    Calls: blau -> rownames<-
+    Execution halted
     ```
 
-# ergm.rank
+*   checking package dependencies ... NOTE
+    ```
+    Packages suggested but not available for checking:
+      'gWidgets', 'gWidgetsRGtk2'
+    ```
+
+*   checking dependencies in R code ... NOTE
+    ```
+    Namespaces in Imports field not imported from:
+      ‘RGtk2’ ‘cairoDevice’ ‘ergm’ ‘foreign’ ‘haven’ ‘plot3D’ ‘plot3Drgl’
+      ‘rgl’ ‘sna’ ‘statnet.common’
+      All declared Imports should be used.
+    ```
+
+# broom
 
 <details>
 
-* Version: 4.0.0
-* GitHub: https://github.com/statnet/ergm.rank
-* Source code: https://github.com/cran/ergm.rank
-* Date/Publication: 2021-06-20 19:30:02 UTC
+* Version: 1.0.1
+* GitHub: https://github.com/tidymodels/broom
+* Source code: https://github.com/cran/broom
+* Date/Publication: 2022-08-29 21:00:08 UTC
+* Number of recursive dependencies: 292
+
+Run `revdep_details(, "broom")` for more info
+
+</details>
+
+## In both
+
+*   checking package dependencies ... NOTE
+    ```
+    Packages suggested but not available for checking:
+      'epiR', 'spdep', 'spatialreg'
+    ```
+
+*   checking Rd cross-references ... NOTE
+    ```
+    Packages unavailable to check Rd xrefs: ‘spatialreg’, ‘epiR’
+    ```
+
+# ergMargins
+
+<details>
+
+* Version: 0.1.3
+* GitHub: NA
+* Source code: https://github.com/cran/ergMargins
+* Date/Publication: 2021-06-30 07:40:02 UTC
 * Number of recursive dependencies: 58
 
-Run `revdep_details(, "ergm.rank")` for more info
+Run `revdep_details(, "ergMargins")` for more info
 
 </details>
 
-## Newly broken
+## In both
 
-*   checking Rd cross-references ... WARNING
+*   checking dependencies in R code ... NOTE
     ```
-    Missing link or links in documentation object 'ergm-terms.Rd':
-      ‘[ergm]{edgecov}’ ‘[ergm]{nodeicov}’
-    
-    See section 'Cross-references' in the 'Writing R Extensions' manual.
+    Namespaces in Imports field not imported from:
+      ‘methods’ ‘sna’ ‘statnet.common’
+      All declared Imports should be used.
+    ```
+
+*   checking Rd cross-references ... NOTE
+    ```
+    Package unavailable to check Rd xrefs: ‘margins’
+    ```
+
+# ergmito
+
+<details>
+
+* Version: 0.3-0
+* GitHub: https://github.com/muriteams/ergmito
+* Source code: https://github.com/cran/ergmito
+* Date/Publication: 2020-08-10 21:40:02 UTC
+* Number of recursive dependencies: 65
+
+Run `revdep_details(, "ergmito")` for more info
+
+</details>
+
+## In both
+
+*   checking installed package size ... NOTE
+    ```
+      installed size is  7.1Mb
+      sub-directories of 1Mb or more:
+        libs   5.7Mb
+    ```
+
+# gwdegree
+
+<details>
+
+* Version: 0.1.1
+* GitHub: https://github.com/michaellevy/gwdegree
+* Source code: https://github.com/cran/gwdegree
+* Date/Publication: 2016-07-09 10:46:45
+* Number of recursive dependencies: 89
+
+Run `revdep_details(, "gwdegree")` for more info
+
+</details>
+
+## In both
+
+*   checking R code for possible problems ... NOTE
+    ```
+    simCCCent : <anonymous>: no visible global function definition for
+      ‘simulate.formula’
+    Undefined global functions or variables:
+      simulate.formula
+    ```
+
+*   checking LazyData ... NOTE
+    ```
+      'LazyData' is specified without a 'data' directory
     ```
 
 # latentnet
 
 <details>
 
-* Version: 2.10.5
+* Version: 2.10.6
 * GitHub: https://github.com/statnet/latentnet
 * Source code: https://github.com/cran/latentnet
-* Date/Publication: 2020-03-22 08:50:02 UTC
-* Number of recursive dependencies: 103
+* Date/Publication: 2022-05-11 12:30:05 UTC
+* Number of recursive dependencies: 112
 
 Run `revdep_details(, "latentnet")` for more info
 
 </details>
 
+## In both
+
+*   checking for GNU extensions in Makefiles ... NOTE
+    ```
+    GNU make is a SystemRequirements.
+    ```
+
+# lolog
+
+<details>
+
+* Version: 1.3
+* GitHub: https://github.com/statnet/lolog
+* Source code: https://github.com/cran/lolog
+* Date/Publication: 2021-07-01 07:50:06 UTC
+* Number of recursive dependencies: 80
+
+Run `revdep_details(, "lolog")` for more info
+
+</details>
+
 ## Newly broken
 
-*   checking Rd cross-references ... WARNING
-    ```
-    Missing link or links in documentation object 'ergmm-terms.Rd':
-      ‘edgecov’ ‘nodeocov’ ‘nodeofactor’ ‘nodecov’ ‘nodefactor’ ‘nodeicov’
-      ‘nodeifactor’
+*   R CMD check timed out
     
-    See section 'Cross-references' in the 'Writing R Extensions' manual.
+
+## In both
+
+*   checking installed package size ... NOTE
+    ```
+      installed size is 24.8Mb
+      sub-directories of 1Mb or more:
+        libs  23.1Mb
+    ```
+
+# netmediate
+
+<details>
+
+* Version: 0.1.0
+* GitHub: NA
+* Source code: https://github.com/cran/netmediate
+* Date/Publication: 2022-08-31 07:50:02 UTC
+* Number of recursive dependencies: 99
+
+Run `revdep_details(, "netmediate")` for more info
+
+</details>
+
+## In both
+
+*   checking Rd cross-references ... NOTE
+    ```
+    Package unavailable to check Rd xrefs: ‘mediation’
+    ```
+
+# sand
+
+<details>
+
+* Version: 2.0.0
+* GitHub: https://github.com/kolaczyk/sand
+* Source code: https://github.com/cran/sand
+* Date/Publication: 2020-07-02 07:20:06 UTC
+* Number of recursive dependencies: 160
+
+Run `revdep_details(, "sand")` for more info
+
+</details>
+
+## In both
+
+*   checking data for non-ASCII characters ... NOTE
+    ```
+      Note: found 6 marked UTF-8 strings
+    ```
+
+# stargazer
+
+<details>
+
+* Version: 5.2.3
+* GitHub: NA
+* Source code: https://github.com/cran/stargazer
+* Date/Publication: 2022-03-04 11:50:02 UTC
+* Number of recursive dependencies: 0
+
+Run `revdep_details(, "stargazer")` for more info
+
+</details>
+
+## In both
+
+*   checking package dependencies ... NOTE
+    ```
+    Packages which this enhances but not available for checking:
+      'AER', 'betareg', 'brglm', 'censReg', 'dynlm', 'eha', 'erer',
+      'fGarch', 'gee', 'glmx', 'gmm', 'lfe', 'lmtest', 'mclogit', 'mlogit',
+      'ordinal', 'plm', 'pscl', 'quantreg', 'rms', 'sampleSelection',
+      'spdep'
+    ```
+
+# statnetWeb
+
+<details>
+
+* Version: 0.5.6
+* GitHub: NA
+* Source code: https://github.com/cran/statnetWeb
+* Date/Publication: 2020-08-05 18:00:03 UTC
+* Number of recursive dependencies: 65
+
+Run `revdep_details(, "statnetWeb")` for more info
+
+</details>
+
+## In both
+
+*   checking LazyData ... NOTE
+    ```
+      'LazyData' is specified without a 'data' directory
+    ```
+
+# texreg
+
+<details>
+
+* Version: 1.38.6
+* GitHub: https://github.com/leifeld/texreg
+* Source code: https://github.com/cran/texreg
+* Date/Publication: 2022-04-06 22:00:02 UTC
+* Number of recursive dependencies: 85
+
+Run `revdep_details(, "texreg")` for more info
+
+</details>
+
+## In both
+
+*   checking package dependencies ... NOTE
+    ```
+    Packages which this enhances but not available for checking:
+      'AER', 'alpaca', 'betareg', 'Bergm', 'bife', 'biglm', 'brglm',
+      'brms', 'btergm', 'dynlm', 'eha', 'erer', 'feisr', 'fGarch',
+      'fixest', 'forecast', 'gamlss', 'gamlss.inf', 'gee', 'glmmTMB',
+      'gmm', 'gnm', 'h2o', 'lfe', 'lqmm', 'maxLik', 'metaSEM', 'mfx',
+      'mhurdle', 'miceadds', 'mlogit', 'mnlogit', 'MuMIn', 'oglmx',
+      'ordinal', 'pglm', 'plm', 'rms', 'robust', 'simex', 'spatialreg',
+      'spdep', 'speedglm', 'truncreg', 'VGAM', 'Zelig'
+    ```
+
+*   checking Rd cross-references ... NOTE
+    ```
+    Packages unavailable to check Rd xrefs: ‘h2o’, ‘spatialreg’, ‘eha’, ‘MuMIn’, ‘Bergm’, ‘mfx’, ‘betareg’, ‘bife’, ‘biglm’, ‘brglm’, ‘brms’, ‘btergm’, ‘ordinal’, ‘dynlm’, ‘forecast’, ‘fGarch’, ‘alpaca’, ‘feisr’, ‘lfe’, ‘fixest’, ‘gamlss’, ‘gamlss.inf’, ‘gee’, ‘gmm’, ‘miceadds’, ‘glmmTMB’, ‘gnm’, ‘AER’, ‘robust’, ‘lqmm’, ‘rms’, ‘erer’, ‘maxLik’, ‘mhurdle’, ‘mlogit’, ‘oglmx’, ‘plm’, ‘pglm’, ‘simex’, ‘speedglm’, ‘truncreg’, ‘VGAM’, ‘metaSEM’
+    ```
+
+# xergm.common
+
+<details>
+
+* Version: 1.7.8
+* GitHub: https://github.com/leifeld/xergm.common
+* Source code: https://github.com/cran/xergm.common
+* Date/Publication: 2020-04-07 09:50:02 UTC
+* Number of recursive dependencies: 35
+
+Run `revdep_details(, "xergm.common")` for more info
+
+</details>
+
+## In both
+
+*   checking Rd cross-references ... NOTE
+    ```
+    Package unavailable to check Rd xrefs: ‘RSiena’
     ```
 
