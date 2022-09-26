@@ -321,9 +321,9 @@ More information can be found by looking at the documentation of
 }
 \section{Functions}{
 \itemize{
-\item \code{simulate.ergm_state_full}: a low-level function to simulate from an \code{\link{ergm_state}} object.
-}}
+\item \code{simulate(ergm_state_full)}: a low-level function to simulate from an \code{\link{ergm_state}} object.
 
+}}
 \note{
 The actual \code{\link{network}} method for \code{\link[=simulate_formula]{simulate_formula()}} is
 actually called \code{.simulate_formula.network()} and is also

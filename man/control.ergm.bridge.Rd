@@ -10,8 +10,7 @@ control.ergm.bridge(
   bridge.target.se = NULL,
   bridge.bidirectional = TRUE,
   MCMC.burnin = MCMC.interval * 128,
-  MCMC.burnin.between = max(ceiling(MCMC.burnin/sqrt(bridge.nsteps)), MCMC.interval *
-    16),
+  MCMC.burnin.between = max(ceiling(MCMC.burnin/sqrt(bridge.nsteps)), MCMC.interval * 16),
   MCMC.interval = 128,
   MCMC.samplesize = 16384,
   obs.MCMC.burnin = obs.MCMC.interval * 128,
@@ -52,7 +51,7 @@ control.logLik.ergm(
   obs.MCMC.prop = MCMC.prop,
   obs.MCMC.prop.weights = MCMC.prop.weights,
   obs.MCMC.prop.args = MCMC.prop.args,
-  MCMC.maxedges = NULL,
+  MCMC.maxedges = Inf,
   MCMC.packagenames = NULL,
   term.options = NULL,
   seed = NULL,

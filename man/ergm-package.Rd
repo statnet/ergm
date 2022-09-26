@@ -18,7 +18,7 @@ When publishing results obtained using this package, please cite the
 original authors as described in \code{citation(package="ergm")}.
 
 All programs derived from this package must cite it. Please see the
-file \code{LICENSE} and \url{http://statnet.org/attribution}.
+file \code{LICENSE} and \url{https://statnet.org/attribution}.
 
 Recent advances in the statistical modeling of random networks have had an
 impact on the empirical study of social networks. Statistical exponential

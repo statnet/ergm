@@ -199,29 +199,35 @@ they can be used for. Specifically,
 }
 \section{Methods (by class)}{
 \itemize{
-\item \code{edgelist}: a method for constructing an ergm_state from an \code{\link{edgelist}} object and an empty \code{\link{network}}.
+\item \code{ergm_state(edgelist)}: a method for constructing an ergm_state from an \code{\link{edgelist}} object and an empty \code{\link{network}}.
 
-\item \code{matrix}: a method for constructing an ergm_state from a matrix object and an empty \code{\link{network}}.
+\item \code{ergm_state(matrix)}: a method for constructing an ergm_state from a matrix object and an empty \code{\link{network}}.
 
-\item \code{network}: a method for constructing an ergm_state from
+\item \code{ergm_state(network)}: a method for constructing an ergm_state from
 a \code{\link{network}} object. Note that \code{...} arguments will be passed
 directly to the \code{\link{edgelist}} method.
 
-\item \code{ergm_state}: Note that this method fails when
+\item \code{ergm_state(ergm_state)}: a method for constructing an \code{ergm_state}.
+
+}}
+\section{Methods (by generic)}{
+\itemize{
+\item \code{network.edgecount(ergm_state)}: Note that this method fails when
 \code{na.omit=FALSE}, since missing edges are not stored.
 
-\item \code{ergm_state_full}: Note that this method fails with
+\item \code{network.naedgecount(ergm_state)}: A stub that returns 0.
+
+\item \code{summary(ergm_state)}: a very low-level function that calculates summary statistics associated with an \code{\link{ergm_state}} object.
+
+}}
+\section{Functions}{
+\itemize{
+\item \code{network.dyadcount(ergm_state_full)}: Note that this method fails with
 its default argument, since missing edges are not stored.
 
-\item \code{ergm_state}: A stub that returns 0.
+\item \code{update(ergm_state_full)}: a method for updating an \code{ergm_state} and reconciling extended state.
 
-\item \code{ergm_state_full}: a method for updating an \code{ergm_state} and reconciling extended state.
-
-\item \code{ergm_state}: a method for constructing an \code{ergm_state}.
-
-\item \code{ergm_state}: a very low-level function that calculates summary statistics associated with an \code{\link{ergm_state}} object.
 }}
-
 \seealso{
 \code{\link[=ergm_MCMC_sample]{ergm_MCMC_sample()}} for an example of manually
 constructing and manipulating an \code{ergm_state}.

@@ -91,17 +91,17 @@ initialized via the \code{InitErgmTerm} functions to create a
 }
 \section{Methods (by generic)}{
 \itemize{
-\item \code{c}: A method for concatenating terms of two or more initialized models.
+\item \code{c(ergm_model)}: A method for concatenating terms of two or more initialized models.
 
-\item \code{is.curved}: Tests whether the model is curved.
+\item \code{is.curved(ergm_model)}: Tests whether the model is curved.
 
-\item \code{is.dyad.independent}: Tests whether the model is dyad-independent.
+\item \code{is.dyad.independent(ergm_model)}: Tests whether the model is dyad-independent.
 
-\item \code{nparam}: Number of parameters of the model.
+\item \code{nparam(ergm_model)}: Number of parameters of the model.
 
-\item \code{param_names}: Parameter names of the model.
+\item \code{param_names(ergm_model)}: Parameter names of the model.
+
 }}
-
 \note{
 This API is not to be considered fixed and may change between versions. However, an effort will be made to ensure that the methods of this class remain stable.
 

@@ -33,8 +33,8 @@ Calculate the null model likelihood
 }
 \section{Methods (by class)}{
 \itemize{
-\item \code{ergm}: A method for \code{\link{ergm}} fits; currently only
+\item \code{logLikNull(ergm)}: A method for \code{\link{ergm}} fits; currently only
 implemented for binary ERGMs with dyad-independent sample-space
 constraints.
-}}
 
+}}

@@ -276,14 +276,14 @@ on a similar scheme.
 }
 \section{Methods (by generic)}{
 \itemize{
-\item \code{nobs}: Return the number of informative dyads of a model fit.
+\item \code{nobs(ergm)}: Return the number of informative dyads of a model fit.
 
-\item \code{print}: 
+\item \code{print(ergm)}: 
 
-\item \code{vcov}: extracts the variance-covariance matrix of
+\item \code{vcov(ergm)}: extracts the variance-covariance matrix of
 parameter estimates.
-}}
 
+}}
 \section{Notes on model specification}{
 
 Although each of the statistics in a given model is a summary

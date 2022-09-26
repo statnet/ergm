@@ -46,13 +46,13 @@ instead.
 }
 \section{Methods (by class)}{
 \itemize{
-\item \code{numeric}: Method for numeric vectors of length \eqn{p}.
+\item \code{ergm.estfun(numeric)}: Method for numeric vectors of length \eqn{p}.
 
-\item \code{matrix}: Method for matrices with \eqn{p} columns.
+\item \code{ergm.estfun(matrix)}: Method for matrices with \eqn{p} columns.
 
-\item \code{mcmc}: Method for \code{\link{mcmc}} objects with \eqn{p} variables.
+\item \code{ergm.estfun(mcmc)}: Method for \code{\link{mcmc}} objects with \eqn{p} variables.
 
-\item \code{mcmc.list}: Method for  \code{\link{mcmc.list}} objects with \eqn{p} variables.
+\item \code{ergm.estfun(mcmc.list)}: Method for  \code{\link{mcmc.list}} objects with \eqn{p} variables.
+
 }}
-
 \keyword{internal}

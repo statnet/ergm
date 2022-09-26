@@ -53,11 +53,11 @@ arguments are dropped. }
 }
 \section{Methods (by class)}{
 \itemize{
-\item \code{default}: The default method, passing the input on to \code{\link[sna:symmetrize]{sna::symmetrize()}}.
+\item \code{ergm_symmetrize(default)}: The default method, passing the input on to \code{\link[sna:symmetrize]{sna::symmetrize()}}.
 
-\item \code{network}: A method for \code{\link{network}} objects, which preserves network and vertex attributes, and handles edge attributes.
+\item \code{ergm_symmetrize(network)}: A method for \code{\link{network}} objects, which preserves network and vertex attributes, and handles edge attributes.
+
 }}
-
 \note{
 This was originally exported as a generic to overwrite
 \code{\link[sna:symmetrize]{sna::symmetrize()}}. By developer's request, it has been renamed;

@@ -65,24 +65,27 @@ run-length encoded in a column-major order.
 }
 \section{Methods (by generic)}{
 \itemize{
-\item \code{as.rlebdm}: Convert a square matrix of mode coercible to \code{\link{logical}} to an
+\item \code{compress(rlebdm)}: Compress the \code{rle} data structure in the
+\code{rlebdm} by merging successive runs with identical values.
+
+\item \code{as.edgelist(rlebdm)}: Convert an \code{\link{rlebdm}} object to an \code{\link{edgelist}}: a two-column
+integer matrix or \code{\link{tibble}} giving the cells with \code{TRUE} values.
+
+}}
+\section{Functions}{
+\itemize{
+\item \code{as.rlebdm(matrix)}: Convert a square matrix of mode coercible to \code{\link{logical}} to an
 \code{\link{rlebdm}}.
 
-\item \code{as.rlebdm}: Convert an object of class \code{\link{edgelist}} to an \code{\link{rlebdm}} object
+\item \code{as.rlebdm(edgelist)}: Convert an object of class \code{\link{edgelist}} to an \code{\link{rlebdm}} object
 whose cells in the edge list are set to \code{TRUE} and whose other
 cells are set to \code{FALSE}.
 
-\item \code{as.rlebdm}: Convert an object of class \code{\link{network}} to an \code{\link{rlebdm}} object
+\item \code{as.rlebdm(network)}: Convert an object of class \code{\link{network}} to an \code{\link{rlebdm}} object
 whose cells corresponding to extant edges are set to \code{TRUE} and
 whose other cells are set to \code{FALSE}.
 
-\item \code{compress}: Compress the \code{rle} data structure in the
-\code{rlebdm} by merging successive runs with identical values.
-
-\item \code{as.edgelist}: Convert an \code{\link{rlebdm}} object to an \code{\link{edgelist}}: a two-column
-integer matrix or \code{\link{tibble}} giving the cells with \code{TRUE} values.
 }}
-
 \note{
 The arithmetic operators are mathematical functions are
 implemented for the \code{\link{Ops}} and the \code{\link{Math}} group generics and
