@@ -515,7 +515,10 @@ PROPOSAL_NOT_IN_TABLE <- "This proposal is not referenced in the lookup table."
   # \link[=absdiff-ergmTerm]{test} and check that it works with \out{<a href="../help/absdiff-ergmTerm">test</a>}.
   # This address may change from an upstream R-studio change
 
-  df$Term <- sprintf(gsub('`([^`(]*)([^`]*)`', '<span class="code"><a href="../help/%1$s" id="%1$s">\\1\\2</a></span>', .fsub(df$Term, '\n', '<br />\n')), df$Link)
+  df$Term %<>% .fsub('\n', '<br />\n') %>%
+    gsub('`([^`(]*)([^`]*)`', '<span class="code"><a href="../help/%1$s">\\1\\2</a></span>', .) %>%
+    sprintf(df$Link) %>%
+    sprintf('<div id="%s">%s</div>', df$Link, .)
   df$Link <- NULL
 
   css <- '<style>.striped th,.striped td {padding:3px 10px} .striped tbody tr:nth-child(odd) {background: #eee} .striped .code {font-family: monospace} .matrix td {align: center} .matrix th,.matrix td {padding-right:5px; width: 75px}</style>'
