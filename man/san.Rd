@@ -5,7 +5,7 @@
 \alias{san.default}
 \alias{san.formula}
 \alias{san.ergm_model}
-\title{Randomly generate networks with particular set of network statistics}
+\title{Generate networks with a given set of network statistics}
 \usage{
 san(object, ...)
 
@@ -41,7 +41,8 @@ san(object, ...)
 )
 }
 \arguments{
-\item{object}{Either a \code{\link{formula}} or an \code{\link{ergm}} object. The
+\item{object}{Either a \code{\link{formula}} or some other supported
+representation of an ERGM, such as an \code{\link{ergm_model}} object.
 \code{\link{formula}} should be of the form \code{y ~ <model terms>}, where
 \code{y} is a network object or a matrix that can be coerced to a
 \code{\link{network}} object.  For the details on the possible \code{<model
@@ -129,7 +130,8 @@ object.  If a different \code{formula} object is wanted, specify it here.}
 }
 \value{
 A network or list of networks that hopefully have network
-statistics close to the \code{target.stats} vector. Additionally,
+statistics close to the \code{target.stats} vector. No guarantees
+are provided about their probability distribution. Additionally,
 \code{\link[=attr]{attr()}}-style attributes \code{formula} and \code{stats} are included.
 }
 \description{
@@ -144,13 +146,13 @@ Let \eqn{\mathbf{g}}{g} be a vector of target statistics for the
 network we wish to construct. That is, we are given an arbitrary network
 \eqn{\mathbf{y}^0 \in \mathcal{Y}}{y0 ∈ Y}, and we seek a network
 \eqn{\mathbf{y} \in \mathcal{Y}}{y ∈ Y} such that
-\eqn{\mathbf{g}(\mathbf{y}) ≈ g}{g(y) = g} -- ideally equality is achieved,
+\eqn{\mathbf{g}(\mathbf{y}) ≈ \mathbf{g}}{g(y) = g} -- ideally equality is achieved,
 but in practice we may have to settle for a close approximation. The
 variant of simulated annealing is as follows.
 
 The energy function is defined
 
-\deqn{E_W (\mathbf{y}) = (\mathbf{g}(\mathbf{y}) − \mathbf{g})^\mathsf{T} W (\mathbf{g}(\mathbf{y}) − \mathbf{g})}{E_W (y) = (g(y) − g)^T > W (g(y) − g)}, 
+\deqn{E_W (\mathbf{y}) = (\mathbf{g}(\mathbf{y}) − \mathbf{g})^\mathsf{T} W (\mathbf{g}(\mathbf{y}) − \mathbf{g}),}{E_W (y) = (g(y) − g)^T > W (g(y) − g),}
   
   with \eqn{W} a symmetric positive (barring multicollinearity in statistics)
 definite matrix of weights. This function achieves 0 only if the target is
@@ -184,7 +186,7 @@ that used for MCMC.)
      for later use.
 \item Calculate acceptance probability
 
-\deqn{α = \exp[ − (E_W (\mathbf{y^*}) − E_W (\mathbf{y})) / T + η^\mathsf{T} (\mathbf{g}(\mathbf{y^*}) − \mathbf{g}(\mathbf{y}))]}.
+\deqn{α = \exp[ − (E_W (\mathbf{y^*}) − E_W (\mathbf{y})) / T + η^\mathsf{T} (\mathbf{g}(\mathbf{y^*}) − \mathbf{g}(\mathbf{y}))].}
    
      (If \eqn{|η_k| = ∞} and \eqn{g_k (\mathbf{y^*}) − g_k (\mathbf{y}) = 0}{g_k (y) - g_k (y) = 0}, their product is defined to be 0.)
 \item Replace \eqn{\mathbf{y}}{y} with \eqn{\mathbf{y^*}}{y} with probability
@@ -196,7 +198,7 @@ After the specified number of iterations, \eqn{T} is updated as described
 above, and \eqn{W} is recalculated by first computing a matrix \eqn{S}, the
 sample covariance matrix of the proposed differences stored in Step 3
 (i.e., whether or not they were rejected), then
-\eqn{W = S^+ / tr(S^+)}{W = S+ / tr(S+)}, where \eqn{S^+}{S+} is the
+\eqn{W = S^+ / \operatorname{tr}(S^+)}{W = S+ / \operatorname{tr}(S+)}, where \eqn{S^+}{S+} is the
 Moore–Penrose pseudoinverse of \eqn{S}. The differences in Step 3 closely
 reflect the relative variances and correlations among the network
 statistics.
