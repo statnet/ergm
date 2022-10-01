@@ -104,7 +104,6 @@
 #' mplearray$predictor[1:8,1:8,]
 #' mplearray$weights[1:8,1:8]
 #'
-#' if(require(tergm)){
 #' # Constraints are handled:
 #' faux.mesa.high%v%"block" <- seq_len(network.size(faux.mesa.high)) %/% 4
 #' mplearray <- ergmMPLE(faux.mesa.high~edges, constraints=~blockdiag("block"), output="array")
@@ -118,7 +117,6 @@
 #' mplearray$response[1:8]
 #' mplearray$predictor[1:8,]
 #' mplearray$weights[1:8]
-#' }
 #' 
 #' # Curved terms produce predictors on the canonical scale:
 #' formula2 <- faux.mesa.high ~ gwesp
