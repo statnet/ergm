@@ -46,9 +46,9 @@
 #'
 #' A number of Statnet Project packages extend and enhance
 #' \pkg{\link[=ergm-package]{ergm}}. These include
-#' \pkg{\link[tergm:tergm-package]{tergm}} (Temporal ERGM), which provides
+#' \CRANpkg{tergm} (Temporal ERGM), which provides
 #' extensions for modeling evolution of networks over time;
-#' \pkg{\link[ergm.count:ergm.count-package]{ergm.count}}, which facilitates
+#' \CRANpkg{ergm.count}, which facilitates
 #' exponential family modeling for networks whose dyadic measurements are
 #' counts; and
 #' \pkg{ergm.userterms}, available on GitHub at \url{https://github.com/statnet/ergm.userterms}, which
@@ -620,7 +620,7 @@ NULL
 #' \if{text}{\Sexpr[results=rd,stage=render]{ergm:::.formatTocText(ergm:::.termToc("ergmReference"))}}
 #' \if{html}{\Sexpr[results=rd,stage=render]{ergm:::.formatTocHtml(ergm:::.termToc("ergmReference"))}}
 #'
-#' @seealso [`ergm`][ergm-package], [`network`], `sna`, [`summary.ergm`], [`print.ergm`], `\%v\%`, `\%n\%`
+#' @seealso [`ergm`][ergm-package], [`network`], \CRANpkg{sna}, [`summary.ergm`], [`print.ergm`], `\%v\%`, `\%n\%`
 #' 
 #' @references
 #' - Hunter DR, Handcock MS, Butts CT, Goodreau SM, Morris M (2008b). \pkg{ergm}:

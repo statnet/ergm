@@ -59,7 +59,7 @@
 #' representing the final network, with a matrix of statistics
 #' described in the previous paragraph attached to it as an
 #' \code{attr}-style attribute \code{"stats"}.
-#' @seealso [tergm::tergm.godfather()], [simulate.ergm()],
+#' @seealso `tergm.godfather()` in \CRANpkg{tergm}, [simulate.ergm()],
 #'   [simulate.formula()]
 #' @examples
 #' data(florentine)

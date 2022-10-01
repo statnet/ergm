@@ -3739,7 +3739,7 @@ InitErgmTerm.idegreepopularity<-function (nw, arglist, ...) {
 #'   `111D` , `201` , `111U` , `021C` , or `030C` in the
 #'   categorization of Davis and Leinhardt (1972). For details on the 16 possible
 #'   triad types, see `triad.classify` in the
-#'   `sna` package. Note the distinction from the `ctriple`
+#'   \CRANpkg{sna} package. Note the distinction from the `ctriple`
 #'   term.
 #'
 #' @usage
@@ -5745,7 +5745,7 @@ InitErgmTerm.threepath <- function(nw, arglist, ..., version=packageVersion("erg
 #'   the network that are transitive. The transitive triads are those of type
 #'   `120D` , `030T` , `120U` , or `300` in the categorization
 #'   of Davis and Leinhardt (1972). For details on the 16 possible triad types,
-#'   see `?triad.classify` in the `sna` package.
+#'   see `?triad.classify` in the \CRANpkg{sna} package.
 #'   Note the distinction from the `ttriple` term. This term can only be
 #'   used with directed networks.
 #'
@@ -5779,7 +5779,7 @@ InitErgmTerm.transitive<-function (nw, arglist, ...) {
 #'   of completely empty three-node sets, is dropped. This is considered category
 #'   zero, and the others are numbered 1 through 15 in the order given above. Each statistic is the count of the corresponding triad
 #'   type in the network. For details on the 16 types, see `?triad.classify`
-#'   in the `sna` package, on which this code is based. For an undirected
+#'   in the \CRANpkg{sna} package, on which this code is based. For an undirected
 #'   network, the triad census is over the four types defined by the number of
 #'   ties (i.e., 0, 1, 2, and 3).
 #'

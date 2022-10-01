@@ -452,7 +452,7 @@ InitErgmTerm.Offset <- function(nw, arglist, ...){
 #'
 #' @note This was originally exported as a generic to overwrite
 #'   [sna::symmetrize()]. By developer's request, it has been renamed;
-#'   eventually, `sna` or `network` packages will export the generic
+#'   eventually, \CRANpkg{sna} or `network` packages will export the generic
 #'   instead.
 #' @export
 ergm_symmetrize <- function(x, rule=c("weak","strong","upper","lower"), ...){

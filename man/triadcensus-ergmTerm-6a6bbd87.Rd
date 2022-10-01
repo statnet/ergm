@@ -21,7 +21,7 @@ three-node sets. By default, the category \code{003} , which is the category
 of completely empty three-node sets, is dropped. This is considered category
 zero, and the others are numbered 1 through 15 in the order given above. Each statistic is the count of the corresponding triad
 type in the network. For details on the 16 types, see \code{?triad.classify}
-in the \code{sna} package, on which this code is based. For an undirected
+in the \CRANpkg{sna} package, on which this code is based. For an undirected
 network, the triad census is over the four types defined by the number of
 ties (i.e., 0, 1, 2, and 3).
 }

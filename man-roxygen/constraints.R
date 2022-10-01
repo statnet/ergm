@@ -11,7 +11,7 @@
 #' on the support of the distribution of the networks being modeled. Multiple constraints
 #' may be given, separated by \dQuote{+} and \dQuote{-} operators. See
 #' [`ergmConstraint`] for the detailed explanation of
-#' their semantics and also for an indexed list of the constraints visible to the \CRANpkg{ergm} package.
+#' their semantics and also for an indexed list of the constraints visible to the \pkg{ergm} package.
 #'
 #' The default is to have no constraints except those provided through
 #' the [`ergmlhs`] API.

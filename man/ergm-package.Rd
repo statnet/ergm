@@ -43,9 +43,9 @@ estimates of ERGMs to be calculated using Markov Chain Monte Carlo (via
 
 A number of Statnet Project packages extend and enhance
 \pkg{\link[=ergm-package]{ergm}}. These include
-\pkg{\link[tergm:tergm-package]{tergm}} (Temporal ERGM), which provides
+\CRANpkg{tergm} (Temporal ERGM), which provides
 extensions for modeling evolution of networks over time;
-\pkg{\link[ergm.count:ergm.count-package]{ergm.count}}, which facilitates
+\CRANpkg{ergm.count}, which facilitates
 exponential family modeling for networks whose dyadic measurements are
 counts; and
 \pkg{ergm.userterms}, available on GitHub at \url{https://github.com/statnet/ergm.userterms}, which

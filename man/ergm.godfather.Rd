@@ -91,6 +91,6 @@ ergm.godfather(flomarriage~edges+absdiff("wealth")+triangles,
                stats.start=TRUE)
 }
 \seealso{
-\code{\link[tergm:tergm.godfather]{tergm::tergm.godfather()}}, \code{\link[=simulate.ergm]{simulate.ergm()}},
+\code{tergm.godfather()} in \CRANpkg{tergm}, \code{\link[=simulate.ergm]{simulate.ergm()}},
 \code{\link[=simulate.formula]{simulate.formula()}}
 }

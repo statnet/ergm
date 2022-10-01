@@ -53,6 +53,6 @@ Networks. \emph{Electronic Journal of Statistics}, 2012, 6, 1100-1128.
 }
 }
 \seealso{
-\code{\link[=ergm-package]{ergm}}, \code{\link{network}}, \code{sna}, \code{\link{summary.ergm}}, \code{\link{print.ergm}}, \verb{\\\%v\\\%}, \verb{\\\%n\\\%}
+\code{\link[=ergm-package]{ergm}}, \code{\link{network}}, \CRANpkg{sna}, \code{\link{summary.ergm}}, \code{\link{print.ergm}}, \verb{\\\%v\\\%}, \verb{\\\%n\\\%}
 }
 \keyword{models}

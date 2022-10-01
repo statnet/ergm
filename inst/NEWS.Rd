@@ -343,7 +343,7 @@
         Adaptive bridge sampling for likelihood calculation now shifts the bridge locations by an offset generated from a low-discrepancy sequence after each attempt in order to reduce bias due to finite number of bridges.
       }
 
-      \item{Hummel (2012) step length calculation now uses an improved algorithm (Krivitsky, Kuvelkar, and Hunter 2022) and uses \pkg{Rglpk} where available for better performance. \code{\link{is.inCH}} and the \code{Stepping} algorithms have been deprecated (the latter in favour of \code{MCMLE}).
+      \item{Hummel (2012) step length calculation now uses an improved algorithm (Krivitsky, Kuvelkar, and Hunter 2022) and uses \CRANpkg{Rglpk} where available for better performance. \code{\link{is.inCH}} and the \code{Stepping} algorithms have been deprecated (the latter in favour of \code{MCMLE}).
       }
 
       \item{
@@ -399,7 +399,7 @@
   \subsection{PACKAGE INSTALLATION}{
     \itemize{
       \item{
-        Package \pkg{Rglpk} is not strictly required and has additional external library requirements on some platforms, but it is strongly recommended, as it outperforms \pkg{lpSolve} in most situations.
+        Package \CRANpkg{Rglpk} is not strictly required and has additional external library requirements on some platforms, but it is strongly recommended, as it outperforms \CRANpkg{lpSolve} in most situations.
       }
     }
   }
@@ -475,7 +475,7 @@
   \subsection{OTHER USER-VISIBLE CHANGES}{
     \itemize{
       \item{
-        Per request of the \pkg{sna} maintainer, \code{\link[=ergm_symmetrize]{symmetrize}()} generic and methods have been renamed to \code{\link{ergm_symmetrize}}.
+        Per request of the \CRANpkg{sna} maintainer, \code{\link[=ergm_symmetrize]{symmetrize}()} generic and methods have been renamed to \code{\link{ergm_symmetrize}}.
       }
       \item{
         Metadata set by \code{\link{\%ergmlhs\%}} is now pretty-printed.
@@ -657,7 +657,7 @@
       }
 
       \item{
-        The \pkg{\link[sna:sna-package]{sna}} function \code{\link{symmetrize}} is made into a generic and a method for \code{\link{network}} objects is implemented.
+        The \CRANpkg{sna} function \code{\link{symmetrize}} is made into a generic and a method for \code{\link{network}} objects is implemented.
       }
 
       \item{
@@ -779,7 +779,7 @@
       }
 
       \item{
-        In the \code{InitErgmConstraint} API, \code{free_dyads} can now be a function with 0 arguments, that is only evaluated if needed and is memoized (using the \pkg{\link[=memoise:memoise-package]{memoise}} package).
+        In the \code{InitErgmConstraint} API, \code{free_dyads} can now be a function with 0 arguments, that is only evaluated if needed and is memoized (using the \CRANpkg{memoise} package).
       }
 
       \item{
@@ -815,7 +815,7 @@
       }
 
       \item{
-        The \code{lasttoggle} API created for the \pkg{\link[tergm:tergm-packag]{tergm}} package has been removed in favour of the \dQuote{extended state} API that allows client packages to implement their own states. Similarly, \code{is.durational} family of methods has been removed.
+        The \code{lasttoggle} API created for the \CRANpkg{tergm} package has been removed in favour of the \dQuote{extended state} API that allows client packages to implement their own states. Similarly, \code{is.durational} family of methods has been removed.
       }
 
       \item{

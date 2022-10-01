@@ -61,7 +61,7 @@ arguments are dropped. }
 \note{
 This was originally exported as a generic to overwrite
 \code{\link[sna:symmetrize]{sna::symmetrize()}}. By developer's request, it has been renamed;
-eventually, \code{sna} or \code{network} packages will export the generic
+eventually, \CRANpkg{sna} or \code{network} packages will export the generic
 instead.
 }
 \examples{
