@@ -262,4 +262,8 @@ summary(y ~ edges + nodecov('popularity'))
 plot(y)
 }
 }
+\references{
+Krivitsky, P. N., Hunter, D. R., Morris, M., & Klumb, C. (2022).
+ergm 4: Computational Improvements. arXiv preprint arXiv:2203.08198.
+}
 \keyword{models}

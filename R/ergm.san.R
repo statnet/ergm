@@ -88,10 +88,16 @@
 #'   \code{\link[network]{network}} object in , use the
 #'   \code{network()} function, then add nodal attributes to it using
 #'   the \code{\%v\%} operator if necessary.
+#' 
 #' @return A network or list of networks that hopefully have network
 #'   statistics close to the \code{target.stats} vector. No guarantees
 #'   are provided about their probability distribution. Additionally,
 #'   [attr()]-style attributes `formula` and `stats` are included.
+#' 
+#' @references Krivitsky, P. N., Hunter, D. R., Morris, M., & Klumb, C. (2022).
+#'   ergm 4: Computational Improvements. arXiv preprint arXiv:2203.08198.
+#' 
+#' 
 #' @keywords models
 #' @aliases san.default
 #' @export
