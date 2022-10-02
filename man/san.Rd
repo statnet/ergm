@@ -152,7 +152,7 @@ variant of simulated annealing is as follows.
 
 The energy function is defined
 
-\deqn{E_W (\mathbf{y}) = (\mathbf{g}(\mathbf{y}) − \mathbf{g})^\mathsf{T} W (\mathbf{g}(\mathbf{y}) − \mathbf{g}),}{E_W (y) = (g(y) − g)^T > W (g(y) − g),}
+\deqn{E_W (\mathbf{y}) = (\mathbf{g}(\mathbf{y}) − \mathbf{g})^\mathsf{T} W (\mathbf{g}(\mathbf{y}) − \mathbf{g}),}{E_W (y) = (g(y) − g)^T W (g(y) − g),}
   
   with \eqn{W} a symmetric positive (barring multicollinearity in statistics)
 definite matrix of weights. This function achieves 0 only if the target is
