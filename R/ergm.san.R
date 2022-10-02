@@ -60,7 +60,7 @@
 #'      for later use.
 #'   4. Calculate acceptance probability
 #' 
-#'      \deqn{α = \exp[ − (E_W (\mathbf{y^*}) − E_W (\mathbf{y})) / T + η^\mathsf{T} (\mathbf{g}(\mathbf{y^*}) − \mathbf{g}(\mathbf{y}))].}
+#'      \deqn{α = \exp[ − (E_W (\mathbf{y^*}) − E_W (\mathbf{y})) / T + η^\mathsf{T} (\mathbf{g}(\mathbf{y^*}) − \mathbf{g}(\mathbf{y}))]}{α = exp( - E_W(y*) - E_W(y) / T + η' (g(y*) - g(y)) ).}
 #'    
 #'      (If \eqn{|η_k| = ∞} and \eqn{g_k (\mathbf{y^*}) − g_k (\mathbf{y}) = 0}{g_k (y) - g_k (y) = 0}, their product is defined to be 0.)
 #'   5. Replace \eqn{\mathbf{y}}{y} with \eqn{\mathbf{y^*}}{y} with probability
