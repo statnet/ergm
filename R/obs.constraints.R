@@ -11,7 +11,10 @@
 .handle.auto.constraints <- function(nw,
                                      constraints=trim_env(~.),
                                      obs.constraints=trim_env(~.-observed),
-                                     target.stats=NULL){
+                                     target.stats=NULL,
+                                     default.dot=c("first", "last", "none")){
+  default.dot <- match.arg(default.dot)
+
   .preproc_constraints <- function(...){
     # Embed the LHS as a .select() constraint.
     tll <- list(...) %>% compact() %>% map(.embed_constraint_lhs) %>% map(list_rhs.formula)
@@ -27,6 +30,18 @@
 
       # Find the substitution positions.
       pos <- which(ntl %>% map_chr(~as.character(.)[1]) == ".")
+
+      # Don't substitute at negative dots.
+      pos_sign <- attr(ntl, "sign")[pos]
+      pos <- pos[pos_sign>0]
+
+      # If no dots, use default behaviour unless there is a negative dot.
+      if(!length(pos) && all(pos_sign>0))
+        ntl <- switch(default.dot,
+                     first = c(otl, ntl),
+                     last = c(ntl, otl),
+                     none = ntl)
+
       # Substitute (working backwards, to prevent pos from changing).
       for(p in rev(pos))
         ntl <- c(ntl[seq_len(pos-1)], otl, ntl[-seq_len(pos)])
@@ -34,7 +49,7 @@
       otl <- ntl
     }
 
-    # Delete remaining dots, just in case.
+    # Delete remaining dots (including the negative ones).
     .delete_term(otl, ".")
   }
 

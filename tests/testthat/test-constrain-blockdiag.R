@@ -65,6 +65,13 @@ Mmax[2,10] <- Mmax[2,3] <- 1
 
 test_dind_constr(y0, ~blockdiag("b")-observed, Mmin, Mmax) # in the block OR unobserved
 
+#### Unobserved: disjunction ergmlhs specification ####
+
+y0l <- y0
+y0l %ergmlhs% "constraints" <- ~blockdiag("b")
+test_dind_constr(y0l, ~-observed, Mmin, Mmax) # dot by default
+test_dind_constr(y0l, ~.-observed, Mmin, Mmax) # dot specified
+
 #### Unobserved: conjunction ####
 
 Mmin <- Mmax <- as.matrix(y0)
@@ -73,6 +80,11 @@ Mmin[2,3] <- 0
 Mmax[2,3] <- 1
 
 test_dind_constr(y0, ~blockdiag("b")+observed, Mmin, Mmax) # in the block AND unobserved
+
+#### Unobserved: conjunction ergmlhs specification ####
+
+test_dind_constr(y0l, ~+observed, Mmin, Mmax) # dot by default
+test_dind_constr(y0l, ~.+observed, Mmin, Mmax) # dot specified
 
 #### Bipartite ####
 

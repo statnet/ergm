@@ -51,9 +51,23 @@ equal to \code{((A|B)&C)|D}.
 Terms with a positive sign can be viewed as "adding" a constraint
 while those with a negative sign can be viewed as "relaxing" a constraint.
 
-The constraints formula can also contain a \code{.}. If present,
-\code{\link{\%ergmlhs\%}} attributes \code{constraints} and \code{constraints.obs} will
-be substituted in its place.
+\subsection{Inheriting constraints from LHS \code{\link{network}}}{
+
+By default, \code{\link{\%ergmlhs\%}} attributes \code{constraints} or
+\code{constraints.obs} (depending on which constraint) attached to the
+LHS of the model formula or the \verb{basis=} argument will be added in
+front of the specified constraints formula. This is the desired
+behaviour most of the time, since those constraints are usually
+determined by how the network was constructed (e.g., structural
+zeros in a block-diagonal network).
+
+For those situations in which this is not the desired behavior, a
+\code{.} term (with a positive sign or no sign at all) can be used to
+manually set the position of the inherited constraints in the
+formula, and a \code{-.} (minus-dot) term anywhere in the constraints
+formula will suppress the inherited formula altogether.
+
+}
 }
 
 \section{Constraints visible to the package}{

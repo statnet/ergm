@@ -449,9 +449,23 @@ NULL
 #' Terms with a positive sign can be viewed as "adding" a constraint
 #' while those with a negative sign can be viewed as "relaxing" a constraint.
 #'
-#' The constraints formula can also contain a `.`. If present,
-#' [`%ergmlhs%`] attributes `constraints` and `constraints.obs` will
-#' be substituted in its place.
+#' \subsection{Inheriting constraints from LHS [`network`]}{
+#'
+#' By default, [`%ergmlhs%`] attributes `constraints` or
+#' `constraints.obs` (depending on which constraint) attached to the
+#' LHS of the model formula or the `basis=` argument will be added in
+#' front of the specified constraints formula. This is the desired
+#' behaviour most of the time, since those constraints are usually
+#' determined by how the network was constructed (e.g., structural
+#' zeros in a block-diagonal network).
+#'
+#' For those situations in which this is not the desired behavior, a
+#' `.` term (with a positive sign or no sign at all) can be used to
+#' manually set the position of the inherited constraints in the
+#' formula, and a `-.` (minus-dot) term anywhere in the constraints
+#' formula will suppress the inherited formula altogether.
+#'
+#' }
 #'
 #' @section Constraints visible to the package:
 #'
