@@ -71,7 +71,7 @@
 #'   above, and \eqn{W} is recalculated by first computing a matrix \eqn{S}, the
 #'   sample covariance matrix of the proposed differences stored in Step 3
 #'   (i.e., whether or not they were rejected), then
-#'   \eqn{W = S^+ / \operatorname{tr}(S^+)}{W = S+ / \operatorname{tr}(S+)}, where \eqn{S^+}{S+} is the
+#'   \eqn{W = S^+ / tr(S^+)}{W = S+ / tr(S+)}, where \eqn{S^+}{S+} is the
 #'   Moore–Penrose pseudoinverse of \eqn{S}. The differences in Step 3 closely
 #'   reflect the relative variances and correlations among the network
 #'   statistics.
