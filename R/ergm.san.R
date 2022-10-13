@@ -20,13 +20,13 @@
 #'   network we wish to construct. That is, we are given an arbitrary network
 #'   \eqn{\mathbf{y}^0 \in \mathcal{Y}}{y0 ∈ Y}, and we seek a network
 #'   \eqn{\mathbf{y} \in \mathcal{Y}}{y ∈ Y} such that
-#'   \eqn{\mathbf{g}(\mathbf{y}) ≈ \mathbf{g}}{g(y) = g} -- ideally equality is achieved,
+#'   \eqn{\mathbf{g}(\mathbf{y}) \approx \mathbf{g}}{g(y) ≈ g} -- ideally equality is achieved,
 #'   but in practice we may have to settle for a close approximation. The
 #'   variant of simulated annealing is as follows.
 #'   
 #'   The energy function is defined 
 #'   
-#'   \deqn{E_W (\mathbf{y}) = (\mathbf{g}(\mathbf{y}) − \mathbf{g})^\mathsf{T} W (\mathbf{g}(\mathbf{y}) − \mathbf{g}),}{E_W (y) = (g(y) − g)^T W (g(y) − g),}
+#'   \deqn{E_W (\mathbf{y}) = (\mathbf{g}(\mathbf{y}) - \mathbf{g})^\mathsf{T} W (\mathbf{g}(\mathbf{y}) - \mathbf{g}),}{E_W (y) = (g(y) - g)^T W (g(y) - g),}
 #'   
 #'   with \eqn{W} a symmetric positive (barring multicollinearity in statistics)
 #'   definite matrix of weights. This function achieves 0 only if the target is
@@ -34,7 +34,7 @@
 #'
 #'   A standard simulated annealing loop is used, as described below, with some
 #'   modifications. In particular, we allow the user to specify a vector of
-#'   offsets \eqn{η} to bias the annealing, with \eqn{η_k = 0}{η[k] = 0} 
+#'   offsets \eqn{\eta}{η} to bias the annealing, with \eqn{\eta_k = 0}{η_k = 0} 
 #'   denoting no offset. Offsets can be used with SAN to forbid certain
 #'   statistics from ever increasing or decreasing. As with [ergm()], offset
 #'   terms are specified using the [offset()] decorator and their coefficients
@@ -56,15 +56,15 @@
 #'      respects the model constraints. (This is typically the same proposal as
 #'      that used for MCMC.)
 #'   3. Store the quantity 
-#'      \eqn{\mathbf{g}(\mathbf{y^*}) − \mathbf{g}(\mathbf{y})}{g(y*) - g(y)} 
+#'      \eqn{\mathbf{g}(\mathbf{y^*}) - \mathbf{g}(\mathbf{y})}{g(y*) - g(y)} 
 #'      for later use.
 #'   4. Calculate acceptance probability
 #' 
-#'      \deqn{α = \exp[ − (E_W (\mathbf{y^*}) − E_W (\mathbf{y})) / T + η^\mathsf{T} (\mathbf{g}(\mathbf{y^*}) − \mathbf{g}(\mathbf{y}))]}{α = exp( - E_W(y*) - E_W(y) / T + η' (g(y*) - g(y)) ).}
+#'      \deqn{\alpha = \exp[ - (E_W (\mathbf{y^*}) - E_W (\mathbf{y})) / T + \eta^\mathsf{T} (\mathbf{g}(\mathbf{y^*}) - \mathbf{g}(\mathbf{y}))]}{α = exp( - E_W(y*) - E_W(y) / T + η' (g(y*) - g(y)) ).}
 #'    
-#'      (If \eqn{|η_k| = ∞} and \eqn{g_k (\mathbf{y^*}) − g_k (\mathbf{y}) = 0}{g_k (y) - g_k (y) = 0}, their product is defined to be 0.)
+#'      (If \eqn{|\eta_k| = \infty}{|η_k| = ∞} and \eqn{g_k (\mathbf{y^*}) - g_k (\mathbf{y}) = 0}{g_k (y) - g_k (y) = 0}, their product is defined to be 0.)
 #'   5. Replace \eqn{\mathbf{y}}{y} with \eqn{\mathbf{y^*}}{y} with probability
-#'      \eqn{\min(1, α)}{min(1, α)}.
+#'      \eqn{\min(1, \alpha)}{min(1, α)}.
 #'
 #'
 #'   After the specified number of iterations, \eqn{T} is updated as described
@@ -72,9 +72,9 @@
 #'   sample covariance matrix of the proposed differences stored in Step 3
 #'   (i.e., whether or not they were rejected), then
 #'   \eqn{W = S^+ / tr(S^+)}{W = S+ / tr(S+)}, where \eqn{S^+}{S+} is the
-#'   Moore–Penrose pseudoinverse of \eqn{S}. The differences in Step 3 closely
-#'   reflect the relative variances and correlations among the network
-#'   statistics.
+#'   Moore–Penrose pseudoinverse of \eqn{S} and \eqn{tr(S^+)}{tr(S+)} is the
+#'   trace of \eqn{S^+}{S+}. The differences in Step 3 closely reflect the
+#'   relative variances and correlations among the network statistics.
 #' 
 #'   In Step 2, the many options for MCMC proposals can provide for effective
 #'   means of speeding the SAN algorithm's search for a viable network.
