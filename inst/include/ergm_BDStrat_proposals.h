@@ -106,7 +106,11 @@ static inline void ComputeChangesToToggleability(Vertex *tail, Vertex *head, BDS
   // avoid these somewhat expensive checks in the typical case
   // where you have enough submaximal nodes that you cannot
   // be exhausting any mixing types of toggleable dyads
-  if(sto->blocks->last_tails->length <= 2 || sto->blocks->last_heads->length <= 2) {
+  int ntails = sto->blocks->tails[*tail][sto->bd_vattr[*head]]->length
+               + sto->blocks->directed*sto->blocks->boths[*tail][sto->bd_vattr[*head]]->length;
+  int nheads = sto->blocks->heads[*head][sto->bd_vattr[*tail]]->length
+               + sto->blocks->directed*sto->blocks->boths[*head][sto->bd_vattr[*tail]]->length;
+  if(ntails <= 2 || nheads <= 2) {
     // temporarily set tail and head toggleability to what it would be in the proposed network
     BDStratBlocksToggleIf(*tail, *head, sto->blocks, sto->tailmaxl, sto->headmaxl);
     

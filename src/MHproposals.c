@@ -271,8 +271,6 @@ MH_P_FN(MH_BDStratTNT) {
     edgestate = IS_OUTEDGE(*Mtail, *Mhead);
   }  
 
-  BDStratBlocksSetLast(*Mtail, *Mhead, edgestate, sto->blocks);
-
   int tailattr = sto->bd_vattr[*Mtail];
   int headattr = sto->bd_vattr[*Mhead];
 
@@ -314,8 +312,6 @@ MH_U_FN(Mu_BDStratTNT) {
 
     sto->tailmaxl = (DIRECTED ? sto->outdegree[headattr][tail] : sto->indegree[headattr][tail] + sto->outdegree[headattr][tail]) == sto->maxout[headattr][tail] - 1 + edgestate;
     sto->headmaxl = (DIRECTED ? sto->indegree[tailattr][head] : sto->indegree[tailattr][head] + sto->outdegree[tailattr][head]) == sto->maxin[tailattr][head] - 1 + edgestate;
-
-    BDStratBlocksSetLast(tail, head, edgestate, sto->blocks);
 
     ComputeChangesToToggleability(&tail, &head, sto);    
   }

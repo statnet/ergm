@@ -39,9 +39,6 @@ typedef struct {
   int blocks_nlevels;
   int bd_nlevels;
   
-  NodeList *last_tails;
-  NodeList *last_heads;
-  
   int **maxout;
   int **maxin;
 
@@ -311,47 +308,23 @@ static inline void BDStratBlocksGetRand(Vertex *tail, Vertex *head, BDStratBlock
   BDStratBlocksGetRandWithCount(tail, head, blocks, stratmixingtype, BDStratBlocksDyadCount(blocks, stratmixingtype));
 }
 
-static inline void BDStratBlocksSetLast(Vertex tail, Vertex head, int edgestate, BDStratBlocks *blocks) {
-  if(edgestate) {
-    if(blocks->directed && blocks->headpos[blocks->bd_vattr[head]][tail]) {
-      blocks->last_tails = blocks->boths[tail][blocks->bd_vattr[head]];
-    } else {
-      blocks->last_tails = blocks->tails[tail][blocks->bd_vattr[head]];      
-    }
-    
-    if(blocks->directed && blocks->tailpos[blocks->bd_vattr[tail]][head]) {
-      blocks->last_heads = blocks->boths[head][blocks->bd_vattr[tail]];
-    } else {
-      blocks->last_heads = blocks->heads[head][blocks->bd_vattr[tail]];      
-    }
-  } else {
-    if(blocks->directed && blocks->bothpos[blocks->bd_vattr[head]][tail]) {
-      blocks->last_tails = blocks->boths[tail][blocks->bd_vattr[head]];
-    } else {
-      blocks->last_tails = blocks->tails[tail][blocks->bd_vattr[head]];      
-    }
-    
-    if(blocks->directed && blocks->bothpos[blocks->bd_vattr[tail]][head]) {
-      blocks->last_heads = blocks->boths[head][blocks->bd_vattr[tail]];
-    } else {
-      blocks->last_heads = blocks->heads[head][blocks->bd_vattr[tail]];      
-    }      
-  }
-}
-
 static inline void BDStratBlocksToggleIf(Vertex tail, Vertex head, BDStratBlocks *blocks, int tailcondition, int headcondition) {
   if(tailcondition) {
     if(blocks->directed && (blocks->bothpos[blocks->bd_vattr[head]][tail] || blocks->headpos[blocks->bd_vattr[head]][tail])) {
+      NodeListToggle(blocks->boths[tail][blocks->bd_vattr[head]], tail);
       NodeListToggle(blocks->heads[tail][blocks->bd_vattr[head]], tail);
+    } else {
+      NodeListToggle(blocks->tails[tail][blocks->bd_vattr[head]], tail);      
     }
-    NodeListToggle(blocks->last_tails, tail);
   }
 
   if(headcondition) {
     if(blocks->directed && (blocks->bothpos[blocks->bd_vattr[tail]][head] || blocks->tailpos[blocks->bd_vattr[tail]][head])) {
+      NodeListToggle(blocks->boths[head][blocks->bd_vattr[tail]], head);
       NodeListToggle(blocks->tails[head][blocks->bd_vattr[tail]], head);
+    } else {
+      NodeListToggle(blocks->heads[head][blocks->bd_vattr[tail]], head);        
     }
-    NodeListToggle(blocks->last_heads, head);
   }
 }
 
