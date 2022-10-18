@@ -17,6 +17,7 @@
 #include "ergm_Rutil.h"
 #include "ergm_BDStrat_proposals.h"
 #include "ergm_hash_edgelist.h"
+#include "ergm_BDNodeLists.h"
 #include "ergm_BDStratBlocks.h"
 
 /*********************
@@ -147,27 +148,33 @@ MH_I_FN(Mi_BDStratTNT) {
     sto->indegree[sto->bd_vattr[tail]][head]++;
     sto->outdegree[sto->bd_vattr[head]][tail]++;
   });
-    
-  sto->blocks = BDStratBlocksInitialize(sto->maxout, 
-                                        sto->maxin,
-                                        sto->strat_vattr, 
+  
+  sto->lists = BDNodeListsInitialize(sto->maxout, 
+                                     sto->maxin,
+                                     sto->indegree,
+                                     sto->outdegree,
+                                     sto->strat_vattr, 
+                                     sto->nstratlevels, 
+                                     sto->blocks_vattr, 
+                                     nblockslevels, 
+                                     sto->bd_vattr,
+                                     sto->nbdlevels,
+                                     INTEGER(getListElement(MHp->R, "nodecountsbyjointcode")), 
+                                     nwp);
+
+  sto->blocks = BDStratBlocksInitialize(sto->lists,
                                         sto->nstratlevels, 
                                         sto->nmixtypes, 
                                         INTEGER(getListElement(MHp->R, "strattailattrs")), 
                                         INTEGER(getListElement(MHp->R, "stratheadattrs")), 
-                                        sto->blocks_vattr, 
                                         nblockslevels, 
                                         INTEGER(getListElement(MHp->R, "blocks_mixtypes")), 
                                         INTEGER(getListElement(MHp->R, "blocks_tails")), 
                                         INTEGER(getListElement(MHp->R, "blocks_heads")),
-                                        sto->bd_vattr,
                                         sto->nbdlevels,
                                         INTEGER(getListElement(MHp->R, "bd_nmixtypes")), 
                                         INTEGER(getListElement(MHp->R, "bd_tails")), 
                                         INTEGER(getListElement(MHp->R, "bd_heads")),                                        
-                                        INTEGER(getListElement(MHp->R, "nodecountsbyjointcode")), 
-                                        sto->indegree,
-                                        sto->outdegree,
                                         nwp);
     
   UnsrtEL **els = Calloc(sto->nmixtypes, UnsrtEL *);
@@ -323,7 +330,7 @@ MH_U_FN(Mu_BDStratTNT) {
   HashELToggleKnown(tail, head, sto->hash[sto->stratmixingtype], edgestate);
 
   // update nodelists as needed
-  BDStratBlocksToggleIf(tail, head, sto->blocks, sto->tailmaxl, sto->headmaxl);
+  BDNodeListsToggleIf(tail, head, sto->lists, sto->tailmaxl, sto->headmaxl);
   
   // if any strat mixing types have changed toggleability status, update prob info accordingly
   if(sto->nmixtypestoupdate > 0) {
@@ -338,8 +345,9 @@ MH_F_FN(Mf_BDStratTNT) {
   // Free all the things
   GET_STORAGE(BDStratTNTStorage, sto);
 
+  BDNodeListsDestroy(sto->lists);
   BDStratBlocksDestroy(sto->blocks);    
-  
+
   for(int i = 0; i < sto->nmixtypes; i++) {
     HashELDestroy(sto->hash[i]);
   }

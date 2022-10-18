@@ -57,6 +57,7 @@ MH_I_FN(Mi_BDStratTNT);
 MH_F_FN(Mf_BDStratTNT);
 
 typedef struct {
+  BDNodeLists *lists;
   BDStratBlocks *blocks;
 
   HashEL **hash;
@@ -106,16 +107,16 @@ static inline void ComputeChangesToToggleability(Vertex *tail, Vertex *head, BDS
   // avoid these somewhat expensive checks in the typical case
   // where you have enough submaximal nodes that you cannot
   // be exhausting any mixing types of toggleable dyads
-  int ntails = sto->blocks->tails[*tail][sto->bd_vattr[*head]]->length
-               + sto->blocks->directed*sto->blocks->boths[*tail][sto->bd_vattr[*head]]->length;
-  int nheads = sto->blocks->heads[*head][sto->bd_vattr[*tail]]->length
-               + sto->blocks->directed*sto->blocks->boths[*head][sto->bd_vattr[*tail]]->length;
+  int ntails = sto->lists->tails[*tail][sto->bd_vattr[*head]]->length
+               + sto->lists->directed*sto->lists->boths[*tail][sto->bd_vattr[*head]]->length;
+  int nheads = sto->lists->heads[*head][sto->bd_vattr[*tail]]->length
+               + sto->lists->directed*sto->lists->boths[*head][sto->bd_vattr[*tail]]->length;
   if(ntails <= 2 || nheads <= 2) {
     // temporarily set tail and head toggleability to what it would be in the proposed network
-    BDStratBlocksToggleIf(*tail, *head, sto->blocks, sto->tailmaxl, sto->headmaxl);
+    BDNodeListsToggleIf(*tail, *head, sto->lists, sto->tailmaxl, sto->headmaxl);
     
     // how many strat types do we need to check?
-    int ntocheck = ((!sto->blocks->directed) && (sto->strat_vattr[*tail] == sto->strat_vattr[*head])) ? sto->nstratlevels : 2*sto->nstratlevels;
+    int ntocheck = ((!sto->lists->directed) && (sto->strat_vattr[*tail] == sto->strat_vattr[*head])) ? sto->nstratlevels : 2*sto->nstratlevels;
 
     for(int i = 0; i < ntocheck; i++) {
       // find the index of the i'th strat type we need to check, by looking it up in the indmat
@@ -145,7 +146,7 @@ static inline void ComputeChangesToToggleability(Vertex *tail, Vertex *head, BDS
     }
     
     // restore tail and head toggleability to their current status
-    BDStratBlocksToggleIf(*tail, *head, sto->blocks, sto->tailmaxl, sto->headmaxl);
+    BDNodeListsToggleIf(*tail, *head, sto->lists, sto->tailmaxl, sto->headmaxl);
   }
 }
 
