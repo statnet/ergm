@@ -76,16 +76,13 @@ InitErgmProposal.TNT <- function(nw, arguments, ...){
 #' @template ergmProposal-general
 NULL
 InitErgmProposal.BDStratTNT <- function(arguments, nw) {
-  # if bd has not already been initialized, or if related arguments are passed directly to the proposal, (re)initialize it now
-  if(any(!unlist(lapply(arguments[c("attribs", "maxout", "maxin")], is.null)))) {
-    arguments$constraints$bd <- InitErgmConstraint.bd(nw, list(attribs = arguments[["attribs"]], maxout = arguments[["maxout"]], maxin = arguments[["maxin"]]))
-  }
-
+  ## constraints are dyad-independent if bd is not being used
   dyad_indep <- is.null(arguments$constraints$bd)
-  
-  if(is.null(arguments$constraints$bd)) {
-    arguments$constraints$bd <- InitErgmConstraint.bd(nw, list())
-  }
+
+  ## handle defaults for hints
+  NVL(arguments$constraints$bd) <- InitErgmConstraint.bd(nw, list())
+  NVL(arguments$constraints$blocks) <- InitErgmConstraint.blocks(nw, list(attr = trim_env(~0)))
+  NVL(arguments$constraints$strat) <- InitErgmConstraint.strat(nw, list(attr = trim_env(~0)))
 
   attribs <- NVL(arguments$constraints$bd$attribs, matrix(TRUE, ncol = 1L, nrow = network.size(nw)))
   
@@ -128,32 +125,6 @@ InitErgmProposal.BDStratTNT <- function(arguments, nw) {
 
   ## number of bd mixtypes that need to be considered when strat and blocks mixing types are off-diag and on-diag, respectively
   bd_nmixtypes <- c(length(bd_allowed_tails), length(bd_tails))
-  
-  
-  # if blocks has not already been initialized, or if related arguments are passed directly to the proposal, (re)initialize it now
-  if(length(intersect(names(arguments), c("blocks_attr", "levels", "levels2", "b1levels", "b2levels"))) > 0) {
-    arglist <- arguments[intersect(names(arguments), c("blocks_attr", "levels", "levels2", "b1levels", "b2levels"))]
-    names(arglist)[names(arglist) == "blocks_attr"] <- "attr"
-    arguments$constraints$blocks <- InitErgmConstraint.blocks(nw, arglist)
-  }
-  if(is.null(arguments$constraints$blocks)) {
-    arguments$constraints$blocks <- InitErgmConstraint.blocks(nw, list(attr = trim_env(~0)))
-  }
-
-  # check for old name
-  if(is.null(arguments$constraints$strat) && !is.null(arguments$constraints$Strat)) {
-    arguments$constraints$strat <- arguments$constraints$Strat
-  }
-
-  # if strat has not already been initialized, or if related arguments are passed directly to the proposal, (re)initialize it now
-  if(length(intersect(names(arguments), c("strat_attr", "pmat", "empirical"))) > 0) {
-    arglist <- arguments[intersect(names(arguments), c("strat_attr", "pmat", "empirical"))]
-    names(arglist)[names(arglist) == "strat_attr"] <- "attr"
-    arguments$constraints$strat <- InitErgmConstraint.strat(nw, arglist)
-  }
-  if(is.null(arguments$constraints$strat)) {
-    arguments$constraints$strat <- InitErgmConstraint.strat(nw, list(attr = trim_env(~0)))
-  }
 
   nodecov <- arguments$constraints$blocks$nodecov
   amat <- arguments$constraints$blocks$amat
