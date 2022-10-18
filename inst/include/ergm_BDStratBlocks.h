@@ -44,8 +44,6 @@ typedef struct {
   
   int **maxout;
   int **maxin;
-  int **minout;
-  int **minin;
 
   int **indegree;
   int **outdegree;
@@ -55,8 +53,6 @@ typedef struct {
 
 static inline BDStratBlocks *BDStratBlocksInitialize(int **maxout, 
                                                      int **maxin, 
-                                                     int **minout, 
-                                                     int **minin,
                                                      int *strat_vattr, 
                                                      int strat_nlevels, 
                                                      int strat_nmixtypes, 
@@ -83,8 +79,6 @@ static inline BDStratBlocks *BDStratBlocksInitialize(int **maxout,
   
   blocks->maxout = maxout;
   blocks->maxin = maxin;
-  blocks->minout = minout;
-  blocks->minin = minin;
 
   blocks->indegree = indegree;
   blocks->outdegree = outdegree;
@@ -299,23 +293,18 @@ static inline int BDStratBlocksDyadCountPositive(BDStratBlocks *blocks, int stra
 }
 
 static inline void BDStratBlocksGetRandWithCount(Vertex *tail, Vertex *head, BDStratBlocks *blocks, int stratmixingtype, Dyad dyadcount) {    
-  do {
-    Dyad dyadindex = 2*dyadcount*unif_rand();
+  Dyad dyadindex = 2*dyadcount*unif_rand();
+  
+  for(int i = 0; i < blocks->nblocks[stratmixingtype]; i++) {
+    Dyad dyadsthistype = 2*BlockDyadCount(blocks->blocks[stratmixingtype][i]);
     
-    for(int i = 0; i < blocks->nblocks[stratmixingtype]; i++) {
-      Dyad dyadsthistype = 2*BlockDyadCount(blocks->blocks[stratmixingtype][i]);
-      
-      if(dyadindex < dyadsthistype) {
-        BlockPut2Dyad(tail, head, dyadindex, blocks->blocks[stratmixingtype][i]);
-        break;
-      } else {
-        dyadindex -= dyadsthistype;  
-      }
+    if(dyadindex < dyadsthistype) {
+      BlockPut2Dyad(tail, head, dyadindex, blocks->blocks[stratmixingtype][i]);
+      break;
+    } else {
+      dyadindex -= dyadsthistype;  
     }
-  } while ((blocks->minout || blocks->minin) && 
-           EdgetreeSearch(*tail, *head, blocks->nwp->outedges) &&
-           ((blocks->minout && (blocks->minout[blocks->bd_vattr[*head]][*tail] == (blocks->nwp->directed_flag ? blocks->outdegree[blocks->bd_vattr[*head]][*tail] : blocks->outdegree[blocks->bd_vattr[*head]][*tail] + blocks->indegree[blocks->bd_vattr[*head]][*tail]))) ||
-            (blocks->minin && (blocks->minin[blocks->bd_vattr[*tail]][*head] == (blocks->nwp->directed_flag ? blocks->indegree[blocks->bd_vattr[*tail]][*head] : blocks->outdegree[blocks->bd_vattr[*tail]][*head] + blocks->indegree[blocks->bd_vattr[*tail]][*head])))));  
+  }
 }
 
 static inline void BDStratBlocksGetRand(Vertex *tail, Vertex *head, BDStratBlocks *blocks, int stratmixingtype) {

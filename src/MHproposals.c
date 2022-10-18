@@ -150,8 +150,6 @@ MH_I_FN(Mi_BDStratTNT) {
     
   sto->blocks = BDStratBlocksInitialize(sto->maxout, 
                                         sto->maxin,
-                                        NULL,
-                                        NULL,
                                         sto->strat_vattr, 
                                         sto->nstratlevels, 
                                         sto->nmixtypes, 
