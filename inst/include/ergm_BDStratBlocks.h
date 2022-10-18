@@ -356,36 +356,9 @@ static inline void BDStratBlocksToggleIf(Vertex tail, Vertex head, BDStratBlocks
 }
 
 static inline Dyad BDStratBlocksDyadCountOnToggle(Vertex tail, Vertex head, BDStratBlocks *blocks, int stratmixingtype, int change, int tailcondition, int headcondition) {
-  if(tailcondition) {
-    if(blocks->directed && (blocks->bothpos[blocks->bd_vattr[head]][tail] || blocks->headpos[blocks->bd_vattr[head]][tail])) {
-      blocks->heads[tail][blocks->bd_vattr[head]]->length -= change;
-    }
-    blocks->last_tails->length += change;
-  }
-
-  if(headcondition) {
-    if(blocks->directed && (blocks->bothpos[blocks->bd_vattr[tail]][head] || blocks->tailpos[blocks->bd_vattr[tail]][head])) {
-      blocks->tails[head][blocks->bd_vattr[tail]]->length -= change;
-    }
-    blocks->last_heads->length += change;
-  }
-
+  BDStratBlocksToggleIf(tail, head, blocks, tailcondition, headcondition);
   Dyad dyadcount = BDStratBlocksDyadCount(blocks, stratmixingtype);
-
-  if(tailcondition) {
-    if(blocks->directed && (blocks->bothpos[blocks->bd_vattr[head]][tail] || blocks->headpos[blocks->bd_vattr[head]][tail])) {
-      blocks->heads[tail][blocks->bd_vattr[head]]->length += change;
-    }
-    blocks->last_tails->length -= change;
-  }
-
-  if(headcondition) {
-    if(blocks->directed && (blocks->bothpos[blocks->bd_vattr[tail]][head] || blocks->tailpos[blocks->bd_vattr[tail]][head])) {
-      blocks->tails[head][blocks->bd_vattr[tail]]->length += change;
-    }
-    blocks->last_heads->length -= change;
-  }
-
+  BDStratBlocksToggleIf(tail, head, blocks, tailcondition, headcondition);
   return dyadcount;
 }
 

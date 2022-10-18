@@ -45,14 +45,6 @@ static inline void NodeListDelete(NodeList *nodelist, Vertex node) {
   nodelist->length--;
 }
 
-static inline void NodeListToggleKnown(NodeList *nodelist, Vertex node, int nodeflag) {
-  if(nodeflag) {
-    NodeListDelete(nodelist, node);
-  } else {
-    NodeListInsert(nodelist, node);
-  }
-}
-
 static inline void NodeListToggle(NodeList *nodelist, Vertex node) {
   if(nodelist->nodepos[node]) {
     NodeListDelete(nodelist, node);      
