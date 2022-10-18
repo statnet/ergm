@@ -29,23 +29,13 @@ typedef struct {
   int **headpos;
   int **bothpos;
   
-  int *strat_vattr;
-  int *blocks_vattr;
   int *bd_vattr;
     
   int directed;
 
   int strat_nlevels;
   int blocks_nlevels;
-  int bd_nlevels;
-  
-  int **maxout;
-  int **maxin;
-
-  int **indegree;
-  int **outdegree;
-  
-  Network *nwp;
+  int bd_nlevels;  
 } BDStratBlocks;
 
 static inline BDStratBlocks *BDStratBlocksInitialize(int **maxout, 
@@ -71,22 +61,12 @@ static inline BDStratBlocks *BDStratBlocksInitialize(int **maxout,
                                                      Network *nwp) {
   BDStratBlocks *blocks = Calloc(1, BDStratBlocks);
 
-  // do some copying
-  blocks->nwp = nwp;
-  
-  blocks->maxout = maxout;
-  blocks->maxin = maxin;
-
-  blocks->indegree = indegree;
-  blocks->outdegree = outdegree;
-  
+  // do some copying    
   blocks->directed = DIRECTED;
   
   blocks->strat_nlevels = strat_nlevels;
-  blocks->strat_vattr = strat_vattr;  
 
   blocks->blocks_nlevels = blocks_nlevels;
-  blocks->blocks_vattr = blocks_vattr;
 
   blocks->bd_nlevels = bd_nlevels;
   blocks->bd_vattr = bd_vattr;
@@ -145,8 +125,8 @@ static inline BDStratBlocks *BDStratBlocksInitialize(int **maxout,
   blocks->heads = DIRECTED ? Calloc(N_NODES + 1, NodeList **) : blocks->boths;
 
   for(Vertex vertex = 1; vertex <= N_NODES; vertex++) {
-    int strat_val = blocks->strat_vattr[vertex];
-    int blocks_val = blocks->blocks_vattr[vertex];
+    int strat_val = strat_vattr[vertex];
+    int blocks_val = blocks_vattr[vertex];
     int bd_val = blocks->bd_vattr[vertex];
     
     for(int i = 0; i < bd_nlevels; i++) {
