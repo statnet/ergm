@@ -85,21 +85,21 @@ InitErgmProposal.BDStratTNT <- function(arguments, nw) {
   NVL(arguments$constraints$strat) <- InitErgmConstraint.strat(nw, list(attr = trim_env(~0)))
 
   attribs <- NVL(arguments$constraints$bd$attribs, matrix(TRUE, ncol = 1L, nrow = network.size(nw)))
-  
+
   maxout <- NVL(arguments$constraints$bd$maxout, network.size(nw))
   maxout[is.na(maxout)] <- network.size(nw)
   maxout <- matrix(rep(maxout, length.out = length(attribs)), ncol = ncol(attribs))
-  
+
   maxin <- NVL(arguments$constraints$bd$maxin, network.size(nw))
   maxin[is.na(maxin)] <- network.size(nw)
   maxin <- matrix(rep(maxin, length.out = length(attribs)), ncol = ncol(attribs))
 
   bd_vattr <- which(attribs, arr.ind = TRUE)
   bd_vattr <- bd_vattr[order(bd_vattr[,1L]), 2L]
-    
+
   ## which attribute pairings are allowed by bd? only consider maxin if directed
   bd_mixmat <- matrix(FALSE, nrow = NCOL(attribs), ncol = NCOL(attribs))
-  
+
   maxout_pairs <- which(maxout > 0, arr.ind = TRUE)
   maxout_pairs[,1L] <- bd_vattr[maxout_pairs[,1L]]
   bd_mixmat[maxout_pairs] <- TRUE
@@ -118,8 +118,8 @@ InitErgmProposal.BDStratTNT <- function(arguments, nw) {
   bd_nlevels <- NCOL(attribs)
 
   ## need to handle undirected case as for blocks, but bipartite along with unip for now
-  bd_offdiag_pairs <- which(bd_tails != bd_heads)  
-  
+  bd_offdiag_pairs <- which(bd_tails != bd_heads)
+
   bd_allowed_tails <- c(bd_tails, if(!is.directed(nw)) bd_heads[bd_offdiag_pairs])
   bd_allowed_heads <- c(bd_heads, if(!is.directed(nw)) bd_tails[bd_offdiag_pairs])
 
@@ -139,36 +139,35 @@ InitErgmProposal.BDStratTNT <- function(arguments, nw) {
   } else {
     pairs_mat <- amat
   }
-  
+
   allowed.attrs <- which(pairs_mat, arr.ind = TRUE)
   allowed.tails <- allowed.attrs[,1]
   allowed.heads <- allowed.attrs[,2]  
 
   nlevels <- NROW(pairs_mat)
   nodecountsbycode <- tabulate(nodecov, nbins = nlevels)
-  
+
   if(!is.directed(nw) && !is.bipartite(nw)) {
     pairs_mat <- pairs_mat | t(pairs_mat)
   }
-  
+
   pairs_to_keep <- (allowed.tails != allowed.heads & nodecountsbycode[allowed.tails] > 0 & nodecountsbycode[allowed.heads] > 0) | (allowed.tails == allowed.heads & nodecountsbycode[allowed.tails] > 1)
   allowed.tails <- allowed.tails[pairs_to_keep]
   allowed.heads <- allowed.heads[pairs_to_keep]
-  
-  
-  blocks_offdiag_pairs <- which(allowed.tails != allowed.heads)  
-  
+
+  blocks_offdiag_pairs <- which(allowed.tails != allowed.heads)
+
   blocks_tails <- c(allowed.tails, if(!is.bipartite(nw) && !is.directed(nw)) allowed.heads[blocks_offdiag_pairs])
   blocks_heads <- c(allowed.heads, if(!is.bipartite(nw) && !is.directed(nw)) allowed.tails[blocks_offdiag_pairs])
 
   ## number of blocks mixtypes that need to be considered when strat mixing type is off-diag and on-diag, respectively
   blocks_mixtypes <- c(length(blocks_tails), length(allowed.tails))
-    
+
   # for economy of C space, best to count # of nodes of each bd-strat pairing
   nodecountsbyjointcode <- as.integer(table(factor(bd_vattr, levels=seq_len(bd_nlevels)),
                                             factor(nodecov, levels=seq_len(nlevels)), 
                                             factor(arguments$constraints$strat$nodecov, levels=seq_len(arguments$constraints$strat$nlevels))))
-  
+
   proposal <- list(name = "BDStratTNT",
                    inputs = NULL, # passed by name below
                    strattailattrs = as.integer(arguments$constraints$strat$tailattrs - 1L),

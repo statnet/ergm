@@ -16,7 +16,7 @@ typedef struct {
   NodeList ***tails_by_attr;
   NodeList ***heads_by_attr;
   NodeList ***boths_by_attr;
-  
+
   NodeList ***tails;
   NodeList ***heads;
   NodeList ***boths;
@@ -24,32 +24,32 @@ typedef struct {
   int **tailpos;
   int **headpos;
   int **bothpos;
-  
+
   int *bd_vattr;
-    
+
   int directed;
 
   int total_nlevels;
   int bd_nlevels;
 } BDNodeLists;
 
-static inline BDNodeLists *BDNodeListsInitialize(int **maxout, 
-                                                 int **maxin, 
+static inline BDNodeLists *BDNodeListsInitialize(int **maxout,
+                                                 int **maxin,
                                                  int **indegree,
                                                  int **outdegree,
-                                                 int *strat_vattr, 
-                                                 int strat_nlevels, 
-                                                 int *blocks_vattr, 
-                                                 int blocks_nlevels, 
-                                                 int *bd_vattr, 
-                                                 int bd_nlevels, 
-                                                 int *jointattrcounts, 
+                                                 int *strat_vattr,
+                                                 int strat_nlevels,
+                                                 int *blocks_vattr,
+                                                 int blocks_nlevels,
+                                                 int *bd_vattr,
+                                                 int bd_nlevels,
+                                                 int *jointattrcounts,
                                                  Network *nwp) {
   BDNodeLists *lists = Calloc(1, BDNodeLists);
 
-  // do some copying    
+  // do some copying
   lists->directed = DIRECTED;
-  
+
   lists->bd_nlevels = bd_nlevels;
   lists->total_nlevels = strat_nlevels*blocks_nlevels*bd_nlevels;
 
@@ -57,28 +57,28 @@ static inline BDNodeLists *BDNodeListsInitialize(int **maxout,
 
   // set up node lists
   lists->bothpos = Calloc(bd_nlevels, int *);
-  lists->tailpos = DIRECTED ? Calloc(bd_nlevels, int *) : lists->bothpos;  
-  lists->headpos = DIRECTED ? Calloc(bd_nlevels, int *) : lists->bothpos;  
-  
+  lists->tailpos = DIRECTED ? Calloc(bd_nlevels, int *) : lists->bothpos;
+  lists->headpos = DIRECTED ? Calloc(bd_nlevels, int *) : lists->bothpos;
+
   for(int i = 0; i < bd_nlevels; i++) {
     lists->bothpos[i] = Calloc(N_NODES + 1, int);
     if(DIRECTED) {
-      lists->tailpos[i] = Calloc(N_NODES + 1, int);  
-      lists->headpos[i] = Calloc(N_NODES + 1, int); 
+      lists->tailpos[i] = Calloc(N_NODES + 1, int);
+      lists->headpos[i] = Calloc(N_NODES + 1, int);
     }
   }
-    
+
   lists->boths_by_attr = Calloc(lists->total_nlevels, NodeList **);
   lists->tails_by_attr = DIRECTED ? Calloc(lists->total_nlevels, NodeList **) : lists->boths_by_attr;
   lists->heads_by_attr = DIRECTED ? Calloc(lists->total_nlevels, NodeList **) : lists->boths_by_attr;
-  
+
   for(int i = 0; i < lists->total_nlevels; i++) {
     lists->boths_by_attr[i] = Calloc(bd_nlevels, NodeList *);
     if(DIRECTED) {
       lists->tails_by_attr[i] = Calloc(bd_nlevels, NodeList *);
       lists->heads_by_attr[i] = Calloc(bd_nlevels, NodeList *);
     }
-    
+
     for(int j = 0; j < bd_nlevels; j++) {
       lists->boths_by_attr[i][j] = NodeListInitialize(jointattrcounts[i], lists->bothpos[j]);
       if(DIRECTED) {
@@ -94,21 +94,21 @@ static inline BDNodeLists *BDNodeListsInitialize(int **maxout,
 
   for(Vertex vertex = 1; vertex <= N_NODES; vertex++) {
     int attr_val = strat_vattr[vertex]*blocks_nlevels*bd_nlevels + blocks_vattr[vertex]*bd_nlevels + bd_vattr[vertex];
-    
+
     for(int i = 0; i < bd_nlevels; i++) {
       if(DIRECTED) {
         if(indegree[i][vertex] < maxin[i][vertex] && outdegree[i][vertex] < maxout[i][vertex]) {
-          NodeListInsert(lists->boths_by_attr[attr_val][i], vertex);        
+          NodeListInsert(lists->boths_by_attr[attr_val][i], vertex);
         } else if(outdegree[i][vertex] < maxout[i][vertex]) {
           NodeListInsert(lists->tails_by_attr[attr_val][i], vertex);
         } else if(indegree[i][vertex] < maxin[i][vertex]) {
           NodeListInsert(lists->heads_by_attr[attr_val][i], vertex);
         }
       } else if(indegree[i][vertex] + outdegree[i][vertex] < maxout[i][vertex]) {
-        NodeListInsert(lists->boths_by_attr[attr_val][i], vertex);        
+        NodeListInsert(lists->boths_by_attr[attr_val][i], vertex);
       }
     }
-    
+
     lists->boths[vertex] = lists->boths_by_attr[attr_val];
     if(DIRECTED) {
       lists->tails[vertex] = lists->tails_by_attr[attr_val];
@@ -144,7 +144,7 @@ static inline void BDNodeListsDestroy(BDNodeLists *lists) {
     Free(lists->tails);
     Free(lists->heads);
   }
-  
+
   for(int i = 0; i < lists->bd_nlevels; i++) {
     Free(lists->bothpos[i]);
     if(lists->directed) {
@@ -157,7 +157,7 @@ static inline void BDNodeListsDestroy(BDNodeLists *lists) {
     Free(lists->tailpos);
     Free(lists->headpos);
   }
-  
+
   Free(lists);
 }
 
@@ -167,7 +167,7 @@ static inline void BDNodeListsToggleIf(Vertex tail, Vertex head, BDNodeLists *li
       NodeListToggle(lists->boths[tail][lists->bd_vattr[head]], tail);
       NodeListToggle(lists->heads[tail][lists->bd_vattr[head]], tail);
     } else {
-      NodeListToggle(lists->tails[tail][lists->bd_vattr[head]], tail);      
+      NodeListToggle(lists->tails[tail][lists->bd_vattr[head]], tail);
     }
   }
 
@@ -176,7 +176,7 @@ static inline void BDNodeListsToggleIf(Vertex tail, Vertex head, BDNodeLists *li
       NodeListToggle(lists->boths[head][lists->bd_vattr[tail]], head);
       NodeListToggle(lists->tails[head][lists->bd_vattr[tail]], head);
     } else {
-      NodeListToggle(lists->heads[head][lists->bd_vattr[tail]], head);        
+      NodeListToggle(lists->heads[head][lists->bd_vattr[tail]], head);
     }
   }
 }

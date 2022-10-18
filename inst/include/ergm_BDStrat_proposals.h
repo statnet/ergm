@@ -61,36 +61,36 @@ typedef struct {
   BDStratBlocks *blocks;
 
   HashEL **hash;
-  
-  int tailmaxl;  
+
+  int tailmaxl;
   int headmaxl;
-  
+
   int stratmixingtype;
-  
+
   double currentcumprob;
   double proposedcumprob;
-  
+
   double *originalprobvec;
-  
+
   WtPop *wtp;
-  
+
   int **maxout;
   int **maxin;
-  
+
   int **indegree;
   int **outdegree;
   int nbdlevels;
-  
+
   int nmixtypes;
-  
+
   int *strat_vattr;
   int *blocks_vattr;
-  int *bd_vattr;  
-  
+  int *bd_vattr;
+
   int nstratlevels;
-  
+
   int **indmat;
-    
+
   int nmixtypestoupdate;
   int *mixtypestoupdate;
 
@@ -114,7 +114,7 @@ static inline void ComputeChangesToToggleability(Vertex *tail, Vertex *head, BDS
   if(ntails <= 2 || nheads <= 2) {
     // temporarily set tail and head toggleability to what it would be in the proposed network
     BDNodeListsToggleIf(*tail, *head, sto->lists, sto->tailmaxl, sto->headmaxl);
-    
+
     // how many strat types do we need to check?
     int ntocheck = ((!sto->lists->directed) && (sto->strat_vattr[*tail] == sto->strat_vattr[*head])) ? sto->nstratlevels : 2*sto->nstratlevels;
 
@@ -127,27 +127,27 @@ static inline void ComputeChangesToToggleability(Vertex *tail, Vertex *head, BDS
       if(infl_i < 0 || infl_i == sto->stratmixingtype) {
         continue;
       }
-      
+
       // can we toggle this mixing type in the current network?
       int toggle_curr = WtPopGetWt(infl_i, sto->wtp) > 0;
-      
+
       // will we be able to toggle this mixing type in the proposed network? 
       int toggle_prop = sto->hash[infl_i]->list->nedges > 0 || BDStratBlocksDyadCountPositive(sto->blocks, infl_i);
-      
+
       // will there be a change in toggleability status?
       int change = toggle_curr - toggle_prop;
 
-      // if so, take this into account      
+      // if so, take this into account
       if(change) {
         sto->proposedcumprob -= change*sto->originalprobvec[infl_i];
         sto->mixtypestoupdate[sto->nmixtypestoupdate] = infl_i;
-        sto->nmixtypestoupdate++;        
+        sto->nmixtypestoupdate++;
       }
     }
-    
+
     // restore tail and head toggleability to their current status
     BDNodeListsToggleIf(*tail, *head, sto->lists, sto->tailmaxl, sto->headmaxl);
   }
 }
 
-#endif 
+#endif

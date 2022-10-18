@@ -47,9 +47,9 @@ static inline void NodeListDelete(NodeList *nodelist, Vertex node) {
 
 static inline void NodeListToggle(NodeList *nodelist, Vertex node) {
   if(nodelist->nodepos[node]) {
-    NodeListDelete(nodelist, node);      
+    NodeListDelete(nodelist, node);
   } else {
-    NodeListInsert(nodelist, node);      
+    NodeListInsert(nodelist, node);
   }
 }
 
