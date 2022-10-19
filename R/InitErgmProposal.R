@@ -120,21 +120,15 @@ InitErgmProposal.BDStratTNT <- function(arguments, nw) {
   nodecov <- arguments$constraints$blocks$nodecov
   amat <- arguments$constraints$blocks$amat
 
-  pairs_mat <- amat
+  allowed.attrs <- which(amat, arr.ind = TRUE)
   if(!is.directed(nw) && !is.bipartite(nw)) {
-    pairs_mat[lower.tri(pairs_mat, diag = FALSE)] <- FALSE
+    allowed.attrs <- allowed.attrs[allowed.attrs[,1] <= allowed.attrs[,2],,drop=FALSE]
   }
-
-  allowed.attrs <- which(pairs_mat, arr.ind = TRUE)
   allowed.tails <- allowed.attrs[,1]
   allowed.heads <- allowed.attrs[,2]
 
-  nlevels <- NROW(pairs_mat)
+  nlevels <- NROW(amat)
   nodecountsbycode <- tabulate(nodecov, nbins = nlevels)
-
-  if(!is.directed(nw) && !is.bipartite(nw)) {
-    pairs_mat <- pairs_mat | t(pairs_mat)
-  }
 
   pairs_to_keep <- (allowed.tails != allowed.heads & nodecountsbycode[allowed.tails] > 0 & nodecountsbycode[allowed.heads] > 0) | (allowed.tails == allowed.heads & nodecountsbycode[allowed.tails] > 1)
   allowed.tails <- allowed.tails[pairs_to_keep]
@@ -174,7 +168,7 @@ InitErgmProposal.BDStratTNT <- function(arguments, nw) {
                    blocks_heads = as.integer(blocks_heads - 1L),
                    blocks_mixtypes = as.integer(blocks_mixtypes),
                    empirical_flag = as.integer(arguments$constraints$strat$empirical),
-                   amat = as.integer(t(pairs_mat)),
+                   amat = as.integer(t(amat)),
                    dyad_indep = as.integer(dyad_indep))
 
   proposal
