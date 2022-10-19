@@ -130,10 +130,15 @@ InitErgmProposal.BDStratTNT <- function(arguments, nw) {
   allowed.heads <- allowed.attrs[,2]
 
   nlevels <- NROW(pairs_mat)
+  nodecountsbycode <- tabulate(nodecov, nbins = nlevels)
 
   if(!is.directed(nw) && !is.bipartite(nw)) {
     pairs_mat <- pairs_mat | t(pairs_mat)
   }
+
+  pairs_to_keep <- (allowed.tails != allowed.heads & nodecountsbycode[allowed.tails] > 0 & nodecountsbycode[allowed.heads] > 0) | (allowed.tails == allowed.heads & nodecountsbycode[allowed.tails] > 1)
+  allowed.tails <- allowed.tails[pairs_to_keep]
+  allowed.heads <- allowed.heads[pairs_to_keep]
 
   blocks_offdiag_pairs <- which(allowed.tails != allowed.heads)
 
