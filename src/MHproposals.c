@@ -127,8 +127,8 @@ MH_I_FN(Mi_BDStratTNT) {
   }
 
   sto->nmixtypes = length(getListElement(MHp->R, "probvec"));
-  sto->nstratlevels = asInteger(getListElement(MHp->R, "nattrcodes"));
-  int nblockslevels = asInteger(getListElement(MHp->R, "blocks_levels"));
+  sto->nstratlevels = asInteger(getListElement(MHp->R, "strat_nlevels"));
+  int nblockslevels = asInteger(getListElement(MHp->R, "blocks_nlevels"));
 
   sto->mixtypestoupdate = Calloc(sto->nmixtypes, int);
 
@@ -165,10 +165,10 @@ MH_I_FN(Mi_BDStratTNT) {
   sto->blocks = BDStratBlocksInitialize(sto->lists,
                                         sto->nstratlevels,
                                         sto->nmixtypes,
-                                        INTEGER(getListElement(MHp->R, "strattailattrs")),
-                                        INTEGER(getListElement(MHp->R, "stratheadattrs")),
+                                        INTEGER(getListElement(MHp->R, "strat_tails")),
+                                        INTEGER(getListElement(MHp->R, "strat_heads")),
                                         nblockslevels,
-                                        INTEGER(getListElement(MHp->R, "blocks_mixtypes")),
+                                        INTEGER(getListElement(MHp->R, "blocks_nmixtypes")),
                                         INTEGER(getListElement(MHp->R, "blocks_tails")),
                                         INTEGER(getListElement(MHp->R, "blocks_heads")),
                                         sto->nbdlevels,
@@ -182,8 +182,8 @@ MH_I_FN(Mi_BDStratTNT) {
     els[i] = UnsrtELInitialize(0, NULL, NULL, FALSE);
   }
 
-  int *strattailattrs = INTEGER(getListElement(MHp->R, "strattailattrs"));
-  int *stratheadattrs = INTEGER(getListElement(MHp->R, "stratheadattrs"));
+  int *strattailattrs = INTEGER(getListElement(MHp->R, "strat_tails"));
+  int *stratheadattrs = INTEGER(getListElement(MHp->R, "strat_heads"));
 
   sto->indmat = Calloc(sto->nstratlevels, int *);
   for(int i = 0; i < sto->nstratlevels; i++) {

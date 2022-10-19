@@ -95,7 +95,8 @@ InitErgmProposal.BDStratTNT <- function(arguments, nw) {
   maxin <- matrix(rep(maxin, length.out = length(attribs)), ncol = ncol(attribs))
 
   bd_vattr <- which(attribs, arr.ind = TRUE)
-  bd_vattr <- bd_vattr[order(bd_vattr[,1L]), 2L]
+  bd_vattr <- bd_vattr[order(bd_vattr[, 1L]), 2L]
+  bd_nlevels <- NCOL(attribs)
 
   ## allowed bd pairings
   bd_mixmat <- matrix(TRUE, nrow = NCOL(attribs), ncol = NCOL(attribs))
@@ -104,9 +105,8 @@ InitErgmProposal.BDStratTNT <- function(arguments, nw) {
   }
 
   bd_pairs <- which(bd_mixmat, arr.ind = TRUE)
-  bd_tails <- bd_pairs[,1L]
-  bd_heads <- bd_pairs[,2L]
-  bd_nlevels <- NCOL(attribs)
+  bd_tails <- bd_pairs[, 1L]
+  bd_heads <- bd_pairs[, 2L]
 
   ## need to handle undirected case as for blocks, but bipartite along with unip for now
   bd_offdiag_pairs <- which(bd_tails != bd_heads)
@@ -117,56 +117,59 @@ InitErgmProposal.BDStratTNT <- function(arguments, nw) {
   ## number of bd mixtypes that need to be considered when strat and blocks mixing types are off-diag and on-diag, respectively
   bd_nmixtypes <- c(length(bd_allowed_tails), length(bd_tails))
 
-  nodecov <- arguments$constraints$blocks$nodecov
+  blocks_vattr <- arguments$constraints$blocks$nodecov
   amat <- arguments$constraints$blocks$amat
 
-  allowed.attrs <- which(amat, arr.ind = TRUE)
+  blocks_pairs <- which(amat, arr.ind = TRUE)
   if(!is.directed(nw) && !is.bipartite(nw)) {
-    allowed.attrs <- allowed.attrs[allowed.attrs[,1] <= allowed.attrs[,2],,drop=FALSE]
+    blocks_pairs <- blocks_pairs[blocks_pairs[, 1L] <= blocks_pairs[, 2L], , drop = FALSE]
   }
-  allowed.tails <- allowed.attrs[,1]
-  allowed.heads <- allowed.attrs[,2]
+  blocks_tails <- blocks_pairs[, 1L]
+  blocks_heads <- blocks_pairs[, 2L]
 
-  nlevels <- NROW(amat)
-  nodecountsbycode <- tabulate(nodecov, nbins = nlevels)
+  blocks_nlevels <- NROW(amat)
+  blocks_node_counts <- tabulate(blocks_vattr, nbins = blocks_nlevels)
 
-  pairs_to_keep <- (allowed.tails != allowed.heads & nodecountsbycode[allowed.tails] > 0 & nodecountsbycode[allowed.heads] > 0) | (allowed.tails == allowed.heads & nodecountsbycode[allowed.tails] > 1)
-  allowed.tails <- allowed.tails[pairs_to_keep]
-  allowed.heads <- allowed.heads[pairs_to_keep]
+  pairs_to_keep <- (blocks_tails != blocks_heads & blocks_node_counts[blocks_tails] > 0 & blocks_node_counts[blocks_heads] > 0) | (blocks_tails == blocks_heads & blocks_node_counts[blocks_tails] > 1)
+  blocks_tails <- blocks_tails[pairs_to_keep]
+  blocks_heads <- blocks_heads[pairs_to_keep]
 
-  blocks_offdiag_pairs <- which(allowed.tails != allowed.heads)
+  blocks_offdiag_pairs <- which(blocks_tails != blocks_heads)
 
-  blocks_tails <- c(allowed.tails, if(!is.bipartite(nw) && !is.directed(nw)) allowed.heads[blocks_offdiag_pairs])
-  blocks_heads <- c(allowed.heads, if(!is.bipartite(nw) && !is.directed(nw)) allowed.tails[blocks_offdiag_pairs])
+  blocks_allowed_tails <- c(blocks_tails, if(!is.bipartite(nw) && !is.directed(nw)) blocks_heads[blocks_offdiag_pairs])
+  blocks_allowed_heads <- c(blocks_heads, if(!is.bipartite(nw) && !is.directed(nw)) blocks_tails[blocks_offdiag_pairs])
 
   ## number of blocks mixtypes that need to be considered when strat mixing type is off-diag and on-diag, respectively
-  blocks_mixtypes <- c(length(blocks_tails), length(allowed.tails))
+  blocks_nmixtypes <- c(length(blocks_allowed_tails), length(blocks_tails))
+
+  strat_vattr <- arguments$constraints$strat$nodecov
+  strat_nlevels <- arguments$constraints$strat$nlevels
 
   # for economy of C space, best to count # of nodes of each bd-strat pairing
-  nodecountsbyjointcode <- as.integer(table(factor(bd_vattr, levels=seq_len(bd_nlevels)),
-                                            factor(nodecov, levels=seq_len(nlevels)),
-                                            factor(arguments$constraints$strat$nodecov, levels=seq_len(arguments$constraints$strat$nlevels))))
+  nodecountsbyjointcode <- as.integer(table(factor(bd_vattr, levels = seq_len(bd_nlevels)),
+                                            factor(blocks_vattr, levels = seq_len(blocks_nlevels)),
+                                            factor(strat_vattr, levels = seq_len(strat_nlevels))))
 
   proposal <- list(name = "BDStratTNT",
                    inputs = NULL, # passed by name below
-                   strattailattrs = as.integer(arguments$constraints$strat$tailattrs - 1L),
-                   stratheadattrs = as.integer(arguments$constraints$strat$headattrs - 1L),
-                   probvec = as.double(arguments$constraints$strat$probvec),
-                   nattrcodes = as.integer(arguments$constraints$strat$nlevels),
-                   strat_vattr = as.integer(arguments$constraints$strat$nodecov - 1L),
+                   strat_vattr = as.integer(strat_vattr - 1L),
+                   strat_nlevels = as.integer(strat_nlevels),
+                   strat_tails = as.integer(arguments$constraints$strat$tailattrs - 1L),
+                   strat_heads = as.integer(arguments$constraints$strat$headattrs - 1L),
+                   blocks_vattr = as.integer(blocks_vattr - 1L),
+                   blocks_nlevels = as.integer(blocks_nlevels),
+                   blocks_tails = as.integer(blocks_allowed_tails - 1L),
+                   blocks_heads = as.integer(blocks_allowed_heads - 1L),
+                   blocks_nmixtypes = as.integer(blocks_nmixtypes),
+                   bd_vattr = as.integer(bd_vattr - 1L),
+                   bd_nlevels = as.integer(bd_nlevels),
+                   bd_tails = as.integer(bd_allowed_tails - 1L),
+                   bd_heads = as.integer(bd_allowed_heads - 1L),
+                   bd_nmixtypes = as.integer(bd_nmixtypes),
                    nodecountsbyjointcode = as.integer(nodecountsbyjointcode),
                    maxout = as.integer(maxout),
                    maxin = as.integer(maxin),
-                   bd_vattr = as.integer(bd_vattr - 1L),
-                   bd_tails = as.integer(bd_allowed_tails - 1L),
-                   bd_heads = as.integer(bd_allowed_heads - 1L),
-                   bd_nlevels = as.integer(bd_nlevels),
-                   bd_nmixtypes = as.integer(bd_nmixtypes),
-                   blocks_levels = as.integer(nlevels),
-                   blocks_vattr = as.integer(nodecov - 1L),
-                   blocks_tails = as.integer(blocks_tails - 1L),
-                   blocks_heads = as.integer(blocks_heads - 1L),
-                   blocks_mixtypes = as.integer(blocks_mixtypes),
+                   probvec = as.double(arguments$constraints$strat$probvec),
                    empirical_flag = as.integer(arguments$constraints$strat$empirical),
                    amat = as.integer(t(amat)),
                    dyad_indep = as.integer(dyad_indep))
