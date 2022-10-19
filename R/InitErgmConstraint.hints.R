@@ -113,7 +113,7 @@ InitErgmConstraint.strat <- function(nw, arglist, ...) {
   if(!is.bipartite(nw) && !is.directed(nw)) {
     # for undirected unipartite, symmetrize pmat and then set the sub-diagonal to zero
     pmat <- (pmat + t(pmat))/2
-    pmat[lower.tri(pmat)] <- 0
+    pmat[lower.tri(pmat, diag = FALSE)] <- 0
   }
 
   # record the tail and head attr code for each mixing type with positive probability
