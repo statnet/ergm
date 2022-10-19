@@ -107,7 +107,7 @@ InitErgmConstraint.strat <- function(nw, arglist, ...) {
   pmat <- NVL(pmat, matrix(1, nrow = length(strat_row_levels), ncol = length(strat_col_levels)))
 
   if(NROW(pmat) != length(strat_row_levels) || NCOL(pmat) != length(strat_col_levels)) {
-    ergm_Init_abort(sQuote("pmat"), " does not have the correct dimensions for ", sQuote("Strat_attr"), ".")
+    ergm_Init_abort(sQuote("pmat"), " does not have the correct dimensions for ", sQuote("attr"), ".")
   }
 
   if(!is.bipartite(nw) && !is.directed(nw)) {
@@ -129,8 +129,8 @@ InitErgmConstraint.strat <- function(nw, arglist, ...) {
   # record the number of unique attr codes
   nlevels <- length(strat_levels)
 
-  list(dependence = FALSE, 
-       priority = 10, 
+  list(dependence = FALSE,
+       priority = 10,
        tailattrs = tailattrs,
        headattrs = headattrs,
        probvec = probvec,

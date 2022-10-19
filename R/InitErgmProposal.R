@@ -97,18 +97,9 @@ InitErgmProposal.BDStratTNT <- function(arguments, nw) {
   bd_vattr <- which(attribs, arr.ind = TRUE)
   bd_vattr <- bd_vattr[order(bd_vattr[,1L]), 2L]
 
-  ## which attribute pairings are allowed by bd? only consider maxin if directed
-  bd_mixmat <- matrix(FALSE, nrow = NCOL(attribs), ncol = NCOL(attribs))
-
-  maxout_pairs <- which(maxout > 0, arr.ind = TRUE)
-  maxout_pairs[,1L] <- bd_vattr[maxout_pairs[,1L]]
-  bd_mixmat[maxout_pairs] <- TRUE
-  if(is.directed(nw)) {
-    maxin_pairs <- which(maxin > 0, arr.ind = TRUE)
-    maxin_pairs[,1L] <- bd_vattr[maxin_pairs[,1L]]
-    bd_mixmat[maxin_pairs[,c(2L,1L)]] <- TRUE
-  } else {
-    bd_mixmat <- bd_mixmat | t(bd_mixmat)
+  ## allowed bd pairings
+  bd_mixmat <- matrix(TRUE, nrow = NCOL(attribs), ncol = NCOL(attribs))
+  if(!is.directed(nw)) {
     bd_mixmat[lower.tri(bd_mixmat, diag = FALSE)] <- FALSE
   }
 
@@ -129,15 +120,9 @@ InitErgmProposal.BDStratTNT <- function(arguments, nw) {
   nodecov <- arguments$constraints$blocks$nodecov
   amat <- arguments$constraints$blocks$amat
 
-  if(is.bipartite(nw)) {
-    nodecov[-seq_len(nw %n% "bipartite")] <- nodecov[-seq_len(nw %n% "bipartite")] + NROW(amat)
-    pairs_mat <- matrix(FALSE, nrow = NROW(amat) + NCOL(amat), ncol = NROW(amat) + NCOL(amat))
-    pairs_mat[seq_len(NROW(amat)), -seq_len(NROW(amat))] <- amat
-  } else if(!is.directed(nw)) {
-    pairs_mat <- amat
+  pairs_mat <- amat
+  if(!is.directed(nw) && !is.bipartite(nw)) {
     pairs_mat[lower.tri(pairs_mat, diag = FALSE)] <- FALSE
-  } else {
-    pairs_mat <- amat
   }
 
   allowed.attrs <- which(pairs_mat, arr.ind = TRUE)
@@ -145,15 +130,10 @@ InitErgmProposal.BDStratTNT <- function(arguments, nw) {
   allowed.heads <- allowed.attrs[,2]
 
   nlevels <- NROW(pairs_mat)
-  nodecountsbycode <- tabulate(nodecov, nbins = nlevels)
 
   if(!is.directed(nw) && !is.bipartite(nw)) {
     pairs_mat <- pairs_mat | t(pairs_mat)
   }
-
-  pairs_to_keep <- (allowed.tails != allowed.heads & nodecountsbycode[allowed.tails] > 0 & nodecountsbycode[allowed.heads] > 0) | (allowed.tails == allowed.heads & nodecountsbycode[allowed.tails] > 1)
-  allowed.tails <- allowed.tails[pairs_to_keep]
-  allowed.heads <- allowed.heads[pairs_to_keep]
 
   blocks_offdiag_pairs <- which(allowed.tails != allowed.heads)
 

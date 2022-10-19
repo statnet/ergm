@@ -313,36 +313,33 @@ InitErgmConstraint.blocks <- function(nw, arglist, ...) {
 
     u <- indices2.grid[rows2keep,]
 
-    b1nodecov <- match(b1nodecov, b1namescov, nomatch = length(b1namescov) + 1)
-    b2nodecov <- match(b2nodecov, b2namescov, nomatch = length(b2namescov) + 1)
+    row_nodecov <- match(b1nodecov, b1namescov, nomatch = length(b1namescov) + 1)
+    col_nodecov <- match(b2nodecov, b2namescov, nomatch = length(b2namescov) + 1)
+    col_nodecov <- col_nodecov + nr + 1
 
-    nodecov <- c(b1nodecov, b2nodecov)
+    nodecov <- c(row_nodecov, col_nodecov)
 
-    u[,2L] <- u[,2L] - nr
-    amat <- matrix(TRUE, nrow = nr + 1, ncol = nc + 1)
+    amat <- matrix(TRUE, nrow = nr + nc + 2, ncol = nr + nc + 2)
+    amat[,seq_len(nr + 1)] <- FALSE
+    amat[-seq_len(nr + 1),] <- FALSE
+    u[,2L] <- u[,2L] + 1L
     amat[as.matrix(u)] <- FALSE
-
-    row_nodecov <- b1nodecov
-    col_nodecov <- b2nodecov
-
   } else {
     nodecov <- ergm_get_vattr(attr, nw)
 
     u <- ergm_attr_levels(levels, nodecov, nw, sort(unique(nodecov)))
-    namescov <- u 
+    namescov <- u
 
     nr <- length(u)
     nc <- length(u)
 
     levels2.list <- transpose(expand.grid(row = u, col = u, stringsAsFactors=FALSE))
     indices2.grid <- expand.grid(row = 1:nr, col = 1:nc)
-    uun <- as.vector(outer(u,u,paste,sep="."))
 
     if(!is.directed(nw)) {
-        rowleqcol <- indices2.grid$row <= indices2.grid$col
-        levels2.list <- levels2.list[rowleqcol]
-        indices2.grid <- indices2.grid[rowleqcol,]
-        uun <- uun[rowleqcol]
+      rowleqcol <- indices2.grid$row <= indices2.grid$col
+      levels2.list <- levels2.list[rowleqcol]
+      indices2.grid <- indices2.grid[rowleqcol,]
     }
 
     levels2.sel <- ergm_attr_levels(levels2, list(row = nodecov, col = nodecov), nw, levels2.list)
@@ -351,56 +348,26 @@ InitErgmConstraint.blocks <- function(nw, arglist, ...) {
     rows2keep <- rows2keep[!is.na(rows2keep)]
 
     u <- indices2.grid[rows2keep,]
-    uun <- uun[rows2keep]
 
     nodecov <- match(nodecov, namescov, nomatch = length(namescov) + 1)
 
     amat <- matrix(TRUE, nrow = nr + 1, ncol = nc + 1)
     amat[as.matrix(u)] <- FALSE
     if(!is.directed(nw)) amat <- amat & t(amat)
-
-    row_nodecov <- nodecov
-    col_nodecov <- nodecov
-
   }
-
-  constrain <- "blocks"
 
   n <- as.integer(network.size(nw))
-
-  if(is.bipartite(nw)) {
-    b1 <- as.integer(nw %n% "bipartite")
-    b2 <- n - b1
-  } else {
-    b1 <- 0L
-    b2 <- 0L
-  }
 
   rm(nw, arglist, "...") # All needed information has now been extracted.
 
   free_dyads <- function() {
-    rle_list <- vector(mode = "list", length = nc + 1)
-    for(i in seq_len(nc + 1)) {
-      rle_list[[i]] <- rle(c(amat[row_nodecov,i], logical(b2)))
-    }
-
-    lens <- vector(mode = "list", length = n)
-    vals <- vector(mode = "list", length = n)
-
-    for(i in seq_len(n)) {
-      if(i > b1) {
-        lens[[i]] <- rle_list[[col_nodecov[i - b1]]]$lengths
-        vals[[i]] <- rle_list[[col_nodecov[i - b1]]]$values
-      } else {
-        lens[[i]] <- n
-        vals[[i]] <- FALSE
-      }
-    }
-
+    rle_list <- lapply(seq_len(NCOL(amat)), function(i) rle(c(amat[nodecov,i])))
+    lens <- lapply(seq_len(n), function(i) rle_list[[nodecov[i]]]$lengths)
+    vals <- lapply(seq_len(n), function(i) rle_list[[nodecov[i]]]$values)
     rlebdm(compress(structure(list(lengths=unlist(lens), values=unlist(vals)), class="rle")), n)
   }
 
-  list(constrain = constrain,
+  list(constrain = "blocks",
        dependence = FALSE,
        free_dyads = free_dyads,
        nodecov = nodecov,
