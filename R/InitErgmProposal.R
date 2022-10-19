@@ -142,7 +142,7 @@ InitErgmProposal.BDStratTNT <- function(arguments, nw) {
 
   allowed.attrs <- which(pairs_mat, arr.ind = TRUE)
   allowed.tails <- allowed.attrs[,1]
-  allowed.heads <- allowed.attrs[,2]  
+  allowed.heads <- allowed.attrs[,2]
 
   nlevels <- NROW(pairs_mat)
   nodecountsbycode <- tabulate(nodecov, nbins = nlevels)
@@ -165,7 +165,7 @@ InitErgmProposal.BDStratTNT <- function(arguments, nw) {
 
   # for economy of C space, best to count # of nodes of each bd-strat pairing
   nodecountsbyjointcode <- as.integer(table(factor(bd_vattr, levels=seq_len(bd_nlevels)),
-                                            factor(nodecov, levels=seq_len(nlevels)), 
+                                            factor(nodecov, levels=seq_len(nlevels)),
                                             factor(arguments$constraints$strat$nodecov, levels=seq_len(arguments$constraints$strat$nlevels))))
 
   proposal <- list(name = "BDStratTNT",
