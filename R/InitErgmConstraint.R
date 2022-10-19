@@ -302,54 +302,47 @@ InitErgmConstraint.blocks <- function(nw, arglist, ...) {
 
     offset <- length(row_levels) + 1L
   } else {
-    nodecov <- ergm_get_vattr(attr, nw)
-    row_nodecov <- col_nodecov <- nodecov
+    all_nodecov <- ergm_get_vattr(attr, nw)
+    row_nodecov <- col_nodecov <- all_nodecov
 
-    levs <- ergm_attr_levels(levels, nodecov, nw, sort(unique(nodecov)))
-    row_levels <- col_levels <- levs
+    all_levels <- ergm_attr_levels(levels, all_nodecov, nw, sort(unique(all_nodecov)))
+    row_levels <- col_levels <- all_levels
 
     offset <- 0L
   }
 
-  levels2.list <- transpose(expand.grid(row = row_levels, col = col_levels, stringsAsFactors = FALSE))
-  indices2.grid <- expand.grid(row = seq_along(row_levels), col = offset + seq_along(col_levels))
+  levels2_list <- transpose(expand.grid(row = row_levels, col = col_levels, stringsAsFactors = FALSE))
+  indices2_grid <- expand.grid(row = seq_along(row_levels), col = offset + seq_along(col_levels))
 
   if(!is.directed(nw) && !is.bipartite(nw)) {
-    rowleqcol <- indices2.grid$row <= indices2.grid$col
-    levels2.list <- levels2.list[rowleqcol]
-    indices2.grid <- indices2.grid[rowleqcol,]
+    rows_leq_cols <- indices2_grid$row <= indices2_grid$col
+    levels2_list <- levels2_list[rows_leq_cols]
+    indices2_grid <- indices2_grid[rows_leq_cols,]
   }
 
-  levels2.sel <- ergm_attr_levels(levels2, list(row = row_nodecov, col = col_nodecov), nw, levels2.list)
+  levels2_selected <- ergm_attr_levels(levels2, list(row = row_nodecov, col = col_nodecov), nw, levels2_list)
 
-  rows2keep <- match(levels2.sel, levels2.list, NA)
-  rows2keep <- rows2keep[!is.na(rows2keep)]
+  rows_to_keep <- match(levels2_selected, levels2_list, nomatch = NA)
+  rows_to_keep <- rows_to_keep[!is.na(rows_to_keep)]
 
-  u <- indices2.grid[rows2keep,]
-
-  nr <- length(row_levels)
-  nc <- length(col_levels)
+  pairs_to_fix <- indices2_grid[rows_to_keep,]
 
   if(is.bipartite(nw)) {
     row_nodecov <- match(row_nodecov, row_levels, nomatch = length(row_levels) + 1)
     col_nodecov <- match(col_nodecov, col_levels, nomatch = length(col_levels) + 1)
-    col_nodecov <- col_nodecov + nr + 1
 
-    nodecov <- c(row_nodecov, col_nodecov)
-
-    size <- nr + nc + 2
+    nodecov <- c(row_nodecov, col_nodecov + offset)
   } else {
-    nodecov <- match(nodecov, levs, nomatch = length(levs) + 1)
-
-    size <- nr + 1
+    nodecov <- match(all_nodecov, all_levels, nomatch = length(all_levels) + 1)
   }
 
+  size <- length(col_levels) + 1 + offset
   amat <- matrix(TRUE, nrow = size, ncol = size)
-  amat[as.matrix(u)] <- FALSE
+  amat[as.matrix(pairs_to_fix)] <- FALSE
 
   if(is.bipartite(nw)) {
-    amat[,seq_len(nr + 1)] <- FALSE
-    amat[-seq_len(nr + 1),] <- FALSE
+    amat[,seq_len(offset)] <- FALSE
+    amat[-seq_len(offset),] <- FALSE
   } else if(!is.directed(nw)) {
     amat <- amat & t(amat)
   }
