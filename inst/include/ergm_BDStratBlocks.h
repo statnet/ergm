@@ -127,7 +127,7 @@ static inline void BDStratBlocksGetRand(Vertex *tail, Vertex *head, BDStratBlock
   BDStratBlocksGetRandWithCount(tail, head, blocks, stratmixingtype, BDStratBlocksDyadCount(blocks, stratmixingtype));
 }
 
-static inline Dyad BDStratBlocksDyadCountOnToggle(Vertex tail, Vertex head, BDStratBlocks *blocks, int stratmixingtype, int change, int tailcondition, int headcondition) {
+static inline Dyad BDStratBlocksDyadCountOnToggle(Vertex tail, Vertex head, BDStratBlocks *blocks, int stratmixingtype, int tailcondition, int headcondition) {
   BDNodeListsToggleIf(tail, head, blocks->lists, tailcondition, headcondition);
   Dyad dyadcount = BDStratBlocksDyadCount(blocks, stratmixingtype);
   BDNodeListsToggleIf(tail, head, blocks->lists, tailcondition, headcondition);
