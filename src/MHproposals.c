@@ -101,110 +101,115 @@ MH_F_FN(Mf_TNT){
     MH_BDStratTNT
 ********************/
 
-// struct definition in ergm_BDStrat_proposals.h
-
 MH_I_FN(Mi_BDStratTNT) {
-  // process the inputs and initialize all the edgelists in storage; set MHp->ntoggles to 1
+  // single-toggle proposal
   MHp->ntoggles = 1;
 
+  // BDStratTNTStorage struct definition in inst/ergm_BDStrat_proposals.h
   ALLOC_STORAGE(1, BDStratTNTStorage, sto);
 
-  sto->CD = getListElement(getListElement(MHp->R, "flags"), "CD") != R_NilValue;
+  // store attribute pointers; decrement so nodal indices line up correctly
+  sto->strat_vattr = INTEGER(getListElement(MHp->R, "strat_vattr")) - 1;
+  sto->blocks_vattr = INTEGER(getListElement(MHp->R, "blocks_vattr")) - 1;
+  sto->bd_vattr = INTEGER(getListElement(MHp->R, "bd_vattr")) - 1;
 
-  sto->nbdlevels = asInteger(getListElement(MHp->R, "bd_nlevels"));
+  // read/store number of levels for each attribute
+  sto->strat_nlevels = asInteger(getListElement(MHp->R, "strat_nlevels"));
+  int nblockslevels = asInteger(getListElement(MHp->R, "blocks_nlevels"));
+  sto->bd_nlevels = asInteger(getListElement(MHp->R, "bd_nlevels"));
 
-  sto->maxout = Calloc(sto->nbdlevels, int *);
-  sto->maxin = DIRECTED ? Calloc(sto->nbdlevels, int *) : sto->maxout;
+  // set up degree bound arrays
+  sto->maxout = Calloc(sto->bd_nlevels, int *);
+  sto->maxin = DIRECTED ? Calloc(sto->bd_nlevels, int *) : sto->maxout;
   sto->maxout[0] = INTEGER(getListElement(MHp->R, "maxout")) - 1;
   if(DIRECTED) {
     sto->maxin[0] = INTEGER(getListElement(MHp->R, "maxin")) - 1;
   }
-  for(int i = 1; i < sto->nbdlevels; i++) {
+  for(int i = 1; i < sto->bd_nlevels; i++) {
     sto->maxout[i] = sto->maxout[i - 1] + N_NODES;
     if(DIRECTED) {
       sto->maxin[i] = sto->maxin[i - 1] + N_NODES;
     }
   }
 
-  sto->nmixtypes = length(getListElement(MHp->R, "probvec"));
-  sto->nstratlevels = asInteger(getListElement(MHp->R, "strat_nlevels"));
-  int nblockslevels = asInteger(getListElement(MHp->R, "blocks_nlevels"));
-
-  sto->mixtypestoupdate = Calloc(sto->nmixtypes, int);
-
-  // decrement so nodal indices line up correctly
-  sto->strat_vattr = INTEGER(getListElement(MHp->R, "strat_vattr")) - 1;
-  sto->blocks_vattr = INTEGER(getListElement(MHp->R, "blocks_vattr")) - 1;
-  sto->bd_vattr = INTEGER(getListElement(MHp->R, "bd_vattr")) - 1;
-
-  sto->indegree = Calloc(sto->nbdlevels, int *);
-  sto->outdegree = Calloc(sto->nbdlevels, int *);
-  for(int i = 0; i < sto->nbdlevels; i++) {
+  // initialize degree storage
+  sto->indegree = Calloc(sto->bd_nlevels, int *);
+  sto->outdegree = Calloc(sto->bd_nlevels, int *);
+  for(int i = 0; i < sto->bd_nlevels; i++) {
     sto->indegree[i] = Calloc(N_NODES + 1, int);
     sto->outdegree[i] = Calloc(N_NODES + 1, int);
   }
 
+  // tabulate initial degrees
   EXEC_THROUGH_NET_EDGES(tail, head, e, {
     sto->indegree[sto->bd_vattr[tail]][head]++;
     sto->outdegree[sto->bd_vattr[head]][tail]++;
   });
 
+  // odds and ends
+  sto->CD = getListElement(getListElement(MHp->R, "flags"), "CD") != R_NilValue;
+  sto->strat_nmixtypes = length(getListElement(MHp->R, "probvec"));
+  sto->strat_mixtypestoupdate = Calloc(sto->strat_nmixtypes, int);
+
+  // set up submaximal node lists given degrees, degree bounds, and attribute information
   sto->lists = BDNodeListsInitialize(sto->maxout,
                                      sto->maxin,
-                                     sto->indegree,
                                      sto->outdegree,
-                                     sto->strat_vattr,
-                                     sto->nstratlevels,
-                                     sto->blocks_vattr,
-                                     nblockslevels,
+                                     sto->indegree,
+                                     INTEGER(getListElement(MHp->R, "combined_vattr")) - 1,
+                                     asInteger(getListElement(MHp->R, "combined_nlevels")),
                                      sto->bd_vattr,
-                                     sto->nbdlevels,
-                                     INTEGER(getListElement(MHp->R, "nodecountsbyjointcode")),
+                                     sto->bd_nlevels,
+                                     INTEGER(getListElement(MHp->R, "combined_vattr_counts")),
                                      nwp);
 
+  // set up blocks sampler (submaximal node lists form margins of blocks)
   sto->blocks = BDStratBlocksInitialize(sto->lists,
-                                        sto->nstratlevels,
-                                        sto->nmixtypes,
+                                        sto->strat_nlevels,
+                                        sto->strat_nmixtypes,
                                         INTEGER(getListElement(MHp->R, "strat_tails")),
                                         INTEGER(getListElement(MHp->R, "strat_heads")),
                                         nblockslevels,
                                         INTEGER(getListElement(MHp->R, "blocks_nmixtypes")),
                                         INTEGER(getListElement(MHp->R, "blocks_tails")),
                                         INTEGER(getListElement(MHp->R, "blocks_heads")),
-                                        sto->nbdlevels,
+                                        sto->bd_nlevels,
                                         INTEGER(getListElement(MHp->R, "bd_nmixtypes")),
                                         INTEGER(getListElement(MHp->R, "bd_tails")),
                                         INTEGER(getListElement(MHp->R, "bd_heads")),
                                         nwp);
 
-  UnsrtEL **els = Calloc(sto->nmixtypes, UnsrtEL *);
-  for(int i = 0; i < sto->nmixtypes; i++) {
-    els[i] = UnsrtELInitialize(0, NULL, NULL, FALSE);
-  }
-
+  // set up stratified edge storage
   int *strattailattrs = INTEGER(getListElement(MHp->R, "strat_tails"));
   int *stratheadattrs = INTEGER(getListElement(MHp->R, "strat_heads"));
 
-  sto->indmat = Calloc(sto->nstratlevels, int *);
-  for(int i = 0; i < sto->nstratlevels; i++) {
-    sto->indmat[i] = Calloc(sto->nstratlevels, int);
-    for(int j = 0; j < sto->nstratlevels; j++) {
+  // indmat stores indices of included strat mixing types
+  sto->indmat = Calloc(sto->strat_nlevels, int *);
+  for(int i = 0; i < sto->strat_nlevels; i++) {
+    sto->indmat[i] = Calloc(sto->strat_nlevels, int);
+    for(int j = 0; j < sto->strat_nlevels; j++) {
       sto->indmat[i][j] = -1;
     }
   }
-  for(int i = 0; i < sto->nmixtypes; i++) {
+  for(int i = 0; i < sto->strat_nmixtypes; i++) {
     sto->indmat[strattailattrs[i]][stratheadattrs[i]] = i;
     if(!DIRECTED && !BIPARTITE) {
       sto->indmat[stratheadattrs[i]][strattailattrs[i]] = i;
     }
   }
 
+  // amat stores toggleability status of blocks mixing types
   int **amat = Calloc(nblockslevels, int *);
   amat[0] = INTEGER(getListElement(MHp->R, "amat"));
   for(int i = 1; i < nblockslevels; i++) {
     amat[i] = amat[i - 1] + nblockslevels;
   }
 
+  // put edges in unsorted edgelists to start
+  UnsrtEL **els = Calloc(sto->strat_nmixtypes, UnsrtEL *);
+  for(int i = 0; i < sto->strat_nmixtypes; i++) {
+    els[i] = UnsrtELInitialize(0, NULL, NULL, FALSE);
+  }
   EXEC_THROUGH_NET_EDGES(tail, head, e, {
     int index = sto->indmat[sto->strat_vattr[tail]][sto->strat_vattr[head]];
     int allowed = amat[sto->blocks_vattr[tail]][sto->blocks_vattr[head]];
@@ -214,41 +219,55 @@ MH_I_FN(Mi_BDStratTNT) {
   });
   Free(amat);
 
-  sto->hash = Calloc(sto->nmixtypes, HashEL *);
-  for(int i = 0; i < sto->nmixtypes; i++) {
-    sto->hash[i] = HashELInitialize(els[i]->nedges, els[i]->tails ? els[i]->tails + 1 : els[i]->tails, els[i]->heads ? els[i]->heads + 1 : els[i]->heads, FALSE, DIRECTED);
+  // then initialize hash edgelists from unsorted edgelists
+  sto->hash = Calloc(sto->strat_nmixtypes, HashEL *);
+  for(int i = 0; i < sto->strat_nmixtypes; i++) {
+    sto->hash[i] = HashELInitialize(els[i]->nedges,
+                                    els[i]->tails ? els[i]->tails + 1 : els[i]->tails,
+                                    els[i]->heads ? els[i]->heads + 1 : els[i]->heads,
+                                    FALSE, DIRECTED);
     Free(els[i]);
   }
   Free(els);
 
-  sto->originalprobvec = Calloc(sto->nmixtypes, double);
-  int empirical_flag = asInteger(getListElement(MHp->R, "empirical_flag"));
-  if(empirical_flag) {
-    for(int i = 0; i < sto->nmixtypes; i++) {
+  // initialize sampling weights for strat mixing types
+  sto->originalprobvec = Calloc(sto->strat_nmixtypes, double);
+  if(asInteger(getListElement(MHp->R, "empirical_flag"))) {
+    // use edgecounts as weights
+    for(int i = 0; i < sto->strat_nmixtypes; i++) {
       if(sto->hash[i]->list->nedges > 0) {
         sto->originalprobvec[i] = sto->hash[i]->list->nedges;
       }
     }
   } else {
-    memcpy(sto->originalprobvec, REAL(getListElement(MHp->R, "probvec")), sto->nmixtypes*sizeof(double));
+    // use user-supplied weights
+    memcpy(sto->originalprobvec, 
+           REAL(getListElement(MHp->R, "probvec")),
+           sto->strat_nmixtypes*sizeof(double));
   }
 
-  // determine what mixing types are initially toggleable
-  double *currentprobvec = Calloc(sto->nmixtypes, double);
-  for(int i = 0; i < sto->nmixtypes; i++) {
-    // if any edges or dyads of this type are toggleable
+  // determine what strat mixing types are initially toggleable
+  double *currentprobvec = Calloc(sto->strat_nmixtypes, double);
+  for(int i = 0; i < sto->strat_nmixtypes; i++) {
+    // if any edges or dyads of this type are toggleable, then the mixing type is toggleable
     if(sto->hash[i]->list->nedges > 0 || BDStratBlocksDyadCountPositive(sto->blocks, i)) {
       currentprobvec[i] = sto->originalprobvec[i];
-      sto->currentcumprob += sto->originalprobvec[i];
+      sto->current_total_weight += sto->originalprobvec[i];
     }
   }
 
-  sto->wtp = WtPopInitialize(sto->nmixtypes, currentprobvec, asInteger(getListElement(MHp->R, "dyad_indep")) ? 'W' : 'B');
+  // initialize weighted sampling data structure
+  sto->wtp = WtPopInitialize(sto->strat_nmixtypes,
+                             currentprobvec,
+                             asInteger(getListElement(MHp->R, "dyad_indep")) ? 'W' : 'B');
   Free(currentprobvec);
 
+  // check degree bounds
   for(Vertex vertex = 1; vertex <= N_NODES; vertex++) {
-    for(int i = 0; i < sto->nbdlevels; i++) {
-      if(DIRECTED ? (sto->indegree[i][vertex] > sto->maxin[i][vertex] || sto->outdegree[i][vertex] > sto->maxout[i][vertex]) : (sto->indegree[i][vertex] + sto->outdegree[i][vertex] > sto->maxout[i][vertex])) {
+    for(int i = 0; i < sto->bd_nlevels; i++) {
+      if(DIRECTED ? (sto->indegree[i][vertex] > sto->maxin[i][vertex]
+                     || sto->outdegree[i][vertex] > sto->maxout[i][vertex])
+                  : (sto->indegree[i][vertex] + sto->outdegree[i][vertex] > sto->maxout[i][vertex])) {
         error("degree bound is violated by initial network; proposal cannot proceed");
       }
     }
@@ -261,13 +280,11 @@ MH_P_FN(MH_BDStratTNT) {
   // sample a toggleable strat mixing type on which to make a proposal
   sto->stratmixingtype = WtPopGetRand(sto->wtp);
 
-  // number of edges of this mixing type
+  // number of edges and toggleable dyads of this mixing type
   int nedgestype = sto->hash[sto->stratmixingtype]->list->nedges;
-
   Dyad ndyadstype = BDStratBlocksDyadCount(sto->blocks, sto->stratmixingtype);
 
   int edgestate;
-
   if((unif_rand() < 0.5 && nedgestype > 0) || ndyadstype == 0) {
     // propose toggling off an existing edge of strat mixing type sto->stratmixingtype
     HashELGetRand(Mtail, Mhead, sto->hash[sto->stratmixingtype]);
@@ -278,18 +295,20 @@ MH_P_FN(MH_BDStratTNT) {
     edgestate = IS_OUTEDGE(*Mtail, *Mhead);
   }
 
+  // determine if tail and/or head will change degree maximality status if the proposed toggle is accepted
   int tailattr = sto->bd_vattr[*Mtail];
   int headattr = sto->bd_vattr[*Mhead];
-
   sto->tailmaxl = (DIRECTED ? sto->outdegree[headattr][*Mtail] : sto->indegree[headattr][*Mtail] + sto->outdegree[headattr][*Mtail]) == sto->maxout[headattr][*Mtail] - 1 + edgestate;
   sto->headmaxl = (DIRECTED ? sto->indegree[tailattr][*Mhead] : sto->indegree[tailattr][*Mhead] + sto->outdegree[tailattr][*Mhead]) == sto->maxin[tailattr][*Mhead] - 1 + edgestate;
 
   // compute proposed dyad count for current mixing type (only)
   Dyad proposeddyadstype = BDStratBlocksDyadCountOnToggle(*Mtail, *Mhead, sto->blocks, sto->stratmixingtype, sto->tailmaxl, sto->headmaxl);
 
+  // determine if any other strat mixing types will have their toggleability status change if the proposed toggle is accepted
   ComputeChangesToToggleability(Mtail, Mhead, sto);
 
-  double prob_weight = sto->currentcumprob/sto->proposedcumprob;
+  // adjust acceptance probability for changes in strat mixing type toggleability
+  double prob_weight = sto->current_total_weight/sto->proposed_total_weight;
 
   // the rationale for the logratio is similar to that given for BDTNT, with two additional considerations:
   //
@@ -315,6 +334,9 @@ MH_U_FN(Mu_BDStratTNT) {
   int headattr = sto->bd_vattr[head];
 
   if(sto->CD) {
+    // if we are running the contrastive divergence algorithm, we can't assume
+    // that the tail and head passed to this U_FN have just come from the P_FN,
+    // so we recompute some things here that are typically handled in the P_FN
     sto->stratmixingtype = sto->indmat[sto->strat_vattr[tail]][sto->strat_vattr[head]];
 
     sto->tailmaxl = (DIRECTED ? sto->outdegree[headattr][tail] : sto->indegree[headattr][tail] + sto->outdegree[headattr][tail]) == sto->maxout[headattr][tail] - 1 + edgestate;
@@ -323,6 +345,7 @@ MH_U_FN(Mu_BDStratTNT) {
     ComputeChangesToToggleability(&tail, &head, sto);
   }
 
+  // update degree information
   sto->indegree[tailattr][head] += edgestate ? -1 : 1;
   sto->outdegree[headattr][tail] += edgestate ? -1 : 1;
 
@@ -333,34 +356,34 @@ MH_U_FN(Mu_BDStratTNT) {
   BDNodeListsToggleIf(tail, head, sto->lists, sto->tailmaxl, sto->headmaxl);
 
   // if any strat mixing types have changed toggleability status, update prob info accordingly
-  if(sto->nmixtypestoupdate > 0) {
-    sto->currentcumprob = sto->proposedcumprob;
-    for(int i = 0; i < sto->nmixtypestoupdate; i++) {
-      WtPopSetWt(sto->mixtypestoupdate[i], edgestate ? sto->originalprobvec[sto->mixtypestoupdate[i]] : 0, sto->wtp);
+  if(sto->strat_nmixtypestoupdate > 0) {
+    sto->current_total_weight = sto->proposed_total_weight;
+    for(int i = 0; i < sto->strat_nmixtypestoupdate; i++) {
+      WtPopSetWt(sto->strat_mixtypestoupdate[i], edgestate ? sto->originalprobvec[sto->strat_mixtypestoupdate[i]] : 0, sto->wtp);
     }
   }
 }
 
 MH_F_FN(Mf_BDStratTNT) {
-  // Free all the things
+  // free memory allocated in I_FN
   GET_STORAGE(BDStratTNTStorage, sto);
 
   BDNodeListsDestroy(sto->lists);
   BDStratBlocksDestroy(sto->blocks);
 
-  for(int i = 0; i < sto->nmixtypes; i++) {
+  for(int i = 0; i < sto->strat_nmixtypes; i++) {
     HashELDestroy(sto->hash[i]);
   }
   Free(sto->hash);
 
-  for(int i = 0; i < sto->nstratlevels; i++) {
+  for(int i = 0; i < sto->strat_nlevels; i++) {
     Free(sto->indmat[i]);
   }
   Free(sto->indmat);
 
   Free(sto->originalprobvec);
 
-  Free(sto->mixtypestoupdate);
+  Free(sto->strat_mixtypestoupdate);
 
   WtPopDestroy(sto->wtp);
 
@@ -369,7 +392,7 @@ MH_F_FN(Mf_BDStratTNT) {
     Free(sto->maxin);
   }
 
-  for(int i = 0; i < sto->nbdlevels; i++) {
+  for(int i = 0; i < sto->bd_nlevels; i++) {
     Free(sto->indegree[i]);
     Free(sto->outdegree[i]);
   }

@@ -12,11 +12,7 @@
 
 #include "ergm_nodelist.h"
 
-typedef struct {  
-  NodeList ***tails_by_attr;
-  NodeList ***heads_by_attr;
-  NodeList ***boths_by_attr;
-
+typedef struct {
   NodeList ***tails;
   NodeList ***heads;
   NodeList ***boths;
@@ -25,40 +21,44 @@ typedef struct {
   int **headpos;
   int **bothpos;
 
+  int *combined_vattr;
   int *bd_vattr;
+  
+  int combined_nlevels;
+  int bd_nlevels;
 
   int directed;
-
-  int total_nlevels;
-  int bd_nlevels;
 } BDNodeLists;
 
 static inline BDNodeLists *BDNodeListsInitialize(int **maxout,
                                                  int **maxin,
-                                                 int **indegree,
                                                  int **outdegree,
-                                                 int *strat_vattr,
-                                                 int strat_nlevels,
-                                                 int *blocks_vattr,
-                                                 int blocks_nlevels,
+                                                 int **indegree,
+                                                 int *combined_vattr,
+                                                 int combined_nlevels,
                                                  int *bd_vattr,
                                                  int bd_nlevels,
-                                                 int *jointattrcounts,
+                                                 int *combined_vattr_counts,
                                                  Network *nwp) {
   BDNodeLists *lists = Calloc(1, BDNodeLists);
 
   // do some copying
   lists->directed = DIRECTED;
 
-  lists->bd_nlevels = bd_nlevels;
-  lists->total_nlevels = strat_nlevels*blocks_nlevels*bd_nlevels;
-
+  lists->combined_vattr = combined_vattr;
   lists->bd_vattr = bd_vattr;
+
+  lists->combined_nlevels = combined_nlevels;
+  lists->bd_nlevels = bd_nlevels;
 
   // set up node lists
   lists->bothpos = Calloc(bd_nlevels, int *);
   lists->tailpos = DIRECTED ? Calloc(bd_nlevels, int *) : lists->bothpos;
   lists->headpos = DIRECTED ? Calloc(bd_nlevels, int *) : lists->bothpos;
+
+  lists->boths = Calloc(bd_nlevels, NodeList **);
+  lists->tails = DIRECTED ? Calloc(bd_nlevels, NodeList **) : lists->boths;
+  lists->heads = DIRECTED ? Calloc(bd_nlevels, NodeList **) : lists->boths;
 
   for(int i = 0; i < bd_nlevels; i++) {
     lists->bothpos[i] = Calloc(N_NODES + 1, int);
@@ -66,53 +66,37 @@ static inline BDNodeLists *BDNodeListsInitialize(int **maxout,
       lists->tailpos[i] = Calloc(N_NODES + 1, int);
       lists->headpos[i] = Calloc(N_NODES + 1, int);
     }
-  }
 
-  lists->boths_by_attr = Calloc(lists->total_nlevels, NodeList **);
-  lists->tails_by_attr = DIRECTED ? Calloc(lists->total_nlevels, NodeList **) : lists->boths_by_attr;
-  lists->heads_by_attr = DIRECTED ? Calloc(lists->total_nlevels, NodeList **) : lists->boths_by_attr;
-
-  for(int i = 0; i < lists->total_nlevels; i++) {
-    lists->boths_by_attr[i] = Calloc(bd_nlevels, NodeList *);
+    lists->boths[i] = Calloc(combined_nlevels, NodeList *);
     if(DIRECTED) {
-      lists->tails_by_attr[i] = Calloc(bd_nlevels, NodeList *);
-      lists->heads_by_attr[i] = Calloc(bd_nlevels, NodeList *);
+      lists->tails[i] = Calloc(combined_nlevels, NodeList *);
+      lists->heads[i] = Calloc(combined_nlevels, NodeList *);
     }
 
-    for(int j = 0; j < bd_nlevels; j++) {
-      lists->boths_by_attr[i][j] = NodeListInitialize(jointattrcounts[i], lists->bothpos[j]);
+    for(int j = 0; j < combined_nlevels; j++) {
+      lists->boths[i][j] = NodeListInitialize(combined_vattr_counts[j], lists->bothpos[i]);
       if(DIRECTED) {
-        lists->tails_by_attr[i][j] = NodeListInitialize(jointattrcounts[i], lists->tailpos[j]);
-        lists->heads_by_attr[i][j] = NodeListInitialize(jointattrcounts[i], lists->headpos[j]);
+        lists->tails[i][j] = NodeListInitialize(combined_vattr_counts[j], lists->tailpos[i]);
+        lists->heads[i][j] = NodeListInitialize(combined_vattr_counts[j], lists->headpos[i]);
       }
     }
   }
 
-  lists->boths = Calloc(N_NODES + 1, NodeList **);
-  lists->tails = DIRECTED ? Calloc(N_NODES + 1, NodeList **) : lists->boths;
-  lists->heads = DIRECTED ? Calloc(N_NODES + 1, NodeList **) : lists->boths;
-
   for(Vertex vertex = 1; vertex <= N_NODES; vertex++) {
-    int attr_val = strat_vattr[vertex]*blocks_nlevels*bd_nlevels + blocks_vattr[vertex]*bd_nlevels + bd_vattr[vertex];
+    int attr_val = combined_vattr[vertex];
 
     for(int i = 0; i < bd_nlevels; i++) {
       if(DIRECTED) {
         if(indegree[i][vertex] < maxin[i][vertex] && outdegree[i][vertex] < maxout[i][vertex]) {
-          NodeListInsert(lists->boths_by_attr[attr_val][i], vertex);
+          NodeListInsert(lists->boths[i][attr_val], vertex);
         } else if(outdegree[i][vertex] < maxout[i][vertex]) {
-          NodeListInsert(lists->tails_by_attr[attr_val][i], vertex);
+          NodeListInsert(lists->tails[i][attr_val], vertex);
         } else if(indegree[i][vertex] < maxin[i][vertex]) {
-          NodeListInsert(lists->heads_by_attr[attr_val][i], vertex);
+          NodeListInsert(lists->heads[i][attr_val], vertex);
         }
       } else if(indegree[i][vertex] + outdegree[i][vertex] < maxout[i][vertex]) {
-        NodeListInsert(lists->boths_by_attr[attr_val][i], vertex);
+        NodeListInsert(lists->boths[i][attr_val], vertex);
       }
-    }
-
-    lists->boths[vertex] = lists->boths_by_attr[attr_val];
-    if(DIRECTED) {
-      lists->tails[vertex] = lists->tails_by_attr[attr_val];
-      lists->heads[vertex] = lists->heads_by_attr[attr_val];
     }
   }
 
@@ -120,38 +104,34 @@ static inline BDNodeLists *BDNodeListsInitialize(int **maxout,
 }
 
 static inline void BDNodeListsDestroy(BDNodeLists *lists) {
-  for(int i = 0; i < lists->total_nlevels; i++) {
-    for(int j = 0; j < lists->bd_nlevels; j++) {
-      NodeListDestroy(lists->boths_by_attr[i][j]);
+  for(int i = 0; i < lists->bd_nlevels; i++) {
+    for(int j = 0; j < lists->combined_nlevels; j++) {
+      NodeListDestroy(lists->boths[i][j]);
       if(lists->directed) {
-        NodeListDestroy(lists->tails_by_attr[i][j]);
-        NodeListDestroy(lists->heads_by_attr[i][j]);
+        NodeListDestroy(lists->tails[i][j]);
+        NodeListDestroy(lists->heads[i][j]);
       }
     }
-    Free(lists->boths_by_attr[i]);
-    if(lists->directed) {
-      Free(lists->tails_by_attr[i]);
-      Free(lists->heads_by_attr[i]);
-    }
-  }
-  Free(lists->boths_by_attr);
-  if(lists->directed) {
-    Free(lists->tails_by_attr);
-    Free(lists->heads_by_attr);
-  }
-  Free(lists->boths);
-  if(lists->directed) {
-    Free(lists->tails);
-    Free(lists->heads);
-  }
 
-  for(int i = 0; i < lists->bd_nlevels; i++) {
+    Free(lists->boths[i]);
+    if(lists->directed) {
+      Free(lists->tails[i]);
+      Free(lists->heads[i]);
+    }
+
     Free(lists->bothpos[i]);
     if(lists->directed) {
       Free(lists->tailpos[i]);
       Free(lists->headpos[i]);
     }
   }
+
+  Free(lists->boths);
+  if(lists->directed) {
+    Free(lists->tails);
+    Free(lists->heads);
+  }
+
   Free(lists->bothpos);
   if(lists->directed) {
     Free(lists->tailpos);
@@ -163,22 +143,38 @@ static inline void BDNodeListsDestroy(BDNodeLists *lists) {
 
 static inline void BDNodeListsToggleIf(Vertex tail, Vertex head, BDNodeLists *lists, int tailcondition, int headcondition) {
   if(tailcondition) {
-    if(lists->directed && (lists->bothpos[lists->bd_vattr[head]][tail] || lists->headpos[lists->bd_vattr[head]][tail])) {
-      NodeListToggle(lists->boths[tail][lists->bd_vattr[head]], tail);
-      NodeListToggle(lists->heads[tail][lists->bd_vattr[head]], tail);
+    int tailattr = lists->combined_vattr[tail];
+    int headattr = lists->bd_vattr[head];
+    if(lists->directed && (lists->bothpos[headattr][tail] || lists->headpos[headattr][tail])) {
+      NodeListToggle(lists->boths[headattr][tailattr], tail);
+      NodeListToggle(lists->heads[headattr][tailattr], tail);
     } else {
-      NodeListToggle(lists->tails[tail][lists->bd_vattr[head]], tail);
+      NodeListToggle(lists->tails[headattr][tailattr], tail);
     }
   }
 
   if(headcondition) {
-    if(lists->directed && (lists->bothpos[lists->bd_vattr[tail]][head] || lists->tailpos[lists->bd_vattr[tail]][head])) {
-      NodeListToggle(lists->boths[head][lists->bd_vattr[tail]], head);
-      NodeListToggle(lists->tails[head][lists->bd_vattr[tail]], head);
+    int tailattr = lists->bd_vattr[tail];
+    int headattr = lists->combined_vattr[head];
+    if(lists->directed && (lists->bothpos[tailattr][head] || lists->tailpos[tailattr][head])) {
+      NodeListToggle(lists->boths[tailattr][headattr], head);
+      NodeListToggle(lists->tails[tailattr][headattr], head);
     } else {
-      NodeListToggle(lists->heads[head][lists->bd_vattr[tail]], head);
+      NodeListToggle(lists->heads[tailattr][headattr], head);
     }
   }
+}
+
+static inline int BDNodeListsTailCount(Vertex tail, Vertex head, BDNodeLists *lists) {
+  int tailattr = lists->combined_vattr[tail];
+  int headattr = lists->bd_vattr[head];
+  return lists->tails[headattr][tailattr]->length + lists->directed*lists->boths[headattr][tailattr]->length;
+}
+
+static inline int BDNodeListsHeadCount(Vertex tail, Vertex head, BDNodeLists *lists) {
+  int tailattr = lists->bd_vattr[tail];
+  int headattr = lists->combined_vattr[head];
+  return lists->heads[tailattr][headattr]->length + lists->directed*lists->boths[tailattr][headattr]->length;    
 }
 
 #endif

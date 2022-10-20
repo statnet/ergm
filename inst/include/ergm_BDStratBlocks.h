@@ -62,14 +62,25 @@ static inline BDStratBlocks *BDStratBlocksInitialize(BDNodeLists *lists,
       for(int k = 0; k < bd_mixtypes[strat_diag && blocks_diag]; k++) {
         int tail_attr = strat_tails[i]*blocks_nlevels*bd_nlevels + blocks_tails[j]*bd_nlevels + bd_tails[k];
         int head_attr = strat_heads[i]*blocks_nlevels*bd_nlevels + blocks_heads[j]*bd_nlevels + bd_heads[k];
+        int diagonal = tail_attr == head_attr;
         if(DIRECTED) {
-          blocks->blocks[i][l + 0] = BlockInitialize(lists->boths_by_attr[tail_attr][bd_heads[k]], lists->boths_by_attr[head_attr][bd_tails[k]], tail_attr == head_attr, DIRECTED);
-          blocks->blocks[i][l + 1] = BlockInitialize(lists->tails_by_attr[tail_attr][bd_heads[k]], lists->boths_by_attr[head_attr][bd_tails[k]], FALSE, DIRECTED);
-          blocks->blocks[i][l + 2] = BlockInitialize(lists->boths_by_attr[tail_attr][bd_heads[k]], lists->heads_by_attr[head_attr][bd_tails[k]], FALSE, DIRECTED);
-          blocks->blocks[i][l + 3] = BlockInitialize(lists->tails_by_attr[tail_attr][bd_heads[k]], lists->heads_by_attr[head_attr][bd_tails[k]], FALSE, DIRECTED);
+          blocks->blocks[i][l + 0] = BlockInitialize(lists->boths[bd_heads[k]][tail_attr],
+                                                     lists->boths[bd_tails[k]][head_attr],
+                                                     diagonal, DIRECTED);
+          blocks->blocks[i][l + 1] = BlockInitialize(lists->tails[bd_heads[k]][tail_attr],
+                                                     lists->boths[bd_tails[k]][head_attr],
+                                                     FALSE, DIRECTED);
+          blocks->blocks[i][l + 2] = BlockInitialize(lists->boths[bd_heads[k]][tail_attr],
+                                                     lists->heads[bd_tails[k]][head_attr],
+                                                     FALSE, DIRECTED);
+          blocks->blocks[i][l + 3] = BlockInitialize(lists->tails[bd_heads[k]][tail_attr],
+                                                     lists->heads[bd_tails[k]][head_attr],
+                                                     FALSE, DIRECTED);
           l += 4;
         } else {
-          blocks->blocks[i][l + 0] = BlockInitialize(lists->tails_by_attr[tail_attr][bd_heads[k]], lists->heads_by_attr[head_attr][bd_tails[k]], tail_attr == head_attr, DIRECTED);
+          blocks->blocks[i][l + 0] = BlockInitialize(lists->tails[bd_heads[k]][tail_attr],
+                                                     lists->heads[bd_tails[k]][head_attr],
+                                                     diagonal, DIRECTED);
           l += 1;
         }
       }

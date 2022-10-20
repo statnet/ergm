@@ -145,28 +145,33 @@ InitErgmProposal.BDStratTNT <- function(arguments, nw) {
   strat_vattr <- arguments$constraints$strat$nodecov
   strat_nlevels <- arguments$constraints$strat$nlevels
 
-  # for economy of C space, best to count # of nodes of each bd-strat pairing
-  nodecountsbyjointcode <- as.integer(table(factor(bd_vattr, levels = seq_len(bd_nlevels)),
-                                            factor(blocks_vattr, levels = seq_len(blocks_nlevels)),
-                                            factor(strat_vattr, levels = seq_len(strat_nlevels))))
+  strat_vattr <- strat_vattr - 1L
+  blocks_vattr <- blocks_vattr - 1L
+  bd_vattr <- bd_vattr - 1L
+
+  combined_vattr <- strat_vattr*blocks_nlevels*bd_nlevels + blocks_vattr*bd_nlevels + bd_vattr
+  combined_nlevels <- strat_nlevels*blocks_nlevels*bd_nlevels
+  combined_vattr_counts <- tabulate(combined_vattr + 1L, nbins = combined_nlevels)  
 
   proposal <- list(name = "BDStratTNT",
                    inputs = NULL, # passed by name below
-                   strat_vattr = as.integer(strat_vattr - 1L),
+                   strat_vattr = as.integer(strat_vattr),
                    strat_nlevels = as.integer(strat_nlevels),
                    strat_tails = as.integer(arguments$constraints$strat$tailattrs - 1L),
                    strat_heads = as.integer(arguments$constraints$strat$headattrs - 1L),
-                   blocks_vattr = as.integer(blocks_vattr - 1L),
+                   blocks_vattr = as.integer(blocks_vattr),
                    blocks_nlevels = as.integer(blocks_nlevels),
                    blocks_tails = as.integer(blocks_allowed_tails - 1L),
                    blocks_heads = as.integer(blocks_allowed_heads - 1L),
                    blocks_nmixtypes = as.integer(blocks_nmixtypes),
-                   bd_vattr = as.integer(bd_vattr - 1L),
+                   bd_vattr = as.integer(bd_vattr),
                    bd_nlevels = as.integer(bd_nlevels),
                    bd_tails = as.integer(bd_allowed_tails - 1L),
                    bd_heads = as.integer(bd_allowed_heads - 1L),
                    bd_nmixtypes = as.integer(bd_nmixtypes),
-                   nodecountsbyjointcode = as.integer(nodecountsbyjointcode),
+                   combined_vattr = as.integer(combined_vattr),
+                   combined_nlevels = as.integer(combined_nlevels),
+                   combined_vattr_counts = as.integer(combined_vattr_counts),
                    maxout = as.integer(maxout),
                    maxin = as.integer(maxin),
                    probvec = as.double(arguments$constraints$strat$probvec),
