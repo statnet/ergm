@@ -12,6 +12,21 @@
 
 #include "ergm_nodelist.h"
 
+/*
+   The BDNodeLists data structure stores NodeLists with a two-fold stratification
+   based on the ego node's combined_vattr value and the alter node's bd_vattr
+   value. For a bd_vattr value i and a combined_vattr value j, tails[i][j] (resp.
+   heads[i][j], boths[i][j]) is the NodeList containing the set of egos with
+   combined_vattr value j that are of strictly submaximal degree as tails (resp.
+   heads, both tails and heads) to alters of bd_vattr value i. For undirected
+   networks, tails[i][j], heads[i][j], and boths[i][j] all coincide. The notion
+   of strict submaximality of degree is defined in terms of the supplied maxout,
+   maxin degree bounds and outdegree, indegree degree states. (maxout, maxin,
+   outdegree, and indegree are arrays with two indices, the first being the
+   bd_vattr value of the alter and the second being the 1-based nodal index
+   of the ego.)
+*/
+
 typedef struct {
   NodeList ***tails;
   NodeList ***heads;
@@ -141,6 +156,8 @@ static inline void BDNodeListsDestroy(BDNodeLists *lists) {
   Free(lists);
 }
 
+// update NodeLists as appropriate for a toggle with tail, head maximality
+// changes given by tailcondition and headcondition flags
 static inline void BDNodeListsToggleIf(Vertex tail, Vertex head, BDNodeLists *lists, int tailcondition, int headcondition) {
   if(tailcondition) {
     int tailattr = lists->combined_vattr[tail];
@@ -165,16 +182,20 @@ static inline void BDNodeListsToggleIf(Vertex tail, Vertex head, BDNodeLists *li
   }
 }
 
+// count of egos with the same combined_vattr value as tail that are of strictly
+// submaximal degree as tails to alters with the same bd_vattr value as head
 static inline int BDNodeListsTailCount(Vertex tail, Vertex head, BDNodeLists *lists) {
   int tailattr = lists->combined_vattr[tail];
   int headattr = lists->bd_vattr[head];
   return lists->tails[headattr][tailattr]->length + lists->directed*lists->boths[headattr][tailattr]->length;
 }
 
+// count of egos with the same combined_vattr value as head that are of strictly
+// submaximal degree as heads to alters with the same bd_vattr value as tail
 static inline int BDNodeListsHeadCount(Vertex tail, Vertex head, BDNodeLists *lists) {
   int tailattr = lists->bd_vattr[tail];
   int headattr = lists->combined_vattr[head];
-  return lists->heads[tailattr][headattr]->length + lists->directed*lists->boths[tailattr][headattr]->length;    
+  return lists->heads[tailattr][headattr]->length + lists->directed*lists->boths[tailattr][headattr]->length;
 }
 
 #endif

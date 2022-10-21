@@ -12,6 +12,15 @@
 
 #include "ergm_nodelist.h"
 
+/*
+   This data structure represents a block whose margins are NodeLists, which may
+   be dynamic. It supports calculation of dyad count (including directedness and
+   diagonal information) and extraction of a dyad at a specified doubled index.
+   (Indices are doubled to keep things rectangular for diagonal, undirected blocks,
+   whose unique dyads form a triangle.)
+*/
+
+
 typedef struct {
   NodeList *tails;
   NodeList *heads;

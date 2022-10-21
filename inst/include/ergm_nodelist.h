@@ -14,6 +14,15 @@
 #include "ergm_edgetree_types.h"
 #include "ergm_changestat.h"
 
+/*
+   This data structure stores a collection of nodes. The nodepos field allows
+   for lookups: if node is present in the nodelist, nodepos[node] gives its
+   (1-based) index in the nodes field. nodepos should be an array of length
+   N_NODES + 1, which is passed in to the constructor by the client code to
+   allow sharing of nodepos across different NodeLists, as when partitioning
+   the set of all nodes based on e.g. a nodal attribute value.
+*/
+
 typedef struct {
   Vertex *nodes;
   int length;
@@ -35,7 +44,7 @@ static inline void NodeListDestroy(NodeList *nodelist) {
 static inline void NodeListInsert(NodeList *nodelist, Vertex node) {
   nodelist->length++;
   nodelist->nodes[nodelist->length] = node;
-  nodelist->nodepos[node] = nodelist->length;  
+  nodelist->nodepos[node] = nodelist->length;
 }
 
 static inline void NodeListDelete(NodeList *nodelist, Vertex node) {

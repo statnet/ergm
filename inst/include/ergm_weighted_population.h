@@ -13,18 +13,23 @@
 
 #include <R.h>
 
-/* This is a data structure for weighted sampling.  It supports modifying weights 
-   with relative efficiency when using the 'B' type; modifying weights when using 
-   the 'W' type results in re-initializing the full data structure. */
+/*
+   This is a data structure for weighted sampling. There are two supported types:
+   - 'B' for binary tree, with O(log n) time to sample a category and O(log n)
+     time to update a category weight, and
+   - 'W' for Walker's alias method, with O(1) time to sample a category and O(n)
+     time to update a category weight.
+*/
 
 typedef struct {
-  char type;
-  
-  // binary stuff
+  // type is either 'B' for binary tree or 'W' for Walker's alias method
+  char type; 
+
+  // binary tree state
   int height;
   double **weights;
-  
-  // Walker stuff
+
+  // Walker state
   int size;
   double *prob;
   int *alias;
@@ -32,9 +37,11 @@ typedef struct {
   double sum;
 } WtPop;
 
+// constructor; weights should be an array of length size, consisting of
+// non-negative numbers, with at least one strictly positive
 static inline WtPop *WtPopInitialize(int size, double *weights, char type) {
   WtPop *wtp = Calloc(1, WtPop);
-  
+
   if(size < 1) {
     error("cannot initialize weighted population of size less than 1");
   }
@@ -44,37 +51,37 @@ static inline WtPop *WtPopInitialize(int size, double *weights, char type) {
       error("cannot initialize weighted population with negative weights");
     }
   }
-    
+
   if(type == 'B') {
     wtp->type = 'B';
     wtp->height = ceil(log2(size));
 
     wtp->weights = Calloc(wtp->height + 1, double *);
     for(int i = 0; i <= wtp->height; i++) {
-      wtp->weights[i] = Calloc(pow(2,i), double);  
+      wtp->weights[i] = Calloc(pow(2,i), double);
     }
     memcpy(wtp->weights[wtp->height], weights, size*sizeof(double));
-    
+
     for(int i = wtp->height - 1; i >= 0; i--) {
       for(int j = pow(2,i) - 1; j >= 0; j--) {
         wtp->weights[i][j] = wtp->weights[i + 1][2*j] + wtp->weights[i + 1][2*j + 1];
       }
     }
-    
+
     if(wtp->weights[0][0] == 0) {
       error("cannot initialize weighted population with zero total weight");
     }
   } else if(type == 'W') {
     wtp->type = 'W';
-    wtp->size = size;      
+    wtp->size = size;
 
     wtp->originalweights = Calloc(wtp->size, double);
     wtp->prob = Calloc(wtp->size, double);
     wtp->alias = Calloc(wtp->size, int);
-    
+
     memcpy(wtp->originalweights, weights, wtp->size*sizeof(double));
     memcpy(wtp->prob, weights, wtp->size*sizeof(double));
-    
+
     wtp->sum = 0;
     for(int i = 0; i < wtp->size; i++) {
       wtp->sum += wtp->prob[i];
@@ -83,18 +90,18 @@ static inline WtPop *WtPopInitialize(int size, double *weights, char type) {
     if(wtp->sum == 0) {
       error("cannot initialize weighted population with zero total weight");
     }
-        
+
     for(int i = 0; i < wtp->size; i++) {
       wtp->prob[i] = wtp->size*wtp->prob[i]/wtp->sum;
       wtp->alias[i] = -1;
     }
-    
-    // three passes to initialize;
+
+    // three passes to initialize Walker's alias method;
     // underfulls and overfulls may initially occur in any order;
-    // after the first pass, all underfulls precede all overfulls, 
+    // after the first pass, all underfulls precede all overfulls,
     // and this is preserved during the second pass itself;
-    // thus, after the second pass, all that can be left is roundoff 
-    // error or categories that have prob exactly 1, and we set prob to 
+    // thus, after the second pass, all that can be left is roundoff
+    // error or categories that have prob exactly 1, and we set prob to
     // 1 in either case (and also initialize alias for completeness)
     int i = 0;
     for(int pass = 0; pass < 2; pass++) {
@@ -111,7 +118,7 @@ static inline WtPop *WtPopInitialize(int size, double *weights, char type) {
         }
       }
     }
-    
+
     for(int j = 0; j < wtp->size; j++) {
       if(wtp->alias[j] < 0) {
         wtp->alias[j] = j;
@@ -119,12 +126,13 @@ static inline WtPop *WtPopInitialize(int size, double *weights, char type) {
       }
     }
   } else {
-    error("unsupported weighted population type; options are 'B' for binary tree and 'W' for Walker");      
+    error("unsupported weighted population type; options are 'B' for binary tree and 'W' for Walker");
   }
-  
+
   return wtp;
 }
 
+// destructor
 static inline void WtPopDestroy(WtPop *wtp) {
   if(wtp->type == 'B') {
     for(int i = 0; i <= wtp->height; i++) {
@@ -136,10 +144,11 @@ static inline void WtPopDestroy(WtPop *wtp) {
     Free(wtp->alias);
     Free(wtp->originalweights);
   }
-  
+
   Free(wtp);
 }
 
+// sample a random category according to the weights
 static inline int WtPopGetRand(WtPop *wtp) {
   if(wtp->type == 'B') {
     double s = unif_rand()*wtp->weights[0][0];
@@ -158,13 +167,14 @@ static inline int WtPopGetRand(WtPop *wtp) {
     int i = (int) s;
     double y = s - i;
     if(y < wtp->prob[i]) {
-      return i;  
+      return i;
     } else {
       return wtp->alias[i];
-    }      
+    }
   }
 }
 
+// modify the weight of a category
 static inline void WtPopSetWt(int position, double weight, WtPop *wtp) {
   if(wtp->type == 'B') {
     double change = weight - wtp->weights[wtp->height][position];
@@ -174,7 +184,7 @@ static inline void WtPopSetWt(int position, double weight, WtPop *wtp) {
       j /= 2;
     }
   } else {
-    wtp->originalweights[position] = weight;    
+    wtp->originalweights[position] = weight;
     WtPop *new_wtp = WtPopInitialize(wtp->size, wtp->originalweights, 'W');
     Free(wtp->prob);
     Free(wtp->alias);
@@ -184,6 +194,7 @@ static inline void WtPopSetWt(int position, double weight, WtPop *wtp) {
   }
 }
 
+// get the weight for a particular category
 static inline double WtPopGetWt(int position, WtPop *wtp) {
   if(wtp->type == 'B') {
     return wtp->weights[wtp->height][position];
@@ -192,6 +203,7 @@ static inline double WtPopGetWt(int position, WtPop *wtp) {
   }
 }
 
+// get the sum of weights for all categories
 static inline double WtPopSumWts(WtPop *wtp) {
   if(wtp->type == 'B') {
     return wtp->weights[0][0];

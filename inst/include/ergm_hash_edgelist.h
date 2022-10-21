@@ -13,8 +13,12 @@
 #include "ergm_unsorted_edgelist.h"
 #include "ergm_dyad_hashmap.h"
 
-// provides O(1) sampling, hash table time searching,
-// and hash table time + O(1) inserting and deleting
+/*
+   HashEL provides O(1) sampling, hash table time searching,
+   and hash table time + O(1) inserting and deleting;
+   unlike UnsrtEL, the HashEL data structure remains
+   efficient when deleting an edge that was not just sampled
+*/
 
 typedef struct {
   UnsrtEL *list;
@@ -28,15 +32,15 @@ static inline HashEL *HashELInitialize(unsigned int nedges, Vertex *tails, Verte
 
   hash->hash = kh_init(DyadMapUInt);
   hash->hash->directed = directed;
-  
+
   if(nedges > 0) {
     kh_resize(DyadMapUInt, hash->hash, 2*(nedges + 1));
-    
+
     for(unsigned int i = 0; i < nedges; i++) {
       kh_set(DyadMapUInt, hash->hash, TH(tails[i], heads[i]), i + 1);
     }
   }
-  
+
   return hash;
 }
 
@@ -60,15 +64,19 @@ static inline void HashELInsert(Vertex tail, Vertex head, HashEL *hash) {
   kh_set(DyadMapUInt, hash->hash, TH(tail, head), hash->list->nedges);
 }
 
-static inline void HashELDelete(Vertex tail, Vertex head, HashEL *hash) {   
+static inline void HashELDelete(Vertex tail, Vertex head, HashEL *hash) {
   khint_t i = kh_get(DyadMapUInt, hash->hash, TH(tail, head));
   unsigned int index = kh_value(hash->hash, i);
   kh_del(DyadMapUInt, hash->hash, i);
 
   if(index < hash->list->nedges) {
-    kh_set(DyadMapUInt, hash->hash, TH(hash->list->tails[hash->list->nedges], hash->list->heads[hash->list->nedges]), index);
+    kh_set(DyadMapUInt,
+           hash->hash,
+           TH(hash->list->tails[hash->list->nedges],
+              hash->list->heads[hash->list->nedges]),
+           index);
   }
-  
+
   UnsrtELDeleteAt(index, hash->list);
 }
 

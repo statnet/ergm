@@ -13,28 +13,40 @@
 #include "ergm_edgetree_types.h"
 #include <R.h>
 
-/* This is a data structure based on the StratTNT algorithm developed
-   by Chad Klumb. For now, these are static-inlined for simplicity, but
-   we may want to move some of the less frequently used functions
-   to a C file and save RAM.*/
+/*
+   This is a data structure to store a collection of edges in unsorted order,
+   using buffered arrays for tails and heads that offer amortized O(1) insertion
+   (typically of a known-absent edge, to avoid duplicates), O(1) uniform random
+   sampling, and O(1) deletion of the last sampled edge. It is often used as an
+   auxiliary data structure to support stratified sampling, with one UnsrtEL for
+   each stratum.
 
-typedef struct{
-  Vertex *tails, *heads;
-  Edge lindex, nedges, maxedges;
+   For now, these are static-inlined for simplicity, but
+   we may want to move some of the less frequently used functions
+   to a C file and save RAM.
+*/
+
+typedef struct {
+  Vertex *tails;
+  Vertex *heads;
+  unsigned int lindex;
+  unsigned int nedges;
+  unsigned int maxedges;
 } UnsrtEL;
 
-static inline UnsrtEL *UnsrtELInitialize(Edge nedges, Vertex *tails, Vertex *heads, Rboolean copy){
+static inline UnsrtEL *UnsrtELInitialize(unsigned int nedges, Vertex *tails, Vertex *heads, Rboolean copy) {
   UnsrtEL *el = Calloc(1, UnsrtEL);
 
-  if(nedges == 0){
-    el->tails = el->heads = NULL;
-  }else{
-    if(copy){
+  if(nedges == 0) {
+    el->tails = NULL;
+    el->heads = NULL;
+  } else {
+    if(copy) {
       el->tails = Calloc(nedges, Vertex);
       memcpy(el->tails, tails, nedges*sizeof(Vertex));
       el->heads = Calloc(nedges, Vertex);
       memcpy(el->heads, heads, nedges*sizeof(Vertex));
-    }else{
+    } else {
       el->tails = tails;
       el->heads = heads;
     }
@@ -42,15 +54,18 @@ static inline UnsrtEL *UnsrtELInitialize(Edge nedges, Vertex *tails, Vertex *hea
     el->heads--; // Index from 1.
   }
   el->lindex = 0;
-  el->nedges = el->maxedges = nedges;
+  el->nedges = nedges;
+  el->maxedges = nedges;
 
   return el;
 }
 
-static inline void UnsrtELDestroy(UnsrtEL *el){
-  if(el->tails){
-    el->tails++; Free(el->tails);
-    el->heads++; Free(el->heads);
+static inline void UnsrtELDestroy(UnsrtEL *el) {
+  if(el->tails) {
+    el->tails++;
+    el->heads++;
+    Free(el->tails);
+    Free(el->heads);
   }
   Free(el);
 }
@@ -60,36 +75,50 @@ static inline void UnsrtELClear(UnsrtEL *el) {
   el->nedges = 0;
 }
 
-static inline Edge UnsrtELGetRand(Vertex *tail, Vertex *head, UnsrtEL *el){
-  if(el->nedges==0) return 0;
+static inline unsigned int UnsrtELGetRand(Vertex *tail, Vertex *head, UnsrtEL *el) {
+  if(el->nedges == 0) {
+    return 0;
+  }
+
   el->lindex = el->nedges*unif_rand() + 1;
   *tail = el->tails[el->lindex];
   *head = el->heads[el->lindex];
   return el->lindex;
 }
 
-static inline Edge UnsrtELSearch(Vertex tail, Vertex head, UnsrtEL *el){
-  if(el->lindex==0 || tail!=el->tails[el->lindex] || head!=el->heads[el->lindex]){ // Linear search
+static inline unsigned int UnsrtELSearch(Vertex tail, Vertex head, UnsrtEL *el) {
+  if(el->lindex > 0 && tail == el->tails[el->lindex] && head == el->heads[el->lindex]) {
+   // found edge at last index
+   return el->lindex;
+  } else {
+    // linear search
+
 #ifdef DEBUG_UnsrtEL
     /* To stop on an inefficient search, have the debugger break on the next line. */
     Rprintf("UnsrtELSearch() called for an edge other than the last one inserted or selected, resulting in a linear search. This is O(E) slow and should be avoided whenever possible.\n");
 #endif
-    Edge i = el->nedges;
-    while(i!=0 && (tail!=el->tails[i] || head!=el->heads[i])) i--;
 
-    if(i) return el->lindex=i;
-    else return 0;
+    unsigned int i = el->nedges;
+    while(i != 0 && (tail != el->tails[i] || head != el->heads[i])) {
+      i--;
+    }
+
+    if(i) {
+      el->lindex = i;
+    }
+    return i;
   }
-
-  return el->lindex;
 }
 
-static inline void UnsrtELDelete(Vertex tail, Vertex head, UnsrtEL *el){
-  if(UnsrtELSearch(tail, head, el)==0) return; // Edge already absent.
+static inline void UnsrtELDelete(Vertex tail, Vertex head, UnsrtEL *el) {
+  if(UnsrtELSearch(tail, head, el) == 0) {
+    return; // edge already absent
+  }
+
   el->tails[el->lindex] = el->tails[el->nedges];
   el->heads[el->lindex] = el->heads[el->nedges];
   el->nedges--;
-  el->lindex=0;
+  el->lindex = 0;
 }
 
 // used by HashEL; assumes `at` is a valid edge index in `el`
@@ -98,15 +127,15 @@ static inline void UnsrtELDeleteAt(unsigned int at, UnsrtEL *el) {
     el->tails[at] = el->tails[el->nedges];
     el->heads[at] = el->heads[el->nedges];
   }
-  
+
   el->nedges--;
-  el->lindex=0;
+  el->lindex = 0;
 }
 
-static inline void UnsrtELInsert(Vertex tail, Vertex head, UnsrtEL *el){
-  if(el->nedges == el->maxedges){
-    el->maxedges = MAX(el->maxedges,1) * 2;
-    if(el->tails){
+static inline void UnsrtELInsert(Vertex tail, Vertex head, UnsrtEL *el) {
+  if(el->nedges == el->maxedges) {
+    el->maxedges = MAX(el->maxedges, 1) * 2;
+    if(el->tails) {
       el->tails++;
       el->heads++;
     }
@@ -115,13 +144,17 @@ static inline void UnsrtELInsert(Vertex tail, Vertex head, UnsrtEL *el){
   }
 
 #ifdef DEBUG_UnsrtEL
-  Edge i = el->nedges;
-  while(i!=0 && (tail!=el->tails[i] || head!=el->heads[i])) i--;
-  if(i) /* To stop on an invariant violation, have the debugger break on the next line. */
+  unsigned int i = el->nedges;
+  while(i != 0 && (tail != el->tails[i] || head != el->heads[i])) {
+    i--;
+  }
+  if(i) { /* To stop on an invariant violation, have the debugger break on the next line. */
     Rprintf("UnsrtELInsert() called for an edge already present in the list. This should never happen.\n");
+  }
 #endif
 
-  el->lindex = ++el->nedges;
+  el->nedges++;
+  el->lindex = el->nedges;
   el->tails[el->lindex] = tail;
   el->heads[el->lindex] = head;
 }

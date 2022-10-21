@@ -13,6 +13,16 @@
 #include "ergm_block.h"
 #include "ergm_BDNodeLists.h"
 
+/*
+   The BDStratBlocks data structure stores a sequence of blocks for each
+   included strat mixing type. It allows for sampling a uniformly random
+   toggleable dyad of a given strat mixing type, and calculating the total
+   toggleable dyad count for a given strat mixing type. Dyad toggleability
+   may be constrained in terms of mixing type on the blocks_vattr, and degree
+   bounds may be imposed by mixing type on the bd_vattr (this latter constraint
+   being represented in the BDNodeLists).
+*/
+
 typedef struct {
   Block ***blocks;
   int strat_nmixtypes;
@@ -47,13 +57,16 @@ static inline BDStratBlocks *BDStratBlocksInitialize(BDNodeLists *lists,
   for(int i = 0; i < strat_nmixtypes; i++) {
     int strat_diag = (strat_tails[i] == strat_heads[i]);
 
+    // this somewhat ugly block of code is simply calculating the total number
+    // of blocks (based on blocks_vattr and bd_vattr mixing types) that are
+    // needed for the current strat mixing type; the number of blocks needed
+    // depends on directedness and diagonality
     int nblocksmixtypes = blocks_mixtypes[strat_diag];
-
     int nblocksoffdiag = blocks_mixtypes[0] - blocks_mixtypes[1];
     int nblocksdiag = blocks_mixtypes[1] - nblocksoffdiag;
-
     int base_nblocks = (1 + !strat_diag)*nblocksoffdiag*bd_mixtypes[0] + nblocksdiag*bd_mixtypes[strat_diag];
     blocks->nblocks[i] = DIRECTED ? 4*base_nblocks : base_nblocks;
+
     blocks->blocks[i] = Calloc(blocks->nblocks[i], Block *);
     int l = 0;
     for(int j = 0; j < nblocksmixtypes; j++) {
