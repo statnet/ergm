@@ -286,7 +286,7 @@ InitErgmConstraint.bd<-function(nw, arglist, ...){
 #' @param b1levels,b2levels,levels,level2 control what mixing types are fixed.
 #'        `levels2` applies to all networks; `levels` applies to unipartite networks;
 #'        `b1levels` and `b2levels` apply to bipartite networks (see Specifying Vertex
-#'        Attributes and Levels (`?nodal_attributes`) for details)
+#'        attributes and Levels (`?nodal_attributes`) for details)
 #'
 #' @concept dyad-independent
 #' @concept directed

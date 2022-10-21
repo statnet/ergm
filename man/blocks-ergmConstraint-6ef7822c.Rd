@@ -13,7 +13,7 @@
 \item{b1levels, b2levels, levels, level2}{control what mixing types are fixed.
 \code{levels2} applies to all networks; \code{levels} applies to unipartite networks;
 \code{b1levels} and \code{b2levels} apply to bipartite networks (see Specifying Vertex
-Attributes and Levels (\code{?nodal_attributes}) for details)}
+attributes and Levels (\code{?nodal_attributes}) for details)}
 }
 \description{
 Any dyad whose toggle would produce a nonzero change statistic

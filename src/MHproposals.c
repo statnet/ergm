@@ -280,51 +280,87 @@ MH_P_FN(MH_BDStratTNT) {
   // sample a toggleable strat mixing type on which to make a proposal
   sto->stratmixingtype = WtPopGetRand(sto->wtp);
 
-  // number of edges and toggleable dyads of this mixing type
+  // number of (toggleable) edges and (toggleable) submaximal dyads of this mixing type
   int nedgestype = sto->hash[sto->stratmixingtype]->list->nedges;
   Dyad ndyadstype = BDStratBlocksDyadCount(sto->blocks, sto->stratmixingtype);
 
   int edgestate;
   if((unif_rand() < 0.5 && nedgestype > 0) || ndyadstype == 0) {
-    // propose toggling off an existing edge of strat mixing type sto->stratmixingtype
+    // propose toggling off a random (toggleable) edge of the sampled strat mixing type
     HashELGetRand(Mtail, Mhead, sto->hash[sto->stratmixingtype]);
     edgestate = TRUE;
   } else {
-    // select a random BD toggleable dyad of strat mixing type sto->stratmixingtype and propose toggling it
+    // proposed toggling a random (toggleable) submaximal dyad of the sampled strat mixing type
     BDStratBlocksGetRandWithCount(Mtail, Mhead, sto->blocks, sto->stratmixingtype, ndyadstype);
     edgestate = IS_OUTEDGE(*Mtail, *Mhead);
   }
 
-  // determine if tail and/or head will change degree maximality status if the proposed toggle is accepted
+  // determine if tail and/or head will change degree maximality status
+  // if the proposed toggle is accepted
   int tailattr = sto->bd_vattr[*Mtail];
   int headattr = sto->bd_vattr[*Mhead];
-  sto->tailmaxl = (DIRECTED ? sto->outdegree[headattr][*Mtail] : sto->indegree[headattr][*Mtail] + sto->outdegree[headattr][*Mtail]) == sto->maxout[headattr][*Mtail] - 1 + edgestate;
-  sto->headmaxl = (DIRECTED ? sto->indegree[tailattr][*Mhead] : sto->indegree[tailattr][*Mhead] + sto->outdegree[tailattr][*Mhead]) == sto->maxin[tailattr][*Mhead] - 1 + edgestate;
+  sto->tailmaxl = (DIRECTED ? sto->outdegree[headattr][*Mtail]
+                            : sto->indegree[headattr][*Mtail]
+                              + sto->outdegree[headattr][*Mtail])
+                  == sto->maxout[headattr][*Mtail] - 1 + edgestate;
+  sto->headmaxl = (DIRECTED ? sto->indegree[tailattr][*Mhead]
+                            : sto->indegree[tailattr][*Mhead]
+                              + sto->outdegree[tailattr][*Mhead])
+                  == sto->maxin[tailattr][*Mhead] - 1 + edgestate;
 
   // compute proposed dyad count for current mixing type (only)
-  Dyad proposeddyadstype = BDStratBlocksDyadCountOnToggle(*Mtail, *Mhead, sto->blocks, sto->stratmixingtype, sto->tailmaxl, sto->headmaxl);
+  Dyad proposedndyadstype = BDStratBlocksDyadCountOnToggle(*Mtail, *Mhead, sto->blocks,
+                                                           sto->stratmixingtype,
+                                                           sto->tailmaxl,
+                                                           sto->headmaxl);
 
-  // determine if any other strat mixing types will have their toggleability status change if the proposed toggle is accepted
+  // determine if any other strat mixing types will have their toggleability
+  // status change if the proposed toggle is accepted
   ComputeChangesToToggleability(Mtail, Mhead, sto);
 
-  // adjust acceptance probability for changes in strat mixing type toggleability
+  // the rationale for the forward proposal probability (conditional on having
+  // sampled the current strat mixing type) is as follows:
+  // - if the sampled dyad is an edge, then we could have sampled it through
+  //   the "random edge" branch above, which we enter with probability 1 if there
+  //   are no toggleable, submaximal dyads of the current strat mixing type, and
+  //   with probability 1/2 if there are toggleable, submaximal dyads of the current
+  //   strat mixing type; additionally, if there are toggleable, submaximal dyads
+  //   of the current strat mixing type *and* both tail and head are submaximal
+  //   in the current network, then we could also have selected the sampled dyad
+  //   through the "random dyad" branch above, which we enter with probability
+  //   1/2 (since the sampled dyad is an edge and thus there are (toggleable) edges
+  //   of the current strat mixing type)
+  // - if the sampled dyad is not an edge, then we could only have sampled it
+  //   through the "random dyad" branch, which we enter with probability 1 if
+  //   there are no (toggleable) edges of the current strat mixing type, and with
+  //   probability 1/2 if there are edges of the current strat mixing type
+  double forward = edgestate
+                   ? (ndyadstype == 0
+                      ? 1.0/nedgestype
+                      : 0.5/nedgestype + (sto->tailmaxl || sto->headmaxl
+                                          ? 0.0
+                                          : 0.5/ndyadstype))
+                   : (nedgestype == 0 ? 1.0 : 0.5)/ndyadstype;
+
+  // the backward proposal probability is basically an inverted (with respect to
+  // edgestate) form of the forward proposal probability, with edge and dyad counts
+  // updated to reflect the state of the network that will result if the current
+  // proposal is accepted
+  double backward = edgestate
+                    ? (nedgestype == 1 ? 1.0 : 0.5)/proposedndyadstype
+                    : (proposedndyadstype == 0
+                       ? 1.0/(nedgestype + 1)
+                       : 0.5/(nedgestype + 1) + (sto->tailmaxl || sto->headmaxl
+                                                 ? 0.0
+                                                 : 0.5/proposedndyadstype));
+
+  // the probability to select the current strat mixing type (which is necessarily
+  // toggleable in both the current and proposed networks) is inversely proportional
+  // to the total weight of toggleable strat mixing types; this total weight can differ
+  // between the current and proposed networks, which we account for here
   double prob_weight = sto->current_total_weight/sto->proposed_total_weight;
 
-  // the rationale for the logratio is similar to that given for BDTNT, with two additional considerations:
-  //
-  // - counts of edges and BD toggleable dyads should be for the current mixing type only, and
-  //
-  // - it is possible for a strat mixing type to reach zero toggleable dyads (by having no edges and also no BD toggleable dyads);
-  //   such a strat mixing type cannot be selected when we choose the strat mixing type at the top of the P_FN, and so we must
-  //   "disable" it until it comes to have toggleable dyads again; the term prob_weight adjusts for the fact that the total weight
-  //   given to toggleable strat mixing types may be different in the current and proposed networks, and thus the probability
-  //   to select the current strat mixing type may be different in the current and proposed networks
-
-  if(edgestate) {
-    MHp->logratio = log(prob_weight*(((nedgestype == 1 ? 1.0 : 0.5)/proposeddyadstype))/(((ndyadstype == 0 ? 1.0/nedgestype : (0.5/nedgestype) + (sto->tailmaxl || sto->headmaxl ? 0.0 : 0.5/ndyadstype)))));
-  } else {
-    MHp->logratio = log(prob_weight*((proposeddyadstype == 0 ? 1.0/(nedgestype + 1) : (0.5/(nedgestype + 1)) + (sto->tailmaxl || sto->headmaxl ? 0.0 : 0.5/proposeddyadstype))/((nedgestype == 0 ? 1.0 : 0.5)/ndyadstype)));
-  }
+  MHp->logratio = log(prob_weight*backward/forward);
 }
 
 MH_U_FN(Mu_BDStratTNT) {
@@ -339,8 +375,12 @@ MH_U_FN(Mu_BDStratTNT) {
     // so we recompute some things here that are typically handled in the P_FN
     sto->stratmixingtype = sto->indmat[sto->strat_vattr[tail]][sto->strat_vattr[head]];
 
-    sto->tailmaxl = (DIRECTED ? sto->outdegree[headattr][tail] : sto->indegree[headattr][tail] + sto->outdegree[headattr][tail]) == sto->maxout[headattr][tail] - 1 + edgestate;
-    sto->headmaxl = (DIRECTED ? sto->indegree[tailattr][head] : sto->indegree[tailattr][head] + sto->outdegree[tailattr][head]) == sto->maxin[tailattr][head] - 1 + edgestate;
+    sto->tailmaxl = (DIRECTED ? sto->outdegree[headattr][tail]
+                              : sto->indegree[headattr][tail] + sto->outdegree[headattr][tail])
+                     == sto->maxout[headattr][tail] - 1 + edgestate;
+    sto->headmaxl = (DIRECTED ? sto->indegree[tailattr][head]
+                              : sto->indegree[tailattr][head] + sto->outdegree[tailattr][head])
+                     == sto->maxin[tailattr][head] - 1 + edgestate;
 
     ComputeChangesToToggleability(&tail, &head, sto);
   }
@@ -355,11 +395,14 @@ MH_U_FN(Mu_BDStratTNT) {
   // update nodelists as needed
   BDNodeListsToggleIf(tail, head, sto->lists, sto->tailmaxl, sto->headmaxl);
 
-  // if any strat mixing types have changed toggleability status, update prob info accordingly
+  // if any strat mixing types have changed toggleability status,
+  // update prob info accordingly
   if(sto->strat_nmixtypestoupdate > 0) {
     sto->current_total_weight = sto->proposed_total_weight;
     for(int i = 0; i < sto->strat_nmixtypestoupdate; i++) {
-      WtPopSetWt(sto->strat_mixtypestoupdate[i], edgestate ? sto->originalprobvec[sto->strat_mixtypestoupdate[i]] : 0, sto->wtp);
+      WtPopSetWt(sto->strat_mixtypestoupdate[i],
+                 edgestate ? sto->originalprobvec[sto->strat_mixtypestoupdate[i]] : 0,
+                 sto->wtp);
     }
   }
 }
