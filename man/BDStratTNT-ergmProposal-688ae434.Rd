@@ -3,13 +3,16 @@
 \name{BDStratTNT-ergmProposal}
 \alias{BDStratTNT-ergmProposal}
 \alias{InitErgmProposal.BDStratTNT}
-\title{TNT proposal with degree bounds}
+\title{TNT proposal with degree bounds, stratification, and a blocks constraint}
 \description{
 Implements a TNT proposal with any subset of the following features:
 \enumerate{
-\item upper on degree, specified via the \code{\link[=bd-ergmConstraint]{bd}} constraint's \code{maxout}, \code{maxin}, and \code{attribs} arguments
-\item stratification of proposals according to mixing type on a vertex attribute, specified via the \code{\link[=strat-ergmHint]{strat}} hint;
-\item fixation of specified mixing types on a(nother) vertex attribute, specified via the \code{\link[=blocks-ergmConstraint]{blocks}} constraint.
+\item upper bounds on degree, specified via the \code{\link[=bd-ergmConstraint]{bd}}
+constraint's \code{maxout}, \code{maxin}, and \code{attribs} arguments;
+\item stratification of proposals according to mixing type on a vertex attribute,
+specified via the \code{\link[=strat-ergmHint]{strat}} hint;
+\item fixation of specified mixing types on a(nother) vertex attribute, specified
+via the \code{\link[=blocks-ergmConstraint]{blocks}} constraint.
 }
 }
 \details{

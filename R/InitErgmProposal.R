@@ -68,11 +68,14 @@ InitErgmProposal.TNT <- function(nw, arguments, ...){
 
 #' @templateVar name BDStratTNT
 #' @aliases InitErgmProposal.BDStratTNT
-#' @title TNT proposal with degree bounds
+#' @title TNT proposal with degree bounds, stratification, and a blocks constraint
 #' @description Implements a TNT proposal with any subset of the following features:
-#'   1. upper on degree, specified via the [`bd`][bd-ergmConstraint] constraint's `maxout`, `maxin`, and `attribs` arguments
-#'   2. stratification of proposals according to mixing type on a vertex attribute, specified via the [`strat`][strat-ergmHint] hint;
-#'   3. fixation of specified mixing types on a(nother) vertex attribute, specified via the [`blocks`][blocks-ergmConstraint] constraint.
+#'   1. upper bounds on degree, specified via the [`bd`][bd-ergmConstraint]
+#'      constraint's `maxout`, `maxin`, and `attribs` arguments;
+#'   2. stratification of proposals according to mixing type on a vertex attribute,
+#'      specified via the [`strat`][strat-ergmHint] hint;
+#'   3. fixation of specified mixing types on a(nother) vertex attribute, specified
+#'      via the [`blocks`][blocks-ergmConstraint] constraint.
 #' @template ergmProposal-general
 NULL
 InitErgmProposal.BDStratTNT <- function(arguments, nw) {
@@ -84,7 +87,8 @@ InitErgmProposal.BDStratTNT <- function(arguments, nw) {
   NVL(arguments$constraints$blocks) <- InitErgmConstraint.blocks(nw, list(attr = trim_env(~0)))
   NVL(arguments$constraints$strat) <- InitErgmConstraint.strat(nw, list(attr = trim_env(~0)))
 
-  attribs <- NVL(arguments$constraints$bd$attribs, matrix(TRUE, ncol = 1L, nrow = network.size(nw)))
+  attribs <- NVL(arguments$constraints$bd$attribs,
+                 matrix(TRUE, ncol = 1L, nrow = network.size(nw)))
 
   maxout <- NVL(arguments$constraints$bd$maxout, network.size(nw))
   maxout[is.na(maxout)] <- network.size(nw)
@@ -114,7 +118,8 @@ InitErgmProposal.BDStratTNT <- function(arguments, nw) {
   bd_allowed_tails <- c(bd_tails, if(!is.directed(nw)) bd_heads[bd_offdiag_pairs])
   bd_allowed_heads <- c(bd_heads, if(!is.directed(nw)) bd_tails[bd_offdiag_pairs])
 
-  ## number of bd mixtypes that need to be considered when strat and blocks mixing types are off-diag and on-diag, respectively
+  ## number of bd mixtypes that need to be considered when strat and blocks
+  ## mixing types are off-diag and on-diag, respectively
   bd_nmixtypes <- c(length(bd_allowed_tails), length(bd_tails))
 
   blocks_vattr <- arguments$constraints$blocks$nodecov
@@ -130,16 +135,23 @@ InitErgmProposal.BDStratTNT <- function(arguments, nw) {
   blocks_nlevels <- NROW(amat)
   blocks_node_counts <- tabulate(blocks_vattr, nbins = blocks_nlevels)
 
-  pairs_to_keep <- (blocks_tails != blocks_heads & blocks_node_counts[blocks_tails] > 0 & blocks_node_counts[blocks_heads] > 0) | (blocks_tails == blocks_heads & blocks_node_counts[blocks_tails] > 1)
+  pairs_to_keep <- (blocks_tails != blocks_heads
+                    & blocks_node_counts[blocks_tails] > 0
+                    & blocks_node_counts[blocks_heads] > 0) |
+                   (blocks_tails == blocks_heads
+                    & blocks_node_counts[blocks_tails] > 1)
   blocks_tails <- blocks_tails[pairs_to_keep]
   blocks_heads <- blocks_heads[pairs_to_keep]
 
   blocks_offdiag_pairs <- which(blocks_tails != blocks_heads)
 
-  blocks_allowed_tails <- c(blocks_tails, if(!is.bipartite(nw) && !is.directed(nw)) blocks_heads[blocks_offdiag_pairs])
-  blocks_allowed_heads <- c(blocks_heads, if(!is.bipartite(nw) && !is.directed(nw)) blocks_tails[blocks_offdiag_pairs])
+  blocks_allowed_tails <- c(blocks_tails,
+                            if(!is.bipartite(nw) && !is.directed(nw)) blocks_heads[blocks_offdiag_pairs])
+  blocks_allowed_heads <- c(blocks_heads,
+                            if(!is.bipartite(nw) && !is.directed(nw)) blocks_tails[blocks_offdiag_pairs])
 
-  ## number of blocks mixtypes that need to be considered when strat mixing type is off-diag and on-diag, respectively
+  ## number of blocks mixtypes that need to be considered
+  ## when strat mixing type is off-diag and on-diag, respectively
   blocks_nmixtypes <- c(length(blocks_allowed_tails), length(blocks_tails))
 
   strat_vattr <- arguments$constraints$strat$nodecov

@@ -272,15 +272,21 @@ InitErgmConstraint.bd<-function(nw, arglist, ...){
 }
 
 #' @templateVar name blocks
-#' @title Constrain "blocks" of dyads
-#' @description Any dyad whose toggle would produce a nonzero change statistic for a `nodemix` term with the same arguments will be fixed. Note that the `levels2` argument has a different default value for `blocks` than it does for `nodemix` .
+#' @title Constrain blocks of dyads defined by mixing type on a vertex attribute.
+#' @description Any dyad whose toggle would produce a nonzero change statistic
+#'              for a `nodemix` term with the same arguments will be fixed. Note
+#'              that the `levels2` argument has a different default value for
+#'              `blocks` than it does for `nodemix`.
 #'
 #' @usage
 #' # blocks(attr=NULL, levels=NULL, levels2=FALSE, b1levels=NULL, b2levels=NULL)
 #'
 #' @template ergmConstraint-general
 #' @template ergmTerm-attr
-#' @param b1levels,b2levels,levels,level2 control what statistics are included in the model and the order in which they appear. `levels2` apply to all networks; `levels` applies to unipartite networks; `b1levels` and `b2levels` apply to bipartite networks (see Specifying Vertex attributes and Levels (`?nodal_attributes`) for details)
+#' @param b1levels,b2levels,levels,level2 control what mixing types are fixed.
+#'        `levels2` applies to all networks; `levels` applies to unipartite networks;
+#'        `b1levels` and `b2levels` apply to bipartite networks (see Specifying Vertex
+#'        Attributes and Levels (`?nodal_attributes`) for details)
 #'
 #' @concept dyad-independent
 #' @concept directed
@@ -288,31 +294,33 @@ InitErgmConstraint.bd<-function(nw, arglist, ...){
 InitErgmConstraint.blocks <- function(nw, arglist, ...) {
   a <- check.ErgmTerm(nw, arglist,
                       varnames = c("attr", "b1levels", "b2levels", "levels", "levels2"),
-                      vartypes = c(ERGM_VATTR_SPEC, ERGM_LEVELS_SPEC, ERGM_LEVELS_SPEC, ERGM_LEVELS_SPEC, ERGM_LEVELS_SPEC),
+                      vartypes = c(ERGM_VATTR_SPEC, ERGM_LEVELS_SPEC, ERGM_LEVELS_SPEC,
+                                   ERGM_LEVELS_SPEC, ERGM_LEVELS_SPEC),
                       defaultvalues = list(NULL, NULL, NULL, NULL, FALSE),
                       required = c(TRUE, FALSE, FALSE, FALSE, FALSE))
-  attr <- a$attr; b1levels <- a$b1levels; b2levels <- a$b2levels; levels <- a$levels; levels2 <- a$levels2
 
   if(is.bipartite(nw)) {
-    row_nodecov <- ergm_get_vattr(attr, nw, bip = "b1")
-    col_nodecov <- ergm_get_vattr(attr, nw, bip = "b2")
+    row_nodecov <- ergm_get_vattr(a$attr, nw, bip = "b1")
+    col_nodecov <- ergm_get_vattr(a$attr, nw, bip = "b2")
 
-    row_levels <- ergm_attr_levels(b1levels, row_nodecov, nw, sort(unique(row_nodecov)))
-    col_levels <- ergm_attr_levels(b2levels, col_nodecov, nw, sort(unique(col_nodecov)))
+    row_levels <- ergm_attr_levels(a$b1levels, row_nodecov, nw, sort(unique(row_nodecov)))
+    col_levels <- ergm_attr_levels(a$b2levels, col_nodecov, nw, sort(unique(col_nodecov)))
 
     offset <- length(row_levels) + 1L
   } else {
-    all_nodecov <- ergm_get_vattr(attr, nw)
+    all_nodecov <- ergm_get_vattr(a$attr, nw)
     row_nodecov <- col_nodecov <- all_nodecov
 
-    all_levels <- ergm_attr_levels(levels, all_nodecov, nw, sort(unique(all_nodecov)))
+    all_levels <- ergm_attr_levels(a$levels, all_nodecov, nw, sort(unique(all_nodecov)))
     row_levels <- col_levels <- all_levels
 
     offset <- 0L
   }
 
-  levels2_list <- transpose(expand.grid(row = row_levels, col = col_levels, stringsAsFactors = FALSE))
-  indices2_grid <- expand.grid(row = seq_along(row_levels), col = offset + seq_along(col_levels))
+  levels2_list <- transpose(expand.grid(row = row_levels,
+                                        col = col_levels, stringsAsFactors = FALSE))
+  indices2_grid <- expand.grid(row = seq_along(row_levels),
+                               col = offset + seq_along(col_levels))
 
   if(!is.directed(nw) && !is.bipartite(nw)) {
     rows_leq_cols <- indices2_grid$row <= indices2_grid$col
@@ -320,7 +328,10 @@ InitErgmConstraint.blocks <- function(nw, arglist, ...) {
     indices2_grid <- indices2_grid[rows_leq_cols,]
   }
 
-  levels2_selected <- ergm_attr_levels(levels2, list(row = row_nodecov, col = col_nodecov), nw, levels2_list)
+  levels2_selected <- ergm_attr_levels(a$levels2,
+                                       list(row = row_nodecov, col = col_nodecov),
+                                       nw,
+                                       levels2_list)
 
   rows_to_keep <- match(levels2_selected, levels2_list, nomatch = NA)
   rows_to_keep <- rows_to_keep[!is.na(rows_to_keep)]
@@ -355,7 +366,8 @@ InitErgmConstraint.blocks <- function(nw, arglist, ...) {
     rle_list <- lapply(seq_len(NCOL(amat)), function(i) rle(c(amat[nodecov,i])))
     lens <- lapply(seq_len(n), function(i) rle_list[[nodecov[i]]]$lengths)
     vals <- lapply(seq_len(n), function(i) rle_list[[nodecov[i]]]$values)
-    rlebdm(compress(structure(list(lengths = unlist(lens), values = unlist(vals)), class = "rle")), n)
+    rlebdm(compress(structure(list(lengths = unlist(lens),
+                                   values = unlist(vals)), class = "rle")), n)
   }
 
   list(constrain = "blocks",
