@@ -1243,9 +1243,9 @@ test_that("BDStratTNT simulates directed reasonably", {
   }
 })
 
-test_that("BDStratTNT handles undirected degree bound saturation correctly in simulation context", {
+test_that("BDStratTNT handles undirected heterogeneous degree bound saturation correctly in simulation context", {
   net_size <- 20
-  deg_bound <- 3
+  deg_bound <- 2
   nw <- network.initialize(net_size, directed = FALSE)
   nw %v% "strat_attr" <- rep(letters[1:10], length.out = net_size)
   nw %v% "blocks_attr" <- rep(1:3, length.out = net_size)
@@ -1257,7 +1257,6 @@ test_that("BDStratTNT handles undirected degree bound saturation correctly in si
                     nrow = 3, byrow = TRUE)
 
   maxout <- matrix(round(deg_bound*runif(net_size*7)), nrow = net_size)
-  maxin <- matrix(round(deg_bound*runif(net_size*7)), nrow = net_size)
   bd_attr <- matrix(FALSE, nrow = net_size, ncol = 7)
   bd_attr[cbind(seq_len(net_size), 1 + (seq_len(net_size) %% 7))] <- TRUE  
   bd_attr_flat <- rep(c(2:7,1), length.out = net_size)
@@ -1289,9 +1288,9 @@ test_that("BDStratTNT handles undirected degree bound saturation correctly in si
   expect_true(all(degs <= maxout))
 })
 
-test_that("BDStratTNT handles directed degree bound saturation correctly in simulation context", {
+test_that("BDStratTNT handles directed heterogeneous degree bound saturation correctly in simulation context", {
   net_size <- 20
-  deg_bound <- 3
+  deg_bound <- 2
   nw <- network.initialize(net_size, directed = TRUE)
   nw %v% "strat_attr" <- rep(letters[1:10], length.out = net_size)
   nw %v% "blocks_attr" <- rep(1:3, length.out = net_size)
@@ -1302,6 +1301,7 @@ test_that("BDStratTNT handles directed degree bound saturation correctly in simu
                     nrow = 3, byrow = TRUE)
 
   maxout <- matrix(round(deg_bound*runif(net_size*7)), nrow = net_size)
+  maxin <- matrix(round(deg_bound*runif(net_size*7)), nrow = net_size)
   bd_attr <- matrix(FALSE, nrow = net_size, ncol = 7)
   bd_attr[cbind(seq_len(net_size), 1 + (seq_len(net_size) %% 7))] <- TRUE  
   bd_attr_flat <- rep(c(2:7,1), length.out = net_size)
@@ -1339,10 +1339,10 @@ test_that("BDStratTNT handles directed degree bound saturation correctly in simu
   expect_true(all(in_degs <= maxin))
 })
 
-test_that("BDStratTNT handles bipartite degree bound saturation correctly in simulation context", {
+test_that("BDStratTNT handles bipartite heterogeneous degree bound saturation correctly in simulation context", {
   net_size <- 20
   bip_size <- 5
-  deg_bound <- 3
+  deg_bound <- 2
   nw <- network.initialize(net_size, directed = FALSE, bipartite = bip_size)
   nw %v% "strat_attr" <- rep(letters[1:10], length.out = net_size)
   nw %v% "blocks_attr" <- rep(1:3, length.out = net_size)
@@ -1353,7 +1353,6 @@ test_that("BDStratTNT handles bipartite degree bound saturation correctly in sim
                     nrow = 3, byrow = TRUE)
 
   maxout <- matrix(round(deg_bound*runif(net_size*7)), nrow = net_size)
-  maxin <- matrix(round(deg_bound*runif(net_size*7)), nrow = net_size)
   bd_attr <- matrix(FALSE, nrow = net_size, ncol = 7)
   bd_attr[cbind(seq_len(net_size), 1 + (seq_len(net_size) %% 7))] <- TRUE  
   bd_attr_flat <- rep(c(2:7,1), length.out = net_size)
@@ -1382,5 +1381,129 @@ test_that("BDStratTNT handles bipartite degree bound saturation correctly in sim
   el <- as.edgelist(nws2)
   degs <- table(from = factor(c(el), levels = seq_len(net_size)),
                 to = factor(bd_attr_flat[c(el[, c(2, 1)])], levels = seq_len(7)))
+  expect_true(all(degs <= maxout))
+})
+
+test_that("BDStratTNT handles undirected homogeneous degree bound saturation correctly in simulation context", {
+  net_size <- 20
+  deg_bound <- 2
+  nw <- network.initialize(net_size, directed = FALSE)
+  nw %v% "strat_attr" <- rep(letters[1:10], length.out = net_size)
+  nw %v% "blocks_attr" <- rep(1:3, length.out = net_size)
+
+  pmat <- matrix(runif(10*10), nrow = 10, ncol = 10)
+  pmat <- pmat + t(pmat)
+
+  levels2 <- matrix(c(FALSE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, TRUE, TRUE),
+                    nrow = 3, byrow = TRUE)
+
+  maxout <- deg_bound
+  nws <- simulate(nw ~ edges,
+                  coef = c(0),
+                  constraints = ~bd(maxout = maxout)
+                                 + blocks(attr = ~blocks_attr, levels2 = levels2)
+                                 + strat(attr = ~strat_attr, pmat = pmat),
+                  control = list(MCMC.burnin = 1e5))
+  ## check constraints
+  expect_true(all(summary(nws ~ nodemix(~blocks_attr, levels2 = levels2)) == 0))
+  el <- as.edgelist(nws)
+  degs <- tabulate(c(el), nbins = net_size)
+  expect_true(all(degs <= maxout))
+
+  ## restart to test initialization
+  nws2 <- simulate(nws ~ edges,
+                   coef = c(0),
+                   constraints = ~bd(maxout = maxout)
+                                  + blocks(attr = ~blocks_attr, levels2 = levels2)
+                                  + strat(attr = ~strat_attr, pmat = pmat),
+                   control = list(MCMC.burnin = 1e5))
+  ## check constraints
+  expect_true(all(summary(nws2 ~ nodemix(~blocks_attr, levels2 = levels2)) == 0))
+  el <- as.edgelist(nws2)
+  degs <- tabulate(c(el), nbins = net_size)
+  expect_true(all(degs <= maxout))
+})
+
+test_that("BDStratTNT handles directed homogeneous degree bound saturation correctly in simulation context", {
+  net_size <- 20
+  deg_bound <- 2
+  nw <- network.initialize(net_size, directed = TRUE)
+  nw %v% "strat_attr" <- rep(letters[1:10], length.out = net_size)
+  nw %v% "blocks_attr" <- rep(1:3, length.out = net_size)
+
+  pmat <- matrix(runif(10*10), nrow = 10, ncol = 10)
+
+  levels2 <- matrix(c(FALSE, FALSE, TRUE, FALSE, FALSE, TRUE, FALSE, TRUE, TRUE),
+                    nrow = 3, byrow = TRUE)
+
+  maxout <- deg_bound
+  maxin <- deg_bound
+  nws <- simulate(nw ~ edges,
+                  coef = c(0),
+                  constraints = ~bd(maxout = maxout, maxin = maxin)
+                                 + blocks(attr = ~blocks_attr, levels2 = levels2)
+                                 + strat(attr = ~strat_attr, pmat = pmat),
+                  control = list(MCMC.burnin = 1e5))
+  ## check constraints
+  expect_true(all(summary(nws ~ nodemix(~blocks_attr, levels2 = levels2)) == 0))
+  el <- as.edgelist(nws)
+  out_degs <- tabulate(c(el[, 1]), nbins = net_size)
+  expect_true(all(out_degs <= maxout))
+  in_degs <- tabulate(c(el[, 2]), nbins = net_size)
+  expect_true(all(in_degs <= maxin))
+
+  ## restart to test initialization
+  nws2 <- simulate(nws ~ edges,
+                   coef = c(0),
+                   constraints = ~bd(maxout = maxout, maxin = maxin)
+                                  + blocks(attr = ~blocks_attr, levels2 = levels2)
+                                  + strat(attr = ~strat_attr, pmat = pmat),
+                   control = list(MCMC.burnin = 1e5))
+  ## check constraints
+  expect_true(all(summary(nws2 ~ nodemix(~blocks_attr, levels2 = levels2)) == 0))
+  el <- as.edgelist(nws2)
+  out_degs <- tabulate(c(el[, 1]), nbins = net_size)
+  expect_true(all(out_degs <= maxout))
+  in_degs <- tabulate(c(el[, 2]), nbins = net_size)
+  expect_true(all(in_degs <= maxin))
+})
+
+test_that("BDStratTNT handles bipartite homogeneous degree bound saturation correctly in simulation context", {
+  net_size <- 20
+  bip_size <- 5
+  deg_bound <- 2
+  nw <- network.initialize(net_size, directed = FALSE, bipartite = bip_size)
+  nw %v% "strat_attr" <- rep(letters[1:10], length.out = net_size)
+  nw %v% "blocks_attr" <- rep(1:3, length.out = net_size)
+
+  pmat <- matrix(runif(5*10), nrow = 5, ncol = 10)
+
+  levels2 <- matrix(c(FALSE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, TRUE, TRUE),
+                    nrow = 3, byrow = TRUE)
+
+  maxout <- deg_bound
+  nws <- simulate(nw ~ edges,
+                  coef = c(0),
+                  constraints = ~bd(maxout = maxout)
+                                 + blocks(attr = ~blocks_attr, levels2 = levels2)
+                                 + strat(attr = ~strat_attr, pmat = pmat),
+                  control = list(MCMC.burnin = 1e5))
+  ## check constraints
+  expect_true(all(summary(nws ~ nodemix(~blocks_attr, levels2 = levels2)) == 0))
+  el <- as.edgelist(nws)
+  degs <- tabulate(c(el), nbins = net_size)
+  expect_true(all(degs <= maxout))
+
+  ## restart to test initialization
+  nws2 <- simulate(nws ~ edges,
+                   coef = c(0),
+                   constraints = ~bd(maxout = maxout)
+                                  + blocks(attr = ~blocks_attr, levels2 = levels2)
+                                  + strat(attr = ~strat_attr, pmat = pmat),
+                   control = list(MCMC.burnin = 1e5))
+  ## check constraints
+  expect_true(all(summary(nws2 ~ nodemix(~blocks_attr, levels2 = levels2)) == 0))
+  el <- as.edgelist(nws2)
+  degs <- tabulate(c(el), nbins = net_size)
   expect_true(all(degs <= maxout))
 })
