@@ -231,17 +231,17 @@ MH_I_FN(Mi_BDStratTNT) {
   Free(els);
 
   // initialize sampling weights for strat mixing types
-  sto->originalprobvec = Calloc(sto->strat_nmixtypes, double);
+  sto->original_weights = Calloc(sto->strat_nmixtypes, double);
   if(asInteger(getListElement(MHp->R, "empirical_flag"))) {
     // use edgecounts as weights
     for(int i = 0; i < sto->strat_nmixtypes; i++) {
       if(sto->hash[i]->list->nedges > 0) {
-        sto->originalprobvec[i] = sto->hash[i]->list->nedges;
+        sto->original_weights[i] = sto->hash[i]->list->nedges;
       }
     }
   } else {
     // use user-supplied weights
-    memcpy(sto->originalprobvec, 
+    memcpy(sto->original_weights, 
            REAL(getListElement(MHp->R, "probvec")),
            sto->strat_nmixtypes*sizeof(double));
   }
@@ -251,8 +251,8 @@ MH_I_FN(Mi_BDStratTNT) {
   for(int i = 0; i < sto->strat_nmixtypes; i++) {
     // if any edges or dyads of this type are toggleable, then the mixing type is toggleable
     if(sto->hash[i]->list->nedges > 0 || BDStratBlocksDyadCountPositive(sto->blocks, i)) {
-      currentprobvec[i] = sto->originalprobvec[i];
-      sto->current_total_weight += sto->originalprobvec[i];
+      currentprobvec[i] = sto->original_weights[i];
+      sto->current_total_weight += sto->original_weights[i];
     }
   }
 
@@ -401,7 +401,7 @@ MH_U_FN(Mu_BDStratTNT) {
     sto->current_total_weight = sto->proposed_total_weight;
     for(int i = 0; i < sto->strat_nmixtypestoupdate; i++) {
       WtPopSetWt(sto->strat_mixtypestoupdate[i],
-                 edgestate ? sto->originalprobvec[sto->strat_mixtypestoupdate[i]] : 0,
+                 edgestate ? sto->original_weights[sto->strat_mixtypestoupdate[i]] : 0,
                  sto->wtp);
     }
   }
@@ -424,7 +424,7 @@ MH_F_FN(Mf_BDStratTNT) {
   }
   Free(sto->indmat);
 
-  Free(sto->originalprobvec);
+  Free(sto->original_weights);
 
   Free(sto->strat_mixtypestoupdate);
 

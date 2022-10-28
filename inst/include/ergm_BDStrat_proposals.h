@@ -17,49 +17,67 @@
 #include "ergm_hash_edgelist.h"
 #include "ergm_BDStratBlocks.h"
 
-// initialization and finalization functions (also used by temporal extension)
+// initialization and finalization functions
+// (also used by the temporal extension of this proposal)
 MH_I_FN(Mi_BDStratTNT);
 MH_F_FN(Mf_BDStratTNT);
 
 // overall data structure for BDStratTNT proposal
 typedef struct {
+  // submaximal nodes
   BDNodeLists *lists;
+
+  // submaximal dyads
   BDStratBlocks *blocks;
 
+  // edges
   HashEL **hash;
 
-  int tailmaxl;
-  int headmaxl;
-
-  int stratmixingtype;
-
-  double current_total_weight;
-  double proposed_total_weight;
-
-  double *originalprobvec;
-
-  WtPop *wtp;
-
+  // degree bounds
   int **maxout;
   int **maxin;
 
+  // current degrees
   int **indegree;
   int **outdegree;
 
-  int bd_nlevels;
-  int strat_nmixtypes;
-  int strat_nlevels;
+  // current strat mixing type
+  int stratmixingtype;
 
+  // will tail/head change maximality on toggle?
+  int tailmaxl;
+  int headmaxl;
+
+  // count and indices of strat mixing types whose toggleability
+  // will change if we accept the current proposal
+  int strat_nmixtypestoupdate;
+  int *strat_mixtypestoupdate;
+
+  // total weight of toggleable strat mixing types
+  // in the current and proposed networks
+  double current_total_weight;
+  double proposed_total_weight;
+
+  // original weights for strat mixing types
+  double *original_weights;
+
+  // weighted sampling data structure for strat mixing types
+  WtPop *wtp;
+
+  // vertex attribute values
   int *strat_vattr;
   int *blocks_vattr;
   int *bd_vattr;
 
+  // basic attribute information (number of levels, number of included mixing types)
+  int bd_nlevels;
+  int strat_nlevels;
+  int strat_nmixtypes;
 
+  // matrix storing indices of included strat mixing types
   int **indmat;
 
-  int strat_nmixtypestoupdate;
-  int *strat_mixtypestoupdate;
-
+  // flag: are we running the contrastive divergence algorithm?
   int CD;
 } BDStratTNTStorage;
 
@@ -113,7 +131,7 @@ static inline void ComputeChangesToToggleability(Vertex *tail, Vertex *head, BDS
 
       // if so, take this into account
       if(change) {
-        sto->proposed_total_weight += change*sto->originalprobvec[infl_i];
+        sto->proposed_total_weight += change*sto->original_weights[infl_i];
         sto->strat_mixtypestoupdate[sto->strat_nmixtypestoupdate] = infl_i;
         sto->strat_nmixtypestoupdate++;
       }
