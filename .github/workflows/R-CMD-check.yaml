@@ -130,10 +130,10 @@ jobs:
           use-public-rspm: true
           r-version: ${{ matrix.config.r }}
 
-      - name: Install GhostScript (on Linux if running vignettes)
+      - name: Install tidy (on Linux if running vignettes)
         if: runner.os == 'Linux' && contains(matrix.config.flags, 'vignettes')
         run: |
-          /usr/bin/sudo DEBIAN_FRONTEND=noninteractive apt-get install -y ghostscript tidy
+          /usr/bin/sudo DEBIAN_FRONTEND=noninteractive apt-get install -y tidy
         shell: bash
 
       - uses: r-lib/actions/setup-pandoc@v2
@@ -203,18 +203,21 @@ jobs:
 
           error_on <- if(Sys.getenv("FAIL_ON_WARN") == "true") "warning" else "error"
 
+          extra_flags <- c()
+
           if(Sys.getenv("USE_UBSAN") == "true"){
-            Sys.setenv(PKG_LIBS=paste(Sys.getenv("PKG_LIBS"), "-fsanitize=undefined"),
-                       PKG_CFLAGS=paste(Sys.getenv("PKG_CFLAGS"), "-fsanitize=undefined"),
-                       PKG_CXXFLAGS=paste(Sys.getenv("PKG_CXXFLAGS"), "-fsanitize=undefined"),
-                       UBSAN_OPTIONS=paste(Sys.getenv("UBSAN_OPTIONS"), "print_stacktrace=1"))
+            extra_flags <- c(extra_flags, "-fsanitize=undefined")
+            Sys.setenv(UBSAN_OPTIONS=paste(Sys.getenv("UBSAN_OPTIONS"), "print_stacktrace=1"))
           }
 
-          if(Sys.getenv("SET_DEBUG") == "true"){
-            Sys.setenv(PKG_LIBS=paste(Sys.getenv("PKG_LIBS"), "-UNDEBUG -DDEBUG"),
-                       PKG_CXXFLAGS=paste(Sys.getenv("PKG_CXXFLAGS"), "-UNDEBUG -DDEBUG"),
-                       PKG_CFLAGS=paste(Sys.getenv("PKG_CFLAGS"), "-UNDEBUG -DDEBUG"))
-          }
+          if(Sys.getenv("SET_DEBUG") == "true") extra_flags <- c(extra_flags, "-UNDEBUG", "-DDEBUG")
+
+          # Before R 4.3.0, R itself was not compliant.
+          if(getRversion() >= "4.3") extra_flags <- c(extra_flags, "-Wstrict-prototypes")
+
+          Sys.setenv(PKG_LIBS=paste(c(Sys.getenv("PKG_LIBS"), extra_flags), collapse=" "),
+                     PKG_CXXFLAGS=paste(c(Sys.getenv("PKG_CXXFLAGS"), extra_flags), collapse=" "),
+                     PKG_CFLAGS=paste(c(Sys.getenv("PKG_CFLAGS"), extra_flags), collapse=" "))
 
           rcmdcheck::rcmdcheck(args = check_args, build_args = build_args, error_on = error_on, check_dir = "check")
         shell: Rscript {0}
