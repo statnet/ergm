@@ -29,6 +29,6 @@ WtErgmState *WtErgmStateInit(SEXP stateR,
                              unsigned int flags);
 SEXP WtErgmStateRSave(WtErgmState *s);
 void WtErgmStateDestroy(WtErgmState *s);
-SEXP WtErgmStateArrayClear();
+SEXP WtErgmStateArrayClear(void);
 
 #endif

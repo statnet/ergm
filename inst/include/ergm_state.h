@@ -30,6 +30,6 @@ ErgmState *ErgmStateInit(// Network settings
                          unsigned int flags);
 SEXP ErgmStateRSave(ErgmState *s);
 void ErgmStateDestroy(ErgmState *s);
-SEXP ErgmStateArrayClear();
+SEXP ErgmStateArrayClear(void);
 
 #endif

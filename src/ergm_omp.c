@@ -20,7 +20,7 @@ SEXP set_ergm_omp_terms(SEXP x){
   return(R_NilValue);
 }
 
-SEXP get_ergm_omp_terms(){
+SEXP get_ergm_omp_terms(void){
   SEXP out = PROTECT(allocVector(INTSXP, 1));
   INTEGER(out)[0] = ergm_omp_terms;
   UNPROTECT(1);
@@ -33,7 +33,7 @@ SEXP set_ergm_omp_terms(SEXP x){
   error("The package was compiled without OpenMP.");
 }
 
-SEXP get_ergm_omp_terms(){
+SEXP get_ergm_omp_terms(void){
   error("The package was compiled without OpenMP.");
 }
 

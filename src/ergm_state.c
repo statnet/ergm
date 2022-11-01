@@ -104,7 +104,7 @@ void ErgmStateDestroy(ErgmState *s){
   Free(s);
 }
 
-SEXP ErgmStateArrayClear(){
+SEXP ErgmStateArrayClear(void){
   while(ergm_state_array_len) ErgmStateDestroy(ergm_state_array[0]);
   ergm_state_array_maxlen = 0;
   Free(ergm_state_array);

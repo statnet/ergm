@@ -104,7 +104,7 @@ void WtErgmStateDestroy(WtErgmState *s){
   Free(s);
 }
 
-SEXP ErgmWtStateArrayClear(){
+SEXP ErgmWtStateArrayClear(void){
   while(ergm_wtstate_array_len) WtErgmStateDestroy(ergm_wtstate_array[0]);
   ergm_wtstate_array_maxlen = 0;
   Free(ergm_wtstate_array);

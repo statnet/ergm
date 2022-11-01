@@ -25,7 +25,7 @@ static inline double *MPLE_workspace_push(double *ptr){
   return ptr;
 }
 
-SEXP MPLE_workspace_free(){
+SEXP MPLE_workspace_free(void){
   if(MPLE_covfreq){
     kh_destroy(DVecMapENE, MPLE_covfreq);
     MPLE_covfreq = NULL;
