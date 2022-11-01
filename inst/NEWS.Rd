@@ -73,9 +73,6 @@
         New functions \code{\link{search.ergmHints}()} and \code{\link{search.ergmReferences}()} can now be used to search available \code{\link{ergmHints}} and \code{\link{ergmReferences}}, respectively.
       }
       \item{
-        In terms \code{\link[=edgecov-ergmTerm]{edgecov}()} and \code{\link[=dyadcov-ergmTerm]{dyadcov}()}, the argument can now be a network.
-      }
-      \item{
         A new \code{\link[=For-ergmTerm]{For}()} term operator to construct a list of terms with some varying parameter.
       }
       \item{
@@ -83,6 +80,41 @@
       }
       \item{
         Termalike documentation templates now also list the keywords/concepts in the termalike's documentation file. More generally, termalike documentation has been revamped to be more consistent.
+      }
+    }
+  }
+
+  \subsection{OTHER USER-VISIBLE CHANGES}{
+    \itemize{
+      \item{
+        Constraints and model construction code now uses the \code{\link[statnet.common:term_list]{term_list}} API from \CRANpkg{statnet.common} 4.7 and avoid formula manipulation.
+      }
+      \item{
+        Some constraints' implementations are now much more memory-efficient.
+      }
+      \item{
+        Improvements to the API documentation in the Terms API vignette.
+      }
+      \item{
+        The Stepping estimation method has been removed, since all of its improvements have been incorporated into MCMLE.
+      }
+      \item{
+        The Robbins-Monro estimation algorithm has been removed, since it is currently broken and everything it does Stochastic Approximation does better.
+      }
+      \item{
+        Function \code{is.inCH()} has been removed, having been deprecated in favour of \code{\link{shrink_to_CH}()}.
+      }
+    }
+  }
+}
+
+
+\section{Changes in version 4.2.3}{
+
+  \subsection{NEW FEATURES}{
+    \itemize{
+      \item{
+        In terms \code{\link[=edgecov-ergmTerm]{edgecov}()} and \code{\link[=dyadcov-ergmTerm]{dyadcov}()}, the argument can now be a network.
       }
     }
   }
@@ -130,28 +162,10 @@
         \code{\link{.simulate_formula.network}()} is now exported explicitly. This means that extension packages overriding the \code{simulate_formula} method for \code{network} objects can call it directly.
       }
       \item{
-        Constraints and model construction code now uses the \code{\link[statnet.common:term_list]{term_list}} API from \CRANpkg{statnet.common} 4.7 and avoid formula manipulation.
-      }
-      \item{
         In \code{\link{ergm}()}, the LHS no longer needs to be a network object, as long as \code{basis=} is provided.
       }
       \item{
-        Some constraints' implementations are now much more memory-efficient.
-      }
-      \item{
         \code{\link{anova.ergm}()} documentation no longer discusses test statistics (which were never implemented in the first place).
-      }
-      \item{
-        Improvements to the API documentation in the Terms API vignette.
-      }
-      \item{
-        The Stepping estimation method has been removed, since all of its improvements have been incorporated into MCMLE.
-      }
-      \item{
-        The Robbins-Monro estimation algorithm has been removed, since it is currently broken and everything it does Stochastic Approximation does better.
-      }
-      \item{
-        Function \code{is.inCH()} has been removed, having been deprecated in favour of \code{\link{shrink_to_CH}()}.
       }
     }
   }
