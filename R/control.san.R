@@ -47,6 +47,8 @@
 #' statistic functions in addition to those autodetected. This argument should
 #' not be needed outside of very strange setups.
 #' @param SAN.ignore.finite.offsets Whether SAN should ignore (treat as 0) finite offsets.
+#' @param SAN.exclude.statistics character string pattern. statistics with names that contain this string will be excluded from 
+#' the SAN target statistics. For example, this supports tapering models which may have terms with non-specific means.
 #' @template term_options
 #' @template control_MCMC_parallel
 #' @template seed
@@ -68,6 +70,7 @@ control.san<-function(SAN.maxit=4,
                       SAN.packagenames=c(),
                       
                       SAN.ignore.finite.offsets=TRUE,
+                      SAN.exclude.statistics=NULL,
                       
                       term.options=list(),
 

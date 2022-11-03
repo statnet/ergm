@@ -299,6 +299,13 @@ san.ergm_model <- function(object, reference=~Bernoulli, constraints=~., target.
         " steps", ifelse(control$SAN.maxit>1, " each", ""), ".", sep=""))
   }
   netsumm<-summary(model,nw)[!offset.indicators]
+  # Remove a term, usually a tapering term in a tapered model
+  if(!is.null(control$SAN.exclude.statistics)){
+    x.exclude <- match(control$SAN.exclude.statistics,names(netsumm))
+    if(!is.na(x.exclude)){
+     netsumm <- netsumm[-x.exclude]
+    }
+  }
   target.stats <- vector.namesmatch(target.stats, names(netsumm))
   stats <- netsumm-target.stats
   invcov.dim <- nparam(model, canonical=TRUE) - noffset

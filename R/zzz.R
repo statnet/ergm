@@ -9,7 +9,7 @@
 ################################################################################
 .onAttach <- function(libname, pkgname){
   #' @importFrom statnet.common statnetStartupMessage
-  sm <- statnetStartupMessage("ergm", c("statnet","ergm.count","tergm"), TRUE)
+  sm <- statnetStartupMessage("ergm", c("statnet","ergm.count","tergm","ergm.tapered"), TRUE)
   if(!is.null(sm)){
     packageStartupMessage(sm)
     packageStartupMessage(paste(c(strwrap(paste0(sQuote("ergm"), " 4 is a major update that introduces some backwards-incompatible changes. Please type ",sQuote("news(package=\"ergm\")"), " for a list of major changes.")),""),collapse="\n"))

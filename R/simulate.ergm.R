@@ -322,7 +322,7 @@ simulate_formula <- function(object, ..., basis=eval_lhs.formula(object)) {
   proposal$aux.slots <- m$slots.extra.aux$proposal
   if (verbose) message("Model initialized.")
 
-  # Pass the inputs to the simualte method for ergm_model.
+  # Pass the inputs to the simulate method for ergm_model.
     out <- simulate(m, nsim=nsim, seed=seed,
                     coef=coef,
                     constraints=proposal,
