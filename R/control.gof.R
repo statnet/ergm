@@ -18,7 +18,7 @@
 
 ########################################################################
 # Both of the <control.gof.X> functions return a control list for
-# customing the fitting procedure used by the gof code
+# customizing the fitting procedure used by the GOF code
 #
 # --PARAMETERS--
 #   prop.weights  : specifies the method used to allocate probabilities
@@ -72,6 +72,10 @@
 #' @param network.output R class with which to output networks. The options are
 #' "network" (default) and "edgelist.compressed" (which saves space but only
 #' supports networks without vertex attributes)
+#' @param max.lag The maximum number of statistics to include for each GOF term. The default is
+#' the maximum possible for a network with the given number of nodes. Often this is
+#' excessive and a high proportion of the latter statistics are zero.
+#' This option focus attention on the earlier (non-zero) terms.
 #' @template control_MCMC_parallel
 #' @template seed
 #' @template control_MCMC_packagenames
@@ -96,6 +100,7 @@ control.gof.formula<-function(nsim=100,
                               
                               MCMC.runtime.traceplot=FALSE,          
                               network.output="network",
+                              max.lag=NULL,
                                                      
                               seed=NULL,
                               parallel=0,
@@ -128,6 +133,7 @@ control.gof.ergm<-function(nsim=100,
 
                            MCMC.runtime.traceplot=FALSE,
                            network.output="network",
+                           max.lag=NULL,
 
                            seed=NULL,
                            parallel=0,
