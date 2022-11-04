@@ -525,7 +525,7 @@ plot.gof <- function(x, ...,
       out.bds <- bds
       ylab <- paste0("proportion of ", unit, "s")
     }
-    pnames <- NVL(colnames(sim), i-1)[i]
+    pnames <- colnames(sim)[i]
 
     list(out=out, pnames=pnames, out.obs=out.obs, out.bds=out.bds, i=i, ylab=ylab)
   }
@@ -570,7 +570,7 @@ plot.gof <- function(x, ...,
                   if(normalize.reachability){
                     gc <- within(gc,
                     {
-                      mi <- max(i,na.rm=TRUE)
+                      mi <- max(gc$i,na.rm=TRUE)
                       totrange <- range(out.bds[1,][out.bds[1,] > out.bds[1,mi]],
                                         out.bds[2,][out.bds[2,] < out.bds[2,mi]])
                       out[,mi] <- (out[,mi]-out.bds[1,mi]) *
