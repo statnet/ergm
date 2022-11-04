@@ -203,22 +203,20 @@ gof.formula <- function(object, ...,
     else if(is.bipartite(nw)) ~b1degree + b2degree + espartners + distance + model
     else ~degree + espartners + distance + model
   }
+
   # Add a model term, unless it is explicitly excluded
   GOFtrms <- list_rhs.formula(GOF)
   if(sum(attr(GOFtrms,"sign")[as.character(GOFtrms)=="model"])==0){ # either no "model"s or "-model"s don't outnumber "model"s
-    #' @importFrom statnet.common nonsimp_update.formula
-      GOF <- nonsimp_update.formula(GOF, ~ . + model)
+    GOFtrms <- c(GOFtrms[as.character(GOFtrms)!="model"], list(as.name("model")))
   }
-  
-  all.gof.vars <- as.character(list_rhs.formula(GOF))
 
   # match variables
-  all.gof.vars <- sapply(all.gof.vars, match.arg,
-                         c('distance', 'espartners', 'dspartners', 'odegree', 'idegree',
-                           'degree', 'triadcensus', 'model', 'b1degree', 'b2degree')
-                         )
+  all.gof.vars <- as.character(GOFtrms[attr(GOFtrms,"sign")>0]) %>%
+    sapply(match.arg,
+           c('distance', 'espartners', 'dspartners', 'odegree', 'idegree',
+             'degree', 'triadcensus', 'model', 'b1degree', 'b2degree'))
 
-  GOF <- as.formula(paste("~",paste(all.gof.vars,collapse="+")))
+  GOF <- as.formula(paste("~",paste(all.gof.vars,collapse="+")), baseenv())
   
   m <- ergm_model(object, nw, term.options=control$term.options)
 

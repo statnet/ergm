@@ -9,12 +9,41 @@
 ################################################################################
 # Tests of gof()
 
+ctrl2 <- control.gof.ergm(nsim=4)
 
-test_that("gof() works on a bipartite ERGM (#424)", {
-  mat <- matrix(c(1,1,0,1,1,0,1,0,0,1,0,1), 4, 3)
-  net <-as.network(mat, bipartite=4)
+test_that("gof() defaults are correct for bipartite networks", {
+  net <- as.network(matrix(c(1,1,0,1,1,0,1,0,0,1,0,1), 4, 3), bipartite=4)
   fit <- ergm(net ~ edges)
-  expect_silent(
-    r <- gof(fit)
-  )
+  expect_silent(gof <- gof(fit, control=ctrl2))
+  expect_setequal(as.character(statnet.common::list_rhs.formula(gof$GOF)),
+                  c("b1degree", "b2degree", "espartners", "distance", "model"))
+})
+
+
+
+test_that("gof() defaults are correct for undirected networks", {
+  data(florentine)
+  fit <- ergm(flomarriage ~ edges)
+  expect_silent(gof <- gof(fit, control=ctrl2))
+  expect_setequal(as.character(statnet.common::list_rhs.formula(gof$GOF)),
+                  c("degree", "espartners", "distance", "model"))
+})
+
+
+
+test_that("gof() defaults and GOF handling is correct for directed networks", {
+  data(sampson)
+  fit <- ergm(samplike ~ edges)
+
+  expect_silent(gof <- gof(fit, control=ctrl2))
+  expect_setequal(as.character(list_rhs.formula(gof$GOF)),
+                  c("idegree", "odegree", "espartners", "distance", "model"))
+
+  expect_silent(gof <- gof(fit, GOF=~idegree, control=ctrl2))
+  expect_setequal(as.character(list_rhs.formula(gof$GOF)),
+                  c("idegree", "model"))
+
+  expect_silent(gof <- gof(fit, GOF=~idegree-model, control=ctrl2))
+  expect_setequal(as.character(list_rhs.formula(gof$GOF)),
+                  c("idegree"))
 })
