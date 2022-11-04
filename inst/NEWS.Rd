@@ -81,13 +81,36 @@
       \item{
         Termalike documentation templates now also list the keywords/concepts in the termalike's documentation file. More generally, termalike documentation has been revamped to be more consistent.
       }
+      \item{
+        \code{\link{ergm}()} can now take a formula with an arbitrary LHS, provided \code{basis=} argument is supplied and is a network.
+      }
+    }
+  }
+
+  \subsection{BUG FIXES}{
+    \itemize{
+      \item{
+        In C, prototypes of functions with no arguments now use the \code{(void)} placeholder.
+      }
+      \item{
+        \code{\link{gof}(..., GOF=~... - model)} now correctly removes the model from the set of goodness-of-fit terms.
+      }
+      \item{
+        Fixes to \code{\link{plot.gof}()} for bipartite networks.
+      }
+      \item{
+        Fixes to \code{\link{plot.gof}()} for dense networks.
+      }
     }
   }
 
   \subsection{OTHER USER-VISIBLE CHANGES}{
     \itemize{
       \item{
-        Constraints and model construction code now uses the \code{\link[statnet.common:term_list]{term_list}} API from \CRANpkg{statnet.common} 4.7 and avoid formula manipulation.
+        Constraints and model construction code now uses the \code{\link[statnet.common:term_list]{term_list}} API from \CRANpkg{statnet.common} 4.7 and avoid formula manipulation, making it more robust to formulas with varying environments.
+      }
+      \item{
+        \code{\link{\%ergmlhs\%}} constraints are now inherited by default, unless the \code{constraints=} formula includes a \code{-.} (minus dot) term. The former behaviour was to inherit only if \code{constraints=} argument had a \code{.}.
       }
       \item{
         Some constraints' implementations are now much more memory-efficient.
@@ -103,6 +126,29 @@
       }
       \item{
         Function \code{is.inCH()} has been removed, having been deprecated in favour of \code{\link{shrink_to_CH}()}.
+      }
+      \item{
+        \code{san.ergm()} has been removed, having been deprecated for having no known use case.
+      }
+      \item{
+        Improvements to \code{\link[=blockdiag-ergmConstraint]{blockdiag()}} constraint, \code{gw*sp()}, and other documentation.
+      }
+      \item{
+        An \code{Init*ErgmTerm.*} function can now return an \code{\link{ergm_model}}, in which case its terms will be \dQuote{pasted} into the model.
+      }
+      \item{
+        Documentation for \code{\link{san}()} algorithm is now much more detailed.
+      }
+      \item{
+        Some improvements to the \code{\link[BDStratTNT-ergmProposal]{BDStratTNT}} proposals.
+      }
+    }
+  }
+
+  \subsection{C-LEVEL FACILITIES}{
+    \itemize{
+      \item{
+        Some useful dynamic node and edge list data structures added and exported.
       }
     }
   }
