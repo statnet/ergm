@@ -481,7 +481,6 @@ plot.gof <- function(x, ...,
  if(statsno==0){
   stop("The gof object does not contain any statistics!\n")
  }
- n <- x$network.size
 
   gofcomp <- function(tag, unit, idx=c("finite","infinite","nominal")){
     idx <- match.arg(idx)
@@ -497,20 +496,17 @@ plot.gof <- function(x, ...,
       ngs <- nrow(pval)
       i <- seq_len(ngs)
     }else{
-      ngs <- min(n-1, nrow(pval))
+      ngs <- nrow(pval) - (idx == "infinite")
       
-      if( min(pval[,"MC p-value"]) <1) {
-        pval.max <- max((1:ngs)[pval[1:ngs, "MC p-value"] < 1]) + 3
-      }
-      else {
-        pval.max <- max((1:ngs)[obs[1:ngs] > 0]) + 3
-      }
-      
-      i <- seq_len(if(is.finite(pval.max) & pval.max < n) pval.max
-                   else ngs+1)
+      pval.max <- 3 + # padding
+        if(min(pval[,"MC p-value"]) < 1) max(which(pval[1:ngs, "MC p-value"] < 1))
+        else max(which(obs[1:ngs] > 0))
+
+      i <- seq_len(if(is.finite(pval.max) && pval.max <= ngs) pval.max
+                   else ngs)
     }
     if(idx == "infinite"){
-      i <- c(i, NA, n)
+      i <- c(i, NA, ngs+1)
     }
 
     if (plotlogodds) {
@@ -600,7 +596,6 @@ plot.gof <- function(x, ...,
                   }
                   gc
                 }))
-
 
   GVMAP <- GVMAP[names(GVMAP)%in%all.gof.vars]
   for(gv in GVMAP)
