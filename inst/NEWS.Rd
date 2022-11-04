@@ -152,6 +152,14 @@
       }
     }
   }
+
+  \subsection{INSTALLATION}{
+    \itemize{
+      \item{
+        Packages \CRANpkg{tergm}, \CRANpkg{networkDynamic}, and \CRANpkg{latentnet} are no longer Suggested to simplify testing.
+      }
+    }
+  }
 }
 
 
