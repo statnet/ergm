@@ -158,7 +158,8 @@ gof.ergm <- function (object, ...,
               verbose=verbose, ...)
 }
 
-
+GOF_VALID_VARS <- c('distance', 'espartners', 'dspartners', 'odegree', 'idegree',
+                    'degree', 'triadcensus', 'model', 'b1degree', 'b2degree')
 
 #' @describeIn gof Perform simulation to evaluate goodness-of-fit for
 #'   a model configuration specified by a [`formula`], coefficient,
@@ -200,8 +201,8 @@ gof.formula <- function(object, ...,
   if(is.null(GOF)){
     GOF <-
       if(is.directed(nw)) ~idegree + odegree + espartners + distance + model
-    else if(is.bipartite(nw)) ~b1degree + b2degree + espartners + distance + model
-    else ~degree + espartners + distance + model
+      else if(is.bipartite(nw)) ~b1degree + b2degree + espartners + distance + model
+      else ~degree + espartners + distance + model
   }
 
   # Add a model term, unless it is explicitly excluded
@@ -212,12 +213,10 @@ gof.formula <- function(object, ...,
 
   # match variables
   all.gof.vars <- as.character(GOFtrms[attr(GOFtrms,"sign")>0]) %>%
-    sapply(match.arg,
-           c('distance', 'espartners', 'dspartners', 'odegree', 'idegree',
-             'degree', 'triadcensus', 'model', 'b1degree', 'b2degree'))
+    sapply(match.arg, GOF_VALID_VARS)
 
   GOF <- as.formula(paste("~",paste(all.gof.vars,collapse="+")), baseenv())
-  
+
   m <- ergm_model(object, nw, term.options=control$term.options)
 
   proposal <- if(inherits(constraints, "ergm_proposal")) constraints
@@ -461,26 +460,14 @@ plot.gof <- function(x, ...,
          verbose=FALSE) {
 
  color <- "gray75"
-#par(oma=c(0.5,2,1,0.5))
 
-#statsno <- (sum(stats=='deg')>0) + (sum(stats=='espart')>0) + (sum(stats=='d
- all.gof.vars <- as.character(list_rhs.formula(x$GOF))
- statsno <- length(all.gof.vars)
+  # match variables
+  all.gof.vars <- as.character(list_rhs.formula(x$GOF)) %>%
+    sapply(match.arg, GOF_VALID_VARS)
 
-# match variables
+  if(length(all.gof.vars) == 0) stop("The gof object does not contain any statistics!")
 
- for(i in seq(along=all.gof.vars)){
-   all.gof.vars[i] <- match.arg(all.gof.vars[i],
-    c('distance', 'triadcensus', 'espartners', 'dspartners', 'odegree', 'idegree', 
-      'degree', 'model'
-     )
-                               )
- }
- GOF <- as.formula(paste("~",paste(all.gof.vars,collapse="+")))
-
- if(statsno==0){
-  stop("The gof object does not contain any statistics!\n")
- }
+  GOF <- as.formula(paste("~",paste(all.gof.vars,collapse="+")))
 
   gofcomp <- function(tag, unit, idx=c("finite","infinite","nominal")){
     idx <- match.arg(idx)
