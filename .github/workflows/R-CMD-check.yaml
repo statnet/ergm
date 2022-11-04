@@ -147,6 +147,7 @@ jobs:
           extra-packages: |
             any::rcmdcheck
             any::covr
+            any::V8
           needs: |
             check
             coverage
@@ -247,11 +248,6 @@ jobs:
           path: |
             check
             !check/*/00_pkg_src
-
-      - name: Preinstall package to work around an issue in covr # can be removed after covr update
-        if: contains(matrix.config.flags, 'covr')
-        run: R CMD INSTALL .
-        shell: bash
 
       - name: Test coverage
         if: contains(matrix.config.flags, 'covr')
