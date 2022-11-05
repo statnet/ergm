@@ -181,5 +181,4 @@ Collate:
     'wtd.median.R'
     'zzz.R'
 Remotes: github::statnet/statnet.common@master,
-    github::statnet/tergm@master,
     github::statnet/ergm.count@master
