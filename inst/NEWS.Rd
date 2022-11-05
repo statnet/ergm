@@ -101,6 +101,9 @@
       \item{
         Fixes to \code{\link{plot.gof}()} for dense networks.
       }
+      \item{
+        Package manual now passes \code{tidy} HTML tests. (Thanks to Elin Waring for suggesting a workaround.)
+      }
     }
   }
 
