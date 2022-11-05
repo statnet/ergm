@@ -97,8 +97,7 @@ ergm_keyword <- local({
 }
 
 .formatKeywordsHtml <- function(df) {
-  css <- '<style>.striped th,.striped td {padding:3px 10px} .striped tbody tr:nth-child(odd) {background: #eee}</style>'
-  sprintf('\\out{%s%s}', css, knitr::kable(df, 'html', escape=FALSE, table.attr='class="striped"'))
+  sprintf('\\out{%s}', knitr::kable(df, 'html', escape=FALSE, table.attr='class="termtable"'))
 }
 
 #' Keywords defined for Exponential-Family Random Graph Models
@@ -109,6 +108,9 @@ ergm_keyword <- local({
 #' @description This collects all defined keywords defined for the ERGM and derived packages
 #'
 #' @section Possible keywords defined by the ERGM and derived packages:
+#'
+#' \ergmCSS
+#'
 #' \if{latex}{\Sexpr[results=rd,stage=render]{ergm:::.formatKeywordsLatex(ergm::ergm_keyword())}}
 #' \if{text}{\Sexpr[results=rd,stage=render]{ergm:::.formatKeywordsText(ergm::ergm_keyword())}}
 #' \if{html}{\Sexpr[results=rd,stage=render]{ergm:::.formatKeywordsHtml(ergm::ergm_keyword())}}

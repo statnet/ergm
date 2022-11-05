@@ -1,0 +1,24 @@
+.proptable th, .proptable td {
+    padding: 3px 10px;
+}
+
+.termtable th, .termtable td {
+    padding: 3px 10px;
+}
+
+.termtable tbody tr:nth-child(odd), .termmatrix tbody tr:nth-child(odd) {
+    background: #eee;
+}
+
+.termtable .code {
+    font-family: monospace;
+}
+
+.termmatrix td {
+    align: center;
+}
+
+.termmatrix th, .termmatrix td {
+    padding-right:5px;
+    width: 75px;
+}

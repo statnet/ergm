@@ -352,8 +352,7 @@ PROPOSAL_NOT_IN_TABLE <- "This proposal is not referenced in the lookup table."
     df <- df[,colnames(df)!="Proposal"]
   }
 
-  css <- '<style>th,td {padding:3px 10px}</style>'
-  sprintf("\\out{%s%s}", css, knitr::kable(df, 'html', escape=FALSE, row.names=FALSE))
+  sprintf("\\out{%s}", knitr::kable(df, 'html', escape=FALSE, row.names=FALSE, table.attr='class="proptable"'))
 }
 
 .formatProposalsLatex <- function(df, keepProposal=FALSE) {
@@ -524,8 +523,7 @@ PROPOSAL_NOT_IN_TABLE <- "This proposal is not referenced in the lookup table."
     sprintf('<div id="%s">%s</div>', df$Link, .)
   df$Link <- NULL
 
-  css <- '<style>.striped th,.striped td {padding:3px 10px} .striped tbody tr:nth-child(odd) {background: #eee} .striped .code {font-family: monospace} .matrix td {align: center} .matrix th,.matrix td {padding-right:5px; width: 75px}</style>'
-  sprintf('\\out{%s%s}', css, knitr::kable(df, 'html', escape=FALSE, row.names=FALSE, table.attr='class="striped"'))
+  sprintf('\\out{%s}', knitr::kable(df, 'html', escape=FALSE, row.names=FALSE, table.attr='class="termtable"'))
 }
 
 .formatMatrixHtml <- function(df, wrapRdTags=TRUE) {
@@ -537,7 +535,7 @@ PROPOSAL_NOT_IN_TABLE <- "This proposal is not referenced in the lookup table."
     df[[c]] <- ifelse(df[[c]], '&#10004;', '')
   }
 
-  out <- knitr::kable(df, 'html', escape=FALSE, row.names=FALSE, table.attr='class="matrix"')
+  out <- knitr::kable(df, 'html', escape=FALSE, row.names=FALSE, table.attr='class="termmatrix"')
   if(wrapRdTags) {
     out <- sprintf('\\out{%s}', out)
   }

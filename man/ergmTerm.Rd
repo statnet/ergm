@@ -161,6 +161,8 @@ terms available from all loaded packages.
 As noted above, a cross-referenced HTML version of the term documentation is
 also available via \code{vignette('ergm-term-crossRef')} and terms
 can also be searched via \code{\link{search.ergmTerms}}.
+
+\ergmCSS
 \subsection{Term index (plain)}{
 
 \if{latex}{\Sexpr[results=rd,stage=render]{ergm:::.formatIndexLatex(ergm:::.buildTermsDataframe("ergmTerm", keywords = ~!"operator"\%in\%.))}}

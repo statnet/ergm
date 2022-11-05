@@ -305,6 +305,8 @@ NULL
 #' also available via `vignette('ergm-term-crossRef')` and terms
 #' can also be searched via [`search.ergmTerms`].
 #'
+#' \ergmCSS
+#'
 #' ## Term index (plain)
 #' \if{latex}{\Sexpr[results=rd,stage=render]{ergm:::.formatIndexLatex(ergm:::.buildTermsDataframe("ergmTerm", keywords = ~!"operator"%in%.))}}
 #' \if{text}{\Sexpr[results=rd,stage=render]{ergm:::.formatIndexText(ergm:::.buildTermsDataframe("ergmTerm", keywords = ~!"operator"%in%.))}}
@@ -469,6 +471,8 @@ NULL
 #'
 #' @section Constraints visible to the package:
 #'
+#' \ergmCSS
+#'
 #' \if{latex}{\Sexpr[results=rd,stage=render]{ergm:::.formatIndexLatex(ergm:::.buildTermsDataframe("ergmConstraint"))}}
 #' \if{text}{\Sexpr[results=rd,stage=render]{ergm:::.formatIndexText(ergm:::.buildTermsDataframe("ergmConstraint"))}}
 #' \if{html}{\Sexpr[results=rd,stage=render]{ergm:::.formatIndexHtml(ergm:::.buildTermsDataframe("ergmConstraint"))}}
@@ -556,6 +560,8 @@ NULL
 #'
 #' The following hints are known to \CRANpkg{ergm} at this time:
 #'
+#' \ergmCSS
+#'
 #' \if{latex}{\Sexpr[results=rd,stage=render]{ergm:::.formatIndexLatex(ergm:::.buildTermsDataframe("ergmHint"))}}
 #' \if{text}{\Sexpr[results=rd,stage=render]{ergm:::.formatIndexText(ergm:::.buildTermsDataframe("ergmHint"))}}
 #' \if{html}{\Sexpr[results=rd,stage=render]{ergm:::.formatIndexHtml(ergm:::.buildTermsDataframe("ergmHint"))}}
@@ -606,6 +612,9 @@ NULL
 #' typically as the `reference` argument.
 #'
 #' @section Reference measures visible to the package:
+#'
+#' \ergmCSS
+#'
 #' \if{latex}{\Sexpr[results=rd,stage=render]{ergm:::.formatIndexLatex(ergm:::.buildTermsDataframe("ergmReference"))}}
 #' \if{text}{\Sexpr[results=rd,stage=render]{ergm:::.formatIndexText(ergm:::.buildTermsDataframe("ergmReference"))}}
 #' \if{html}{\Sexpr[results=rd,stage=render]{ergm:::.formatIndexHtml(ergm:::.buildTermsDataframe("ergmReference"))}}
@@ -650,6 +659,9 @@ NULL
 #'   the algorithm, and in other cases to constrain the sample space. Proposals can also be searched via [`search.ergmProposals`], and help for an individual proposal can be obtained with `ergmProposal?<proposal>` or `help("<proposal>-ergmProposal")`.
 #'
 #' @section Implemented proposals for ergm models:
+#'
+#' \ergmCSS
+#'
 #' \if{html}{\Sexpr[results=rd,stage=render]{ergm:::.formatProposalsHtml(ergm:::.buildProposalsList(), keepProposal=TRUE)}}
 #' \if{text}{\Sexpr[results=rd,stage=render]{ergm:::.formatProposalsText(ergm:::.buildProposalsList(), keepProposal=TRUE)}}
 #' \if{latex}{\Sexpr[results=rd,stage=render]{ergm:::.formatProposalsLatex(ergm:::.buildProposalsList(), keepProposal=TRUE)}}
