@@ -65,7 +65,7 @@
 %% }
 
 
-\section{Changes in version 4.3.0}{
+\section{Changes in version 4.3.1}{
 
   \subsection{NEW FEATURES}{
     \itemize{
@@ -103,6 +103,9 @@
       }
       \item{
         Package manual now passes \code{tidy} HTML tests. (Thanks to Elin Waring for suggesting a workaround.)
+      }
+      \item{
+        The default description for the \code{attr=} term argument is now more accurate.
       }
     }
   }
