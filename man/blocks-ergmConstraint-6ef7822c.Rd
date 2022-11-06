@@ -8,7 +8,7 @@
 # blocks(attr=NULL, levels=NULL, levels2=FALSE, b1levels=NULL, b2levels=NULL)
 }
 \arguments{
-\item{attr}{quantitative attribute (see Specifying Vertex attributes and Levels (\code{?nodal_attributes}) for details.)}
+\item{attr}{a vertex attribute specification (see Specifying Vertex attributes and Levels (\code{?nodal_attributes}) for details.)}
 
 \item{b1levels, b2levels, levels, level2}{control what mixing types are fixed.
 \code{levels2} applies to all networks; \code{levels} applies to unipartite networks;

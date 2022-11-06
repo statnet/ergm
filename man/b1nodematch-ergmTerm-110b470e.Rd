@@ -9,7 +9,7 @@
 #                     levels=NULL)
 }
 \arguments{
-\item{attr}{quantitative attribute (see Specifying Vertex attributes and Levels (\code{?nodal_attributes}) for details.)}
+\item{attr}{a vertex attribute specification (see Specifying Vertex attributes and Levels (\code{?nodal_attributes}) for details.)}
 
 \item{diff}{by default, one statistic will be added to the model. If \code{diff} is set to \code{TRUE}, one statistic will be added for each unique value of the \code{attr} attribute}
 

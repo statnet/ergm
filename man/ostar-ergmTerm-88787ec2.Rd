@@ -10,7 +10,7 @@
 \arguments{
 \item{k}{a vector of distinct integers}
 
-\item{attr}{quantitative attribute (see Specifying Vertex attributes and Levels (\code{?nodal_attributes}) for details.)}
+\item{attr}{a vertex attribute specification (see Specifying Vertex attributes and Levels (\code{?nodal_attributes}) for details.)}
 
 \item{levels}{TODO (See Specifying Vertex
 attributes and Levels (\code{\link[=nodal_attributes]{?nodal_attributes}}) for details.)}

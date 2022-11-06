@@ -8,7 +8,7 @@
 # egocentric(attr=NULL, direction="both")
 }
 \arguments{
-\item{attr}{quantitative attribute (see Specifying Vertex attributes and Levels (\code{?nodal_attributes}) for details.)}
+\item{attr}{a vertex attribute specification (see Specifying Vertex attributes and Levels (\code{?nodal_attributes}) for details.)}
 
 \item{direction}{one of \code{"both"}, \code{"out"} and \code{"in"}, only applies to directed networks. \code{"out"} only preserves the out-dyads of those actors and \code{"in"} preserves their in-dyads.}
 }

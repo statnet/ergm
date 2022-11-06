@@ -12,7 +12,9 @@
 # binary: ttriad
 }
 \arguments{
-\item{attr, diff}{quantitative attribute (see Specifying Vertex attributes and Levels (\code{?nodal_attributes}) for details.) If \code{attr} is specified and \code{diff} is \code{FALSE} ,
+\item{attr}{a vertex attribute specification (see Specifying Vertex attributes and Levels (\code{?nodal_attributes}) for details.)}
+
+\item{diff}{If \code{attr} is specified and \code{diff} is \code{FALSE} ,
 then the count is over the number of transitive triples where all three nodes have the same value of
 the attribute. If \code{attr} is specified and \code{diff} is \code{TRUE} ,
 then one statistic is added for each value of \code{attr} ,
@@ -20,8 +22,6 @@ equal to the number of triangles where all three nodes have that value of the at
 
 \item{levels}{add one statistic for each value specified if \code{diff} is \code{TRUE}. (See Specifying Vertex
 attributes and Levels (\code{\link[=nodal_attributes]{?nodal_attributes}}) for details.)}
-
-\item{attr}{quantitative attribute (see Specifying Vertex attributes and Levels (\code{?nodal_attributes}) for details.)}
 }
 \description{
 By default, this term adds one statistic to the model, equal to the number of transitive

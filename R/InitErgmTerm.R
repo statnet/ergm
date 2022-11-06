@@ -6021,7 +6021,8 @@ InitErgmTerm.tripercent<-function (nw, arglist, ..., version=packageVersion("erg
 #' @usage
 #' # binary: ttriple(attr=NULL, diff=FALSE, levels=NULL)
 #'
-#' @param attr,diff quantitative attribute (see Specifying Vertex attributes and Levels (`?nodal_attributes`) for details.) If `attr` is specified and `diff` is `FALSE` ,
+#' @template ergmTerm-attr
+#' @param diff If `attr` is specified and `diff` is `FALSE` ,
 #'   then the count is over the number of transitive triples where all three nodes have the same value of
 #'   the attribute. If `attr` is specified and `diff` is `TRUE` ,
 #'   then one statistic is added for each value of `attr` ,
@@ -6032,8 +6033,6 @@ InitErgmTerm.tripercent<-function (nw, arglist, ..., version=packageVersion("erg
 #' @template ergmTerm-general
 #'
 #' @template ergmTerm-directed
-#'
-#' @template ergmTerm-attr
 #'
 #' @concept directed
 #' @concept triad-related

@@ -26,7 +26,7 @@ statistic where \code{byb2attr} set to \code{NULL} .}
 \item{levels}{select a subset of \code{attr} values to include. (See Specifying Vertex
 attributes and Levels (\code{\link[=nodal_attributes]{?nodal_attributes}}) for details.)}
 
-\item{attr}{quantitative attribute (see Specifying Vertex attributes and Levels (\code{?nodal_attributes}) for details.)}
+\item{attr}{a vertex attribute specification (see Specifying Vertex attributes and Levels (\code{?nodal_attributes}) for details.)}
 }
 \description{
 This term is introduced in Bomiriya et al (2014).

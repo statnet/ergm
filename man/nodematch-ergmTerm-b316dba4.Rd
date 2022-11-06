@@ -15,7 +15,7 @@
 # valued: match(attr, diff=FALSE, keep=NULL, levels=NULL, form="sum")
 }
 \arguments{
-\item{attr}{quantitative attribute (see Specifying Vertex attributes and Levels (\code{?nodal_attributes}) for details.)}
+\item{attr}{a vertex attribute specification (see Specifying Vertex attributes and Levels (\code{?nodal_attributes}) for details.)}
 
 \item{diff}{specify if the term has uniform or differential homophily}
 
