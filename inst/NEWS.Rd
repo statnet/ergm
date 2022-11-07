@@ -64,6 +64,16 @@
 
 %% }
 
+\section{Changes in version 4.3.2}{
+  \subsection{BUG FIXES}{
+    \itemize{
+      \item{
+        \code{\link{ergm_edgecov_args}()} helper function now formats the network attribute names without the quotes.
+      }
+    }
+  }
+}
+
 
 \section{Changes in version 4.3.1}{
 
