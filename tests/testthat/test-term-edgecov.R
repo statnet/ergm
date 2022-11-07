@@ -18,7 +18,17 @@ test_that("edgecov works with undirected unipartite networks", {
   m[upper.tri(m)] <- 1:10
   m <- m + t(m) # documentation says undirected case assumes covariate is undirected
   rv <- ergm.godfather(nw ~ edgecov(m), changes=changes)
-  expect_identical(as.integer(rv), sum(m[changes[c(2,3),]]))
+  expect_identical(rv,
+                   structure(sum(m[changes[c(2,3),]])*1.0,
+                             dim = c(1L, 1L), dimnames = list(NULL, "edgecov.m"),
+                             mcpar = c(1,  1, 1), class = "mcmc"))
+  # Also test term naming.
+  s <- summary(nw ~ edgecov(m^2))
+  expect_named(s, "edgecov.m^2")
+
+  nw %n% "m" <- m
+  s <- summary(nw ~ edgecov("m"))
+  expect_named(s, "edgecov.m")
 })
 
 test_that("edgecov works with undirected bipartite networks", {
@@ -36,7 +46,10 @@ test_that("edgecov works with undirected bipartite networks", {
   m <- matrix(c(-(1:12), 1:12), nrow=4, ncol=6)
   rv <- ergm.godfather(nw ~ edgecov(m), changes=changes)
   rtk <- c(1,4,5,6,7,10)
-  expect_identical(as.integer(rv), sum(m[cbind(changes[rtk,1], changes[rtk,2] - 4)]))
+  expect_identical(rv,
+                   structure(sum(m[cbind(changes[rtk,1], changes[rtk,2] - 4)])*1.0,
+                             dim = c(1L, 1L), dimnames = list(NULL, "edgecov.m"),
+                             mcpar = c(1,  1, 1), class = "mcmc"))
 })
 
 test_that("edgecov works with directed networks", {
@@ -52,5 +65,8 @@ test_that("edgecov works with directed networks", {
   m[upper.tri(m)] <- 1:10
   m[lower.tri(m)] <- -(1:10)
   rv <- ergm.godfather(nw ~ edgecov(m), changes=changes)
-  expect_identical(as.integer(rv), sum(m[changes[c(2,3,5),]]))
+  expect_identical(rv,
+                   structure(sum(m[changes[c(2,3,5),]])*1.0,
+                             dim = c(1L, 1L), dimnames = list(NULL, "edgecov.m"),
+                             mcpar = c(1,  1, 1), class = "mcmc"))
 })
