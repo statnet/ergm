@@ -26,4 +26,4 @@ A set of binaries is built after every commit to the repository. We strongly enc
 
 You will need to extract the MacOS `.tgz` or the Windows `.zip` file from the outer `.zip` file before installing. These binaries are usually built under the latest version of R and their operating system and may not work under other versions.
 
-You may also want to install the corresponding latest binaries for packages on which `ergm` depends, in particular [`statnet.common`](https://github.com/statnet/statnet.common), [`tergm`](https://github.com/statnet/tergm), and [`ergm.count`](https://github.com/statnet/ergm.count).
+You may also want to install the corresponding latest binaries for packages on which `ergm` depends, in particular [`statnet.common`](https://github.com/statnet/statnet.common) and [`ergm.count`](https://github.com/statnet/ergm.count).
