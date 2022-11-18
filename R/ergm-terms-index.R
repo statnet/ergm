@@ -18,6 +18,19 @@ DISPLAY_LATEX_TOC_PCT_WIDTHS <- function(n_concepts) c(2.4, rep(.7, n_concepts))
 
 .fsub <- function(x, pattern, replacement, fixed = TRUE, ...) gsub(pattern, replacement, x, fixed = fixed, ...)
 
+.packageDependsOn <- function(what, onwhat, how=c("Depends", "Imports", "LinkingTo")){
+  ## Replace all dots with underscores (since dots are word breaks but
+  ## underscores aren't, and package names can't have underscores).
+  ._ <- function(x) gsub(".", "_", x, fixed=TRUE)
+
+  ## Obtain the appropriate package description elements:
+  utils::packageDescription(what)[how] %>%
+    ## Concatenate them into a single string, and replace dots with underscores:
+    unlist() %>% paste(collapse="\n") %>% ._() %>%
+    ## Test if the list has any whole-word matches for the package name:
+    grepl(sprintf("\\<%s\\>", ._(onwhat)), .)
+}
+
 # Return the index entry for a single term in the new format
 .parseTerm <- function(rdname, pkg, pkg_name) {
   doc <- pkg[[rdname]]
@@ -119,7 +132,7 @@ ergmTermCache <- local({
 
   # Reset the cache and update the list of watched packages.
   unload <- function(pkg_name, ...) {
-    pkglist <<-.packages(TRUE)
+    pkglist <<- setdiff(pkglist, pkg_name)
 
     for (term_type in SUPPORTED_TERM_TYPES) {
       for (term in names(cache[[term_type]])) {
@@ -132,6 +145,8 @@ ergmTermCache <- local({
 
   # Crawl all loaded packages for terms, parse them once and store in the singleton store
   load <- function(pkg_name) {
+    pkglist <<- c(pkglist, pkg_name)
+
     pkg <- tools::Rd_db(pkg_name)
     all_doco <- attributes(pkg)$names
     converted <- all_doco[grep(SUPPORTED_TERM_TYPE_REGEX, all_doco)]
@@ -145,33 +160,32 @@ ergmTermCache <- local({
 
   # Check if new namespaces have been added.
   checknew <- function() {
-    loaded_packages <- loadedNamespaces()
-    revdeps <- c("ergm", tools::dependsOnPkgs("ergm"))
+    term_packages <- loadedNamespaces() %>% setdiff(pkglist) %>%
+      keep(.packageDependsOn, "ergm") %>% c("ergm") %>% setdiff(pkglist) # Yes, twice in case ergm already scanned.
 
-    term_packages <- tryCatch({
-      db <- utils::hsearch_db(package=revdeps)$Base
-      unique(db$Package[grep(SUPPORTED_TERM_TYPE_REGEX, db$Topic)])
-    }, error = function(e) {
-      message("Error querying the list of term packages when indexing: ", sQuote(toString(e)), ";  skipping.")
-      character(0)
-    })
+    if(length(term_packages))
+      term_packages <- tryCatch({
+        utils::hsearch_db(package=term_packages)$Base %>%
+          subset(Package %in% term_packages & Type == "help") %>%
+          subset(grepl(SUPPORTED_TERM_TYPE_REGEX, Topic), "Package", drop=TRUE) %>%
+          unique()
+      }, error = function(e) {
+        message("Error querying the list of term packages when indexing: ", sQuote(toString(e)), ";  skipping.")
+        character(0)
+      })
 
-    for (pkg_name in intersect(loaded_packages, term_packages)) {
-      if (!pkg_name %in% pkglist) {
+    if(length(term_packages)) {
+      for (pkg_name in term_packages) {
         load(pkg_name)
-
-        setHook(packageEvent(pkg_name, "detach"), unload)
         setHook(packageEvent(pkg_name, "onUnload"), unload)
       }
-    }
-    cache <<- lapply(cache, function(terms) terms[sort(names(terms))])
 
-    pkglist <<- loaded_packages
+      cache <<- lapply(cache, function(terms) terms[sort(names(terms))])
+    }
   }
 
   function (term_type) {
     checknew()
-
     cache[[term_type]]
   }
 })
