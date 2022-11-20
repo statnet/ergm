@@ -80,3 +80,13 @@ test_that("test search ergm proposal", {
   expect_equal(length(search.ergmProposals(name = 'randomtoggle', packages='ergm')), 1)
   expect_equal(length(search.ergmProposals(name = 'mandomtoggle', packages='ergm')), 0)
 })
+
+test_that("ergm term cache unloading", {
+  library(ergm.count)
+  et <- ergm:::ergmTermCache('ergmTerm')
+  expect_true("ergm.count" %in% sapply(et, `[[`, "package"))
+
+  unloadNamespace("ergm.count")
+  et <- ergm:::ergmTermCache('ergmTerm')
+  expect_false("ergm.count" %in% sapply(et, `[[`, "package"))
+})
