@@ -128,30 +128,37 @@ DISPLAY_LATEX_TOC_PCT_WIDTHS <- function(n_concepts) c(2.4, rep(.7, n_concepts))
 ergmTermCache <- local({
   cache <- lapply(SUPPORTED_TERM_TYPES, function(x) list())
   names(cache) <- SUPPORTED_TERM_TYPES
-  pkglist <- character(0) # Current list of packages.
+  scanned <- character(0) # Current list of monitored packages.
+  have_terms <- character(0) # Current list of monitored packages that have terms.
 
-  # Reset the cache and update the list of watched packages.
+  # Reset the cache and update the list of scanned packages.
   unload <- function(pkg_name, ...) {
-    pkglist <<- setdiff(pkglist, pkg_name)
+    if(pkg_name %in% have_terms)
+      for (term_type in names(cache))
+        cache[[term_type]] <<- cache[[term_type]][map_chr(cache[[term_type]], "package") != pkg_name]
 
-    for (term_type in names(cache))
-      cache[[term_type]] <<- cache[[term_type]][map_chr(cache[[term_type]], "package") != pkg_name]
+    scanned <<- setdiff(scanned, pkg_name)
+    scanned <<- setdiff(have_terms, pkg_name)
   }
 
   # Crawl all loaded packages for terms, parse them once and store in the singleton store
   load <- function(pkg_name) {
     setHook(packageEvent(pkg_name, "onUnload"), unload)
-    pkglist <<- c(pkglist, pkg_name)
+    scanned <<- c(scanned, pkg_name)
+
+    ## Short-circuit if the package does not depend on ergm or isn't itself ergm.
+    if(pkg_name!="ergm" && !.packageDependsOn(pkg_name, "ergm")) return(FALSE)
 
     ## Short-circuit if no topics fit the pattern.
     tryCatch(
       if(nrow(utils::help.search(SUPPORTED_TERM_TYPE_REGEX, package=pkg_name, fields="alias", types="help",
-                                 ignore.case=FALSE, agrep=FALSE)$matches) == 0) return(),
+                                 ignore.case=FALSE, agrep=FALSE)$matches) == 0) return(FALSE),
       error = function(e) message(sQuote("ergmTermCache"), ": help search failed for package ", sQuote(pkg_name), " with ", e)
     )
 
     pkg <- tools::Rd_db(pkg_name)
     terms <- names(pkg)[grep(SUPPORTED_TERM_TYPE_REGEX, names(pkg))]
+    has_terms <- FALSE
 
     for (rdname in terms) {
       term <- tryCatch(.parseTerm(rdname, pkg, pkg_name),
@@ -160,19 +167,26 @@ ergmTermCache <- local({
                          NULL
                        })
 
-      if (!is.null(term)) cache[[term$type]][[term$name]] <<- term
+      if (!is.null(term)){
+        cache[[term$type]][[term$name]] <<- term
+        has_terms <- TRUE
+      }
     }
+
+    if(has_terms) have_terms <<- c(have_terms, pkg_name)
+
+    has_terms
   }
 
   # Check if new namespaces have been added.
   checknew <- function() {
-    term_packages <- loadedNamespaces() %>% setdiff(pkglist) %>%
-      keep(.packageDependsOn, "ergm") %>% c("ergm") %>% setdiff(pkglist) # Yes, twice in case ergm already scanned.
+    to_scan <- setdiff(loadedNamespaces(), scanned)
 
-    if(length(term_packages)) {
-      for (pkg_name in term_packages) load(pkg_name)
+    if(length(to_scan)) {
+      terms_added <- FALSE
+      for (pkg_name in to_scan) terms_added <- max(terms_added, load(pkg_name))
 
-      cache <<- lapply(cache, function(terms) terms[sort(names(terms))])
+      if(terms_added) cache <<- lapply(cache, function(terms) terms[sort(names(terms))])
     }
   }
 
