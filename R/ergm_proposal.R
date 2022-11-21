@@ -46,24 +46,43 @@
 #' @param Weights The sampling weights on selecting toggles (random, TNT, etc).
 #' @param Proposal The matching proposal from the previous arguments.
 #'
+#' @param Package The package in which the proposal is implemented;
+#'   it's normally autodetected based on the package to which the
+#'   calling function belongs.
+#'
 #' @note The arguments `Class`, `Reference`, and `Constraints` can
 #'   have length greater than 1. If this is the case, the rows added
 #'   to the table are a *Cartesian product* of their elements.
+#'
+#' @details The first time a particular package calls
+#'   `ergm_proposal_table()`, it also sets a call-back to remove all
+#'   of its proposals from the table should the package be unloaded.
+#'
 #' @keywords internal
 #' @export ergm_proposal_table
 ergm_proposal_table <- local({
   proposals <- data.frame(Class = character(0), Reference = character(0),
                      Constraints = character(0), Priority = numeric(0), Weights = character(0),
-                     Proposal = character(0), stringsAsFactors=FALSE)
-  function(Class, Reference, Constraints, Priority, Weights, Proposal) {
+                     Proposal = character(0), Package = character(0), stringsAsFactors=FALSE)
+
+  unload <- function(pkg_name, ...) proposals <<- proposals[proposals$Package != pkg_name, ]
+
+  function(Class, Reference, Constraints, Priority, Weights, Proposal, Package = NULL) {
     if(!missing(Class)){
-      stopifnot(length(Class)>=1,length(Reference)>=1,length(Constraints)>=1,
-                length(Priority)==1,length(Weights)==1,length(Proposal)==1)
-      newrows <- expand.grid(Class = Class, Reference = Reference,
-                             Constraints = Constraints, Priority = Priority, Weights = Weights,
-                             Proposal = Proposal, stringsAsFactors=FALSE, KEEP.OUT.ATTRS=FALSE)
-      proposals <<- rbind(proposals,
-                     newrows)
+      NVL(Package) <- utils::packageName(parent.frame())
+      NVL(Package) <- ""
+
+      if(Package != "" && ! Package %in% proposals$Package)
+        setHook(packageEvent(Package, "onUnload"), unload)
+
+      stopifnot(length(Class)>=1, length(Reference)>=1, length(Constraints)>=1,
+                length(Priority)==1, length(Weights)==1, length(Proposal)==1,
+                length(Package)==1)
+
+      newrows <- expand.grid(Class = Class, Reference = Reference, Constraints = Constraints,
+                             Priority = Priority, Weights = Weights, Proposal = Proposal,
+                             Package = Package, stringsAsFactors=FALSE, KEEP.OUT.ATTRS=FALSE)
+      proposals <<- rbind(proposals, newrows)
     }else proposals
   }
 })

@@ -8,8 +8,8 @@
 #  Copyright 2003-2022 Statnet Commons
 ################################################################################
 
-SUPPORTED_TERM_TYPES <- c('Term', 'Constraint', 'Reference', 'Hint', 'Proposal')
-SUPPORTED_TERM_TYPE_REGEX <- sprintf('-ergm(%s)(-[0-9a-f]{8})?(.Rd)?', paste(SUPPORTED_TERM_TYPES, collapse='|'))
+SUPPORTED_TERM_TYPES <- c('ergmTerm', 'ergmConstraint', 'ergmReference', 'ergmHint', 'ergmProposal')
+SUPPORTED_TERM_TYPE_REGEX <- sprintf('-(%s)(-[0-9a-f]{8})?(.Rd)?', paste(SUPPORTED_TERM_TYPES, collapse='|'))
 
 DISPLAY_TEXT_INDEX_MAX_WIDTHS <- list('Term'=25, 'Pkg'=5, 'Description'=33, 'Concepts'=12)
 DISPLAY_TEXT_MAX_WIDTH <- sum(unlist(DISPLAY_TEXT_INDEX_MAX_WIDTHS)) + length(DISPLAY_TEXT_INDEX_MAX_WIDTHS) - 1
@@ -17,6 +17,19 @@ DISPLAY_LATEX_INDEX_PCT_WIDTHS <- c(0.3, 0.05, 0.5, 0.1)
 DISPLAY_LATEX_TOC_PCT_WIDTHS <- function(n_concepts) c(2.4, rep(.7, n_concepts))
 
 .fsub <- function(x, pattern, replacement, fixed = TRUE, ...) gsub(pattern, replacement, x, fixed = fixed, ...)
+
+.packageDependsOn <- function(what, onwhat, how=c("Depends", "Imports", "LinkingTo")){
+  ## Replace all dots with underscores (since dots are word breaks but
+  ## underscores aren't, and package names can't have underscores).
+  ._ <- function(x) gsub(".", "_", x, fixed=TRUE)
+
+  ## Obtain the appropriate package description elements:
+  utils::packageDescription(what)[how] %>%
+    ## Concatenate them into a single string, and replace dots with underscores:
+    unlist() %>% paste(collapse="\n") %>% ._() %>%
+    ## Test if the list has any whole-word matches for the package name:
+    grepl(sprintf("\\<%s\\>", ._(onwhat)), .)
+}
 
 # Return the index entry for a single term in the new format
 .parseTerm <- function(rdname, pkg, pkg_name) {
@@ -114,64 +127,71 @@ DISPLAY_LATEX_TOC_PCT_WIDTHS <- function(n_concepts) c(2.4, rep(.7, n_concepts))
 #' @noRd
 ergmTermCache <- local({
   cache <- lapply(SUPPORTED_TERM_TYPES, function(x) list())
-  names(cache) <- paste('ergm', SUPPORTED_TERM_TYPES, sep='')
-  pkglist <- character(0) # Current list of packages.
+  names(cache) <- SUPPORTED_TERM_TYPES
+  scanned <- character(0) # Current list of monitored packages.
+  have_terms <- character(0) # Current list of monitored packages that have terms.
 
-  # Reset the cache and update the list of watched packages.
+  # Reset the cache and update the list of scanned packages.
   unload <- function(pkg_name, ...) {
-    pkglist <<-.packages(TRUE)
+    if(pkg_name %in% have_terms)
+      for (term_type in names(cache))
+        cache[[term_type]] <<- cache[[term_type]][map_chr(cache[[term_type]], "package") != pkg_name]
 
-    for (term_type in SUPPORTED_TERM_TYPES) {
-      for (term in names(cache[[term_type]])) {
-        if (cache[[term_type]][[term]]$package == pkg_name) {
-          cache[[term_type]][[term]] <<- NULL
-        }
-      }
-    }
+    scanned <<- setdiff(scanned, pkg_name)
+    scanned <<- setdiff(have_terms, pkg_name)
   }
 
   # Crawl all loaded packages for terms, parse them once and store in the singleton store
   load <- function(pkg_name) {
-    pkg <- tools::Rd_db(pkg_name)
-    all_doco <- attributes(pkg)$names
-    converted <- all_doco[grep(SUPPORTED_TERM_TYPE_REGEX, all_doco)]
+    setHook(packageEvent(pkg_name, "onUnload"), unload)
+    scanned <<- c(scanned, pkg_name)
 
-    for (term in lapply(converted, .parseTerm, pkg, pkg_name)) {
-      if (!is.null(term)) {
+    ## Short-circuit if the package does not depend on ergm or isn't itself ergm.
+    if(pkg_name!="ergm" && !.packageDependsOn(pkg_name, "ergm")) return(FALSE)
+
+    ## Short-circuit if no topics fit the pattern.
+    tryCatch(
+      if(nrow(utils::help.search(SUPPORTED_TERM_TYPE_REGEX, package=pkg_name, fields="alias", types="help",
+                                 ignore.case=FALSE, agrep=FALSE)$matches) == 0) return(FALSE),
+      error = function(e) message(sQuote("ergmTermCache"), ": help search failed for package ", sQuote(pkg_name), " with ", e)
+    )
+
+    pkg <- tools::Rd_db(pkg_name)
+    terms <- names(pkg)[grep(SUPPORTED_TERM_TYPE_REGEX, names(pkg))]
+    has_terms <- FALSE
+
+    for (rdname in terms) {
+      term <- tryCatch(.parseTerm(rdname, pkg, pkg_name),
+                       error = function(e){
+                         message("Failed to parse document ", sQuote(rdname), " in package ", sQuote(pkg_name), ".")
+                         NULL
+                       })
+
+      if (!is.null(term)){
         cache[[term$type]][[term$name]] <<- term
+        has_terms <- TRUE
       }
     }
+
+    if(has_terms) have_terms <<- c(have_terms, pkg_name)
+
+    has_terms
   }
 
   # Check if new namespaces have been added.
   checknew <- function() {
-    loaded_packages <- loadedNamespaces()
-    revdeps <- c("ergm", tools::dependsOnPkgs("ergm"))
+    to_scan <- setdiff(loadedNamespaces(), scanned)
 
-    term_packages <- tryCatch({
-      db <- utils::hsearch_db(package=revdeps)$Base
-      unique(db$Package[grep(SUPPORTED_TERM_TYPE_REGEX, db$Topic)])
-    }, error = function(e) {
-      message("Error querying the list of term packages when indexing: ", sQuote(toString(e)), ";  skipping.")
-      character(0)
-    })
+    if(length(to_scan)) {
+      terms_added <- FALSE
+      for (pkg_name in to_scan) terms_added <- max(terms_added, load(pkg_name))
 
-    for (pkg_name in intersect(loaded_packages, term_packages)) {
-      if (!pkg_name %in% pkglist) {
-        load(pkg_name)
-
-        setHook(packageEvent(pkg_name, "detach"), unload)
-        setHook(packageEvent(pkg_name, "onUnload"), unload)
-      }
+      if(terms_added) cache <<- lapply(cache, function(terms) terms[sort(names(terms))])
     }
-    cache <<- lapply(cache, function(terms) terms[sort(names(terms))])
-
-    pkglist <<- loaded_packages
   }
 
   function (term_type) {
     checknew()
-
     cache[[term_type]]
   }
 })

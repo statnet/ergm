@@ -155,6 +155,7 @@ jobs:
       - name: Install tinytex (R)
         if: contains(matrix.config.flags, 'vignettes')
         run: |
+          if(!requireNamespace("tinytex", quietly = TRUE)) pak::pkg_install("tinytex")
           tinytex:::install_yihui_pkgs()
           tinytex::tlmgr_install("makeindex")
         shell: Rscript {0}

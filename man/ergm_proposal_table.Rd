@@ -4,7 +4,15 @@
 \alias{ergm_proposal_table}
 \title{Table mapping reference,constraints, etc. to ERGM Metropolis-Hastings proposals}
 \usage{
-ergm_proposal_table(Class, Reference, Constraints, Priority, Weights, Proposal)
+ergm_proposal_table(
+  Class,
+  Reference,
+  Constraints,
+  Priority,
+  Weights,
+  Proposal,
+  Package = NULL
+)
 }
 \arguments{
 \item{Class}{default to "c"}
@@ -24,6 +32,10 @@ priority (\code{-1},\code{0},\code{1}, etc.) of proposals to be used.}
 \item{Weights}{The sampling weights on selecting toggles (random, TNT, etc).}
 
 \item{Proposal}{The matching proposal from the previous arguments.}
+
+\item{Package}{The package in which the proposal is implemented;
+it's normally autodetected based on the package to which the
+calling function belongs.}
 }
 \description{
 This is a low-level function not intended to be called directly by
@@ -32,6 +44,11 @@ end users. For information on Metropolis-Hastings proposal methods,
 constraints, references, etc. to \code{ergm_proposals}. Calling it with
 arguments adds a new row to this table. Calling it without
 arguments returns the table so far.
+}
+\details{
+The first time a particular package calls
+\code{ergm_proposal_table()}, it also sets a call-back to remove all
+of its proposals from the table should the package be unloaded.
 }
 \note{
 The arguments \code{Class}, \code{Reference}, and \code{Constraints} can

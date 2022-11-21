@@ -195,7 +195,7 @@ ergm_edgecov_args <- function(name, nw, a){
   }else xm <- as.matrix(a$x)
 
   cn <- if(!is.null(a$attrname)) paste(name, a$attrname, sep = ".")
-        else paste(name, deparse1(attr(a,"exprs")$x), sep = ".")
+        else paste(name, if(is.character(a$x)) a$x else deparse1(attr(a,"exprs")$x), sep = ".")
 
   list(xm=xm, cn=cn)
 }

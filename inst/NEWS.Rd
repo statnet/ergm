@@ -64,6 +64,22 @@
 
 %% }
 
+\section{Changes in version 4.3.2}{
+  \subsection{BUG FIXES}{
+    \itemize{
+      \item{
+        \code{\link{ergm_edgecov_args}()} helper function now formats the network attribute names without the quotes.
+      }
+      \item{
+        MCMC proposal lookup code is now more robust: in particular, it keeps track of which packages added which rows to the lookup table and removes those rows on unload.
+      }
+      \item{
+        Termalike documentation caching code has been optimized to work better particularly on systems with many packages installed (such as CRAN) and Windows systems (such the Win-Builder): it no longer calls slow functions such as \code{\link{dependsOnPkgs}()} and is smarter about minimizing the number of operations per cache read. (Thanks to Kurt Hornik for identifying the root of the problem.)
+      }
+    }
+  }
+}
+
 
 \section{Changes in version 4.3.1}{
 
