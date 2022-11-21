@@ -2,11 +2,11 @@
 
 <details>
 
-* Version: 2.1.0
+* Version: 2.2.1
 * GitHub: NA
 * Source code: https://github.com/cran/Blaunet
-* Date/Publication: 2020-05-22 08:10:11 UTC
-* Number of recursive dependencies: 67
+* Date/Publication: 2022-09-27 08:10:08 UTC
+* Number of recursive dependencies: 65
 
 Run `revdep_details(, "Blaunet")` for more info
 
@@ -14,37 +14,12 @@ Run `revdep_details(, "Blaunet")` for more info
 
 ## In both
 
-*   checking examples ... ERROR
+*   checking package dependencies ... ERROR
     ```
-    Running examples in ‘Blaunet-Ex.R’ failed
-    The error most likely occurred in:
+    Package required but not available: ‘gWidgets2tcltk’
     
-    > ### Name: active
-    > ### Title: Quick summary of blau object.
-    > ### Aliases: active
-    > 
-    > ### ** Examples
-    > 
-    > data(TwoCities)
-    > b <- blau(TwoCities, node.ids = 'respID', ecology.ids = 'samp')
-    Error in dimnames(x) <- dn : 
-      length of 'dimnames' [1] not equal to array extent
-    Calls: blau -> rownames<-
-    Execution halted
-    ```
-
-*   checking package dependencies ... NOTE
-    ```
-    Packages suggested but not available for checking:
-      'gWidgets', 'gWidgetsRGtk2'
-    ```
-
-*   checking dependencies in R code ... NOTE
-    ```
-    Namespaces in Imports field not imported from:
-      ‘RGtk2’ ‘cairoDevice’ ‘ergm’ ‘foreign’ ‘haven’ ‘plot3D’ ‘plot3Drgl’
-      ‘rgl’ ‘sna’ ‘statnet.common’
-      All declared Imports should be used.
+    See section ‘The DESCRIPTION file’ in the ‘Writing R Extensions’
+    manual.
     ```
 
 # broom
@@ -55,7 +30,7 @@ Run `revdep_details(, "Blaunet")` for more info
 * GitHub: https://github.com/tidymodels/broom
 * Source code: https://github.com/cran/broom
 * Date/Publication: 2022-08-29 21:00:08 UTC
-* Number of recursive dependencies: 292
+* Number of recursive dependencies: 293
 
 Run `revdep_details(, "broom")` for more info
 
@@ -72,95 +47,6 @@ Run `revdep_details(, "broom")` for more info
 *   checking Rd cross-references ... NOTE
     ```
     Packages unavailable to check Rd xrefs: ‘spatialreg’, ‘epiR’
-    ```
-
-# EpiModel
-
-<details>
-
-* Version: 2.3.0
-* GitHub: https://github.com/EpiModel/EpiModel
-* Source code: https://github.com/cran/EpiModel
-* Date/Publication: 2022-07-19 03:30:06 UTC
-* Number of recursive dependencies: 106
-
-Run `revdep_details(, "EpiModel")` for more info
-
-</details>
-
-## Newly broken
-
-*   checking examples ... ERROR
-    ```
-    Running examples in ‘EpiModel-Ex.R’ failed
-    The error most likely occurred in:
-    
-    > ### Name: as.data.frame.netdx
-    > ### Title: Extract Timed Edgelists for netdx Objects
-    > ### Aliases: as.data.frame.netdx
-    > ### Keywords: extract
-    > 
-    > ### ** Examples
-    > 
-    ...
-    Finished MPLE.
-    Stopping at the initial estimate.
-    > 
-    > # Simulate the network with netdx
-    > dx <- netdx(est, nsims = 3, nsteps = 10, keep.tedgelist = TRUE,
-    +             verbose = FALSE)
-    Error in ergm_proposal.NULL(constraints, arguments = if (observational) control$obs.MCMC.prop.args else control$MCMC.prop.args,  : 
-      NULL passed to ergm_proposal. This may be due to passing an ergm object from an earlier version. If this is the case, please refit it with the latest version, and try again. If this is not the case, this may be a bug, so please file a bug report.
-    Calls: netdx ... eval -> <Anonymous> -> ergm_proposal -> ergm_proposal.NULL
-    Execution halted
-    ```
-
-*   checking tests ...
-    ```
-      Running ‘test-all.R’
-     ERROR
-    Running the tests in ‘tests/test-all.R’ failed.
-    Last 13 lines of output:
-        6.   │   └─base::eval(cl, parent.frame())
-        7.   ├─stats::simulate(...)
-        8.   └─ergm:::simulate.formula_lhs_network(...)
-        9.     ├─ergm::simulate_formula(...)
-       10.     ├─tergm:::simulate_formula.network(...)
-       11.     │ └─base::eval.parent(mc)
-       12.     │   └─base::eval(expr, p)
-       13.     │     └─base::eval(expr, p)
-       14.     └─ergm (local) `<fn>`(...)
-       15.       ├─ergm::ergm_proposal(...)
-       16.       └─ergm:::ergm_proposal.NULL(...)
-      
-      [ FAIL 84 | WARN 55 | SKIP 83 | PASS 589 ]
-      Error: Test failures
-      Execution halted
-    ```
-
-*   checking re-building of vignette outputs ... ERROR
-    ```
-    Error(s) in re-building vignettes:
-      ...
-    --- re-building ‘Intro.Rmd’ using rmarkdown
-    --- finished re-building ‘Intro.Rmd’
-    
-    --- re-building ‘attributes-and-summary-statistics.Rmd’ using rmarkdown
-    Quitting from lines 307-344 (attributes-and-summary-statistics.Rmd) 
-    Error: processing vignette 'attributes-and-summary-statistics.Rmd' failed with diagnostics:
-    NULL passed to ergm_proposal. This may be due to passing an ergm object from an earlier version. If this is the case, please refit it with the latest version, and try again. If this is not the case, this may be a bug, so please file a bug report.
-    --- failed re-building ‘attributes-and-summary-statistics.Rmd’
-    ...
-    --- failed re-building ‘model-parameters.Rmd’
-    
-    --- re-building ‘network-objects.Rmd’ using rmarkdown
-    --- finished re-building ‘network-objects.Rmd’
-    
-    SUMMARY: processing the following files failed:
-      ‘attributes-and-summary-statistics.Rmd’ ‘model-parameters.Rmd’
-    
-    Error: Vignette re-building failed.
-    Execution halted
     ```
 
 # ergMargins
@@ -251,7 +137,7 @@ Run `revdep_details(, "gwdegree")` for more info
 * GitHub: https://github.com/statnet/latentnet
 * Source code: https://github.com/cran/latentnet
 * Date/Publication: 2022-05-11 12:30:05 UTC
-* Number of recursive dependencies: 112
+* Number of recursive dependencies: 109
 
 Run `revdep_details(, "latentnet")` for more info
 
@@ -277,6 +163,11 @@ Run `revdep_details(, "latentnet")` for more info
 Run `revdep_details(, "lolog")` for more info
 
 </details>
+
+## Newly broken
+
+*   R CMD check timed out
+    
 
 ## In both
 
@@ -316,7 +207,7 @@ Run `revdep_details(, "netmediate")` for more info
 * GitHub: https://github.com/kolaczyk/sand
 * Source code: https://github.com/cran/sand
 * Date/Publication: 2020-07-02 07:20:06 UTC
-* Number of recursive dependencies: 160
+* Number of recursive dependencies: 157
 
 Run `revdep_details(, "sand")` for more info
 
@@ -416,7 +307,7 @@ Run `revdep_details(, "texreg")` for more info
 * GitHub: https://github.com/leifeld/xergm.common
 * Source code: https://github.com/cran/xergm.common
 * Date/Publication: 2020-04-07 09:50:02 UTC
-* Number of recursive dependencies: 35
+* Number of recursive dependencies: 34
 
 Run `revdep_details(, "xergm.common")` for more info
 
