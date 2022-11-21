@@ -90,3 +90,6 @@ test_that("ergm term cache unloading", {
   et <- ergm:::ergmTermCache('ergmTerm')
   expect_false("ergm.count" %in% sapply(et, `[[`, "package"))
 })
+
+# Ensure that ergm.count is still attached after this test is finished.
+library(ergm.count)
