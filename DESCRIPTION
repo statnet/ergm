@@ -19,7 +19,7 @@ Authors@R: c(
              person("Joyce", "Cheng", role=c("ctb"), email="joyce.cheng@student.unsw.edu.au"))
 Depends:
     R (>= 4.0),
-    network (>= 1.17.0)
+    network (>= 1.18.0)
 Imports:
     robustbase (>= 0.93.7),
     coda (>= 0.19.4),
