@@ -644,7 +644,7 @@ control.ergm<-function(drop=TRUE,
 
 handle.control.toplevel<-function(myname, ...){
   myctrlname <- paste0("control.",myname)
-  control.names <- names(list(...))[names(list(...)) %in% names(formals(get(myctrlname, mode="function")))]
+  control.names <- ...names()[...names() %in% names(formals(get(myctrlname, mode="function")))]
   if(length(control.names)) stop("Argument(s) ", paste.and(sQuote(control.names)), " should be passed via control.",myname,"().")
 }
 
