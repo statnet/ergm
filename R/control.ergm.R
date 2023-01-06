@@ -633,7 +633,7 @@ control.ergm<-function(drop=TRUE,
 
   control <- handle.controls("control.ergm", ...)
 
-  if((MCMLE.steplength!=1 || is.null(MCMLE.steplength.margin)) && MCMLE.termination %in% c("Hummel", "precision"))
+  if((control$MCMLE.steplength!=1 || is.null(control$MCMLE.steplength.margin)) && control$MCMLE.termination %in% c("Hummel", "precision"))
     stop("Hummel and precision-based termination require non-null MCMLE.steplength.margin and MCMLE.steplength = 1.")
 
   if(!is.null(control$checkpoint) && control$main.method!="MCMLE") stop("Only MCMLE supports checkpointing and resuming at this time.")
