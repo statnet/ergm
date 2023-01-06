@@ -389,6 +389,7 @@ ergm <- function(formula, response=NULL,
                  estimate=c("MLE", "MPLE", "CD"),
                  control=control.ergm(),
                  verbose=FALSE,..., basis=ergm.getnetwork(formula)) {
+  check_dots_used(error = unused_dots_warning)
   check.control.class("ergm", "ergm")
   handle.control.toplevel("ergm", ...)
 

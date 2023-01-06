@@ -13,7 +13,8 @@
   force.reeval = FALSE,
   eval.loglik = add || force.reeval,
   control = control.logLik.ergm(),
-  ...
+  ...,
+  verbose = FALSE
 )
 
 \method{deviance}{ergm}(object, ...)
@@ -44,6 +45,12 @@ also provides argument completion for the available control
 functions and limited argument name checking.}
 
 \item{\dots}{Other arguments to the likelihood functions.}
+
+\item{verbose}{A logical or an integer to control the amount of
+progress and diagnostic information to be printed. \code{FALSE}/\code{0}
+produces minimal output, with higher values producing more
+detail. Note that very high values (5+) may significantly slow
+down processing.}
 
 \item{k}{see help for \code{\link[=AIC]{AIC()}}.}
 }

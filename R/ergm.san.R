@@ -189,6 +189,7 @@ san.formula <- function(object, response=NULL, reference=~Bernoulli, constraints
                         verbose=FALSE, 
                         offset.coef=NULL,
                         ...) {
+  check_dots_used(error = unused_dots_warning)
   check.control.class("san", "san")
   handle.control.toplevel("san", ...)
 

@@ -69,7 +69,7 @@
 #' @concept undirected
 #' @import rle
 InitErgmConstraint.blockdiag<-function(lhs.nw, attr=NULL, ...){
-  if(length(list(...)))
+  if(...length())
     stop(paste("Block diagonal constraint takes one argument at this time."), call.=FALSE)
   list(attr=attr,
        free_dyads = {

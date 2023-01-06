@@ -286,6 +286,7 @@ simulate_formula <- function(object, ..., basis=eval_lhs.formula(object)) {
     return(c(as.list(environment()), list(...)))
 
   #' @importFrom statnet.common check.control.class
+  check_dots_used(error = unused_dots_warning)
   check.control.class("simulate.formula", myname="ERGM simulate.formula")
   handle.control.toplevel("simulate.formula", ...)
 
@@ -395,12 +396,10 @@ simulate.ergm_model <- function(object, nsim=1, seed=NULL,
     output <- "function"
   }
 
-  # Backwards-compatibility code:
-  if("theta0" %in% names(list(...))){
-    warning("Passing the parameter vector as theta0= is deprecated. Use coef= instead.")
-    coef<-list(...)$theta0
-  }
-  
+  # TODO: Remove this in the next release.
+  if(theta0pos <- "theta0" %in% ...names())
+    stop("Passing the parameter vector as theta0= is deprecated. Use coef= instead.")
+
   if(!is.null(seed)) {set.seed(as.integer(seed))}
   
   # define nw as either the basis argument or (if NULL) the LHS of the formula
@@ -619,6 +618,7 @@ simulate.ergm <- function(object, nsim=1, seed=NULL,
                           sequential=TRUE,
                           control=control.simulate.ergm(),
                           verbose=FALSE, ...) {
+  check_dots_used(error = unused_dots_warning)
   check.control.class(c("simulate.ergm","simulate.formula"), "simulate.ergm")
   handle.control.toplevel("simulate.ergm", ...)
 

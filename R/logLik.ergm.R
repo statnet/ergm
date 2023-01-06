@@ -30,6 +30,7 @@
 #'
 #' @templateVar mycontrol control.logLik.ergm
 #' @template control
+#' @template verbose
 #'
 #' @param \dots Other arguments to the likelihood functions.
 #' @return The form of the output of \code{logLik.ergm} depends on
@@ -77,12 +78,13 @@
 #' }
 #' 
 #' @export
-logLik.ergm<-function(object, add=FALSE, force.reeval=FALSE, eval.loglik=add || force.reeval, control=control.logLik.ergm(), ...){
+logLik.ergm<-function(object, add=FALSE, force.reeval=FALSE, eval.loglik=add || force.reeval, control=control.logLik.ergm(), ..., verbose=FALSE){
 
   if(!force.reeval && !is.null(object$mle.lik)) return(object$mle.lik)
 
   # Then, we need to recalculate...
-  
+#' @importFrom rlang check_dots_used
+  check_dots_used(error = unused_dots_warning)
   check.control.class("logLik.ergm", "logLik.ergm")
   handle.control.toplevel("logLik.ergm", ...)
 
@@ -109,15 +111,15 @@ logLik.ergm<-function(object, add=FALSE, force.reeval=FALSE, eval.loglik=add || 
     ## If dyad-dependent but not valued and has a dyad-independent constraint, bridge from a dyad-independent model.
     else if(is.dyad.independent(object$constrained, object$constrained.obs)
                    && !is.valued(object))
-      ergm.bridge.dindstart.llk(formula,reference=reference,constraints=constraints,obs.constraints=obs.constraints,coef=coef(object),target.stats=object$target.stats,control=control.bridge,llkonly=FALSE,...)
+      ergm.bridge.dindstart.llk(formula,reference=reference,constraints=constraints,obs.constraints=obs.constraints,coef=coef(object),target.stats=object$target.stats,control=control.bridge,llkonly=FALSE,...,verbose=verbose)
     ## If valued or has dyad-dependent constraint, bridge from the null model (reference measure).
     else
-      ergm.bridge.0.llk(formula,reference=reference,constraints=constraints,obs.constraints=obs.constraints,coef=coef(object),target.stats=object$target.stats,control=control.bridge,llkonly=FALSE,basis=object$network,...)
+      ergm.bridge.0.llk(formula,reference=reference,constraints=constraints,obs.constraints=obs.constraints,coef=coef(object),target.stats=object$target.stats,control=control.bridge,llkonly=FALSE,basis=object$network,...,verbose=verbose)
   }
   )
 
   # Add the null likelihood. This incidentally means that the nobs() calls below is short-circuited to reuse the result here.
-  if(add) object$null.lik <- logLikNull(object, control=control.null, ...)
+  if(add) object$null.lik <- logLikNull(object, control=control.null, ..., verbose=verbose)
 
   if(is.numeric(out)){
     llk<-out
@@ -129,7 +131,7 @@ logLik.ergm<-function(object, add=FALSE, force.reeval=FALSE, eval.loglik=add || 
   if(!inherits(llk,"logLik")){
     class(llk)<-"logLik"
     attr(llk,"df")<-nparam(object, offset=FALSE)
-    attr(llk,"nobs")<- nobs(object, ...)
+    attr(llk,"nobs")<- nobs(object, ..., verbose=verbose)
   }
   
   if(add){
