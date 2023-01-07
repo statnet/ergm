@@ -25,7 +25,8 @@ ergm(
   control = control.ergm(),
   verbose = FALSE,
   ...,
-  basis = ergm.getnetwork(formula)
+  basis = ergm.getnetwork(formula),
+  newnetwork = c("one", "all", "none")
 )
 
 is.ergm(object)
@@ -164,6 +165,13 @@ arguments, to be passed to lower-level functions.}
 
 \item{basis}{a value (usually a \code{\link{network}}) to override the LHS of the formula.}
 
+\item{newnetwork}{One of \code{"one"} (the default), \code{"all"}, or
+\code{"none"} (or, equivalently, \code{FALSE}), specifying whether the
+network(s) from the last iteration of the MCMC sampling should be
+returned as a part of the fit as a elements \code{newnetwork} and
+\code{newnetworks}. (See their entries in section Value below for
+details.) Partial matching is supported.}
+
 \item{object}{{an \code{ergm} object.}}
 
 \item{x, digits}{See \code{\link[=print]{print()}}.
@@ -206,9 +214,9 @@ should be very close to zero.}
 Hessian of the approximated loglikelihood evaluated at the maximizer.}
 \item{failure}{Logical:  Did the MCMC estimation fail?}
 \item{network}{Network passed on the left-hand side of \code{formula}. If \code{target.stats} are passed, it is replaced by the network returned by \code{\link[=san]{san()}}.}
-\item{newnetworks}{A list of the final networks at the end of the MCMC
+\item{newnetworks}{If argument \code{newnetwork} is \code{"all"}, a list of the final networks at the end of the MCMC
 simulation, one for each thread.}
-\item{newnetwork}{The first (possibly only) element of \code{newnetworks}.}
+\item{newnetwork}{If argument \code{newnetwork} is \code{"one"} or \code{"all"}, the first (possibly only) element of \code{newnetworks}.}
 \item{coef.init}{The initial value of \eqn{\theta}.}
 \item{est.cov}{The covariance matrix of the model statistics in the final MCMC sample.}
 \item{coef.hist, steplen.hist, stats.hist, stats.obs.hist}{

@@ -100,6 +100,13 @@
 #' arguments, to be passed to lower-level functions.
 #'
 #' @template basis
+#'
+#' @param newnetwork One of `"one"` (the default), `"all"`, or
+#'   `"none"` (or, equivalently, `FALSE`), specifying whether the
+#'   network(s) from the last iteration of the MCMC sampling should be
+#'   returned as a part of the fit as a elements `newnetwork` and
+#'   `newnetworks`. (See their entries in section Value below for
+#'   details.) Partial matching is supported.
 #' 
 #' @return
 #' \code{\link{ergm}} returns an object of class \code{\link{ergm}} that is a list
@@ -131,9 +138,9 @@
 #' Hessian of the approximated loglikelihood evaluated at the maximizer.}
 #' \item{failure}{Logical:  Did the MCMC estimation fail?}
 #' \item{network}{Network passed on the left-hand side of `formula`. If `target.stats` are passed, it is replaced by the network returned by [san()].}
-#' \item{newnetworks}{A list of the final networks at the end of the MCMC
+#' \item{newnetworks}{If argument `newnetwork` is `"all"`, a list of the final networks at the end of the MCMC
 #' simulation, one for each thread.}
-#' \item{newnetwork}{The first (possibly only) element of \code{newnetworks}.}
+#' \item{newnetwork}{If argument `newnetwork` is `"one"` or `"all"`, the first (possibly only) element of \code{newnetworks}.}
 #' \item{coef.init}{The initial value of \eqn{\theta}.}
 #' \item{est.cov}{The covariance matrix of the model statistics in the final MCMC sample.}
 #' \item{coef.hist, steplen.hist, stats.hist, stats.obs.hist}{
@@ -401,7 +408,10 @@ ergm <- function(formula, response=NULL,
                  eval.loglik=getOption("ergm.eval.loglik"),
                  estimate=c("MLE", "MPLE", "CD"),
                  control=control.ergm(),
-                 verbose=FALSE,..., basis=ergm.getnetwork(formula)) {
+                 verbose=FALSE,
+                 ...,
+                 basis=ergm.getnetwork(formula),
+                 newnetwork=c("one", "all", "none")) {
   check_dots_used(error = unused_dots_warning)
   check.control.class("ergm", "ergm")
   handle.control.toplevel("ergm", ...)
@@ -413,6 +423,9 @@ ergm <- function(formula, response=NULL,
   obs.constraints <- trim_env_const_formula(obs.constraints)
   
   estimate <- match.arg(estimate)
+  newnetwork <-
+    if(isFALSE(newnetwork)) "none"
+    else if(is.character(newnetwork)) match.arg(newnetwork)
 
   if(estimate=="CD"){
     control$init.method <- "CD"
@@ -635,7 +648,7 @@ ergm <- function(formula, response=NULL,
                           estimable=constrcheck$estimable,
                           network=nw,
                           reference=reference,
-                          newnetwork=nw,
+                          newnetwork = if(newnetwork != "none") nw,
                           formula=formula,
                           info=info,
                           constraints=constraints,
@@ -699,7 +712,7 @@ ergm <- function(formula, response=NULL,
     initialfit$estimable <- constrcheck$estimable
     initialfit$network <- nw
     initialfit$reference <- reference
-    initialfit$newnetwork <- nw
+    initialfit$newnetwork <- if(newnetwork != "none") nw
     initialfit$formula <- formula
     initialfit$constraints <- constraints
     initialfit$obs.constraints <- obs.constraints 
@@ -783,6 +796,9 @@ ergm <- function(formula, response=NULL,
     message("Evaluating log-likelihood at the estimate. ", appendLF=FALSE)
     mainfit<-logLik(mainfit, add=TRUE, control=control$loglik, verbose=verbose)
   }
+
+  if(newnetwork == "none") mainfit$newnetwork <- NULL
+  if(newnetwork != "all") mainfit$newnetworks <- NULL
     
   if (MCMCflag) {
     message(paste(strwrap("This model was fit using MCMC.  To examine model diagnostics and check for degeneracy, use the mcmc.diagnostics() function."),collapse="\n"))

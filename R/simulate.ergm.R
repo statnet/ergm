@@ -599,8 +599,9 @@ simulate.ergm_state_full <- function(object, nsim=1, seed=NULL,
 #'   the coefficients, the response attribute, the reference, the
 #'   constraints, and most simulation parameters from the model fit,
 #'   unless overridden by passing them explicitly. Unless overridden,
-#'   the simulation is initialized with a random draw from the fitted
-#'   model, saved by [ergm()].
+#'   the simulation is initialized with either a random draw from near
+#'   the fitted model saved by [ergm()] or, if unavailable, the
+#'   network to which the ERGM was fit.
 #' 
 #' @export
 simulate.ergm <- function(object, nsim=1, seed=NULL, 
@@ -610,7 +611,7 @@ simulate.ergm <- function(object, nsim=1, seed=NULL,
                           constraints=list(object$constraints, object$obs.constraints),
                           observational=FALSE,
                           monitor=NULL,
-                          basis=object$newnetwork,
+                          basis=NVL(object$newnetwork, object$network),
                           statsonly=FALSE,
                           esteq=FALSE,
                           output=c("network","stats","edgelist","ergm_state"),
