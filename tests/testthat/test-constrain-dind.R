@@ -85,8 +85,8 @@ test_dind_constr(y0, ~observed, Mmin, Mmax) # in the block OR unobserved
 
 test_that("Dyads() operator for directed networks", {
   data(sampson)
-  fix_g <- coef(ergm(samplike~edges, constraints=~Dyads(~nodematch("group")), control=control.ergm(force.main=TRUE, seed=0))) # Test MCMC.
-  vary_g <- coef(ergm(samplike~edges, constraints=~Dyads(vary=~nodematch("group"))))
+  fix_g <- coef(fix_g_mcmc <- ergm(samplike~edges, constraints=~Dyads(~nodematch("group")), control=control.ergm(force.main=TRUE, seed=0))) # Test MCMC.
+  vary_g <- coef(vary_g_mple <- ergm(samplike~edges, constraints=~Dyads(vary=~nodematch("group"))))
   fix_g_and_c <- coef(ergm(samplike~edges, constraints=~Dyads(~nodematch("group")+nodematch("cloisterville"))))
   fix_g_vary_c <- coef(ergm(samplike~edges, constraints=~Dyads(~nodematch("group"),~nodematch("cloisterville"))))
   vary_g_or_c <- coef(ergm(samplike~edges, constraints=~Dyads(vary=~nodematch("group")+nodematch("cloisterville"))))
@@ -96,6 +96,15 @@ test_that("Dyads() operator for directed networks", {
   g <- outer(samplike%v%"group",samplike%v%"group",FUN=`==`)
   c <- outer(samplike%v%"cloisterville",samplike%v%"cloisterville",FUN=`==`)
   n <- network.size(samplike)
+
+  expect_true(is.dyad.independent(fix_g_mcmc))
+  expect_true(is.dyad.independent(fix_g_mcmc, "space"))
+  expect_true(is.dyad.independent(fix_g_mcmc, "terms"))
+  expect_true(is.dyad.independent(vary_g_mple))
+  expect_true(is.dyad.independent(vary_g_mple, "space"))
+  expect_true(is.dyad.independent(vary_g_mple, "terms"))
+  expect_false(is.na(fix_g_mcmc))
+  expect_false(is.na(vary_g_mple))
   expect_equal(fix_g,logit(sum((!g)*m)/(sum(!g))),tolerance=0.03,ignore_attr=TRUE)
   expect_equal(vary_g,logit(sum(g*m)/(sum(g)-n)),ignore_attr=TRUE)
   expect_equal(fix_g_and_c,logit(sum((!g&!c)*m)/(sum(!g&!c))),ignore_attr=TRUE)

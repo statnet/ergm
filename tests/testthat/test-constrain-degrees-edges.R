@@ -21,6 +21,16 @@ e <- function(nw) network.edgecount(nw)
 
 y0 <- as.network(n, density=d, directed=TRUE)
 
+test_that("is.dyad.independent(ergm) accessor granularity", {
+  fit <- suppressWarnings(ergm(y0~sender(nodes=TRUE)+receiver(nodes=TRUE), constraints=~odegrees, estimate="CD",
+                               control=control.ergm(CD.maxit=2, CD.nsteps=1, CD.samplesize.per_theta = 10)))
+  expect_true(is.dyad.independent(fit, "terms"))
+  expect_false(is.dyad.independent(fit, "space"))
+  expect_false(is.dyad.independent(fit))
+  expect_false(is.na(fit))
+  expect_false(anyNA(fit))
+})
+
 test_that("degrees edges constriant with constraint = outdegree on a directed network", {
   ys <- simulate(y0~sender(nodes=TRUE)+receiver(nodes=TRUE), constraints=~odegrees, coef=rep(0,n*2), nsim=nsim, output="stats")
   expect_true(all(sweep(ys[,1:n], 2, od(y0))==0))
