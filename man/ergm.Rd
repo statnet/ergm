@@ -215,7 +215,6 @@ family model)}
 \item{formula}{The original \code{\link{formula}} entered into the \code{\link{ergm}} function.}
 \item{target.stats}{The target.stats used during estimation (passed through from the Arguments)}
 \item{target.esteq}{Used for curved models to preserve the target mean values of the curved terms. It is identical to target.stats for non-curved models.}
-\item{constrained}{The list of constraints implied by the constraints used by original \code{ergm} call}
 \item{constraints}{Constraints used during estimation (passed through from the Arguments)}
 \item{reference}{The reference measure used during estimation (passed through from the Arguments)}
 \item{estimate}{The estimation method used (passed through from the Arguments).}
@@ -237,6 +236,18 @@ corresponding statistics on the observed network, and how:
 estimated due to a \code{constraints} constraint fixing that term at a
 constant value.
 }
+
+\item{info}{A list with miscellaneous information that would typically be accessed by the user via methods; in general, it should not be accessed directly. Current elements include: \describe{
+
+\item{\code{terms_dind}}{Logical indicator of whether the model terms are all dyad-independent.}
+
+\item{\code{space_dind}}{Logical indicator of whether the sample space (constraints) are all dyad-independent.}
+
+\item{\code{n_info_dyads}}{Number of \dQuote{informative} dyads: those that are observed (not missing) \emph{and} not constrained by sample space constraints; one of the measures of sample size.}
+
+\item{\code{valued}}{Logical indicator of whether the model is valued.}
+
+}}
 
 \item{null.lik}{Log-likelihood of the null model. Valid only for
 unconstrained models.}

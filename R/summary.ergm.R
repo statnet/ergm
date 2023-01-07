@@ -144,7 +144,7 @@ summary.ergm <- function (object, ...,
     ans$null.lik.0 <- is.na(null.lik)
 
     df <- length(coef)
-    dyads<- sum(as.rlebdm(object$constrained, object$constrained.obs, which="informative"))
+    dyads <- nobs(object)
     rdf <- dyads - df
     ans$devtable <- matrix(c(if(is.na(null.lik)) 0 else -2*null.lik, -2*mle.lik,
                              c(dyads, rdf)), 2,2, dimnames=list(c("Null","Residual"),

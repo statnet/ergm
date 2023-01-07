@@ -16,7 +16,7 @@ is.dyad.independent(object, ...)
 
 \method{is.dyad.independent}{ergm_conlist}(object, object.obs = NULL, ...)
 
-\method{is.dyad.independent}{ergm}(object, ...)
+\method{is.dyad.independent}{ergm}(object, how = c("overall", "terms", "space"), ...)
 }
 \arguments{
 \item{object}{The object to be tested for dyadic independence.}
@@ -36,6 +36,10 @@ is.dyad.independent(object, ...)
 \item{basis}{See \code{\link{ergm}}.}
 
 \item{object.obs}{For the \code{\link{ergm_conlist}} method, the observed data constraint.}
+
+\item{how}{one of \code{"overall"} (the default), \code{"terms"}, or
+"\code{space}", to specify which aspect of the ERGM is to be tested
+for dyadic independence.}
 }
 \value{
 \code{TRUE} if the model implied by the object is

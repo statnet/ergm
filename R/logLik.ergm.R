@@ -109,8 +109,8 @@ logLik.ergm<-function(object, add=FALSE, force.reeval=FALSE, eval.loglik=add || 
          && !is.valued(object)))
       structure(mple.lik, vcov = 0)
     ## If dyad-dependent but not valued and has a dyad-independent constraint, bridge from a dyad-independent model.
-    else if(is.dyad.independent(object$constrained, object$constrained.obs)
-                   && !is.valued(object))
+    else if(is.dyad.independent(object, "space")
+            && !is.valued(object))
       ergm.bridge.dindstart.llk(formula,reference=reference,constraints=constraints,obs.constraints=obs.constraints,coef=coef(object),target.stats=object$target.stats,control=control.bridge,llkonly=FALSE,...,verbose=verbose)
     ## If valued or has dyad-dependent constraint, bridge from the null model (reference measure).
     else
@@ -176,7 +176,7 @@ logLikNull.ergm <- function(object, control=control.logLik.ergm(), ...){
     if(is.valued(object)){
       message(paste(strwrap(paste("Note: Null model likelihood calculation is not implemented for valued ERGMs at this time. ", NO_NULL_IMPLICATION)), collapse="\n"))
       NA
-    }else if(!is.dyad.independent(object$constrained, object$constrained.obs)){
+    }else if(!is.dyad.independent(object, "space")){
       message(paste(strwrap(paste("Note: The constraint on the sample space is not dyad-independent. Null model likelihood is only implemented for dyad-independent constraints at this time. Number of observations is similarly poorly defined. ", NO_NULL_IMPLICATION)), collapse="\n"))
       NA
     }else nobs * log(1/2)
@@ -196,14 +196,15 @@ nobs.ergm <- function(object, ...){
   # and partially observed network "degrees of freedom". PROGRESS: We
   # can handle dyad-independent ones fine, now.
   
-  if(!is.dyad.independent(object$constrained, object$constrained.obs)
+  if(!is.dyad.independent(object, "space")
      && getOption("ergm.loglik.warn_dyads")){
     warning("The number of observed dyads in this network is ill-defined due to complex constraints on the sample space. Disable this warning with ",sQuote("options(ergm.loglik.warn_dyads=FALSE)"),".")
   }
-  
+
+  # TODO: Remove the as.rlebdm() approach at the same time as as.rlebdm.ergm().
   NVL3(NVL(object$mple.null.lik, object$mple.lik, object$null.lik, object$mle.lik),
        attr(.,"nobs"),
-       sum(as.rlebdm(object, which="informative")))
+       NVL(object$info$n_info_dyads, sum(as.rlebdm(object, which="informative"))))
 }
 
 NO_NULL_IMPLICATION <- "This means that all likelihood-based inference (LRT, Analysis of Deviance, AIC, BIC, etc.) is only valid between models with the same reference distribution and constraints."

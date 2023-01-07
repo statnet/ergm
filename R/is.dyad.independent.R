@@ -77,11 +77,17 @@ is.dyad.independent.ergm_conlist <- function(object, object.obs=NULL, ...){
 }
 
 #' @rdname is.dyad.independent
+#' @param how one of `"overall"` (the default), `"terms"`, or
+#'   "`space`", to specify which aspect of the ERGM is to be tested
+#'   for dyadic independence.
 #' @export
-is.dyad.independent.ergm<-function(object,...){
-  NVL(object$MPLE_is_MLE,
-      with(object,
-           is.dyad.independent(formula,basis=network,...)
-           && is.dyad.independent(object$constrained, object$constrained.obs))
-      )
+is.dyad.independent.ergm<-function(object, how = c("overall", "terms", "space"), ...){
+  how <- match.arg(how)
+  if(how %in% c("overall", "terms")) terms_dind <- NVL(object$info$terms_dind, is.dyad.independent(object$formula, basis=object$network,...))
+  if(how %in% c("overall", "space")) space_dind <- NVL(object$info$space_dind, is.dyad.independent(object$constrained, object$constrained.obs))
+
+  switch(how,
+         overall = terms_dind && space_dind,
+         terms = terms_dind,
+         space = space_dind)
 }

@@ -277,22 +277,7 @@ compress.rlebdm <- function(x, ...){
   structure(y, n=attr(x, "n"), class=class(x))
 }
 
-
-#' Extract dyad-level ERGM constraint information from an [`ergm`] fit
-#' into an [`rlebdm`] object
-#'
-#' This is a thin wrapper around [as.rlebdm.ergm_conlist()].
-#'
-#' @param x an [`ergm`] fit.
-#'
-#' @param ... additional arguments passed on to
-#'   [as.rlebdm.ergm_conlist()]; note, in particular, the `which=`
-#'   argument.
-#'
-#' @seealso [as.rlebdm.ergm_conlist()]
-#'
-#' @keywords internal
-#' @export
+# TODO: Remove this after the next release.
 as.rlebdm.ergm <- function(x, ...){
   as.rlebdm(x$constrained, x$constrained.obs, ...)
 }

@@ -146,7 +146,6 @@
 #' \item{formula}{The original \code{\link{formula}} entered into the \code{\link{ergm}} function.}
 #' \item{target.stats}{The target.stats used during estimation (passed through from the Arguments)}
 #' \item{target.esteq}{Used for curved models to preserve the target mean values of the curved terms. It is identical to target.stats for non-curved models.}
-#' \item{constrained}{The list of constraints implied by the constraints used by original \code{ergm} call}
 #' \item{constraints}{Constraints used during estimation (passed through from the Arguments)}
 #' \item{reference}{The reference measure used during estimation (passed through from the Arguments)}
 #' \item{estimate}{The estimation method used (passed through from the Arguments).}
@@ -168,6 +167,18 @@
 #' estimated due to a \code{constraints} constraint fixing that term at a
 #' constant value.
 #' }
+#'
+#' \item{info}{A list with miscellaneous information that would typically be accessed by the user via methods; in general, it should not be accessed directly. Current elements include: \describe{
+#'
+#' \item{`terms_dind`}{Logical indicator of whether the model terms are all dyad-independent.}
+#'
+#' \item{`space_dind`}{Logical indicator of whether the sample space (constraints) are all dyad-independent.}
+#'
+#' \item{`n_info_dyads`}{Number of \dQuote{informative} dyads: those that are observed (not missing) *and* not constrained by sample space constraints; one of the measures of sample size.}
+#'
+#' \item{`valued`}{Logical indicator of whether the model is valued.}
+#'
+#' }}
 #' 
 #' \item{null.lik}{Log-likelihood of the null model. Valid only for
 #' unconstrained models.}
@@ -464,6 +475,13 @@ ergm <- function(formula, response=NULL,
       }else if(verbose) message(".")
     }else proposal.obs <- NULL
   }else proposal.obs <- obs.constraints
+
+  info <- list(
+    terms_dind = is.dyad.independent(model),
+    space_dind = is.dyad.independent(proposal$arguments$constraints, proposal.obs$arguments$constraints),
+    n_info_dyads = if(!control$MPLE.constraints.ignore) sum(as.rlebdm(proposal$arguments$constraints, proposal.obs$arguments$constraints, which="informative")) else NA,
+    valued = is.valued(nw)
+  )
   
   ## Construct approximate response network if target.stats are given.
   if(!is.null(target.stats)){
@@ -524,8 +542,7 @@ ergm <- function(formula, response=NULL,
   # TODO: Create a flexible and general framework to manage methods
   # for obtaining initial values.
   init.candidates <- proposal$reference$init_methods
-  if("MPLE" %in% init.candidates && !is.dyad.independent(proposal$arguments$constraints,
-                                                         proposal.obs$arguments$constraints)){
+  if("MPLE" %in% init.candidates && !info$space_dind){
     init.candidates <- init.candidates[init.candidates!="MPLE"]
     if(verbose) message("MPLE cannot be used for this constraint structure.")
   }
@@ -588,10 +605,9 @@ ergm <- function(formula, response=NULL,
   if (verbose) { message("Fitting initial model.") }
   
   MPLE.is.MLE <- (proposal$reference$name=="Bernoulli"
-                  && is.dyad.independent(model)
+                  && info$terms_dind
                   && !control$force.main
-                  && is.dyad.independent(proposal$arguments$constraints,
-                                         proposal.obs$arguments$constraints))
+                  && info$space_dind)
   
   # If all other criteria for MPLE=MLE are met, _and_ SAN network matches target.stats directly, we can get away with MPLE.
   if (!is.null(target.stats) && !isTRUE(all.equal(target.stats[!is.na(target.stats)],nw.stats[!is.na(target.stats)]))) message("Unable to match target stats. Using MCMLE estimation.")
@@ -618,8 +634,7 @@ ergm <- function(formula, response=NULL,
                           reference=reference,
                           newnetwork=nw,
                           formula=formula,
-                          constrained=proposal$arguments$constraints,
-                          constrained.obs=proposal.obs$arguments$constraints,
+                          info=info,
                           constraints=constraints,
                           target.stats=target.stats,
                           target.esteq=if(!is.null(target.stats)) ergm.estfun(rbind(target.stats), control$init, model),
@@ -675,6 +690,7 @@ ergm <- function(formula, response=NULL,
     initialfit$call <- ergm_call
     initialfit$ergm_version <- packageVersion("ergm")
     initialfit$offset <- model$etamap$offsettheta
+    initialfit$info <- info
     initialfit$MPLE_is_MLE <- MPLE.is.MLE
     initialfit$drop <- if(control$drop) extremecheck$extremeval.theta
     initialfit$estimable <- constrcheck$estimable
@@ -682,8 +698,6 @@ ergm <- function(formula, response=NULL,
     initialfit$reference <- reference
     initialfit$newnetwork <- nw
     initialfit$formula <- formula
-    initialfit$constrained <- proposal$arguments$constraints
-    initialfit$constrained.obs <- proposal.obs$arguments$constraints
     initialfit$constraints <- constraints
     initialfit$obs.constraints <- obs.constraints 
     initialfit$target.stats <- suppressWarnings(na.omit(model$target.stats))
@@ -736,6 +750,7 @@ ergm <- function(formula, response=NULL,
   
   mainfit$call <- ergm_call
   mainfit$ergm_version <- packageVersion("ergm")
+  mainfit$info <- info
   mainfit$MPLE_is_MLE <- MPLE.is.MLE
   
   mainfit$formula <- formula
@@ -743,8 +758,6 @@ ergm <- function(formula, response=NULL,
   mainfit$nw.stats <- model$nw.stats
   mainfit$target.esteq <- suppressWarnings(na.omit(if(!is.null(model$target.stats)) ergm.estfun(rbind(model$target.stats), coef(mainfit), model)))
   
-  mainfit$constrained <- proposal$arguments$constraints
-  mainfit$constrained.obs <- proposal.obs$arguments$constraints
   mainfit$constraints <- constraints
   mainfit$obs.constraints <- obs.constraints
   
