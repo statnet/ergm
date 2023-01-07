@@ -16,7 +16,7 @@
 #'
 #' @order 1
 #'
-#' @param object an object of class "ergm", usually, a result of a call to
+#' @param object an object of class `ergm`, usually, a result of a call to
 #'   [ergm()].
 #' @param correlation logical; if `TRUE`, the correlation matrix of the
 #'   estimated parameters is returned and printed.

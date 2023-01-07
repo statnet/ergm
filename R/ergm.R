@@ -176,6 +176,8 @@
 #'
 #' \item{`n_info_dyads`}{Number of \dQuote{informative} dyads: those that are observed (not missing) *and* not constrained by sample space constraints; one of the measures of sample size.}
 #'
+#' \item{`obs`}{Logical indicator of whether an observational (missing data) process was involved in estimation.}
+#'
 #' \item{`valued`}{Logical indicator of whether the model is valued.}
 #'
 #' }}
@@ -480,6 +482,7 @@ ergm <- function(formula, response=NULL,
     terms_dind = is.dyad.independent(model),
     space_dind = is.dyad.independent(proposal$arguments$constraints, proposal.obs$arguments$constraints),
     n_info_dyads = if(!control$MPLE.constraints.ignore) sum(as.rlebdm(proposal$arguments$constraints, proposal.obs$arguments$constraints, which="informative")) else NA,
+    obs = !is.null(proposal.obs),
     valued = is.valued(nw)
   )
   

@@ -32,7 +32,7 @@
 )
 }
 \arguments{
-\item{object}{an object of class "ergm", usually, a result of a call to
+\item{object}{an object of class \code{ergm}, usually, a result of a call to
 \code{\link[=ergm]{ergm()}}.}
 
 \item{...}{For \code{\link[=summary.ergm]{summary.ergm()}} additional arguments are passed to

@@ -154,6 +154,7 @@ Collate:
     'is.curved.R'
     'is.dyad.independent.R'
     'is.inCH.R'
+    'is.na.ergm.R'
     'is.valued.R'
     'logLik.ergm.R'
     'mcmc.diagnostics.ergm.R'
