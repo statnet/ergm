@@ -32,7 +32,7 @@ test_that("gof() of a model that had term options",{
   expect_error(gof(e2, control=control.gof.ergm(nsim=10)), NA)
 })
 
-options(ergm.eval.loglik=FALSE)
+old.opts2 <- options(ergm.eval.loglik=FALSE)
 e3 <- ergm(flobusiness~.edges_times, target.stats=as.vector(summary(flomarriage~edges)/2), control=control.ergm(seed=0,force.main=TRUE,term.options=list(times=2)))
 test_that("ergm() for a model with term options and mean-value parameters and log-likelihood calculation off via a global option",{
   expect_equal(coef(e2),coef(e1), tolerance=.05, ignore_attr=TRUE)
@@ -40,16 +40,18 @@ test_that("ergm() for a model with term options and mean-value parameters and lo
 })
 
 data(sampson)
-old.opts2 <- options(ergm.term=list(times=2))
+old.opts3 <- options(ergm.term=list(times=2))
 test_that("summary() with term options globally set",{
   expect_equal(summary(samplike~.edges_times),summary(samplike~edges)*times, ignore_attr=TRUE)
 })
 
 
-old.opts3 <- options(ergm.term=list(times=1))
+old.opts4 <- options(ergm.term=list(times=1))
 test_that("control parameter overrides global setting",{
   expect_equal(summary(samplike~.edges_times, term.options=list(times=2)),summary(samplike~edges)*times, ignore_attr=TRUE)
 })
+
+options(old.opts4)
 options(old.opts3)
 options(old.opts2)
 options(old.opts1)
