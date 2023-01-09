@@ -154,10 +154,12 @@
 #' @param SA.burnin,SA.interval,SA.samplesize Sets the corresponding
 #'   `MCMC.*` parameters when `main.method="Stochastic-Approximation"`.
 #'
-#' @param MCMC.return.stats Logical: If TRUE, return the matrix of MCMC-sampled
-#' network statistics.  This matrix should have \code{MCMC.samplesize} rows.
-#' This matrix can be used directly by the \code{coda} package to assess MCMC
-#' convergence.
+#' @param MCMC.return.stats Numeric: If positive, include an
+#'   [`mcmc.list`] (two, if observational process was involved) of
+#'   MCMC network statistics from the last iteration of network of the
+#'   estimation. They will be thinned to have length of at most
+#'   `MCMC.return.stats`. They are used for MCMC diagnostics.
+#'
 #' @param MCMC.runtime.traceplot Logical: If `TRUE`, plot traceplots of the MCMC
 #' sample after every MCMC MLE iteration.
 #' @template control_MCMC_maxedges
@@ -479,7 +481,7 @@ control.ergm<-function(drop=TRUE,
                        MCMC.effectiveSize.burnin.PC=FALSE,
                        MCMC.effectiveSize.burnin.scl=32,
                        MCMC.effectiveSize.order.max=NULL,
-                       MCMC.return.stats=TRUE,
+                       MCMC.return.stats=2^12,
                        MCMC.runtime.traceplot=FALSE,
                        MCMC.maxedges=Inf,
                        MCMC.addto.se=TRUE,

@@ -789,8 +789,17 @@ ergm <- function(formula, response=NULL,
   mainfit$estimable <- constrcheck$estimable
   mainfit$etamap <- model$etamap
 
-  if (!control$MCMC.return.stats)
-    mainfit$sample <- NULL
+  if(control$MCMC.return.stats == 0) mainfit$sample <- mainfit$sample.obs <- NULL
+  else{ # Thin the chains.
+    mainfit$sample <- NVL3(mainfit$sample, {
+      w <- window(., thin = thin(.) * (et <- max(ceiling(niter(.) / control$MCMC.return.stats), 1)))
+      structure(w, extra_thin = et)
+    })
+    mainfit$sample.obs <- NVL3(mainfit$sample.obs, {
+      w <- window(., thin = thin(.) * (et <- max(ceiling(niter(.) / control$MCMC.return.stats), 1)))
+      structure(w, extra_thin = et)
+    })
+  }
 
   if(eval.loglik){
     message("Evaluating log-likelihood at the estimate. ", appendLF=FALSE)

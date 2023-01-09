@@ -38,7 +38,7 @@ control.ergm(
   MCMC.effectiveSize.burnin.PC = FALSE,
   MCMC.effectiveSize.burnin.scl = 32,
   MCMC.effectiveSize.order.max = NULL,
-  MCMC.return.stats = TRUE,
+  MCMC.return.stats = 2^12,
   MCMC.runtime.traceplot = FALSE,
   MCMC.maxedges = Inf,
   MCMC.addto.se = TRUE,
@@ -355,10 +355,11 @@ falls below that, while doubling
 set the order of the AR model used to estimate the effective
 sample size and the variance for the Geweke diagnostic.}
 
-\item{MCMC.return.stats}{Logical: If TRUE, return the matrix of MCMC-sampled
-network statistics.  This matrix should have \code{MCMC.samplesize} rows.
-This matrix can be used directly by the \code{coda} package to assess MCMC
-convergence.}
+\item{MCMC.return.stats}{Numeric: If positive, include an
+\code{\link{mcmc.list}} (two, if observational process was involved) of
+MCMC network statistics from the last iteration of network of the
+estimation. They will be thinned to have length of at most
+\code{MCMC.return.stats}. They are used for MCMC diagnostics.}
 
 \item{MCMC.runtime.traceplot}{Logical: If \code{TRUE}, plot traceplots of the MCMC
 sample after every MCMC MLE iteration.}
