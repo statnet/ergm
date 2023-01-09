@@ -21,25 +21,14 @@
 # 
 ###############################################################################
 
-
-
-#' @describeIn ergm
+#' @describeIn ergm Print the call, the estimate, and the method used to obtain it.
 #'
 #' @param x,digits See [print()].
-#' 
-#' Automatically called when an object of class \code{\link{ergm}} is printed.
-#' Currently, summarizes the size of the MCMC sample, the \eqn{\theta}
-#' vector governing the selection of the sample, and the Monte Carlo MLE. The optional `digits` argument specifies the significant digits for coefficients
+#'
 #' @export
 print.ergm <- function (x, digits = max(3, getOption("digits") - 3), ...) {
   # The following code is based on stats:::print.lm(), but there really isn't another concise way to do this:
   if(!is.null(x$call)) cat("\nCall:\n", paste(deparse(x$call), sep="\n", collapse="\n"), "\n", sep="")
-
-  if(is.mcmc.list(x$sample)){
-    cat("\nLast MCMC sample of size", niter(x$sample)*nchain(x$sample), "based on:\n")
-    print.default(format(x$MCMCtheta, digits = digits), print.gap = 2, ...,
-                  quote = FALSE)
-  }
 
   cat("\n",x$estimate.desc," Coefficients:\n",sep="")
   print.default(format(coef(x), digits = digits), print.gap = 2, ...,

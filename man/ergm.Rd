@@ -174,11 +174,7 @@ details.) Partial matching is supported.}
 
 \item{object}{{an \code{ergm} object.}}
 
-\item{x, digits}{See \code{\link[=print]{print()}}.
-
-Automatically called when an object of class \code{\link{ergm}} is printed.
-Currently, summarizes the size of the MCMC sample, the \eqn{\theta}
-vector governing the selection of the sample, and the Monte Carlo MLE. The optional \code{digits} argument specifies the significant digits for coefficients}
+\item{x, digits}{See \code{\link[=print]{print()}}.}
 
 \item{sources}{For the \code{vcov} method, specify whether to return
 the covariance matrix from the ERGM model, the estimation
@@ -296,7 +292,7 @@ on a similar scheme.
 
 \item \code{nobs(ergm)}: Return the number of informative dyads of a model fit.
 
-\item \code{print(ergm)}: 
+\item \code{print(ergm)}: Print the call, the estimate, and the method used to obtain it.
 
 \item \code{vcov(ergm)}: extracts the variance-covariance matrix of
 parameter estimates.
