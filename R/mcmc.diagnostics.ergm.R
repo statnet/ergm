@@ -170,13 +170,20 @@ mcmc.diagnostics.default <- function(object, ...) {
 #' } Partial matching is supported. (E.g., `which=c("auto","cross")`
 #' will print autocorrelation and cross-correlations.)
 #'
+#' @param compact Numeric: For diagnostics that print variables in
+#'   columns (e.g. correlations, hypothesis test p-values), try to
+#'   abbreviate variable names to this many characters and round the
+#'   numbers to `compact - 2` digits after the decimal point; 0 or
+#'   `FALSE` for no abbreviation.
+#'
 #' @import coda
 #' @export
 mcmc.diagnostics.ergm <- function(object,
                                   center=TRUE,
                                   esteq=TRUE,
                                   vars.per.page=3,
-                                  which=c("plots", "texts", "summary", "autocorrelation", "crosscorrelation", "burnin"), ...) {
+                                  which=c("plots", "texts", "summary", "autocorrelation", "crosscorrelation", "burnin"),
+                                  compact = FALSE, ...) {
 
   which <- match.arg(which, several.ok=TRUE)
   if("texts" %in% which) which <- c(which, "summary", "autocorrelation", "crosscorrelation", "burnin")
@@ -186,7 +193,9 @@ mcmc.diagnostics.ergm <- function(object,
   # used here rather than $sample is because there is an unlikely
   # possibility that $sample doesn't exist but $sample.obs does.
   sm <- NVL3(object[["sample"]], as.mcmc.list(.))
+  sm_thin <- attr(object[["sample"]], "extra_thin")
   sm.obs <- NVL3(object[["sample.obs"]], as.mcmc.list(.))
+  sm_thin.obs <- attr(object[["sample.obs"]], "extra_thin")
 
   if(is.null(sm)) stop("MCMC was not run or MCMC sample was not stored.")
 
@@ -212,14 +221,35 @@ mcmc.diagnostics.ergm <- function(object,
     }
   }
 
+  if("plots" %in% which){
+    if(requireNamespace('latticeExtra', quietly=TRUE)){
+      print(ergm_plot.mcmc.list(sm,main="Sample statistics",vars.per.page=vars.per.page,...))
+      if(!is.null(sm.obs)) print(ergm_plot.mcmc.list(sm.obs,main="Constrained sample statistics",vars.per.page=vars.per.page,...))
+    }else{
+      plot(sm,...)
+      if(!is.null(sm.obs)) plot(sm.obs,...)
+    }
+  }
+
   if("summary" %in% which){
     cat("Sample statistics summary:\n")
     print(summary(sm))
+
     if(!is.null(sm.obs)){
       cat("Constrained sample statistics summary:\n")
       print(summary(sm.obs))
     }
+  }
 
+  if(compact){
+    varnames(sm) <- abbreviate(varnames(sm), compact, use.classes=FALSE, method="both.sides")
+
+    if(!is.null(sm.obs)){
+      varnames(sm.obs) <- abbreviate(varnames(sm.obs), compact, use.classes=FALSE, methods="both.sides")
+    }
+  }else compact <- getOption("digits")+2
+
+  if("summary" %in% which){
     # only show if we are using Hotelling termination criterion
     if(EVL(object$control$MCMLE.termination %in% c("Hotelling","precision","confidence"), TRUE)){
       # This can probably be improved.
@@ -256,18 +286,18 @@ mcmc.diagnostics.ergm <- function(object,
 
       m <- rbind(c(ds,NA),c(z,overall.test$statistic),c(p.z,overall.test$p.value))
       rownames(m) <- c("diff.","test stat.","P-val.")
-      colnames(m) <- c(varnames(sm),"Overall (Chi^2)")
-      print(m)
+      colnames(m) <- c(varnames(sm), if(compact) "(Omni)" else "Omnibus (chi^2)")
+      print(m, digits=compact-2)
     }
     # End simulated vs. observed test.
   }
 
   if("crosscorrelation" %in% which){
     cat("\nSample statistics cross-correlations:\n")
-    print(crosscorr(sm))
+    print(crosscorr(sm), digits=compact-2)
     if(!is.null(sm.obs)){
       cat("Constrained sample statistics cross-correlations:\n")
-      print(crosscorr(sm.obs))
+      print(crosscorr(sm.obs), digits=compact-2)
     }
 
     cat("\nSample statistics auto-correlation:\n")
@@ -277,7 +307,7 @@ mcmc.diagnostics.ergm <- function(object,
                  function(i) ac[,i,i])
       colnames(ac)<-varnames(sm)
       cat("Chain", chain, "\n")
-      print(ac)
+      print(ac, digits=compact-2)
     }
     if(!is.null(sm.obs)){
       cat("Constrained sample statistics auto-correlation:\n")
@@ -287,7 +317,7 @@ mcmc.diagnostics.ergm <- function(object,
                    function(i) ac[,i,i])
         colnames(ac)<-varnames(sm.obs)
         cat("Chain", chain, "\n")
-        print(ac)
+        print(ac, digits=compact-2)
       }
     }
   }
@@ -299,10 +329,10 @@ mcmc.diagnostics.ergm <- function(object,
     if(!("try-error" %in% class(sm.gws))){
       for(chain in seq_along(sm.gw)){
         cat("Chain", chain, "\n")
-        print(sm.gw[[chain]])
+        print(sm.gw[[chain]], digits=compact-2)
         cat("Individual P-values (lower = worse):\n")
-        print(2*pnorm(abs(sm.gw[[chain]]$z),lower.tail=FALSE))
-        cat("Joint P-value (lower = worse): ", sm.gws[[chain]]$p.value,".\n")
+        print(2*pnorm(abs(sm.gw[[chain]]$z),lower.tail=FALSE), digits=compact-2)
+        cat("Joint P-value (lower = worse): ", format(sm.gws[[chain]]$p.value, digits=compact-2),"\n")
       }
     }
     if(!is.null(sm.obs)){
@@ -312,26 +342,21 @@ mcmc.diagnostics.ergm <- function(object,
       if(!("try-error" %in% class(sm.obs.gws))){
         for(chain in seq_along(sm.obs.gw)){
           cat("Chain", chain, "\n")
-          print(sm.obs.gw[[chain]])
+          print(sm.obs.gw[[chain]], digits=compact-2)
           cat("P-values (lower = worse):\n")
-          print(2*pnorm(abs(sm.obs.gw[[chain]]$z),lower.tail=FALSE))
-          cat("Joint P-value (lower = worse): ", sm.gws[[chain]]$p.value,".\n")
+          print(2*pnorm(abs(sm.obs.gw[[chain]]$z),lower.tail=FALSE), digits=compact-2)
+          cat("Joint P-value (lower = worse): ", format(sm.gws[[chain]]$p.value, digits=compact-2),".\n")
         }
       }
     }
   }
 
-  if("plots" %in% which){
-    if(requireNamespace('latticeExtra', quietly=TRUE)){
-      print(ergm_plot.mcmc.list(sm,main="Sample statistics",vars.per.page=vars.per.page,...))
-      if(!is.null(sm.obs)) print(ergm_plot.mcmc.list(sm.obs,main="Constrained sample statistics",vars.per.page=vars.per.page,...))
-    }else{
-      plot(sm,...)
-      if(!is.null(sm.obs)) plot(sm.obs,...)
-    }
-  }
+  thin_note <- function(which, x, x_thin) if(NVL(x_thin, 1) != 1) writeLines(c("", strwrap(sprintf("Note: To save space, only one in every %d iterations of the%s MCMC sample used for estimation was stored for diagnostics. Sample size per chain was originally around %d with thinning interval %d.", x_thin, which, niter(x)*x_thin, thin(x)/x_thin), exdent = 2)))
 
-  cat("\nMCMC diagnostics shown here are from the last round of simulation, prior to computation of final parameter estimates. Because the final estimates are refinements of those used for this simulation run, these diagnostics may understate model performance. To directly assess the performance of the final model on in-model statistics, please use the GOF command: gof(ergmFitObject, GOF=~model).\n")
+  thin_note("", sm, sm_thin)
+  thin_note(" constrained", sm.obs, sm_thin.obs)
+
+  writeLines(c("", strwrap("Note: MCMC diagnostics shown here are from the last round of simulation, prior to computation of final parameter estimates. Because the final estimates are refinements of those used for this simulation run, these diagnostics may understate model performance. To directly assess the performance of the final model on in-model statistics, please use the GOF command: gof(ergmFitObject, GOF=~model).", exdent=2), ""))
 }
 
 #' Plot MCMC list using `lattice` package graphics

@@ -14,6 +14,7 @@ mcmc.diagnostics(object, ...)
   esteq = TRUE,
   vars.per.page = 3,
   which = c("plots", "texts", "summary", "autocorrelation", "crosscorrelation", "burnin"),
+  compact = FALSE,
   ...
 )
 }
@@ -55,6 +56,12 @@ plot and/or print. Defaults to all of the below if meaningful:
 
 } Partial matching is supported. (E.g., \code{which=c("auto","cross")}
 will print autocorrelation and cross-correlations.)}
+
+\item{compact}{Numeric: For diagnostics that print variables in
+columns (e.g. correlations, hypothesis test p-values), try to
+abbreviate variable names to this many characters and round the
+numbers to \code{compact - 2} digits after the decimal point; 0 or
+\code{FALSE} for no abbreviation.}
 }
 \description{
 This function prints diagnistic information and creates simple diagnostic
