@@ -51,7 +51,7 @@ Suggests:
     slam
 SystemRequirements: OpenMPI
 BugReports: https://github.com/statnet/ergm/issues
-Description: An integrated set of tools to analyze and simulate networks based on exponential-family random graph models (ERGMs). 'ergm' is a part of the Statnet suite of packages for network analysis. See Hunter, Handcock, Butts, Goodreau, and Morris (2008) <doi:10.18637/jss.v024.i03> and Krivitsky, Hunter, Morris, and Klumb (2021) <arXiv:2106.04997>.
+Description: An integrated set of tools to analyze and simulate networks based on exponential-family random graph models (ERGMs). 'ergm' is a part of the Statnet suite of packages for network analysis. See Hunter, Handcock, Butts, Goodreau, and Morris (2008) <doi:10.18637/jss.v024.i03> and Krivitsky, Hunter, Morris, and Klumb (2023) <doi:10.18637/jss.v105.i06>.
 License: GPL-3 + file LICENSE
 License_is_FOSS: yes
 License_restricts_use: no
