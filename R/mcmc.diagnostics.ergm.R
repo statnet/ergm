@@ -242,10 +242,10 @@ mcmc.diagnostics.ergm <- function(object,
   }
 
   if(compact){
-    varnames(sm) <- abbreviate(varnames(sm), compact, use.classes=FALSE, method="both.sides")
+    varnames(sm) <- abbreviate(varnames(sm), compact)
 
     if(!is.null(sm.obs)){
-      varnames(sm.obs) <- abbreviate(varnames(sm.obs), compact, use.classes=FALSE, methods="both.sides")
+      varnames(sm.obs) <- abbreviate(varnames(sm.obs), compact)
     }
   }else compact <- getOption("digits")+2
 
