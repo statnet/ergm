@@ -18,7 +18,7 @@ Authors@R: c(
              person("Christian", "Schmid", role=c("ctb"), email="cxs5700@psu.edu"),
              person("Joyce", "Cheng", role=c("ctb"), email="joyce.cheng@student.unsw.edu.au"))
 Depends:
-    R (>= 4.1.3),
+    R (>= 4.1),
     network (>= 1.18.0)
 Imports:
     robustbase (>= 0.93.7),
