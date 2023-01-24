@@ -70,13 +70,17 @@ The network will not have vertex, edge or network attributes.  These
 can be added with operators such as \code{\%v\%}, \code{\%n\%}, \code{\%e\%}.
 }
 \examples{
+# Draw a random directed network with 25 nodes
+g <- network(25)
 
-#Draw a random directed network with 25 nodes
-g<-network(25)
-#Draw a random undirected network with density 0.1
-g<-network(25, directed=FALSE, density=0.1)
-#Draw a random bipartite network with 4 actors and 6 events and density 0.1
-g<-network(10, bipartite=4, density=0.1)
+# Draw a random undirected network with density 0.1
+g <- network(25, directed=FALSE, density=0.1)
+
+# Draw a random bipartite network with 4 actors and 6 events and density 0.1
+g <- network(10, bipartite=4, directed=FALSE, density=0.1)
+
+# Draw a random directed network with 25 nodes and 50 edges
+g <- network(25, numedges=50)
 }
 \references{
 Butts, C.T.  2002.  ``Memory Structures for Relational Data in
