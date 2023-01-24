@@ -46,13 +46,17 @@
 #' R: Classes and Interfaces'' Working Paper.
 #' @keywords classes graphs
 #' @examples
-#' 
-#' #Draw a random directed network with 25 nodes
-#' g<-network(25)
-#' #Draw a random undirected network with density 0.1
-#' g<-network(25, directed=FALSE, density=0.1)
-#' #Draw a random bipartite network with 4 actors and 6 events and density 0.1
-#' g<-network(10, bipartite=4, density=0.1)
+#' # Draw a random directed network with 25 nodes
+#' g <- network(25)
+#'
+#' # Draw a random undirected network with density 0.1
+#' g <- network(25, directed=FALSE, density=0.1)
+#'
+#' # Draw a random bipartite network with 4 actors and 6 events and density 0.1
+#' g <- network(10, bipartite=4, directed=FALSE, density=0.1)
+#'
+#' # Draw a random directed network with 25 nodes and 50 edges
+#' g <- network(25, numedges=50)
 #' @importFrom network as.network
 #' @export
 as.network.numeric<-function(x,
@@ -61,6 +65,21 @@ as.network.numeric<-function(x,
     ignore.eval = TRUE, names.eval = NULL,
     edge.check = FALSE,
     density=NULL, init=NULL, numedges=NULL, ...){
+  # Producing an informative error for each of the following invalid or unsupported inputs
+  if(loops || multiple || hyper)
+    stop("Generating multigraphs, or networks with self-loops or hyperedges is not supported at this time.")
+  if(NVL3(density, .<0 || .>1, FALSE))
+    stop("Density of graph cannot be either negative or greater then 1")
+  if(NVL3(numedges, round(.)!=., FALSE))
+    stop("The number of edges must be an integer")
+  ## # TODO: After network() with match.call() is on CRAN, enable this.
+  ## if(!missing(directed) && directed && bipartite != FALSE)
+  ##   stop("Generating directed bipartite networks is not supported at this time.")
+  ## if(bipartite!=FALSE && missing(directed)){
+  if(bipartite!=FALSE && directed){
+    directed <- FALSE
+    warning_once("Bipartite network specified: assuming undirected. Pass ", sQuote("directed=FALSE")," to silence this warning. This behavior may change in the future.")
+  }
   #returns a bernouli network.
   if(bipartite){
    nb2 <- x - bipartite
@@ -76,7 +95,13 @@ as.network.numeric<-function(x,
     ndyads <- nb1*nb2
   else
     ndyads <- nb1*(nb1-1)/2
-  
+
+  if(ndyads > 2^(53-4))
+    stop("The number of possible edges cannot be greater than 2^49.")
+
+  if(NVL(numedges, 0) > ndyads)
+    stop("The number of edges cannot be greater than the number of possible edges.")
+
   if(missing(density)){
     if(missing(init)){
       #     So the expected number of ties is the same as
@@ -86,22 +111,28 @@ as.network.numeric<-function(x,
       density <- exp(init)/(1+exp(init))
     }
   }
-  nw.mat <- matrix(0,nrow=nb1,ncol=nb2)
-  dimnames(nw.mat) <- list(1:nb1,1:nb2)
-  if(is.null(numedges)){
-    nwij <- runif(ndyads)<density
+
+  if(is.null(numedges))
+    numedges <- rbinom(1,ndyads,density)
+
+  index <- sample.int(ndyads, numedges)
+
+  if(directed){
+    tails <- (index %/% (nb2-1L)) + 1L - (index%%(nb2-1)==0L)
+    heads <- index - (tails-1L)*(nb2-1L)
+    heads <- heads + (heads>=tails)
+  }else if(bipartite){
+    heads <- index %% nb2
+    heads[heads==0L] <- nb2
+    tails <- 1L + ((index - heads)/nb2)
+    heads <- heads + nb1
   }else{
-    nwij <- rep(0,ndyads)
-    nwij[sample(1:ndyads,size=numedges,replace=FALSE)] <- 1
+    difvi <- ceiling(sqrt(8L*(ndyads - index)+9L))
+    tails <- nb2 - (difvi + (difvi%%2L==0L) - 1L)/2L
+    heads <- index + tails*(tails+1L)/2L - (tails-1L)*nb2
   }
-  if(directed)
-    nw.mat[row(nw.mat)!=col(nw.mat)] <- nwij
-  else if(bipartite)
-    nw.mat[,] <- nwij
-  else{
-    nw.mat[row(nw.mat) < col(nw.mat)] <- nwij
-    nw.mat <- nw.mat + t(nw.mat)
-  }
-  #Return the result
-  network(nw.mat,directed=directed, bipartite=bipartite>0)
+
+  el <- structure(cbind(as.integer(tails), as.integer(heads)),
+                  n = as.integer(x), bipartite = if(bipartite) as.integer(bipartite))
+  as.network(el, directed = directed, matrix.type = "edgelist")
 }
