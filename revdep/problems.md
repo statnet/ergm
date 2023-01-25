@@ -6,7 +6,7 @@
 * GitHub: NA
 * Source code: https://github.com/cran/Blaunet
 * Date/Publication: 2022-09-27 08:10:08 UTC
-* Number of recursive dependencies: 65
+* Number of recursive dependencies: 72
 
 Run `revdep_details(, "Blaunet")` for more info
 
@@ -26,11 +26,11 @@ Run `revdep_details(, "Blaunet")` for more info
 
 <details>
 
-* Version: 1.0.1
+* Version: 1.0.2
 * GitHub: https://github.com/tidymodels/broom
 * Source code: https://github.com/cran/broom
-* Date/Publication: 2022-08-29 21:00:08 UTC
-* Number of recursive dependencies: 293
+* Date/Publication: 2022-12-15 13:10:20 UTC
+* Number of recursive dependencies: 304
 
 Run `revdep_details(, "broom")` for more info
 
@@ -49,6 +49,45 @@ Run `revdep_details(, "broom")` for more info
     Packages unavailable to check Rd xrefs: ‘spatialreg’, ‘epiR’
     ```
 
+# EpiModel
+
+<details>
+
+* Version: 2.3.1
+* GitHub: https://github.com/EpiModel/EpiModel
+* Source code: https://github.com/cran/EpiModel
+* Date/Publication: 2022-10-01 12:00:02 UTC
+* Number of recursive dependencies: 106
+
+Run `revdep_details(, "EpiModel")` for more info
+
+</details>
+
+## Newly broken
+
+*   checking tests ...
+    ```
+      Running ‘test-all.R’
+     ERROR
+    Running the tests in ‘tests/test-all.R’ failed.
+    Last 13 lines of output:
+      
+          attr, order
+      
+      [ FAIL 1 | WARN 118 | SKIP 124 | PASS 487 ]
+      
+      ══ Skipped tests ═══════════════════════════════════════════════════════════════
+      • On CRAN (124)
+      
+      ══ Failed tests ════════════════════════════════════════════════════════════════
+      ── Failure ('test-scenarios.R:29'): SIS with scenarios ─────────────────────────
+      `netsim(est, sc.param, init, control)` produced warnings.
+      
+      [ FAIL 1 | WARN 118 | SKIP 124 | PASS 487 ]
+      Error: Test failures
+      Execution halted
+    ```
+
 # ergMargins
 
 <details>
@@ -57,7 +96,7 @@ Run `revdep_details(, "broom")` for more info
 * GitHub: NA
 * Source code: https://github.com/cran/ergMargins
 * Date/Publication: 2021-06-30 07:40:02 UTC
-* Number of recursive dependencies: 58
+* Number of recursive dependencies: 60
 
 Run `revdep_details(, "ergMargins")` for more info
 
@@ -85,7 +124,7 @@ Run `revdep_details(, "ergMargins")` for more info
 * GitHub: https://github.com/muriteams/ergmito
 * Source code: https://github.com/cran/ergmito
 * Date/Publication: 2020-08-10 21:40:02 UTC
-* Number of recursive dependencies: 65
+* Number of recursive dependencies: 66
 
 Run `revdep_details(, "ergmito")` for more info
 
@@ -98,6 +137,30 @@ Run `revdep_details(, "ergmito")` for more info
       installed size is  7.1Mb
       sub-directories of 1Mb or more:
         libs   5.7Mb
+    ```
+
+# fergm
+
+<details>
+
+* Version: 1.1.4
+* GitHub: https://github.com/benjamin-w-campbell/fergm
+* Source code: https://github.com/cran/fergm
+* Date/Publication: 2018-10-17 22:20:11 UTC
+* Number of recursive dependencies: 93
+
+Run `revdep_details(, "fergm")` for more info
+
+</details>
+
+## In both
+
+*   checking package dependencies ... ERROR
+    ```
+    Package required but not available: ‘rstan’
+    
+    See section ‘The DESCRIPTION file’ in the ‘Writing R Extensions’
+    manual.
     ```
 
 # gwdegree
@@ -137,7 +200,7 @@ Run `revdep_details(, "gwdegree")` for more info
 * GitHub: https://github.com/statnet/latentnet
 * Source code: https://github.com/cran/latentnet
 * Date/Publication: 2022-05-11 12:30:05 UTC
-* Number of recursive dependencies: 109
+* Number of recursive dependencies: 112
 
 Run `revdep_details(, "latentnet")` for more info
 
@@ -158,24 +221,19 @@ Run `revdep_details(, "latentnet")` for more info
 * GitHub: https://github.com/statnet/lolog
 * Source code: https://github.com/cran/lolog
 * Date/Publication: 2021-07-01 07:50:06 UTC
-* Number of recursive dependencies: 80
+* Number of recursive dependencies: 81
 
 Run `revdep_details(, "lolog")` for more info
 
 </details>
 
-## Newly broken
-
-*   R CMD check timed out
-    
-
 ## In both
 
 *   checking installed package size ... NOTE
     ```
-      installed size is 24.8Mb
+      installed size is 24.6Mb
       sub-directories of 1Mb or more:
-        libs  23.1Mb
+        libs  22.9Mb
     ```
 
 # netmediate
