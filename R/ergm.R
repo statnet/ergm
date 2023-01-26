@@ -24,7 +24,7 @@
 #' estimate, an approximate maximum likelihood estimate based on a Monte
 #' Carlo scheme, or an approximate contrastive divergence estimate based
 #' on a similar scheme.
-#' (For an overview of the package, see \code{\link{ergm-package}}.)
+#' (For an overview of the package \insertCite{HuHa08e,KrHu23e}{ergm}, see \code{\link{ergm-package}}.)
 #' 
 #' @param formula An \R \code{\link{formula}} object, of the form
 #'   \code{y ~ <model terms>}, where \code{y} is a
@@ -225,7 +225,8 @@
 #' The package is designed so that the user could conceivably add additional 
 #' proposal types. 
 #' 
-#' @references
+#' @references \insertAllCited{}
+#'
 #' Admiraal R, Handcock MS (2007).
 #' \pkg{networksis}: Simulate bipartite graphs with fixed
 #' marginals through sequential importance sampling.

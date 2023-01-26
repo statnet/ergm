@@ -282,7 +282,7 @@ normalizing constant for the distribution.
 estimate, an approximate maximum likelihood estimate based on a Monte
 Carlo scheme, or an approximate contrastive divergence estimate based
 on a similar scheme.
-(For an overview of the package, see \code{\link{ergm-package}}.)
+(For an overview of the package \insertCite{HuHa08e,KrHu23e}{ergm}, see \code{\link{ergm-package}}.)
 }
 \section{Methods (by generic)}{
 \itemize{
@@ -414,6 +414,8 @@ vcov(gest, sources="all") # the default
 }
 }
 \references{
+\insertAllCited{}
+
 Admiraal R, Handcock MS (2007).
 \pkg{networksis}: Simulate bipartite graphs with fixed
 marginals through sequential importance sampling.

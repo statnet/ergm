@@ -105,35 +105,28 @@ find the MPLE estimated ergm. It should not be called directly by
 the user.
 }
 \details{
-According to Hunter et al. (2008): "The maximizer of the pseudolikelihood
+According to \insertCite{HuHa08e;textual}{ergm}: "The maximizer of the pseudolikelihood
 may thus easily be found (at least in principle) by using logistic
 regression as a computational device." In order for this to work, the
 predictors of the logistic regression model must be calculated.  These are
-the change statistics as described in Section 3.2 of Hunter et al. (2008),
+the change statistics as described in Section 3.2 of \insertCite{HuHa08e;textual}{ergm},
 put into matrix form so that each pair of nodes is one row whose values are
 the vector of change statistics for that node pair.  The ergm.pl function
 computes these change statistics and the ergm.mple function implements the
-logistic regression using R's glm function.  Generally, neither ergm.mple
+logistic regression using \R's \code{\link[=glm]{glm()}} function.  Generally, neither ergm.mple
 nor ergm.pl should be called by users if the logistic regression output is
 desired; instead, use the \code{\link{ergmMPLE}} function.
 
 In the case where the ERGM is a dyadic independence model, the MPLE is the
-same as the MLE.  However, in general this is not the case and, as van Duijn
-et al. (2009) warn, the statistical properties of MPLEs in general are
+same as the MLE.  However, in general this is not the case and, as \insertCite{DuGi09f;textual}{ergm}
+warn, the statistical properties of MPLEs in general are
 somewhat mysterious.
 
 MPLE values are used even in the case of dyadic dependence models as
 starting points for the MCMC algorithm.
 }
 \references{
-Hunter DR, Handcock MS, Butts CT, Goodreau SM, Morris and
-Martina (2008).  "ergm: A Package to Fit, Simulate and Diagnose
-Exponential-Family Models for Networks." \emph{Journal of Statistical Software},
-\emph{24}(3), pp. 1-29. \doi{10.18637/jss.v024.i03}
-
-van Duijn MAJ, Gile K, Handcock MS (2009).  "Comparison of Maximum Pseudo
-Likelihood and Maximum Likelihood Estimation of Exponential Family Random
-Graph Models." \emph{Social Networks}, \emph{31}, pp. 52-62.
+\insertAllCited{}
 }
 \seealso{
 \code{\link{ergmMPLE}},

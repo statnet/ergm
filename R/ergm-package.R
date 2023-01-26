@@ -9,7 +9,7 @@
 ################################################################################
 #' Fit, Simulate and Diagnose Exponential-Family Models for Networks
 #' 
-#' \code{\link[=ergm-package]{ergm}} is a collection of functions to plot, fit,
+#' \code{\link[=ergm-package]{ergm}} \insertCite{HuHa08e,KrHu23e}{ergm} is a collection of functions to plot, fit,
 #' diagnose, and simulate from exponential-family random graph models (ERGMs).
 #' For a list of functions type: \code{help(package='ergm')}
 #' 
@@ -73,11 +73,7 @@
 #' \email{morrism@@u.washington.edu}
 #' 
 #' Maintainer: Pavel N. Krivitsky \email{pavel@@statnet.org}
-#' @references
-#'
-#' Krivitsky P. N., Hunter D. R., Morris M., Klumb
-#' C. (2021). \dQuote{ergm 4.0: New features and improvements.}
-#' arXiv:2106.04997. \url{https://arxiv.org/abs/2106.04997}
+#' @references \insertAllCited{}
 #'
 #' Admiraal R, Handcock MS (2007).  \pkg{networksis}: Simulate
 #' bipartite graphs with fixed marginals through sequential importance
