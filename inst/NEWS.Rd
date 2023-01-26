@@ -64,6 +64,63 @@
 
 %% }
 
+\section{Changes in version 4.4.0}{
+
+  \subsection{NEW FEATURES}{
+    \itemize{
+      \item{
+        A paper on new features in \pkg{ergm} 4 and later has been published in \emph{Journal of Statistical Software}. Please see \code{citation("ergm")} for citation information.
+      }
+      \item{
+        \code{\link{ergm}()}, \code{\link{san.formula}()}, \code{\link{ergmMPLE}()}, \code{\link{gof.ergm}()}, \code{\link{gof.formula}()}, \code{\link{logLik.ergm}()}, \code{\link{.simulate_formula.network}()}, and \code{\link{simulate.ergm}()} now check if any of the \code{...} arguments are unusued and issues a warning.
+      }
+      \item{
+        A number of changes have been made to make objects returned by \code{\link{ergm}()} take up less memory and storage. As a result, fits from older package version may no longer work.
+        \itemize{
+          \item{
+            \code{\link{ergm}} objects no longer include \code{$constrained} and \code{$constrained.obs} elements by default, making the fit objects substantially more compact. Information useful for post-processing and diagnostics that was previously extracted from them is now stored in the \code{$info} element.
+            \item{
+              \code{\link{ergm}()} now takes a \code{newnetwork=} argument, specifying if the networks generated at the end of the estimation should be saved. The previous behaviour was to save one network per parallel chain. The new default behaviour is to save only one.
+            }
+            \item{
+              \code{\link{control.ergm}()}'s \code{MCMC.return.stats=} now controls the maximum number of iterations to be stored in \code{$sample} and \code{$sample.obs} for diagnostics; actual MCMC samples are thinned to at most that length. \code{\link{mcmc.diagnostics}()} code prints the information from the full and the thinned samples.
+            }
+          }
+        }
+      }
+      \item{
+        \code{\link{is.dyad.independent.ergm}()} can now answer based on terms, sample space, or both.
+      }
+      \item{
+        \code{\link[=is.na.ergm]{is.na}(ergm)} and \code{\link[=is.na.ergm]{anyNA}(ergm)} methods can now be used to test if an ERGM was fit a missing data or observational process.
+      }
+      \item{
+        \code{\link{mcmc.diagnostics}()} now has a \code{compact=} argument, to optionally abbreviate statistic and/or parameter names for more compact display.
+      }
+    }
+  }
+
+  \subsection{BUG FIXES}{
+    \itemize{
+      \item{
+        \code{\link{control.ergm}()}'s handling of consistency check between step length and termination method hs been fixed.
+      }
+      \item{
+        Some improvements to tests; in particular, a formerly stochastically erring test is now deterministic.
+      }
+    }
+  }
+
+  \subsection{OTHER USER-VISIBLE CHANGES}{
+    \itemize{
+      \item{
+        In the \code{\link[=simulate.ergm]{simulate}()}, passing \code{theta0=} is now an error.
+      }
+    }
+  }
+}
+
+
 \section{Changes in version 4.3.2}{
   \subsection{BUG FIXES}{
     \itemize{
