@@ -26,10 +26,10 @@ Run `revdep_details(, "Blaunet")` for more info
 
 <details>
 
-* Version: 1.0.2
+* Version: 1.0.3
 * GitHub: https://github.com/tidymodels/broom
 * Source code: https://github.com/cran/broom
-* Date/Publication: 2022-12-15 13:10:20 UTC
+* Date/Publication: 2023-01-25 08:00:16 UTC
 * Number of recursive dependencies: 304
 
 Run `revdep_details(, "broom")` for more info
@@ -47,45 +47,6 @@ Run `revdep_details(, "broom")` for more info
 *   checking Rd cross-references ... NOTE
     ```
     Packages unavailable to check Rd xrefs: ‘spatialreg’, ‘epiR’
-    ```
-
-# EpiModel
-
-<details>
-
-* Version: 2.3.1
-* GitHub: https://github.com/EpiModel/EpiModel
-* Source code: https://github.com/cran/EpiModel
-* Date/Publication: 2022-10-01 12:00:02 UTC
-* Number of recursive dependencies: 106
-
-Run `revdep_details(, "EpiModel")` for more info
-
-</details>
-
-## Newly broken
-
-*   checking tests ...
-    ```
-      Running ‘test-all.R’
-     ERROR
-    Running the tests in ‘tests/test-all.R’ failed.
-    Last 13 lines of output:
-      
-          attr, order
-      
-      [ FAIL 1 | WARN 118 | SKIP 124 | PASS 487 ]
-      
-      ══ Skipped tests ═══════════════════════════════════════════════════════════════
-      • On CRAN (124)
-      
-      ══ Failed tests ════════════════════════════════════════════════════════════════
-      ── Failure ('test-scenarios.R:29'): SIS with scenarios ─────────────────────────
-      `netsim(est, sc.param, init, control)` produced warnings.
-      
-      [ FAIL 1 | WARN 118 | SKIP 124 | PASS 487 ]
-      Error: Test failures
-      Execution halted
     ```
 
 # ergMargins
@@ -228,6 +189,9 @@ Run `revdep_details(, "lolog")` for more info
 </details>
 
 ## In both
+
+*   R CMD check timed out
+    
 
 *   checking installed package size ... NOTE
     ```
