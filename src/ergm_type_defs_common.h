@@ -5,7 +5,7 @@
  *  open source, and has the attribution requirements (GPL Section 7) at
  *  https://statnet.org/attribution .
  *
- *  Copyright 2003-2022 Statnet Commons
+ *  Copyright 2003-2023 Statnet Commons
  */
 #define PROP_PRINT Rprintf("  (%d, %d)  ", MHp->toggletail[i], MHp->togglehead[i])
 #define PROP_CHANGESTATS ChangeStats(MHp->ntoggles, MHp->toggletail, MHp->togglehead, nwp, m)

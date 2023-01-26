@@ -5,7 +5,7 @@
  *  open source, and has the attribution requirements (GPL Section 7) at
  *  https://statnet.org/attribution .
  *
- *  Copyright 2003-2022 Statnet Commons
+ *  Copyright 2003-2023 Statnet Commons
  */
 #ifndef _CHANGESTATS_DGW_SP_H_
 #define _CHANGESTATS_DGW_SP_H_

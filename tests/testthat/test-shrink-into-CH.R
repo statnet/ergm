@@ -5,7 +5,7 @@
 #  open source, and has the attribution requirements (GPL Section 7) at
 #  https://statnet.org/attribution .
 #
-#  Copyright 2003-2022 Statnet Commons
+#  Copyright 2003-2023 Statnet Commons
 ################################################################################
 test_that("shrink_into_CH() works in both Rglpk and lpSolveAPI modes and produces identical results", {
   set.seed(0)

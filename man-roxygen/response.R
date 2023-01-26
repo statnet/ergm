@@ -5,7 +5,7 @@
 #  open source, and has the attribution requirements (GPL Section 7) at
 #  https://statnet.org/attribution .
 #
-#  Copyright 2003-2022 Statnet Commons
+#  Copyright 2003-2023 Statnet Commons
 ################################################################################
 #' @param response Either a character string, a formula, or `NULL` (the default), to specify the response attributes and whether the ERGM is binary or valued. Interpreted as follows: \describe{
 #'

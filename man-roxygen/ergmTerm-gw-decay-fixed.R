@@ -5,7 +5,7 @@
 #  open source, and has the attribution requirements (GPL Section 7) at
 #  https://statnet.org/attribution .
 #
-#  Copyright 2003-2022 Statnet Commons
+#  Copyright 2003-2023 Statnet Commons
 ################################################################################
 #' @param decay nonnegative decay parameter for the <%= multiplicand %>; required if `fixed=TRUE` and ignored with a warning otherwise.
 #' @param fixed optional argument indicating

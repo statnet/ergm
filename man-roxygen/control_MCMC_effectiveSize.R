@@ -5,7 +5,7 @@
 #  open source, and has the attribution requirements (GPL Section 7) at
 #  https://statnet.org/attribution .
 #
-#  Copyright 2003-2022 Statnet Commons
+#  Copyright 2003-2023 Statnet Commons
 ################################################################################
 #' @param
 #'   MCMC.effectiveSize,MCMC.effectiveSize.damp,MCMC.effectiveSize.maxruns,MCMC.effectiveSize.burnin.pval,MCMC.effectiveSize.burnin.min,MCMC.effectiveSize.burnin.max,MCMC.effectiveSize.burnin.nmin,MCMC.effectiveSize.burnin.nmax,MCMC.effectiveSize.burnin.PC,MCMC.effectiveSize.burnin.scl,MCMC.effectiveSize.order.max
