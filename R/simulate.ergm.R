@@ -286,7 +286,7 @@ simulate_formula <- function(object, ..., basis=eval_lhs.formula(object)) {
     return(c(as.list(environment()), list(...)))
 
   #' @importFrom statnet.common check.control.class
-  check_dots_used(error = unused_dots_warning)
+  if(has_new_tergm()) check_dots_used(error = unused_dots_warning)
   check.control.class("simulate.formula", myname="ERGM simulate.formula")
   handle.control.toplevel("simulate.formula", ...)
 
@@ -619,7 +619,7 @@ simulate.ergm <- function(object, nsim=1, seed=NULL,
                           sequential=TRUE,
                           control=control.simulate.ergm(),
                           verbose=FALSE, ...) {
-  check_dots_used(error = unused_dots_warning)
+  if(has_new_tergm()) check_dots_used(error = unused_dots_warning)
   check.control.class(c("simulate.ergm","simulate.formula"), "simulate.ergm")
   handle.control.toplevel("simulate.ergm", ...)
 

@@ -408,3 +408,7 @@ xTAx_qrsolve <- function(x, A, tol = 1e-07, ...){
 sandwich_ssolve <- function(A, B, ...){
   ssolve(A, t(ssolve(A, B, ...)), ...)
 }
+
+
+### Test if tergm has been updated (or hasn't been installed). This is needed to avoid breaking EpiModel's tests.
+has_new_tergm <- function() ERRVL(try(packageVersion("tergm") > "4.1.1", silent=TRUE), TRUE)
