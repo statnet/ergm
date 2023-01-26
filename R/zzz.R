@@ -7,6 +7,7 @@
 #
 #  Copyright 2003-2022 Statnet Commons
 ################################################################################
+#' @importFrom Rdpack reprompt
 .onAttach <- function(libname, pkgname){
   #' @importFrom statnet.common statnetStartupMessage
   sm <- statnetStartupMessage("ergm", c("statnet","ergm.count","tergm"), TRUE)
