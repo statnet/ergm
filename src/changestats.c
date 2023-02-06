@@ -219,121 +219,6 @@ C_CHANGESTAT_FN(c_b1concurrent_by_attr) {
     }
 }
 
-// A macro indicating whether x is in [from,to)
-#define FROM_TO(x, from, to) ((x)>=(from) && (x)<(to))
-
-/*****************
- changestat: d_b1degrange
-*****************/
-C_CHANGESTAT_FN(c_b1degrange) { 
-  int j, echange;
-
-  /* *** don't forget tail -> head */    
-    Vertex b1;
-    echange=IS_OUTEDGE(b1=tail,head) ? -1:+1;
-    Vertex b1deg = OUT_DEG[b1];
-    for(j = 0; j < N_CHANGE_STATS; j++) {
-      Vertex from = INPUT_PARAM[2*j], to = INPUT_PARAM[2*j+1];
-      CHANGE_STAT[j] += FROM_TO(b1deg + echange, from, to) - FROM_TO(b1deg, from, to);
-    }
-}
- 
-/*****************
- changestat: d_b1degrange_by_attr
-*****************/
-C_CHANGESTAT_FN(c_b1degrange_by_attr) { 
-  /* The inputparams are assumed to be set up as follows:
-  The first 3*nstats values are in triples:  (from, to, attrvalue)
-  The values following the first 2*nstats values are the nodal attributes.
-  */
-  int j;
-  Vertex *od;
-  
-  od=OUT_DEG;
-
-  /* *** don't forget tail -> head */    
-    Vertex b1;
-    int echange = IS_OUTEDGE(b1=tail,head) ? -1:1;
-    Vertex b1deg = od[b1];
-    int b1attr = INPUT_PARAM[3*N_CHANGE_STATS + b1 - 1]; 
-    for(j = 0; j < N_CHANGE_STATS; j++){
-      Vertex from = INPUT_PARAM[3*j], to = INPUT_PARAM[3*j + 1];
-      int testattr = INPUT_PARAM[3*j + 2]; 
-      if (b1attr == testattr)  /* we have tail attr match */
-        CHANGE_STAT[j] += FROM_TO(b1deg + echange, from, to) - FROM_TO(b1deg, from, to);
-    }
-}
-
-/*****************
- changestat: d_b1degrange_w_homophily
-*****************/
-C_CHANGESTAT_FN(c_b1degrange_w_homophily) { 
-  /*  The inputparams are assumed to be set up as follows:
-  The first 2*nstats values are the values of b1degrange
-  The values following the first 2*nstats values are the nodal attributes.
-  */
-  int j;
-  double *nodeattr;
-  Edge e;
-
-  nodeattr = mtp->inputparams + N_CHANGE_STATS*2 - 1;  
-
-  /* *** don't forget tail -> head */    
-    Vertex b1=tail, b2 = head;
-    int b1attr = nodeattr[b1], b2attr = nodeattr[b2];
-    if (b1attr == b2attr) { /* They match; otherwise don't bother */
-      int echange = IS_OUTEDGE(b1, b2) ? -1:1;
-      Vertex b1deg=0, v;
-      STEP_THROUGH_OUTEDGES(b1, e, v) { b1deg += (nodeattr[v]==b1attr); }
-      for(j = 0; j < N_CHANGE_STATS; j++) {
-        Vertex from = INPUT_PARAM[2*j], to = INPUT_PARAM[2*j+1];
-        CHANGE_STAT[j] += FROM_TO(b1deg + echange, from, to) - FROM_TO(b1deg, from, to);
-      }
-    }
-}                                        
-
-#undef FROM_TO
-
-/*****************
- changestat: d_b1degree
-*****************/
-C_CHANGESTAT_FN(c_b1degree) { 
-  int j, echange;
-  Vertex b1, b1deg, d;
-
-  /* *** don't forget tail -> head */  
-    b1 = tail;
-    echange = IS_OUTEDGE(b1,head) ? -1 : 1;
-    b1deg = OUT_DEG[b1];
-    for(j = 0; j < N_CHANGE_STATS; j++) {
-      d = (Vertex)(INPUT_PARAM[j]);
-      CHANGE_STAT[j] += (b1deg + echange == d) - (b1deg == d);
-    }
-}
-
-/*****************
- changestat: d_b1degree_by_attr
-*****************/
-C_CHANGESTAT_FN(c_b1degree_by_attr) { 
-  /* The inputparams are assumed to be set up as follows:
-     The first 2*nstats values are in pairs:  (degree, attrvalue)
-     The values following the first 2*nstats values are the nodal attributes. */
-  int j, echange, b1attr;
-  Vertex b1, b1deg, d;
-  
-  /* *** don't forget tail -> head */  
-    b1 = tail;
-    echange = IS_OUTEDGE(b1,head) ? -1 : 1;
-    b1deg = OUT_DEG[b1];
-    b1attr = INPUT_PARAM[2*N_CHANGE_STATS + b1 - 1]; 
-    for(j = 0; j < N_CHANGE_STATS; j++) {
-      if (b1attr == INPUT_PARAM[2*j+1]) { /* we have attr match */
-        d = (Vertex)INPUT_PARAM[2*j];
-        CHANGE_STAT[j] += (b1deg + echange == d) - (b1deg == d);
-      }
-    }
-}
-
 /*****************
  changestat: d_b1nodematch
 *****************/
@@ -617,124 +502,6 @@ C_CHANGESTAT_FN(c_b2cov) {
       for(unsigned int j=0, o=0; j<N_CHANGE_STATS; j++, o+=oshift){
 	double sum = INPUT_ATTRIB[head-nb1+o-1];
 	CHANGE_STAT[j] += edgestate ? -sum : sum;
-    }
-}
-
-
-// A macro indicating whether x is in [from,to)
-#define FROM_TO(x, from, to) ((x)>=(from) && (x)<(to))
-
-/*****************
- changestat: d_b2degrange
-*****************/
-C_CHANGESTAT_FN(c_b2degrange) { 
-  int j, echange;
-
-  /* *** don't forget tail -> head */    
-    Vertex b2;
-    echange=IS_OUTEDGE(tail, b2 = head) ? -1:+1;
-    Vertex b2deg = IN_DEG[b2];
-    for(j = 0; j < N_CHANGE_STATS; j++) {
-      Vertex from = INPUT_PARAM[2*j], to = INPUT_PARAM[2*j+1];
-      CHANGE_STAT[j] += FROM_TO(b2deg + echange, from, to) - FROM_TO(b2deg, from, to);
-    }
-}
- 
-/*****************
- changestat: d_b2degrange_by_attr
-*****************/
-C_CHANGESTAT_FN(c_b2degrange_by_attr) { 
-  /* The inputparams are assumed to be set up as follows:
-  The first 3*nstats values are in triples:  (from, to, attrvalue)
-  The values following the first 2*nstats values are the nodal attributes.
-  */
-  int j;
-  Vertex *id;
-  
-  id=IN_DEG;
-
-  /* *** don't forget tail -> head */    
-    Vertex b2;
-    int echange = IS_OUTEDGE(tail, b2 = head) ? -1:1;
-    Vertex b2deg = id[b2];
-    int b1attr = INPUT_PARAM[3*N_CHANGE_STATS + b2 - 1 - BIPARTITE]; 
-    for(j = 0; j < N_CHANGE_STATS; j++){
-      Vertex from = INPUT_PARAM[3*j], to = INPUT_PARAM[3*j + 1];
-      int testattr = INPUT_PARAM[3*j + 2]; 
-      if (b1attr == testattr)  /* we have tail attr match */
-        CHANGE_STAT[j] += FROM_TO(b2deg + echange, from, to) - FROM_TO(b2deg, from, to);
-    }
-}
-
-/*****************
- changestat: d_b2degrange_w_homophily
-*****************/
-C_CHANGESTAT_FN(c_b2degrange_w_homophily) { 
-  /*  The inputparams are assumed to be set up as follows:
-  The first 2*nstats values are the values of b2degrange
-  The values following the first 2*nstats values are the nodal attributes.
-  */
-  int j;
-  double *nodeattr;
-  Edge e;
-
-  nodeattr = mtp->inputparams + N_CHANGE_STATS*2 - 1;  
-
-  /* *** don't forget tail -> head */    
-    Vertex b1 = tail, b2 = head;
-    int b1attr = nodeattr[b1], b2attr = nodeattr[b2];
-    if (b1attr == b2attr) { /* They match; otherwise don't bother */
-      int echange = IS_OUTEDGE(b1, b2) ? -1:1;
-      Vertex b2deg=0, v;
-      STEP_THROUGH_INEDGES(b2, e, v) { b2deg += (nodeattr[v]==b1attr); }
-      for(j = 0; j < N_CHANGE_STATS; j++) {
-        Vertex from = INPUT_PARAM[2*j], to = INPUT_PARAM[2*j+1];
-        CHANGE_STAT[j] += FROM_TO(b2deg + echange, from, to) - FROM_TO(b2deg, from, to);
-      }
-    }
-}                                        
-
-#undef FROM_TO
-
-
-/*****************
- changestat: d_b2degree
-*****************/
-C_CHANGESTAT_FN(c_b2degree) { 
-  int j, echange;
-  Vertex b2, b2deg, d;
-
-  /* *** don't forget tail -> head */    
-    b2 = head;
-    echange = IS_OUTEDGE(tail, b2) ? -1 : 1;
-    b2deg = IN_DEG[b2];
-    for(j = 0; j < N_CHANGE_STATS; j++) {
-      d = (Vertex)(INPUT_PARAM[j]);
-      CHANGE_STAT[j] += (b2deg + echange == d) - (b2deg == d);
-    }
-}
-
-/*****************
- changestat: d_b2degree_by_attr
-*****************/
-C_CHANGESTAT_FN(c_b2degree_by_attr) { 
-  /*The inputparams are assumed to be set up as follows:
-    The first 2*nstats values are in pairs:  (degree, attrvalue)
-    The values following the first 2*nstats values are the nodal attributes. */
-  int j, echange, b2attr;
-  Vertex b2, b2deg, d;
-  
-
-  /* *** don't forget tail -> head */    
-    b2 = head;
-    echange = IS_OUTEDGE(tail, b2) ? -1 : 1;
-    b2deg = IN_DEG[b2];
-    b2attr = INPUT_PARAM[2*N_CHANGE_STATS + b2 - 1 - BIPARTITE];
-    for(j = 0; j < N_CHANGE_STATS; j++) {
-      if (b2attr == INPUT_PARAM[2*j+1]) { /* we have attr match */
-        d = (Vertex)INPUT_PARAM[2*j];
-        CHANGE_STAT[j] += (b2deg + echange == d) - (b2deg == d);
-      }
     }
 }
 
@@ -1831,23 +1598,7 @@ C_CHANGESTAT_FN(c_degdist) {
     otd = od[tail] + id[tail], ohd = od[head] + id[head],
     ntd = otd + echange, nhd = ohd + echange;
 
-  if(otd > N_CHANGE_STATS || ohd > N_CHANGE_STATS || ntd > N_CHANGE_STATS || nhd > N_CHANGE_STATS){
-    const char *termname = CHAR(STRING_ELT(getListElement(mtp->R, "term.name"), 0)),
-      *argname = CHAR(STRING_ELT(getListElement(mtp->R, "arg.name"), 0)),
-      *optname = CHAR(STRING_ELT(getListElement(mtp->R, "opt.name"), 0));
-
-    /* Here, the extra '%s' are to "absorb" the empty strings. */
-    const char *msg = "%sChange statistic 'c_degdist' has encountered a network with a node whose degree is above the cut-off setting of %d.%s%s";
-    if(strlen(termname)){
-      if(strlen(argname) && strlen(optname)) msg = "Term %s has encountered a network with a node whose degree is above the cut-off setting of %d. This can usually be remedied by increasing the value of the term argument %s or the corresponding term option %s.";
-      else if(strlen(argname)) msg = "Term %s has encountered a network with a node whose degree is above the cut-off setting of %d. This can usually be remedied by increasing the value of the term argument %s.%s";
-      else if(strlen(optname)) msg = "Term %s has encountered a network with a node whose degree is above the cut-off setting of %d. This can usually be remedied by increasing the value of the term option %s%s.";
-    }else{
-      msg = "Term %s has encountered a network with a node whose degree is above the cut-off setting of %d. Please see the term documentation for how it may be adjusted.%s%s";
-    }
-
-    error(msg, termname, N_CHANGE_STATS, argname, optname);
-  }
+  if(ntd > N_CHANGE_STATS || nhd > N_CHANGE_STATS) cutoff_error(mtp);
 
   if(otd) CHANGE_STAT[otd-1]--;
   if(ohd) CHANGE_STAT[ohd-1]--;
@@ -2302,60 +2053,6 @@ C_CHANGESTAT_FN(c_esp) {
 /********************  changestats:  F    ***********/
 
 /********************  changestats:  G    ***********/
-/*****************
- changestat: d_gwb1degree
-*****************/
-C_CHANGESTAT_FN(c_gwb1degree) { 
-  /* It is assumed that in this bipartite network, the only edges are
-  of the form (b1, b2), where b1 is always strictly less
-  than b2.  In other words, the degree of a b1 is equivalent
-  to its outdegree and the degree of a b2 is equivalent to its
-  indegree.
-  */
-  int echange;
-  double decay, oneexpd;
-  Vertex b1, b1deg, *od;
-  
-  decay = INPUT_PARAM[0];
-  oneexpd = 1.0-exp(-decay);
-  od=OUT_DEG;
-
-  /* *** don't forget tail -> head */    
-    echange=IS_OUTEDGE(b1 = tail,head) ? -1 : +1;
-    b1deg = od[b1]+(echange-1)/2;
-    CHANGE_STAT[0] += echange*pow(oneexpd,(double)b1deg);
-}
-
-/*****************
- changestat: d_gwb1degree_by_attr
-*****************/
-C_CHANGESTAT_FN(c_gwb1degree_by_attr) { 
-  /* It is assumed that in this bipartite network, the only edges are
-  of the form (b1, b2), where b1 is always strictly less
-  than b2.  In other words, the degree of a b1 is equivalent
-  to its outdegree and the degree of a b2 is equivalent to its
-  indegree.
-  The inputparams are assumed to be set up as follows:
-    The first value is theta (as in Hunter et al, JASA 200?), controlling decay
-    The next sequence of values is the nodal attributes, coded as integers
-         from 1 through N_CHANGE_STATS
-  */
-  int  echange, b1attr;
-  double decay, oneexpd;
-  Vertex b1, b1deg, *od;
-  
-  decay = INPUT_PARAM[0];
-  oneexpd = 1.0-exp(-decay);
-  od=OUT_DEG;
-
-  /* *** don't forget tail -> head */    
-    echange=IS_OUTEDGE(b1 = tail,head) ? -1 : +1;
-    b1deg = od[b1]+(echange-1)/2;
-    b1attr = INPUT_PARAM[b1]; 
-    /* *** the comment below looked right, so I didn't swap it - ALC */
-    /*  Rprintf("b1 %d heads %d b1deg %d b1attr %d echange %d\n",b1,head, b1deg, b1attr, echange); */
-    CHANGE_STAT[b1attr-1] += echange * pow(oneexpd,(double)b1deg);
-}
 
 /*****************
  changestat: d_gwdegree
@@ -2512,60 +2209,6 @@ C_CHANGESTAT_FN(c_gwdsp) {
 }
 
 /*****************
- changestat: d_gwb2degree
-*****************/
-C_CHANGESTAT_FN(c_gwb2degree) { 
-  /* It is assumed that in this bipartite network, the only edges are
-  of the form (b1, b2), where b1 is always strictly less
-  than b2.  In other words, the degree of a b1 is equivalent
-  to its outdegree and the degree of a b2 is equivalent to its
-  indegree.
-  */
-  int echange;
-  double decay, oneexpd;
-  Vertex b2, b2deg, *id;
-  
-  decay = INPUT_PARAM[0];
-  oneexpd = 1.0-exp(-decay);
-  id=IN_DEG;
-
-  /* *** don't forget tail -> head */    
-    echange=IS_OUTEDGE(tail, b2 = head) ? -1 : +1;
-    b2deg = id[b2]+(echange-1)/2;
-    CHANGE_STAT[0] += echange*pow(oneexpd,(double)b2deg);
-}
-
-/*****************
- changestat: d_gwb2degree_by_attr
-*****************/
-C_CHANGESTAT_FN(c_gwb2degree_by_attr) { 
-  /* It is assumed that in this bipartite network, the only edges are
-  of the form (b1, b2), where b1 is always strictly less
-  than b2.  In other words, the degree of a b1 is equivalent
-  to its outdegree and the degree of a b2 is equivalent to its
-  indegree.
-  The inputparams are assumed to be set up as follows:
-    The first value is theta (as in Hunter et al, JASA 200?), controlling decay
-    The next sequence of values is the nodal attributes, coded as integers
-         from 1 through N_CHANGE_STATS
-  */
-  int  echange, b2attr;
-  double decay, oneexpd;
-  Vertex b2, b2deg, *id;
-  
-  decay = INPUT_PARAM[0];
-  oneexpd = 1.0-exp(-decay);
-  id=IN_DEG;
-
-  /* *** don't forget tail -> head */    
-    echange=IS_OUTEDGE(tail, b2 = head) ? -1 : +1;
-    b2deg = id[b2]+(echange-1)/2;
-    b2attr = INPUT_PARAM[b2 - BIPARTITE]; 
-/*  Rprintf("tail %d b2 %d b2deg %d b2attr %d echange %d\n",tail, b2, b2deg, b2attr, echange); */
-    CHANGE_STAT[b2attr-1] += echange * pow(oneexpd,(double)b2deg);
-}
-
-/*****************
  changestat: d_gwesp
 *****************/
 C_CHANGESTAT_FN(c_gwesp) { 
@@ -2685,7 +2328,7 @@ C_CHANGESTAT_FN(c_gwidegree_by_attr) {
   /* *** don't forget tail -> head */    
     echange = edgestate ? -1 : 1;
     headd = IN_DEG[head] + (echange - 1)/2;
-    headattr = INPUT_PARAM[head]; 
+    headattr = INPUT_PARAM[head - BIPARTITE]; /* BIPARTITE to make the b2 version a special case. */
     CHANGE_STAT[headattr-1] += echange*(pow(oneexpd,(double)headd));      
 }
 
@@ -3206,7 +2849,7 @@ C_CHANGESTAT_FN(c_idegrange_by_attr) {
   /* *** don't forget tail -> head */    
       int echange = edgestate ? -1:1;
     Vertex headideg = id[head];
-    int headattr = INPUT_PARAM[3*N_CHANGE_STATS + head - 1]; 
+    int headattr = INPUT_PARAM[3*N_CHANGE_STATS + head - 1 - BIPARTITE];  /* BIPARTITE to make the b2 version a special case. */
     for(j = 0; j < N_CHANGE_STATS; j++){
       Vertex from = INPUT_PARAM[3*j], to = INPUT_PARAM[3*j + 1];
       int testattr = INPUT_PARAM[3*j + 2]; 
@@ -3260,6 +2903,22 @@ C_CHANGESTAT_FN(c_idegree) {
     }
 }
 
+
+/*****************
+ changestat: d_idegdist
+*****************/
+C_CHANGESTAT_FN(c_idegdist) {
+  int echange = edgestate ? -1 : +1;
+  Vertex ohd = IN_DEG[head],
+    nhd = ohd + echange;
+
+  if(nhd > N_CHANGE_STATS) cutoff_error(mtp);
+
+  if(ohd) CHANGE_STAT[ohd-1]--;
+  if(nhd) CHANGE_STAT[nhd-1]++;
+}
+
+
 /*****************
  changestat: d_idegree_by_attr
 *****************/
@@ -3276,7 +2935,7 @@ C_CHANGESTAT_FN(c_idegree_by_attr) {
   /* *** don't forget tail -> head */    
     echange=edgestate ? -1 : +1;
     headdeg = id[head];
-    headattr = INPUT_PARAM[2*N_CHANGE_STATS + head - 1]; 
+    headattr = INPUT_PARAM[2*N_CHANGE_STATS + head - 1- BIPARTITE];  /* BIPARTITE to make the b2 version a special case. */
     for(j = 0; j < N_CHANGE_STATS; j++) {
       d = (Vertex)INPUT_PARAM[2*j];
       testattr = INPUT_PARAM[2*j + 1]; 
@@ -4213,6 +3872,22 @@ C_CHANGESTAT_FN(c_odegree) {
       CHANGE_STAT[j] = (taild + echange == deg) - (taild == deg);
     }
 }
+
+
+/*****************
+ changestat: d_odegdist
+*****************/
+C_CHANGESTAT_FN(c_odegdist) {
+  int echange = edgestate ? -1 : +1;
+  Vertex otd = OUT_DEG[tail],
+    ntd = otd + echange;
+
+  if(ntd > N_CHANGE_STATS) cutoff_error(mtp);
+
+  if(otd) CHANGE_STAT[otd-1]--;
+  if(ntd) CHANGE_STAT[ntd-1]++;
+}
+
 
 /*****************
  changestat: d_odegree_by_attr

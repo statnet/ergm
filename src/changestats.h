@@ -23,4 +23,8 @@ void edgewise_path_recurse(Network *nwp, Vertex dest, Vertex curnode,
 void edgewise_cycle_census(Network *nwp, Vertex tail, Vertex head, 
                            double *countv, long int maxlen, int semi);
 
+static inline void cutoff_error(ModelTerm *mtp){
+  error(CHAR(STRING_ELT(getListElement(mtp->R, "cutoff.message"), 0)));
+}
+
 #endif

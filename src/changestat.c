@@ -31,4 +31,3 @@ double my_choose(double n, int r) {
     ans*=(n--);
   return ans;
 }
-
