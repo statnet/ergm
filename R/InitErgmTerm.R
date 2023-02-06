@@ -1034,7 +1034,7 @@ InitErgmTerm.b1dsp<-function(nw, arglist, cache.sp=TRUE, ...) {
   # partners is just the number of b1 dyads, which is nb1*(nb1-1)/2
   emptynwstats[d==0] <- nb1*(nb1-1)/2 
   
-  list(name="ddspbwrap", coef.names=paste("b1dsp",d,sep=""), inputs=c(typecode, d), 
+  list(name="ddspbwrap", coef.names=paste("b1dsp",d,sep=""), iinputs=c(typecode,d),
        emptynwstats=emptynwstats, minval = 0, maxval = nb1*(nb1-1)/2, dependence = TRUE, auxiliaries=if(cache.sp) .spcache.aux(type) else NULL)
 }
 
@@ -1647,7 +1647,7 @@ InitErgmTerm.b2dsp<-function(nw, arglist, cache.sp=TRUE, ...) {
   # partners is just the number of b2 dyads, which is nb2*(nb2-1)/2
   emptynwstats[d==0] <- nb2*(nb2-1)/2 
   
-  list(name="ddspbwrap", coef.names=paste("b2dsp",d,sep=""), inputs=c(typecode, d), 
+  list(name="ddspbwrap", coef.names=paste("b2dsp",d,sep=""), iinputs=c(typecode,d),
        emptynwstats=emptynwstats, minval = 0, maxval = nb2*(nb2-1)/2, dependence = TRUE, auxiliaries=if(cache.sp) .spcache.aux(type) else NULL)
 }
 
@@ -2878,10 +2878,10 @@ InitErgmTerm.gwb1dsp<-function(nw, arglist, cache.sp=TRUE, gw.cutoff=30, ...) {
     params<-list(gwb1dsp=NULL,gwb1dsp.decay=decay)
     
     c(list(name="ddspbwrap", coef.names=paste("b1dsp#",d,sep=""), 
-         inputs=c(if(!cache.sp) -1,typecode,d), params=params, auxiliaries=if(cache.sp) .spcache.aux(type) else NULL), GWDECAY)
+         iinputs=c(typecode,d), params=params, auxiliaries=if(cache.sp) .spcache.aux(type) else NULL), GWDECAY)
   }else{
     coef.names <- paste("gwb1dsp.fixed",decay,sep=".")
-    list(name="dgwdspbwrap", coef.names=coef.names, inputs=c(if(!cache.sp) -1,decay,typecode,maxdsp), auxiliaries=if(cache.sp) .spcache.aux(type) else NULL)
+    list(name="dgwdspbwrap", coef.names=coef.names, inputs=decay, iinputs=typecode, auxiliaries=if(cache.sp) .spcache.aux(type) else NULL)
   }
 }
 
@@ -2965,10 +2965,10 @@ InitErgmTerm.gwb2dsp<-function(nw, arglist, cache.sp=TRUE, gw.cutoff=30, ...) {
     params<-list(gwb2dsp=NULL,gwb2dsp.decay=decay)
     
     c(list(name="ddspbwrap", coef.names=paste("b2dsp#",d,sep=""), 
-         inputs=c(if(!cache.sp) -1,typecode,d), params=params, auxiliaries=if(cache.sp) .spcache.aux(type) else NULL), GWDECAY)
+         iinputs=c(typecode,d), params=params, auxiliaries=if(cache.sp) .spcache.aux(type) else NULL), GWDECAY)
   }else{
     coef.names <- paste("gwb2dsp.fixed",decay,sep=".")    
-    list(name="dgwdspbwrap", coef.names=coef.names, inputs=c(if(!cache.sp) -1,decay,typecode,maxdsp), auxiliaries=if(cache.sp) .spcache.aux(type) else NULL)
+    list(name="dgwdspbwrap", coef.names=coef.names, inputs=decay, iinputs=typecode, auxiliaries=if(cache.sp) .spcache.aux(type) else NULL)
   }
 }
 

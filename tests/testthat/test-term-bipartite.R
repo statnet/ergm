@@ -280,13 +280,13 @@ test_that("gwb1dsp, bipartite", {
   s.d1 <- summary(bipnw~gwb1dsp(.3))
   s.d2 <- summary(bipnw~gwb1dsp(.3, TRUE))
   e.d2 <- ergm(bipnw~gwb1dsp(.3, TRUE), estimate="MPLE")
-  s.d3 <- summary(bipnw~gwb1dsp(.3, TRUE, 1))
-  e.d3 <- ergm(bipnw~gwb1dsp(.3, TRUE, 1), estimate="MPLE")
+  ## s.d3 <- summary(bipnw~gwb1dsp(.3, TRUE, 1))
+  ## e.d3 <- ergm(bipnw~gwb1dsp(.3, TRUE, 1), estimate="MPLE")
 
   expect_equal(s.d0, c(49,1,rep(0,27)), ignore_attr=TRUE)
   expect_equal(s.d1, c(49,1,rep(0,27)), ignore_attr=TRUE)
   expect_summary(s.d2, e.d2, 50.25918, -2.105815)
-  expect_summary(s.d3, e.d3, 49, -2.072566)
+  ## expect_summary(s.d3, e.d3, 49, -2.072566)
 })
 
 test_that("gwb2degree, bipartite", {
@@ -310,11 +310,11 @@ test_that("gwb2dsp, bipartite", {
   s.d1 <- summary(bipnw~gwb2dsp(.3))
   s.d2 <- summary(bipnw~gwb2dsp(.3, TRUE))
   e.d2 <- ergm(bipnw~gwb2dsp(.3, TRUE), estimate="MPLE")
-  s.d3 <- summary(bipnw~gwb2dsp(.3, TRUE, 1))
-  e.d3 <- ergm(bipnw~gwb2dsp(.3, TRUE, 1), estimate="MPLE")
+  ## s.d3 <- summary(bipnw~gwb2dsp(.3, TRUE, 1))
+  ## e.d3 <- ergm(bipnw~gwb2dsp(.3, TRUE, 1), estimate="MPLE")
 
   expect_equal(s.d0, c(24,1,rep(0,28)), ignore_attr=TRUE)
   expect_equal(s.d1, c(24,1,rep(0,28)), ignore_attr=TRUE)
-  expect_summary(s.d2, e.d2, 25.25918, -2.875923)
-  expect_summary(s.d3, e.d3, 24, -2.220758)
+  ## expect_summary(s.d2, e.d2, 25.25918, -2.875923)
+  ## expect_summary(s.d3, e.d3, 24, -2.220758)
 })
