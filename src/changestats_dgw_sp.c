@@ -10,44 +10,73 @@
 #include "changestats_dgw_sp.h"
 #include "ergm_dyad_hashmap.h"
 
+#define sp_args tail,head,mtp,nwp,edgestate,spcache,N_CHANGE_STATS,dvec,CHANGE_STAT
+
 #define dvec_calc(term)                                                 \
-  static inline void term ## _calc(Vertex tail, Vertex head, ModelTerm *mtp, Network *nwp, StoreDyadMapUInt *spcache, int nd, double *dvec, double *cs) { \
-    memset(cs, 0, nd*sizeof(double));                                   \
-    term ## _change(old, new, {                                         \
+  static inline void term ## _calc(Vertex tail, Vertex head, ModelTerm *mtp, Network *nwp, Rboolean edgestate, StoreDyadMapUInt *spcache, int nd, Vertex *dvec, double *cs) { \
+    int echange = edgestate ? -1 : 1;                                   \
+    term ## _change(L, {                                         \
         for(unsigned int j = 0; j < nd; j++){                           \
-          Vertex deg = (Vertex)dvec[j];                                 \
-          cs[j] += ((new == deg) - (old == deg));                       \
+          Vertex deg = dvec[j];                                         \
+          cs[j] += ((L+echange == deg) - (L == deg));                       \
         }                                                               \
       },{                                                               \
         for(unsigned int j = 0; j < nd; j++){                           \
-          Vertex deg = (Vertex)dvec[j];                                 \
-          cs[j] += (echange)*(old == deg);                              \
+          Vertex deg = dvec[j];                                         \
+          cs[j] += (echange)*(L == deg);                              \
         }                                                               \
       });                                                               \
   }
 
 #define dvec_calc2(term)                                                \
-  static inline void term ## _calc(Vertex tail, Vertex head, ModelTerm *mtp, Network *nwp, StoreDyadMapUInt *spcache, int nd, double *dvec, double *cs) { \
-    memset(cs, 0, nd*sizeof(double));                                   \
-    term ## _change(old, new, {                                         \
+  static inline void term ## _calc(Vertex tail, Vertex head, ModelTerm *mtp, Network *nwp, Rboolean edgestate, StoreDyadMapUInt *spcache, int nd, Vertex *dvec, double *cs) { \
+    int echange = edgestate ? -1 : 1;                                   \
+    term ## _change(L, {                                         \
         for(unsigned int j = 0; j < nd; j++){                           \
           Vertex deg = (Vertex)dvec[j];                                 \
-          cs[j] += ((new == deg) - (old == deg))*2;                     \
+          cs[j] += ((L+echange == deg) - (L == deg))*2;                     \
         }                                                               \
       },{                                                               \
         for(unsigned int j = 0; j < nd; j++){                           \
           Vertex deg = (Vertex)dvec[j];                                 \
-          cs[j] += (echange)*(old == deg);                              \
+          cs[j] += (echange)*(L == deg);                              \
         }                                                               \
       });                                                               \
   }
 
+#define gwsp_args tail,head,mtp,nwp,edgestate,spcache,alpha,oneexpa
+
+#define gw_calc(term)                                                   \
+  static inline double term ## _gw_calc(Vertex tail, Vertex head, ModelTerm *mtp, Network *nwp, Rboolean edgestate, StoreDyadMapUInt *spcache, double alpha, double oneexpa) { \
+    double cumchange = 0;                                               \
+    term ## _change(L, {                                                \
+        cumchange += pow(oneexpa, L-edgestate);                         \
+      },{                                                               \
+        cumchange += exp(alpha)*(1-pow(oneexpa, L));                    \
+      });                                                               \
+    return cumchange;                                                   \
+  }
+
+
+#define gw_calc2(term)                                                 \
+  static inline double term ## _gw_calc(Vertex tail, Vertex head, ModelTerm *mtp, Network *nwp, Rboolean edgestate, StoreDyadMapUInt *spcache, double alpha, double oneexpa) { \
+    double cumchange = 0;                                               \
+    term ## _change(L, {                                                \
+        cumchange += pow(oneexpa, L-edgestate)*2;                       \
+      },{                                                               \
+        cumchange += exp(alpha)*(1-pow(oneexpa, L));                    \
+      });                                                               \
+    return cumchange;                                                  \
+  }
+
+
+
 #define call_subroutine_path(count, subroutine_path)    \
-  {int old = (count); int new = (count) + echange;      \
+  {int L = (count);      \
     {subroutine_path}}
 
 #define call_subroutine_focus(count, subroutine_focus)  \
-  {int old = (count);                                   \
+  {int L = (count);                                   \
     {subroutine_focus}}
 
 
@@ -66,8 +95,7 @@
   This function will only work properly with undirected graphs, and should only be called in that case.
 */
 
-#define dspUTP_change(old, new, subroutine_path, subroutine_focus)      \
-  int echange = (IS_OUTEDGE(tail,head) == 0) ? 1 : -1;                  \
+#define dspUTP_change(L, subroutine_path, subroutine_focus)      \
   /* step through edges of head */                                      \
   EXEC_THROUGH_EDGES(head,e,u, {                                        \
       if (u!=tail){                                                     \
@@ -105,8 +133,7 @@
   This function should only be used in the directed case
 */
 
-#define dspOTP_change(old, new, subroutine_path, subroutine_focus)      \
-  int echange = (IS_OUTEDGE(tail, head) == 0) ? 1 : -1;                 \
+#define dspOTP_change(L, subroutine_path, subroutine_focus)      \
   /* step through outedges of head (i.e., k: t->k)*/                    \
   EXEC_THROUGH_OUTEDGES(head, e, k, {                                   \
       if(k!=tail){ /*Only use contingent cases*/                        \
@@ -150,8 +177,7 @@
 
   We assume that this is only called for directed graphs - otherwise, use the baseline espUTP function.
 */
-#define dspITP_change(old, new, subroutine_path, subroutine_focus)      \
-  int echange = (IS_OUTEDGE(tail, head) == 0) ? 1 : -1;                 \
+#define dspITP_change(L, subroutine_path, subroutine_focus)      \
   /* step through outedges of head (i.e., k: h->k)*/                    \
   EXEC_THROUGH_OUTEDGES(head, e, k, {                                   \
       if((k!=tail)){ /*Only use contingent cases*/                      \
@@ -195,8 +221,7 @@
 
   We assume that this is only called for directed graphs - otherwise, use the baseline espUTP function.
 */
-#define dspOSP_change(old, new, subroutine_path, subroutine_focus)      \
-  int echange = (IS_OUTEDGE(tail, head) == 0) ? 1 : -1;                 \
+#define dspOSP_change(L, subroutine_path, subroutine_focus)      \
   /* step through outedges of tail (i.e., k: t->k, k->h, k!=h)*/        \
   EXEC_THROUGH_INEDGES(head, e, k, {                                    \
       if(k!=tail){                                                      \
@@ -227,8 +252,7 @@
 
   We assume that this is only called for directed graphs - otherwise, use the baseline espUTP function.
 */
-#define dspISP_change(old, new, subroutine_path, subroutine_focus)      \
-  int echange = (IS_OUTEDGE(tail, head) == 0) ? 1 : -1;                 \
+#define dspISP_change(L, subroutine_path, subroutine_focus)      \
   /* step through inedges of head (i.e., k: k->h, t->k, k!=t)*/         \
   EXEC_THROUGH_OUTEDGES(tail, e, k, {                                   \
       int L2kh;                                                         \
@@ -258,10 +282,9 @@
 
   We assume that this is only called for directed graphs - otherwise, use the baseline espUTP function.
 */
-#define dspRTP_change(old, new, subroutine_path, subroutine_focus)      \
+#define dspRTP_change(L, subroutine_path, subroutine_focus)      \
   int htedge=IS_OUTEDGE(head,tail);  /*Is there an h->t (reciprocating) edge?*/ \
   if(htedge){ /* Otherwise, t->h doesn't make a difference. */          \
-    int echange = (IS_OUTEDGE(tail,head)==0) ? 1 : -1;                  \
     /* step through reciprocated outedges of tail (t->k: k!=h,k<-t)*/   \
     EXEC_THROUGH_OUTEDGES(tail,e,k,{                                    \
         if(k!=head&&IS_OUTEDGE(k,tail)){                                \
@@ -297,11 +320,17 @@
   }
 
 dvec_calc(dspUTP)
+gw_calc(dspUTP)
 dvec_calc(dspOTP)
+gw_calc(dspOTP)
 dvec_calc(dspITP)
+gw_calc(dspITP)
 dvec_calc2(dspOSP)
+gw_calc2(dspOSP)
 dvec_calc2(dspISP)
+gw_calc2(dspISP)
 dvec_calc2(dspRTP)
+gw_calc2(dspRTP)
 
 /*****************
  changestat: d_dsp
@@ -323,23 +352,19 @@ dvec_calc2(dspRTP)
   Only one type may be specified per esp term.  UTP should always be used for undirected graphs; OTP is the traditional directed default.
 */
 C_CHANGESTAT_FN(c_ddsp) { 
-  StoreDyadMapUInt *spcache = N_AUX ? AUX_STORAGE : NULL;
-  int type;
-  double *dvec,*cs;
-  
   /*Set things up*/
-  type=(int)INPUT_PARAM[0];     /*Get the ESP type code to be used*/
-  dvec=INPUT_PARAM+1;           /*Get the pointer to the ESP stats list*/
-  cs=CHANGE_STAT;               /*Grab the pointer to the CS vector*/
+  StoreDyadMapUInt *spcache = N_AUX ? AUX_STORAGE : NULL;
+  int type = IINPUT_PARAM[0];     /*Get the ESP type code to be used*/
+  Vertex *dvec = (Vertex*) IINPUT_PARAM+1;           /*Get the pointer to the ESP stats list*/
 
   /*Obtain the ESP changescores (by type)*/
   switch(type){
-  case ESPUTP: dspUTP_calc(tail,head,mtp,nwp,spcache,N_CHANGE_STATS,dvec,cs); break;
-  case ESPOTP: dspOTP_calc(tail,head,mtp,nwp,spcache,N_CHANGE_STATS,dvec,cs); break;
-  case ESPITP: dspITP_calc(tail,head,mtp,nwp,spcache,N_CHANGE_STATS,dvec,cs); break;
-  case ESPRTP: dspRTP_calc(tail,head,mtp,nwp,spcache,N_CHANGE_STATS,dvec,cs); break;
-  case ESPOSP: dspOSP_calc(tail,head,mtp,nwp,spcache,N_CHANGE_STATS,dvec,cs); break;
-  case ESPISP: dspISP_calc(tail,head,mtp,nwp,spcache,N_CHANGE_STATS,dvec,cs); break;
+  case ESPUTP: dspUTP_calc(sp_args); break;
+  case ESPOTP: dspOTP_calc(sp_args); break;
+  case ESPITP: dspITP_calc(sp_args); break;
+  case ESPRTP: dspRTP_calc(sp_args); break;
+  case ESPOSP: dspOSP_calc(sp_args); break;
+  case ESPISP: dspISP_calc(sp_args); break;
   }
   /*We're done!  (Changestats were written in by the calc routine.)*/  
 }
@@ -360,48 +385,25 @@ C_CHANGESTAT_FN(c_ddsp) {
 
   Only one type may be specified per esp term.  The default, OTP, retains the original behavior of esp/gwesp.  In the case of undirected graphs, OTP should be used (the others assume a directed network memory structure, and are not safe in the undirected case).
 */
-
-I_CHANGESTAT_FN(i_dgwdsp) {
-  Vertex maxesp = (int)INPUT_PARAM[2];
-  ALLOC_STORAGE(maxesp*2, double, storage);
-  double *dvec=storage+maxesp;    /*Grab memory for the ESP vals*/
-  for(unsigned int i=0;i<maxesp;i++)         /*Initialize the ESP vals*/
-    dvec[i]=i+1;
-}
-
 C_CHANGESTAT_FN(c_dgwdsp) {
-  GET_STORAGE(double, storage);
-  StoreDyadMapUInt *spcache = N_AUX ? AUX_STORAGE : NULL;
-  int type;
-  Vertex i,maxesp;
-  double alpha, oneexpa,*dvec,*cs;
-  
   /*Set things up*/
-  alpha = INPUT_PARAM[0];       /*Get alpha*/
-  oneexpa = 1.0-exp(-alpha);    /*Precompute (1-exp(-alpha))*/
-  type=(int)INPUT_PARAM[1];     /*Get the ESP type code to be used*/
-  maxesp=(int)INPUT_PARAM[2];   /*Get the max ESP cutoff to use*/
-  cs=storage;                   /*Grab memory for the ESP changescores*/
-  dvec=storage+maxesp;          /*Grab memory for the ESP vals*/
+  StoreDyadMapUInt *spcache = N_AUX ? AUX_STORAGE : NULL;
+  double alpha = INPUT_PARAM[0];       /*Get alpha*/
+  double oneexpa = 1.0-exp(-alpha);    /*Precompute (1-exp(-alpha))*/
+  int type = IINPUT_PARAM[0];     /*Get the ESP type code to be used*/
+  double cumchange = 0;
 
   /*Obtain the DSP changescores (by type)*/
   switch(type){
-  case ESPUTP: dspUTP_calc(tail,head,mtp,nwp,spcache,maxesp,dvec,cs); break;
-  case ESPOTP: dspOTP_calc(tail,head,mtp,nwp,spcache,maxesp,dvec,cs); break;
-  case ESPITP: dspITP_calc(tail,head,mtp,nwp,spcache,maxesp,dvec,cs); break;
-  case ESPRTP: dspRTP_calc(tail,head,mtp,nwp,spcache,maxesp,dvec,cs); break;
-  case ESPOSP: dspOSP_calc(tail,head,mtp,nwp,spcache,maxesp,dvec,cs); break;
-  case ESPISP: dspISP_calc(tail,head,mtp,nwp,spcache,maxesp,dvec,cs); break;
+  case ESPUTP: cumchange = dspUTP_gw_calc(gwsp_args); break;
+  case ESPOTP: cumchange = dspOTP_gw_calc(gwsp_args); break;
+  case ESPITP: cumchange = dspITP_gw_calc(gwsp_args); break;
+  case ESPRTP: cumchange = dspRTP_gw_calc(gwsp_args); break;
+  case ESPOSP: cumchange = dspOSP_gw_calc(gwsp_args); break;
+  case ESPISP: cumchange = dspISP_gw_calc(gwsp_args); break;
   }
   
-  /*Compute the gwdsp changescore*/
-  for(i=0;i<maxesp;i++){
-    if(cs[i]!=0.0) {                 /*Filtering to save a few pow() calls*/
-      CHANGE_STAT[0]+=(1.0-pow(oneexpa,dvec[i]))*cs[i];
-      //Rprintf("count %f: %f\n", dvec[i], cs[i]);
-    }
-  }
-  CHANGE_STAT[0]*=exp(alpha);
+  CHANGE_STAT[0] = edgestate ? -cumchange : cumchange;
 }
 
 
@@ -420,10 +422,9 @@ C_CHANGESTAT_FN(c_dgwdsp) {
 
   This function will only work properly with undirected graphs, and should only be called in that case.
 */
-#define espUTP_change(old, new, subroutine_path, subroutine_focus)      \
+#define espUTP_change(L, subroutine_path, subroutine_focus)      \
   int L2th;                                                             \
   if(spcache) L2th = GETDMUI(tail,head,spcache); else L2th=0;           \
-  int echange = (IS_OUTEDGE(tail,head) == 0) ? 1 : -1;                  \
   /* step through outedges of head */                                   \
   EXEC_THROUGH_EDGES(head,e,u, {                                        \
       if (IS_UNDIRECTED_EDGE(u,tail) != 0){                             \
@@ -448,7 +449,6 @@ C_CHANGESTAT_FN(c_dgwdsp) {
     });                                                                 \
   call_subroutine_focus(L2th, subroutine_focus);
 
-dvec_calc(espUTP)
 
 /*
   Changescore for ESPs based on outgoing two-paths, i.e. configurations for edge i->j such that i->k->j.
@@ -460,10 +460,9 @@ dvec_calc(espUTP)
 
   This function should only be used in the directed case, with espUTP being used in the undirected case.
 */
-#define espOTP_change(old, new, subroutine_path, subroutine_focus)      \
+#define espOTP_change(L, subroutine_path, subroutine_focus)      \
   int L2th;                                                             \
   if(spcache) L2th = GETDMUI(tail,head,spcache); else L2th=0;           \
-  int echange = (IS_OUTEDGE(tail,head) == 0) ? 1 : -1;                  \
   /* step through outedges of tail (i.e., k: t->k)*/                    \
   EXEC_THROUGH_OUTEDGES(tail,e,k, {                                     \
       if(!spcache&&(k!=head)&&(IS_OUTEDGE(k,head))){                    \
@@ -502,7 +501,6 @@ dvec_calc(espUTP)
     });                                                                 \
   call_subroutine_focus(L2th, subroutine_focus);
 
-dvec_calc(espOTP)
 
 /*
   Changescore for ESPs based on incoming two-paths, i.e. configurations for edge i->j such that j->k->i.
@@ -514,10 +512,9 @@ dvec_calc(espOTP)
 
   We assume that this is only called for directed graphs - otherwise, use the baseline espUTP function.
 */
-#define espITP_change(old, new, subroutine_path, subroutine_focus)      \
+#define espITP_change(L, subroutine_path, subroutine_focus)      \
   int L2th;                                                             \
   if(spcache) L2th = GETDMUI(head,tail,spcache); else L2th=0;           \
-  int echange = (IS_OUTEDGE(tail,head) == 0) ? 1 : -1;                  \
   /* step through outedges of head (i.e., k: h->k)*/                    \
   EXEC_THROUGH_OUTEDGES(head,e,k, {                                     \
       int L2hk;                                                         \
@@ -554,8 +551,6 @@ dvec_calc(espOTP)
     });                                                                 \
   call_subroutine_focus(L2th, subroutine_focus);
 
-dvec_calc(espITP)
-
 
 /*
   Changescore for ESPs based on outgoing shared partners, i.e. configurations for edge i->j such that i->k and j->k (with k!=j).
@@ -567,10 +562,9 @@ dvec_calc(espITP)
 
   We assume that this is only called for directed graphs - otherwise, use the baseline espUTP function.
 */
-#define espOSP_change(old, new, subroutine_path, subroutine_focus)      \
+#define espOSP_change(L, subroutine_path, subroutine_focus)      \
   int L2th;                                                             \
   if(spcache) L2th = GETDMUI(tail,head,spcache); else L2th=0;           \
-  int echange = (IS_OUTEDGE(tail,head) == 0) ? 1 : -1;                  \
   /* step through outedges of tail (i.e., k: t->k, k->h, k!=h)*/        \
   EXEC_THROUGH_OUTEDGES(tail,e,k, {                                     \
       if(k!=head){                                                      \
@@ -611,8 +605,6 @@ dvec_calc(espITP)
     });                                                                 \
   call_subroutine_focus(L2th, subroutine_focus);
 
-dvec_calc(espOSP)
-
 
 /*
   Changescore for ESPs based on incoming shared partners, i.e. configurations for edge i->j such that i->k and j->k (with k!=j).
@@ -624,10 +616,9 @@ dvec_calc(espOSP)
 
   We assume that this is only called for directed graphs - otherwise, use the baseline espUTP function.
 */
-#define espISP_change(old, new, subroutine_path, subroutine_focus)      \
+#define espISP_change(L, subroutine_path, subroutine_focus)      \
   int L2th;                                                             \
   if(spcache) L2th = GETDMUI(tail,head,spcache); else L2th=0;           \
-  int echange = (IS_OUTEDGE(tail,head) == 0) ? 1 : -1;                  \
   /* step through inedges of head (i.e., k: k->h, t->k, k!=t)*/         \
   EXEC_THROUGH_INEDGES(head,e,k, {                                      \
       if(k!=tail){                                                      \
@@ -668,8 +659,6 @@ dvec_calc(espOSP)
     });                                                                 \
   call_subroutine_focus(L2th, subroutine_focus);
 
-dvec_calc(espISP)
-
 
 /*
   Changescore for ESPs based on reciprocated two-paths, i.e. configurations for edge i->j such that i<->k and j<->k (with k!=j).
@@ -683,10 +672,9 @@ dvec_calc(espISP)
 
   We assume that this is only called for directed graphs - otherwise, use the baseline espUTP function.
 */
-#define espRTP_change(old, new, subroutine_path, subroutine_focus)      \
+#define espRTP_change(L, subroutine_path, subroutine_focus)      \
   int L2th; /*Two-path counts for various edges*/                       \
   if(spcache) L2th = GETDMUI(tail,head,spcache); else L2th=0;           \
-  int echange = (IS_OUTEDGE(tail,head) == 0) ? 1 : -1;                  \
   int htedge=IS_OUTEDGE(head,tail);  /*Is there an h->t (reciprocating) edge?*/ \
   /* step through inedges of tail (k->t: k!=h,h->t,k<->h)*/             \
   EXEC_THROUGH_INEDGES(tail,e,k, {                                      \
@@ -765,7 +753,18 @@ dvec_calc(espISP)
     });                                                                 \
   call_subroutine_focus(L2th, subroutine_focus);
 
+dvec_calc(espUTP)
+gw_calc(espUTP)
+dvec_calc(espOTP)
+gw_calc(espOTP)
+dvec_calc(espITP)
+gw_calc(espITP)
+dvec_calc(espOSP)
+gw_calc(espOSP)
+dvec_calc(espISP)
+gw_calc(espISP)
 dvec_calc(espRTP)
+gw_calc(espRTP)
 
 
 /*****************
@@ -788,23 +787,19 @@ dvec_calc(espRTP)
   Only one type may be specified per esp term.  UTP should always be used for undirected graphs; OTP is the traditional directed default.
 */
 C_CHANGESTAT_FN(c_desp) {
-  StoreDyadMapUInt *spcache = N_AUX ? AUX_STORAGE : NULL;
-  int type;
-  double *dvec,*cs;
-  
   /*Set things up*/
-  type=(int)INPUT_PARAM[0];     /*Get the ESP type code to be used*/
-  dvec=INPUT_PARAM+1;           /*Get the pointer to the ESP stats list*/
-  cs=CHANGE_STAT;               /*Grab the pointer to the CS vector*/
+  StoreDyadMapUInt *spcache = N_AUX ? AUX_STORAGE : NULL;
+  int type = IINPUT_PARAM[0];     /*Get the ESP type code to be used*/
+  Vertex *dvec = (Vertex*) IINPUT_PARAM+1;           /*Get the pointer to the ESP stats list*/
 
   /*Obtain the ESP changescores (by type)*/
   switch(type){
-  case ESPUTP: espUTP_calc(tail,head,mtp,nwp,spcache,N_CHANGE_STATS,dvec,cs); break;
-  case ESPOTP: espOTP_calc(tail,head,mtp,nwp,spcache,N_CHANGE_STATS,dvec,cs); break;
-  case ESPITP: espITP_calc(tail,head,mtp,nwp,spcache,N_CHANGE_STATS,dvec,cs); break;
-  case ESPRTP: espRTP_calc(tail,head,mtp,nwp,spcache,N_CHANGE_STATS,dvec,cs); break;
-  case ESPOSP: espOSP_calc(tail,head,mtp,nwp,spcache,N_CHANGE_STATS,dvec,cs); break;
-  case ESPISP: espISP_calc(tail,head,mtp,nwp,spcache,N_CHANGE_STATS,dvec,cs); break;
+  case ESPUTP: espUTP_calc(sp_args); break;
+  case ESPOTP: espOTP_calc(sp_args); break;
+  case ESPITP: espITP_calc(sp_args); break;
+  case ESPRTP: espRTP_calc(sp_args); break;
+  case ESPOSP: espOSP_calc(sp_args); break;
+  case ESPISP: espISP_calc(sp_args); break;
   }
   /*We're done!  (Changestats were written in by the calc routine.)*/  
 }
@@ -825,50 +820,26 @@ C_CHANGESTAT_FN(c_desp) {
 
   Only one type may be specified per esp term.  The default, OTP, retains the original behavior of esp/gwesp.  In the case of undirected graphs, OTP should be used (the others assume a directed network memory structure, and are not safe in the undirected case).
 */
-I_CHANGESTAT_FN(i_dgwesp) {
-  Vertex maxesp = (int)INPUT_PARAM[2];
-  ALLOC_STORAGE(maxesp*2, double, storage);
-  double *dvec=storage+maxesp;    /*Grab memory for the ESP vals*/
-  for(unsigned int i=0;i<maxesp;i++)         /*Initialize the ESP vals*/
-    dvec[i]=i+1;
-}
-
 C_CHANGESTAT_FN(c_dgwesp) { 
-  GET_STORAGE(double, storage);
-  StoreDyadMapUInt *spcache = N_AUX ? AUX_STORAGE : NULL;
-
-  int type;
-  Vertex i,maxesp;
-  double alpha, oneexpa,*dvec,*cs;
-  
   /*Set things up*/
-  alpha = INPUT_PARAM[0];       /*Get alpha*/
-  oneexpa = 1.0-exp(-alpha);    /*Precompute (1-exp(-alpha))*/
-  type=(int)INPUT_PARAM[1];     /*Get the ESP type code to be used*/
-  maxesp=(int)INPUT_PARAM[2];   /*Get the max ESP cutoff to use*/
-  cs=storage;                   /*Grab memory for the ESP changescores*/
-  dvec=storage+maxesp;          /*Grab memory for the ESP vals*/
+  StoreDyadMapUInt *spcache = N_AUX ? AUX_STORAGE : NULL;
+  double alpha = INPUT_PARAM[0];       /*Get alpha*/
+  double oneexpa = 1.0-exp(-alpha);    /*Precompute (1-exp(-alpha))*/
+  int type = IINPUT_PARAM[0];     /*Get the ESP type code to be used*/
+  double cumchange = 0;
 
   /*Obtain the ESP changescores (by type)*/
   switch(type){
-  case ESPUTP: espUTP_calc(tail,head,mtp,nwp,spcache,maxesp,dvec,cs); break;
-  case ESPOTP: espOTP_calc(tail,head,mtp,nwp,spcache,maxesp,dvec,cs); break;
-  case ESPITP: espITP_calc(tail,head,mtp,nwp,spcache,maxesp,dvec,cs); break;
-  case ESPRTP: espRTP_calc(tail,head,mtp,nwp,spcache,maxesp,dvec,cs); break;
-  case ESPOSP: espOSP_calc(tail,head,mtp,nwp,spcache,maxesp,dvec,cs); break;
-  case ESPISP: espISP_calc(tail,head,mtp,nwp,spcache,maxesp,dvec,cs); break;
+  case ESPUTP: cumchange = espUTP_gw_calc(gwsp_args); break;
+  case ESPOTP: cumchange = espOTP_gw_calc(gwsp_args); break;
+  case ESPITP: cumchange = espITP_gw_calc(gwsp_args); break;
+  case ESPRTP: cumchange = espRTP_gw_calc(gwsp_args); break;
+  case ESPOSP: cumchange = espOSP_gw_calc(gwsp_args); break;
+  case ESPISP: cumchange = espISP_gw_calc(gwsp_args); break;
   }
   
-  /*Compute the gwesp changescore*/
-  for(i=0;i<maxesp;i++){
-    if(cs[i]!=0.0)  {                /*Filtering to save a few pow() calls*/
-      CHANGE_STAT[0]+=(1.0-pow(oneexpa,dvec[i]))*cs[i];
-      //Rprintf("count %f: %f, ChangeStat %f\n", dvec[i], cs[i], CHANGE_STAT[0]);
-    }
-  }
-  CHANGE_STAT[0]*=exp(alpha);
+  CHANGE_STAT[0] = edgestate ? -cumchange : cumchange;
 }
-
 
 
 /*****************
@@ -890,55 +861,47 @@ C_CHANGESTAT_FN(c_dgwesp) {
 
   Only one type may be specified per esp term.  UTP should always be used for undirected graphs; OTP is the traditional directed default.
 */
-I_CHANGESTAT_FN(i_dnsp) {
-  ALLOC_STORAGE((int)N_CHANGE_STATS*2, double, storage);
-  (void)storage; // Get rid of an unused warning.
-}
-
+#define NEGATE_CHANGE_STATS for(unsigned int i = 0; i < N_CHANGE_STATS; i++) CHANGE_STAT[i] *= -1;
 C_CHANGESTAT_FN(c_dnsp) {
-  GET_STORAGE(double, storage);
-  StoreDyadMapUInt *spcache = N_AUX ? AUX_STORAGE : NULL;
-
-  int i,type;
-  double *dvec,*cs_esp, *cs_dsp;
-  
   /*Set things up*/
-  type=(int)INPUT_PARAM[0];     /*Get the ESP type code to be used*/
-  dvec=INPUT_PARAM+1;           /*Get the pointer to the ESP stats list*/
-  cs_esp=storage;               /*Grab memory for the DSP changescores*/
-  cs_dsp=storage+N_CHANGE_STATS;/*Grab memory for the DSP changescores*/
-
+  StoreDyadMapUInt *spcache = N_AUX ? AUX_STORAGE : NULL;
+  int type = IINPUT_PARAM[0];     /*Get the ESP type code to be used*/
+  Vertex *dvec = (Vertex*) IINPUT_PARAM+1;           /*Get the pointer to the ESP stats list*/
+  
   /*Obtain the ESP changescores (by type)*/
   switch(type){
   case ESPUTP: 
-    espUTP_calc(tail,head,mtp,nwp,spcache,N_CHANGE_STATS,dvec,cs_esp);
-    dspUTP_calc(tail,head,mtp,nwp,spcache,N_CHANGE_STATS,dvec,cs_dsp); 
+    espUTP_calc(sp_args);
+    NEGATE_CHANGE_STATS;
+    dspUTP_calc(sp_args);
     break;
   case ESPOTP: 
-    espOTP_calc(tail,head,mtp,nwp,spcache,N_CHANGE_STATS,dvec,cs_esp);
-    dspOTP_calc(tail,head,mtp,nwp,spcache,N_CHANGE_STATS,dvec,cs_dsp); 
+    espOTP_calc(sp_args);
+    NEGATE_CHANGE_STATS;
+    dspOTP_calc(sp_args);
     break;
   case ESPITP: 
-    espITP_calc(tail,head,mtp,nwp,spcache,N_CHANGE_STATS,dvec,cs_esp);
-    dspITP_calc(tail,head,mtp,nwp,spcache,N_CHANGE_STATS,dvec,cs_dsp); 
+    espITP_calc(sp_args);
+    NEGATE_CHANGE_STATS;
+    dspITP_calc(sp_args);
     break;
   case ESPRTP: 
-    espRTP_calc(tail,head,mtp,nwp,spcache,N_CHANGE_STATS,dvec,cs_esp);
-    dspRTP_calc(tail,head,mtp,nwp,spcache,N_CHANGE_STATS,dvec,cs_dsp); 
+    espRTP_calc(sp_args);
+    NEGATE_CHANGE_STATS;
+    dspRTP_calc(sp_args);
     break;
   case ESPOSP: 
-    espOSP_calc(tail,head,mtp,nwp,spcache,N_CHANGE_STATS,dvec,cs_esp);
-    dspOSP_calc(tail,head,mtp,nwp,spcache,N_CHANGE_STATS,dvec,cs_dsp); 
+    espOSP_calc(sp_args);
+    NEGATE_CHANGE_STATS;
+    dspOSP_calc(sp_args);
     break;
   case ESPISP: 
-    espISP_calc(tail,head,mtp,nwp,spcache,N_CHANGE_STATS,dvec,cs_esp);
-    dspISP_calc(tail,head,mtp,nwp,spcache,N_CHANGE_STATS,dvec,cs_dsp); 
+    espISP_calc(sp_args);
+    NEGATE_CHANGE_STATS;
+    dspISP_calc(sp_args);
     break;
   }
   /*We're done!  (Changestats were written in by the calc routine.)*/  
-  
-  for(i=0;i<N_CHANGE_STATS;i++)
-    CHANGE_STAT[i]=(cs_dsp[i]-cs_esp[i]);
 }
 
 
@@ -957,76 +920,46 @@ C_CHANGESTAT_FN(c_dnsp) {
 
   Only one type may be specified per esp term.  The default, OTP, retains the original behavior of esp/gwesp.  In the case of undirected graphs, OTP should be used (the others assume a directed network memory structure, and are not safe in the undirected case).
 */
-I_CHANGESTAT_FN(i_dgwnsp) {
-  Vertex maxesp = (int)INPUT_PARAM[2];
-  ALLOC_STORAGE(maxesp*3, double, storage);
-  double *dvec=storage+maxesp;    /*Grab memory for the ESP vals*/
-  for(unsigned int i=0;i<maxesp;i++)         /*Initialize the ESP vals*/
-    dvec[i]=i+1;
-}
-
-C_CHANGESTAT_FN(c_dgwnsp) { 
-  GET_STORAGE(double, storage);
-  StoreDyadMapUInt *spcache = N_AUX ? AUX_STORAGE : NULL;
-
-  int type;
-  Vertex i,maxesp;
-  double alpha, oneexpa,*dvec,*cs_esp, *cs_dsp;
-  
+C_CHANGESTAT_FN(c_dgwnsp) {
   /*Set things up*/
-  alpha = INPUT_PARAM[0];       /*Get alpha*/
-  oneexpa = 1.0-exp(-alpha);    /*Precompute (1-exp(-alpha))*/
-  type=(int)INPUT_PARAM[1];     /*Get the ESP type code to be used*/
-  maxesp=(int)INPUT_PARAM[2];   /*Get the max ESP cutoff to use*/
-  cs_esp=storage;     /*Grab memory for the ESP changescores*/
-  dvec=storage+maxesp;   /*Grab memory for the ESP vals*/
-  
-  cs_dsp=storage+maxesp+maxesp;     /*Grab memory for the ESP changescores*/
+  StoreDyadMapUInt *spcache = N_AUX ? AUX_STORAGE : NULL;
+  double alpha = INPUT_PARAM[0];       /*Get alpha*/
+  double oneexpa = 1.0-exp(-alpha);    /*Precompute (1-exp(-alpha))*/
+  int type = IINPUT_PARAM[0];     /*Get the ESP type code to be used*/
+  double cumchange = 0;
 
   /*Obtain the changescores (by type)*/
   switch(type){
   case ESPUTP:
-    espUTP_calc(tail,head,mtp,nwp,spcache,maxesp,dvec,cs_esp);
-    dspUTP_calc(tail,head,mtp,nwp,spcache,maxesp,dvec,cs_dsp);
+    cumchange = dspUTP_gw_calc(gwsp_args) - espUTP_gw_calc(gwsp_args);
     break;
   case ESPOTP:
-    espOTP_calc(tail,head,mtp,nwp,spcache,maxesp,dvec,cs_esp);
-    dspOTP_calc(tail,head,mtp,nwp,spcache,maxesp,dvec,cs_dsp);
+    cumchange = dspOTP_gw_calc(gwsp_args) - espOTP_gw_calc(gwsp_args);
     break;
   case ESPITP:
-    espITP_calc(tail,head,mtp,nwp,spcache,maxesp,dvec,cs_esp);
-    dspITP_calc(tail,head,mtp,nwp,spcache,maxesp,dvec,cs_dsp);
+    cumchange = dspITP_gw_calc(gwsp_args) - espITP_gw_calc(gwsp_args);
     break;
   case ESPRTP:
-    espRTP_calc(tail,head,mtp,nwp,spcache,maxesp,dvec,cs_esp);
-    dspRTP_calc(tail,head,mtp,nwp,spcache,maxesp,dvec,cs_dsp);
+    cumchange = dspRTP_gw_calc(gwsp_args) - espRTP_gw_calc(gwsp_args);
     break;
   case ESPOSP:
-    espOSP_calc(tail,head,mtp,nwp,spcache,maxesp,dvec,cs_esp);
-    dspOSP_calc(tail,head,mtp,nwp,spcache,maxesp,dvec,cs_dsp);
+    cumchange = dspOSP_gw_calc(gwsp_args) - espOSP_gw_calc(gwsp_args);
     break;
   case ESPISP:
-    espISP_calc(tail,head,mtp,nwp,spcache,maxesp,dvec,cs_esp);
-    dspISP_calc(tail,head,mtp,nwp,spcache,maxesp,dvec,cs_dsp);
+    cumchange = dspISP_gw_calc(gwsp_args) - espISP_gw_calc(gwsp_args);
     break;
   }
-  
-  /*Compute the gwnsp changescore*/
-  for(i=0;i<maxesp;i++)
-    if((cs_dsp[i]-cs_esp[i])!=0.0)                  /*Filtering to save a few pow() calls*/
-      CHANGE_STAT[0]+=(1.0-pow(oneexpa,dvec[i]))*(cs_dsp[i]-cs_esp[i]);
-  CHANGE_STAT[0]*=exp(alpha);
-}
 
+  CHANGE_STAT[0] = edgestate ? -cumchange : cumchange;
+}
 
 
 /*****************
  changestat: c_ddspbwrap
 *****************/
-
 C_CHANGESTAT_FN(c_ddspbwrap) {
   c_ddsp(tail, head, mtp, nwp, edgestate);
-  
+
   // correct for double counting of directed vs. undirected dyads
   for(int ind = 0; ind < N_CHANGE_STATS; ind++) CHANGE_STAT[ind] /= 2.0;
 }
@@ -1035,11 +968,6 @@ C_CHANGESTAT_FN(c_ddspbwrap) {
 /*****************
  changestat: c_dgwdspbwrap
 *****************/
-
-I_CHANGESTAT_FN(i_dgwdspbwrap) {
-  i_dgwdsp(mtp, nwp);
-}
-
 C_CHANGESTAT_FN(c_dgwdspbwrap) {
   c_dgwdsp(tail, head, mtp, nwp, edgestate);
   
