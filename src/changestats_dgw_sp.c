@@ -9,6 +9,18 @@
  */
 #include "changestats_dgw_sp.h"
 #include "ergm_dyad_hashmap.h"
+#include "changestats.h"
+
+#define all_calcs(term)                         \
+  dvec_calc(term)                              \
+  dist_calc(term)                              \
+  gw_calc(term)
+
+#define all_calcs2(term)                         \
+  dvec_calc2(term)                              \
+  dist_calc2(term)                              \
+  gw_calc2(term)
+
 
 #define sp_args tail,head,mtp,nwp,edgestate,spcache,N_CHANGE_STATS,dvec,CHANGE_STAT
 
@@ -43,6 +55,38 @@
         }                                                               \
       });                                                               \
   }
+
+
+#define spd_args tail,head,mtp,nwp,edgestate,spcache,N_CHANGE_STATS,CHANGE_STAT
+
+#define dist_calc(term)                                                 \
+  static inline void term ## _dist_calc(Vertex tail, Vertex head, ModelTerm *mtp, Network *nwp, Rboolean edgestate, StoreDyadMapUInt *spcache, int nd, double *cs) { \
+    int echange = edgestate ? -1 : 1;                                   \
+    term ## _change(L, {                                                \
+        int nL = L + echange;                                           \
+        if(nL > nd) cutoff_error(mtp);                                  \
+        if(L) cs[L-1]--;                                                   \
+        if(nL) cs[nL-1]++;                                                 \
+      },{                                                               \
+        if(L > nd) cutoff_error(mtp);                                   \
+        if(L) cs[L-1] += echange;                                         \
+      });                                                               \
+  }
+
+#define dist_calc2(term)                                                \
+  static inline void term ## _dist_calc(Vertex tail, Vertex head, ModelTerm *mtp, Network *nwp, Rboolean edgestate, StoreDyadMapUInt *spcache, int nd, double *cs) { \
+    int echange = edgestate ? -1 : 1;                                   \
+    term ## _change(L, {                                                \
+        int nL = L + echange;                                           \
+        if(nL > nd) cutoff_error(mtp);                                  \
+        if(L) cs[L-1]-=2;                                                 \
+        if(nL) cs[nL-1]+=2;                                               \
+      },{                                                               \
+        if(L > nd) cutoff_error(mtp);                                   \
+        if(L) cs[L-1] += echange;                                         \
+      });                                                               \
+  }
+
 
 #define gwsp_args tail,head,mtp,nwp,edgestate,spcache,alpha,oneexpa
 
@@ -319,18 +363,12 @@
       });                                                               \
   }
 
-dvec_calc(dspUTP)
-gw_calc(dspUTP)
-dvec_calc(dspOTP)
-gw_calc(dspOTP)
-dvec_calc(dspITP)
-gw_calc(dspITP)
-dvec_calc2(dspOSP)
-gw_calc2(dspOSP)
-dvec_calc2(dspISP)
-gw_calc2(dspISP)
-dvec_calc2(dspRTP)
-gw_calc2(dspRTP)
+all_calcs(dspUTP)
+all_calcs(dspOTP)
+all_calcs(dspITP)
+all_calcs2(dspOSP)
+all_calcs2(dspISP)
+all_calcs2(dspRTP)
 
 /*****************
  changestat: d_dsp
@@ -367,6 +405,24 @@ C_CHANGESTAT_FN(c_ddsp) {
   case ESPISP: dspISP_calc(sp_args); break;
   }
   /*We're done!  (Changestats were written in by the calc routine.)*/  
+}
+
+
+C_CHANGESTAT_FN(c_ddspdist) {
+  /*Set things up*/
+  StoreDyadMapUInt *spcache = N_AUX ? AUX_STORAGE : NULL;
+  int type = IINPUT_PARAM[0];     /*Get the ESP type code to be used*/
+
+  /*Obtain the ESP changescores (by type)*/
+  switch(type){
+  case ESPUTP: dspUTP_dist_calc(spd_args); break;
+  case ESPOTP: dspOTP_dist_calc(spd_args); break;
+  case ESPITP: dspITP_dist_calc(spd_args); break;
+  case ESPRTP: dspRTP_dist_calc(spd_args); break;
+  case ESPOSP: dspOSP_dist_calc(spd_args); break;
+  case ESPISP: dspISP_dist_calc(spd_args); break;
+  }
+  /*We're done!  (Changestats were written in by the calc routine.)*/
 }
 
 
@@ -753,18 +809,12 @@ C_CHANGESTAT_FN(c_dgwdsp) {
     });                                                                 \
   call_subroutine_focus(L2th, subroutine_focus);
 
-dvec_calc(espUTP)
-gw_calc(espUTP)
-dvec_calc(espOTP)
-gw_calc(espOTP)
-dvec_calc(espITP)
-gw_calc(espITP)
-dvec_calc(espOSP)
-gw_calc(espOSP)
-dvec_calc(espISP)
-gw_calc(espISP)
-dvec_calc(espRTP)
-gw_calc(espRTP)
+all_calcs(espUTP)
+all_calcs(espOTP)
+all_calcs(espITP)
+all_calcs(espOSP)
+all_calcs(espISP)
+all_calcs(espRTP)
 
 
 /*****************
@@ -802,6 +852,24 @@ C_CHANGESTAT_FN(c_desp) {
   case ESPISP: espISP_calc(sp_args); break;
   }
   /*We're done!  (Changestats were written in by the calc routine.)*/  
+}
+
+
+C_CHANGESTAT_FN(c_despdist) {
+  /*Set things up*/
+  StoreDyadMapUInt *spcache = N_AUX ? AUX_STORAGE : NULL;
+  int type = IINPUT_PARAM[0];     /*Get the ESP type code to be used*/
+
+  /*Obtain the ESP changescores (by type)*/
+  switch(type){
+  case ESPUTP: espUTP_dist_calc(spd_args); break;
+  case ESPOTP: espOTP_dist_calc(spd_args); break;
+  case ESPITP: espITP_dist_calc(spd_args); break;
+  case ESPRTP: espRTP_dist_calc(spd_args); break;
+  case ESPOSP: espOSP_dist_calc(spd_args); break;
+  case ESPISP: espISP_dist_calc(spd_args); break;
+  }
+  /*We're done!  (Changestats were written in by the calc routine.)*/
 }
 
 
@@ -902,6 +970,48 @@ C_CHANGESTAT_FN(c_dnsp) {
     break;
   }
   /*We're done!  (Changestats were written in by the calc routine.)*/  
+}
+
+
+C_CHANGESTAT_FN(c_dnspdist) {
+  /*Set things up*/
+  StoreDyadMapUInt *spcache = N_AUX ? AUX_STORAGE : NULL;
+  int type = IINPUT_PARAM[0];     /*Get the ESP type code to be used*/
+
+  /*Obtain the ESP changescores (by type)*/
+  switch(type){
+  case ESPUTP:
+    espUTP_dist_calc(spd_args);
+    NEGATE_CHANGE_STATS;
+    dspUTP_dist_calc(spd_args);
+    break;
+  case ESPOTP:
+    espOTP_dist_calc(spd_args);
+    NEGATE_CHANGE_STATS;
+    dspOTP_dist_calc(spd_args);
+    break;
+  case ESPITP:
+    espITP_dist_calc(spd_args);
+    NEGATE_CHANGE_STATS;
+    dspITP_dist_calc(spd_args);
+    break;
+  case ESPRTP:
+    espRTP_dist_calc(spd_args);
+    NEGATE_CHANGE_STATS;
+    dspRTP_dist_calc(spd_args);
+    break;
+  case ESPOSP:
+    espOSP_dist_calc(spd_args);
+    NEGATE_CHANGE_STATS;
+    dspOSP_dist_calc(spd_args);
+    break;
+  case ESPISP:
+    espISP_dist_calc(spd_args);
+    NEGATE_CHANGE_STATS;
+    dspISP_dist_calc(spd_args);
+    break;
+  }
+  /*We're done!  (Changestats were written in by the calc routine.)*/
 }
 
 
