@@ -12,14 +12,14 @@
 #include "changestats.h"
 
 #define all_calcs(term)                         \
-  dvec_calc(term)                              \
-  dist_calc(term)                              \
-  gw_calc(term)
+  dvec_calc(term)                               \
+       dist_calc(term)                          \
+       gw_calc(term)
 
-#define all_calcs2(term)                         \
+#define all_calcs2(term)                        \
   dvec_calc2(term)                              \
-  dist_calc2(term)                              \
-  gw_calc2(term)
+       dist_calc2(term)                         \
+       gw_calc2(term)
 
 
 #define sp_args tail,head,mtp,nwp,edgestate,spcache,N_CHANGE_STATS,dvec,CHANGE_STAT
@@ -27,15 +27,15 @@
 #define dvec_calc(term)                                                 \
   static inline void term ## _calc(Vertex tail, Vertex head, ModelTerm *mtp, Network *nwp, Rboolean edgestate, StoreDyadMapUInt *spcache, int nd, Vertex *dvec, double *cs) { \
     int echange = edgestate ? -1 : 1;                                   \
-    term ## _change(L, {                                         \
+    term ## _change(L, {                                                \
         for(unsigned int j = 0; j < nd; j++){                           \
           Vertex deg = dvec[j];                                         \
-          cs[j] += ((L+echange == deg) - (L == deg));                       \
+          cs[j] += ((L+echange == deg) - (L == deg));                   \
         }                                                               \
       },{                                                               \
         for(unsigned int j = 0; j < nd; j++){                           \
           Vertex deg = dvec[j];                                         \
-          cs[j] += (echange)*(L == deg);                              \
+          cs[j] += (echange)*(L == deg);                                \
         }                                                               \
       });                                                               \
   }
@@ -43,15 +43,15 @@
 #define dvec_calc2(term)                                                \
   static inline void term ## _calc(Vertex tail, Vertex head, ModelTerm *mtp, Network *nwp, Rboolean edgestate, StoreDyadMapUInt *spcache, int nd, Vertex *dvec, double *cs) { \
     int echange = edgestate ? -1 : 1;                                   \
-    term ## _change(L, {                                         \
+    term ## _change(L, {                                                \
         for(unsigned int j = 0; j < nd; j++){                           \
           Vertex deg = (Vertex)dvec[j];                                 \
-          cs[j] += ((L+echange == deg) - (L == deg))*2;                     \
+          cs[j] += ((L+echange == deg) - (L == deg))*2;                 \
         }                                                               \
       },{                                                               \
         for(unsigned int j = 0; j < nd; j++){                           \
           Vertex deg = (Vertex)dvec[j];                                 \
-          cs[j] += (echange)*(L == deg);                              \
+          cs[j] += (echange)*(L == deg);                                \
         }                                                               \
       });                                                               \
   }
@@ -65,11 +65,11 @@
     term ## _change(L, {                                                \
         int nL = L + echange;                                           \
         if(nL > nd) cutoff_error(mtp);                                  \
-        if(L) cs[L-1]--;                                                   \
-        if(nL) cs[nL-1]++;                                                 \
+        if(L) cs[L-1]--;                                                \
+        if(nL) cs[nL-1]++;                                              \
       },{                                                               \
         if(L > nd) cutoff_error(mtp);                                   \
-        if(L) cs[L-1] += echange;                                         \
+        if(L) cs[L-1] += echange;                                       \
       });                                                               \
   }
 
@@ -79,11 +79,11 @@
     term ## _change(L, {                                                \
         int nL = L + echange;                                           \
         if(nL > nd) cutoff_error(mtp);                                  \
-        if(L) cs[L-1]-=2;                                                 \
-        if(nL) cs[nL-1]+=2;                                               \
+        if(L) cs[L-1]-=2;                                               \
+        if(nL) cs[nL-1]+=2;                                             \
       },{                                                               \
         if(L > nd) cutoff_error(mtp);                                   \
-        if(L) cs[L-1] += echange;                                         \
+        if(L) cs[L-1] += echange;                                       \
       });                                                               \
   }
 
@@ -96,31 +96,33 @@
     term ## _change(L, {                                                \
         cumchange += pow(oneexpa, L-edgestate);                         \
       },{                                                               \
-        cumchange += exp(alpha)*(1-pow(oneexpa, L));                    \
+        if(alpha < 100.0) cumchange += exp(alpha)*(1-pow(oneexpa, L));  \
+        else cumchange += L;                                            \
       });                                                               \
     return cumchange;                                                   \
   }
 
 
-#define gw_calc2(term)                                                 \
+#define gw_calc2(term)                                                  \
   static inline double term ## _gw_calc(Vertex tail, Vertex head, ModelTerm *mtp, Network *nwp, Rboolean edgestate, StoreDyadMapUInt *spcache, double alpha, double oneexpa) { \
     double cumchange = 0;                                               \
     term ## _change(L, {                                                \
         cumchange += pow(oneexpa, L-edgestate)*2;                       \
       },{                                                               \
-        cumchange += exp(alpha)*(1-pow(oneexpa, L));                    \
+        if(alpha < 100.0) cumchange += exp(alpha)*(1-pow(oneexpa, L));  \
+        else cumchange += L;                                            \
       });                                                               \
-    return cumchange;                                                  \
+    return cumchange;                                                   \
   }
 
 
 
 #define call_subroutine_path(count, subroutine_path)    \
-  {int L = (count);      \
+  {int L = (count);                                     \
     {subroutine_path}}
 
 #define call_subroutine_focus(count, subroutine_focus)  \
-  {int L = (count);                                   \
+  {int L = (count);                                     \
     {subroutine_focus}}
 
 
@@ -139,35 +141,35 @@
   This function will only work properly with undirected graphs, and should only be called in that case.
 */
 
-#define dspUTP_change(L, subroutine_path, subroutine_focus)      \
-  /* step through edges of head */                                      \
-  EXEC_THROUGH_EDGES(head,e,u, {                                        \
-      if (u!=tail){                                                     \
-        int L2tu;                                                       \
-        if(spcache) L2tu = GETDMUI(tail,u,spcache);                     \
-        else{                                                           \
-          L2tu=0;                                                       \
-          /* step through edges of u */                                 \
-          EXEC_THROUGH_EDGES(u,f,v, {                                   \
-              if(IS_UNDIRECTED_EDGE(v,tail)!= 0) L2tu++;                \
-            });                                                         \
-        }                                                               \
-        call_subroutine_path(L2tu, subroutine_path);                    \
-      }                                                                 \
-    });                                                                 \
-  EXEC_THROUGH_EDGES(tail,e,u, {                                        \
-      if (u!=head){                                                     \
-        int L2uh;                                                       \
-        if(spcache) L2uh = GETDMUI(u,head,spcache);                     \
-        else{                                                           \
-          L2uh=0;                                                       \
-          /* step through edges of u */                                 \
-          EXEC_THROUGH_EDGES(u,f,v, {                                   \
-              if(IS_UNDIRECTED_EDGE(v,head)!= 0) L2uh++;                \
-            });                                                         \
-        }                                                               \
-        call_subroutine_path(L2uh, subroutine_path);                    \
-      }                                                                 \
+#define dspUTP_change(L, subroutine_path, subroutine_focus)     \
+  /* step through edges of head */                              \
+  EXEC_THROUGH_EDGES(head,e,u, {                                \
+      if (u!=tail){                                             \
+        int L2tu;                                               \
+        if(spcache) L2tu = GETDMUI(tail,u,spcache);             \
+        else{                                                   \
+          L2tu=0;                                               \
+          /* step through edges of u */                         \
+          EXEC_THROUGH_EDGES(u,f,v, {                           \
+              if(IS_UNDIRECTED_EDGE(v,tail)!= 0) L2tu++;        \
+            });                                                 \
+        }                                                       \
+        call_subroutine_path(L2tu, subroutine_path);            \
+      }                                                         \
+    });                                                         \
+  EXEC_THROUGH_EDGES(tail,e,u, {                                \
+      if (u!=head){                                             \
+        int L2uh;                                               \
+        if(spcache) L2uh = GETDMUI(u,head,spcache);             \
+        else{                                                   \
+          L2uh=0;                                               \
+          /* step through edges of u */                         \
+          EXEC_THROUGH_EDGES(u,f,v, {                           \
+              if(IS_UNDIRECTED_EDGE(v,head)!= 0) L2uh++;        \
+            });                                                 \
+        }                                                       \
+        call_subroutine_path(L2uh, subroutine_path);            \
+      }                                                         \
     });
 
 
@@ -177,7 +179,7 @@
   This function should only be used in the directed case
 */
 
-#define dspOTP_change(L, subroutine_path, subroutine_focus)      \
+#define dspOTP_change(L, subroutine_path, subroutine_focus)             \
   /* step through outedges of head (i.e., k: t->k)*/                    \
   EXEC_THROUGH_OUTEDGES(head, e, k, {                                   \
       if(k!=tail){ /*Only use contingent cases*/                        \
@@ -221,7 +223,7 @@
 
   We assume that this is only called for directed graphs - otherwise, use the baseline espUTP function.
 */
-#define dspITP_change(L, subroutine_path, subroutine_focus)      \
+#define dspITP_change(L, subroutine_path, subroutine_focus)             \
   /* step through outedges of head (i.e., k: h->k)*/                    \
   EXEC_THROUGH_OUTEDGES(head, e, k, {                                   \
       if((k!=tail)){ /*Only use contingent cases*/                      \
@@ -265,7 +267,7 @@
 
   We assume that this is only called for directed graphs - otherwise, use the baseline espUTP function.
 */
-#define dspOSP_change(L, subroutine_path, subroutine_focus)      \
+#define dspOSP_change(L, subroutine_path, subroutine_focus)             \
   /* step through outedges of tail (i.e., k: t->k, k->h, k!=h)*/        \
   EXEC_THROUGH_INEDGES(head, e, k, {                                    \
       if(k!=tail){                                                      \
@@ -296,7 +298,7 @@
 
   We assume that this is only called for directed graphs - otherwise, use the baseline espUTP function.
 */
-#define dspISP_change(L, subroutine_path, subroutine_focus)      \
+#define dspISP_change(L, subroutine_path, subroutine_focus)             \
   /* step through inedges of head (i.e., k: k->h, t->k, k!=t)*/         \
   EXEC_THROUGH_OUTEDGES(tail, e, k, {                                   \
       int L2kh;                                                         \
@@ -326,7 +328,7 @@
 
   We assume that this is only called for directed graphs - otherwise, use the baseline espUTP function.
 */
-#define dspRTP_change(L, subroutine_path, subroutine_focus)      \
+#define dspRTP_change(L, subroutine_path, subroutine_focus)             \
   int htedge=IS_OUTEDGE(head,tail);  /*Is there an h->t (reciprocating) edge?*/ \
   if(htedge){ /* Otherwise, t->h doesn't make a difference. */          \
     /* step through reciprocated outedges of tail (t->k: k!=h,k<-t)*/   \
@@ -478,31 +480,31 @@ C_CHANGESTAT_FN(c_dgwdsp) {
 
   This function will only work properly with undirected graphs, and should only be called in that case.
 */
-#define espUTP_change(L, subroutine_path, subroutine_focus)      \
-  int L2th;                                                             \
-  if(spcache) L2th = GETDMUI(tail,head,spcache); else L2th=0;           \
-  /* step through outedges of head */                                   \
-  EXEC_THROUGH_EDGES(head,e,u, {                                        \
-      if (IS_UNDIRECTED_EDGE(u,tail) != 0){                             \
-        int L2tu;                                                       \
-        int L2uh;                                                       \
-	if(spcache){                                                    \
-	  L2tu = GETDMUI(tail,u,spcache);                               \
-	  L2uh = GETDMUI(u,head,spcache);                               \
-	}else{                                                          \
-	  L2th++;                                                       \
-	  L2tu=0;                                                       \
-	  L2uh=0;                                                       \
-	  /* step through edges of u */                                 \
-	  EXEC_THROUGH_EDGES(u,f,v, {                                   \
-	      if(IS_UNDIRECTED_EDGE(v,head)!= 0) L2uh++;                \
-	      if(IS_UNDIRECTED_EDGE(v,tail)!= 0) L2tu++;                \
-	    });                                                         \
-	}                                                               \
-        call_subroutine_path(L2tu, subroutine_path);                    \
-        call_subroutine_path(L2uh, subroutine_path);                    \
-      }                                                                 \
-    });                                                                 \
+#define espUTP_change(L, subroutine_path, subroutine_focus)     \
+  int L2th;                                                     \
+  if(spcache) L2th = GETDMUI(tail,head,spcache); else L2th=0;   \
+  /* step through outedges of head */                           \
+  EXEC_THROUGH_EDGES(head,e,u, {                                \
+      if (IS_UNDIRECTED_EDGE(u,tail) != 0){                     \
+        int L2tu;                                               \
+        int L2uh;                                               \
+	if(spcache){                                            \
+	  L2tu = GETDMUI(tail,u,spcache);                       \
+	  L2uh = GETDMUI(u,head,spcache);                       \
+	}else{                                                  \
+	  L2th++;                                               \
+	  L2tu=0;                                               \
+	  L2uh=0;                                               \
+	  /* step through edges of u */                         \
+	  EXEC_THROUGH_EDGES(u,f,v, {                           \
+	      if(IS_UNDIRECTED_EDGE(v,head)!= 0) L2uh++;        \
+	      if(IS_UNDIRECTED_EDGE(v,tail)!= 0) L2tu++;        \
+	    });                                                 \
+	}                                                       \
+        call_subroutine_path(L2tu, subroutine_path);            \
+        call_subroutine_path(L2uh, subroutine_path);            \
+      }                                                         \
+    });                                                         \
   call_subroutine_focus(L2th, subroutine_focus);
 
 
@@ -516,7 +518,7 @@ C_CHANGESTAT_FN(c_dgwdsp) {
 
   This function should only be used in the directed case, with espUTP being used in the undirected case.
 */
-#define espOTP_change(L, subroutine_path, subroutine_focus)      \
+#define espOTP_change(L, subroutine_path, subroutine_focus)             \
   int L2th;                                                             \
   if(spcache) L2th = GETDMUI(tail,head,spcache); else L2th=0;           \
   /* step through outedges of tail (i.e., k: t->k)*/                    \
@@ -568,7 +570,7 @@ C_CHANGESTAT_FN(c_dgwdsp) {
 
   We assume that this is only called for directed graphs - otherwise, use the baseline espUTP function.
 */
-#define espITP_change(L, subroutine_path, subroutine_focus)      \
+#define espITP_change(L, subroutine_path, subroutine_focus)             \
   int L2th;                                                             \
   if(spcache) L2th = GETDMUI(head,tail,spcache); else L2th=0;           \
   /* step through outedges of head (i.e., k: h->k)*/                    \
@@ -618,7 +620,7 @@ C_CHANGESTAT_FN(c_dgwdsp) {
 
   We assume that this is only called for directed graphs - otherwise, use the baseline espUTP function.
 */
-#define espOSP_change(L, subroutine_path, subroutine_focus)      \
+#define espOSP_change(L, subroutine_path, subroutine_focus)             \
   int L2th;                                                             \
   if(spcache) L2th = GETDMUI(tail,head,spcache); else L2th=0;           \
   /* step through outedges of tail (i.e., k: t->k, k->h, k!=h)*/        \
@@ -672,7 +674,7 @@ C_CHANGESTAT_FN(c_dgwdsp) {
 
   We assume that this is only called for directed graphs - otherwise, use the baseline espUTP function.
 */
-#define espISP_change(L, subroutine_path, subroutine_focus)      \
+#define espISP_change(L, subroutine_path, subroutine_focus)             \
   int L2th;                                                             \
   if(spcache) L2th = GETDMUI(tail,head,spcache); else L2th=0;           \
   /* step through inedges of head (i.e., k: k->h, t->k, k!=t)*/         \
@@ -728,7 +730,7 @@ C_CHANGESTAT_FN(c_dgwdsp) {
 
   We assume that this is only called for directed graphs - otherwise, use the baseline espUTP function.
 */
-#define espRTP_change(L, subroutine_path, subroutine_focus)      \
+#define espRTP_change(L, subroutine_path, subroutine_focus)             \
   int L2th; /*Two-path counts for various edges*/                       \
   if(spcache) L2th = GETDMUI(tail,head,spcache); else L2th=0;           \
   int htedge=IS_OUTEDGE(head,tail);  /*Is there an h->t (reciprocating) edge?*/ \

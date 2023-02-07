@@ -149,12 +149,8 @@ SPTYPE_CODE <- c(UTP = 0L, OTP = 1L, ITP = 2L, RTP = 3L, OSP = 4L, ISP = 5L)
   type <- toupper(a$type[1])
 
   ## Deal with cases for which network type determines term SP type:
-  if(is.bipartite(nw) && nchar(bip)){
-    type <- c(b1="OSP", b2="ISP")[bip]
-  }else if(!is.directed(nw)){
-    ergm_Init_inform("Use the ergm term ", sQuote(undname), " for undirected networks.")
-    type <- "UTP"
-  }
+  if(is.bipartite(nw) && nchar(bip)) type <- c(b1="OSP", b2="ISP")[bip]
+  else if(!is.directed(nw)) type <- "UTP"
 
   ## Check that the ultimate result is valid:
   if(! type%in%names(SPTYPE_CODE))
@@ -260,7 +256,7 @@ SPTYPE_CODE <- c(UTP = 0L, OTP = 1L, ITP = 2L, RTP = 3L, OSP = 4L, ISP = 5L)
 #routine is used (since it is safe for undirected graphs), irrespective of
 #the user's selection.  UTP cannot be chosen otherwise, since it won't work.
 
-#' @templateVar name desp
+#' @templateVar name esp
 #' @title Directed edgewise shared partners
 #' @description This term adds one network statistic to the model for each element in `d` where the \eqn{i} th such statistic equals the number of edges in the network with exactly `d[i]` shared partners.
 #'   
@@ -278,6 +274,7 @@ SPTYPE_CODE <- c(UTP = 0L, OTP = 1L, ITP = 2L, RTP = 3L, OSP = 4L, ISP = 5L)
 #' @template ergmTerm-sp-types
 #'
 #' @concept directed
+#' @aliases desp-ergmTerm
 InitErgmTerm.desp<-function(nw, arglist, cache.sp=TRUE, ...) {
   .d_sp_impl("e", nw, arglist, cache.sp, ...)
 }
@@ -301,7 +298,7 @@ InitErgmTerm.desp<-function(nw, arglist, cache.sp=TRUE, ...) {
 #always used (since it is directedness-safe), and the user's input is
 #overridden.  UTP cannot be chosen otherwise, since it won't work.
 
-#' @templateVar name dgwesp
+#' @templateVar name gwesp
 #' @title Geometrically weighted edgewise shared partner distribution
 #' @description This term adds a statistic equal to the geometrically weighted edgewise (not dyadwise) shared partner distribution with decay parameter `decay` parameter.
 #'   
@@ -322,6 +319,7 @@ InitErgmTerm.desp<-function(nw, arglist, cache.sp=TRUE, ...) {
 #' @template ergmTerm-gw-alpha-to-decay
 #'
 #' @concept directed
+#' @aliases dgwesp-ergmTerm
 InitErgmTerm.dgwesp<-function(nw, arglist, cache.sp=TRUE, gw.cutoff=30, ...) {
   .dgw_sp_impl("e", nw, arglist, cache.sp, gw.cutoff, ...)
 }
@@ -342,7 +340,7 @@ InitErgmTerm.dgwesp<-function(nw, arglist, cache.sp=TRUE, gw.cutoff=30, ...) {
 #
 #Only one type may be specified per dsp term.
 
-#' @templateVar name ddsp
+#' @templateVar name dsp
 #' @title Directed dyadwise shared partners
 #' @description This term adds one network statistic to the model for each element in `d` where the \eqn{i} th such statistic equals the number of dyads in the network with exactly `d[i]` shared partners.
 #'   
@@ -360,6 +358,7 @@ InitErgmTerm.dgwesp<-function(nw, arglist, cache.sp=TRUE, gw.cutoff=30, ...) {
 #' @template ergmTerm-sp-types
 #'
 #' @concept directed
+#' @aliases ddsp-ergmTerm
 InitErgmTerm.ddsp<-function(nw, arglist, cache.sp=TRUE, ...) {
   .d_sp_impl("d", nw, arglist, cache.sp, emptynwstats=.dsp_emptynwstats, ...)
 }
@@ -368,7 +367,7 @@ InitErgmTerm.ddsp<-function(nw, arglist, cache.sp=TRUE, ...) {
 
 ################################################################################
 
-#' @templateVar name dgwdsp
+#' @templateVar name gwdsp
 #' @title Geometrically weighted dyadwise shared partner distribution
 #' @description This term adds one network statistic to the model equal to the geometrically weighted dyadwise shared partner distribution with decay parameter `decay` parameter.
 #'   
@@ -391,6 +390,7 @@ InitErgmTerm.ddsp<-function(nw, arglist, cache.sp=TRUE, ...) {
 #' @template ergmTerm-gw-alpha-to-decay
 #'
 #' @concept directed
+#' @aliases dgwdsp-ergmTerm
 InitErgmTerm.dgwdsp<-function(nw, arglist, cache.sp=TRUE, gw.cutoff=30, ...) {
   .dgw_sp_impl("d", nw, arglist, cache.sp, gw.cutoff, ...)
 }
@@ -414,7 +414,7 @@ InitErgmTerm.dgwdsp<-function(nw, arglist, cache.sp=TRUE, gw.cutoff=30, ...) {
 #the user's selection.  UTP cannot be chosen otherwise, since it won't work.
 #
 
-#' @templateVar name dnsp
+#' @templateVar name nsp
 #' @title Directed non-edgewise shared partners
 #' @description This term adds one network statistic to the model for each element in `d` where the \eqn{i} th such statistic equals the number of non-edges in the network with exactly `d[i]` shared partners.
 #'   
@@ -432,6 +432,7 @@ InitErgmTerm.dgwdsp<-function(nw, arglist, cache.sp=TRUE, gw.cutoff=30, ...) {
 #' @template ergmTerm-sp-types
 #'
 #' @concept directed
+#' @aliases dnsp-ergmTerm
 InitErgmTerm.dnsp<-function(nw, arglist, cache.sp=TRUE, ...) {
   .d_sp_impl("n", nw, arglist, cache.sp, emptynwstats=.dsp_emptynwstats, ...)
 }
@@ -439,7 +440,7 @@ InitErgmTerm.dnsp<-function(nw, arglist, cache.sp=TRUE, ...) {
 
 ################################################################################
 
-#' @templateVar name dgwnsp
+#' @templateVar name gwnsp
 #' @title Geometrically weighted non-edgewise shared partner distribution
 #' @description This term is just like gwesp and gwdsp except it adds a statistic equal to the geometrically weighted nonedgewise (that is, over dyads that do not have an edge) shared partner distribution with decay parameter `decay` parameter.
 #'   
@@ -459,6 +460,45 @@ InitErgmTerm.dnsp<-function(nw, arglist, cache.sp=TRUE, ...) {
 #' @template ergmTerm-gw-alpha-to-decay
 #'
 #' @concept directed
+#' @aliases dgwnsp-ergmTerm
 InitErgmTerm.dgwnsp<-function(nw, arglist, cache.sp=TRUE, gw.cutoff=30, ...) {
   .dgw_sp_impl("n", nw, arglist, cache.sp, gw.cutoff, ...)
 }
+
+################################################################################
+
+#' @templateVar name gwnsp
+#' @template ergmTerm-rdname
+#' @usage
+#' # binary: gwnsp(decay, fixed=FALSE, cutoff=30, type="OTP")
+InitErgmTerm.gwnsp <- InitErgmTerm.dgwnsp
+
+#' @templateVar name gwdsp
+#' @template ergmTerm-rdname
+#' @usage
+#' # binary: gwdsp(decay, fixed=FALSE, cutoff=30, type="OTP")
+InitErgmTerm.gwdsp <- InitErgmTerm.dgwdsp
+
+#' @templateVar name gwesp
+#' @template ergmTerm-rdname
+#' @usage
+#' # binary: gwesp(decay, fixed=FALSE, cutoff=30, type="OTP")
+InitErgmTerm.gwesp <- InitErgmTerm.dgwesp
+
+#' @templateVar name dsp
+#' @template ergmTerm-rdname
+#' @usage
+#' # binary: dsp(d, type="OTP")
+InitErgmTerm.dsp <- InitErgmTerm.ddsp
+
+#' @templateVar name esp
+#' @template ergmTerm-rdname
+#' @usage
+#' # binary: esp(d, type="OTP")
+InitErgmTerm.esp <- InitErgmTerm.desp
+
+#' @templateVar name nsp
+#' @template ergmTerm-rdname
+#' @usage
+#' # binary: nsp(d, type="OTP")
+InitErgmTerm.nsp <- InitErgmTerm.dnsp
