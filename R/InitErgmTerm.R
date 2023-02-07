@@ -233,10 +233,10 @@ decay_vs_fixed <- function(a, name, no_curved_attrarg=TRUE){
   }
 
   if(a$fixed){
-    if(is.null(a$decay)) ergm_Init_abort("Using ", sQuote('fixed=TRUE')," requires a decay parameter ", sQuote('decay'), ".")
+    if(!attr(a, "missing")["cutoff"]) ergm_Init_warn("When ", sQuote('fixed=TRUE'), " parameter ", sQuote('cutoff'), " has no effect.")
+    if(is.null(a$decay)) ergm_Init_abort("Using ", sQuote('fixed=TRUE'), " requires a decay parameter ", sQuote('decay'), ".")
   }else{
-    if(!is.null(a$decay)) ergm_Init_warn("Decay parameter ", sQuote('decay')," passed with ", sQuote('fixed=FALSE'), ". ", sQuote('decay')," will be ignored. To specify an initial value for ", sQuote('decay'),", use the ", sQuote('control.ergm()'), " parameter ", sQuote('init='), ".")
-
+    if(!is.null(a$decay)) ergm_Init_warn("When ", sQuote('fixed=FALSE'), " parameter ", sQuote('decay')," has no effect. To specify an initial value for ", sQuote('decay'),", use the ", sQuote('control.ergm()'), " parameter ", sQuote('init='), ".")
     if(no_curved_attrarg && !is.null(NVL(a$attrname,a$attr))) ergm_Init_abort("Using ", sQuote('fixed=FALSE'), " with an attribute is not implemented at this time. Use ", sQuote('fixed=TRUE'), ".")
   }
 }

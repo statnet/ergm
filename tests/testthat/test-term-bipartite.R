@@ -276,7 +276,7 @@ test_that("gwb1dsp, bipartite", {
   s.d0 <- summary(bipnw~gwb1dsp)
   expect_silent(summary(bipnw~gwb1dsp(cutoff=2)))
   expect_error(summary(bipnw~gwb1dsp(cutoff=1)), ".*Term .dgwb1dsp. has encountered a network for which number of outgoing shared partners on some dyad exceeded the cut-off setting of 1. This can usually be remedied by increasing the value of the term argument .cutoff. or the corresponding term option .gw.cutoff...*")
-  expect_warning(summary(bipnw~gwb1dsp(.3)), ".*Decay parameter .decay. passed with .fixed=FALSE..*")
+  expect_warning(summary(bipnw~gwb1dsp(.3)), ".*When .fixed=FALSE. parameter .decay. has no effect..*")
   s.d2 <- summary(bipnw~gwb1dsp(.3, TRUE))
   e.d2 <- ergm(bipnw~gwb1dsp(.3, TRUE), estimate="MPLE")
 
@@ -305,7 +305,7 @@ test_that("gwb2dsp, bipartite", {
   s.d0 <- summary(bipnw~gwb2dsp)
   expect_silent(summary(bipnw~gwb2dsp(cutoff=2)))
   expect_error(summary(bipnw~gwb2dsp(cutoff=1)), ".*Term .dgwb2dsp. has encountered a network for which number of incoming shared partners on some dyad exceeded the cut-off setting of 1. This can usually be remedied by increasing the value of the term argument .cutoff. or the corresponding term option .gw.cutoff...*")
-  expect_warning(summary(bipnw~gwb2dsp(.3)), ".*Decay parameter .decay. passed with .fixed=FALSE..*")
+  expect_warning(summary(bipnw~gwb2dsp(.3)), ".*When .fixed=FALSE. parameter .decay. has no effect..*")
   s.d2 <- summary(bipnw~gwb2dsp(.3, TRUE))
   e.d2 <- ergm(bipnw~gwb2dsp(.3, TRUE), estimate="MPLE")
 
