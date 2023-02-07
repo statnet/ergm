@@ -8,11 +8,6 @@
 #  Copyright 2003-2023 Statnet Commons
 ################################################################################
 
-expect_summary <- function(s, e, value, coefficients, tolerance=0.001) {
-  expect_equal(s, value, tolerance=tolerance, ignore_attr=TRUE)
-  expect_equal(coef(e)[1:length(coefficients)], coefficients, tolerance=tolerance, ignore_attr=TRUE)
-}
-
 # a bipartite nw
 set.seed(143)
 b1 <- floor(runif(60, 1,100))

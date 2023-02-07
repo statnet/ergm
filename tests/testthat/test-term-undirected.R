@@ -8,11 +8,6 @@
 #  Copyright 2003-2023 Statnet Commons
 ################################################################################
 
-expect_summary <- function(s, e, value, coefficients, tolerance=0.001) {
-  expect_equal(s, value, tolerance=tolerance, ignore_attr=TRUE)
-  expect_equal(coef(e)[1:length(coefficients)], coefficients, tolerance=tolerance, ignore_attr=TRUE)
-}
-
 # an undirected nw
 data(faux.mesa.high)
 fmh <- faux.mesa.high
@@ -119,13 +114,14 @@ test_that("degree1.5, undirected", {
 
 test_that("gwdegree, undirected", {
   s.d <- summary(fmh~gwdegree())
+  expect_error(summary(fmh~gwdegree(cutoff=9)), ".*Term .gwdegree. has encountered a network for which degree of some node exceeded the cut-off setting of 9. This can usually be remedied by increasing the value of the term argument .cutoff. or the corresponding term option .gw.cutoff...*")
   e.d <- ergm(fmh~gwdegree(.4, fixed=TRUE), estimate="MPLE")
   s.df <- summary(fmh~gwdegree(.3, fixed=TRUE))
   e.df <- ergm(fmh~gwdegree(.2, fixed=TRUE), estimate="MPLE")
   s.dfa <- summary(fmh~gwdegree(.1, fixed=TRUE, attr=function(x) x %v% "Grade"))
   e.dfa <- ergm(fmh~gwdegree(.1, fixed=TRUE, attr=~Grade), estimate="MPLE")
 
-  expect_summary(head(s.d), e.d, c(51,30,28,18,10,2), -13.59067)
+  expect_summary(head(s.d), e.d, setNames(c(51,30,28,18,10,2), paste0("gwdegree#",1:6)), c(gwdeg.fixed.0.400000=-13.59067))
   expect_summary(s.df, e.df, 178.4312, -18.2508)
   expect_summary(s.dfa, e.dfa,
     c(53.58148, 25.53534, 30.83418, 17.79934, 19.31326, 10.80933),

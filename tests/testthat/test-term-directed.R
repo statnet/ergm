@@ -7,20 +7,6 @@
 #
 #  Copyright 2003-2023 Statnet Commons
 ################################################################################
-#  File tests/termTests.directed.R in package ergm, part of the
-#  Statnet suite of packages for network analysis, https://statnet.org .
-#
-#  This software is distributed under the GPL-3 license.  It is free,
-#  open source, and has the attribution requirements (GPL Section 7) at
-#  https://statnet.org/attribution .
-# #  Copyright 2003-2021 Statnet Commons
-################################################################################
-
-
-expect_summary <- function(s, e, value, coefficients, tolerance=0.001) {
-  expect_equal(s, value, tolerance=tolerance, ignore_attr=TRUE)
-  expect_equal(coef(e), coefficients, tolerance=tolerance, ignore_attr=TRUE)
-}
 
 # a directed nw
 load("sampson.wrong.RData") # Old (wrong) version of sampson's monks
@@ -79,25 +65,27 @@ test_that("idegrange, directed", {
 })
 
 test_that("gwidegree, directed", {
-  s.d <- summary(samplike~gwidegree())
+  expect_silent(s.d <- summary(samplike~gwidegree(cutoff=11)))
+  expect_error(summary(samplike~gwidegree(cutoff=7)), ".*Term .gwidegree. has encountered a network for which in-degree of some node exceeded the cut-off setting of 7. This can usually be remedied by increasing the value of the term argument .cutoff. or the corresponding term option .gw.cutoff...*")
   e.d <- ergm(samplike~gwidegree(.4, fixed=TRUE), estimate="MPLE")
   s.df <- summary(samplike~gwidegree(.3, fixed=TRUE))
   e.df <- ergm(samplike~gwidegree(.2, fixed=TRUE), estimate="MPLE")
   s.dfa <- summary(samplike~gwidegree(.1, TRUE, "group"))
   e.dfa <- ergm(samplike~gwidegree(.5, TRUE, function(x) x %v% "group"), estimate="MPLE")
-  expect_summary(head(s.d), e.d, c(0,3,5,1,3,2), -5.783202)
+  expect_summary(head(s.d), e.d, setNames(c(0,3,5,1,3,2), paste0("gwidegree#",1:6)), c(gwideg.fixed.0.400000=-5.783202))
   expect_summary(s.df, e.df, 23.89614, -2.247936)
   expect_summary(s.dfa, e.dfa, c(7.715119, 4.408762, 7.734290), -c(5.460448, 5.754111, 6.144961))
 })
 
 test_that("gwodegree, directed", {
   s.d <- summary(samplike~gwodegree())
+  expect_error(summary(samplike~gwodegree(cutoff=5)), ".*Term .gwodegree. has encountered a network for which out-degree of some node exceeded the cut-off setting of 5. This can usually be remedied by increasing the value of the term argument .cutoff. or the corresponding term option .gw.cutoff...*")
   e.d <- ergm(samplike~gwodegree(.4, fixed=TRUE), estimate="MPLE")
   s.df <- summary(samplike~gwodegree(.3, fixed=TRUE))
   e.df <- ergm(samplike~gwodegree(.2, fixed=TRUE), estimate="MPLE")
   s.dfa <- summary(samplike~gwodegree(.1, TRUE, ~group))
   e.dfa <- ergm(samplike~gwodegree(.5, TRUE, "group"), estimate="MPLE")
-  expect_summary(head(s.d), e.d, c(0,0,1,5,7,5), -1.990492)
+  expect_summary(head(s.d), e.d, setNames(c(0,0,1,5,7,5), paste0("gwodegree#",1:6)), c(gwodeg.fixed.0.400000=-1.990492))
   expect_summary(s.df, e.df, 24.23040, 43.61801)
   expect_summary(s.dfa, e.dfa, c(7.735906, 4.419631, 7.736070), -c(4.1860720, 5.9706455, 0.4921623))
 })

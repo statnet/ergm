@@ -15,7 +15,8 @@ data(faux.dixon.high)
 data(faux.mesa.high)
 
 test.approx = function(a, b, tol=1e-6) {
-  expect_lte(abs(a - b), tol)
+  expect_lte(max(abs(a - b)), tol)
+  if(!is.null(names(b))) expect_named(a, names(b))
 }
 
 run.tests <- function(cache.sp){
@@ -25,16 +26,17 @@ run.tests <- function(cache.sp){
     # testing on a larger network (comparing with functions in the ergm package)
     net <- faux.dixon.high
 
-    expect_equal(summary(cache.sp=cache.sp,net ~ dgwdsp(fixed=F, type='OTP'))[1:5], c(4871, 1077, 228, 53, 17), ignore_attr=TRUE) # DSP OTP count
-    test.approx(summary(cache.sp=cache.sp,net ~ dgwdsp(fixed=T, type='OTP', decay=0.1)), 6379.609, tol=1e-3) # GWDSP summary
-    test.approx(coef(ergm(control=ctrl,net ~ edges + dgwdsp(fixed=T, decay=0.1, type="OTP"), estimate = "MPLE"))[2], 0.006467) # MPLE estimate on larger nw
+    expect_equal(summary(cache.sp=cache.sp,net ~ dgwdsp(fixed=F, type='OTP', cutoff=5)), setNames(c(4871, 1077, 228, 53, 17), paste0("dsp.OTP#", 1:5))) # DSP OTP count
+    expect_error(summary(cache.sp=cache.sp,net ~ dgwdsp(fixed=F, type='OTP', cutoff=3))) # Cutoff too small
+    test.approx(summary(cache.sp=cache.sp,net ~ dgwdsp(fixed=T, type='OTP', decay=0.1)), c(gwdsp.OTP.fixed.0.1=6379.609), tol=1e-3) # GWDSP summary
+    test.approx(coef(ergm(control=ctrl,net ~ edges + dgwdsp(fixed=T, decay=0.1, type="OTP"), estimate = "MPLE"))[2], c(gwdsp.OTP.fixed.0.1=0.006467)) # MPLE estimate on larger nw
 
     # OTP and ITP are the same for dyadwise SP
-    expect_equal(summary(cache.sp=cache.sp,net ~ ddsp(type="OTP", d=2)), 1077, ignore_attr=TRUE) # ddsp OTP count error
-    expect_equal(summary(cache.sp=cache.sp,net ~ ddsp(type="ITP", d=2)), 1077, ignore_attr=TRUE) # ddsp ITP count error
-    expect_equal(summary(cache.sp=cache.sp,net ~ ddsp(type="OSP", d=2)), 948, ignore_attr=TRUE) # ddsp OSP count error
-    expect_equal(summary(cache.sp=cache.sp,net ~ ddsp(type="ISP", d=2)), 1132, ignore_attr=TRUE) # ddsp ISP count error
-    expect_equal(summary(cache.sp=cache.sp,net ~ ddsp(type="RTP", d=1:2)), c(1096,96), ignore_attr=TRUE) # ddsp RTP count error
+    expect_equal(summary(cache.sp=cache.sp,net ~ ddsp(type="OTP", d=2)), c(dsp.OTP2=1077)) # ddsp OTP count error
+    expect_equal(summary(cache.sp=cache.sp,net ~ ddsp(type="ITP", d=2)), c(dsp.ITP2=1077)) # ddsp ITP count error
+    expect_equal(summary(cache.sp=cache.sp,net ~ ddsp(type="OSP", d=2)), c(dsp.OSP2=948)) # ddsp OSP count error
+    expect_equal(summary(cache.sp=cache.sp,net ~ ddsp(type="ISP", d=2)), c(dsp.ISP2=1132)) # ddsp ISP count error
+    expect_equal(summary(cache.sp=cache.sp,net ~ ddsp(type="RTP", d=1:2)), c(dsp.RTP1=1096,dsp.RTP2=96)) # ddsp RTP count error
   })
 
   test_that(paste0("GWDSP OTP test with shared partner cache ", if(cache.sp)"enabled"else"disabled"), {
@@ -114,14 +116,15 @@ run.tests <- function(cache.sp){
   test_that(paste0("ESP with shared partner cache ", if(cache.sp)"enabled"else"disabled"), {
     # testing on a larger network (comparing with functions in the ergm package)
     net <- faux.dixon.high
-    expect_equal(summary(cache.sp=cache.sp,net ~ dgwesp(fixed=F, type='OTP'))[1:5], c(516, 222, 65, 21, 3), ignore_attr=TRUE) # ESP OTP count
-    test.approx(summary(cache.sp=cache.sp,net ~ dgwesp(fixed=T, type='OTP', decay=0.1)), 857.4225, tol=1e-3) # GWESP summary
-    test.approx(coef(ergm(control=ctrl,net ~ edges + dgwesp(fixed=T, decay=0.1, type="OTP"), estimate = "MPLE"))[2], 1.807995) # MPLE estimate on larger nw
+    expect_equal(summary(cache.sp=cache.sp,net ~ dgwesp(fixed=F, type='OTP', cutoff=5)), setNames(c(516, 222, 65, 21, 3), paste0("esp.OTP#", 1:5))) # ESP OTP count
+    expect_error(summary(cache.sp=cache.sp,net ~ dgwesp(fixed=F, type='OTP', cutoff=4))) # Cutoff too small
+    test.approx(summary(cache.sp=cache.sp,net ~ dgwesp(fixed=T, type='OTP', decay=0.1)), c(gwesp.OTP.fixed.0.1=857.4225), tol=1e-3) # GWESP summary
+    test.approx(coef(ergm(control=ctrl,net ~ edges + dgwesp(fixed=T, decay=0.1, type="OTP"), estimate = "MPLE"))[2], c(gwesp.OTP.fixed.0.1=1.807995)) # MPLE estimate on larger nw
 
-    expect_equal(summary(cache.sp=cache.sp,net ~ desp(type="OTP", d=2)), 222, ignore_attr=TRUE) # desp OTP count error
-    expect_equal(summary(cache.sp=cache.sp,net ~ desp(type="ITP", d=2)), 185, ignore_attr=TRUE) # desp ITP count error
-    expect_equal(summary(cache.sp=cache.sp,net ~ desp(type="OSP", d=2)), 215, ignore_attr=TRUE) # desp OSP count error
-    expect_equal(summary(cache.sp=cache.sp,net ~ desp(type="ISP", d=2)), 228, ignore_attr=TRUE) # desp ISP count error
+    expect_equal(summary(cache.sp=cache.sp,net ~ desp(type="OTP", d=2)), c(esp.OTP2=222)) # desp OTP count error
+    expect_equal(summary(cache.sp=cache.sp,net ~ desp(type="ITP", d=2)), c(esp.ITP2=185)) # desp ITP count error
+    expect_equal(summary(cache.sp=cache.sp,net ~ desp(type="OSP", d=2)), c(esp.OSP2=215)) # desp OSP count error
+    expect_equal(summary(cache.sp=cache.sp,net ~ desp(type="ISP", d=2)), c(esp.ISP2=228)) # desp ISP count error
   })
 
   test_that(paste0("GWESP OTP test with shared partner cache ", if(cache.sp)"enabled"else"disabled"), {
@@ -202,16 +205,17 @@ run.tests <- function(cache.sp){
     # testing on a larger network (comparing with functions in the ergm package)
     net <- faux.dixon.high
 
-    expect_equal(summary(cache.sp=cache.sp,net ~ dgwnsp(fixed=F, type='OTP'))[1:5], c(4355, 855,163,32,14), ignore_attr=TRUE) # NSP OTP count
-    test.approx(summary(cache.sp=cache.sp,net ~ dgwnsp(fixed=T, type='OTP', decay=0.1)), 5522.186 , tol=1e-3) # GWNSP summary
-    test.approx(coef(ergm(control=ctrl,net ~ edges + dgwnsp(fixed=T, decay=0.1, type="OTP"), estimate = "MPLE"))[2], -0.07421213) # MPLE estimate on larger nw
+    expect_equal(summary(cache.sp=cache.sp,net ~ dgwnsp(fixed=F, type='OTP', cutoff=5)), setNames(c(4355, 855,163,32,14), paste0("nsp.OTP#", 1:5))) # NSP OTP count
+    expect_error(summary(cache.sp=cache.sp,net ~ dgwnsp(fixed=F, type='OTP', cutoff=2))) # Cutoff too small
+    test.approx(summary(cache.sp=cache.sp,net ~ dgwnsp(fixed=T, type='OTP', decay=0.1)), c(gwnsp.OTP.fixed.0.1=5522.186), tol=1e-3) # GWNSP summary
+    test.approx(coef(ergm(control=ctrl,net ~ edges + dgwnsp(fixed=T, decay=0.1, type="OTP"), estimate = "MPLE"))[2], c(gwnsp.OTP.fixed.0.1=-0.07421213)) # MPLE estimate on larger nw
 
-    test.approx(summary(cache.sp=cache.sp,net ~ dgwdsp(fixed=T, type='OTP', decay=0.1)), summary(cache.sp=cache.sp,net ~ dgwesp(fixed=T, type='OTP', decay=0.1)) + summary(cache.sp=cache.sp,net ~ dgwnsp(fixed=T, type='OTP', decay=0.1))) # GWDSP should equal GWESP + GWNSP
+    test.approx(summary(cache.sp=cache.sp,net ~ dgwdsp(fixed=T, type='OTP', decay=0.1)), unname(summary(cache.sp=cache.sp,net ~ dgwesp(fixed=T, type='OTP', decay=0.1)) + summary(cache.sp=cache.sp,net ~ dgwnsp(fixed=T, type='OTP', decay=0.1)))) # GWDSP should equal GWESP + GWNSP
 
-    expect_equal(summary(cache.sp=cache.sp,net ~ dnsp(type="OTP", d=2)), 855, ignore_attr=TRUE) # dnsp OTP count error
-    expect_equal(summary(cache.sp=cache.sp,net ~ dnsp(type="ITP", d=2)), 892, ignore_attr=TRUE) # dnsp ITP count error
-    expect_equal(summary(cache.sp=cache.sp,net ~ dnsp(type="OSP", d=2)), 733, ignore_attr=TRUE) # dnsp OSP count error
-    expect_equal(summary(cache.sp=cache.sp,net ~ dnsp(type="ISP", d=2)), 904, ignore_attr=TRUE) # dnsp ISP count error
+    expect_equal(summary(cache.sp=cache.sp,net ~ dnsp(type="OTP", d=2)), c(nsp.OTP2=855)) # dnsp OTP count error
+    expect_equal(summary(cache.sp=cache.sp,net ~ dnsp(type="ITP", d=2)), c(nsp.ITP2=892)) # dnsp ITP count error
+    expect_equal(summary(cache.sp=cache.sp,net ~ dnsp(type="OSP", d=2)), c(nsp.OSP2=733)) # dnsp OSP count error
+    expect_equal(summary(cache.sp=cache.sp,net ~ dnsp(type="ISP", d=2)), c(nsp.ISP2=904)) # dnsp ISP count error
   })
 
   test_that(paste0("GWNSP OTP test with shared partner cache ", if(cache.sp)"enabled"else"disabled"), {
@@ -281,41 +285,41 @@ run.tests <- function(cache.sp){
     }
     espcounts
 
-    test.approx(summary(cache.sp=cache.sp,net~dgwnsp(fixed=T, decay=0.1, type="ISP")), 5.190325) # GWNSP_ISP wrong stat
+    test.approx(summary(cache.sp=cache.sp,net~dgwnsp(fixed=T, decay=0.1, type="ISP")), c(gwnsp.ISP.fixed.0.1=5.190325)) # GWNSP_ISP wrong stat
 
-    test.approx(coef(ergm(control=ctrl,net ~ edges + dgwnsp(fixed=T, decay=0.1, type="ISP"), estimate = "MPLE"))[2], -0.2865438) # GWNSP_ISP ergm MPLE wrong estimate
+    test.approx(coef(ergm(control=ctrl,net ~ edges + dgwnsp(fixed=T, decay=0.1, type="ISP"), estimate = "MPLE")), c(edges = -1.90541331842123, gwnsp.ISP.fixed.0.1 = -0.286543786068899 )) # GWNSP_ISP ergm MPLE wrong estimate
   })
 
   test_that(paste0("DSP Undirect tests ", if(cache.sp)"enabled"else"disabled"), {
     net <- faux.mesa.high
 
-    expect_equal(summary(cache.sp=cache.sp,net ~ dgwdsp(fixed=F)), summary(cache.sp=cache.sp,net ~ gwdsp(fixed=F)), ignore_attr=TRUE) # DSP OTP count
-    test.approx(summary(cache.sp=cache.sp,net ~ dgwdsp(fixed=T, decay=0.1)), summary(cache.sp=cache.sp,net ~ gwdsp(fixed=T, decay=0.1)), tol=1e-3) # GWDSP summary
+    expect_equal(summary(cache.sp=cache.sp,net ~ dgwdsp(fixed=F, cutoff=6)), setNames(c(431, 75, 23, 1, 1, 0), paste0("dsp#", 1:6))) # DSP OTP count
+    test.approx(summary(cache.sp=cache.sp,net ~ dgwdsp(fixed=T, decay=0.1)), c(gwdsp.fixed.0.1=540.7445), tol=1e-3) # GWDSP summary
 
-    test.approx(coef(ergm(control=ctrl,net ~ edges + dgwdsp(fixed=T, decay=0.1), estimate = "MPLE"))[2], coef(ergm(control=ctrl,net ~ edges + gwdsp(fixed=T, decay=0.1), estimate = "MPLE"))[2]) # MPLE estimate on larger nw
+    test.approx(coef(ergm(control=ctrl,net ~ edges + dgwdsp(fixed=T, decay=0.1), estimate = "MPLE")), c(edges = -4.89690639, gwdsp.fixed.0.1 = 0.06665661)) # MPLE estimate on larger nw
 
-    expect_equal(summary(cache.sp=cache.sp,net ~ ddsp(d=2)), summary(cache.sp=cache.sp,net ~ dsp(d=2))) # ddsp UTP count error
+    expect_equal(summary(cache.sp=cache.sp,net ~ ddsp(d=2)), c(dsp2=75)) # ddsp UTP count error
   })
 
   test_that(paste0("ESP Undirect tests ", if(cache.sp)"enabled"else"disabled"), {
     net <- faux.mesa.high
 
-    expect_equal(summary(cache.sp=cache.sp,net ~ dgwesp(fixed=F)), summary(cache.sp=cache.sp,net ~ gwesp(fixed=F))) # ESP UTP count
-    test.approx(summary(cache.sp=cache.sp,net ~ dgwesp(fixed=T, decay=0.1)), summary(cache.sp=cache.sp,net ~ gwesp(fixed=T, decay=0.1)), tol=1e-3) # GWESP summary
+    expect_equal(summary(cache.sp=cache.sp,net ~ dgwesp(fixed=F, cutoff=6)), setNames(c(70, 36, 13, 0, 1, 0), paste0("esp#", 1:6))) # ESP UTP count
+    test.approx(summary(cache.sp=cache.sp,net ~ dgwesp(fixed=T, decay=0.1)), c(gwesp.fixed.0.1=124.8859), tol=1e-3) # GWESP summary
 
-    test.approx(coef(ergm(control=ctrl,net ~ edges + dgwesp(fixed=T, decay=0.1), estimate = "MPLE"))[2], coef(ergm(control=ctrl,net ~ edges + gwesp(fixed=T, decay=0.1), estimate = "MPLE"))[2]) # MPLE estimate on larger nw
+    test.approx(coef(ergm(control=ctrl,net ~ edges + dgwesp(fixed=T, decay=0.1), estimate = "MPLE")), c(edges=-5.295790, gwesp.fixed.0.1=1.730727)) # MPLE estimate on larger nw
 
-    expect_equal(summary(cache.sp=cache.sp,net ~ desp(d=2)), summary(cache.sp=cache.sp,net ~ esp(d=2))) # desp UTP count
+    expect_equal(summary(cache.sp=cache.sp,net ~ desp(d=2)), c(esp2=36)) # desp UTP count
   })
 
   test_that(paste0("NSP Undirect tests ", if(cache.sp)"enabled"else"disabled"), {
     net <- faux.mesa.high
-    expect_equal(summary(cache.sp=cache.sp,net ~ dgwnsp(fixed=F)), summary(cache.sp=cache.sp,net ~ gwnsp(fixed=F))) # NSP UTP count
-    test.approx(summary(cache.sp=cache.sp,net ~ dgwnsp(fixed=T, decay=0.1)), summary(cache.sp=cache.sp,net ~ gwnsp(fixed=T, decay=0.1)), tol=1e-3) # GWNSP summary
+    expect_equal(summary(cache.sp=cache.sp,net ~ dgwnsp(fixed=F, cutoff=5)), setNames(c(361, 39, 10, 1, 0), paste0("nsp#", 1:5))) # NSP UTP count
+    test.approx(summary(cache.sp=cache.sp,net ~ dgwnsp(fixed=T, decay=0.1)), c(gwnsp.fixed.0.1=415.8586), tol=1e-3) # GWNSP summary
 
-    test.approx(coef(ergm(control=ctrl,net ~ edges + dgwnsp(fixed=T, decay=0.1), estimate = "MPLE"))[2], coef(ergm(control=ctrl,net ~ edges + gwnsp(fixed=T, decay=0.1), estimate = "MPLE"))[2]) # MPLE estimate on larger nw
+    test.approx(coef(ergm(control=ctrl,net ~ edges + dgwnsp(fixed=T, decay=0.1), estimate = "MPLE")), c(edges=-4.2641998, gwnsp.fixed.0.1=-0.1072723)) # MPLE estimate on larger nw
 
-    expect_equal(summary(cache.sp=cache.sp,net ~ dnsp(d=2)), summary(cache.sp=cache.sp,net ~ nsp(d=2))) # dnsp UTP count error
+    expect_equal(summary(cache.sp=cache.sp,net ~ dnsp(d=2)), c(nsp2=39)) # dnsp UTP count error
   })
 }
 

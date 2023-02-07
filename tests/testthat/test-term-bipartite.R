@@ -8,11 +8,6 @@
 #  Copyright 2003-2023 Statnet Commons
 ################################################################################
 
-expect_summary <- function(s, e, value, coefficients, tolerance=0.001) {
-  expect_equal(s, value, tolerance=tolerance, ignore_attr=TRUE)
-  expect_equal(coef(e)[1:length(coefficients)], coefficients, tolerance=tolerance, ignore_attr=TRUE)
-}
-
 # a bipartite nw
 set.seed(143)
 b1 <- floor(runif(60, 1,100))
@@ -262,6 +257,7 @@ test_that("coincidence, bipartite, undirected, no test on fitting due to the num
 
 test_that("gwb1degree, bipartite", {
   s.d <- summary(bipnw~gwb1degree())
+  expect_error(summary(bipnw~gwb1degree(cutoff=1)), ".*Term .gwb1degree. has encountered a network for which mode-1 degree of some node exceeded the cut-off setting of 1. This can usually be remedied by increasing the value of the term argument .cutoff. or the corresponding term option .gw.cutoff...*")
   e.d <- ergm(bipnw~gwb1degree(.4, fixed=TRUE), estimate="MPLE")
   s.df <- summary(bipnw~gwb1degree(.3, fixed=TRUE))
   e.df <- ergm(bipnw~gwb1degree(.2, fixed=TRUE), estimate="MPLE")
@@ -269,6 +265,7 @@ test_that("gwb1degree, bipartite", {
   e.da <- ergm(bipnw~gwb1degree(.1, attr=function(x) x %v% "Letter", fixed=TRUE), estimate="MPLE")
   s.dfa <- summary(bipnw~gwb1degree(.1, TRUE, ~Letter))
   e.dfa <- ergm(bipnw~gwb1degree(.1, TRUE, "Letter"), estimate="MPLE")
+  expect_equal(s.d, setNames(summary(bipnw~b1degree(1:29)), paste0("gwb1degree#",1:29)))
   expect_equal(coef(e.d), -6.979, tolerance=0.001, ignore_attr=TRUE)
   expect_summary(s.df, e.df, 45.4137, -8.057)
   expect_equal(coef(e.da), -c(6.729, 6.762, 6.418), ignore_attr=TRUE, tolerance=0.001)
@@ -277,20 +274,19 @@ test_that("gwb1degree, bipartite", {
 
 test_that("gwb1dsp, bipartite", {
   s.d0 <- summary(bipnw~gwb1dsp)
-  s.d1 <- summary(bipnw~gwb1dsp(.3))
+  expect_silent(summary(bipnw~gwb1dsp(cutoff=2)))
+  expect_error(summary(bipnw~gwb1dsp(cutoff=1)), ".*Term .dgwb1dsp. has encountered a network for which number of outgoing shared partners on some dyad exceeded the cut-off setting of 1. This can usually be remedied by increasing the value of the term argument .cutoff. or the corresponding term option .gw.cutoff...*")
+  expect_warning(summary(bipnw~gwb1dsp(.3)), ".*Decay parameter .decay. passed with .fixed=FALSE..*")
   s.d2 <- summary(bipnw~gwb1dsp(.3, TRUE))
   e.d2 <- ergm(bipnw~gwb1dsp(.3, TRUE), estimate="MPLE")
-  ## s.d3 <- summary(bipnw~gwb1dsp(.3, TRUE, 1))
-  ## e.d3 <- ergm(bipnw~gwb1dsp(.3, TRUE, 1), estimate="MPLE")
 
-  expect_equal(s.d0, c(49,1,rep(0,27)), ignore_attr=TRUE)
-  expect_equal(s.d1, c(49,1,rep(0,27)), ignore_attr=TRUE)
-  expect_summary(s.d2, e.d2, 50.25918, -2.105815)
-  ## expect_summary(s.d3, e.d3, 49, -2.072566)
+  expect_equal(s.d0, setNames(c(49,1,rep(0,27)), paste0("b1dsp#", seq_along(s.d0))))
+  expect_summary(s.d2, e.d2, c(gwb1dsp.fixed.0.3=50.25918), c(gwb1dsp.fixed.0.3=-2.105815))
 })
 
 test_that("gwb2degree, bipartite", {
   s.d <- summary(bipnw~gwb2degree())
+  expect_error(summary(bipnw~gwb2degree(cutoff=2)), ".*Term .gwb2degree. has encountered a network for which mode-2 degree of some node exceeded the cut-off setting of 2. This can usually be remedied by increasing the value of the term argument .cutoff. or the corresponding term option .gw.cutoff...*")
   e.d <- ergm(bipnw~gwb2degree(.4, fixed=TRUE), estimate="MPLE")
   s.df <- summary(bipnw~gwb2degree(.3, fixed=TRUE))
   e.df <- ergm(bipnw~gwb2degree(.2, fixed=TRUE), estimate="MPLE")
@@ -298,7 +294,7 @@ test_that("gwb2degree, bipartite", {
   e.da <- ergm(bipnw~gwb2degree(.1, attr=function(x) x %v% "Letter", fixed=TRUE), estimate="MPLE")
   s.dfa <- summary(bipnw~gwb2degree(.1, TRUE, ~Letter))
   e.dfa <- ergm(bipnw~gwb2degree(.1, TRUE, "Letter"), estimate="MPLE")
-  expect_equal(summary(bipnw~gwb2degree()), summary(bipnw~b2degree(1:30)), ignore_attr=TRUE)
+  expect_equal(s.d, setNames(summary(bipnw~b2degree(1:30)), paste0("gwb2degree#",1:30)))
   expect_equal(coef(e.d), -25.99385, tolerance=0.001, ignore_attr=TRUE)
   expect_summary(s.df, e.df, 31.97479, -32.78813)
   expect_equal(coef(e.da), -c(33.82191, 24.76756, 34.28992), ignore_attr=TRUE, tolerance=0.001)
@@ -307,14 +303,12 @@ test_that("gwb2degree, bipartite", {
 
 test_that("gwb2dsp, bipartite", {
   s.d0 <- summary(bipnw~gwb2dsp)
-  s.d1 <- summary(bipnw~gwb2dsp(.3))
+  expect_silent(summary(bipnw~gwb2dsp(cutoff=2)))
+  expect_error(summary(bipnw~gwb2dsp(cutoff=1)), ".*Term .dgwb2dsp. has encountered a network for which number of incoming shared partners on some dyad exceeded the cut-off setting of 1. This can usually be remedied by increasing the value of the term argument .cutoff. or the corresponding term option .gw.cutoff...*")
+  expect_warning(summary(bipnw~gwb2dsp(.3)), ".*Decay parameter .decay. passed with .fixed=FALSE..*")
   s.d2 <- summary(bipnw~gwb2dsp(.3, TRUE))
   e.d2 <- ergm(bipnw~gwb2dsp(.3, TRUE), estimate="MPLE")
-  ## s.d3 <- summary(bipnw~gwb2dsp(.3, TRUE, 1))
-  ## e.d3 <- ergm(bipnw~gwb2dsp(.3, TRUE, 1), estimate="MPLE")
 
-  expect_equal(s.d0, c(24,1,rep(0,28)), ignore_attr=TRUE)
-  expect_equal(s.d1, c(24,1,rep(0,28)), ignore_attr=TRUE)
-  ## expect_summary(s.d2, e.d2, 25.25918, -2.875923)
-  ## expect_summary(s.d3, e.d3, 24, -2.220758)
+  expect_equal(s.d0, setNames(c(24,1,rep(0,28)), paste0("b2dsp#", seq_along(s.d0))))
+  expect_summary(s.d2, e.d2, c(gwb2dsp.fixed.0.3=25.25918), c(gwb2dsp.fixed.0.3=-2.875923))
 })
