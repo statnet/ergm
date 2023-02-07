@@ -1013,29 +1013,10 @@ InitErgmTerm.b1degree <- function(nw, arglist, ..., version=packageVersion("ergm
 #'
 #' @concept bipartite
 #' @concept undirected
-InitErgmTerm.b1dsp<-function(nw, arglist, cache.sp=TRUE, ...) {
-  a <- check.ErgmTerm(nw, arglist, directed=FALSE, bipartite=TRUE,
-                      varnames = c("d"),
-                      vartypes = c("numeric"),
-                      defaultvalues = list(NULL),
-                      required = c(TRUE))
-  d <- a$d
-  
-  if(length(d) == 0)
-    return(NULL)
-
-  emptynwstats <- rep(0, length(d))
-  nb1 <- get.network.attribute(nw, "bipartite")
-
-  type <- "OSP"
-  typecode <- 4 # OSP type
-  
-  # in an empty network, the number of b1 dyads with zero shared
-  # partners is just the number of b1 dyads, which is nb1*(nb1-1)/2
-  emptynwstats[d==0] <- nb1*(nb1-1)/2 
-  
-  list(name="ddspbwrap", coef.names=paste("b1dsp",d,sep=""), iinputs=c(typecode,d),
-       emptynwstats=emptynwstats, minval = 0, maxval = nb1*(nb1-1)/2, dependence = TRUE, auxiliaries=if(cache.sp) .spcache.aux(type) else NULL)
+InitErgmTerm.b1dsp <- function(nw, arglist, cache.sp=TRUE, ...){
+  .d_sp_impl("b1", nw, arglist, cache.sp,
+             function(d, nw, ...) replace(numeric(length(d)), d==0, (nw%n%"bipartite")*(nw%n%"bipartite"-1)/2),
+             ...)
 }
 
 
@@ -1626,29 +1607,10 @@ InitErgmTerm.b2degree <- function(nw, arglist, ..., version=packageVersion("ergm
 #'
 #' @concept bipartite
 #' @concept undirected
-InitErgmTerm.b2dsp<-function(nw, arglist, cache.sp=TRUE, ...) {
-  a <- check.ErgmTerm(nw, arglist, directed=FALSE, bipartite=TRUE,
-                      varnames = c("d"),
-                      vartypes = c("numeric"),
-                      defaultvalues = list(NULL),
-                      required = c(TRUE))
-  d <- a$d
-  
-  if(length(d) == 0)
-    return(NULL)
-
-  emptynwstats <- rep(0, length(d))
-  nb2 <- network.size(nw) - get.network.attribute(nw, "bipartite")
-  
-  type <- "ISP"
-  typecode <- 5 # ISP type
-  
-  # in an empty network, the number of b2 dyads with zero shared
-  # partners is just the number of b2 dyads, which is nb2*(nb2-1)/2
-  emptynwstats[d==0] <- nb2*(nb2-1)/2 
-  
-  list(name="ddspbwrap", coef.names=paste("b2dsp",d,sep=""), iinputs=c(typecode,d),
-       emptynwstats=emptynwstats, minval = 0, maxval = nb2*(nb2-1)/2, dependence = TRUE, auxiliaries=if(cache.sp) .spcache.aux(type) else NULL)
+InitErgmTerm.b2dsp <- function(nw, arglist, cache.sp=TRUE, ...){
+  .d_sp_impl("b2", nw, arglist, cache.sp,
+             function(d, nw, ...) replace(numeric(length(d)), d==0, (network.size(nw)-nw%n%"bipartite")*(network.size(nw)-nw%n%"bipartite"-1)/2),
+             ...)
 }
 
 ################################################################################
@@ -2851,38 +2813,7 @@ InitErgmTerm.gwb1degree<-function(nw, arglist, gw.cutoff=30, ..., version=packag
 #' @concept undirected
 #' @concept curved
 InitErgmTerm.gwb1dsp<-function(nw, arglist, cache.sp=TRUE, gw.cutoff=30, ...) {
-  a <- check.ErgmTerm(nw, arglist, directed=FALSE, bipartite=TRUE,
-                      varnames = c("decay","fixed","cutoff"),
-                      vartypes = c("numeric","logical","numeric"),
-                      defaultvalues = list(NULL, FALSE, gw.cutoff),
-                      required = c(FALSE, FALSE, FALSE))
-  decay<-a$decay
-  fixed<-a$fixed
-  cutoff<-a$cutoff
-  decay=decay[1] # Not sure why anyone would enter a vector here, but...
-
-  type <- "OSP"
-  typecode <- 4 # OSP type
-  
-  basenam <- "gwb1dsp"
-  
-  maxdsp <- min(cutoff, network.size(nw) - nw %n% "bipartite")
-
-  if(!fixed){ # This is a curved exponential family model
-    d <- 1:maxdsp
-
-    if(length(d) == 0)
-      return(NULL)
-    
-    # first name must match `basenam`
-    params<-list(gwb1dsp=NULL,gwb1dsp.decay=decay)
-    
-    c(list(name="ddspbwrap", coef.names=paste("b1dsp#",d,sep=""), 
-         iinputs=c(typecode,d), params=params, auxiliaries=if(cache.sp) .spcache.aux(type) else NULL), GWDECAY)
-  }else{
-    coef.names <- paste("gwb1dsp.fixed",decay,sep=".")
-    list(name="dgwdspbwrap", coef.names=coef.names, inputs=decay, iinputs=typecode, auxiliaries=if(cache.sp) .spcache.aux(type) else NULL)
-  }
+  .dgw_sp_impl("b1", nw, arglist, cache.sp, gw.cutoff=gw.cutoff, ...)
 }
 
 ################################################################################
@@ -2938,38 +2869,7 @@ InitErgmTerm.gwb2degree<-function(nw, arglist, gw.cutoff=30, ..., version=packag
 #' @concept undirected
 #' @concept curved
 InitErgmTerm.gwb2dsp<-function(nw, arglist, cache.sp=TRUE, gw.cutoff=30, ...) {
-  a <- check.ErgmTerm(nw, arglist, directed=FALSE, bipartite=TRUE,
-                      varnames = c("decay","fixed","cutoff"),
-                      vartypes = c("numeric","logical","numeric"),
-                      defaultvalues = list(NULL, FALSE, gw.cutoff),
-                      required = c(FALSE, FALSE, FALSE))
-  decay<-a$decay
-  fixed<-a$fixed
-  cutoff<-a$cutoff
-  decay=decay[1] # Not sure why anyone would enter a vector here, but...
-
-  type <- "ISP"
-  typecode <- 5 # ISP type
-  
-  basenam <- "gwb2dsp"
-  
-  maxdsp <- min(cutoff, nw %n% "bipartite")
-
-  if(!fixed){ # This is a curved exponential family model
-    d <- 1:maxdsp
-
-    if(length(d) == 0)
-      return(NULL)
-    
-    # first name must match `basenam`
-    params<-list(gwb2dsp=NULL,gwb2dsp.decay=decay)
-    
-    c(list(name="ddspbwrap", coef.names=paste("b2dsp#",d,sep=""), 
-         iinputs=c(typecode,d), params=params, auxiliaries=if(cache.sp) .spcache.aux(type) else NULL), GWDECAY)
-  }else{
-    coef.names <- paste("gwb2dsp.fixed",decay,sep=".")    
-    list(name="dgwdspbwrap", coef.names=coef.names, inputs=decay, iinputs=typecode, auxiliaries=if(cache.sp) .spcache.aux(type) else NULL)
-  }
+  .dgw_sp_impl("b2", nw, arglist, cache.sp, gw.cutoff=gw.cutoff, ...)
 }
 
 ################################################################################

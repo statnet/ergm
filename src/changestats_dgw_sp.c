@@ -1075,6 +1075,14 @@ C_CHANGESTAT_FN(c_ddspbwrap) {
 }
 
 
+C_CHANGESTAT_FN(c_ddspdistbwrap) {
+  c_ddspdist(tail, head, mtp, nwp, edgestate);
+
+  // correct for double counting of directed vs. undirected dyads
+  for(int ind = 0; ind < N_CHANGE_STATS; ind++) CHANGE_STAT[ind] /= 2.0;
+}
+
+
 /*****************
  changestat: c_dgwdspbwrap
 *****************/

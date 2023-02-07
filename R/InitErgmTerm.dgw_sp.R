@@ -145,70 +145,101 @@ SPTYPE_DESC <- c(UTP = "undirected two-path",
 
 SPTYPE_CODE <- c(UTP = 0L, OTP = 1L, ITP = 2L, RTP = 3L, OSP = 4L, ISP = 5L)
 
-.d_sp_resolve_type <- function(nw, a, undname){
+.d_sp_resolve_type <- function(nw, a, undname, bip){
   type <- toupper(a$type[1])
-  if(! type%in%names(SPTYPE_CODE))
-    ergm_Init_abort("Illegal value for ", sQuote("type"), "; valid types are:", paste.and(sQuote(names(SPTYPE_CODE))))
 
-  if(!is.directed(nw)){
+  ## Deal with cases for which network type determines term SP type:
+  if(is.bipartite(nw) && nchar(bip)){
+    type <- c(b1="OSP", b2="ISP")[bip]
+  }else if(!is.directed(nw)){
     ergm_Init_inform("Use the ergm term ", sQuote(undname), " for undirected networks.")
     type <- "UTP"
   }
+
+  ## Check that the ultimate result is valid:
+  if(! type%in%names(SPTYPE_CODE))
+    ergm_Init_abort("Illegal value for ", sQuote("type"), "; valid types are:", paste.and(sQuote(names(SPTYPE_CODE))))
 
   type
 }
 
 .d_sp_impl <- function(sp, nw, arglist, cache.sp, emptynwstats = function(...)NULL, ...){
+  if(sp %in% c("b1","b2")){
+    bip <- sp
+    sp <- "d"
+  }else bip <- ""
+
   a <- check.ErgmTerm(nw, arglist,
                       varnames = c("d","type"),
                       vartypes = c("numeric","character"),
                       defaultvalues = list(NULL,"OTP"),
                       required = c(TRUE, FALSE))
-  utermname <- paste0(sp, "sp")
+  utermname <- paste0(bip, sp, "sp")
 
   d<-a$d
   ld<-length(d)
   if(ld==0) return(NULL)
 
-  type <- .d_sp_resolve_type(nw, a, utermname)
-  conam <- if(type=="UTP") utermname else paste0(utermname,".",type)
+  type <- .d_sp_resolve_type(nw, a, utermname, bip)
+  conam <- if(type=="UTP" || nchar(bip)) utermname else paste0(utermname,".",type)
 
-  list(name=paste0("d",utermname), coef.names=paste(conam,d,sep=""), iinputs=c(SPTYPE_CODE[type],d),
+  list(name=if(nchar(bip)) "ddspbwrap" else paste0("d",utermname), coef.names=paste(conam,d,sep=""), iinputs=c(SPTYPE_CODE[type],d),
        minval=0, emptynwstats=emptynwstats(nw=nw, a=a, d=d, type=type),
        auxiliaries=if(cache.sp) .spcache.aux(type) else NULL)
 }
 
 .dgw_sp_impl <- function(sp, nw, arglist, cache.sp, gw.cutoff, ...){
+  if(sp %in% c("b1","b2")){
+    bip <- sp
+    sp <- "d"
+  }else bip <- ""
+
   a <- check.ErgmTerm(nw, arglist,
                       varnames = c("decay","fixed","cutoff","type", "alpha"),
                       vartypes = c("numeric","logical","numeric","character", "numeric"),
                       defaultvalues = list(NULL, FALSE, gw.cutoff,"OTP", NULL),
                       required = c(FALSE, FALSE, FALSE, FALSE, FALSE))
-  utermname <- paste0("gw",sp,"sp")
-  termname <- paste0("dgw",sp,"sp")
+  utermname <- paste0("gw",bip,sp,"sp")
+  termname <- paste0("dgw",bip,sp,"sp")
 
   decay_vs_fixed(a, termname)
   decay<-a$decay;fixed<-a$fixed
   cutoff<-a$cutoff
   decay=decay[1] # Not sure why anyone would enter a vector here, but...
 
-  type <- .d_sp_resolve_type(nw, a, utermname)
-  statname <- if(type=="UTP") utermname else paste(utermname,type,sep=".")
+  type <- .d_sp_resolve_type(nw, a, utermname, bip)
+  statname <- if(type=="UTP" || nchar(bip)) utermname else paste(utermname,type,sep=".")
 
   if(!fixed){ # This is a curved exponential family model
-    maxesp <- min(cutoff,network.size(nw)-2)
-    if(maxesp==0) return(NULL)
-    d <- 1:maxesp
+    maxsp <- min(cutoff, if(bip=="b1") network.size(nw)-nw%n%"bipartite"
+                          else if(bip=="b2") nw%n%"bipartite"
+                          else network.size(nw)-2)
+    if(maxsp==0) return(NULL)
+    d <- seq_len(maxsp)
 
     params <- setNames(list(NULL,decay), c(statname,paste(statname,"decay",sep=".")))
 
-    c(list(name=paste0("d",sp,"spdist"),
-           coef.names=if(type=="UTP") paste0(sp,"sp#",d) else paste0(sp,"sp.",type,"#",d),
-           cutoff.message = ergm_cutoff_message(maxesp, termname, sprintf("number of %ss on some %s", SPTYPE_DESC[type], c(e="edge", d="dyad", n="nonedge")[sp]), "cutoff", "gw.cutoff"),
+    c(list(name=if(nchar(bip)) "ddspdistbwrap" else paste0("d",sp,"spdist"),
+           coef.names=if(type=="UTP" || nchar(bip)) paste0(bip,sp,"sp#",d) else paste0(bip,sp,"sp.",type,"#",d),
+           cutoff.message = ergm_cutoff_message(maxsp, termname, sprintf("number of %ss on some %s", SPTYPE_DESC[type], c(e="edge", d="dyad", n="nonedge")[sp]), "cutoff", "gw.cutoff"),
            iinputs=SPTYPE_CODE[type], params=params, auxiliaries=if(cache.sp) .spcache.aux(type) else NULL), GWDECAY)
   }else{
     coef.names <- paste(statname,"fixed",decay,sep=".")
-    list(name=termname, coef.names=coef.names, inputs=decay, iinputs=SPTYPE_CODE[type], auxiliaries=if(cache.sp) .spcache.aux(type) else NULL)
+    list(name=if(nchar(bip)) "dgwdspbwrap" else termname, coef.names=coef.names, inputs=decay, iinputs=SPTYPE_CODE[type], auxiliaries=if(cache.sp) .spcache.aux(type) else NULL)
+  }
+}
+
+.dsp_emptynwstats <- function(nw, d, ...){
+  if(any(d==0)){
+    emptynwstats <- numeric(length(d))
+    if(is.bipartite(nw)){
+      nb1 <- nw %n% "bipartite"
+      nb2 <- network.size(nw) - nb1
+      emptynwstats[d==0] <- nb1*(nb1-1)/2 + nb2*(nb2-1)/2
+    }else{
+      emptynwstats[d==0] <- network.dyadcount(nw,FALSE)
+    }
+    emptynwstats
   }
 }
 
@@ -330,20 +361,7 @@ InitErgmTerm.dgwesp<-function(nw, arglist, cache.sp=TRUE, gw.cutoff=30, ...) {
 #'
 #' @concept directed
 InitErgmTerm.ddsp<-function(nw, arglist, cache.sp=TRUE, ...) {
-  emptynwstats <- function(nw, d, ...){
-    if(any(d==0)){
-      emptynwstats <- numeric(length(d))
-      if(is.bipartite(nw)){
-        nb1 <- nw %n% "bipartite"
-        nb2 <- network.size(nw) - nb1
-        emptynwstats[d==0] <- nb1*(nb1-1)/2 + nb2*(nb2-1)/2
-      }else{
-        emptynwstats[d==0] <- network.dyadcount(nw,FALSE)
-      }
-    }
-  }
-
-  .d_sp_impl("d", nw, arglist, cache.sp, emptynwstats=emptynwstats, ...)
+  .d_sp_impl("d", nw, arglist, cache.sp, emptynwstats=.dsp_emptynwstats, ...)
 }
 
 
@@ -415,20 +433,7 @@ InitErgmTerm.dgwdsp<-function(nw, arglist, cache.sp=TRUE, gw.cutoff=30, ...) {
 #'
 #' @concept directed
 InitErgmTerm.dnsp<-function(nw, arglist, cache.sp=TRUE, ...) {
-  emptynwstats <- function(nw, d, ...){
-    if(any(d==0)){
-      emptynwstats <- numeric(length(d))
-      if(is.bipartite(nw)){
-        nb1 <- nw %n% "bipartite"
-        nb2 <- network.size(nw) - nb1
-        emptynwstats[d==0] <- nb1*(nb1-1)/2 + nb2*(nb2-1)/2
-      }else{
-        emptynwstats[d==0] <- network.dyadcount(nw,FALSE)
-      }
-    }
-  }
-
-  .d_sp_impl("n", nw, arglist, cache.sp, emptynwstats=emptynwstats, ...)
+  .d_sp_impl("n", nw, arglist, cache.sp, emptynwstats=.dsp_emptynwstats, ...)
 }
 
 
