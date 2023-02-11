@@ -380,8 +380,8 @@ ergm_plot.mcmc.list <- function(x, main=NULL, vars.per.page=3,...){
   # duplicated variable names:
   varnames(x) <- make.unique(varnames(x))
 
-  dp <- update(lattice::densityplot(x, panel=function(...){lattice::panel.densityplot(...);lattice::panel.abline(v=0)}),xlab=NULL,ylab=NULL)
-  tp <- update(lattice::xyplot(x, panel=function(...){lattice::panel.xyplot(...);lattice::panel.loess(...);lattice::panel.abline(0,0)}),xlab=NULL,ylab=NULL)
+  dp <- update(lattice::densityplot(x, panel=function(...){lattice::panel.densityplot(...);lattice::panel.abline(v=0)}, ...),xlab=NULL,ylab=NULL)
+  tp <- update(lattice::xyplot(x, panel=function(...){lattice::panel.xyplot(...);lattice::panel.loess(...);lattice::panel.abline(0,0)}, ...),xlab=NULL,ylab=NULL)
 
   pages <- ceiling(nvar(x)/vars.per.page)
   # if the number of vars is less than vars.per.page, make adjustment
