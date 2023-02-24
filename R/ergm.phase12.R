@@ -47,7 +47,7 @@ ergm.phase12 <- function(s, theta0,
             s,
             # Phase12 settings
             as.double(deInf(theta0)),
-            as.integer(control$MCMC.samplesize), as.integer(control$MCMC.burnin), as.integer(control$MCMC.interval),
+            as.integer(control$MCMC.burnin), as.integer(control$MCMC.interval),
             as.double(control$SA.initial_gain), as.integer(control$SA.phase1_n), as.integer(control$SA.nsubphases),
             as.integer(deInf(NVL(control$MCMC.maxedges,Inf),"maxint")),
             as.integer(verbose),
@@ -57,22 +57,15 @@ ergm.phase12 <- function(s, theta0,
             s,
             # Phase12 settings
             as.double(deInf(theta0)),
-            as.integer(control$MCMC.samplesize), as.integer(control$MCMC.burnin), as.integer(control$MCMC.interval),
+            as.integer(control$MCMC.burnin), as.integer(control$MCMC.interval),
             as.double(control$SA.initial_gain), as.integer(control$SA.phase1_n), as.integer(control$SA.nsubphases),
             as.integer(deInf(NVL(control$MCMC.maxedges,Inf),"maxint")),
             as.integer(verbose),
             PACKAGE="ergm")
 
-  statsmatrix <- matrix(z$s, nrow=control$MCMC.samplesize,
-                        ncol=nparam(s,canonical=TRUE),
-                        byrow = TRUE)
+  if(z$status) return(z) # If there is an error.
+
   theta <- z$theta
   names(theta) <- names(theta0)
-
-  z$state <- update(z$state)
-  newnetwork<-as.network(z$state)
-  
-  colnames(statsmatrix) <- param_names(s,canonical=TRUE)
-  list(statsmatrix=statsmatrix, newnetwork=newnetwork, target.stats=as.ergm_model(s)$target.stats, nw.stats=as.ergm_model(s)$nw.stats,
-       theta=theta, state=z$state)
+  list(status = z$status, theta=theta, state=update(z$state))
 }

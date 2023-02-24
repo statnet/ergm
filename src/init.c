@@ -36,7 +36,7 @@ extern SEXP ErgmWtStateArrayClear(void);
 extern SEXP get_ergm_omp_terms(void);
 extern SEXP Godfather_wrapper(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
 extern SEXP MCMC_wrapper(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
-extern SEXP MCMCPhase12(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
+extern SEXP MCMCPhase12(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
 extern SEXP MPLE_workspace_free(void);
 extern SEXP MPLE_wrapper(SEXP, SEXP, SEXP);
 extern SEXP network_stats_wrapper(SEXP);
@@ -47,7 +47,7 @@ extern SEXP wt_network_stats_wrapper(SEXP);
 extern SEXP WtCD_wrapper(SEXP, SEXP, SEXP, SEXP, SEXP);
 extern SEXP WtGodfather_wrapper(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
 extern SEXP WtMCMC_wrapper(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
-extern SEXP WtMCMCPhase12(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
+extern SEXP WtMCMCPhase12(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
 extern SEXP WtSAN_wrapper(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
 
 static const R_CMethodDef CEntries[] = {
@@ -67,7 +67,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"get_ergm_omp_terms",       (DL_FUNC) &get_ergm_omp_terms,        0},
     {"Godfather_wrapper",        (DL_FUNC) &Godfather_wrapper,         6},
     {"MCMC_wrapper",             (DL_FUNC) &MCMC_wrapper,              7},
-    {"MCMCPhase12",              (DL_FUNC) &MCMCPhase12,              10},
+    {"MCMCPhase12",              (DL_FUNC) &MCMCPhase12,               9},
     {"MPLE_workspace_free",      (DL_FUNC) &MPLE_workspace_free,       0},
     {"MPLE_wrapper",             (DL_FUNC) &MPLE_wrapper,              3},
     {"network_stats_wrapper",    (DL_FUNC) &network_stats_wrapper,     1},
@@ -78,7 +78,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"WtCD_wrapper",             (DL_FUNC) &WtCD_wrapper,              5},
     {"WtGodfather_wrapper",      (DL_FUNC) &WtGodfather_wrapper,       6},
     {"WtMCMC_wrapper",           (DL_FUNC) &WtMCMC_wrapper,            7},
-    {"WtMCMCPhase12",            (DL_FUNC) &WtMCMCPhase12,            10},
+    {"WtMCMCPhase12",            (DL_FUNC) &WtMCMCPhase12,             9},
     {"WtSAN_wrapper",            (DL_FUNC) &WtSAN_wrapper,             9},
     {NULL, NULL, 0}
 };

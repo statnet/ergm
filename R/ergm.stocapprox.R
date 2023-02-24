@@ -63,17 +63,15 @@ ergm.stocapprox <- function(init, s, s.obs,
     control$MCMC.samplesize <- trunc(control$MCMC.samplesize*2.52)+1 # 2.52 is approx. 2^(4/3)
   }
   z <- ergm.phase12(s, theta, control, verbose=TRUE)
-  nw <- z$newnetwork
+
   theta <- z$theta
   names(theta) <- names(init)
   message(paste(" (theta[",seq(along=theta),"] = ",paste(theta),")",sep=""))
   
   ## phase 3:  Estimate covariance matrix for final theta
-
   control$MCMC.samplesize <- control$SA.phase3_n
   message(paste("Phase 3: ",control$SA.phase3_n,"iterations"),appendLF=FALSE)
   message(paste(" (interval=",control$MCMC.interval,")",sep=""))
-  eta <- ergm.eta(theta, model$etamap)
 
   # Obtain MCMC sample
   z <- ergm_MCMC_sample(z$state, control, theta=theta, verbose=max(verbose-1,0))
@@ -92,9 +90,6 @@ ergm.stocapprox <- function(init, s, s.obs,
                    method=control$MCMLE.method,
                    metric=control$MCMLE.metric,
                    verbose=verbose)
-
-  ## Important: Keep R-M (pre-NR) theta
-  # ve$coefficients <- theta
 
   c(ve, list(newnetwork=nw,
              theta.original=init,
