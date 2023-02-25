@@ -144,12 +144,11 @@ test_that("edgecov, either", {
   e.x <- ergm(samplike ~ edgecov(cov))
   s.xa <- summary(samplike~edgecov(samplike, "YearsTrusted"))
   e.xa <- ergm(samplike ~ edgecov(samplike, "YearsTrusted"))
-  n.x <- try(summary(samplike~edgecov('dummy')),silent=TRUE)
+  expect_error(summary(samplike~edgecov('dummy')), "In term .edgecov. in package .ergm.: There is no network attribute named .dummy. or it is not a matrix.")
   set.network.attribute(samplike,'dummy',cov)
   n2.x <- summary(samplike~edgecov('dummy'))
   expect_summary(s.x, e.x, 134, -.5022)
   expect_summary(s.xa, e.xa, 183, Inf)
-  expect_true(is(n.x, 'try-error'))
   expect_equal(n2.x, 134, ignore_attr=TRUE)
 })
 

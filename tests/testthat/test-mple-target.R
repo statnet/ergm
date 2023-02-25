@@ -19,7 +19,7 @@ cat("Average degree among nodes with degree 2 or higher:", (2*norm.stats[1]-norm
 ergm.ts.fit<-ergm(base.net~edges+degree(c(0,1)),target.stats=n*norm.stats,estimate="MPLE")
 
 test_that("internal SAN call achieves the target statistics", {
-  expect_equal(summary(ergm.ts.fit$newnetwork~edges+degree(c(0,1)),estimate="MPLE"),target.stats, ignore_attr=TRUE)
+  expect_equal(summary(ergm.ts.fit$network~edges+degree(c(0,1)),estimate="MPLE"), target.stats, ignore_attr=TRUE)
 })
 
 test_that("estimate with target.stats matches that with LHS", {
