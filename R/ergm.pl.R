@@ -42,13 +42,15 @@
 #'
 #' @keywords internal
 #' @export
-ergm.pl<-function(nw, fd, m, theta.offset=NULL,
+ergm.pl<-function(state, state.obs, theta.offset=NULL,
                     control, ignore.offset=FALSE,
                     verbose=FALSE) {
   on.exit(ergm_Cstate_clear())
   on.exit(PL_workspace_clear(), add=TRUE)
 
-  state <- ergm_state(nw, model=m)
+  m <- state$model
+  fd <- if(is(state.obs, "rlebdm")) state.obs
+        else as.rlebdm(state$proposal$arguments$constraints, state.obs$proposal$arguments$constraints, which="informative")
   d <- sum(fd)
   el <- as.edgelist(state)
   elfd <- as.rlebdm(el) & fd

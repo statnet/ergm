@@ -36,12 +36,8 @@
 #' MPLE values are used even in the case of dyadic dependence models as
 #' starting points for the MCMC algorithm.
 #' 
-#' @param nw response [`network`] or [`ergm_state`].
-#' @param fd An \code{\link{rlebdm}} with informative dyads.
-#' @param m the model, as returned by \code{\link{ergm_model}}
+#' @param state,state.obs [`ergm_state`] objects.
 #' @param init a vector a vector of initial theta coefficients
-#' @param MPLEtype the method for MPL estimation as "penalized", "glm"
-#'   or "logitreg"; default="glm"
 #' @param family the family to use in the R native routine
 #'   \code{\link{glm}}; only applicable if "glm" is the 'MPLEtype';
 #'   default="binomial"
@@ -59,26 +55,28 @@
 #' @seealso \code{\link{ergmMPLE}},
 #' \code{\link{ergm}},\code{\link{control.ergm}}
 #' @references \insertAllCited{}
-ergm.mple<-function(nw, fd, m, init=NULL,
-                    MPLEtype="glm", family="binomial",
+ergm.mple<-function(s, s.obs, init=NULL,
+                    family="binomial",
                     save.xmat=TRUE,
                     control=NULL,
                     verbose=FALSE,
                     ...) {
+  m <- s$model
   message("Starting maximum pseudolikelihood estimation (MPLE):")
+  message("Obtaining the responsible dyads.")
   message("Evaluating the predictor and response matrix.")
-  pl <- ergm.pl(nw=nw, fd=fd, m=m,
+  pl <- ergm.pl(s, s.obs,
                 theta.offset=init,
 		control=control,
-                ignore.offset=MPLEtype=="logitreg",
+                ignore.offset=control$MPLE.type=="logitreg",
                 verbose=verbose)
 
   # test whether the MPLE actually exists
   # FIXME: Figure out how to test for MPLE's existence in penalised and curved MPLEs.
-  if(! MPLEtype%in%c("penalized","logitreg"))  mple.existence(pl)
+  if(! control$MPLE.type%in%c("penalized","logitreg"))  mple.existence(pl)
 
   message("Maximizing the pseudolikelihood.")
-  if(MPLEtype=="penalized"){
+  if(control$MPLE.type=="penalized"){
    if(verbose) message("Using penalized MPLE.")
    mplefit <- ergm.pen.glm(
                   pl$zy ~ pl$xmat -1 + offset(pl$foffset),
@@ -87,7 +85,7 @@ ergm.mple<-function(nw, fd, m, init=NULL,
    mplefit$cov.unscaled <- mplefit$var
    mplefit.summary <- mplefit
   }else{
-   if(MPLEtype=="logitreg"){
+   if(control$MPLE.type=="logitreg"){
     mplefit <- model.matrix(terms(pl$zy ~ .-1,data=data.frame(pl$xmat)),
                            data=data.frame(pl$xmat))
     mplefit <- ergm.logitreg(x=mplefit, y=pl$zy, m=m, wt=pl$wend,
@@ -159,11 +157,11 @@ ergm.mple<-function(nw, fd, m, init=NULL,
 #
   iteration <-  mplefit$iter 
 
-# mplefit <- call(MPLEtype, pl$zy ~ 1, family=binomial)
+# mplefit <- call(control$MPLE.type, pl$zy ~ 1, family=binomial)
 #
-  if(MPLEtype=="penalized"){
+  if(control$MPLE.type=="penalized"){
     mplefit.null <- ergm.pen.glm(pl$zy ~ -1 + offset(pl$foffset), weights=pl$wend)
-  }else if(MPLEtype=="logitreg"){
+  }else if(control$MPLE.type=="logitreg"){
     mplefit.null <- ergm.logitreg(x=matrix(0,ncol=1,nrow=length(pl$zy)),
                                   y=pl$zy, offset=pl$foffset, wt=pl$wend, verbose=max(verbose-2,0))
   }else{

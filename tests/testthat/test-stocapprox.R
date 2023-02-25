@@ -23,7 +23,7 @@ test_that("Stochastic Approximation produces similar results to MCMLE (linear ER
 })
 
 test_that("Stochastic Approximation produces similar results to MCMLE (curved ERGM)",{
-  set.seed(2)
+  set.seed(3)
 
   mod.sa <- ergm(flomarriage~edges+gwdegree(),control=control.ergm(main.method="Stochastic-Approximation"))
 

@@ -55,18 +55,18 @@
 #
 #############################################################################
 
-ergm.CD.fixed <- function(init, nw, model,
+ergm.CD.fixed <- function(init, s, s.obs,
                              control, 
-                             proposal, proposal.obs,
                              verbose=FALSE,
                              estimate=TRUE, ...) {
   message("Starting contrastive divergence estimation via CD-MCMLE:")
   # Is there observational structure?
-  obs <- ! is.null(proposal.obs)
+  obs <- ! is.null(s.obs)
+  model <- s$model
   # Initialize the history of parameters and statistics.
   coef.hist <- rbind(init)
-  stats.hist <- matrix(NA, 0, length(model$nw.stats))
-  stats.obs.hist <- matrix(NA, 0, length(model$nw.stats))
+  stats.hist <- matrix(NA, 0, nparam(model, canonical=TRUE))
+  stats.obs.hist <- matrix(NA, 0, nparam(model, canonical=TRUE))
   steplen.hist <- c()
   steplen <- control$CD.steplength
 
@@ -75,36 +75,11 @@ ergm.CD.fixed <- function(init, nw, model,
 
   # Start cluster if required (just in case we haven't already).
   ergm.getCluster(control, max(verbose-1,0))
-  
-  # Store information about original network, which will be returned at end
-  nw.orig <- nw
 
-  # Impute missing dyads.
-  #
-  # Note: We do not need to update nw.stats, because if we are in a
-  # situation where we are imputing dyads, the optimization is in the
-  # observational mode, and since both the constrained and the
-  # unconstrained samplers start from the same place, the initial
-  # statshifts will be 0. target.stats and missing dyads are mutually
-  # exclusive, so model$target.stats will be set equal to
-  # model$nw.stats, causing this to happen.
-  s <- single.impute.dyads(nw, constraints=proposal$arguments$constraints, constraints.obs=proposal.obs$arguments$constraints, min_informative = control$obs.MCMC.impute.min_informative, default_density = control$obs.MCMC.impute.default_density, output="ergm_state", verbose=verbose)
-
-  # statshift is the difference between the target.stats (if
-  # specified) and the statistics of the networks in the LHS of the
-  # formula or produced by SAN. If target.stats is not speficied
-  # explicitly, they are computed from this network, so
-  # statshift==0. To make target.stats play nicely with offsets, we
-  # set statshifts to 0 where target.stats is NA (due to offset).
-  model$nw.stats <- summary(model, s)
-  statshift <- model$nw.stats - NVL(model$target.stats,model$nw.stats)
-  statshift[is.na(statshift)] <- 0
-  s <- update(s, model=model, proposal=proposal, stats=statshift)
-
+  model <- s$model
   s <- rep(list(s),nthreads(control)) # s is now a list of states.
-  
+
   # Initialize control.obs and other *.obs if there is observation structure
-  
   if(obs){
     control.obs <- control
     control.obs$CD.nsteps<-control$CD.nsteps.obs
@@ -113,7 +88,7 @@ ergm.CD.fixed <- function(init, nw, model,
     control.obs$CD.interval <- control$obs.CD.interval
     control.obs$CD.burnin <- control$obs.CD.burnin
 
-    s.obs <- lapply(s, update, model=NVL(model$obs.model,model), proposal=proposal.obs)
+    s.obs <- rep(list(s.obs),nthreads(control))
   }
   # mcmc.init will change at each iteration.  It is the value that is used
   # to generate the CD samples.  init will never change.
@@ -198,9 +173,7 @@ ergm.CD.fixed <- function(init, nw, model,
                 loglikelihood=NA, #mcmcloglik=NULL, 
                 mle.lik=NULL,
                 gradient=rep(NA,length=length(mcmc.init)), #acf=NULL,
-                samplesize=control$CD.samplesize, failure=TRUE,
-                newnetwork = nw,
-                newnetworks = nw)
+                samplesize=control$CD.samplesize, failure=TRUE)
       return(structure (l, class="ergm"))
     } 
 
@@ -261,11 +234,7 @@ ergm.CD.fixed <- function(init, nw, model,
   v$sample <- statsmatrices
   if(obs) v$sample.obs <- statsmatrices.obs
   
-  v$network <- nw.orig
-  v$newnetworks <- nw
-  v$newnetwork <- nw
   v$coef.init <- init
-  #v$initialfit <- initialfit
   v$est.cov <- v$mc.cov
   v$mc.cov <- NULL
 
@@ -276,8 +245,8 @@ ergm.CD.fixed <- function(init, nw, model,
   
   v$iterations <- iteration
   v$control <- control
-  
-  v$etamap <- model$etamap
+  v$MCMCflag <- TRUE
+
   v
 }
 

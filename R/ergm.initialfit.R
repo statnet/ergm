@@ -20,7 +20,6 @@
 #                                init=c("MPLE", ...)
 #                       if FALSE, 'init' must have "MPLE" as its 1st entry to 
 #                                  avoid an error
-#   formula       :  a formula of the form (nw ~ term(s)) 
 #   nw            :  a network object, presumably that of 'formula'
 #   target.stats     :  the mean statistics
 #   m             :  the model as returned by <ergm_model>
@@ -50,14 +49,13 @@
 ######################################################################################
 
 ergm.initialfit<-function(init, initial.is.final,
-                          formula, nw,
-                          m, reference=~Bernoulli, method = NULL,
-                          MPLEtype="glm",
-                          control=NULL, proposal=NULL, proposal.obs=NULL,
+                          s, s.obs,
+                          method = NULL,
+                          control=NULL,
                           verbose=FALSE, ...) {
   # Respect init elements that are not offsets if it's only a starting value.
   if(!initial.is.final){ 
-    m$etamap$offsettheta[!is.na(init)] <- TRUE
+    s$model$etamap$offsettheta[!is.na(init)] <- TRUE
   }
 
   if(initial.is.final || any(is.na(init))){
@@ -66,20 +64,16 @@ ergm.initialfit<-function(init, initial.is.final,
     # Also make sure that any initial values specified by the user are respected.
     fit <- switch(method,
                   MPLE = {
-                    nw <- single.impute.dyads(nw, constraints=proposal$arguments$constraints, constraints.obs=proposal.obs$arguments$constraints, min_informative = control$obs.MCMC.impute.min_informative, default_density = control$obs.MCMC.impute.default_density, output="ergm_state", verbose=verbose)
-
-                    if(control$MPLE.constraints.ignore) proposal$arguments$constraints <- proposal$arguments$constraints[".attributes"] # Drop all constraints except for .attributes .
-                    fd <- as.rlebdm(proposal$arguments$constraints, proposal.obs$arguments$constraints, which="informative")
-
+                    if(control$MPLE.constraints.ignore) s$proposal$arguments$constraints <- s$proposal$arguments$constraints[".attributes"] # Drop all constraints except for .attributes .
                     if(!initial.is.final) control$MPLE.samplesize <- control$init.MPLE.samplesize
-                    ergm.mple(nw, fd, m, MPLEtype=MPLEtype,
+                    ergm.mple(s, s.obs,
                               init=init, 
                               control=control,
                               verbose=verbose, ...)
                   },
-                  zeros = structure(list(coefficients=.constrain_init(m, ifelse(is.na(init),0,init))),class="ergm"),
-                  CD = ergm.CD.fixed(.constrain_init(m, ifelse(is.na(init),0,init)),
-                      nw, m, control, proposal, proposal.obs, verbose,...),
+                  zeros = structure(list(coefficients=.constrain_init(s$model, ifelse(is.na(init),0,init))),class="ergm"),
+                  CD = ergm.CD.fixed(.constrain_init(s$model, ifelse(is.na(init),0,init)),
+                      s, s.obs, control, verbose,...),
                   stop(paste("Invalid method specified for initial parameter calculation. Available methods are ",paste.and(formals()$method),".",sep=""))
                   )
   }else{

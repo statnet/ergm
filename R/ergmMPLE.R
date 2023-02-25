@@ -167,7 +167,7 @@ ergmMPLE <- function(formula, constraints=~., obs.constraints=~-observed, output
   fd <- as.rlebdm(conlist, conlist.obs, which="informative")
 
   # Get the MPLE predictors
-  pl <- ergm.pl(nw, fd, model, verbose=verbose, control=control, ignore.offset=TRUE,...)
+  pl <- ergm.pl(ergm_state(nw, model=model), fd, verbose=verbose, control=control, ignore.offset=TRUE,...)
 
   structure(
     switch(output,

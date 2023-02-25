@@ -423,7 +423,7 @@ ergm <- function(formula, response=NULL,
   constraints <- trim_env_const_formula(constraints)
   obs.constraints <- trim_env_const_formula(obs.constraints)
   
-  estimate <- match.arg(estimate)
+  control$estimate <- estimate <- match.arg(estimate)
   newnetwork <-
     if(isFALSE(newnetwork)) "none"
     else if(is.character(newnetwork)) match.arg(newnetwork)
@@ -499,14 +499,17 @@ ergm <- function(formula, response=NULL,
     obs = !is.null(proposal.obs),
     valued = is.valued(nw)
   )
-  
+  info$MPLE_is_MLE <- (proposal$reference$name=="Bernoulli"
+      && info$terms_dind
+      && !control$force.main
+      && info$space_dind)
+
   ## Construct approximate response network if target.stats are given.
   if(!is.null(target.stats)){
-    nw.stats <- summary(model, nw)[!model$etamap$offsetmap]
-    target.stats <- vector.namesmatch(target.stats, names(nw.stats))
+    target.stats <- vector.namesmatch(target.stats, param_names(model, canonical=TRUE, offset=FALSE))
     target.stats <- na.omit(target.stats)
-    if(length(nw.stats)!=length(target.stats)){
-      stop("Incorrect length of the target.stats vector: should be ", length(nw.stats), " but is ",length(target.stats),". Note that offset() terms should *not* get target statistics.")
+    if(length(target.stats) != (tmp <- nparam(model, canonical=TRUE, offset=FALSE))){
+      stop("Incorrect length of the target.stats vector: should be ", tmp, " but is ",length(target.stats),". Note that offset() terms should *not* get target statistics.")
     }
     
     # no need to pass the offset term's init to SAN
@@ -545,13 +548,6 @@ ergm <- function(formula, response=NULL,
     if (network.edgecount(nw) == 0) warning("Network is empty and no target stats are specified.")
   }
 
-  # TODO: SAN has this information, so maybe we should grab it from there if SAN does get run.
-  nw.stats <- summary(model, nw, term.options=control$term.options)
-
-  # conddeg MPLE has been superceded, but let the user know:
-  if(!is.directed(nw) && ("degrees" %in% names(proposal$arguments$constraints) ||
-                                           all(c("b1degrees","b2degrees") %in% names(proposal$arguments$constraints)))) message("Note that degree-conditional MPLE has been removed in version 4.0, having been superceded by Contrastive Divergence.")  
-  
   # The following kludge knocks out MPLE if the sample space
   # constraints are not dyad-independent. For example, ~observed
   # constraint is dyad-independent, while ~edges is not.
@@ -619,65 +615,126 @@ ergm <- function(formula, response=NULL,
       message("Maximum Pseudo-Likelihood (MPLE) estimation for ERGMs with dyad-dependent constraints is not implemented at this time. You may want to use Contrastive Divergence by passing estimate='CD' instead.")
   }
   
-  if (verbose) { message("Fitting initial model.") }
-  
-  MPLE.is.MLE <- (proposal$reference$name=="Bernoulli"
-                  && info$terms_dind
-                  && !control$force.main
-                  && info$space_dind)
-  
-  # If all other criteria for MPLE=MLE are met, _and_ SAN network matches target.stats directly, we can get away with MPLE.
-  if (!is.null(target.stats) && !isTRUE(all.equal(target.stats[!is.na(target.stats)],nw.stats[!is.na(target.stats)]))) message("Unable to match target stats. Using MCMLE estimation.")
-  MCMCflag <- (estimate=="MLE" && (!MPLE.is.MLE
-                                   || (!is.null(target.stats) && !isTRUE(all.equal(target.stats,nw.stats)))
-  )
-  || control$force.main)
-  
-  # Short-circuit the optimization if all terms are either offsets or dropped.
-  if(all(model$etamap$offsettheta)){
-    # Note that this cannot be overridden with control$force.main.
-    message("All terms are either offsets or extreme values. No optimization is performed.")
-    return(structure(list(coefficients=control$init,
-                          call=ergm_call,
-                          iterations=0,
-                          loglikelihood=NA,
-                          mle.lik=NULL,
-                          gradient=rep(NA,length=length(control$init)),
-                          failure=TRUE,
-                          offset=model$etamap$offsettheta,
-                          drop=if(control$drop) extremecheck$extremeval.theta,
-                          estimable=constrcheck$estimable,
-                          network=nw,
-                          reference=reference,
-                          newnetwork = if(newnetwork != "none") nw,
-                          formula=formula,
-                          info=info,
-                          constraints=constraints,
-                          target.stats=target.stats,
-                          target.esteq=if(!is.null(target.stats)) ergm.estfun(rbind(target.stats), control$init, model),
-                          estimate=estimate,
-                          ergm_version=packageVersion("ergm"),
-                          control=control
-    ),
-    class="ergm"))
-    
+  ## Run the fit.
+  fit <- ergm.fit(nw, target.stats, model, proposal, proposal.obs, info, control, verbose, ...)
+
+  ## Process MCMC sample results.
+  if(control$MCMC.return.stats == 0) fit$sample <- fit$sample.obs <- NULL
+  else{ # Thin the chains.
+    fit$sample <- NVL3(fit$sample, {
+      w <- window(., thin = thin(.) * (et <- max(ceiling(niter(.) / control$MCMC.return.stats), 1)))
+      structure(w, extra_thin = et)
+    })
+    fit$sample.obs <- NVL3(fit$sample.obs, {
+      w <- window(., thin = thin(.) * (et <- max(ceiling(niter(.) / control$MCMC.return.stats), 1)))
+      structure(w, extra_thin = et)
+    })
+  }
+
+  ## Clear the new networks if not needed.
+  if(newnetwork == "none") fit$newnetwork <- NULL
+  if(newnetwork != "all") fit$newnetworks <- NULL
+
+  ## Add miscellaneous information to the fit.
+  fit$call <- ergm_call
+  fit$network <- nw
+  fit$ergm_version <- packageVersion("ergm")
+  fit$info <- info
+  fit$MPLE_is_MLE <- info$MPLE_is_MLE
+  fit$drop <- if(control$drop) extremecheck$extremeval.theta
+  fit$offset <- model$etamap$offsettheta
+  fit$estimable <- constrcheck$estimable
+  fit$etamap <- model$etamap
+  fit$formula <- formula
+  fit$target.stats <- suppressWarnings(na.omit(target.stats))
+  fit$target.esteq <- suppressWarnings(na.omit(if(!is.null(target.stats)) ergm.estfun(rbind(target.stats), coef(fit), model)))
+  fit$reference<-reference
+  fit$constraints <- constraints
+  fit$obs.constraints <- obs.constraints
+  fit$estimate <- estimate
+  fit$estimate.desc <- switch(estimate,
+                              MPLE = if(info$MPLE_is_MLE) "Maximum Likelihood"
+                                     else "Maximum Pseudolikelihood",
+                              CD = "Contrastive Divergence",
+                              MLE = paste0(if(NVL(fit$MCMCflag,FALSE)) # If not, it's just MLE.
+                                             switch(control$main.method,
+                                                    MCMLE = "Monte Carlo ",
+                                                    `Stochastic-Approximation`="Stochastic Approximation "),
+                                           "Maximum Likelihood"))
+
+  NVL(fit$control) <- control
+
+  class(fit) <- "ergm"
+
+  ## Call the likelihood estimation.
+  if(eval.loglik){
+    message("Evaluating log-likelihood at the estimate. ", appendLF=FALSE)
+    fit<-logLik(fit, add=TRUE, control=control$loglik, verbose=verbose)
+    message("")
+  }
+
+  if (NVL(fit$MCMCflag,FALSE)) {
+    message(paste(strwrap("This model was fit using MCMC.  To examine model diagnostics and check for degeneracy, use the mcmc.diagnostics() function."),collapse="\n"))
   }
   
-  model$nw.stats <- nw.stats
-  model$target.stats <- target.stats
-  
-  if(control$init.method=="CD") if(is.null(names(control$init)))
-      names(control$init) <- param_names(model, FALSE)
-  
+  fit
+}
+
+ergm.fit <- function(nw, target.stats, model, proposal, proposal.obs, info, control, verbose, ...){
+  ## Short-circuit the optimization if all terms are either offsets or dropped.
+  if(all(model$etamap$offsettheta)){
+    ## Note that this cannot be overridden with control$force.main.
+    message("All terms are either offsets or extreme values. No optimization is performed.")
+    return(list(coefficients=control$init,
+                iterations=0,
+                loglikelihood=NA,
+                gradient=rep(NA,length=length(control$init)),
+                mple.lik=NA_real_
+                ))
+  }
+
+  if(verbose) message("Fitting initial model.")
+
+  ## Impute missing dyads and construct a state object.
+  ##
+  ## Note: We do not need to update nw.stats, because if we are in a
+  ## situation where we are imputing dyads, the optimization is in the
+  ## observational mode, and since both the constrained and the
+  ## unconstrained samplers start from the same place, the initial
+  ## stat shifts will be 0. target.stats and missing dyads are
+  ## mutually exclusive, so target.stats will be set equal to
+  ## network stats, causing this to happen.
+  s <- single.impute.dyads(nw, constraints=proposal$arguments$constraints, constraints.obs=proposal.obs$arguments$constraints, min_informative = control$obs.MCMC.impute.min_informative, default_density = control$obs.MCMC.impute.default_density, output="ergm_state", verbose=verbose)
+
+  ## statshift is the difference between the target.stats (if
+  ## specified) and the statistics of the networks in the LHS of the
+  ## formula or produced by SAN. If target.stats is not speficied
+  ## explicitly, they are computed from this network, so
+  ## statshift==0. To make target.stats play nicely with offsets, we
+  ## set stat shifts to 0 where target.stats is NA (due to offset).
+  nw.stats <- summary(model, s)
+  statshift <- nw.stats - NVL(target.stats, nw.stats)
+  statshift[is.na(statshift)] <- 0
+
+  s <- update(s, model=model, proposal=proposal, stats=statshift)
+  s.obs <- if(!is.null(proposal.obs)) update(s, model=NVL(model$obs.model,model), proposal=proposal.obs)
+
+  ## If all other criteria for MPLE=MLE are met, _and_ SAN network matches target.stats directly, we can get away with MPLE.
+  if (!is.null(target.stats) && !isTRUE(all.equal(target.stats[!is.na(target.stats)],nw.stats[!is.na(target.stats)])))
+    message("Unable to match target stats. Using MCMLE estimation.")
+  MCMCflag <- (control$estimate=="MLE"
+    && (!info$MPLE_is_MLE || (!is.null(target.stats) && !isTRUE(all.equal(target.stats,nw.stats))))
+    || control$force.main)
+
   initialfit <- ergm.initialfit(init=control$init, initial.is.final=!MCMCflag,
-                                formula=formula, nw=nw, reference=reference, 
-                                m=model, method=control$init.method,
-                                MPLEtype=control$MPLE.type, 
+                                s=s, s.obs=s.obs,
+                                method=control$init.method,
                                 control=control,
-                                proposal=proposal,
-                                proposal.obs=proposal.obs,
                                 verbose=if(MCMCflag) FALSE else verbose,
                                 ...)
+
+  if(control$init.method=="CD") if(is.null(names(control$init)))
+      names(control$init) <- param_names(model, FALSE)
 
   switch(control$init.method,
          MPLE = NVL3(initialfit$xmat.full, check_nonidentifiability(., coef(initialfit), model,
@@ -692,127 +749,31 @@ ergm <- function(formula, response=NULL,
 
   initialfit$xmat.full <- NULL # No longer needed but takes up space.
 
-  estimate.desc <- switch(estimate,
-                          MPLE = if(MPLE.is.MLE) "Maximum Likelihood"
-                                 else "Maximum Pseudolikelihood",
-                          CD = "Contrastive Divergence",
-                          MLE = paste0(if(MCMCflag) # If not, it's just MLE.
-                                         switch(control$main.method,
-                                                MCMLE = "Monte Carlo ",
-                                                `Stochastic-Approximation`="Stochastic Approximation "),
-                                       "Maximum Likelihood"))
-
-  if (!MCMCflag){ # Just return initial (non-MLE) fit and exit.
-    message("Stopping at the initial estimate.")
-    initialfit$call <- ergm_call
-    initialfit$ergm_version <- packageVersion("ergm")
-    initialfit$offset <- model$etamap$offsettheta
-    initialfit$info <- info
-    initialfit$MPLE_is_MLE <- MPLE.is.MLE
-    initialfit$drop <- if(control$drop) extremecheck$extremeval.theta
-    initialfit$estimable <- constrcheck$estimable
-    initialfit$network <- nw
-    initialfit$reference <- reference
-    initialfit$newnetwork <- if(newnetwork != "none") nw
-    initialfit$formula <- formula
-    initialfit$constraints <- constraints
-    initialfit$obs.constraints <- obs.constraints 
-    initialfit$target.stats <- suppressWarnings(na.omit(model$target.stats))
-    initialfit$nw.stats <- model$nw.stats
-      initialfit$etamap <- model$etamap
-    initialfit$target.esteq <- suppressWarnings(na.omit(if(!is.null(model$target.stats)) ergm.estfun(rbind(model$target.stats), coef(initialfit), model)))
-    initialfit$estimate <- estimate
-    initialfit$estimate.desc <- estimate.desc
-
-    initialfit$control<-control
-
-    if(any(!model$etamap$offsettheta) && eval.loglik){
-      message("Evaluating log-likelihood at the estimate. ",appendLF=FALSE)
-      initialfit<-logLik(initialfit, add=TRUE, control=control$loglik, verbose=verbose)
-      message("")
-    }
-    return(initialfit)
-  }
+  ## If we don't need to use MCMC, we're done.
+  if(!MCMCflag) return(c(initialfit, list(nw.stats=nw.stats)))
   
   # Otherwise, set up the main phase of estimation:
-  
   ergm.getCluster(control, max(verbose-1,0))
   
   # Revise the initial value, if necessary:
   init <- coef(initialfit)
   init[is.na(init)] <- 0
   names(init) <- param_names(model, FALSE)
-  
-  mainfit <- switch(control$main.method,
 
-                    "Stochastic-Approximation" = ergm.stocapprox(init, nw, model,
-                                                                 control=control, proposal=proposal,
-                                                                 verbose=verbose),
+  c(
+    switch(control$main.method,
 
-                    "MCMLE" = ergm.MCMLE(init, nw,
-                                         model, 
-                                         # no need to pass initialfit to MCMLE
-                                         initialfit=(initialfit<-NULL),
-                                         control=control, proposal=proposal,
-                                         proposal.obs=proposal.obs,
-                                         verbose=verbose,
-                                         ...),
+           "Stochastic-Approximation" = ergm.stocapprox(init, s, s.obs,
+                                                        control=control,
+                                                        verbose=verbose,
+                                                        ...),
+
+           "MCMLE" = ergm.MCMLE(init, s, s.obs,
+                              control=control,
+                              verbose=verbose,
+                              ...),
                     
-                    stop("Method ", control$main.method, " is not implemented.")
+           stop("Method ", control$main.method, " is not implemented.")),
+    list(nw.stats=nw.stats)
   )
-  
-  initialfit <- NULL
-  
-  # done with main fit
-  
-  mainfit$call <- ergm_call
-  mainfit$ergm_version <- packageVersion("ergm")
-  mainfit$info <- info
-  mainfit$MPLE_is_MLE <- MPLE.is.MLE
-  
-  mainfit$formula <- formula
-  mainfit$target.stats <- suppressWarnings(na.omit(model$target.stats))
-  mainfit$nw.stats <- model$nw.stats
-  mainfit$target.esteq <- suppressWarnings(na.omit(if(!is.null(model$target.stats)) ergm.estfun(rbind(model$target.stats), coef(mainfit), model)))
-  
-  mainfit$constraints <- constraints
-  mainfit$obs.constraints <- obs.constraints
-  
-  # unless the main fitting algorithm passes back a modified control
-  NVL(mainfit$control) <- control
-  
-  mainfit$reference<-reference
-  mainfit$estimate <- estimate
-  mainfit$estimate.desc <- estimate.desc
-
-  mainfit$offset <- model$etamap$offsettheta
-  mainfit$drop <- if(control$drop) extremecheck$extremeval.theta
-  mainfit$estimable <- constrcheck$estimable
-  mainfit$etamap <- model$etamap
-
-  if(control$MCMC.return.stats == 0) mainfit$sample <- mainfit$sample.obs <- NULL
-  else{ # Thin the chains.
-    mainfit$sample <- NVL3(mainfit$sample, {
-      w <- window(., thin = thin(.) * (et <- max(ceiling(niter(.) / control$MCMC.return.stats), 1)))
-      structure(w, extra_thin = et)
-    })
-    mainfit$sample.obs <- NVL3(mainfit$sample.obs, {
-      w <- window(., thin = thin(.) * (et <- max(ceiling(niter(.) / control$MCMC.return.stats), 1)))
-      structure(w, extra_thin = et)
-    })
-  }
-
-  if(eval.loglik){
-    message("Evaluating log-likelihood at the estimate. ", appendLF=FALSE)
-    mainfit<-logLik(mainfit, add=TRUE, control=control$loglik, verbose=verbose)
-  }
-
-  if(newnetwork == "none") mainfit$newnetwork <- NULL
-  if(newnetwork != "all") mainfit$newnetworks <- NULL
-    
-  if (MCMCflag) {
-    message(paste(strwrap("This model was fit using MCMC.  To examine model diagnostics and check for degeneracy, use the mcmc.diagnostics() function."),collapse="\n"))
-  }
-  
-  mainfit
 }

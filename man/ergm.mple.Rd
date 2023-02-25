@@ -6,11 +6,9 @@
 \title{Find a maximizer to the psuedolikelihood function}
 \usage{
 ergm.mple(
-  nw,
-  fd,
-  m,
+  s,
+  s.obs,
   init = NULL,
-  MPLEtype = "glm",
   family = "binomial",
   save.xmat = TRUE,
   control = NULL,
@@ -19,9 +17,8 @@ ergm.mple(
 )
 
 ergm.pl(
-  nw,
-  fd,
-  m,
+  state,
+  state.obs,
   theta.offset = NULL,
   control,
   ignore.offset = FALSE,
@@ -29,16 +26,7 @@ ergm.pl(
 )
 }
 \arguments{
-\item{nw}{response \code{\link{network}} or \code{\link{ergm_state}}.}
-
-\item{fd}{An \code{\link{rlebdm}} with informative dyads.}
-
-\item{m}{the model, as returned by \code{\link{ergm_model}}}
-
 \item{init}{a vector a vector of initial theta coefficients}
-
-\item{MPLEtype}{the method for MPL estimation as "penalized", "glm"
-or "logitreg"; default="glm"}
 
 \item{family}{the family to use in the R native routine
 \code{\link{glm}}; only applicable if "glm" is the 'MPLEtype';
@@ -59,6 +47,8 @@ down processing.}
 
 \item{\dots}{additional parameters passed from within; all will be
 ignored}
+
+\item{state, state.obs}{\code{\link{ergm_state}} objects.}
 
 \item{theta.offset}{a numeric vector of length equal to the number
 of statistics of the model, specifying (positionally) the

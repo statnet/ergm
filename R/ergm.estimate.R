@@ -309,12 +309,11 @@ ergm.estimate<-function(init, model, statsmatrices, statsmatrices.obs=NULL,
   names(theta) <- names(init)
   if (estimateonly) {
     # Output results as ergm-class object
-    return(structure(list(coefficients = setNames(theta, names(init)),
-                          MCMCtheta = init,
-                          samplesize = nrow(statsmatrix),
-                          loglikelihood = Lout$value,
-                          failure = FALSE),
-                     class = "ergm"))
+    list(coefficients = setNames(theta, names(init)),
+         MCMCtheta = init,
+         samplesize = nrow(statsmatrix),
+         loglikelihood = Lout$value,
+         failure = FALSE)
   } else {
     gradienttheta <- llik.grad.IS(theta=Lout$par,
                         xsim=xsim,
@@ -360,12 +359,12 @@ ergm.estimate<-function(init, model, statsmatrices, statsmatrices.obs=NULL,
     }
 
     # Output results as ergm-class object
-    return(structure(list(
+    list(
       coefficients = setNames(theta, names(init)),
       sample = statsmatrices, sample.obs = statsmatrices.obs,
       iterations = Lout$counts[1], MCMCtheta = init,
       loglikelihood = Lout$value, gradient = gradient, hessian = Lout$hessian,
       covar = covar, failure = FALSE, mc.cov = mc.cov
-    ), class = "ergm"))
+    )
   }
 }
