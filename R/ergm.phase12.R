@@ -50,7 +50,7 @@ ergm.phase12 <- function(s, theta0,
             # Phase12 settings
             as.double(deInf(theta0)),
             as.integer(control$MCMC.samplesize), as.integer(control$MCMC.burnin), as.integer(control$MCMC.interval),
-            as.double(control$gain), as.integer(control$phase1), as.integer(control$nsub),
+            as.double(control$SA.initial_gain), as.integer(control$SA.phase1_n), as.integer(control$nsub),
             as.integer(deInf(NVL(control$MCMC.maxedges,Inf),"maxint")),
             as.integer(verbose),
             PACKAGE="ergm")

@@ -48,19 +48,12 @@ ergm.stocapprox <- function(init, s, s.obs,
 
   control <- remap_algorithm_MCMC_controls(control, "SA")
 
-  #phase 1:  Estimate diagonal elements of D matrix (covariance matrix for init)
-  n1 <- control$SA.phase1_n
-  if(is.null(n1)) {n1 <- max(200,7 + 3 * nparam(model, offset=FALSE))} #default value
+  if(is.function(control$SA.phase1_n))
+    control$SA.phase1_n <- control$SA.phase1_n(q=nparam(model, offset=FALSE))
+
   message("Stochastic approximation algorithm with theta_0 equal to:")
   print(init)
-  control <- within(control, {
-    phase1 <- n1
-  })
-# message(paste("Phase 1: ",n1,"iterations"))
-# message(paste(" (interval=",control$MCMC.interval,")",sep=""))
-  #phase 2:  Main phase
-  a <- control$SA.initial_gain
-  if(is.null(a)) {a <- 0.1} #default value
+
   n_sub <- control$SA.nsubphases
   if(is.null(n_sub)) {n_sub <- 4} #default value
   n_iter <- control$SA.niterations
@@ -73,10 +66,6 @@ ergm.stocapprox <- function(init, s, s.obs,
 # Ddiaginv<-1/Ddiag
   control$MCMC.samplesize <- n_iter # Now the number of Phase 2 in ergm.phase2
   control$nsub <- n_iter # Now the number of Phase 2 sub-phases start point
-  control$gain <- a # Now the number of Phase 2 sub-phases start point
-# if(control$parallel>0){
-#  control$MCMC.samplesize <- control$MCMC.samplesize*control$parallel
-# }
   for(i in 1:n_sub){
     control$MCMC.samplesize <- trunc(control$MCMC.samplesize*2.52)+1 # 2.52 is approx. 2^(4/3)
   }
