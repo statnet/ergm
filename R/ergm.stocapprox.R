@@ -16,8 +16,8 @@
 #
 # --PARAMETERS--
 #   init    : the initial theta values
-#   nw        : the network
-#   model     : the model, as returned by <ergm_model>
+#   s       : ergm state object
+#   s.obs   : ergm state object (non NULL if there is a missing data)
 #   control: a list of parameters for controlling the MCMC sampling;
 #               recognized components include
 #                  'phase1_n'      'phase3_n'    'epsilon'
@@ -28,8 +28,6 @@
 #                  'interval'
 #               the use of these variables is explained in the
 #               <control.ergm> function header
-#   proposal: an proposal object for 'nw', as returned by
-#               <getproposal>
 #   verbose   : whether the MCMC sampling should be verbose (T or F);
 #               default=FALSE
 #
@@ -54,37 +52,30 @@ ergm.stocapprox <- function(init, s, s.obs,
   message("Stochastic approximation algorithm with theta_0 equal to:")
   print(init)
 
-  n_sub <- control$SA.nsubphases
-  if(is.null(n_sub)) {n_sub <- 4} #default value
-  n_iter <- control$SA.niterations
-  if(is.null(n_iter)) {n_iter <- 7 + nparam(model, offset=FALSE)} #default value
-  # This default value is very simplistic; Snijders would use a minimum of
-  # 7 + model$etamap$etalength and a maximum of 207+model$etamap$etalength, with the actual 
-  # number determined by the autocorrelation in the samples.
-  # Thus, our default value assumes independence (for now!)
+  if(is.function(control$SA.niterations))
+    control$SA.niterations <- control$SA.niterations(q=nparam(model, offset=FALSE))
+
   theta <- init
-# Ddiaginv<-1/Ddiag
-  control$MCMC.samplesize <- n_iter # Now the number of Phase 2 in ergm.phase2
-  control$nsub <- n_iter # Now the number of Phase 2 sub-phases start point
-  for(i in 1:n_sub){
+
+  control$MCMC.samplesize <- control$SA.niterations   # Now the number of Phase 2 in ergm.phase2
+
+  for(i in 1:control$SA.nsubphases){
     control$MCMC.samplesize <- trunc(control$MCMC.samplesize*2.52)+1 # 2.52 is approx. 2^(4/3)
   }
 # message(paste("Phase 2: a=",a,"Total Samplesize",control$MCMC.samplesize,""))
 # aDdiaginv <- a * Ddiaginv
-  z <- ergm.phase12(s, 
-                    theta, control, verbose=TRUE)
-  nw <- z$newnetwork
+  z <- ergm.phase12(s, theta, control, verbose=TRUE)
+  nw <- z$newnetwork #the network
 # toggle.dyads(nw, head = z$changed[,2], tail = z$changed[,3])
 # control$maxchanges <- z$maxchanges
   theta <- z$theta
   names(theta) <- names(init)
   message(paste(" (theta[",seq(along=theta),"] = ",paste(theta),")",sep=""))
   
-  #phase 3:  Estimate covariance matrix for final theta
-  n3 <- control$SA.phase3_n
-  if(is.null(n3)) {n3 <- 1000} #default
-  control$MCMC.samplesize <- n3
-  message(paste("Phase 3: ",n3,"iterations"),appendLF=FALSE)
+#phase 3:  Estimate covariance matrix for final theta
+
+  control$MCMC.samplesize <- control$SA.phase3_n
+  message(paste("Phase 3: ",control$SA.phase3_n,"iterations"),appendLF=FALSE)
   message(paste(" (interval=",control$MCMC.interval,")",sep=""))
 #message(paste(" (samplesize=",control$MCMC.samplesize,")",sep=""))
 #message(paste(" theta=",theta,")",sep=""))

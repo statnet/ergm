@@ -112,11 +112,11 @@ control.ergm(
   MCMLE.nonvar = c("message", "warning", "error"),
   MCMLE.nonident = c("warning", "message", "error"),
   MCMLE.nonident.tol = 1e-10,
-  SA.phase1_n = NULL,
-  SA.initial_gain = NULL,
+  SA.phase1_n = function(q, ...) max(200, 7 + 3 * q),
+  SA.initial_gain = 0.1,
   SA.nsubphases = 4,
-  SA.niterations = NULL,
-  SA.phase3_n = NULL,
+  SA.niterations = function(q, ...) (7 + q),
+  SA.phase3_n = 1000,
   SA.interval = 1024,
   SA.burnin = SA.interval * 16,
   SA.samplesize = 1024,
@@ -583,11 +583,11 @@ iteration number as the second argument. (For example,
 \code{step_001.RData}, \code{step_002.RData}, etc.)}
 
 \item{SA.phase1_n}{Number of MCMC samples to draw in Phase 1 of the
-stochastic approximation algorithm.  Defaults to 7 plus 3 times the number
+stochastic approximation algorithm.  Defaults to maximum of 200 and 7 plus 3 times the number
 of terms in the model.  See Snijders (2002) for details.}
 
 \item{SA.initial_gain}{Initial gain to Phase 2 of the stochastic
-approximation algorithm.  See Snijders (2002) for details.}
+approximation algorithm. Defaults to 0.1. See Snijders (2002) for details.}
 
 \item{SA.nsubphases}{Number of sub-phases in Phase 2 of the stochastic
 approximation algorithm.  Defaults to \code{MCMLE.maxit}.  See Snijders
