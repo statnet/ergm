@@ -367,7 +367,7 @@ ergm.bridge.dindstart.llk<-function(object, response=NULL, constraints=~., coef,
   coef.dind[dindmap] <- replace(coef(ergm.dind), is.na(coef(ergm.dind)), 0)
   coef.aug <- c(coef, 0)
 
-  form.aug <- append_rhs.formula(object, list(as.name("edges")))
+  form.aug <- append_rhs.formula(object, list(as.name("edges")), keep.onesided = TRUE)
 
   ## From this point on, target.stats has NAs corresponding to offset
   ## terms.
