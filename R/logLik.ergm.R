@@ -111,7 +111,7 @@ logLik.ergm<-function(object, add=FALSE, force.reeval=FALSE, eval.loglik=add || 
     ## If dyad-dependent but not valued and has a dyad-independent constraint, bridge from a dyad-independent model.
     else if(is.dyad.independent(object, "space")
             && !is.valued(object))
-      ergm.bridge.dindstart.llk(formula,reference=reference,constraints=constraints,obs.constraints=obs.constraints,coef=coef(object),target.stats=object$target.stats,control=control.bridge,llkonly=FALSE,...,verbose=verbose)
+      ergm.bridge.dindstart.llk(formula,reference=reference,constraints=constraints,obs.constraints=obs.constraints,coef=coef(object),target.stats=object$target.stats,control=control.bridge,llkonly=FALSE,basis=object$network,...,verbose=verbose)
     ## If valued or has dyad-dependent constraint, bridge from the null model (reference measure).
     else
       ergm.bridge.0.llk(formula,reference=reference,constraints=constraints,obs.constraints=obs.constraints,coef=coef(object),target.stats=object$target.stats,control=control.bridge,llkonly=FALSE,basis=object$network,...,verbose=verbose)
