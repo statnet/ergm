@@ -8,7 +8,7 @@
 #  Copyright 2003-2023 Statnet Commons
 ################################################################################
 
-test_that("basis works as expected",{
+test_that("basis works as expected", {
   set.seed(0)
   nw <- network(100, directed = FALSE)
   nw %v% "attr" <- rep(1:2, length.out = 100)
@@ -26,7 +26,7 @@ test_that("basis works as expected",{
   expect_equal(logLik(e2), logLik(e3))
 })
 
-test_that("basis works as expected with dyad-dependent constraints",{
+test_that("basis works as expected with dyad-dependent constraints", {
   old.opts <- options(ergm.loglik.warn_dyads = FALSE)
   set.seed(0)
   nw <- network.initialize(100, directed = FALSE)
