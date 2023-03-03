@@ -10,7 +10,6 @@ ergm.mple(
   s.obs,
   init = NULL,
   family = "binomial",
-  save.xmat = TRUE,
   control = NULL,
   verbose = FALSE,
   ...

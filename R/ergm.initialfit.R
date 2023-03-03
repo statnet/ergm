@@ -48,40 +48,35 @@
 #
 ######################################################################################
 
-ergm.initialfit<-function(init, initial.is.final,
+ergm.initialfit<-function(init,
                           s, s.obs,
-                          method = NULL,
+                          method,
                           control=NULL,
                           verbose=FALSE, ...) {
-  # Respect init elements that are not offsets if it's only a starting value.
-  if(!initial.is.final){ 
+  if(method!="skip" && any(is.na(init))){
+    # Respect init elements that are not offsets if it's only a starting value.
     s$model$etamap$offsettheta[!is.na(init)] <- TRUE
-  }
 
-  if(initial.is.final || any(is.na(init))){
-    # If we aren't running MCMC after this or not all of init has been
-    # supplied by the user, use MPLE.   
     # Also make sure that any initial values specified by the user are respected.
-    fit <- switch(method,
-                  MPLE = {
-                    if(control$MPLE.constraints.ignore) s$proposal$arguments$constraints <- s$proposal$arguments$constraints[".attributes"] # Drop all constraints except for .attributes .
-                    if(!initial.is.final) control$MPLE.samplesize <- control$init.MPLE.samplesize
-                    ergm.mple(s, s.obs,
-                              init=init, 
-                              control=control,
-                              verbose=verbose, ...)
-                  },
-                  zeros = structure(list(coefficients=.constrain_init(s$model, ifelse(is.na(init),0,init))),class="ergm"),
-                  CD = ergm.CD.fixed(.constrain_init(s$model, ifelse(is.na(init),0,init)),
-                      s, s.obs, control, verbose,...),
-                  stop(paste("Invalid method specified for initial parameter calculation. Available methods are ",paste.and(formals()$method),".",sep=""))
+    switch(method,
+           MPLE = {
+             if(control$MPLE.constraints.ignore) s$proposal$arguments$constraints <- s$proposal$arguments$constraints[".attributes"] # Drop all constraints except for .attributes .
+             control$MPLE.samplesize <- control$init.MPLE.samplesize
+             ergm.mple(s, s.obs,
+                       init=init,
+                       control=control,
+                       verbose=verbose, ...)
+           },
+           zeros = structure(list(coefficients=.constrain_init(s$model, ifelse(is.na(init),0,init)))),
+           CD = ergm.CD.fixed(.constrain_init(s$model, ifelse(is.na(init),0,init)),
+                              s, s.obs, control, verbose, ...),
+           stop(paste("Invalid method specified for initial parameter calculation. Available methods are ",paste.and(formals()$method),".",sep=""))
                   )
   }else{
     # If this is just the initial value, *and* the user has supplied
     # all elements for init, just echo init.
-    fit <- structure(list(coefficients=init),class="ergm")
+    structure(list(coefficients=init))
   }
-  fit
 }
 
 .constrain_init <- function(m, init){

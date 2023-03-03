@@ -227,6 +227,11 @@ ergm.CD.fixed <- function(init, s, s.obs,
 
   message("Finished CD.")
 
+  check_nonidentifiability(statsmatrix, coef(v), model,
+                           tol = control$MPLE.nonident.tol, type="statistics",
+                           nonident_action = control$MPLE.nonident,
+                           nonvar_action = control$MPLE.nonvar)
+
   # FIXME:  We should not be "tacking on" extra list items to the 
   # object returned by ergm.estimate.  Instead, it is more transparent
   # if we build the output object (v) from scratch, of course using 

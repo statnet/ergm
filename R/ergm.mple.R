@@ -57,7 +57,6 @@
 #' @references \insertAllCited{}
 ergm.mple<-function(s, s.obs, init=NULL,
                     family="binomial",
-                    save.xmat=TRUE,
                     control=NULL,
                     verbose=FALSE,
                     ...) {
@@ -177,6 +176,12 @@ ergm.mple<-function(s, s.obs, init=NULL,
   df <- nparam(m, offset=FALSE)
 
   message("Finished MPLE.")
+
+  check_nonidentifiability(pl$xmat.full, theta, m,
+                           tol = control$MPLE.nonident.tol, type="covariates",
+                           nonident_action = control$MPLE.nonident,
+                           nonvar_action = control$MPLE.nonvar)
+
   # Output results as ergm-class object
   structure(list(coefficients=theta,
       iterations=iteration, 
@@ -187,8 +192,7 @@ ergm.mple<-function(s, s.obs, init=NULL,
         nobs = nobs, df = df, class="logLik"),
       mple.lik.null = structure(
         ERRVL(try(logLik(mplefit.null), silent=TRUE), -mplefit.null$deviance/2),
-        nobs = nobs, df = df, class="logLik"),
-      xmat.full = if(save.xmat) pl$xmat.full
+        nobs = nobs, df = df, class="logLik")
       ),
       class="ergm")
 }

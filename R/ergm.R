@@ -429,12 +429,14 @@ ergm <- function(formula, response=NULL,
     else if(is.character(newnetwork)) match.arg(newnetwork)
 
   if(estimate=="CD"){
-    control$init.method <- "CD"
+    control$init.method <- "skip"
+    control$main.method <- "CD"
     eval.loglik <- FALSE
   }
 
   if(estimate=="MPLE"){
-    control$init.method <- "MPLE"
+    control$init.method <- "skip"
+    control$main.method <- "MPLE"
   }
   
   if(!is.null(control$seed))  set.seed(as.integer(control$seed))
@@ -554,7 +556,7 @@ ergm <- function(formula, response=NULL,
   #
   # TODO: Create a flexible and general framework to manage methods
   # for obtaining initial values.
-  init.candidates <- proposal$reference$init_methods
+  init.candidates <- c(proposal$reference$init_methods, "skip")
   if("MPLE" %in% init.candidates && !info$space_dind){
     init.candidates <- init.candidates[init.candidates!="MPLE"]
     if(verbose) message("MPLE cannot be used for this constraint structure.")
@@ -564,7 +566,7 @@ ergm <- function(formula, response=NULL,
     message("Specified initial parameter method ", sQuote(control$init.method), " is not in the list of candidates. Use at your own risk.")
     control$init.method
   })
-  if(verbose) message(paste0("Using initial method '",control$init.method,"'."))
+  if(verbose && control$init.method!="skip") message(paste0("Using initial method '",control$init.method,"'."))
 
   if(is.curved(model) ||
      !all(model$etamap$mintheta==-Inf) ||
@@ -719,49 +721,39 @@ ergm.fit <- function(nw, target.stats, model, proposal, proposal.obs, info, cont
   s <- update(s, model=model, proposal=proposal, stats=statshift)
   s.obs <- if(!is.null(proposal.obs)) update(s, model=NVL(model$obs.model,model), proposal=proposal.obs)
 
-  ## If all other criteria for MPLE=MLE are met, _and_ SAN network matches target.stats directly, we can get away with MPLE.
+  ## If all other criteria for MPLE=MLE are met, _and_ SAN network matches target.stats exactly, we can get away with MPLE.
   if (!is.null(target.stats) && !isTRUE(all.equal(target.stats[!is.na(target.stats)],nw.stats[!is.na(target.stats)])))
     message("Unable to match target stats. Using MCMLE estimation.")
-  MCMCflag <- (control$estimate=="MLE"
-    && (!info$MPLE_is_MLE || (!is.null(target.stats) && !isTRUE(all.equal(target.stats,nw.stats))))
-    || control$force.main)
+  if(control$estimate=="MLE"
+    && info$MPLE_is_MLE && (is.null(target.stats) || isTRUE(all.equal(target.stats,nw.stats)))
+    && !control$force.main){
+    control$init.method <- "skip"
+    control$main.method <- "MPLE"
+  }
 
-  initialfit <- ergm.initialfit(init=control$init, initial.is.final=!MCMCflag,
-                                s=s, s.obs=s.obs,
-                                method=control$init.method,
-                                control=control,
-                                verbose=if(MCMCflag) FALSE else verbose,
-                                ...)
-
-  if(control$init.method=="CD") if(is.null(names(control$init)))
-      names(control$init) <- param_names(model, FALSE)
-
-  switch(control$init.method,
-         MPLE = NVL3(initialfit$xmat.full, check_nonidentifiability(., coef(initialfit), model,
-                                                                    tol = control$MPLE.nonident.tol, type="covariates",
-                                                                    nonident_action = control$MPLE.nonident,
-                                                                    nonvar_action = control$MPLE.nonvar)),
-         CD = NVL3(initialfit$sample, check_nonidentifiability(as.matrix(.), coef(initialfit), model,
-                                                               tol = control$MPLE.nonident.tol, type="statistics",
-                                                               nonident_action = control$MPLE.nonident,
-                                                               nonvar_action = control$MPLE.nonvar))
-         )
-
-  initialfit$xmat.full <- NULL # No longer needed but takes up space.
-
-  ## If we don't need to use MCMC, we're done.
-  if(!MCMCflag) return(c(initialfit, list(nw.stats=nw.stats)))
+  ergm.getCluster(control, max(verbose-1,0)) # Set up parallel processing if necessary.
   
-  # Otherwise, set up the main phase of estimation:
-  ergm.getCluster(control, max(verbose-1,0))
-  
-  # Revise the initial value, if necessary:
+  initialfit <- ergm.initialfit(init=control$init,
+                                  s=s, s.obs=s.obs,
+                                  method=control$init.method,
+                                  control=control,
+                                  verbose=max(verbose-1,0),
+                                  ...)
+
+  ## Extract and process the initial value for the next stage:
   init <- coef(initialfit)
   init[is.na(init)] <- 0
   names(init) <- param_names(model, FALSE)
 
   c(
     switch(control$main.method,
+           "MPLE" = ergm.mple(s, s.obs,
+                              init=init,
+                              control=control,
+                              verbose=verbose, ...),
+
+           "CD" = ergm.CD.fixed(.constrain_init(s$model, ifelse(is.na(init),0,init)),
+                      s, s.obs, control, verbose,...),
 
            "Stochastic-Approximation" = ergm.stocapprox(init, s, s.obs,
                                                         control=control,
