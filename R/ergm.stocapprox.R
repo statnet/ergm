@@ -62,35 +62,22 @@ ergm.stocapprox <- function(init, s, s.obs,
   for(i in 1:control$SA.nsubphases){
     control$MCMC.samplesize <- trunc(control$MCMC.samplesize*2.52)+1 # 2.52 is approx. 2^(4/3)
   }
-# message(paste("Phase 2: a=",a,"Total Samplesize",control$MCMC.samplesize,""))
-# aDdiaginv <- a * Ddiaginv
   z <- ergm.phase12(s, theta, control, verbose=TRUE)
-  nw <- z$newnetwork #the network
-# toggle.dyads(nw, head = z$changed[,2], tail = z$changed[,3])
-# control$maxchanges <- z$maxchanges
+  nw <- z$newnetwork
   theta <- z$theta
   names(theta) <- names(init)
   message(paste(" (theta[",seq(along=theta),"] = ",paste(theta),")",sep=""))
   
-#phase 3:  Estimate covariance matrix for final theta
+  ## phase 3:  Estimate covariance matrix for final theta
 
   control$MCMC.samplesize <- control$SA.phase3_n
   message(paste("Phase 3: ",control$SA.phase3_n,"iterations"),appendLF=FALSE)
   message(paste(" (interval=",control$MCMC.interval,")",sep=""))
-#message(paste(" (samplesize=",control$MCMC.samplesize,")",sep=""))
-#message(paste(" theta=",theta,")",sep=""))
   eta <- ergm.eta(theta, model$etamap)
-#message(paste(" (samplesize=",control$MCMC.samplesize,")",sep=""))
-#message(paste(" eta=",eta,")",sep=""))
 
   # Obtain MCMC sample
   z <- ergm_MCMC_sample(z$state, control, theta=theta, verbose=max(verbose-1,0))
-  
-#v$sample <- stats
-# ubar <- apply(z$stats, 2, mean)
-# hessian <- (t(z$stats) %*% z$stats)/n3 - outer(ubar,ubar)
-# covar <- ginv(covar)
-  
+
   if(verbose){message("Calling MCMLE Optimization...")}
   if(verbose){message("Using Newton-Raphson Step ...")}
 
@@ -106,8 +93,8 @@ ergm.stocapprox <- function(init, s, s.obs,
                    metric=control$MCMLE.metric,
                    verbose=verbose)
 
-# Important: Keep R-M (pre-NR) theta
-# ve$coefficients <- theta
+  ## Important: Keep R-M (pre-NR) theta
+  # ve$coefficients <- theta
 
   c(ve, list(newnetwork=nw,
              theta.original=init,
