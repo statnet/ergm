@@ -13,11 +13,9 @@
 # statistics
 #
 # --PARAMETERS--
-#   g         : a network object
-#   model     : a model for 'g', as returned by <ergm_model>
-#   proposal: an proposal object, as returned by <proposal>
-#   eta0      : the vector of initial eta coefficients
-#   control: a list of control parameters for the MCMC algorithm;
+#   s         : ergm state object
+#   theta0    : the vector of initial theta coefficients
+#   control   : a list of control parameters for the MCMC algorithm;
 #               recognized components include:
 #                     'maxedges'     'samplesize'     'gain'
 #                     'stats'        'phase1'         'nsub'
@@ -50,7 +48,7 @@ ergm.phase12 <- function(s, theta0,
             # Phase12 settings
             as.double(deInf(theta0)),
             as.integer(control$MCMC.samplesize), as.integer(control$MCMC.burnin), as.integer(control$MCMC.interval),
-            as.double(control$gain), as.integer(control$phase1), as.integer(control$nsub),
+            as.double(control$SA.initial_gain), as.integer(control$SA.phase1_n), as.integer(control$SA.nsubphases),
             as.integer(deInf(NVL(control$MCMC.maxedges,Inf),"maxint")),
             as.integer(verbose),
             PACKAGE="ergm")
@@ -60,7 +58,7 @@ ergm.phase12 <- function(s, theta0,
             # Phase12 settings
             as.double(deInf(theta0)),
             as.integer(control$MCMC.samplesize), as.integer(control$MCMC.burnin), as.integer(control$MCMC.interval),
-            as.double(control$gain), as.integer(control$phase1), as.integer(control$nsub),
+            as.double(control$SA.initial_gain), as.integer(control$SA.phase1_n), as.integer(control$SA.nsubphases),
             as.integer(deInf(NVL(control$MCMC.maxedges,Inf),"maxint")),
             as.integer(verbose),
             PACKAGE="ergm")
