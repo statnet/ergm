@@ -88,16 +88,16 @@ InitErgmConstraint.blockdiag<-function(lhs.nw, attr=NULL, ...){
 
            o <- rlebdm(c(rep(rle(FALSE), bip*n, scale="run"),
                          do.call(c,rep(
-                                     mapply(function(blen,bend){rep(rle(c(FALSE,TRUE,FALSE)), c(bend-blen, blen, n-bend), scale="run")},
-                                            el, cumsum(el), SIMPLIFY=FALSE),
+                                     Map(function(blen,bend){rep(rle(c(FALSE,TRUE,FALSE)), c(bend-blen, blen, n-bend), scale="run")},
+                                         el, cumsum(el)),
                                      al)
                                  )), n)
            # Future-proofing: in case it's bipartite directed, add
            # both thte blocks and their transposes. (If undirected,
            # it'll get filtered out by the .attributes constraints.)
            ot <- rlebdm(c(do.call(c,rep(
-                                      mapply(function(blen,bend){rep(rle(c(FALSE,TRUE,FALSE)), c(bip+bend-blen, blen, n-bip-bend), scale="run")},
-                                             al, cumsum(al), SIMPLIFY=FALSE),
+                                      Map(function(blen,bend){rep(rle(c(FALSE,TRUE,FALSE)), c(bip+bend-blen, blen, n-bip-bend), scale="run")},
+                                          al, cumsum(al)),
                                       el)
                                   ),
                           rep(rle(FALSE), (n-bip)*n, scale="run")), n)
@@ -105,8 +105,8 @@ InitErgmConstraint.blockdiag<-function(lhs.nw, attr=NULL, ...){
          }else{
            a <- rle(a)
            rlebdm(compress(do.call(c,rep(
-                                       mapply(function(blen,bend){rep(rle(c(FALSE,TRUE,FALSE)), c(bend-blen, blen, n-bend), scale="run")},
-                                              a$lengths, cumsum(a$lengths), SIMPLIFY=FALSE),
+                                       Map(function(blen,bend){rep(rle(c(FALSE,TRUE,FALSE)), c(bend-blen, blen, n-bend), scale="run")},
+                                           a$lengths, cumsum(a$lengths)),
                                        a$lengths)
                                    )), n)
          }

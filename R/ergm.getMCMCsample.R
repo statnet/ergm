@@ -226,8 +226,8 @@ ergm_MCMC_sample <- function(state, control, theta=NULL,
                    interval = interval)
       if(status <- handle_statuses(outl)) return(list(status=status)) # Stop if something went wrong.
 
-      sms <- mapply(rbind, sms, map(outl, "s"), SIMPLIFY=FALSE)
-      if(!is.null(nws)) nws <- mapply(c, nws, map(outl, "saved"), SIMPLIFY=FALSE)
+      sms <- Map(rbind, sms, map(outl, "s"))
+      if(!is.null(nws)) nws <- Map(c, nws, map(outl, "saved"))
       state <- map(outl, "state")
       
       while(nrow(sms[[1]])-best.burnin$burnin>=(control.parallel$MCMC.samplesize)*2){

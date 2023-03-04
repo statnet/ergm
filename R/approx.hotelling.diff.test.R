@@ -126,7 +126,7 @@ approx.hotelling.diff.test<-function(x,y=NULL, mu0=0, assume.indep=FALSE, var.eq
 
         if(nchain(xp) == nchain(yp)){
           # Equal numbers of chains -> concatenate.
-          xyp <- as.mcmc.list(mapply(function(x,y) as.mcmc(rbind(x, matrix(NA, ceiling(10*log10(niter(xp) + niter(yp))), nvar(xp)), y)), xp, yp, SIMPLIFY=FALSE))
+          xyp <- as.mcmc.list(Map(function(x,y) as.mcmc(rbind(x, matrix(NA, ceiling(10*log10(niter(xp) + niter(yp))), nvar(xp)), y)), xp, yp))
         }else{
           # Differing numbers of chains -> pad the shorter of the variables (if any) with NAs.
           padto <- max(niter(x$v), niter(y$v))

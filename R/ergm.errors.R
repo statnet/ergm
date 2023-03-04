@@ -92,5 +92,5 @@ traceback.search <- function(pattern, ...) {
 
 regexpr_list <- function(x, pat){
   m <- attributes(regexpr(pat, x, perl=TRUE))
-  mapply(function(s, l, n){substr(x, s, s+l-1)}, c(m$capture.start)[-1], c(m$capture.length)[-1], SIMPLIFY=FALSE) %>% set_names(m$capture.names[-1]) %>% within({valued<-(valued=="Wt"); type<-tolower(type)})
+  Map(function(s, l, n){substr(x, s, s+l-1)}, c(m$capture.start)[-1], c(m$capture.length)[-1]) %>% set_names(m$capture.names[-1]) %>% within({valued<-(valued=="Wt"); type<-tolower(type)})
 }

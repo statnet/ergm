@@ -509,7 +509,7 @@ simulate.ergm_state_full <- function(object, nsim=1, seed=NULL,
            ergm_state = function(states, ...) states,
            network = function(states, ...) lapply(states, as.network),
            edgelist = function(states, ...) lapply(states, as.edgelist),
-           "function" = function(states, chain, ...) mapply(output.f, states, chain = chain, iter = seq_along(states), SIMPLIFY = FALSE)
+           "function" = function(states, chain, ...) Map(output.f, states, chain = chain, iter = seq_along(states))
            )
 
   if(output != "stats") control$MCMC.save_networks <- TRUE
@@ -523,7 +523,7 @@ simulate.ergm_state_full <- function(object, nsim=1, seed=NULL,
     z <- ergm_MCMC_sample(state, control, theta=coef, verbose=max(verbose-1,0))
     stats <- z$stats
     if(output != "stats") # then store the returned network:
-      nw.list <- mapply(convert_output, z$sampnetworks, chain=seq_along(z$sampnetworks), SIMPLIFY=FALSE)
+      nw.list <- Map(convert_output, z$sampnetworks, chain=seq_along(z$sampnetworks))
   }else{
     # Create objects to store output
     if (output!="stats") {
@@ -547,12 +547,12 @@ simulate.ergm_state_full <- function(object, nsim=1, seed=NULL,
                                           MCMC.burnin = if(i==1 || sequential==FALSE) control$MCMC.burnin else control$MCMC.interval))
       z <- ergm_MCMC_sample(state, control.parallel, theta=coef, verbose=max(verbose-1,0))
       
-      stats <- mapply(function(s, os) rbind(s, os), stats, z$stats, SIMPLIFY=FALSE)
+      stats <- Map(function(s, os) rbind(s, os), stats, z$stats)
       
       if(output != "stats"){ # then store the returned network:
         # Concatenate the following...
-        newnw <- mapply(convert_output, z$sampnetworks, chain=seq_along(z$sampnetworks), SIMPLIFY=FALSE)
-        nw.list <- mapply(c, nw.list, newnw, SIMPLIFY=FALSE)
+        newnw <- Map(convert_output, z$sampnetworks, chain=seq_along(z$sampnetworks))
+        nw.list <- Map(c, nw.list, newnw)
 
         if(sequential){ # then update the network state:
           state <- z$networks

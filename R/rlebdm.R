@@ -314,9 +314,9 @@ as.edgelist.rlebdm <- function(x, prototype=NULL, ..., output=c("matrix", "tibbl
   values <- x$values[x$values!=0]
   
   d <- do.call(rbind,
-               mapply(function(s,e,v){
+               Map(function(s,e,v){
                  cbind(s:e,v)
-               }, starts, ends, values, SIMPLIFY=FALSE))
+               }, starts, ends, values))
 
   el <- tibble(.tail = as.integer((d[,1L]-1L) %% n + 1L),
                .head = as.integer((d[,1L]-1L) %/% n + 1L))
