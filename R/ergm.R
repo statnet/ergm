@@ -735,7 +735,6 @@ ergm.fit <- function(nw, target.stats, model, proposal, proposal.obs, info, cont
   
   initialfit <- ergm.initialfit(init=control$init,
                                   s=s, s.obs=s.obs,
-                                  method=control$init.method,
                                   control=control,
                                   verbose=max(verbose-1,0),
                                   ...)
