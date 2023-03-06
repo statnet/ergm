@@ -79,21 +79,28 @@ ergm.stocapprox <- function(init, s, s.obs,
   if(verbose){message("Calling MCMLE Optimization...")}
   if(verbose){message("Using Newton-Raphson Step ...")}
 
-  ve<-ergm.estimate(init=theta, model=model,
-                   statsmatrices=mcmc.list(as.mcmc(z$stats)),
-                   statsmatrices.obs=NULL,
-                   epsilon=control$epsilon, 
-                   nr.maxit=control$MCMLE.NR.maxit, 
-                   nr.reltol=control$MCMLE.NR.reltol,
-                   calc.mcmc.se=control$MCMC.addto.se,
-                   hessianflag=control$main.hessian,
-                   method=control$MCMLE.method,
-                   metric=control$MCMLE.metric,
-                   verbose=verbose)
+  v <- ergm.estimate(init=theta, model=model,
+                     statsmatrices=mcmc.list(as.mcmc(z$stats)),
+                     statsmatrices.obs=NULL,
+                     epsilon=control$epsilon,
+                     nr.maxit=control$MCMLE.NR.maxit,
+                     nr.reltol=control$MCMLE.NR.reltol,
+                     calc.mcmc.se=control$MCMC.addto.se,
+                     hessianflag=control$main.hessian,
+                     method=control$MCMLE.method,
+                     metric=control$MCMLE.metric,
+                     verbose=verbose)
 
-  c(ve, list(newnetwork=nw,
-             theta.original=init,
-             control = control,
-             est.cov=ve$mc.cov,
-             MCMCflag=TRUE))
+  v$sample <- z$stats
+  nws.returned <- lapply(z$networks, as.network)
+  v$newnetworks <- nws.returned
+  v$newnetwork <- nws.returned[[1]]
+  v$coef.init <- init
+  v$est.cov <- v$mc.cov
+  v$mc.cov <- NULL
+  v$control <- control
+
+  v$etamap <- model$etamap
+  v$MCMCflag <- TRUE
+  v
 }
