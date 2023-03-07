@@ -393,14 +393,21 @@ MCMCStatus DISPATCH_MCMCSamplePhase12(DISPATCH_ErgmState *s,
   if (verbose){
     Rprintf("Phase 2:\n");
   }
+
+  double *theta_sum = R_calloc(n_param, double),
+    *esteq = R_calloc(n_param, double),
+    *esteq_old = R_calloc(n_param, double),
+    *esteq_prod_cum = R_calloc(n_param, double);
+
   /* Now run Phase2, In which there are several subphases. We sample networks in each subphases */
   for(unsigned int subphase = 1; subphase <= nsubphases; subphase++){
     int N2klower = trunc((7+n_param)*pow(2.52,(subphase-1)))+1; /*The lower bound for the number of iterations in subphase k*/
     int N2kupper = N2klower + 200;                                    /*The Upper bound for the number of iterations in subphase k*/
-    double *theta_sum = R_calloc(n_param, double),
-      *esteq = R_calloc(n_param, double),
-      *esteq_old = R_calloc(n_param, double),
-      *esteq_prod_cum = R_calloc(n_param, double);
+
+    memset(theta_sum, 0, n_param*sizeof(double));
+    memset(esteq, 0, n_param*sizeof(double));
+    memset(esteq_old, 0, n_param*sizeof(double));
+    memset(esteq_prod_cum, 0, n_param*sizeof(double));
 
     for(unsigned int i=1; ; i++){
       MCMCStatus status = DISPATCH_MetropolisHastings(s, eta, s->stats, interval, &staken,verbose); /*Take a sample network*/
@@ -427,17 +434,33 @@ MCMCStatus DISPATCH_MCMCSamplePhase12(DISPATCH_ErgmState *s,
       }
 
       ergm_eta(theta, etamap, eta);
+      if(verbose>=4){
+        Rprintf("Event time eta is updated. Updated values are : ");
+        for(unsigned int i=0; i<m->n_stats; i++)
+          Rprintf(" %f ",eta[i]);
+        Rprintf(".\n");
+      }
 
       Rboolean subphase_done = FALSE;
 
-      if(i >= N2kupper) subphase_done = TRUE;
-      else if(i >= N2klower){
+      if(i >= N2kupper){
         subphase_done = TRUE;
-        for(unsigned int j=0; j<n_param; j++)
+        if(verbose>=4) Rprintf("Ran out of steps. The number of iterations exceeds the maximum number of iterations.\n");
+      } else if(i >= N2klower){
+        subphase_done = TRUE;
+        for(unsigned int j=0; j<n_param; j++){
           if(!theta_offset[j] && esteq_prod_cum[j] >= 0){
             subphase_done = FALSE;
-            break;
+            if(verbose>=4){
+              Rprintf("Reached to the stopping criteria; The subphase Done!. The esteq_prod_cum =\n");
+              for(unsigned int i=0; i<n_param; i++){
+                Rprintf(" %f ",esteq_prod_cum[i]);
+                Rprintf(".\n");
+              }
+            }
           }
+          break;
+        }
       }
 
       if(subphase_done){
