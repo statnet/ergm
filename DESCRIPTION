@@ -63,6 +63,7 @@ RoxygenNote: 7.2.3
 Roxygen: list(markdown = TRUE)
 Config/testthat/parallel: true
 Config/testthat/edition: 3
+Config/build/clean-inst-doc: FALSE
 Encoding: UTF-8
 Collate: 
     'InitErgmConstraint.R'
