@@ -425,8 +425,7 @@ MCMCStatus DISPATCH_MCMCSamplePhase12(DISPATCH_ErgmState *s,
         esteq_prod_cum[j] += esteq[j] * esteq_old[j];
 
         /*Update Theta*/
-        for(unsigned int k=0; k<n_stats; k++)
-          theta[j] -= aDdiaginv[j] * esteq[j];
+        theta[j] -= aDdiaginv[j] * esteq[j];
         if(theta[j] < theta_min[j]) theta[j] = theta_min[j];
         if(theta[j] > theta_max[j]) theta[j] = theta_max[j];
 
@@ -446,7 +445,7 @@ MCMCStatus DISPATCH_MCMCSamplePhase12(DISPATCH_ErgmState *s,
 
       if(i >= N2kupper){
         subphase_done = TRUE;
-        if(verbose>=4) Rprintf("Subphase ran out of steps.\n");
+        if(verbose>=3) Rprintf("Subphase ran out of steps.\n");
       }else if(i >= N2klower){
         subphase_done = TRUE;
         for(unsigned int j=0; j<n_param; j++){
@@ -455,9 +454,7 @@ MCMCStatus DISPATCH_MCMCSamplePhase12(DISPATCH_ErgmState *s,
             break;
           }
         }
-        if(subphase_done && verbose>=4){
-          Rprintf("Suphase reached the stopping criteria.\n");
-        }
+        if(subphase_done && verbose>=3) Rprintf("Suphase reached the stopping criteria.\n");
       }
 
       if(subphase_done){
