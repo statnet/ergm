@@ -62,7 +62,7 @@ ergm.stocapprox <- function(init, s, s.obs,
   for(i in 1:control$SA.nsubphases){
     control$MCMC.samplesize <- trunc(control$MCMC.samplesize*2.52)+1 # 2.52 is approx. 2^(4/3)
   }
-  z <- ergm.phase12(s, theta, control, verbose=TRUE)
+  z <- ergm.phase12(s, theta, control, verbose=verbose)
 
   theta <- z$theta
   names(theta) <- names(init)

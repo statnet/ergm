@@ -231,12 +231,7 @@ MCMCStatus DISPATCH_MetropolisHastings (DISPATCH_ErgmState *s,
        remembering that tail -> head */
     PROP_CHANGESTATS;
 
-    if(verbose>=5){
-      Rprintf("Changes: (");
-      for(unsigned int i=0; i<m->n_stats; i++)
-	Rprintf(" %f ", m->workspace[i]);
-      Rprintf(")\n");
-    }
+    if(verbose>=5) print_vector("stat diff", m->workspace, m->n_stats);
 
     /* Calculate inner (dot) product */
     double ip = dotprod(eta, m->workspace, m->n_stats);
@@ -330,6 +325,7 @@ MCMCStatus DISPATCH_MCMCSamplePhase12(DISPATCH_ErgmState *s,
   const int *theta_offset = LOGICAL(getListElement(etamap, "offsettheta"));
   const double *theta_min = REAL(getListElement(etamap, "mintheta"));
   const double *theta_max = REAL(getListElement(etamap, "maxtheta"));
+  const unsigned int n_stats = m->n_stats;
 
   int staken;
 
@@ -345,8 +341,8 @@ MCMCStatus DISPATCH_MCMCSamplePhase12(DISPATCH_ErgmState *s,
    in subsequent calls to M-H
    *********************/
 
-  double *eta = R_calloc(m->n_stats, double),
-    *etagrad = R_calloc(m->n_stats*n_param, double);
+  double *eta = R_calloc(n_stats, double),
+    *etagrad = R_calloc(n_stats*n_param, double);
 
   ergm_eta(theta, etamap, eta);
   ergm_etagrad(theta, etamap, etagrad);
@@ -367,7 +363,7 @@ MCMCStatus DISPATCH_MCMCSamplePhase12(DISPATCH_ErgmState *s,
     if(i > 0){
       for(unsigned int j=0; j<n_param; j++){
         double u = 0;
-        for(unsigned int k=0; k<m->n_stats; k++) u += etagrad[j+n_param*k] * s->stats[k];
+        for(unsigned int k=0; k<n_stats; k++) u += etagrad[j+n_param*k] * s->stats[k];
         ubar[j]  += u;
         u2bar[j] += u*u;
       }
@@ -376,7 +372,6 @@ MCMCStatus DISPATCH_MCMCSamplePhase12(DISPATCH_ErgmState *s,
 
   if (verbose){
     Rprintf("Returned from Phase 1\n");
-    Rprintf("\n gain times inverse variances:\n");
   }
   for(unsigned int j=0; j<n_param; j++){
     if(theta_offset[j]) continue;
@@ -386,12 +381,12 @@ MCMCStatus DISPATCH_MCMCSamplePhase12(DISPATCH_ErgmState *s,
     }else{
       aDdiaginv[j]=0.00001;
     }
-    if(verbose){ Rprintf(" %f", aDdiaginv[j]);}
   }
-  if(verbose){ Rprintf("\n"); }
 
-  if (verbose){
-    Rprintf("Phase 2:\n");
+  if(verbose) print_vector("gain * V^-1", aDdiaginv, n_param);
+
+  if(verbose){
+    Rprintf("\nPhase 2:\n");
   }
 
   double *theta_sum = R_calloc(n_param, double),
@@ -405,8 +400,6 @@ MCMCStatus DISPATCH_MCMCSamplePhase12(DISPATCH_ErgmState *s,
     int N2kupper = N2klower + 200;                                    /*The Upper bound for the number of iterations in subphase k*/
 
     memset(theta_sum, 0, n_param*sizeof(double));
-    memset(esteq, 0, n_param*sizeof(double));
-    memset(esteq_old, 0, n_param*sizeof(double));
     memset(esteq_prod_cum, 0, n_param*sizeof(double));
 
     for(unsigned int i=1; ; i++){
@@ -414,17 +407,25 @@ MCMCStatus DISPATCH_MCMCSamplePhase12(DISPATCH_ErgmState *s,
       if(status!=MCMC_OK) return status;
 
       memcpy(esteq_old, esteq, n_param*sizeof(double));
+      memset(esteq, 0, n_param*sizeof(double));
+
+      if(verbose>=4){
+        Rprintf("\n");
+        print_vector("eta", eta, n_stats);
+        print_vector("statistic", s->stats, n_stats);
+        print_matrix("Dtheta/Deta", etagrad, n_param, n_stats);
+      }
 
       for (unsigned int j=0; j<n_param; j++){
         if(theta_offset[j]) continue;
 
-        for(unsigned int k=0; k< m->n_stats; k++)
-          esteq[j] = etagrad[j+n_param*k] * s->stats[k];
+        for(unsigned int k=0; k<n_stats; k++)
+          esteq[j] += etagrad[j+n_param*k] * s->stats[k];
 
         esteq_prod_cum[j] += esteq[j] * esteq_old[j];
 
         /*Update Theta*/
-        for(unsigned int k=0; k< m->n_stats; k++)
+        for(unsigned int k=0; k<n_stats; k++)
           theta[j] -= aDdiaginv[j] * esteq[j];
         if(theta[j] < theta_min[j]) theta[j] = theta_min[j];
         if(theta[j] > theta_max[j]) theta[j] = theta_max[j];
@@ -434,32 +435,28 @@ MCMCStatus DISPATCH_MCMCSamplePhase12(DISPATCH_ErgmState *s,
       }
 
       ergm_eta(theta, etamap, eta);
+      ergm_etagrad(theta, etamap, etagrad);
       if(verbose>=4){
-        Rprintf("Event time eta is updated. Updated values are : ");
-        for(unsigned int i=0; i<m->n_stats; i++)
-          Rprintf(" %f ",eta[i]);
-        Rprintf(".\n");
+        print_vector("estimating function", esteq, n_param);
+        print_vector("successive change products", esteq_prod_cum, n_param);
+        print_vector("theta", theta, n_param);
       }
 
       Rboolean subphase_done = FALSE;
 
       if(i >= N2kupper){
         subphase_done = TRUE;
-        if(verbose>=4) Rprintf("Ran out of steps. The number of iterations exceeds the maximum number of iterations.\n");
-      } else if(i >= N2klower){
+        if(verbose>=4) Rprintf("Subphase ran out of steps.\n");
+      }else if(i >= N2klower){
         subphase_done = TRUE;
         for(unsigned int j=0; j<n_param; j++){
           if(!theta_offset[j] && esteq_prod_cum[j] >= 0){
             subphase_done = FALSE;
-            if(verbose>=4){
-              Rprintf("Reached to the stopping criteria; The subphase Done!. The esteq_prod_cum =\n");
-              for(unsigned int i=0; i<n_param; i++){
-                Rprintf(" %f ",esteq_prod_cum[i]);
-                Rprintf(".\n");
-              }
-            }
+            break;
           }
-          break;
+        }
+        if(subphase_done && verbose>=4){
+          Rprintf("Suphase reached the stopping criteria.\n");
         }
       }
 
