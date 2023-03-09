@@ -270,12 +270,13 @@ MCMCStatus DISPATCH_MetropolisHastings (DISPATCH_ErgmState *s,
 /* *** don't forget tail -> head */
 
 SEXP DISPATCH_MCMCPhase12 (SEXP stateR,
-                    // Phase12 settings
-                    SEXP theta0,
-                    SEXP burnin, SEXP interval,
-                    SEXP gain, SEXP phase1, SEXP nsub,
-                    SEXP maxedges,
-                    SEXP verbose){
+                           // Phase12 settings
+                           SEXP theta0,
+                           SEXP burnin, SEXP interval,
+                           SEXP gain, SEXP phase1, SEXP nsub,
+                           SEXP min_iterations, SEXP max_iterations,
+                           SEXP maxedges,
+                           SEXP verbose){
   GetRNGstate();  /* R function enabling uniform RNG */
   DISPATCH_ErgmState *s = DISPATCH_ErgmStateInit(stateR, 0);
 
@@ -293,6 +294,7 @@ SEXP DISPATCH_MCMCPhase12 (SEXP stateR,
   SEXP status;
   if(MHp) status = PROTECT(ScalarInteger(DISPATCH_MCMCSamplePhase12(s,
                                                            REAL(theta), n_param, asReal(gain), asInteger(phase1), asInteger(nsub),
+                                                           asInteger(min_iterations), asInteger(max_iterations),
                                                            asInteger(burnin), asInteger(interval),
                                                            asInteger(verbose))));
   else status = PROTECT(ScalarInteger(MCMC_MH_FAILED));
@@ -318,6 +320,7 @@ SEXP DISPATCH_MCMCPhase12 (SEXP stateR,
 *********************/
 MCMCStatus DISPATCH_MCMCSamplePhase12(DISPATCH_ErgmState *s,
                                double *theta, unsigned int n_param, double gain, int nphase1, int nsubphases,
+                               int min_iterations, int max_iterations,
                                int burnin,
                                int interval, int verbose){
   DISPATCH_Model *m = s->m;
@@ -396,8 +399,8 @@ MCMCStatus DISPATCH_MCMCSamplePhase12(DISPATCH_ErgmState *s,
 
   /* Now run Phase2, In which there are several subphases. We sample networks in each subphases */
   for(unsigned int subphase = 1; subphase <= nsubphases; subphase++){
-    int N2klower = trunc((7+n_param)*pow(2.52,(subphase-1)))+1; /*The lower bound for the number of iterations in subphase k*/
-    int N2kupper = N2klower + 200;                                    /*The Upper bound for the number of iterations in subphase k*/
+    unsigned int N2klower = trunc(min_iterations*pow(2.52,(subphase-1)))+1; /* The lower bound for the number of iterations in subphase. */
+    unsigned int N2kupper = max_iterations - min_iterations + N2klower; /* The Upper bound for the number of iterations in subphase. */
 
     memset(theta_sum, 0, n_param*sizeof(double));
     memset(esteq_prod_cum, 0, n_param*sizeof(double));

@@ -46,14 +46,12 @@ ergm.stocapprox <- function(init, s, s.obs,
 
   control <- remap_algorithm_MCMC_controls(control, "SA")
 
-  if(is.function(control$SA.phase1_n))
-    control$SA.phase1_n <- control$SA.phase1_n(q=nparam(model, offset=FALSE))
+  for(ctl in c("SA.phase1_n", "SA.min_iterations", "SA.max_iterations"))
+    if(is.function(control[[ctl]]))
+      control[[ctl]] <- control[[ctl]](q=nparam(model, offset=FALSE), p=nparam(model, offset=FALSE, canonical=TRUE), n=network.size(s))
 
   message("Stochastic approximation algorithm with theta_0 equal to:")
   print(init)
-
-  if(is.function(control$SA.niterations))
-    control$SA.niterations <- control$SA.niterations(q=nparam(model, offset=FALSE))
 
   theta <- init
 
@@ -66,7 +64,8 @@ ergm.stocapprox <- function(init, s, s.obs,
 
   theta <- z$theta
   names(theta) <- names(init)
-  message(paste(" (theta[",seq(along=theta),"] = ",paste(theta),")",sep=""))
+  message("Stochastic Approximation estimate:")
+  message_print(theta)
   
   ## phase 3:  Estimate covariance matrix for final theta
   control$MCMC.samplesize <- control$SA.phase3_n
