@@ -30,9 +30,9 @@ static inline double *addonto(double *x, double *y, unsigned int n){
 /* Pretty-print a numeric vector. */
 static inline void print_vector(const char *name, double *x, unsigned int n){
   if(name) Rprintf("%s: ", name);
-  Rprintf("(");
+  Rprintf("( ");
   for(unsigned int i=0; i<n; i++)
-    Rprintf(" %f ", x[i]);
+    Rprintf("% f ", x[i]);
   Rprintf(")");
   if(name) Rprintf("\n");
 }
@@ -41,9 +41,9 @@ static inline void print_vector(const char *name, double *x, unsigned int n){
 static inline void print_matrix(const char *name, double *x, unsigned int n, unsigned int m){
   if(name) Rprintf("%s:\n", name);
   for(unsigned int i=0; i<n; i++){
-    Rprintf("[");
+    Rprintf("[ ");
     for(unsigned int j=0; j<m; j++)
-      Rprintf(" %f ", x[i + j*n]);
+      Rprintf("% f ", x[i + j*n]);
     Rprintf("]\n");
   }
 }
