@@ -24,10 +24,7 @@
 *****************/
 SEXP DISPATCH_MCMC_wrapper(SEXP stateR,
                     // MCMC settings
-                    SEXP eta, SEXP samplesize,
-                    SEXP burnin, SEXP interval,
-                    SEXP maxedges,
-                    SEXP verbose){
+                    SEXP eta, SEXP samplesize,SEXP burnin, SEXP interval,SEXP maxedges,SEXP verbose){
   GetRNGstate();  /* R function enabling uniform RNG */
   unsigned int protected = 0;
 
@@ -64,7 +61,7 @@ SEXP DISPATCH_MCMC_wrapper(SEXP stateR,
 
   if(s->save) SET_VECTOR_ELT(outl, 3, s->save);
 
-  DISPATCH_ErgmStateDestroy(s);  
+  DISPATCH_ErgmStateDestroy(s);
   PutRNGstate();  /* Disable RNG before returning */
   UNPROTECT(protected); protected = 0;
   return outl;
@@ -77,13 +74,13 @@ SEXP DISPATCH_MCMC_wrapper(SEXP stateR,
  Using the parameters contained in the array eta, obtain the
  network statistics for a sample of size samplesize.  burnin is the
  initial number of Markov chain steps before sampling anything
- and interval is the number of MC steps between successive 
+ and interval is the number of MC steps between successive
  networks in the sample.  Put all the sampled statistics into
- the networkstatistics array. 
+ the networkstatistics array.
 *********************/
 MCMCStatus DISPATCH_MCMCSample(DISPATCH_ErgmState *s,
-			  double *eta, double *networkstatistics, 
-			  int samplesize, int burnin, 
+			  double *eta, double *networkstatistics,
+			  int samplesize, int burnin,
 			  int interval, int nmax, int verbose) {
   DISPATCH_Network *nwp = s->nwp;
   DISPATCH_Model *m = s->m;
@@ -109,8 +106,7 @@ MCMCStatus DISPATCH_MCMCSample(DISPATCH_ErgmState *s,
    Burn in step.
    *********************/
 /*  Catch more edges than we can return */
-  if(DISPATCH_MetropolisHastings(s, eta, networkstatistics, burnin, &staken,
-			verbose)!=MCMC_OK)
+  if(DISPATCH_MetropolisHastings(s, eta, networkstatistics, burnin, &staken,verbose)!=MCMC_OK)
     return MCMC_MH_FAILED;
   if(nmax!=0 && EDGECOUNT(nwp) >= nmax-1){
     return MCMC_TOO_MANY_EDGES;
@@ -192,7 +188,7 @@ MCMCStatus DISPATCH_MetropolisHastings (DISPATCH_ErgmState *s,
 				 double *eta, double *networkstatistics,
 				 int nsteps, int *staken,
 				 int verbose) {
-  
+
   DISPATCH_Network *nwp = s->nwp;
   DISPATCH_Model *m = s->m;
   DISPATCH_MHProposal *MHp = s->MHp;
@@ -235,12 +231,7 @@ MCMCStatus DISPATCH_MetropolisHastings (DISPATCH_ErgmState *s,
        remembering that tail -> head */
     PROP_CHANGESTATS;
 
-    if(verbose>=5){
-      Rprintf("Changes: (");
-      for(unsigned int i=0; i<m->n_stats; i++)
-	Rprintf(" %f ", m->workspace[i]);
-      Rprintf(")\n");
-    }
+    if(verbose>=5) print_vector("stat diff", m->workspace, m->n_stats);
 
     /* Calculate inner (dot) product */
     double ip = dotprod(eta, m->workspace, m->n_stats);
@@ -255,7 +246,7 @@ MCMCStatus DISPATCH_MetropolisHastings (DISPATCH_ErgmState *s,
     }
 
     /* if we accept the proposed network */
-    if (cutoff >= 0.0 || logf(unif_rand()) < cutoff) { 
+    if (cutoff >= 0.0 || logf(unif_rand()) < cutoff) {
       if(verbose>=5){
 	Rprintf("Accepted.\n");
       }
@@ -279,42 +270,43 @@ MCMCStatus DISPATCH_MetropolisHastings (DISPATCH_ErgmState *s,
 /* *** don't forget tail -> head */
 
 SEXP DISPATCH_MCMCPhase12 (SEXP stateR,
-                    // Phase12 settings
-                    SEXP theta0,
-                    SEXP samplesize, SEXP burnin, SEXP interval,
-                    SEXP gain, SEXP phase1, SEXP nsub,
-                    SEXP maxedges,
-                    SEXP verbose){
+                           // Phase12 settings
+                           SEXP theta0,
+                           SEXP burnin, SEXP interval,
+                           SEXP gain, SEXP phase1, SEXP nsub,
+                           SEXP min_iterations, SEXP max_iterations,
+                           SEXP maxedges,
+                           SEXP verbose){
   GetRNGstate();  /* R function enabling uniform RNG */
   DISPATCH_ErgmState *s = DISPATCH_ErgmStateInit(stateR, 0);
 
   DISPATCH_Model *m = s->m;
   DISPATCH_MHProposal *MHp = s->MHp;
 
-  SEXP sample = PROTECT(allocVector(REALSXP, asInteger(samplesize)*m->n_stats));
-  memset(REAL(sample), 0, asInteger(samplesize)*m->n_stats*sizeof(double));
-  memcpy(REAL(sample), s->stats, m->n_stats*sizeof(double));
+  SEXP stats = PROTECT(allocVector(REALSXP, m->n_stats));
+  memcpy(REAL(stats), s->stats, m->n_stats*sizeof(double));
+  s->stats = REAL(stats);
+
   unsigned int n_param = length(theta0);
   SEXP theta = PROTECT(allocVector(REALSXP, n_param));
   memcpy(REAL(theta), REAL(theta0), n_param*sizeof(double));
 
   SEXP status;
   if(MHp) status = PROTECT(ScalarInteger(DISPATCH_MCMCSamplePhase12(s,
-                                                           REAL(theta), n_param, asReal(gain), asInteger(phase1), asInteger(nsub), REAL(sample), asInteger(samplesize),
+                                                           REAL(theta), n_param, asReal(gain), asInteger(phase1), asInteger(nsub),
+                                                           asInteger(min_iterations), asInteger(max_iterations),
                                                            asInteger(burnin), asInteger(interval),
                                                            asInteger(verbose))));
   else status = PROTECT(ScalarInteger(MCMC_MH_FAILED));
 
-  const char *outn[] = {"status", "s", "theta", "state", ""};
+  const char *outn[] = {"status", "theta", "state", ""};
   SEXP outl = PROTECT(mkNamed(VECSXP, outn));
   SET_VECTOR_ELT(outl, 0, status);
-  SET_VECTOR_ELT(outl, 1, sample);
-  SET_VECTOR_ELT(outl, 2, theta);
+  SET_VECTOR_ELT(outl, 1, theta);
 
   /* record new generated network to pass back to R */
   if(asInteger(status) == MCMC_OK && asInteger(maxedges)>0){
-    s->stats = REAL(sample) + (asInteger(samplesize)-1)*m->n_stats;
-    SET_VECTOR_ELT(outl, 3, DISPATCH_ErgmStateRSave(s));
+    SET_VECTOR_ELT(outl, 2, DISPATCH_ErgmStateRSave(s));
   }
 
   DISPATCH_ErgmStateDestroy(s);
@@ -325,40 +317,23 @@ SEXP DISPATCH_MCMCPhase12 (SEXP stateR,
 
 /*********************
  void MCMCSamplePhase12
-
- Using the parameters contained in the array eta, obtain the
- network statistics for a sample of size samplesize.  burnin is the
- initial number of Markov chain steps before sampling anything
- and interval is the number of MC steps between successive
- networks in the sample.  Put all the sampled statistics into
- the networkstatistics array.
 *********************/
 MCMCStatus DISPATCH_MCMCSamplePhase12(DISPATCH_ErgmState *s,
-                               double *theta, unsigned int n_param, double gain, int nphase1, int nsubphases, double *networkstatistics,
-                               int samplesize, int burnin,
+                               double *theta, unsigned int n_param, double gain, int nphase1, int nsubphases,
+                               int min_iterations, int max_iterations,
+                               int burnin,
                                int interval, int verbose){
   DISPATCH_Model *m = s->m;
   SEXP etamap = getListElement(m->R, "etamap");
   const int *theta_offset = LOGICAL(getListElement(etamap, "offsettheta"));
   const double *theta_min = REAL(getListElement(etamap, "mintheta"));
   const double *theta_max = REAL(getListElement(etamap, "maxtheta"));
+  const unsigned int n_stats = m->n_stats;
 
-  int staken, tottaken, ptottaken;
-  int iter=0;
+  int staken;
 
-/*Rprintf("nsubphases %d\n", nsubphases); */
+  /*Rprintf("nsubphases %d\n", nsubphases); */
 
-  /*if (verbose)
-    Rprintf("The number of statistics is %i and the total samplesize is %d\n",
-    m->n_stats,samplesize);*/
-
-  /*********************
-  networkstatistics are modified in groups of m->n_stats, and they
-  reflect the CHANGE in the values of the statistics from the
-  original (observed) network.  Thus, when we begin, the initial
-  values of the first group of m->n_stats networkstatistics should
-  all be zero
-  *********************/
   double *ubar = R_calloc(n_param, double),
     *u2bar = R_calloc(n_param, double),
     *aDdiaginv = R_calloc(n_param, double);
@@ -369,8 +344,8 @@ MCMCStatus DISPATCH_MCMCSamplePhase12(DISPATCH_ErgmState *s,
    in subsequent calls to M-H
    *********************/
 
-  double *eta = R_calloc(m->n_stats, double),
-    *etagrad = R_calloc(m->n_stats*n_param, double);
+  double *eta = R_calloc(n_stats, double),
+    *etagrad = R_calloc(n_stats*n_param, double);
 
   ergm_eta(theta, etamap, eta);
   ergm_etagrad(theta, etamap, etagrad);
@@ -378,20 +353,20 @@ MCMCStatus DISPATCH_MCMCSamplePhase12(DISPATCH_ErgmState *s,
   staken = 0;
   Rprintf("Starting burnin of %d steps\n", burnin);
   MCMCStatus status = DISPATCH_MetropolisHastings(s, eta,
-                                           networkstatistics, burnin, &staken,
+                                           s->stats, burnin, &staken,
                                            verbose);
   if(status!=MCMC_OK) return status;
   Rprintf("Phase 1: %d steps (interval = %d)\n", nphase1,interval);
   /* Now sample networks */
   for (unsigned int i=0; i <= nphase1; i++){
     MCMCStatus status = DISPATCH_MetropolisHastings(s, eta,
-                                             networkstatistics, interval, &staken,
-                                             verbose);
+                                                    s->stats, interval, &staken,
+                                                    verbose);
     if(status!=MCMC_OK) return status;
     if(i > 0){
       for(unsigned int j=0; j<n_param; j++){
         double u = 0;
-        for(unsigned int k=0; k<m->n_stats; k++) u += etagrad[j+n_param*k] * networkstatistics[k];
+        for(unsigned int k=0; k<n_stats; k++) u += etagrad[j+n_param*k] * s->stats[k];
         ubar[j]  += u;
         u2bar[j] += u*u;
       }
@@ -400,7 +375,6 @@ MCMCStatus DISPATCH_MCMCSamplePhase12(DISPATCH_ErgmState *s,
 
   if (verbose){
     Rprintf("Returned from Phase 1\n");
-    Rprintf("\n gain times inverse variances:\n");
   }
   for(unsigned int j=0; j<n_param; j++){
     if(theta_offset[j]) continue;
@@ -410,107 +384,101 @@ MCMCStatus DISPATCH_MCMCSamplePhase12(DISPATCH_ErgmState *s,
     }else{
       aDdiaginv[j]=0.00001;
     }
-    if(verbose){ Rprintf(" %f", aDdiaginv[j]);}
   }
-  if(verbose){ Rprintf("\n"); }
 
-  staken = 0;
-  tottaken = 0;
-  ptottaken = 0;
+  if(verbose) print_vector("gain * V^-1", aDdiaginv, n_param);
 
-  if (verbose){
-    Rprintf("Phase 2: (samplesize = %d)\n", samplesize);
+  if(verbose){
+    Rprintf("\nPhase 2:\n");
   }
-  /* Now sample networks */
-  for (unsigned int i=1; i < samplesize; i++){
 
-    MCMCStatus status = DISPATCH_MetropolisHastings(s, eta,
-                                             networkstatistics, interval, &staken,
-                                             verbose);
-    if(status!=MCMC_OK) return status;
+  double *theta_sum = R_calloc(n_param, double),
+    *esteq = R_calloc(n_param, double),
+    *esteq_old = R_calloc(n_param, double),
+    *esteq_prod_cum = R_calloc(n_param, double);
 
-    /* Update eta0 */
-    /*Rprintf("initial:\n"); */
-    for (unsigned int j=0; j<n_param; j++){
-      if(theta_offset[j]) continue;
-      for(unsigned int k=0; k<m->n_stats; k++)
-        theta[j] -= aDdiaginv[j] * etagrad[j+n_param*k] * networkstatistics[k];
-      if(theta[j] < theta_min[j]) theta[j] = theta_min[j];
-      if(theta[j] > theta_max[j]) theta[j] = theta_max[j];
-    }
+  /* Now run Phase2, In which there are several subphases. We sample networks in each subphases */
+  for(unsigned int subphase = 1; subphase <= nsubphases; subphase++){
+    unsigned int N2klower = trunc(min_iterations*pow(2.52,(subphase-1)))+1; /* The lower bound for the number of iterations in subphase. */
+    unsigned int N2kupper = max_iterations - min_iterations + N2klower; /* The Upper bound for the number of iterations in subphase. */
 
-    ergm_eta(theta, etamap, eta);
+    memset(theta_sum, 0, n_param*sizeof(double));
+    memset(esteq_prod_cum, 0, n_param*sizeof(double));
 
-/*Rprintf("\n"); */
-/*    if (verbose){ Rprintf("nsubphases %d i %d\n", nsubphases, i); } */
-    if (i==(nsubphases)){
-      nsubphases = trunc(nsubphases*2.52) + 1;
-      if (verbose){
-        iter++;
-        Rprintf("End of iteration %d; Updating the number of sub-phases to be %d\n",iter,nsubphases);
+    for(unsigned int i=1; ; i++){
+      MCMCStatus status = DISPATCH_MetropolisHastings(s, eta, s->stats, interval, &staken,verbose); /*Take a sample network*/
+      if(status!=MCMC_OK) return status;
+
+      memcpy(esteq_old, esteq, n_param*sizeof(double));
+      memset(esteq, 0, n_param*sizeof(double));
+
+      if(verbose>=4){
+        Rprintf("\n");
+        print_vector("eta", eta, n_stats);
+        print_vector("statistic", s->stats, n_stats);
+        print_matrix("Dtheta/Deta", etagrad, n_param, n_stats);
       }
 
+      for (unsigned int j=0; j<n_param; j++){
+        if(theta_offset[j]) continue;
+
+        for(unsigned int k=0; k<n_stats; k++)
+          esteq[j] += etagrad[j+n_param*k] * s->stats[k];
+
+        esteq_prod_cum[j] += esteq[j] * esteq_old[j];
+
+        /*Update Theta*/
+        theta[j] -= aDdiaginv[j] * esteq[j];
+        if(theta[j] < theta_min[j]) theta[j] = theta_min[j];
+        if(theta[j] > theta_max[j]) theta[j] = theta_max[j];
+
+        /*Take summation of theta for average calculation*/
+        theta_sum[j] += theta[j];
+      }
+
+      ergm_eta(theta, etamap, eta);
       ergm_etagrad(theta, etamap, etagrad);
-
-      for(unsigned int j=0; j<n_param; j++){
-        aDdiaginv[j] /= 2.0;
-        if (verbose){Rprintf("theta_%d = %f; change statistic[%d] = %f\n",
-                             j+1, eta[j], j+1, networkstatistics[j]);}
+      if(verbose>=4){
+        print_vector("estimating function", esteq, n_param);
+        print_vector("successive change products", esteq_prod_cum, n_param);
+        print_vector("theta", theta, n_param);
       }
-      if (verbose){ Rprintf("\n"); }
-    }
-    /* Set current vector of stats equal to previous vector */
-    memcpy(networkstatistics+m->n_stats, networkstatistics, m->n_stats*sizeof(double));
-    networkstatistics += m->n_stats;
-    /*      if (verbose){ Rprintf("step %d from %d:\n",i, samplesize);} */
-    /* This then adds the change statistics to these values */
-    tottaken += staken;
 
+      Rboolean subphase_done = FALSE;
+
+      if(i >= N2kupper){
+        subphase_done = TRUE;
+        if(verbose>=3) Rprintf("Subphase ran out of steps.\n");
+      }else if(i >= N2klower){
+        subphase_done = TRUE;
+        for(unsigned int j=0; j<n_param; j++){
+          if(!theta_offset[j] && esteq_prod_cum[j] >= 0){
+            subphase_done = FALSE;
+            break;
+          }
+        }
+        if(subphase_done && verbose>=3) Rprintf("Suphase reached the stopping criteria.\n");
+      }
+
+      if(subphase_done){
+        for(unsigned int j=0; j<n_param; j++){
+          if(theta_offset[j]) continue;
+          if(subphase == nsubphases) theta[j] = theta_sum[j] / i;
+          aDdiaginv[j] /= 2.0;
+        }
+        break;
+      }
+    }
+
+    /* Set current vector of stats equal to previous vector */
     R_CheckUserInterrupt();
 #ifdef Win32
-    if( ((100*i) % samplesize)==0 && samplesize > 500){
-      R_FlushConsole();
-      R_ProcessEvents();
-    }
+    R_FlushConsole();
+    R_ProcessEvents();
 #endif
-    if (verbose){
-      if( ((3*i) % samplesize)==0 && samplesize > 500){
-        Rprintf("Sampled %d from Metropolis-Hastings\n", i);}
-    }
-
-    if( ((3*i) % samplesize)==0 && tottaken == ptottaken){
-      ptottaken = tottaken;
-      Rprintf("Warning:  Metropolis-Hastings algorithm has accepted only "
-              "%d steps out of a possible %d\n",  ptottaken-tottaken, i);
-    }
-    /*      Rprintf("Sampled %d from %d\n", i, samplesize); */
-
-    /*********************
-    Below is an extremely crude device for letting the user know
-    when the chain doesn't accept many of the proposed steps.
-    *********************/
-/*    if (verbose){ */
-/*      Rprintf("Metropolis-Hastings accepted %7.3f%% of %d steps.\n", */
-/*	      tottaken*100.0/(1.0*interval*samplesize), interval*samplesize);  */
-/*    } */
-/*  }else{ */
-/*    if (verbose){ */
-/*      Rprintf("Metropolis-Hastings accepted %7.3f%% of %d steps.\n", */
-/*	      staken*100.0/(1.0*burnin), burnin);  */
-/*    } */
-  }
-/*  Rprintf("netstats: %d\n", samplesize); */
-/*  for (i=0; i < samplesize; i++){ */
-/*   for (j=0; j < m->n_stats; j++){ */
-/*      Rprintf("%f ", networkstatistics[j+(m->n_stats)*(i)]); */
-/*   } */
-/*  Rprintf("\n"); */
-/*  } */
-  if (verbose){
-    Rprintf("Phase 3: MCMC-Newton-Raphson\n");
   }
 
-  // eta, etagrad, ubar, u2bar, and aDiaginv freed on return to R.
+  // R_calloc()-ed variables freed on return to R.
 
   return MCMC_OK;
 }

@@ -46,14 +46,12 @@ ergm.stocapprox <- function(init, s, s.obs,
 
   control <- remap_algorithm_MCMC_controls(control, "SA")
 
-  if(is.function(control$SA.phase1_n))
-    control$SA.phase1_n <- control$SA.phase1_n(q=nparam(model, offset=FALSE))
+  for(ctl in c("SA.phase1_n", "SA.min_iterations", "SA.max_iterations"))
+    if(is.function(control[[ctl]]))
+      control[[ctl]] <- control[[ctl]](q=nparam(model, offset=FALSE), p=nparam(model, offset=FALSE, canonical=TRUE), n=network.size(s))
 
   message("Stochastic approximation algorithm with theta_0 equal to:")
   print(init)
-
-  if(is.function(control$SA.niterations))
-    control$SA.niterations <- control$SA.niterations(q=nparam(model, offset=FALSE))
 
   theta <- init
 
@@ -62,18 +60,17 @@ ergm.stocapprox <- function(init, s, s.obs,
   for(i in 1:control$SA.nsubphases){
     control$MCMC.samplesize <- trunc(control$MCMC.samplesize*2.52)+1 # 2.52 is approx. 2^(4/3)
   }
-  z <- ergm.phase12(s, theta, control, verbose=TRUE)
-  nw <- z$newnetwork
+  z <- ergm.phase12(s, theta, control, verbose=verbose)
+
   theta <- z$theta
   names(theta) <- names(init)
-  message(paste(" (theta[",seq(along=theta),"] = ",paste(theta),")",sep=""))
+  message("Stochastic Approximation estimate:")
+  message_print(theta)
   
   ## phase 3:  Estimate covariance matrix for final theta
-
   control$MCMC.samplesize <- control$SA.phase3_n
   message(paste("Phase 3: ",control$SA.phase3_n,"iterations"),appendLF=FALSE)
   message(paste(" (interval=",control$MCMC.interval,")",sep=""))
-  eta <- ergm.eta(theta, model$etamap)
 
   # Obtain MCMC sample
   z <- ergm_MCMC_sample(z$state, control, theta=theta, verbose=max(verbose-1,0))
@@ -81,24 +78,28 @@ ergm.stocapprox <- function(init, s, s.obs,
   if(verbose){message("Calling MCMLE Optimization...")}
   if(verbose){message("Using Newton-Raphson Step ...")}
 
-  ve<-ergm.estimate(init=theta, model=model,
-                   statsmatrices=mcmc.list(as.mcmc(z$stats)),
-                   statsmatrices.obs=NULL,
-                   epsilon=control$epsilon, 
-                   nr.maxit=control$MCMLE.NR.maxit, 
-                   nr.reltol=control$MCMLE.NR.reltol,
-                   calc.mcmc.se=control$MCMC.addto.se,
-                   hessianflag=control$main.hessian,
-                   method=control$MCMLE.method,
-                   metric=control$MCMLE.metric,
-                   verbose=verbose)
+  v <- ergm.estimate(init=theta, model=model,
+                     statsmatrices=mcmc.list(as.mcmc(z$stats)),
+                     statsmatrices.obs=NULL,
+                     epsilon=control$epsilon,
+                     nr.maxit=control$MCMLE.NR.maxit,
+                     nr.reltol=control$MCMLE.NR.reltol,
+                     calc.mcmc.se=control$MCMC.addto.se,
+                     hessianflag=control$main.hessian,
+                     method=control$MCMLE.method,
+                     metric=control$MCMLE.metric,
+                     verbose=verbose)
 
-  ## Important: Keep R-M (pre-NR) theta
-  # ve$coefficients <- theta
+  v$sample <- z$stats
+  nws.returned <- lapply(z$networks, as.network)
+  v$newnetworks <- nws.returned
+  v$newnetwork <- nws.returned[[1]]
+  v$coef.init <- init
+  v$est.cov <- v$mc.cov
+  v$mc.cov <- NULL
+  v$control <- control
 
-  c(ve, list(newnetwork=nw,
-             theta.original=init,
-             control = control,
-             est.cov=ve$mc.cov,
-             MCMCflag=TRUE))
+  v$etamap <- model$etamap
+  v$MCMCflag <- TRUE
+  v
 }
