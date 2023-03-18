@@ -452,13 +452,13 @@ ergm.MCMLE <- function(init, s, s.obs,
           d2e <- xTAx(estdiff, iVm[!hotel$novar, !hotel$novar])
           if(d2e<1){ # Update ends within tolerance ellipsoid.
             T2 <- try(.ellipsoid_mahalanobis(estdiff, estcov, iVm[!hotel$novar, !hotel$novar]), silent=TRUE) # Distance to the nearest point on the tolerance region boundary.
-            T2nullity <- attr(T2,"nullity")
-            T2param <- hotel$parameter["param"] - T2nullity
-            if(T2nullity && verbose) message("Estimated covariance matrix of the statistics has nullity ", format(T2nullity), ". Effective parameter number adjusted to ", format(T2param), ".")
             if(inherits(T2, "try-error")){ # Within tolerance ellipsoid, but cannot be tested.
               message("Unable to test for convergence; increasing sample size.")
               .boost_samplesize(control$MCMLE.confidence.boost)
             }else{ # Within tolerance ellipsoid, can be tested.
+              T2nullity <- attr(T2,"nullity")
+              T2param <- hotel$parameter["param"] - T2nullity
+              if(T2nullity && verbose) message("Estimated covariance matrix of the statistics has nullity ", format(T2nullity), ". Effective parameter number adjusted to ", format(T2param), ".")
               nonconv.pval <- .ptsq(T2, T2param, hotel$parameter["df"], lower.tail=FALSE)
               if(verbose) message("Test statistic: T^2 = ", format(T2),", with ",
                                   format(T2param), " free parameters and ", format(hotel$parameter["df"]), " degrees of freedom.")
@@ -613,5 +613,5 @@ ergm.MCMLE <- function(init, s, s.obs,
   l <- uniroot(zerofn, lower=lmin, upper=0, tol=sqrt(.Machine$double.xmin))$root
   x <- x(l)
 
-  xTAx_qrsolve(y-x, W)
+  xTAx_qrssolve(y-x, W)
 }
