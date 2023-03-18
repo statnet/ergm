@@ -404,6 +404,22 @@ xTAx_qrsolve <- function(x, A, tol = 1e-07, ...){
   structure(sum(x*qr.coef(Aqr, x), na.rm=TRUE), rank=Aqr$rank, nullity=nullity)
 }
 
+# As above, but first scaling by diagonal; A is assumed to be
+# symmetric.
+xTAx_qrssolve <- function(x, A, tol = 1e-07, ...){
+  d <- diag(as.matrix(A))
+  d <- ifelse(d==0, 1, 1/d) |> sqrt()
+
+  if(anyNA(d)) stop("Matrix x has negative elements on the diagonal.")
+  dd <- rep(d, each = length(d)) * d
+
+  Aqr <- qr(A*dd, tol=tol, ...)
+  nullity <- NCOL(A) - Aqr$rank
+  if(nullity && !all(abs(crossprod(qr.Q(Aqr)[,-seq_len(Aqr$rank), drop=FALSE], x*d))<tol))
+    stop("x is not in the span of A")
+  structure(sum(x*d*qr.coef(Aqr, x*d), na.rm=TRUE), rank=Aqr$rank, nullity=nullity)
+}
+
 # Evaluate A^-1 B (A^T)^-1, minimising matrix inversion.
 sandwich_ssolve <- function(A, B, ...){
   ssolve(A, t(ssolve(A, B, ...)), ...)
