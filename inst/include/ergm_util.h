@@ -10,6 +10,8 @@
 #ifndef _ERGM_UTIL_H_
 #define _ERGM_UTIL_H_
 
+#include <R.h>
+
 /* Calculate the dot product between two vectors. */
 static inline double dotprod(double *x, double *y, unsigned int n){
   double out = 0;
