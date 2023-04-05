@@ -59,9 +59,8 @@
 #        normally  distributed so that exp(eta * stats) is lognormal
 #####################################################################################
 
-llik.fun.lognormal <- function(theta, xsim, xsim.obs=NULL,
+llik.fun.lognormal <- function(theta, xsim, ...,
                      varweight=0.5,
-                     dampening=FALSE,dampening.min.ess=100, dampening.level=0.1,
                      eta0, etamap){
   # Convert theta to eta
   eta <- ergm.eta(theta, etamap)
@@ -178,9 +177,8 @@ llik.fun.IS <- function(theta, xsim, xsim.obs=NULL,
 #   llr: the log-likelihood ratio of l(eta) - l(eta0) using ?? (what sort of approach)
 #####################################################################################
 
-llik.fun.median <- function(theta, xsim, xsim.obs=NULL,
+llik.fun.median <- function(theta, xsim, ...,
                      varweight=0.5,
-                     dampening=FALSE,dampening.min.ess=100, dampening.level=0.1,
                      eta0, etamap){
   # Convert theta to eta
   eta <- ergm.eta(theta, etamap)
@@ -205,9 +203,10 @@ llik.fun.median <- function(theta, xsim, xsim.obs=NULL,
 }
 
 llik.fun.logtaylor <- function(theta, xsim, xsim.obs=NULL, 
-		                     varweight=0.5,
-	 	                     dampening=FALSE,dampening.min.ess=100, dampening.level=0.1, 
-	 	                     eta0, etamap){ 
+                               varweight=0.5,
+                               dampening=FALSE,dampening.min.ess=100, dampening.level=0.1,
+                               ...,
+                               eta0, etamap){
 	 	  # Convert theta to eta 
 	 	  eta <- ergm.eta(theta, etamap) 
  	 

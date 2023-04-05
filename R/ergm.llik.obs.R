@@ -57,9 +57,8 @@
 #        approximation; i.e., assuming that the network statistics are approximately
 #        normally  distributed so that exp(eta * stats) is lognormal
 #####################################################################################                           
-llik.fun.obs.lognormal <- function(theta, xsim, xsim.obs=NULL,
+llik.fun.obs.lognormal <- function(theta, xsim, xsim.obs, ...,
                      varweight=0.5,
-                     dampening=FALSE,dampening.min.ess=100, dampening.level=0.1,
                      eta0, etamap){
   eta <- ergm.eta(theta, etamap)
   etaparam <- eta-eta0
@@ -87,9 +86,7 @@ llik.fun.obs.lognormal <- function(theta, xsim, xsim.obs=NULL,
 # --RETURNED--
 #   llg: the gradient of the not-offset eta parameters with ??
 #####################################################################################
-llik.grad.obs.IS <- function(theta, xsim,  xsim.obs=NULL,
-                      varweight=0.5,
-                      dampening=FALSE,dampening.min.ess=100, dampening.level=0.1,
+llik.grad.obs.IS <- function(theta, xsim, xsim.obs, ...,
                       eta0, etamap){
   # Obtain canonical parameters incl. offsets and difference from sampled-from
   eta <- ergm.eta(theta, etamap)
@@ -116,9 +113,7 @@ llik.grad.obs.IS <- function(theta, xsim,  xsim.obs=NULL,
 #   He: the ?? Hessian matrix
 #####################################################################################
 
-llik.hessian.obs.IS <- function(theta, xsim, xsim.obs=NULL,
-                     varweight=0.5,
-                     dampening=FALSE,dampening.min.ess=100, dampening.level=0.1,
+llik.hessian.obs.IS <- function(theta, xsim, xsim.obs, ...,
                      eta0, etamap){
   # Obtain canonical parameters incl. offsets and difference from sampled-from
   eta <- ergm.eta(theta, etamap)
@@ -148,9 +143,7 @@ llik.hessian.obs.IS <- function(theta, xsim, xsim.obs=NULL,
 #            "Simple convergence"
 #####################################################################################
 
-llik.fun.obs.IS <- function(theta, xsim, xsim.obs=NULL, 
-                     varweight=0.5,
-                     dampening=FALSE,dampening.min.ess=100, dampening.level=0.1,
+llik.fun.obs.IS <- function(theta, xsim, xsim.obs, ...,
                      eta0, etamap){
   # Obtain canonical parameters incl. offsets and difference from sampled-from
   eta <- ergm.eta(theta, etamap)
@@ -169,9 +162,8 @@ llik.fun.obs.IS <- function(theta, xsim, xsim.obs=NULL,
 #                "robust obsing data code"
 #####################################################################################
 
-llik.fun.obs.robust<- function(theta, xsim, xsim.obs=NULL,
+llik.fun.obs.robust<- function(theta, xsim, xsim.obs, ...,
                      varweight=0.5,
-                     dampening=FALSE,dampening.min.ess=100, dampening.level=0.1,
                      eta0, etamap){
   eta <- ergm.eta(theta, etamap)
   etaparam <- eta-eta0
