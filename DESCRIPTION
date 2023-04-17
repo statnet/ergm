@@ -15,7 +15,7 @@ Authors@R: c(
              person("Chad", "Klumb", role=c("ctb"), email="cklumb@gmail.com"),
              person("Michał", " Bojanowski", role=c("ctb"), email="michal2992@gmail.com", comment=c(ORCID="0000-0001-7503-852X")),
              person("Ben", "Bolker", role=c("ctb"), email="bbolker+lme4@gmail.com"),
-             person("Christian", "Schmid", role=c("ctb"), email="cxs5700@psu.edu"),
+             person("Christian", "Schmid", role=c("ctb"), email="songhyo86@gmail.com"),
              person("Joyce", "Cheng", role=c("ctb"), email="joyce.cheng@student.unsw.edu.au"))
 Depends:
     R (>= 4.1),
@@ -147,6 +147,7 @@ Collate:
     'ergm_keyword.R'
     'ergm_model.R'
     'ergm_model.utils.R'
+    'ergm_mplecov.R'
     'ergm_proposal.R'
     'ergm_response.R'
     'ergm_state.R'

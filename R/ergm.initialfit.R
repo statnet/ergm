@@ -48,9 +48,10 @@
 #
 ######################################################################################
 ergm.initialfit<-function(init,
-                          s, s.obs,
+                          s, s.obs, nw,
                           control=NULL,
-                          verbose=FALSE, ...) {
+                          constraints = NULL,
+                          verbose=FALSE, formula = formula, ...) {
   if(control$init.method!="skip" && any(is.na(init))){
     # Respect init elements that are not offsets if it's only a starting value.
     s$model$etamap$offsettheta[!is.na(init)] <- TRUE
@@ -60,16 +61,17 @@ ergm.initialfit<-function(init,
            MPLE = {
              if(control$MPLE.constraints.ignore) s$proposal$arguments$constraints <- s$proposal$arguments$constraints[".attributes"] # Drop all constraints except for .attributes .
              control$MPLE.samplesize <- control$init.MPLE.samplesize
-             ergm.mple(s, s.obs,
+             ergm.mple(s, s.obs, nw=nw,
                        init=init,
                        control=control,
-                       verbose=verbose, ...)
+                       constraints=constraints,
+                       verbose=verbose, formula = formula, ...)
            },
            zeros = structure(list(coefficients=.constrain_init(s$model, ifelse(is.na(init),0,init)))),
            CD = ergm.CD.fixed(.constrain_init(s$model, ifelse(is.na(init),0,init)),
                               s, s.obs, control, verbose, ...),
            stop("Invalid method specified for initial parameter calculation.")
-           )
+    )
   }else{
     # If this is just the initial value, *and* the user has supplied
     # all elements for init, just echo init.

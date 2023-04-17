@@ -119,6 +119,23 @@
 #'   similar diagnostic for the unconstrained MCMC sample's estimating
 #'   functions.
 #'
+#' @param MPLE.covariance.samplesize The number of networks to simulate to approximate
+#'  the MPLE covariance matrix using the Godambe matrix (see Schmid and Hunter (2020)) or
+#'  parametric Bootstrapping (see Schmid and Desmarais (2017)).
+#'
+#' @param MPLE.covariance.method The method to estimate the MPLE covariance method. `invHess`
+#'  returns the covariance estimate obtained from the glm()-function. `Godambe` estimates the
+#'  covariance matrix using the Godambe-matrix (Schmid and Hunter (2020)). This method is recommended
+#'  for dyad-dependent models. Alternatively, `bootstrap` estimates standard deviations using a parametric
+#'  bootstrapping approach (see Schmid and Desmarais (2017)).
+#'
+#' @param MPLE.covariance.sim.burnin Number of proposals before any MCMC sampling is done to simulate
+#'   networks for the MPLE covariance methods "Godambe" and "bootstrap".
+#'
+#' @param MPLE.covariance.sim.interval Number of proposals between simulated networks for the MPLE covariance
+#'   methods "Godambe" and "bootstrap".
+#'
+#'
 #' @param MPLE.constraints.ignore If `TRUE`, MPLE will ignore all
 #'   dyad-independent constraints except for those due to attributes
 #'   missingness. This can be used to avert evaluating and storing the
@@ -478,6 +495,10 @@ control.ergm<-function(drop=TRUE,
                        MPLE.nonvar=c("warning","message","error"),
                        MPLE.nonident=c("warning","message","error"),
                        MPLE.nonident.tol=1e-10,
+                       MPLE.covariance.samplesize =500,
+                       MPLE.covariance.method ="invHess",
+                       MPLE.covariance.sim.burnin = 1024,
+                       MPLE.covariance.sim.interval = 1024,
                        MPLE.constraints.ignore=FALSE,
 
                        MCMC.prop=trim_env(~sparse),

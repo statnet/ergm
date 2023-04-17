@@ -124,9 +124,9 @@ summary.ergm <- function (object, ...,
 
   devtext <- "Deviance:"
   if (object$estimate!="MPLE" || !independence || object$reference != as.formula(~Bernoulli)) {
-    if (pseudolikelihood) {
+    if (pseudolikelihood && control$MPLE.covariance.method=="invHess") {
       devtext <- "Pseudo-deviance:"
-      ans$message <- "\nWarning:  The standard errors are based on naive pseudolikelihood and are suspect.\n"
+      ans$message <- "\nWarning:  The standard errors are based on naive pseudolikelihood and are suspect. Set control.ergm$MPLE.covariance.method='Godambe' for a simulation-based approximation of the standard errors.\n"
     } 
     else if(object$estimate == "MLE" && any(is.na(est.se) & !ans$offset & !ans$drop==0 & !ans$estimable) && 
                       (!independence || control$force.main) ) {
@@ -150,7 +150,7 @@ summary.ergm <- function (object, ...,
                              c(dyads, rdf)), 2,2, dimnames=list(c("Null","Residual"),
                                                                 c("Resid. Dev", "Resid. Df")))
     ans$devtext <- devtext
-        
+
     ans$aic <- AIC(object)
     ans$bic <- BIC(object)
     ans$mle.lik <- ERRVL(mle.lik, NA)
