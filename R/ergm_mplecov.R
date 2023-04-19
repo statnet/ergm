@@ -79,7 +79,7 @@ ergm_mplecov <- function(pl,
     u.data <- matrix(0,nrow=length(sim.mple), ncol=num.variables)
 
     for(i in 1:length(sim.mple)){
-      dat <- ergm.pl(sim.mple[[i]], NULL, control=control)
+      dat <- ergm.pl(sim.mple[[i]], NULL, theta.offset = init, control=control)
 
       # write the response, weight and designmatrix into one matrix
       X.dat <- cbind(dat$zy, dat$wend, dat$xmat)
@@ -112,10 +112,10 @@ ergm_mplecov <- function(pl,
 
     for(i in 1:length(sim.mple)){
 
-      dat <- ergm.pl(sim.mple[[i]], NULL, control=control)
+      dat <- ergm.pl(sim.mple[[i]], NULL, theta.offset = init, control=control)
 
       # calculate MPLE of simulated network
-      glm.sim <- glm(dat$zy ~ .-1 , data=data.frame(dat$xmat),
+      glm.sim <- glm(dat$zy ~ .-1 + offset(dat$foffset) , data=data.frame(dat$xmat),
                      weights=dat$wend, family="binomial")
       boot.mple.mat[i,] <- coef(glm.sim)
 
