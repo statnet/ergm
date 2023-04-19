@@ -119,22 +119,19 @@
 #'   similar diagnostic for the unconstrained MCMC sample's estimating
 #'   functions.
 #'
-#' @param MPLE.covariance.samplesize The number of networks to simulate to approximate
-#'  the MPLE covariance matrix using the Godambe matrix (see Schmid and Hunter (2020)) or
-#'  parametric Bootstrapping (see Schmid and Desmarais (2017)).
-#'
-#' @param MPLE.covariance.method The method to estimate the MPLE covariance method. `invHess`
-#'  returns the covariance estimate obtained from the glm()-function. `Godambe` estimates the
-#'  covariance matrix using the Godambe-matrix (Schmid and Hunter (2020)). This method is recommended
-#'  for dyad-dependent models. Alternatively, `bootstrap` estimates standard deviations using a parametric
-#'  bootstrapping approach (see Schmid and Desmarais (2017)).
-#'
-#' @param MPLE.covariance.sim.burnin Number of proposals before any MCMC sampling is done to simulate
-#'   networks for the MPLE covariance methods "Godambe" and "bootstrap".
-#'
-#' @param MPLE.covariance.sim.interval Number of proposals between simulated networks for the MPLE covariance
-#'   methods "Godambe" and "bootstrap".
-#'
+#' @param
+#'   MPLE.covariance.method,MPLE.covariance.samplesize,MPLE.covariance.sim.burnin,MPLE.covariance.sim.interval
+#'   Controls for estimating the MPLE covariance
+#'   matrix. `MPLE.covariance method` determines the method, with
+#'   `invHess` (the default) returning the covariance estimate
+#'   obtained from the [glm()]. `Godambe` estimates the covariance
+#'   matrix using the Godambe-matrix \insertCite{ScHu23c}{ergm}. This
+#'   method is recommended for dyad-dependent models. Alternatively,
+#'   `bootstrap` estimates standard deviations using a parametric
+#'   bootstrapping approach \insertCite{@see @ScDe17e}{ergm}. The
+#'   other parameters control, respectively, the number of networks to
+#'   simulate, the MCMC burn-in, and the MCMC interval for `Godambe`
+#'   and `bootstrap` methods.
 #'
 #' @param MPLE.constraints.ignore If `TRUE`, MPLE will ignore all
 #'   dyad-independent constraints except for those due to attributes
@@ -448,7 +445,8 @@
 #' @seealso [ergm()]. The \code{\link{control.simulate}} function
 #' performs a similar function for \code{\link{simulate.ergm}};
 #' \code{\link{control.gof}} performs a similar function for \code{\link{gof}}.
-#' @references \itemize{ 
+#' @references \insertAllCited{}
+#'
 #' * Snijders, T.A.B. (2002), Markov Chain Monte
 #' Carlo Estimation of Exponential Random Graph Models.  Journal of Social
 #' Structure.  Available from
@@ -472,8 +470,7 @@
 #' * Kristoffer Sahlin. Estimating convergence of Markov chain Monte Carlo
 #' simulations. Master's Thesis. Stockholm University, 2011.
 #' \url{https://www2.math.su.se/matstat/reports/master/2011/rep2/report.pdf}
-#' 
-#' }
+#'
 #' @keywords models
 #' @export control.ergm
 control.ergm<-function(drop=TRUE,
