@@ -5,22 +5,12 @@
 #' as described by Schmid and Desmarais (2017).
 #'
 #' @param pl An \code{\link{ergm.pl}} object.
-#' @param nw response network.
-#' @param m the model, as returned by \code{\link{ergm_model}}
 #' @param init a vector a vector of initial theta coefficients
 #' @param theta.mple the MPLE of a given model
 #' @param invHess the inverse Hessian matrix obtained from glm()
-#' @param control a list of MCMC related parameters; recognized
-#'   components include: samplesize : the number of networks to sample
-#'   Clist.miss : see 'Clist.miss' above; some of the code uses this
-#'   Clist.miss,
+#' @param control a list of MCMC related parameters
 #' @param verbose whether this and the C routines should be verbose (T
 #'   or F); default=FALSE
-#'
-#' @param constraints {A formula specifying one or more constraints
-#' on the support of the distribution of the networks being modeled,
-#' using syntax similar to the \code{formula} argument, on the
-#' right-hand side.
 #'
 #' @param family the family to use in the R native routine
 #' default="binomial"
@@ -59,16 +49,13 @@
 #' control = control.ergm(MPLE.covariance.method="bootstrap"))
 #' }
 ergm_mplecov <- function(pl,
-                         nw,
                          s,
-                         init=init,
+                         init,
                          theta.mple,
                          invHess,
                          control=NULL,
                          verbose=FALSE,
-                         constraints=NULL,
-                         family="binomial",
-                         formula = formula){
+                         family="binomial"){
 
   m <- s$model
   # get sample size from control.ergm
@@ -77,30 +64,25 @@ ergm_mplecov <- function(pl,
   mple.interval <- control$MPLE.covariance.sim.interval
 
   # Simulate R networks
-  sim.mple <- simulate(m, basis=nw, coef=theta.mple, nsim=R,
-                       control=control.simulate.formula(MCMC.burnin=mple.burnin, MCMC.interval=mple.interval))
+  sim.mple <- simulate(s, coef=theta.mple, nsim=R,
+                       control=control.simulate.formula(MCMC.burnin=mple.burnin, MCMC.interval=mple.interval),
+                       output = "ergm_state")
 
   num.variables <- ncol(pl$xmat)
-
-  terms.form <- terms(formula)
-
-  new.formula <- reformulate(attr(terms.form, "term.labels"), "sim.mple[[i]]")
 
   if(control$MPLE.covariance.method == "Godambe"){
     message("Estimating Godambe Matrix using ", R, " simulated networks.")
 
     # calculation of V(theta) = Var(u(theta,y)) using the sim.num networks
-    net.stat <- matrix(0, nrow=length(sim.mple), ncol=num.variables)
+    net.stat <- attr(sim.mple, "stats")
     colnames(net.stat) <- colnames(pl$xmat)
     u.data <- matrix(0,nrow=length(sim.mple), ncol=num.variables)
 
     for(i in 1:length(sim.mple)){
-
-      dat <- ergmMPLE(new.formula)
-      net.stat[i,] <- summary(new.formula)
+      dat <- ergm.pl(sim.mple[[i]], NULL, control=control)
 
       # write the response, weight and designmatrix into one matrix
-      X.dat <- cbind(dat$response, dat$weights, dat$predictor)
+      X.dat <- cbind(dat$zy, dat$wend, dat$xmat)
 
       # calculate s(theta)
       u.data[i,] <- sapply(1:num.variables, function(k){
@@ -130,11 +112,11 @@ ergm_mplecov <- function(pl,
 
     for(i in 1:length(sim.mple)){
 
-      dat <- ergmMPLE(new.formula)
+      dat <- ergm.pl(sim.mple[[i]], NULL, control=control)
 
       # calculate MPLE of simulated network
-      glm.sim <- glm(dat$response ~ .-1 , data=data.frame(dat$predictor),
-                     weights=dat$weights, family="binomial")
+      glm.sim <- glm(dat$zy ~ .-1 , data=data.frame(dat$xmat),
+                     weights=dat$wend, family="binomial")
       boot.mple.mat[i,] <- coef(glm.sim)
 
     }# end for i

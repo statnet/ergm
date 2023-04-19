@@ -46,11 +46,6 @@
 #' @template control
 #' @template verbose
 #'
-#' @param constraints {A formula specifying one or more constraints
-#' on the support of the distribution of the networks being modeled,
-#' using syntax similar to the \code{formula} argument, on the
-#' right-hand side.
-#'
 #' @param \dots additional parameters passed from within; all will be
 #'   ignored
 #' @return \code{ergm.mple} returns an ergm object as a list
@@ -60,12 +55,10 @@
 #' @seealso \code{\link{ergmMPLE}},
 #' \code{\link{ergm}},\code{\link{control.ergm}}
 #' @references \insertAllCited{}
-ergm.mple<-function(s, s.obs, nw, init=NULL,
+ergm.mple<-function(s, s.obs, init=NULL,
                     family="binomial",
                     control=NULL,
-                    constraints=NULL,
                     verbose=FALSE,
-                    formula = formula,
                     ...) {
   m <- s$model
   message("Starting maximum pseudolikelihood estimation (MPLE):")
@@ -110,12 +103,11 @@ ergm.mple<-function(s, s.obs, nw, init=NULL,
 
    # estimate variability matrix V for Godambe covariance matrix or via bootstrapping, only for dyad dependent models and
    #  init.method="MPLE"
-     if(!is.dyad.independent(m) && control$MPLE.covariance.method=="Godambe" ||
+     if(!is.dyad.independent(s$model) && control$MPLE.covariance.method=="Godambe" ||
         control$MPLE.covariance.method=="bootstrap"){
        invHess <- summary(glm.result$value)$cov.unscaled
-       mple.cov <- ergm_mplecov(pl=pl,nw=nw, s=s, init=init, theta.mple=glm.result$value$coef, invHess=invHess,
-                                verbose=verbose, control=control, constraints=constraints,
-                                formula = formula)
+       mple.cov <- ergm_mplecov(pl=pl, s=s, init=init, theta.mple=glm.result$value$coef, invHess=invHess,
+                                verbose=verbose, control=control)
      }
     
     # error handling for glm results
@@ -146,7 +138,7 @@ ergm.mple<-function(s, s.obs, nw, init=NULL,
    }
   }
   real.coef <- coef(mplefit)
-  if(!is.dyad.independent(m) && control$MPLE.covariance.method=="Godambe" ||
+  if(!is.dyad.independent(s$model) && control$MPLE.covariance.method=="Godambe" ||
      control$MPLE.covariance.method=="bootstrap" ){
     real.cov <- mple.cov
   }else{

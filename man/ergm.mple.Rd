@@ -25,7 +25,7 @@ ergm.pl(
 )
 }
 \arguments{
-\item{init}{a vector a vector of initial theta coefficients}
+\item{init}{a vector of initial theta coefficients}
 
 \item{family}{the family to use in the R native routine
 \code{\link{glm}}; only applicable if "glm" is the 'MPLEtype';
@@ -89,7 +89,7 @@ by users instead.
 
 \code{ergm.pl} is an even more internal workhorse
 function that prepares many of the components needed by
-\code{ergm.mple} for the regression rountines that are used to
+\code{ergm.mple} for the regression routines that are used to
 find the MPLE estimated ergm. It should not be called directly by
 the user.
 }

@@ -618,7 +618,7 @@ ergm <- function(formula, response=NULL,
   }
   
   ## Run the fit.
-  fit <- ergm.fit(nw, target.stats, model, proposal, proposal.obs, info, control, verbose, formula, ...)
+  fit <- ergm.fit(nw, target.stats, model, proposal, proposal.obs, info, control, verbose, ...)
 
   ## Process MCMC sample results.
   if(control$MCMC.return.stats == 0) fit$sample <- fit$sample.obs <- NULL
@@ -682,7 +682,7 @@ ergm <- function(formula, response=NULL,
   fit
 }
 
-ergm.fit <- function(nw, target.stats, model, proposal, proposal.obs, info, control, verbose, formula,  ...){
+ergm.fit <- function(nw, target.stats, model, proposal, proposal.obs, info, control, verbose, ...){
   ## Short-circuit the optimization if all terms are either offsets or dropped.
   if(all(model$etamap$offsettheta)){
     ## Note that this cannot be overridden with control$force.main.
@@ -734,11 +734,9 @@ ergm.fit <- function(nw, target.stats, model, proposal, proposal.obs, info, cont
   ergm.getCluster(control, max(verbose-1,0)) # Set up parallel processing if necessary.
   
   initialfit <- ergm.initialfit(init=control$init,
-                                s=s, s.obs=s.obs, nw = nw,
+                                s=s, s.obs=s.obs,
                                 control=control,
-                                constraints = constraints,
                                 verbose=max(verbose-1,0),
-                                formula = formula,
                                 ...)
 
   ## Extract and process the initial value for the next stage:
@@ -748,10 +746,10 @@ ergm.fit <- function(nw, target.stats, model, proposal, proposal.obs, info, cont
 
   c(
     switch(control$main.method,
-           "MPLE" = ergm.mple(s, s.obs,nw,
+           "MPLE" = ergm.mple(s, s.obs,
                               init=init,
                               control=control,
-                              verbose=verbose, formula = formula, ...),
+                              verbose=verbose, ...),
 
            "CD" = ergm.CD.fixed(.constrain_init(s$model, ifelse(is.na(init),0,init)),
                       s, s.obs, control, verbose,...),
