@@ -47,8 +47,6 @@
 #    if MPLE -- the list returned by <ergm.mple>
 #
 ######################################################################################
-
-#' Helper function to run initial fit.
 ergm.initialfit<-function(init,
                           s, s.obs,
                           control=NULL,
