@@ -40,3 +40,11 @@ test_that("Bootstrap covariance method for MPLE", {
   expect_equal(StdErr3, c(0.257, 0.059), ignore_attr = TRUE)
 })
 
+test_that("Bootstrap covariance method for MPLE", {
+  set.seed(445)
+  m4 <- ergm(init.sim ~ edges + triangles + offset(triangles), offset.coef=1,
+             estimate = "MPLE",
+             control=control.ergm(MPLE.covariance.method = "InvHess"))
+  StdErr4 <- round(sqrt(diag(vcov(m4))), 3)
+  expect_equal(round(coef(summary(m4))[,2], 3), c(0.155, 0.034, 0), ignore_attr = TRUE)
+})
