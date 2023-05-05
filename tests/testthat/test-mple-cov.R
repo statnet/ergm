@@ -20,19 +20,23 @@ test_that("Godambe covariance method for MPLE", {
   set.seed(111)
   m1 <- ergm(init.sim ~ edges + triangles, estimate = "MPLE",
               control=control.ergm(MPLE.covariance.method = "Godambe"))
-  expect_equal(round(coef(summary(m1))[,2], 3), c(0.242, 0.056), ignore_attr = TRUE)
+  StdErr1 <- round(sqrt(diag(vcov(m1))), 3)
+  expect_equal(StdErr1, c(0.242, 0.056), ignore_attr = TRUE)
 })
 
 test_that("Inverse Hessian from logistic regression model", {
   set.seed(222) # However, this method is not stochastic
   m2 <- ergm(init.sim ~ edges+triangles, estimate = "MPLE",
                 control=control.ergm(MPLE.covariance.method = "invHess"))
-  expect_equal(round(coef(summary(m2))[,2], 3), c(0.155, 0.034), ignore_attr = TRUE)
+  StdErr2 <- round(sqrt(diag(vcov(m2))), 3)
+  expect_equal(StdErr2, c(0.155, 0.034), ignore_attr = TRUE)
 })
 
 test_that("Bootstrap covariance method for MPLE", {
   set.seed(333)
   m3 <- ergm(init.sim ~ edges + triangles, estimate = "MPLE",
              control=control.ergm(MPLE.covariance.method = "bootstrap"))
-  expect_equal(round(coef(summary(m3))[,2], 3), c(0.257, 0.059), ignore_attr = TRUE)
+  StdErr3 <- round(sqrt(diag(vcov(m3))), 3)
+  expect_equal(StdErr3, c(0.257, 0.059), ignore_attr = TRUE)
 })
+
