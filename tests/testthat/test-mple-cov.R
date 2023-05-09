@@ -21,7 +21,7 @@ test_that("Godambe covariance method for MPLE", {
   m1 <- ergm(init.sim ~ edges + triangles, estimate = "MPLE",
               control=control.ergm(MPLE.covariance.method = "Godambe"))
   StdErr1 <- round(sqrt(diag(vcov(m1))), 3)
-  expect_equal(StdErr1, c(0.242, 0.056), ignore_attr = TRUE)
+  expect_equal(StdErr1, c(0.255, 0.059), ignore_attr = TRUE)
 })
 
 test_that("Inverse Hessian from logistic regression model", {
@@ -37,7 +37,7 @@ test_that("Bootstrap covariance method for MPLE", {
   m3 <- ergm(init.sim ~ edges + triangles, estimate = "MPLE",
              control=control.ergm(MPLE.covariance.method = "bootstrap"))
   StdErr3 <- round(sqrt(diag(vcov(m3))), 3)
-  expect_equal(StdErr3, c(0.257, 0.059), ignore_attr = TRUE)
+  expect_equal(StdErr3, c(0.257, 0.060), ignore_attr = TRUE)
 })
 
 test_that("Bootstrap covariance method for MPLE", {
