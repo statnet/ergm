@@ -1,6 +1,6 @@
 Package: ergm
-Version: 4.5-7194
-Date: 2023-03-04
+Version: 4.5-7213
+Date: 2023-05-10
 Title: Fit, Simulate and Diagnose Exponential-Family Models for Networks
 Authors@R: c(
              person("Mark S.", "Handcock", role=c("aut"), email="handcock@stat.ucla.edu"),
@@ -16,7 +16,8 @@ Authors@R: c(
              person("Michał", " Bojanowski", role=c("ctb"), email="michal2992@gmail.com", comment=c(ORCID="0000-0001-7503-852X")),
              person("Ben", "Bolker", role=c("ctb"), email="bbolker+lme4@gmail.com"),
              person("Christian", "Schmid", role=c("ctb"), email="songhyo86@gmail.com"),
-             person("Joyce", "Cheng", role=c("ctb"), email="joyce.cheng@student.unsw.edu.au"))
+             person("Joyce", "Cheng", role=c("ctb"), email="joyce.cheng@student.unsw.edu.au"),
+             person("Arya", "Karami", role=c("ctb"), email="a.karami@unsw.edu.au"))
 Depends:
     R (>= 4.1),
     network (>= 1.18.0)
