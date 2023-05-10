@@ -94,7 +94,8 @@ test_that("idegree, directed", {
   s.d <- summary(samplike~idegree(2:3))
   e.d <- ergm(samplike~idegree(2), estimate="MPLE")
   s.db <- summary(samplike~idegree(1:3, "group"))
-  e.db <- ergm(samplike~idegree(3, function(x) x %v% "group"), estimate="MPLE")
+  (e.db <- ergm(samplike~idegree(3, function(x) x %v% "group"), estimate="MPLE")) |>
+    expect_warning("The MPLE does not exist!")
   s.dbh <- summary(samplike~idegree(4:5, "group", TRUE))
   e.dbh <- ergm(samplike~idegree(2, ~group, TRUE), estimate="MPLE")
   expect_summary(s.d, e.d, c(3,5), 1.223775)

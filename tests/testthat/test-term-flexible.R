@@ -132,7 +132,8 @@ test_that("dyadcov, either", {
   s.x <- summary(samplike~dyadcov(cov))
   e.x <- ergm(samplike ~ dyadcov(cov))
   s.xa <- summary(fmh~dyadcov(fmh, "GradeMet"))
-  e.xa <- ergm(fmh ~ dyadcov(fmh, "GradeMet"))
+  (e.xa <- ergm(fmh ~ dyadcov(fmh, "GradeMet"))) |>
+    expect_warning("The MPLE does not exist!")
   expect_summary(s.x, e.x, c(31,21,14), -+c(.8546, 1.0732, 1.3467))
   expect_summary(s.xa, e.xa, 641, 12.31787)
 })

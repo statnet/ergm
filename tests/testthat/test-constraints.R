@@ -69,10 +69,15 @@ test_that("constraint conflict is detected", {
   conwarn <- "^The specified model's sample space constraint holds statistic\\(s\\) edges  constant. They will be ignored.$"
   dyadwarn <- "^The number of observed dyads in this network is ill-defined due to complex constraints on the sample space..*$"
   
-  expect_warning(ergm(flomarriage~edges, constraints = ~edges), conwarn)
+  ergm(flomarriage~edges, constraints = ~edges) |>
+    expect_warning(conwarn) |>
+    expect_warning(dyadwarn) |>
+    expect_warning(dyadwarn)
 
-  expect_warning(expect_warning(expect_warning(fit <- ergm(flomarriage~edges + triangle, constraints = ~degrees),
-                                               conwarn), dyadwarn), dyadwarn)
+  (fit <- ergm(flomarriage~edges + triangle, constraints = ~degrees)) |>
+    expect_warning(conwarn) |>
+    expect_warning(dyadwarn) |>
+    expect_warning(dyadwarn)
 
   expect_equal(coef(fit)[1],0, ignore_attr=TRUE)
 })
