@@ -43,7 +43,7 @@ if(require("networkLite")) {
         set.seed(0)
         nwL_1 <- simulate(nwL ~ edges + nodefactor("a") + nodecov(~b^2 + b),
                           coef = coef, output = "network")
-        expect_is(nwL_1, "networkLite")
+        expect_s3_class(nwL_1, "networkLite")
 
         expect_equal(as.edgelist(nw_1), as.edgelist(nwL_1))
         if(directed) {
@@ -60,7 +60,7 @@ if(require("networkLite")) {
         set.seed(0)
         nwL_2 <- simulate(nwL_1 ~ edges + nodefactor("a") + nodecov(~b^2 + b),
                           coef = coef, output = "network")
-        expect_is(nwL_2, "networkLite")
+        expect_s3_class(nwL_2, "networkLite")
 
         expect_equal(as.edgelist(nw_2), as.edgelist(nwL_2))
         if(directed) {
@@ -104,7 +104,7 @@ if(require("networkLite")) {
         set.seed(0)
         nwL_1 <- san(nwL ~ edges + nodefactor("a") + nodecov(~b^2 + b),
                      target.stats = c(1000, 500, 300, 200, 600, 1500))
-        expect_is(nwL_1, "networkLite")
+        expect_s3_class(nwL_1, "networkLite")
 
         expect_equal(as.edgelist(nw_1), as.edgelist(nwL_1))
         if(directed) {
@@ -121,7 +121,7 @@ if(require("networkLite")) {
         set.seed(0)
         nwL_2 <- san(nwL_1 ~ edges + nodefactor("a") + nodecov(~b^2 + b),
                      target.stats = c(800, 400, 200, 100, 600, 1200))
-        expect_is(nwL_2, "networkLite")
+        expect_s3_class(nwL_2, "networkLite")
 
         expect_equal(as.edgelist(nw_2), as.edgelist(nwL_2))
         if(directed) {
@@ -164,7 +164,7 @@ if(require("networkLite")) {
         eLna <- ergm(ergm_formula, basis = nwL,
                      control = list(MCMLE.effectiveSize = NULL))
         eL2 <- simulate(eLna)
-        expect_is(eL2, "networkLite")
+        expect_s3_class(eL2, "networkLite")
 
         set.seed(0)
         nw <- network.initialize(net_size, directed = directed,
@@ -211,7 +211,7 @@ if(require("networkLite")) {
         eL <- ergm(nwL ~ absdiff("age"), response = "w", reference = ~Unif(0,1),
                    control = list(MCMLE.effectiveSize = NULL))
         eL2 <- simulate(eL)
-        expect_is(eL2, "networkLite")
+        expect_s3_class(eL2, "networkLite")
 
         set.seed(0)
         nw <- network.initialize(net_size, directed = directed,
