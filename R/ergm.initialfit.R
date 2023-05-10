@@ -69,7 +69,7 @@ ergm.initialfit<-function(init,
            CD = ergm.CD.fixed(.constrain_init(s$model, ifelse(is.na(init),0,init)),
                               s, s.obs, control, verbose, ...),
            stop("Invalid method specified for initial parameter calculation.")
-           )
+    )
   }else{
     # If this is just the initial value, *and* the user has supplied
     # all elements for init, just echo init.

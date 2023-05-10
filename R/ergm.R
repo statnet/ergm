@@ -734,10 +734,10 @@ ergm.fit <- function(nw, target.stats, model, proposal, proposal.obs, info, cont
   ergm.getCluster(control, max(verbose-1,0)) # Set up parallel processing if necessary.
   
   initialfit <- ergm.initialfit(init=control$init,
-                                  s=s, s.obs=s.obs,
-                                  control=control,
-                                  verbose=max(verbose-1,0),
-                                  ...)
+                                s=s, s.obs=s.obs,
+                                control=control,
+                                verbose=max(verbose-1,0),
+                                ...)
 
   ## Extract and process the initial value for the next stage:
   init <- coef(initialfit)

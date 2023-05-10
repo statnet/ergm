@@ -37,7 +37,7 @@
 #' starting points for the MCMC algorithm.
 #' 
 #' @param state,state.obs [`ergm_state`] objects.
-#' @param init a vector a vector of initial theta coefficients
+#' @param init a vector of initial theta coefficients
 #' @param family the family to use in the R native routine
 #'   \code{\link{glm}}; only applicable if "glm" is the 'MPLEtype';
 #'   default="binomial"
@@ -100,6 +100,15 @@ ergm.mple<-function(s, s.obs, init=NULL,
     glm.result <- .catchToList(glm(pl$zy ~ .-1 + offset(pl$foffset), 
                                   data=data.frame(pl$xmat),
                                   weights=pl$wend, family=family))
+
+   # estimate variability matrix V for Godambe covariance matrix or via bootstrapping, only for dyad dependent models and
+   #  init.method="MPLE"
+     if(!is.dyad.independent(s$model) && control$MPLE.covariance.method=="Godambe" ||
+        control$MPLE.covariance.method=="bootstrap"){
+       invHess <- summary(glm.result$value)$cov.unscaled
+       mple.cov <- ergm_mplecov(pl=pl, s=s, init=init, theta.mple=glm.result$value$coef, invHess=invHess,
+                                verbose=verbose, control=control)
+     }
     
     # error handling for glm results
     if (!is.null(glm.result$error)) {
@@ -129,7 +138,12 @@ ergm.mple<-function(s, s.obs, init=NULL,
    }
   }
   real.coef <- coef(mplefit)
-  real.cov <- mplefit.summary$cov.unscaled
+  if(!is.dyad.independent(s$model) && control$MPLE.covariance.method=="Godambe" ||
+     control$MPLE.covariance.method=="bootstrap" ){
+    real.cov <- mple.cov
+  }else{
+    real.cov <- mplefit.summary$cov.unscaled
+  }
 
   theta <- NVL(init, real.coef)
   theta[!m$etamap$offsettheta] <- real.coef

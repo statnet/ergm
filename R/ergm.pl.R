@@ -11,7 +11,7 @@
 #' @rdname ergm.mple
 #' @description \code{ergm.pl} is an even more internal workhorse
 #'   function that prepares many of the components needed by
-#'   \code{ergm.mple} for the regression rountines that are used to
+#'   \code{ergm.mple} for the regression routines that are used to
 #'   find the MPLE estimated ergm. It should not be called directly by
 #'   the user.
 #'

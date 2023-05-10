@@ -20,6 +20,10 @@ control.ergm(
   MPLE.nonvar = c("warning", "message", "error"),
   MPLE.nonident = c("warning", "message", "error"),
   MPLE.nonident.tol = 1e-10,
+  MPLE.covariance.samplesize = 500,
+  MPLE.covariance.method = "invHess",
+  MPLE.covariance.sim.burnin = 1024,
+  MPLE.covariance.sim.interval = 1024,
   MPLE.constraints.ignore = FALSE,
   MCMC.prop = trim_env(~sparse),
   MCMC.prop.weights = "default",
@@ -271,6 +275,18 @@ all-zero columns) are dropped, with their handling controlled by
 \code{MPLE.nonvar}. The corresponding \verb{MCMLE.*} arguments provide a
 similar diagnostic for the unconstrained MCMC sample's estimating
 functions.}
+
+\item{MPLE.covariance.method, MPLE.covariance.samplesize, MPLE.covariance.sim.burnin, MPLE.covariance.sim.interval}{Controls for estimating the MPLE covariance
+matrix. \verb{MPLE.covariance method} determines the method, with
+\code{invHess} (the default) returning the covariance estimate
+obtained from the \code{\link[=glm]{glm()}}. \code{Godambe} estimates the covariance
+matrix using the Godambe-matrix \insertCite{ScHu23c}{ergm}. This
+method is recommended for dyad-dependent models. Alternatively,
+\code{bootstrap} estimates standard deviations using a parametric
+bootstrapping approach \insertCite{@see @ScDe17e}{ergm}. The
+other parameters control, respectively, the number of networks to
+simulate, the MCMC burn-in, and the MCMC interval for \code{Godambe}
+and \code{bootstrap} methods.}
 
 \item{MPLE.constraints.ignore}{If \code{TRUE}, MPLE will ignore all
 dyad-independent constraints except for those due to attributes
@@ -680,7 +696,7 @@ This function is only used within a call to the \code{\link[=ergm]{ergm()}} func
 See the \code{usage} section in \code{\link[=ergm]{ergm()}} for details.
 }
 \references{
-\itemize{
+\insertAllCited{}
 \itemize{
 \item Snijders, T.A.B. (2002), Markov Chain Monte
 Carlo Estimation of Exponential Random Graph Models.  Journal of Social
@@ -697,8 +713,6 @@ Graphical Statistics, 21: 920-939.
 \item Kristoffer Sahlin. Estimating convergence of Markov chain Monte Carlo
 simulations. Master's Thesis. Stockholm University, 2011.
 \url{https://www2.math.su.se/matstat/reports/master/2011/rep2/report.pdf}
-}
-
 }
 }
 \seealso{
