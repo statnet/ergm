@@ -111,30 +111,26 @@ ergm.mple<-function(s, s.obs, init=NULL,
      }
     
     # error handling for glm results
-    if (!is.null(glm.result$error)) {
-      stop(glm.result$error)
-    } else if (!is.null(glm.result$warnings)) {
-      # if the glm results are crazy, redo it with 0 starting values
-      if (max(abs(coef(glm.result$value)), na.rm=T) > 1e6) {
-        warning("GLM model may be separable; restarting glm with zeros.\n")
-        mplefit <- glm(pl$zy ~ .-1 + offset(pl$foffset), 
+     if (!is.null(glm.result$error)) stop(glm.result$error)
+
+     if (!is.null(glm.result$warnings)) {
+       # if the glm results are crazy, redo it with 0 starting values
+       if (max(abs(coef(glm.result$value)), na.rm=T) > 1e6) {
+         warning("GLM may be separable; restarting glm with zeros.\n")
+         glm.result <- list(
+           value = glm(pl$zy ~ .-1 + offset(pl$foffset),
                        data=data.frame(pl$xmat),
                        weights=pl$wend, family=family, 
                        start=rep.int(0, length(init[!m$etamap$offsettheta])))
-        mplefit.summary <- summary(mplefit)
-      } else {
-        # unknown warning, just report it
-        warning(glm.result$warnings)
-        mplefit <- glm.result$value
-        mplefit.summary <- summary(mplefit)
-      }
-    } else {
-      # no errors or warnings
-      mplefit <- glm.result$value
-      mplefit.summary <- summary(mplefit)
-    }
-    
+         )
+       } else if(glm.result$warnings != "glm.fit: fitted probabilities numerically 0 or 1 occurred") {
+         # unknown warning, just report it
+         warning(glm.result$warnings)
+       }
+     }
 
+     mplefit <- glm.result$value
+     mplefit.summary <- summary(mplefit)
    }
   }
   real.coef <- coef(mplefit)
