@@ -97,39 +97,37 @@ ergm.mple<-function(s, s.obs, init=NULL,
 # # Note:  It appears that specifying a starting vector can lead to problems!
 # #               start=init[!m$etamap$offsettheta]),
 #                     silent = TRUE))
-    glm.result <- .catchToList(glm(pl$zy ~ .-1 + offset(pl$foffset), 
-                                  data=data.frame(pl$xmat),
-                                  weights=pl$wend, family=family))
+     glm.result <- quietly(function() glm(pl$zy ~ .-1 + offset(pl$foffset),
+                                          data=data.frame(pl$xmat), weights=pl$wend, family=family))()
 
    # estimate variability matrix V for Godambe covariance matrix or via bootstrapping, only for dyad dependent models and
    #  init.method="MPLE"
      if(!is.dyad.independent(s$model) && control$MPLE.covariance.method=="Godambe" ||
         control$MPLE.covariance.method=="bootstrap"){
-       invHess <- summary(glm.result$value)$cov.unscaled
-       mple.cov <- ergm_mplecov(pl=pl, s=s, init=init, theta.mple=glm.result$value$coef, invHess=invHess,
+       invHess <- summary(glm.result$result)$cov.unscaled
+       mple.cov <- ergm_mplecov(pl=pl, s=s, init=init, theta.mple=coef(glm.result$result), invHess=invHess,
                                 verbose=verbose, control=control)
      }
     
     # error handling for glm results
-     if (!is.null(glm.result$error)) stop(glm.result$error)
-
-     if (!is.null(glm.result$warnings)) {
+     if (length(glm.result$warnings)) {
+       glm.result$warnings <- setdiff(glm.result$warnings, "glm.fit: fitted probabilities numerically 0 or 1 occurred")
        # if the glm results are crazy, redo it with 0 starting values
-       if (max(abs(coef(glm.result$value)), na.rm=T) > 1e6) {
+       if (max(abs(coef(glm.result$result)), na.rm=T) > 1e6) {
          warning("GLM may be separable; restarting glm with zeros.\n")
          glm.result <- list(
-           value = glm(pl$zy ~ .-1 + offset(pl$foffset),
+           result = glm(pl$zy ~ .-1 + offset(pl$foffset),
                        data=data.frame(pl$xmat),
                        weights=pl$wend, family=family, 
                        start=rep.int(0, length(init[!m$etamap$offsettheta])))
          )
-       } else if(glm.result$warnings != "glm.fit: fitted probabilities numerically 0 or 1 occurred") {
+       } else if(length(glm.result$warnings)) {
          # unknown warning, just report it
-         warning(glm.result$warnings)
+         for(w in glm.result$warnings) warning(w)
        }
      }
 
-     mplefit <- glm.result$value
+     mplefit <- glm.result$result
      mplefit.summary <- summary(mplefit)
    }
   }

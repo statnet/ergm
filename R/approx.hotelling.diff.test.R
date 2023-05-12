@@ -344,18 +344,19 @@ spectrum0.mvar <- function(x, order.max=NULL, aic=is.null(order.max), tol=.Machi
   
   ord <- NVL(order.max, ceiling(10*log10(niter(xr))))
   xr <- do.call(rbind, c(lapply(unclass(xr)[-nchain(xr)], function(z) rbind(cbind(z), matrix(NA, ord, nvar(z)))), unclass(xr)[nchain(xr)]))
-  
+
+  safe_ar <- possibly(ar, NULL)
+
   # Calculate the time-series variance of the mean on the PC scale.
-  arfit <- .catchToList(ar(xr,aic=is.null(order.max), order.max=ord, na.action=na.pass, ...))
   # If ar() failed or produced a variance matrix estimate that's
   # not positive semidefinite, try with a lower order.
-  while((!is.null(arfit$error) || ERRVL(try(any(eigen(arfit$value$var.pred, only.values=TRUE)$values<0), silent=TRUE), TRUE)) && ord > 0){
+  arfit <- NULL; ord <- ord + 1
+  while((is.null(arfit) || ERRVL(try(any(eigen(arfit$var.pred, only.values=TRUE)$values<0), silent=TRUE), TRUE)) && ord > 0){
     ord <- ord - 1
     if(ord<=0) stop("Unable to fit ar() even with order 1; this is likely to be due to insufficient sample size or a trend in the data.")
-    arfit <- .catchToList(ar(xr,aic=is.null(order.max), order.max=ord, na.action=na.pass, ...))
+    arfit <- safe_ar(xr,aic=is.null(order.max), order.max=ord, na.action=na.pass, ...)
   }
   
-  arfit <- arfit$value
   if(aic && arfit$order>(ord <- first_local_min(arfit$aic)-1)){
     arfit <- ar(xr, aic=ord==0, order.max=max(ord,1), na.action=na.pass) # Workaround since ar() won't take order.max=0.
   }
