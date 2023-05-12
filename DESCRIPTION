@@ -1,13 +1,13 @@
 Package: ergm
-Version: 4.5-7213
-Date: 2023-05-10
+Version: 4.5-7217
+Date: 2023-05-12
 Title: Fit, Simulate and Diagnose Exponential-Family Models for Networks
 Authors@R: c(
-             person("Mark S.", "Handcock", role=c("aut"), email="handcock@stat.ucla.edu"),
-             person("David R.", "Hunter", role=c("aut"), email="dhunter@stat.psu.edu"),
-             person("Carter T.", "Butts", role=c("aut"), email="buttsc@uci.edu"),
-             person("Steven M.", "Goodreau", role=c("aut"), email="goodreau@u.washington.edu"),
-             person("Pavel N.", "Krivitsky", role=c("aut","cre"), email="pavel@statnet.org", comment=c(ORCID="0000-0002-9101-3362")),
+             person(c("Mark", "S."), "Handcock", role=c("aut"), email="handcock@stat.ucla.edu"),
+             person(c("David", "R."), "Hunter", role=c("aut"), email="dhunter@stat.psu.edu"),
+             person(c("Carter", "T."), "Butts", role=c("aut"), email="buttsc@uci.edu"),
+             person(c("Steven", "M."), "Goodreau", role=c("aut"), email="goodreau@u.washington.edu"),
+             person(c("Pavel", "N."), "Krivitsky", role=c("aut","cre"), email="pavel@statnet.org", comment=c(ORCID="0000-0002-9101-3362")),
              person("Martina", "Morris", role=c("aut"), email="morrism@u.washington.edu"),
              person("Li","Wang",role=c("ctb"),email="lxwang@gmail.com"),
              person("Kirk","Li",role=c("ctb"),email="kirkli@u.washington.edu"),
