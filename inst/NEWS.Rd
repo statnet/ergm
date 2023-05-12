@@ -76,10 +76,10 @@
         Additional arguments to \code{\link{mcmc.diagnostic}()} are now passed to helper functions, including plotting functions, allowing better customization. (Thanks to Fabio A. Correa.)
       }
       \item{
-        Stochastic Approximation fitting method now uses adaptive subphase lengths from Snijders (2002). (Thanks Arya Karami.)
+        Stochastic Approximation MLE method now uses adaptive subphase lengths from Snijders (2002). (Thanks Arya Karami.)
       }
       \item{
-        \CRANpkg{ergm} can now use \CRAN{networkLite}'s \code{\link{networkLite}} objects in place of full \code{network} objects.
+        \CRANpkg{ergm} can now use \CRANpkg{networkLite}'s \code{\link{networkLite}} objects in place of full \code{network} objects.
       }
       \item{
         MPLE estimation can now provide improved standard errors via bootstrap or Godambe estimation. (Thanks to Christian Schmid.)
@@ -122,7 +122,9 @@
 
   \subsection{C-LEVEL FACILITIES}{
     \itemize{
-      Some helper functions for printing vectors and matrices in \code{ergm_util.c} have been improved.
+      \item{
+        Some helper functions for printing vectors and matrices in \code{ergm_util.c} have been improved.
+      }
     }
   }
 }
