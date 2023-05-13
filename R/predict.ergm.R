@@ -49,9 +49,6 @@
 #' If `output="matrix"` the function will return an "adjacency matrix" with the
 #' predicted probabilities. Diagonal values are 0s.
 #' 
-#' @method predict formula
-#'
-#' @export
 #' @examples 
 #' # A three-node empty directed network
 #' net <- network.initialize(3, directed=TRUE)
@@ -68,8 +65,7 @@
 #' 
 #' # The p's should be identical
 #' predict(fit)
-#' 
-
+#' @export
 predict.formula <- function(object, theta,
                             conditional = TRUE,
                             type=c("response", "link"),
@@ -149,9 +145,9 @@ predict_ergm_unconditional <- function(object, coef, nsim=100, output="network",
 
 
 #' @rdname predict.formula
-#' @method predict ergm
 #' @export
 predict.ergm <- function(object, ...) {
+  if(is.valued(object)) stop("Prediction for valued ERGMs is not implemented at this time.")
   predict.formula(
     object = object$formula,
     theta = ergm.eta(coef(object), object$etamap),

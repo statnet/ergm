@@ -82,5 +82,4 @@ fit <- ergm(net ~ edges)
 
 # The p's should be identical
 predict(fit)
-
 }
