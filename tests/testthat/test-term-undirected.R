@@ -121,7 +121,7 @@ test_that("gwdegree, undirected", {
   s.dfa <- summary(fmh~gwdegree(.1, fixed=TRUE, attr=function(x) x %v% "Grade"))
   e.dfa <- ergm(fmh~gwdegree(.1, fixed=TRUE, attr=~Grade), estimate="MPLE")
 
-  expect_summary(head(s.d), e.d, setNames(c(51,30,28,18,10,2), paste0("gwdegree#",1:6)), c(gwdeg.fixed.0.400000=-13.59067))
+  expect_summary(head(s.d), e.d, setNames(c(51,30,28,18,10,2), paste0("gwdegree#",1:6)), c(gwdeg.fixed.0.4=-13.59067))
   expect_summary(s.df, e.df, 178.4312, -18.2508)
   expect_summary(s.dfa, e.dfa,
     c(53.58148, 25.53534, 30.83418, 17.79934, 19.31326, 10.80933),

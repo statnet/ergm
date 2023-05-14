@@ -434,11 +434,11 @@ decay_vs_fixed <- function(a, name, no_curved_attrarg=TRUE){
      #  No covariates here, so "ParamsBeforeCov" unnecessary
      # See comment in c_*degree_by_attr functions
       name <- sprintf("gw%sdegree_by_attr", degname)
-      coef.names <- sprintf("gw%sdeg%f.%s%s", deg, decay, attrname, u)
+      coef.names <- sprintf("gw%sdeg%s.%s%s", deg, decay, attrname, u)
       inputs <- c(decay, nodecov)
     }else{
       name <- sprintf("gw%sdegree", degname)
-      coef.names <- sprintf("gw%sdeg.fixed.%f", deg, decay)
+      coef.names <- sprintf("gw%sdeg.fixed.%s", deg, decay)
       inputs <- c(decay)
     }
     list(minval=0, maxval=smax, dependence=TRUE, name=name, coef.names=coef.names, inputs=inputs, conflicts.constraints=paste0(deg,"degreedist"))
