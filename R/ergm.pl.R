@@ -69,9 +69,10 @@ ergm.pl<-function(nw, fd, m, theta.offset=NULL,
 
   if(verbose) message(paste("MPLE covariate matrix has",ncol(y), "rows."))
 
-  # If we ran out of space, AND we have a sparse network, then, use
-  # case-control MPLE.
-  if(sum(y)<d && sum(y[1,])/sum(y)<1/2){
+  if(maxDyads < d){
+    # If we ran out of space, AND we have a sparse network, then, use
+    # case-control MPLE.
+    #if(sum(y)<d && sum(y[1,])/sum(y)<1/2){
     if(verbose) message("A sparse network with too many unique dyads encountered. Using case-control MPLE.")
     # Strip out the rows associated with ties.
     tokeep <- y[2,] != 0

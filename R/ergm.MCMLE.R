@@ -528,6 +528,11 @@ ergm.MCMLE <- function(init, nw, model,
       .boost_samplesize(1, TRUE)
     }else if(control$MCMLE.termination == "precision"){
       prec.loss <- (sqrt(diag(v$mc.cov+v$covar))-sqrt(diag(v$covar)))/sqrt(diag(v$mc.cov+v$covar))
+      if(all(is.na(prec.loss))){
+        warning("MCMLE estimation stuck. There may be excessive correlation between model terms, suggesting a poor model for the observed data. Most likely it could indicate that the model is nonidentifiable.")
+      }else{
+        prec.loss[is.na(prec.loss)] <- 2*control$MCMLE.MCMC.precision
+      }
       if(verbose){
         message("Standard Error:")
         message_print(sqrt(diag(v$covar)))
