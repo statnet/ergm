@@ -262,7 +262,7 @@ InitErgmConstraint.bd<-function(nw, arglist, ...){
                       defaultvalues = list(NULL, NA_integer_, NA_integer_, NA_integer_, NA_integer_),
                       required = c(FALSE, FALSE, FALSE, FALSE, FALSE))
 
-   if(is.na(a$minout) && is.na(a$minin)) {
+   if(all(is.na(a$minout)) && all(is.na(a$minin))) {
      constrain <- c("bd","bdmax")
    } else {
      constrain <- "bd"
