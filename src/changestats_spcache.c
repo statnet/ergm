@@ -27,7 +27,7 @@ I_CHANGESTAT_FN(i__otp_wtnet){
 
 U_CHANGESTAT_FN(u__otp_wtnet){
   GET_AUX_STORAGE(StoreDyadMapUInt, spcache);
-  int echange = (IS_OUTEDGE(tail, head) == 0) ? 1 : -1;
+  int echange = edgestate ? -1 : 1;
 
   {
     // Update all t->h->k two-paths.
@@ -68,7 +68,7 @@ I_CHANGESTAT_FN(i__osp_wtnet){
 
 U_CHANGESTAT_FN(u__osp_wtnet){
   GET_AUX_STORAGE(StoreDyadMapUInt, spcache);
-  int echange = (IS_OUTEDGE(tail, head) == 0) ? 1 : -1;
+  int echange = edgestate ? -1 : 1;
 
   // Update all t->h<-k shared partners.
   EXEC_THROUGH_FINEDGES(head, e, k, {
@@ -99,7 +99,7 @@ I_CHANGESTAT_FN(i__isp_wtnet){
 
 U_CHANGESTAT_FN(u__isp_wtnet){
   GET_AUX_STORAGE(StoreDyadMapUInt, spcache);
-  int echange = (IS_OUTEDGE(tail, head) == 0) ? 1 : -1;
+  int echange = edgestate ? -1 : 1;
 
   // Update all h<-t->k shared partners.
   EXEC_THROUGH_FOUTEDGES(tail, e, k, {
@@ -132,7 +132,7 @@ I_CHANGESTAT_FN(i__rtp_wtnet){
 U_CHANGESTAT_FN(u__rtp_wtnet){
   GET_AUX_STORAGE(StoreDyadMapUInt, spcache);
   if(!IS_OUTEDGE(head,tail)) return; // If no reciprocating edge, no effect.
-  int echange = (IS_OUTEDGE(tail, head) == 0) ? 1 : -1;
+  int echange = edgestate ? -1 : 1;
 
   // Update all h?->t<->k shared partners.
   EXEC_THROUGH_FOUTEDGES(tail, e, k, {
@@ -172,7 +172,7 @@ I_CHANGESTAT_FN(i__utp_wtnet){
 
 U_CHANGESTAT_FN(u__utp_wtnet){
   GET_AUX_STORAGE(StoreDyadMapUInt, spcache);
-  int echange = (IS_OUTEDGE(tail, head) == 0) ? 1 : -1;
+  int echange = edgestate ? -1 : 1;
 
   // Update all h-t-k shared partners.
   EXEC_THROUGH_EDGES(tail, e, k, {

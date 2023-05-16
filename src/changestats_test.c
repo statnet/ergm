@@ -67,12 +67,11 @@ C_CHANGESTAT_FN(c_disc_inter_union_net_Network){
   GET_AUX_STORAGE_NUM(StoreAuxnet, iauxnet, 1);
   GET_AUX_STORAGE_NUM(StoreAuxnet, uauxnet, 2);
 
-  int nwedge = IS_OUTEDGE(tail, head)!=0;
   int refedge = dEdgeListSearch(tail, head, INPUT_PARAM)!=0;
   
-  CHANGE_STAT[0] = nwedge!=refedge ? -1 : +1;
-  CHANGE_STAT[1] = refedge ? (nwedge ? -1 : +1) : 0;
-  CHANGE_STAT[2] = !refedge ? (nwedge ? -1 : +1) : 0;
+  CHANGE_STAT[0] = edgestate!=refedge ? -1 : +1;
+  CHANGE_STAT[1] = refedge ? (edgestate ? -1 : +1) : 0;
+  CHANGE_STAT[2] = !refedge ? (edgestate ? -1 : +1) : 0;
 
   //TODO: Implement test using MAP_TOGGLE.
 
@@ -86,12 +85,11 @@ C_CHANGESTAT_FN(c_disc_inter_union_net_DyadSet){
   GET_AUX_STORAGE_NUM(StoreDyadSetAndRefEL, istorage, 1);
   GET_AUX_STORAGE_NUM(StoreDyadSetAndRefEL, ustorage, 2);
 
-  int nwedge = IS_OUTEDGE(tail, head)!=0;
   int refedge = dEdgeListSearch(tail, head, INPUT_PARAM)!=0;
   
-  CHANGE_STAT[0] = nwedge!=refedge ? -1 : +1;
-  CHANGE_STAT[1] = refedge ? (nwedge ? -1 : +1) : 0;
-  CHANGE_STAT[2] = !refedge ? (nwedge ? -1 : +1) : 0;
+  CHANGE_STAT[0] = edgestate!=refedge ? -1 : +1;
+  CHANGE_STAT[1] = refedge ? (edgestate ? -1 : +1) : 0;
+  CHANGE_STAT[2] = !refedge ? (edgestate ? -1 : +1) : 0;
 
   CHANGE_STAT[3] = (dstorage->nwp->size+CHANGE_STAT[0])*(dstorage->nwp->size+CHANGE_STAT[0]) - dstorage->nwp->size*dstorage->nwp->size;
   CHANGE_STAT[4] = (istorage->nwp->size+CHANGE_STAT[1])*(istorage->nwp->size+CHANGE_STAT[1]) - istorage->nwp->size*istorage->nwp->size;
