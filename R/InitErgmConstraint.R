@@ -249,7 +249,7 @@ InitErgmConstraint.odegreedist<-function(nw, arglist, ...){
 #' @param maxout,maxin,minout,minin matrices of alter attributes with the same dimension as `attribs` when used
 #'   in conjunction with `attribs`. Otherwise, vectors of integers specifying the relevant limits.
 #'   If the vector is of length 1, the limit is applied to all nodes. If an individual entry is `NA`,
-#'   then there is no restriction of that kind is applied.
+#'   then there is no restriction of that kind is applied. For undirected networks (bipartite and not) use `minout` and `maxout`.
 #'
 #' @template ergmConstraint-general
 #'
@@ -261,6 +261,8 @@ InitErgmConstraint.bd<-function(nw, arglist, ...){
                       vartypes = c("matrix", "numeric,matrix", "numeric,matrix", "numeric,matrix", "numeric,matrix"),
                       defaultvalues = list(NULL, NA_integer_, NA_integer_, NA_integer_, NA_integer_),
                       required = c(FALSE, FALSE, FALSE, FALSE, FALSE))
+
+  if(!is.directed(nw) && (!all(is.na(a$minin)) || !all(is.na(a$maxin)))) ergm_Init_abort(sQuote("minin"), " and ", sQuote("maxin"), " cannot be used with undirected networks.")
 
    if(all(is.na(a$minout)) && all(is.na(a$minin))) {
      constrain <- c("bd","bdmax")

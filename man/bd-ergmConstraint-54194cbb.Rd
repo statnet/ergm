@@ -14,7 +14,7 @@ conditioning, where \code{attrcount} is the number of distinct attributes values
 \item{maxout, maxin, minout, minin}{matrices of alter attributes with the same dimension as \code{attribs} when used
 in conjunction with \code{attribs}. Otherwise, vectors of integers specifying the relevant limits.
 If the vector is of length 1, the limit is applied to all nodes. If an individual entry is \code{NA},
-then there is no restriction of that kind is applied.}
+then there is no restriction of that kind is applied. For undirected networks (bipartite and not) use \code{minout} and \code{maxout}.}
 }
 \description{
 Condition on the number of inedge or outedges posessed by a node.

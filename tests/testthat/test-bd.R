@@ -71,3 +71,8 @@ test_that("Bounded degree (bd()) minimum in-constraint for directed networks wit
   expect_equal(simulate(nw1 ~ edges, monitor = ~ receiver(nodes=TRUE), coef = -Inf, constraints = ~bd(minin=rep(6:7,4)), output="stats", seed=0)[-1],
                rep(6:7, 4))
 })
+
+test_that("Bounded degree (bd()) constraint raises an error if minin or maxin are used for an undirected network", {
+  nw0 <- network.initialize(8, directed=FALSE)
+  expect_error(simulate(nw0 ~ edges, coef = 0, constraints = ~bd(maxin=rep(1:2, 4))), ".*.minin. and .maxin. cannot be used with undirected networks.*")
+})
