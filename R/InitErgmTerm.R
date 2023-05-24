@@ -895,9 +895,6 @@ InitErgmTerm.b1concurrent<-function(nw, arglist, ..., version=packageVersion("er
 #'
 #' @template ergmTerm-general
 #'
-#' @templateVar explain TODO
-#' @template ergmTerm-levels-doco
-#'
 #' @concept bipartite
 #' @concept undirected
 InitErgmTerm.b1degrange<-function(nw, arglist, ..., version=packageVersion("ergm")) {
@@ -973,12 +970,7 @@ InitErgmTerm.b1cov<-function (nw, arglist, ..., version=packageVersion("ergm")) 
 #'
 #' @param d a vector of distinct integers. 
 #'
-#' @param by a vertex attribute (see Specifying Vertex attributes and Levels (`?nodal_attributes`) for details). If this is specified
-#'   then each node's degree is tabulated only with other nodes having the same
-#'   value of the `by` attribute.
-#'
-#' @templateVar explain TODO
-#' @template ergmTerm-levels-doco
+#' @template ergmTerm-by
 #'
 #' @template ergmTerm-general
 #'
@@ -1149,18 +1141,15 @@ InitErgmTerm.b1sociality<-function(nw, arglist, ...) {
 #'   network. The first mode of a bipartite network object is sometimes known as
 #'   the "actor" mode. A \eqn{k} -star is defined to be a center node \eqn{N} and
 #'   a set of \eqn{k} different nodes \eqn{\{O_1, \dots, O_k\}}{\{O[1], ..., O[k]\}} such that the
-#'   ties \eqn{\{N, O_i\}}{\{N, O[i]\}} exist for \eqn{i=1, \dots, k}. If `args` is specified then the count is over
-#'   the number of \eqn{k}-stars (with center node in the first mode) where all
-#'   nodes have the same value of the attribute. This term can only be used for
+#'   ties \eqn{\{N, O_i\}}{\{N, O[i]\}} exist for \eqn{i=1, \dots, k}.
+#'   This term can only be used for
 #'   undirected bipartite networks. 
 #'
 #' @usage
 #' # binary: b1star(k, attr=NULL, levels=NULL)
 #'
 #' @param k a vector of distinct integers
-#' @template ergmTerm-attr
-#' @templateVar explain TODO
-#' @template ergmTerm-levels-doco
+#' @template ergmTerm-within-attr
 #'
 #' @template ergmTerm-general
 #'
@@ -1544,9 +1533,6 @@ InitErgmTerm.b2cov<-function (nw, arglist, ..., version=packageVersion("ergm")) 
 #'
 #' @template ergmTerm-by
 #'
-#' @templateVar explain TODO
-#' @template ergmTerm-levels-doco
-#'
 #' @template ergmTerm-general
 #'
 #' @concept bipartite
@@ -1752,11 +1738,7 @@ InitErgmTerm.b2sociality<-function(nw, arglist, ...) {
 #' # binary: b2star(k, attr=NULL, levels=NULL)
 #'
 #' @param k a vector of distinct integers
-#' @param attr quantitative attribute (see Specifying Vertex attributes and Levels (`?nodal_attributes`) for details.) then the count is over
-#'   the number of \eqn{k} -stars (with center node in the second mode) where all
-#'   nodes have the same value of the attribute. 
-#' @templateVar explain TODO
-#' @template ergmTerm-levels-doco
+#' @template ergmTerm-within-attr
 #'
 #' @template ergmTerm-general
 #'
@@ -2308,9 +2290,6 @@ InitErgmTerm.degcrossprod<-function (nw, arglist, ...) {
 #'
 #' @template ergmTerm-by
 #'
-#' @templateVar explain TODO
-#' @template ergmTerm-levels-doco
-#'
 #' @template ergmTerm-general
 #'
 #' @concept undirected
@@ -2336,9 +2315,8 @@ InitErgmTerm.degrange<-function(nw, arglist, ..., version=packageVersion("ergm")
 #' # binary: degree(d, by=NULL, homophily=FALSE, levels=NULL)
 #'
 #' @param d vector of distinct integers
+#'
 #' @template ergmTerm-by
-#' @templateVar explain TODO
-#' @template ergmTerm-levels-doco
 #'
 #' @template ergmTerm-general
 #'
@@ -3097,8 +3075,6 @@ InitErgmTerm.hammingmix<-function (nw, arglist, ..., version=packageVersion("erg
 #'
 #' @template ergmTerm-from-to
 #' @template ergmTerm-by
-#' @templateVar explain TODO
-#' @template ergmTerm-levels-doco
 #'
 #' @template ergmTerm-general
 #'
@@ -3124,8 +3100,6 @@ InitErgmTerm.idegrange<-function(nw, arglist, ..., version=packageVersion("ergm"
 #'
 #' @param d a vector of distinct integers
 #' @template ergmTerm-by
-#' @templateVar explain TODO
-#' @template ergmTerm-levels-doco
 #'
 #' @template ergmTerm-general
 #'
@@ -3287,9 +3261,8 @@ InitErgmTerm.isolates <- function(nw, arglist, ...) {
 #'   number of distinct `k[i]` -instars in the network, where a
 #'   \eqn{k} -instar is defined to be a node \eqn{N} and a set of \eqn{k}
 #'   different nodes \eqn{\{O_1, \dots, O_k\}}{\{O[1], ..., O[k]\}} such that the ties
-#'   \eqn{(O_j{\rightarrow}N)}{(O_j, N)} exist for \eqn{j=1, \dots, k} . If `attr` is specified
-#'   then the count is over the number of \eqn{k} -instars where all nodes have
-#'   the same value of the attribute. This term can only be used for directed
+#'   \eqn{(O_j{\rightarrow}N)}{(O_j, N)} exist for \eqn{j=1, \dots, k} .
+#'   This term can only be used for directed
 #'   networks; for undirected networks see `kstar` . Note that
 #'   `istar(1)` is equal to both `ostar(1)` and `edges` .
 #'
@@ -3297,9 +3270,7 @@ InitErgmTerm.isolates <- function(nw, arglist, ...) {
 #' # binary: istar(k, attr=NULL, levels=NULL)
 #'
 #' @param k a vector of distinct integers
-#' @template ergmTerm-attr
-#' @templateVar explain TODO
-#' @template ergmTerm-levels-doco
+#' @template ergmTerm-within-attr
 #'
 #' @template ergmTerm-general
 #'
@@ -3360,9 +3331,8 @@ InitErgmTerm.istar<-function(nw, arglist, ..., version=packageVersion("ergm")) {
 #'   such statistic counts the number of distinct `k[i]` -stars in the
 #'   network, where a \eqn{k} -star is defined to be a node \eqn{N} and a set of
 #'   \eqn{k} different nodes \eqn{\{O_1, \dots, O_k\}}{\{O[1], ..., O[k]\}} such that the ties
-#'   \eqn{\{N, O_i\}}{\{N, O[i]\}} exist for \eqn{i=1, \dots, k} . If this is specified then the count is over
-#'   the number of \eqn{k} -stars where all nodes have the same value of the
-#'   attribute. This term can only be used for undirected networks; for directed
+#'   \eqn{\{N, O_i\}}{\{N, O[i]\}} exist for \eqn{i=1, \dots, k} .
+#'   This term can only be used for undirected networks; for directed
 #'   networks, see `istar` , `ostar` , `twopath` and `m2star` .
 #'   Note that `kstar(1)` is equal to `edges` .
 #'
@@ -3370,9 +3340,7 @@ InitErgmTerm.istar<-function(nw, arglist, ..., version=packageVersion("ergm")) {
 #' # binary: kstar(k, attr=NULL, levels=NULL)
 #'
 #' @param k a vector of distinct integers
-#' @template ergmTerm-attr
-#' @templateVar explain TODO
-#' @template ergmTerm-levels-doco
+#' @template ergmTerm-within-attr
 #'
 #' @template ergmTerm-general
 #'
@@ -4545,8 +4513,6 @@ InitErgmTerm.nodeofactor<-function (nw, arglist, ..., version=packageVersion("er
 #'
 #' @template ergmTerm-from-to
 #' @template ergmTerm-by
-#' @templateVar explain TODO
-#' @template ergmTerm-levels-doco
 #'
 #' @template ergmTerm-general
 #'
@@ -4574,8 +4540,6 @@ InitErgmTerm.odegrange<-function(nw, arglist, ..., version=packageVersion("ergm"
 #'
 #' @param d a vector of distinct integers
 #' @template ergmTerm-by
-#' @templateVar explain TODO
-#' @template ergmTerm-levels-doco
 #'
 #' @template ergmTerm-general
 #'
@@ -4664,18 +4628,15 @@ InitErgmTerm.opentriad<-function (nw, arglist, ...) {
 #'   number of distinct `k[i]` -outstars in the network, where a
 #'   \eqn{k} -outstar is defined to be a node \eqn{N} and a set of \eqn{k}
 #'   different nodes \eqn{\{O_1, \dots, O_k\}}{{O[1], ..., O[k]}} such that the ties
-#'   \eqn{(N{\rightarrow}O_j)}{(N,O_j)} exist for \eqn{j=1, \dots, k} . If `attr` is specified
-#'   then the count is the number of \eqn{k} -outstars where all nodes have the
-#'   same value of the attribute. This term can only be used with directed
+#'   \eqn{(N{\rightarrow}O_j)}{(N,O_j)} exist for \eqn{j=1, \dots, k} .
+#'   This term can only be used with directed
 #'   networks; for undirected networks see `kstar` .
 #'
 #' @usage
 #' # binary: ostar(k, attr=NULL, levels=NULL)
 #'
 #' @param k a vector of distinct integers
-#' @template ergmTerm-attr
-#' @templateVar explain TODO
-#' @template ergmTerm-levels-doco
+#' @template ergmTerm-within-attr
 #'
 #' @template ergmTerm-general
 #'

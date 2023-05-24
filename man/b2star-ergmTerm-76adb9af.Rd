@@ -10,12 +10,12 @@
 \arguments{
 \item{k}{a vector of distinct integers}
 
-\item{attr}{quantitative attribute (see Specifying Vertex attributes and Levels (\code{?nodal_attributes}) for details.) then the count is over
-the number of \eqn{k} -stars (with center node in the second mode) where all
-nodes have the same value of the attribute.}
-
-\item{levels}{TODO (See Specifying Vertex
-attributes and Levels (\code{\link[=nodal_attributes]{?nodal_attributes}}) for details.)}
+\item{attr, levels}{a vertex attribute specification; if \code{attr} is
+specified, then the count is over the instances where all nodes
+involved have the same value of the attribute. \code{levels} specified
+which values of \code{attr} are included in the count. (See Specifying
+Vertex attributes and Levels
+(\code{\link[=nodal_attributes]{?nodal_attributes}}) for details.)}
 }
 \description{
 This term adds one network statistic to the model for

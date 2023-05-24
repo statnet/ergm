@@ -10,10 +10,12 @@
 \arguments{
 \item{k}{a vector of distinct integers}
 
-\item{attr}{a vertex attribute specification (see Specifying Vertex attributes and Levels (\code{?nodal_attributes}) for details.)}
-
-\item{levels}{TODO (See Specifying Vertex
-attributes and Levels (\code{\link[=nodal_attributes]{?nodal_attributes}}) for details.)}
+\item{attr, levels}{a vertex attribute specification; if \code{attr} is
+specified, then the count is over the instances where all nodes
+involved have the same value of the attribute. \code{levels} specified
+which values of \code{attr} are included in the count. (See Specifying
+Vertex attributes and Levels
+(\code{\link[=nodal_attributes]{?nodal_attributes}}) for details.)}
 }
 \description{
 This term adds one network statistic to the
@@ -21,9 +23,8 @@ model for each element in \code{k} . The \eqn{i} th such statistic counts the
 number of distinct \code{k[i]} -outstars in the network, where a
 \eqn{k} -outstar is defined to be a node \eqn{N} and a set of \eqn{k}
 different nodes \eqn{\{O_1, \dots, O_k\}}{{O[1], ..., O[k]}} such that the ties
-\eqn{(N{\rightarrow}O_j)}{(N,O_j)} exist for \eqn{j=1, \dots, k} . If \code{attr} is specified
-then the count is the number of \eqn{k} -outstars where all nodes have the
-same value of the attribute. This term can only be used with directed
+\eqn{(N{\rightarrow}O_j)}{(N,O_j)} exist for \eqn{j=1, \dots, k} .
+This term can only be used with directed
 networks; for undirected networks see \code{kstar} .
 }
 \note{
