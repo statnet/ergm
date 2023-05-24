@@ -126,6 +126,9 @@
       \item{
         Some improvements in term name formatting.
       }
+      \item{
+        Documentation improvements for some terms.
+      }
     }
   }
 
