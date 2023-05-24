@@ -99,6 +99,12 @@
       \item{
         \dQuote{Confidence} stopping criterion is now more robust to scale of sufficient statistics.
       }
+      \item{
+        Better handling of invalid inputs in \code{\link{predict.ergm}()}.
+      }
+      \item{
+        \code{\link[=bd-ergmConstraint]{bd}()} now checks validity of its arguments and appropriateness for the network being modeled.
+      }
     }
   }
 
@@ -116,6 +122,9 @@
       }
       \item{
         Some control parameters for Stochastic Approximation have been renamed, removed, or better documented.
+      }
+      \item{
+        Some improvements in term name formatting.
       }
     }
   }
