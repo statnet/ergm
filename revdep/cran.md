@@ -1,15 +1,34 @@
 ## revdepcheck results
 
-We checked 36 reverse dependencies, comparing R CMD check results across CRAN and dev versions of this package.
+We checked 312 reverse dependencies, comparing R CMD check results across CRAN and dev versions of this package.
 
- * We saw 1 new problems
- * We failed to check 0 packages
+ * We saw 5 new problems
+ * We failed to check 2 packages
 
 Issues with CRAN packages are summarised below.
 
 ### New problems
 (This reports the first line of each new failure)
 
-* EpiModel
+* btergm
   checking tests ...
 
+* EpiModel
+  checking examples ... ERROR
+  checking tests ...
+  checking re-building of vignette outputs ... ERROR
+
+* glmmfields
+  checking installed package size ... NOTE
+  checking for GNU extensions in Makefiles ... NOTE
+
+* simTool
+  checking re-building of vignette outputs ... ERROR
+
+* tergm
+  checking tests ...
+
+### Failed to check
+
+* eoffice        (NA)
+* SWMPrExtension (NA)
