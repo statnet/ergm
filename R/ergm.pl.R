@@ -25,6 +25,8 @@
 #'   them by their corresponding coefficients (which are fixed, by
 #'   virtue of being offsets) and the results stored in a separate
 #'   column.
+#' @param dummy A dummy parameter for backwards compatibility. It will
+#'   be removed in a future version.
 #'
 #' @return \code{ergm.pl} returns a list containing:
 #'
@@ -42,11 +44,17 @@
 #'
 #' @keywords internal
 #' @export
-ergm.pl<-function(state, state.obs, theta.offset=NULL,
+ergm.pl<-function(state, state.obs, dummy, theta.offset=NULL,
                     control, ignore.offset=FALSE,
                     verbose=FALSE) {
   on.exit(ergm_Cstate_clear())
   on.exit(PL_workspace_clear(), add=TRUE)
+
+  ## TODO: Remove compatibility code (including the 'dummy' argument) after the next release.
+  if(is.network(state) && !missing(dummy) && is(dummy, "ergm_model")){ # Backwards compatibility mode:
+    statnet.common::.Deprecate_once(msg = "The argument list for ergm.pl() has changed. Please see the documentation for the new API.")
+    state <- ergm_state(state, model = dummy)
+  }
 
   m <- state$model
   fd <- if(is(state.obs, "rlebdm")) state.obs
