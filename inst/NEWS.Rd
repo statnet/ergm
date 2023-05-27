@@ -121,6 +121,9 @@
         In \code{dgw*sp()} terms, \code{cutoff=} argument is not meaningful when \code{fixed==TRUE} and produces a warning.
       }
       \item{
+        \code{\link{ergm.pl}()}'s API has changed (though the old calling convention is still supported for now).
+      }
+      \item{
         Some control parameters for Stochastic Approximation have been renamed, removed, or better documented.
       }
       \item{
