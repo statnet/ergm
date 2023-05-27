@@ -20,3 +20,4 @@ appveyor.yml
 ^vignettes/.*_files$
 ^README.md$
 _snaps
+^src/.*\.s?o$
