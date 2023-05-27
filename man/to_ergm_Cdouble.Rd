@@ -3,12 +3,15 @@
 %   R/to_ergm_Cdouble.R
 \name{to_ergm_Cdouble.network}
 \alias{to_ergm_Cdouble.network}
+\alias{to_ergm_Cdouble.ergm_state}
 \alias{to_ergm_Cdouble.matrix}
 \alias{to_ergm_Cdouble.rlebdm}
 \alias{to_ergm_Cdouble}
 \title{Methods to serialize objects into numeric vectors for passing to the C side.}
 \usage{
 \method{to_ergm_Cdouble}{network}(x, attrname = NULL, ...)
+
+\method{to_ergm_Cdouble}{ergm_state}(x, attrname = NULL, ...)
 
 \method{to_ergm_Cdouble}{matrix}(x, prototype = NULL, ...)
 
@@ -47,6 +50,8 @@ serialization of the edgelist matrix.
 \section{Methods (by class)}{
 \itemize{
 \item \code{to_ergm_Cdouble(network)}: Method for \code{\link{network}} objects.
+
+\item \code{to_ergm_Cdouble(ergm_state)}: Method for \code{\link{ergm_state}} objects, extracting their edgelists.
 
 \item \code{to_ergm_Cdouble(matrix)}: Method for \code{\link{matrix}} objects, assumed to be edgelists.
 

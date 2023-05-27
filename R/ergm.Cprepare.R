@@ -20,7 +20,11 @@ to_ergm_Cdouble.network <- function(x, attrname=NULL, ...){
   c(nrow(xm),c(na.omit(xm)))
 }
 
-#' @noRd
+#' @describeIn to_ergm_Cdouble
+#'
+#' Method for [`ergm_state`] objects, extracting their edgelists.
+#'
+#' @export
 to_ergm_Cdouble.ergm_state <- to_ergm_Cdouble.network
 
 

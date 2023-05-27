@@ -22,6 +22,7 @@ nparam <- function(object, ...){
 #' @describeIn nparam
 #'
 #' By default, the length of the [coef()] vector is returned.
+#' @export
 nparam.default <- function(object, ...){
   length(coef(object))
 }

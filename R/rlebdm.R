@@ -350,6 +350,7 @@ as.edgelist.rlebdm <- function(x, prototype=NULL, ..., output=c("matrix", "tibbl
 #' * number of runs of nonzeros,
 #' * starting positions of the runs, and
 #' * cumulative lengths of the runs, prepended with 0.
+#' @export
 to_ergm_Cdouble.rlebdm <- function(x, ...){
   x <- compress(x) # Just in case.
   cumlen <- cumsum(as.numeric(x$lengths[x$values==TRUE]))

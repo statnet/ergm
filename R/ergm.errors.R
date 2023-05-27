@@ -25,7 +25,7 @@
 #' @keywords internal
 #' @export
 ergm_Init_abort <- function(..., default.loc=NULL){
-  loc <- traceback.Initializers() %>% format.traceback()
+  loc <- traceback.Initializers() %>% format_traceback()
   abort(paste0('In ', NVL(loc, default.loc, "unknown function"), ': ', ...))
 }
 
@@ -34,7 +34,7 @@ ergm_Init_abort <- function(..., default.loc=NULL){
 #' @importFrom rlang warn
 #' @export
 ergm_Init_warn <- function(..., default.loc=NULL){
-  loc <- traceback.Initializers() %>% format.traceback()
+  loc <- traceback.Initializers() %>% format_traceback()
   warn(paste0('In ', NVL(loc, default.loc, "unknown function"), ': ', ...))
 }
 
@@ -43,7 +43,7 @@ ergm_Init_warn <- function(..., default.loc=NULL){
 #' @importFrom rlang inform
 #' @export
 ergm_Init_inform <- function(..., default.loc=NULL){
-  loc <- traceback.Initializers() %>% format.traceback()
+  loc <- traceback.Initializers() %>% format_traceback()
   inform(paste0('In ', NVL(loc, default.loc, "unknown function"), ': ', ...))
 }
 
@@ -60,7 +60,7 @@ ergm_Init_try <- function(expr){
            error = function(e) ergm_Init_abort(e$message))
 }
 
-format.traceback <- function(x){
+format_traceback <- function(x){
   if(EVL(nrow(x)==0,TRUE)) return(NULL)
   x <- as.data.frame(x)[nrow(x):1,,drop=FALSE]
   x <- paste0(ifelse(x$valued,"valued ", ""),
