@@ -240,45 +240,6 @@ Run `revdep_details(, "broom.mixed")` for more info
     Packages suggested but not available for checking: 'glmmADMB', 'R2jags'
     ```
 
-# btergm
-
-<details>
-
-* Version: 1.10.10
-* GitHub: https://github.com/leifeld/btergm
-* Source code: https://github.com/cran/btergm
-* Date/Publication: 2023-04-24 12:40:14 UTC
-* Number of recursive dependencies: 100
-
-Run `revdep_details(, "btergm")` for more info
-
-</details>
-
-## Newly broken
-
-*   checking tests ...
-    ```
-      Running ‘testthat.R’
-     ERROR
-    Running the tests in ‘tests/testthat.R’ failed.
-    Last 13 lines of output:
-      
-      ══ Failed tests ════════════════════════════════════════════════════════════════
-      ── Error ('test-btergm.R:73:3'): offset argument in btergm works without composition change ──
-      Error in `ergm::ergm.pl(nw, Clist.miss, model, theta.offset = c(rep(FALSE, 
-          length(l$rhs.terms) - 1), TRUE), verbose = FALSE, control = control.ergm)`: VECTOR_ELT() can only be applied to a 'list', not a 'NULL'
-      Backtrace:
-          ▆
-       1. ├─base::suppressWarnings(...) at test-btergm.R:73:2
-       2. │ └─base::withCallingHandlers(...)
-       3. └─btergm::btergm(...)
-       4.   └─ergm::ergm.pl(...)
-      
-      [ FAIL 1 | WARN 0 | SKIP 8 | PASS 51 ]
-      Error: Test failures
-      Execution halted
-    ```
-
 # card
 
 <details>
@@ -686,7 +647,6 @@ Run `revdep_details(, "EpiModel")` for more info
     ```
     Error(s) in re-building vignettes:
     --- re-building ‘attributes-and-summary-statistics.Rmd’ using rmarkdown
-    Pandoc is required to build R Markdown vignettes but not available. Please make sure it is installed.
     
     Quitting from lines 303-338 [tracker-list] (attributes-and-summary-statistics.Rmd)
     Error: processing vignette 'attributes-and-summary-statistics.Rmd' failed with diagnostics:
@@ -694,10 +654,11 @@ Run `revdep_details(, "EpiModel")` for more info
     --- failed re-building ‘attributes-and-summary-statistics.Rmd’
     
     --- re-building ‘Intro.Rmd’ using rmarkdown
+    --- finished re-building ‘Intro.Rmd’
     ...
-    <p>The cumulative edgelist refers to the historical list of edges in a network with the time step they start and stopped. Such a list allows to query current relationships (contacts, partnerships, etc.) as well as past ones.</p>
-    <h3 id="using-the-cumulative-edgelist">Using the Cumulative Edgelist</h3>
-    <p>The creation and update of the cumulative edgelist is done through the <code>EpiModel [... truncated]
+    --- failed re-building ‘model-parameters.Rmd’
+    
+    --- re-building ‘network-objects.Rmd’ using rmarkdown
     --- finished re-building ‘network-objects.Rmd’
     
     SUMMARY: processing the following files failed:
@@ -830,13 +791,13 @@ Run `revdep_details(, "export")` for more info
     > # Create a file name
     ...
     > graph2tif(x = x, file = filen, dpi = 400, height = 5, aspectr = 4)
-    TIFFOpen: /scratch/pbs.4420393.kman.restech.unsw.edu.tif: Permission denied.
+    TIFFOpen: /scratch/pbs.4432494.kman.restech.unsw.edu.tif: Permission denied.
     Warning in dev.off(ii) :
-      unable to open TIFF file '/scratch/pbs.4420393.kman.restech.unsw.edu.tif'
-    Exported graph as /scratch/pbs.4420393.kman.restech.unsw.edu.tif
+      unable to open TIFF file '/scratch/pbs.4432494.kman.restech.unsw.edu.tif'
+    Exported graph as /scratch/pbs.4432494.kman.restech.unsw.edu.tif
     > graph2jpg(x = x, file = filen, dpi = 400, height = 5, aspectr = 4)
     Error in grid.newpage() : 
-      could not open file '/scratch/pbs.4420393.kman.restech.unsw.edu.jpeg'
+      could not open file '/scratch/pbs.4432494.kman.restech.unsw.edu.jpeg'
     Calls: graph2jpg ... graph2bitmap -> myplot -> print -> print.ggplot -> grid.newpage
     Execution halted
     ```
@@ -952,26 +913,6 @@ Run `revdep_details(, "flextable")` for more info
 
 ## In both
 
-*   checking examples ... ERROR
-    ```
-    Running examples in ‘flextable-Ex.R’ failed
-    The error most likely occurred in:
-    
-    > ### Name: save_as_html
-    > ### Title: Save flextable objects in an 'HTML' file
-    > ### Aliases: save_as_html
-    > 
-    > ### ** Examples
-    > 
-    > ft1 <- flextable(head(iris))
-    > tf1 <- tempfile(fileext = ".html")
-    > save_as_html(ft1, path = tf1)
-    Error in tmp_rmd(title = paste0(title, collapse = "\n"), lang = lang) : 
-      pandoc_available() is not TRUE
-    Calls: save_as_html -> render_htmltag -> tmp_rmd -> stopifnot
-    Execution halted
-    ```
-
 *   checking package dependencies ... NOTE
     ```
     Packages suggested but not available for checking:
@@ -1084,7 +1025,7 @@ Run `revdep_details(, "glmmfields")` for more info
 
 </details>
 
-## Newly broken
+## In both
 
 *   checking installed package size ... NOTE
     ```
@@ -1096,14 +1037,6 @@ Run `revdep_details(, "glmmfields")` for more info
 *   checking for GNU extensions in Makefiles ... NOTE
     ```
     GNU make is a SystemRequirements.
-    ```
-
-## Newly fixed
-
-*   checking whether package ‘glmmfields’ can be installed ... ERROR
-    ```
-    Installation failed.
-    See ‘/srv/scratch/z3528859/github/statnet/ergm/revdep/checks/glmmfields/old/glmmfields.Rcheck/00install.out’ for details.
     ```
 
 # glmmTMB
@@ -1247,25 +1180,6 @@ Run `revdep_details(, "healthyR")` for more info
 
 ## In both
 
-*   checking re-building of vignette outputs ... ERROR
-    ```
-    Error(s) in re-building vignettes:
-      ...
-    --- re-building ‘getting-started.Rmd’ using rmarkdown
-    Pandoc is required to build R Markdown vignettes but not available. Please make sure it is installed.
-    
-    Quitting from lines 87-94 [alos_plot_interactive] (getting-started.Rmd)
-    Error: processing vignette 'getting-started.Rmd' failed with diagnostics:
-    invalid 'path' argument
-    --- failed re-building ‘getting-started.Rmd’
-    
-    SUMMARY: processing the following file failed:
-      ‘getting-started.Rmd’
-    
-    Error: Vignette re-building failed.
-    Execution halted
-    ```
-
 *   checking installed package size ... NOTE
     ```
       installed size is  5.5Mb
@@ -1359,31 +1273,6 @@ Run `revdep_details(, "IceSat2R")` for more info
 </details>
 
 ## In both
-
-*   checking re-building of vignette outputs ... ERROR
-    ```
-    Error(s) in re-building vignettes:
-    --- re-building ‘IceSat-2_Atlas_products_PDF.Rmd’ using rmarkdown
-    Pandoc is required to build R Markdown vignettes but not available. Please make sure it is installed.
-    
-    Quitting from lines 605-608 [unnamed-chunk-20] (IceSat-2_Atlas_products_PDF.Rmd)
-    Error: processing vignette 'IceSat-2_Atlas_products_PDF.Rmd' failed with diagnostics:
-    invalid 'path' argument
-    --- failed re-building ‘IceSat-2_Atlas_products_PDF.Rmd’
-    
-    --- re-building ‘IceSat-2_Mission_Orbits_PDF.Rmd’ using rmarkdown
-    ...
-    <div class="figure" style="text-align: center">
-    <img src="himalayas_aoi.png" alt="Display the area of interest in Himalayas" width="105%" height="100%" />
-    <p class="capt [... truncated]
-    --- finished re-building ‘IceSat-2_Virtual_File_System_Orbits_PDF.Rmd’
-    
-    SUMMARY: processing the following files failed:
-      ‘IceSat-2_Atlas_products_PDF.Rmd’ ‘IceSat-2_Mission_Orbits_PDF.Rmd’
-    
-    Error: Vignette re-building failed.
-    Execution halted
-    ```
 
 *   checking data for non-ASCII characters ... NOTE
     ```
@@ -1626,25 +1515,6 @@ Run `revdep_details(, "lspline")` for more info
 
 ## In both
 
-*   checking re-building of vignette outputs ... ERROR
-    ```
-    Error(s) in re-building vignettes:
-      ...
-    --- re-building ‘lspline.Rmd’ using rmarkdown
-    Pandoc is required to build R Markdown vignettes but not available. Please make sure it is installed.
-    
-    Quitting from lines 18-23 [setup] (lspline.Rmd)
-    Error: processing vignette 'lspline.Rmd' failed with diagnostics:
-    object 'params' not found
-    --- failed re-building ‘lspline.Rmd’
-    
-    SUMMARY: processing the following file failed:
-      ‘lspline.Rmd’
-    
-    Error: Vignette re-building failed.
-    Execution halted
-    ```
-
 *   checking LazyData ... NOTE
     ```
       'LazyData' is specified without a 'data' directory
@@ -1671,7 +1541,6 @@ Run `revdep_details(, "lucid")` for more info
     Error(s) in re-building vignettes:
       ...
     --- re-building ‘lucid_examples.Rmd’ using rmarkdown
-    Pandoc is required to build R Markdown vignettes but not available. Please make sure it is installed.
     
     Quitting from lines 234-258 [jags] (lucid_examples.Rmd)
     Error: processing vignette 'lucid_examples.Rmd' failed with diagnostics:
@@ -2046,11 +1915,11 @@ Run `revdep_details(, "networkDynamic")` for more info
 
 <details>
 
-* Version: 2.1.5
+* Version: 2.1.6
 * GitHub: https://github.com/nlmixr2/nlmixr2est
 * Source code: https://github.com/cran/nlmixr2est
-* Date/Publication: 2023-04-22 19:50:02 UTC
-* Number of recursive dependencies: 198
+* Date/Publication: 2023-05-25 23:20:02 UTC
+* Number of recursive dependencies: 197
 
 Run `revdep_details(, "nlmixr2est")` for more info
 
@@ -2479,41 +2348,6 @@ Run `revdep_details(, "SherlockHolmes")` for more info
       Note: found 14 marked UTF-8 strings
     ```
 
-# simTool
-
-<details>
-
-* Version: 1.1.7
-* GitHub: https://github.com/MarselScheer/simTool
-* Source code: https://github.com/cran/simTool
-* Date/Publication: 2020-09-22 16:00:03 UTC
-* Number of recursive dependencies: 62
-
-Run `revdep_details(, "simTool")` for more info
-
-</details>
-
-## Newly broken
-
-*   checking re-building of vignette outputs ... ERROR
-    ```
-    Error(s) in re-building vignettes:
-      ...
-    --- re-building ‘simTool.Rmd’ using rmarkdown
-    Pandoc is required to build R Markdown vignettes but not available. Please make sure it is installed.
-    
-    Quitting from lines 262-266 [unnamed-chunk-14] (simTool.Rmd)
-    Error: processing vignette 'simTool.Rmd' failed with diagnostics:
-    creation of server socket failed: port 11435 cannot be opened
-    --- failed re-building ‘simTool.Rmd’
-    
-    SUMMARY: processing the following file failed:
-      ‘simTool.Rmd’
-    
-    Error: Vignette re-building failed.
-    Execution halted
-    ```
-
 # simts
 
 <details>
@@ -2596,7 +2430,7 @@ Run `revdep_details(, "sparklyr")` for more info
 * GitHub: NA
 * Source code: https://github.com/cran/spqdep
 * Date/Publication: 2022-03-28 16:20:02 UTC
-* Number of recursive dependencies: 108
+* Number of recursive dependencies: 114
 
 Run `revdep_details(, "spqdep")` for more info
 
@@ -2957,7 +2791,7 @@ Run `revdep_details(, "texPreview")` for more info
 
 *   checking tests ...
     ```
-      Running ‘testthat.R’/srv/scratch/z3528859/R-4.3.0/bin/BATCH: line 60: 2818334 Aborted                 ${R_HOME}/bin/R -f ${in} ${opts} ${R_BATCH_OPTIONS} > ${out} 2>&1
+      Running ‘testthat.R’/srv/scratch/z3528859/R-4.3.0/bin/BATCH: line 60: 3447639 Aborted                 ${R_HOME}/bin/R -f ${in} ${opts} ${R_BATCH_OPTIONS} > ${out} 2>&1
     
      ERROR
     Running the tests in ‘tests/testthat.R’ failed.
@@ -2971,20 +2805,20 @@ Run `revdep_details(, "texPreview")` for more info
 *   checking re-building of vignette outputs ... ERROR
     ```
     Error(s) in re-building vignettes:
-    sh: line 1: 2818815 Aborted                 '/srv/scratch/z3528859/R-4.3.0/bin/R' --vanilla --no-echo > '/scratch/pbs.4420393.kman.restech.unsw.edu.au/RtmpjxWJM3/file2b02d51238f27' 2>&1 < '/scratch/pbs.4420393.kman.restech.unsw.edu.au/RtmpjxWJM3/file2b02d53b769dde'
+    sh: line 1: 3448038 Aborted                 '/srv/scratch/z3528859/R-4.3.0/bin/R' --vanilla --no-echo > '/scratch/pbs.4432494.kman.restech.unsw.edu.au/RtmphyRO03/file349cda3f54fd6d' 2>&1 < '/scratch/pbs.4432494.kman.restech.unsw.edu.au/RtmphyRO03/file349cda2849b6e1'
     --- re-building ‘classes.Rmd’ using rmarkdown
-    Pandoc is required to build R Markdown vignettes but not available. Please make sure it is installed.
     malloc(): invalid size (unsorted)
-    sh: line 1: 2818881 Aborted                 '/srv/scratch/z3528859/R-4.3.0/bin/R' --vanilla --no-echo > '/scratch/pbs.4420393.kman.restech.unsw.edu.au/RtmpjxWJM3/file2b02d5467a47b' 2>&1 < '/scratch/pbs.4420393.kman.restech.unsw.edu.au/RtmpjxWJM3/file2b02d52a40d30e'
+    sh: line 1: 3448078 Aborted                 '/srv/scratch/z3528859/R-4.3.0/bin/R' --vanilla --no-echo > '/scratch/pbs.4432494.kman.restech.unsw.edu.au/RtmphyRO03/file349cda5d32daf4' 2>&1 < '/scratch/pbs.4432494.kman.restech.unsw.edu.au/RtmphyRO03/file349cda303d7d4'
     --- re-building ‘engine.Rmd’ using rmarkdown
-    Pandoc is required to build R Markdown vignettes but not available. Please make sure it is installed.
     malloc(): invalid size (unsorted)
-    sh: line 1: 2818939 Aborted                 '/srv/scratch/z3528859/R-4.3.0/bin/R' --vanilla --no-echo > '/scratch/pbs.4420393.kman.restech.unsw.edu.au/RtmpjxWJM3/file2b02d543786a0d' 2>&1 < '/scratch/pbs.4420393.kman.restech.unsw.edu.au/RtmpjxWJM3/file2b02d523a2decf'
+    sh: line 1: 3448116 Aborted                 '/srv/scratch/z3528859/R-4.3.0/bin/R' --vanilla --no-echo > '/scratch/pbs.4432494.kman.restech.unsw.edu.au/RtmphyRO03/file349cda3056d66f' 2>&1 < '/scratch/pbs.4432494.kman.restech.unsw.edu.au/RtmphyRO03/file349cda4fb532c'
+    --- re-building ‘kable.Rmd’ using rmarkdown
+    malloc(): invalid size (unsorted)
     ...
+    --- finished re-building ‘tex_packages.Rmd’
     
-    sh: line 1: 2819190 Aborted                 '/srv/scratch/z3528859/R-4.3.0/bin/R' --vanilla --no-echo > '/scratch/pbs.4420393.kman.restech.unsw.edu.au/RtmpjxWJM3/file2b02d539340f7' 2>&1 < '/scratch/pbs.4420393.kman.restech.unsw.edu.au/RtmpjxWJM3/file2b02d574e427e'
+    sh: line 1: 3448273 Aborted                 '/srv/scratch/z3528859/R-4.3.0/bin/R' --vanilla --no-echo > '/scratch/pbs.4432494.kman.restech.unsw.edu.au/RtmphyRO03/file349cda6bf6b908' 2>&1 < '/scratch/pbs.4432494.kman.restech.unsw.edu.au/RtmphyRO03/file349cdae12245e'
     --- re-building ‘tikz.Rmd’ using rmarkdown
-    Pandoc is required to build R Markdown vignettes but not available. Please make sure it is installed.
     malloc(): invalid size (unsorted)
     SUMMARY: processing the following files failed:
       ‘classes.Rmd’ ‘engine.Rmd’ ‘kable.Rmd’ ‘rmarkdown.Rmd’ ‘tikz.Rmd’
@@ -3142,15 +2976,15 @@ Run `revdep_details(, "timetk")` for more info
 *   checking re-building of vignette outputs ... ERROR
     ```
     Error(s) in re-building vignettes:
+      ...
     --- re-building ‘TK04_Plotting_Time_Series.Rmd’ using rmarkdown
-    Pandoc is required to build R Markdown vignettes but not available. Please make sure it is installed.
-    Warning in file.info(x, extra_cols = FALSE) :
-      expanded path length 12200 would be too long for
-    <p>This tutorial focuses on, <code>plot_time_series()</code>, a workhorse time-series plotting function that:</p>
-    <ul>
-    <li>Generates interactive <code>plotly</code> plots (great for exploring &amp; shiny apps)</li>
-    <li>Consolidates 20+ lines of <code>ggplot2</code> &amp; <code>plotly</code> code</li>
-    <li>Scales well to many time series</li>
+    --- finished re-building ‘TK04_Plotting_Time_Series.Rmd’
+    
+    --- re-building ‘TK07_Time_Series_Data_Wrangling.Rmd’ using rmarkdown
+    
+    Quitting from lines 175-181 [unnamed-chunk-10] (TK07_Time_Series_Data_Wrangling.Rmd)
+    Error: processing vignette 'TK07_Time_Series_Data_Wrangling.Rmd' failed with diagnostics:
+    ℹ In argument: `date %>% between_time("start", first(date) %+time% "1
     ...
     ℹ In group 1: `symbol = "AMZN"`.
     Caused by error in `C_time_add()`:
@@ -3251,47 +3085,6 @@ Run `revdep_details(, "valr")` for more info
       installed size is 14.2Mb
       sub-directories of 1Mb or more:
         libs  13.0Mb
-    ```
-
-# visR
-
-<details>
-
-* Version: 0.3.1
-* GitHub: https://github.com/openpharma/visR
-* Source code: https://github.com/cran/visR
-* Date/Publication: 2022-08-17 22:10:03 UTC
-* Number of recursive dependencies: 137
-
-Run `revdep_details(, "visR")` for more info
-
-</details>
-
-## In both
-
-*   checking re-building of vignette outputs ... ERROR
-    ```
-    Error(s) in re-building vignettes:
-    --- re-building ‘CDISC_ADaM.Rmd’ using rmarkdown
-    Pandoc is required to build R Markdown vignettes but not available. Please make sure it is installed.
-    Warning in file.info(x, extra_cols = FALSE) :
-      expanded path length 26884 would be too long for
-    <h2 id="introduction">Introduction</h2>
-    <p>This tutorial illustrates how a standard time-to-event analysis can be done very efficiently when the data set adheres to the <a href="https://www.cdisc.org/standards/foundational/adam/adam-basic-data-structure-bds-time-event-tte-analyses-v1-0">CDISC ADaM standard</a>. A more detailed time-to-event analysis with a more broad overview of visR’s functionality is presented in another vignette.</p>
-    <pre><code class="language-r">library(ggplot2)
-    library(visR)
-    </code></pre>
-    ...
-    Quitting from lines 101-105 [table1_render_options_dt] (Time_to_event_analysis.Rmd)
-    Error: processing vignette 'Time_to_event_analysis.Rmd' failed with diagnostics:
-    invalid 'path' argument
-    --- failed re-building ‘Time_to_event_analysis.Rmd’
-    
-    SUMMARY: processing the following file failed:
-      ‘Time_to_event_analysis.Rmd’
-    
-    Error: Vignette re-building failed.
-    Execution halted
     ```
 
 # webSDM
