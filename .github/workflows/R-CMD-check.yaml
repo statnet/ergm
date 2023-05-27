@@ -77,10 +77,10 @@ jobs:
           if [[ "${{ env.IAM }}" == 'public' ]] # Public: full set.
           then
             config='{"config":[
-            {"os":"windows-latest", "r":"release", "timeout":360, "flags":"binaries"},
-            {"os":"macOS-latest", "r":"release", "timeout":360, "flags":"binaries, ubsan"},
-            {"os":"ubuntu-latest", "r":"release", "timeout":360, "flags":"full, ubsan, debug"},
-            {"os":"ubuntu-latest", "r":"devel", "timeout":360, "flags":"vignettes, remote"},
+            {"os":"windows-latest", "r":"release", "timeout":360, "flags":"binaries, strict, vignettes, remote"},
+            {"os":"macOS-latest", "r":"release", "timeout":360, "flags":"binaries, ubsan, strict, vignettes, remote"},
+            {"os":"ubuntu-latest", "r":"release", "timeout":360, "flags":"full, ubsan, debug, strict, vignettes"},
+            {"os":"ubuntu-latest", "r":"devel", "timeout":360, "flags":"vignettes, remote, strict"},
             {"os":"ubuntu-latest", "r":"release", "timeout":360, "flags":"full, covr"}]}'
           elif [[ "${{ env.FOUND_PUBLIC }}" != '0' ]] # Private with no public analogue: reduced set.
           then
