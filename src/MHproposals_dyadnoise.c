@@ -27,11 +27,6 @@
    TODO: Proposals could almost certainly be more efficient.
 
 ***********************/
-MH_I_FN(Mi_dyadnoiseTNT){
-  MH_STORAGE = DegreeBoundInitializeR(MHp->R, nwp);
-  MHp->ntoggles = 1;
-}
-
 MH_P_FN(MH_dyadnoiseTNT)
 {
   /* *** don't forget tail-> head now */
@@ -40,6 +35,7 @@ MH_P_FN(MH_dyadnoiseTNT)
   static Edge ndyads;
   
   if(MHp->ntoggles == 0) { /* Initialize */
+    MH_STORAGE = DegreeBoundInitializeR(MHp->R, nwp);
     MHp->ntoggles=1;
     odds = comp/(1.0-comp);
     ndyads = DYADCOUNT(N_NODES, BIPARTITE, DIRECTED);
