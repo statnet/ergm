@@ -493,31 +493,24 @@ MH_F_FN(Mf_TNT10){
  datasets are sparse, so this is not likely to be an issue.
 *********************/
 MH_I_FN(Mi_ConstantEdges){
-  MH_STORAGE = DegreeBoundInitializeR(MHp->R, nwp);
-  MHp->ntoggles = 2;
+  INIT_DYADGEN_AND_DEGREE_BOUND;
+  Edge nedges = DyadGenEdgecount(storage->gen);
+  MHp->ntoggles = nedges>0 && nedges<storage->gen->ndyads && storage->gen->ndyads>=2 ? 2 : MH_FAILED;
 }
 
 MH_P_FN(MH_ConstantEdges){  
-  /* *** don't forget tail-> head now */
+  GET_STORAGE(StoreDyadGenAndDegreeBound, storage);
   
-  if(MHp->ntoggles == 0) { /* Initialize */
-    if(nwp->nedges==0 || nwp->nedges==DYADCOUNT(nwp)) MHp->ntoggles=MH_FAILED; /* Empty or full network. */
-    else MHp->ntoggles=2;
-    return;
-  }
-  /* Note:  This proposal cannot be used for full or empty observed graphs.
-     If desired, we could check for this at initialization phase. 
-     (For now, however, no way to easily return an error message and stop.)*/
-  BD_LOOP(MH_STORAGE, {
+  BD_LOOP(storage->bd, {
       /* First, select edge at random */
-      GetRandEdge(Mtail, Mhead, nwp);
+      DyadGenRandEdge(Mtail, Mhead, storage->gen);
       /* Second, select non-edge at random */
-      GetRandNonedge(Mtail+1, Mhead+1, nwp);
+      DyadGenRandNonedge(Mtail+1, Mhead+1, storage->gen);
     });
 }
 
 MH_F_FN(Mf_ConstantEdges){
-  DegreeBoundDestroy(MH_STORAGE);
+  DESTROY_DYADGEN_AND_DEGREE_BOUND;
 }
 
 

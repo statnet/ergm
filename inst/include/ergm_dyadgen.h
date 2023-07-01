@@ -144,6 +144,40 @@ static inline void DyadGenRandEdge(Vertex *tail, Vertex *head, DyadGen *gen){
 }
 
 
+static inline void DyadGenRandNonedge(Vertex *tail, Vertex *head, DyadGen *gen){
+  switch(gen->type){
+  case RandDyadGen:
+    GetRandNonedge(tail, head, gen->nwp.b);
+    break;
+  case WtRandDyadGen:
+    WtGetRandNonedge(tail, head, gen->nwp.w);
+    break;
+  default:
+    {
+      Rboolean valued = gen->type == WtRLEBDM1DGen || gen->type == WtEdgeListGen;
+      do{
+        switch(gen->type){
+        case RLEBDM1DGen:
+        case WtRLEBDM1DGen:
+          GetRandRLEBDM1D(tail, head, &gen->dyads.rlebdm);
+        case EdgeListGen:
+        case WtEdgeListGen:
+          {
+            int ndyads = gen->ndyads;
+            int *list = gen->dyads.el + 1;
+            Edge rane = unif_rand() * ndyads;
+            *tail = list[rane];
+            *head = list[ndyads+rane];
+          }
+          break;
+        default:
+          error("Undefined dyad generator type.");
+        }
+      }while(valued ? WtEdgetreeSearch(*tail, *head, gen->nwp.w->outedges) : EdgetreeSearch(*tail, *head, gen->nwp.b->outedges));
+    }
+  }
+}
+
 static inline void DyadGenRandWtEdge(Vertex *tail, Vertex *head, double *weight, DyadGen *gen){
   switch(gen->type){
   case RandDyadGen:

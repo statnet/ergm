@@ -8,10 +8,8 @@
 MHp for \eqn{constraints= ~edges}. Propose pairs of toggles that keep number of edges the same.
 This is done by:
 a. choosing an existing edge at random;
-b. repeatedly choosing dyads at random until one is found that does not have an edge; and
-c. proposing toggling both these dyads. Note that step b. will be very inefficient if the network is nearly
-complete, so this proposal is NOT recommended for such networks. However, most network datasets are
-sparse, so this is not likely to be an issue.
+b. choosing a dyad at random that does not have an edge; and
+c. proposing toggling both these dyads.
 }
 \details{
 \if{html}{\Sexpr[results=rd,stage=render]{ergm:::.formatProposalsHtml(ergm:::.buildProposalsList(proposal="ConstantEdges"))}}
