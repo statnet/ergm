@@ -1265,7 +1265,7 @@ test_that("BDStratTNT handles undirected heterogeneous degree bound saturation c
                   constraints = ~bd(attr = bd_attr, maxout = maxout)
                                  + blocks(attr = ~blocks_attr, levels2 = levels2)
                                  + strat(attr = ~strat_attr, pmat = pmat),
-                  control = list(MCMC.burnin = 1e5))
+                  control = list(MCMC.burnin = 1e4))
   ## check constraints
   expect_true(all(summary(nws ~ nodemix(~blocks_attr, levels2 = levels2)) == 0))
   el <- as.edgelist(nws)
@@ -1279,7 +1279,7 @@ test_that("BDStratTNT handles undirected heterogeneous degree bound saturation c
                    constraints = ~bd(attr = bd_attr, maxout = maxout)
                                   + blocks(attr = ~blocks_attr, levels2 = levels2)
                                   + strat(attr = ~strat_attr, pmat = pmat),
-                   control = list(MCMC.burnin = 1e5))
+                   control = list(MCMC.burnin = 1e4))
   ## check constraints
   expect_true(all(summary(nws2 ~ nodemix(~blocks_attr, levels2 = levels2)) == 0))
   el <- as.edgelist(nws2)
@@ -1310,7 +1310,7 @@ test_that("BDStratTNT handles directed heterogeneous degree bound saturation cor
                   constraints = ~bd(attr = bd_attr, maxout = maxout, maxin = maxin)
                                  + blocks(attr = ~blocks_attr, levels2 = levels2)
                                  + strat(attr = ~strat_attr, pmat = pmat),
-                  control = list(MCMC.burnin = 1e5))
+                  control = list(MCMC.burnin = 1e4))
   ## check constraints
   expect_true(all(summary(nws ~ nodemix(~blocks_attr, levels2 = levels2)) == 0))
   el <- as.edgelist(nws)
@@ -1327,7 +1327,7 @@ test_that("BDStratTNT handles directed heterogeneous degree bound saturation cor
                    constraints = ~bd(attr = bd_attr, maxout = maxout, maxin = maxin)
                                   + blocks(attr = ~blocks_attr, levels2 = levels2)
                                   + strat(attr = ~strat_attr, pmat = pmat),
-                   control = list(MCMC.burnin = 1e5))
+                   control = list(MCMC.burnin = 1e4))
   ## check constraints
   expect_true(all(summary(nws2 ~ nodemix(~blocks_attr, levels2 = levels2)) == 0))
   el <- as.edgelist(nws2)
@@ -1361,7 +1361,7 @@ test_that("BDStratTNT handles bipartite heterogeneous degree bound saturation co
                   constraints = ~bd(attr = bd_attr, maxout = maxout)
                                  + blocks(attr = ~blocks_attr, levels2 = levels2)
                                  + strat(attr = ~strat_attr, pmat = pmat),
-                  control = list(MCMC.burnin = 1e5))
+                  control = list(MCMC.burnin = 1e4))
   ## check constraints
   expect_true(all(summary(nws ~ nodemix(~blocks_attr, levels2 = levels2)) == 0))
   el <- as.edgelist(nws)
@@ -1375,7 +1375,7 @@ test_that("BDStratTNT handles bipartite heterogeneous degree bound saturation co
                    constraints = ~bd(attr = bd_attr, maxout = maxout)
                                   + blocks(attr = ~blocks_attr, levels2 = levels2)
                                   + strat(attr = ~strat_attr, pmat = pmat),
-                   control = list(MCMC.burnin = 1e5))
+                   control = list(MCMC.burnin = 1e4))
   ## check constraints
   expect_true(all(summary(nws2 ~ nodemix(~blocks_attr, levels2 = levels2)) == 0))
   el <- as.edgelist(nws2)
@@ -1403,7 +1403,7 @@ test_that("BDStratTNT handles undirected homogeneous degree bound saturation cor
                   constraints = ~bd(maxout = maxout)
                                  + blocks(attr = ~blocks_attr, levels2 = levels2)
                                  + strat(attr = ~strat_attr, pmat = pmat),
-                  control = list(MCMC.burnin = 1e5))
+                  control = list(MCMC.burnin = 1e4))
   ## check constraints
   expect_true(all(summary(nws ~ nodemix(~blocks_attr, levels2 = levels2)) == 0))
   el <- as.edgelist(nws)
@@ -1416,7 +1416,7 @@ test_that("BDStratTNT handles undirected homogeneous degree bound saturation cor
                    constraints = ~bd(maxout = maxout)
                                   + blocks(attr = ~blocks_attr, levels2 = levels2)
                                   + strat(attr = ~strat_attr, pmat = pmat),
-                   control = list(MCMC.burnin = 1e5))
+                   control = list(MCMC.burnin = 1e4))
   ## check constraints
   expect_true(all(summary(nws2 ~ nodemix(~blocks_attr, levels2 = levels2)) == 0))
   el <- as.edgelist(nws2)
@@ -1443,7 +1443,7 @@ test_that("BDStratTNT handles directed homogeneous degree bound saturation corre
                   constraints = ~bd(maxout = maxout, maxin = maxin)
                                  + blocks(attr = ~blocks_attr, levels2 = levels2)
                                  + strat(attr = ~strat_attr, pmat = pmat),
-                  control = list(MCMC.burnin = 1e5))
+                  control = list(MCMC.burnin = 1e4))
   ## check constraints
   expect_true(all(summary(nws ~ nodemix(~blocks_attr, levels2 = levels2)) == 0))
   el <- as.edgelist(nws)
@@ -1458,7 +1458,7 @@ test_that("BDStratTNT handles directed homogeneous degree bound saturation corre
                    constraints = ~bd(maxout = maxout, maxin = maxin)
                                   + blocks(attr = ~blocks_attr, levels2 = levels2)
                                   + strat(attr = ~strat_attr, pmat = pmat),
-                   control = list(MCMC.burnin = 1e5))
+                   control = list(MCMC.burnin = 1e4))
   ## check constraints
   expect_true(all(summary(nws2 ~ nodemix(~blocks_attr, levels2 = levels2)) == 0))
   el <- as.edgelist(nws2)
@@ -1487,7 +1487,7 @@ test_that("BDStratTNT handles bipartite homogeneous degree bound saturation corr
                   constraints = ~bd(maxout = maxout)
                                  + blocks(attr = ~blocks_attr, levels2 = levels2)
                                  + strat(attr = ~strat_attr, pmat = pmat),
-                  control = list(MCMC.burnin = 1e5))
+                  control = list(MCMC.burnin = 1e4))
   ## check constraints
   expect_true(all(summary(nws ~ nodemix(~blocks_attr, levels2 = levels2)) == 0))
   el <- as.edgelist(nws)
@@ -1500,7 +1500,7 @@ test_that("BDStratTNT handles bipartite homogeneous degree bound saturation corr
                    constraints = ~bd(maxout = maxout)
                                   + blocks(attr = ~blocks_attr, levels2 = levels2)
                                   + strat(attr = ~strat_attr, pmat = pmat),
-                   control = list(MCMC.burnin = 1e5))
+                   control = list(MCMC.burnin = 1e4))
   ## check constraints
   expect_true(all(summary(nws2 ~ nodemix(~blocks_attr, levels2 = levels2)) == 0))
   el <- as.edgelist(nws2)
