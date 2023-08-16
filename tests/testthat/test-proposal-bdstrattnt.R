@@ -1507,3 +1507,69 @@ test_that("BDStratTNT handles bipartite homogeneous degree bound saturation corr
   degs <- tabulate(c(el), nbins = net_size)
   expect_true(all(degs <= maxout))
 })
+
+test_that("all free dyads vary with a blocks constraint", {
+  net_size <- 17
+  bip_size <- 9
+  nsim <- 100
+
+  blocks_levels_2 <- matrix(FALSE, nrow = 3, ncol = 3)
+  blocks_levels_2[1,1] <- TRUE
+  blocks_levels_2[2,3] <- TRUE
+
+  net_attrs_list <- list(list(n = net_size, directed = FALSE, bipartite = FALSE),
+                         list(n = net_size, directed = TRUE, bipartite = FALSE),
+                         list(n = net_size, directed = FALSE, bipartite = bip_size))
+
+  for (i in seq_along(net_attrs_list)) {
+    ## construct network
+    nw <- do.call(network.initialize, net_attrs_list[[i]])
+
+    ## construct logical matrix of dyads in the network
+    dyad_mat <- !diag(net_size)
+    if (is.bipartite(nw)) {
+      dyad_mat[-seq_len(bip_size),] <- FALSE
+      dyad_mat[,seq_len(bip_size)] <- FALSE
+    } else if (!is.directed(nw)) {
+      dyad_mat[lower.tri(dyad_mat)] <- FALSE
+    }
+
+    ## check dyad count
+    expect_equal(sum(dyad_mat), network.dyadcount(nw))
+
+    ## construct logical vector of free dyads in the network
+    free_dyads <- !diag(net_size)
+    free_dyads[seq_len(net_size) %% 3 == 1, seq_len(net_size) %% 3 == 1] <- FALSE
+    free_dyads[seq_len(net_size) %% 3 == 2, seq_len(net_size) %% 3 == 0] <- FALSE
+    if (!is.directed(nw) && !is.bipartite(nw)) {
+      free_dyads <- free_dyads & t(free_dyads)
+    }
+    free_dyads <- free_dyads[which(dyad_mat)]
+
+    ## restrict size of dyad_mat in bipartite case
+    if (is.bipartite(nw)) {
+      dyad_mat <- dyad_mat[seq_len(bip_size), -seq_len(bip_size)]
+    }
+
+    ## perform simulation
+    stats <- simulate(nw ~ edges,
+                      coef = c(0),
+                      monitor = ~nodemix(~seq_len(net_size), levels2 = dyad_mat),
+                      nsim = nsim,
+                      constraints = "BDStratTNT" ~ blocks(~rep(1:3, length.out = net_size),
+                                                          levels2 = blocks_levels_2),
+                      output = "stats",
+                      control = list(MCMC.burnin = 1e3, MCMC.interval = 1e3))
+
+    ## drop edges statistic
+    stats <- stats[,-1]
+
+    ## check number of stats
+    expect_equal(NCOL(stats), network.dyadcount(nw))
+
+    ## confirm that free dyads take two states and fixed dyads take one state
+    for (i in seq_len(NCOL(stats))) {
+      expect_true(length(unique(stats[, i])) == 1 + free_dyads[i])
+    }
+  }
+})
