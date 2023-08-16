@@ -1511,7 +1511,7 @@ test_that("BDStratTNT handles bipartite homogeneous degree bound saturation corr
 test_that("all free dyads vary with a blocks constraint", {
   net_size <- 17
   bip_size <- 9
-  nsim <- 100
+  nsim <- 200
 
   blocks_levels_2 <- matrix(FALSE, nrow = 3, ncol = 3)
   blocks_levels_2[1,1] <- TRUE
