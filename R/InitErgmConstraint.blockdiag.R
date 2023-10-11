@@ -68,16 +68,20 @@
 #' @concept directed
 #' @concept undirected
 #' @import rle
-InitErgmConstraint.blockdiag<-function(lhs.nw, attr=NULL, ...){
-  if(...length())
-    stop(paste("Block diagonal constraint takes one argument at this time."), call.=FALSE)
-  list(attr=attr,
+InitErgmConstraint.blockdiag<-function(nw, arglist, ...){
+  a <- check.ErgmTerm(nw, arglist,
+                      varnames = c("attr"),
+                      vartypes = c(ERGM_VATTR_SPEC),
+                      defaultvalues = list(NULL),
+                      required = c(TRUE))
+
+  list(attr=a$attr,
        free_dyads = {
-         n <- network.size(lhs.nw)
+         n <- network.size(nw)
          storage.mode(n) <- "integer"
-         a <- c(ergm_get_vattr(attr, lhs.nw)) # Strip attributes, which confuse rle().
-         if(NVL(lhs.nw%n%"bipartite",0)){
-           bip <- lhs.nw %n% "bipartite"
+         a <- c(ergm_get_vattr(a$attr, nw)) # Strip attributes, which confuse rle().
+         if(NVL(nw%n%"bipartite",0)){
+           bip <- nw %n% "bipartite"
            ea <- a[seq_len(bip)]
            aa <- a[bip+seq_len(n-bip)]
            if(length(rle(ea)$lengths)!=length(unique(rle(ea)$values)) || length(rle(aa)$lengths)!=length(unique(rle(aa)$values))) stop("Current implementation of block-diagonal sampling requires that the blocks of the egos and the alters be contiguous. See ", sQuote("ergmConstraint?blockdiag"), " for more information.")
