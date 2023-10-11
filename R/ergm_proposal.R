@@ -221,6 +221,7 @@ ergm_proposal.character <- function(object, arguments, nw, ..., reference=ergm_r
     }else as.call(list(f, arguments, nw))
 
   proposal <- eval(prop.call)
+  if(is.null(proposal)) return(NULL)
 
   storage.mode(proposal$inputs) <- "double"
   storage.mode(proposal$iinputs) <- "integer"
@@ -326,7 +327,7 @@ c.ergm_conlist <- function(...) NextMethod() %>% prune.ergm_conlist()
   structure(NextMethod(), class = "ergm_conlist")
 }
 
-select_ergm_proposal <- function(conlist, class, ref, weights){
+select_ergm_proposals <- function(conlist, class, ref, weights){
   # Extract directly selected proposal, if given, check that it's unique, and discard its constraint and other placeholders.
   name <- conlist %>% .keep_constraint(".select") %>% map_chr("proposal") %>% unique()
   if(length(name) > 1) stop("Error in direct proposal selection: two distinct proposals selected: ", paste.and(sQuote(name)), ".", call.=FALSE)
@@ -391,9 +392,7 @@ select_ergm_proposal <- function(conlist, class, ref, weights){
     stop("The combination of class (",class,"), model constraints and hints (",paste.and(sQuote(unique(names(conlist)))),"), reference measure (",deparse(ult(ref$name)),"), proposal weighting (",weights,"), and conjunctions and disjunctions is not implemented. ", "Check your arguments for typos. ")
   }
 
-  proposal <- qualifying[which.max(qualifying$Score),]
-  if(proposal$Unmet!="") message("Best valid proposal ", sQuote(proposal$Proposal), " cannot take into account hint(s) ", proposal$Unmet, ".")
-  proposal
+  qualifying[order(qualifying$Score, decreasing=TRUE),]
 }
 
 ergm_reference <- function(object, ...) UseMethod("ergm_reference")
@@ -454,11 +453,21 @@ ergm_proposal.term_list <- ergm_proposal.formula
 #' @export
 ergm_proposal.ergm_conlist <- function(object, arguments, nw, weights="default", class="c", reference=trim_env(~Bernoulli), ..., term.options=list()) {
   reference <- ergm_reference(reference, nw, term.options=term.options, ...)
-  proposal <- select_ergm_proposal(object, class = class, ref = reference, weights = weights)
-  name <- proposal$Proposal
-  arguments$constraints <- object
-  ## Hand it off to the class character method.
-  ergm_proposal(name, arguments, nw, reference = reference, ..., term.options = term.options)
+  proposals <- select_ergm_proposals(object, class = class, ref = reference, weights = weights)
+
+  for(i in seq_len(nrow(proposals))){
+    proposal <- proposals[i,]
+    name <- proposal$Proposal
+    arguments$constraints <- object
+    ## Hand it off to the class character method.
+    proposal <- ergm_proposal(name, arguments, nw, reference = reference, ..., term.options = term.options)
+
+    ## Keep trying until some proposal function accepts.
+    if(!is.null(proposal)) break
+  }
+
+  if(proposals[i,]$Unmet!="") message("Best valid proposal ", sQuote(proposals[i,]$Proposal), " cannot take into account hint(s) ", proposals[i,]$Unmet, ".")
+  proposal
 }
 
 ########################################################################################

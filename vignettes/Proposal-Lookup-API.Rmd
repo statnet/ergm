@@ -56,4 +56,5 @@ Most of this is implemented in the `ergm_proposal.formula()` method:
     1. If a proposal cannot enforce a constraint that is among the requested with `priority==Inf`, it is discarded.
     1. For each constraint that is among requested with `priority<Inf` *and* that the proposal **does**n't and **can**'t enforce, its (innate, specified in the column of the `ergm_proposal_table()`) `Priority` value is penalised by the `priority` of that constraint.
 1. If there are no candidate proposals left, an error is raised.
-1. If more than one is left, the proposal with the highest priority (after being penalised for unmet constraints) is selected.
+1. If more than one is left,
+    1. Calls to `InitErgmProposal.*` functions are attempted. If a call returns `NULL`, next proposal is attempted. (This can be useful if a proposal handles a particular special case that is not accounted for by constraints.)
