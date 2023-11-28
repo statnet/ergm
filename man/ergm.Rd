@@ -487,7 +487,7 @@ Exponential-Family Models for Networks.
 \emph{Journal of Statistical Software}, 24(3).
 \doi{10.18637/jss.v024.i03}
 
-Karwa V, Krivitsky PN, and Slavkovi\'{c} AB (2017). Sharing Social Network
+Karwa V, Krivitsky PN, and Slavkovi\'c AB (2017). Sharing Social Network
 Data: Differentially Private Estimation of Exponential-Family Random
 Graph Models. \emph{Journal of the Royal Statistical Society, Series
 C}, 66(3):481--500. \doi{10.1111/rssc.12185}

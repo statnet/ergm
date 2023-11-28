@@ -285,7 +285,7 @@ void Wtprintedge(Edge e, WtTreeNode *edges){
   Rprintf("\t.parent=%d\n",edges[e].parent);
   Rprintf("\t.left=%d\n",edges[e].left);
   Rprintf("\t.right=%d\n",edges[e].right);
-  Rprintf("\t.weight=%d\n",edges[e].weight);
+  Rprintf("\t.weight=%f\n",edges[e].weight);
 }
 
 /*****************

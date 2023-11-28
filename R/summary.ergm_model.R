@@ -18,7 +18,6 @@
 #' @param nw a [`network`] whose statistics are to be evaluated,
 #'   though an [`ergm_state`] object will also work. If `NULL`,
 #'   returns empty network's statistics for that model.
-#' @template response
 #' @template dotdotdot
 #' 
 #' @seealso [summary_formula()]

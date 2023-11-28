@@ -152,8 +152,6 @@ can be specified directly.}
 missing edge information is not stored.}
 
 \item{state}{An \code{ergm_state} to replace the state with.}
-
-\item{nw}{a \code{\link{network}} object.}
 }
 \value{
 At this time, an \code{ergm_state} object is (subject to change)

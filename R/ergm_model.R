@@ -139,7 +139,7 @@ ergm_model <- function(formula, nw=NULL, silent=FALSE, ..., term.options=list(),
 #' term with a specifies name, calls it with the specified arguments,
 #' and returns the result.
 #'
-#' @param A term from an [ergm()] formula: typically a [`name`] or a
+#' @param term A term from an [ergm()] formula: typically a [`name`] or a
 #'   [`call`].
 #' @param env Environment in which it is to be evaluated.
 #' @param nw A [`network`] object.

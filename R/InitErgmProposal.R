@@ -197,7 +197,7 @@ InitErgmProposal.BDStratTNT <- function(arguments, nw) {
 #' @templateVar name CondDegree
 #' @aliases InitErgmProposal.CondDegree
 #' @title MHp for degree constraints
-#' @description MHp for \eqn{constraints= ~degree}. Propose either 4 toggles (MH_CondDegreeTetrad) or 6 toggles
+#' @description MHp for `constraints= ~degree`. Propose either 4 toggles (MH_CondDegreeTetrad) or 6 toggles
 #'   (MH_CondDegreeHexad) at once. For undirected networks, propose 4 toggles (MH_CondDegreeTetrad).
 #'   MH_CondDegreeTetrad selects two edges with no nodes in common, A1-A2 and B1-B2, s.t. A1-B2 and B1-A2 are
 #'   not edges, and propose to replace the former two by the latter two. MH_CondDegreeHexad selects three edges
@@ -212,7 +212,7 @@ InitErgmProposal.CondDegree <- function(arguments, nw) {
 #' @templateVar name CondDegreeMix
 #' @aliases InitErgmProposal.CondDegreeMix
 #' @title MHp for degree mix constraints
-#' @description MHp for \eqn{constraints= ~degreesmix}. Similar to `InitErgmProposal.CondDegree`, except that
+#' @description MHp for `constraints= ~degreesmix`. Similar to `InitErgmProposal.CondDegree`, except that
 #'   the toggle is proposed only if the mixing matrix of degrees is preserved before and after the toggle.
 #' @template ergmProposal-general
 NULL
@@ -225,7 +225,7 @@ InitErgmProposal.CondDegreeMix <- function(arguments, nw) {
 #' @templateVar name CondOutDegree
 #' @aliases InitErgmProposal.CondOutDegree
 #' @title MHp for odegree constraints
-#' @description MHp for \eqn{constraints= ~odegrees}. For directed networks, randomly select two dyads with a
+#' @description MHp for `constraints= ~odegrees`. For directed networks, randomly select two dyads with a
 #'   common tail node, one having an edge and one not, and propose to swap the tie from one head to the other.
 #' @template ergmProposal-general
 NULL
@@ -240,7 +240,7 @@ InitErgmProposal.CondOutDegree <- function(arguments, nw) {
 #' @templateVar name CondInDegree
 #' @aliases InitErgmProposal.CondInDegree
 #' @title MHp for idegree constraints
-#' @description MHp for \eqn{constraints= ~idegrees}. For directed networks, randomly select two dyads with a
+#' @description MHp for `constraints= ~idegrees`. For directed networks, randomly select two dyads with a
 #'   common head node, one having an edge one not, and propose to swap the tie from one tail to the other.
 #' @template ergmProposal-general
 NULL
@@ -255,8 +255,8 @@ InitErgmProposal.CondInDegree <- function(arguments, nw) {
 #' @templateVar name CondB1Degree
 #' @aliases InitErgmProposal.CondB1Degree
 #' @title MHp for b1degree constraints
-#' @description MHp for \eqn{constraints= ~b1degrees}. For bipartite networks, randomly select an edge {B1i, B2j}
-#'   and an empty dyad with the same node B1i, {B1i, B2k}, and propose to toggle both {B1i, B2j} and {B1i, B2k}.
+#' @description MHp for `constraints= ~b1degrees`. For bipartite networks, randomly select an edge (B1i, B2j)
+#'   and an empty dyad with the same node B1i, (B1i, B2k), and propose to toggle both (B1i, B2j) and (B1i, B2k).
 #'   This ensures that the degrees of individual nodes in mode 1 are preserved.
 #' @template ergmProposal-general
 NULL
@@ -271,8 +271,8 @@ InitErgmProposal.CondB1Degree <- function(arguments, nw) {
 #' @templateVar name CondB2Degree
 #' @aliases InitErgmProposal.CondB2Degree
 #' @title MHp for b2degree constraints
-#' @description MHp for \eqn{constraints= ~b2degrees}. For bipartite networks, randomly select an edge {B1j, B2i}
-#'   and an empty dyad with the same node B2i, {B1k, B2i}, and propose to toggle both {B1j, B2i} and {B1k, B2i}.
+#' @description MHp for `constraints= ~b2degrees`. For bipartite networks, randomly select an edge (B1j, B2i)
+#'   and an empty dyad with the same node B2i, (B1k, B2i), and propose to toggle both (B1j, B2i) and (B1k, B2i).
 #'   This ensures that the degrees of individual nodes in mode 2 are preserved.
 #' @template ergmProposal-general
 NULL
@@ -286,7 +286,7 @@ InitErgmProposal.CondB2Degree <- function(arguments, nw) {
 #' @templateVar name CondDegreeDist
 #' @aliases InitErgmProposal.CondDegreeDist
 #' @title MHp for degreedist constraints
-#' @description MHp for \eqn{constraints= ~degreedist}. Randomly select a node (T) and its edge (E).  If the head
+#' @description MHp for `constraints= ~degreedist`. Randomly select a node (T) and its edge (E).  If the head
 #'   node of the edge (H) has 1 degree more than another randomly select node (A), and A is disconnected to both
 #'   T and H, then propose to toggle E and the dyad between T and A.
 #' @template ergmProposal-general
@@ -307,7 +307,7 @@ InitErgmProposal.CondDegreeDist <- function(arguments, nw) {
 #' @templateVar name CondInDegreeDist
 #' @aliases InitErgmProposal.CondInDegreeDist
 #' @title MHp for idegreedist constraints
-#' @description MHp for \eqn{constraints= ~idegreedist}. For directed networks, similar to
+#' @description MHp for `constraints= ~idegreedist`. For directed networks, similar to
 #'   `InitErgmProposal.CondDegreeDist`, except for indegree case
 #' @template ergmProposal-general
 NULL
@@ -327,7 +327,7 @@ InitErgmProposal.CondInDegreeDist <- function(arguments, nw) {
 #' @templateVar name CondOutDegreeDist
 #' @aliases InitErgmProposal.CondOutDegreeDist
 #' @title MHp for odegreedist constraints
-#' @description MHp for \eqn{constraints= ~odegreedist}. For directed networks, similar to
+#' @description MHp for `constraints= ~odegreedist`. For directed networks, similar to
 #'   `InitErgmProposal.CondDegreeDist`, except for outdegree case
 #' @template ergmProposal-general
 NULL
@@ -348,11 +348,12 @@ InitErgmProposal.CondOutDegreeDist <- function(arguments, nw) {
 #' @templateVar name ConstantEdges
 #' @aliases InitErgmProposal.ConstantEdges
 #' @title MHp for edges constraints
-#' @description MHp for \eqn{constraints= ~edges}. Propose pairs of toggles that keep number of edges the same.
+#' @description MHp for `constraints= ~edges`. Propose pairs of toggles that keep number of edges the same.
 #'   This is done by:
-#'   a. choosing an existing edge at random;
-#'   b. choosing a dyad at random that does not have an edge; and
-#'   c. proposing toggling both these dyads.
+#'
+#'   1. choosing an existing edge at random;
+#'   2. choosing a dyad at random that does not have an edge; and
+#'   3. proposing toggling both these dyads.
 #' @template ergmProposal-general
 NULL
 InitErgmProposal.ConstantEdges <- function(nw, arguments, ...) {

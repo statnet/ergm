@@ -7,6 +7,9 @@
 call.ErgmTerm(term, env, nw, ..., term.options = list())
 }
 \arguments{
+\item{term}{A term from an \code{\link[=ergm]{ergm()}} formula: typically a \code{\link{name}} or a
+\code{\link{call}}.}
+
 \item{env}{Environment in which it is to be evaluated.}
 
 \item{nw}{A \code{\link{network}} object.}
@@ -15,9 +18,6 @@ call.ErgmTerm(term, env, nw, ..., term.options = list())
 
 \item{term.options}{A list of optional settings such as calculation
 tuning options to be passed to the \code{InitErgmTerm} functions.}
-
-\item{A}{term from an \code{\link[=ergm]{ergm()}} formula: typically a \code{\link{name}} or a
-\code{\link{call}}.}
 }
 \value{
 The list returned by the the \code{InitErgmTerm} or

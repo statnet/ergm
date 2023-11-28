@@ -5,7 +5,7 @@
 \alias{InitErgmProposal.CondDegreeMix}
 \title{MHp for degree mix constraints}
 \description{
-MHp for \eqn{constraints= ~degreesmix}. Similar to \code{InitErgmProposal.CondDegree}, except that
+MHp for \code{constraints= ~degreesmix}. Similar to \code{InitErgmProposal.CondDegree}, except that
 the toggle is proposed only if the mixing matrix of degrees is preserved before and after the toggle.
 }
 \details{

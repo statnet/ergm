@@ -5,8 +5,8 @@
 \alias{InitErgmProposal.CondB2Degree}
 \title{MHp for b2degree constraints}
 \description{
-MHp for \eqn{constraints= ~b2degrees}. For bipartite networks, randomly select an edge {B1j, B2i}
-and an empty dyad with the same node B2i, {B1k, B2i}, and propose to toggle both {B1j, B2i} and {B1k, B2i}.
+MHp for \code{constraints= ~b2degrees}. For bipartite networks, randomly select an edge (B1j, B2i)
+and an empty dyad with the same node B2i, (B1k, B2i), and propose to toggle both (B1j, B2i) and (B1k, B2i).
 This ensures that the degrees of individual nodes in mode 2 are preserved.
 }
 \details{

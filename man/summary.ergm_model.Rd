@@ -14,16 +14,6 @@ though an \code{\link{ergm_state}} object will also work. If \code{NULL},
 returns empty network's statistics for that model.}
 
 \item{...}{Further arguments to methods.}
-
-\item{response}{Either a character string, a formula, or \code{NULL} (the default), to specify the response attributes and whether the ERGM is binary or valued. Interpreted as follows: \describe{
-
-\item{\code{NULL}}{Model simple presence or absence, via a binary ERGM.}
-
-\item{character string}{The name of the edge attribute whose value is to be modeled. Type of ERGM will be determined by whether the attribute is \code{\link{logical}} (\code{TRUE}/\code{FALSE}) for binary or \code{\link{numeric}} for valued.}
-
-\item{a formula}{must be of the form \code{NAME~EXPR|TYPE} (with \code{|} being literal). \code{EXPR} is evaluated in the formula's environment with the network's edge attributes accessible as variables. The optional \code{NAME} specifies the name of the edge attribute into which the results should be stored, with the default being a concise version of \code{EXPR}. Normally, the type of ERGM is determined by whether the result of evaluating \code{EXPR} is logical or numeric, but the optional \code{TYPE} can be used to override by specifying a scalar of the type involved (e.g., \code{TRUE} for binary and \code{1} for valued).}
-
-}}
 }
 \description{
 Returns a vector of the model's statistics for a given network or

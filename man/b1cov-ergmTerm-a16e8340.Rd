@@ -17,7 +17,7 @@
 }
 \description{
 This term adds a single network statistic for each quantitative attribute or matrix column to the model equaling the total
-value of \code{attr(i)} for all edges /eqn{(i,j)} in the network. This
+value of \code{attr(i)} for all edges \eqn{(i,j)} in the network. This
 term may only be used with bipartite networks. For categorical attributes,
 see \code{b1factor} .
 }

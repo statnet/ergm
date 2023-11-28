@@ -5,7 +5,7 @@
 \alias{InitErgmProposal.CondInDegree}
 \title{MHp for idegree constraints}
 \description{
-MHp for \eqn{constraints= ~idegrees}. For directed networks, randomly select two dyads with a
+MHp for \code{constraints= ~idegrees}. For directed networks, randomly select two dyads with a
 common head node, one having an edge one not, and propose to swap the tie from one tail to the other.
 }
 \details{

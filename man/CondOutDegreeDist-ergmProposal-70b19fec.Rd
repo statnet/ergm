@@ -5,7 +5,7 @@
 \alias{InitErgmProposal.CondOutDegreeDist}
 \title{MHp for odegreedist constraints}
 \description{
-MHp for \eqn{constraints= ~odegreedist}. For directed networks, similar to
+MHp for \code{constraints= ~odegreedist}. For directed networks, similar to
 \code{InitErgmProposal.CondDegreeDist}, except for outdegree case
 }
 \details{

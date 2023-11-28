@@ -5,7 +5,7 @@
 \alias{InitErgmProposal.CondDegreeDist}
 \title{MHp for degreedist constraints}
 \description{
-MHp for \eqn{constraints= ~degreedist}. Randomly select a node (T) and its edge (E).  If the head
+MHp for \code{constraints= ~degreedist}. Randomly select a node (T) and its edge (E).  If the head
 node of the edge (H) has 1 degree more than another randomly select node (A), and A is disconnected to both
 T and H, then propose to toggle E and the dyad between T and A.
 }

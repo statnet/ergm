@@ -129,7 +129,7 @@ specifying the attribute vector.}
 \item{levels}{Starting set of levels to use; defaults to the sorted
 list of unique attributes.}
 
-\item{l, a}{arguments to \code{LARGEST}, which is actually a function
+\item{a}{arguments to \code{LARGEST}, which is actually a function
 that gets processed as a function level spec does.}
 }
 \value{

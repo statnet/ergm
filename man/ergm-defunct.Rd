@@ -34,8 +34,6 @@
 \alias{is.inCH}
 \title{Functions that have been removed from this package}
 \usage{
-sociality(object, ...)
-
 robust.inverse(...)
 
 \method{plot}{network.ergm}(...)

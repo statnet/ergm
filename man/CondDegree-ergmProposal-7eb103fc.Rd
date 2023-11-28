@@ -5,7 +5,7 @@
 \alias{InitErgmProposal.CondDegree}
 \title{MHp for degree constraints}
 \description{
-MHp for \eqn{constraints= ~degree}. Propose either 4 toggles (MH_CondDegreeTetrad) or 6 toggles
+MHp for \code{constraints= ~degree}. Propose either 4 toggles (MH_CondDegreeTetrad) or 6 toggles
 (MH_CondDegreeHexad) at once. For undirected networks, propose 4 toggles (MH_CondDegreeTetrad).
 MH_CondDegreeTetrad selects two edges with no nodes in common, A1-A2 and B1-B2, s.t. A1-B2 and B1-A2 are
 not edges, and propose to replace the former two by the latter two. MH_CondDegreeHexad selects three edges

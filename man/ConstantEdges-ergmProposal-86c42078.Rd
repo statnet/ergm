@@ -5,11 +5,13 @@
 \alias{InitErgmProposal.ConstantEdges}
 \title{MHp for edges constraints}
 \description{
-MHp for \eqn{constraints= ~edges}. Propose pairs of toggles that keep number of edges the same.
+MHp for \code{constraints= ~edges}. Propose pairs of toggles that keep number of edges the same.
 This is done by:
-a. choosing an existing edge at random;
-b. choosing a dyad at random that does not have an edge; and
-c. proposing toggling both these dyads.
+\enumerate{
+\item choosing an existing edge at random;
+\item choosing a dyad at random that does not have an edge; and
+\item proposing toggling both these dyads.
+}
 }
 \details{
 \if{html}{\Sexpr[results=rd,stage=render]{ergm:::.formatProposalsHtml(ergm:::.buildProposalsList(proposal="ConstantEdges"))}}

@@ -279,7 +279,7 @@ NULL
 #'   frame output. See the Details section for the specification.
 #' @param accept A character vector listing permitted data types for
 #'   the output. See the Details section for the specification.
-#' @param l,a arguments to `LARGEST`, which is actually a function
+#' @param a arguments to `LARGEST`, which is actually a function
 #'   that gets processed as a function level spec does.
 #' @param ... Additional argument to the functions of network or to
 #'   the formula's environment.

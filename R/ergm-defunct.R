@@ -10,7 +10,6 @@
 # The last home for functions to removed from ergm.
 
 #' @name ergm-defunct
-#' @usage sociality(object, ...)
 #' @title Functions that have been removed from this package
 #' @description Functions that have been removed after a period of deprecation.
 #' @param ... Arguments to defunct functions.

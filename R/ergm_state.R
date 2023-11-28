@@ -14,7 +14,6 @@
 #' used to start another MCMC sampler. It is deliberately loosely
 #' specified, and its structure and even name are subject to change.
 #'
-#' @param nw a [`network`] object.
 #' @param nw0 a [`network`] object, whose edges are absent or ignored.
 #' @param model an [`ergm_model`] object.
 #' @param ext.state a list equal to the number of terms in the model,
