@@ -160,12 +160,12 @@
         \itemize{
           \item{
             \code{\link{ergm}} objects no longer include \code{$constrained} and \code{$constrained.obs} elements by default, making the fit objects substantially more compact. Information useful for post-processing and diagnostics that was previously extracted from them is now stored in the \code{$info} element.
-            \item{
-              \code{\link{ergm}()} now takes a \code{newnetwork=} argument, specifying if the networks generated at the end of the estimation should be saved. The previous behaviour was to save one network per parallel chain. The new default behaviour is to save only one.
-            }
-            \item{
-              \code{\link{control.ergm}()}'s \code{MCMC.return.stats=} now controls the maximum number of iterations to be stored in \code{$sample} and \code{$sample.obs} for diagnostics; actual MCMC samples are thinned to at most that length. \code{\link{mcmc.diagnostics}()} code prints the information from the full and the thinned samples.
-            }
+          }
+          \item{
+            \code{\link{ergm}()} now takes a \code{newnetwork=} argument, specifying if the networks generated at the end of the estimation should be saved. The previous behaviour was to save one network per parallel chain. The new default behaviour is to save only one.
+          }
+          \item{
+            \code{\link{control.ergm}()}'s \code{MCMC.return.stats=} now controls the maximum number of iterations to be stored in \code{$sample} and \code{$sample.obs} for diagnostics; actual MCMC samples are thinned to at most that length. \code{\link{mcmc.diagnostics}()} code prints the information from the full and the thinned samples.
           }
         }
       }
