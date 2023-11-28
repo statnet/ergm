@@ -24,7 +24,7 @@ void edgewise_cycle_census(Network *nwp, Vertex tail, Vertex head,
                            double *countv, long int maxlen, int semi);
 
 static inline void cutoff_error(ModelTerm *mtp){
-  error(CHAR(STRING_ELT(getListElement(mtp->R, "cutoff.message"), 0)));
+  error("%s", CHAR(STRING_ELT(getListElement(mtp->R, "cutoff.message"), 0)));
 }
 
 #endif
