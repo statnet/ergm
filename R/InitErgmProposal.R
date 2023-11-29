@@ -255,8 +255,8 @@ InitErgmProposal.CondInDegree <- function(arguments, nw) {
 #' @templateVar name CondB1Degree
 #' @aliases InitErgmProposal.CondB1Degree
 #' @title MHp for b1degree constraints
-#' @description MHp for `constraints= ~b1degrees`. For bipartite networks, randomly select an edge (B1i, B2j)
-#'   and an empty dyad with the same node B1i, (B1i, B2k), and propose to toggle both (B1i, B2j) and (B1i, B2k).
+#' @description MHp for `constraints= ~b1degrees`. For bipartite networks, randomly select an edge \eqn{(B_{1i},B_{2j})}
+#'   and an empty dyad with the same node B1i, \eqn{(B_{1i},B_{2k})}, and propose to toggle both \eqn{(B_{1i},B_{2j})} and \eqn{(B_{1i},B_{2k})}.
 #'   This ensures that the degrees of individual nodes in mode 1 are preserved.
 #' @template ergmProposal-general
 NULL
@@ -271,8 +271,8 @@ InitErgmProposal.CondB1Degree <- function(arguments, nw) {
 #' @templateVar name CondB2Degree
 #' @aliases InitErgmProposal.CondB2Degree
 #' @title MHp for b2degree constraints
-#' @description MHp for `constraints= ~b2degrees`. For bipartite networks, randomly select an edge (B1j, B2i)
-#'   and an empty dyad with the same node B2i, (B1k, B2i), and propose to toggle both (B1j, B2i) and (B1k, B2i).
+#' @description MHp for `constraints= ~b2degrees`. For bipartite networks, randomly select an edge \eqn{(B_{1j},B_{2i})}
+#'   and an empty dyad with the same node B2i, \eqn{(B_{1k},B_{2i})}, and propose to toggle both \eqn{(B_{1j},B_{2i})} and \eqn{(B_{1k},B_{2i})}.
 #'   This ensures that the degrees of individual nodes in mode 2 are preserved.
 #' @template ergmProposal-general
 NULL
