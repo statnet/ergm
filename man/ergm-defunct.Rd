@@ -32,19 +32,20 @@
 \alias{newnw.extract}
 \alias{san.ergm}
 \alias{is.inCH}
+\alias{as.rlebdm.ergm}
 \title{Functions that have been removed from this package}
 \usage{
 robust.inverse(...)
 
-\method{plot}{network.ergm}(...)
+plot.network.ergm(...)
 
 ergm.getterms(...)
 
-\method{plot}{mcmc.list.ergm}(...)
+plot.mcmc.list.ergm(...)
 
-\method{plot}{ergm}(...)
+plot.ergm(...)
 
-\method{summary}{statistics}(...)
+summary.statistics(...)
 
 ergm.checkargs(...)
 
@@ -52,7 +53,7 @@ ergm.checkbipartite(...)
 
 ergm.checkdirected(...)
 
-\method{summary}{gof}(...)
+summary.gof(...)
 
 ergm.getMCMCsample(...)
 
@@ -82,22 +83,87 @@ ergm.getmodel(...)
 
 ergm.getglobalstats(...)
 
-\method{as.edgelist}{compressed}(...)
+as.edgelist.compressed(...)
 
-\method{as.network}{uncompressed}(...)
+as.network.uncompressed(...)
 
 standardize.network(...)
 
 newnw.extract(...)
 
-\method{san}{ergm}(...)
+san.ergm(...)
 
 is.inCH(...)
+
+as.rlebdm.ergm(...)
 }
 \arguments{
 \item{...}{Arguments to defunct functions.}
 }
 \description{
 Functions that have been removed after a period of deprecation.
+}
+\details{
+\code{robust.inverse()}: use \code{MASS::ginv()}.
+
+\code{plot.network.ergm()}: use \code{latentnet::plot.ergmm()}.
+
+\code{ergm.getterms()}: use \code{statnet.common::list_rhs.formula()} and \code{statnet.common::eval_lhs.formula()}.
+
+\code{plot.mcmc.list.ergm()}: use \code{ergm_plot.mcmc.list()}.
+
+\code{plot.ergm()}: use \code{mcmc.diagnostics()}.
+
+\code{summary.statistics()}: use \code{summary_formula()}.
+
+\code{ergm.checkargs()}: use \code{check.ErgmTerm()}.
+
+\code{ergm.checkbipartite()}: use \code{check.ErgmTerm()}.
+
+\code{ergm.checkdirected()}: use \code{check.ErgmTerm()}.
+
+\code{summary.gof()}: use \code{print.gof()}.
+
+\code{ergm.getMCMCsample()}: use \code{ergm_MCMC_sample()}.
+
+\code{ergm.MHP.table()}: use \code{ergm_proposal_table()}.
+
+\code{MHproposal()}: use \code{ergm_proposal()}.
+
+\code{MHproposal.character()}: use \code{ergm_proposal()}.
+
+\code{MHproposal.ergm()}: use \code{ergm_proposal()}.
+
+\code{MHproposal.formula()}: use \code{ergm_proposal()}.
+
+\code{ergm.init.methods()}: Initial methods are now specified in \verb{InitErgmReference.*()} functions.
+
+\code{ergm.ConstraintImplications()}: Implications are now specified in the \verb{InitErgmConstraint.*()} functions.
+
+\code{ergm.mcmcslave()}: use \code{ergm_MCMC_slave()}.
+
+\code{ergm.update.formula()}: use \code{statnet.common::nonsimp_update.formula()}.
+
+\code{remove.offset.formula()}: use \code{statnet.common::filter_rhs.formula()}.
+
+\code{network.update()}: use \code{update.network()}.
+
+\code{ergm.getmodel()}: use \code{ergm_model()}.
+
+\code{ergm.getglobalstats()}: use \code{summary.ergm_model()}.
+
+\code{as.edgelist.compressed()}: no longer used
+
+\code{as.network.uncompressed()}: no longer used
+
+\code{standardize.network()}: obviated by improvements to \code{network} package.
+
+\code{newnw.extract()}: use \code{ergm_state} "API"
+
+\code{san.ergm()}: removed due to no meaningful use case
+
+\code{is.inCH()}: use \code{shrink_into_CH()}.
+
+\code{as.rlebdm.ergm()}: no longer used
 }
 \keyword{internal}

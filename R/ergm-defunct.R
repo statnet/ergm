@@ -11,108 +11,136 @@
 
 #' @name ergm-defunct
 #' @title Functions that have been removed from this package
+#' @usage
+#'
+#' robust.inverse(...)
+#'
+#' plot.network.ergm(...)
+#'
+#' ergm.getterms(...)
+#'
+#' plot.mcmc.list.ergm(...)
+#'
+#' plot.ergm(...)
+#'
+#' summary.statistics(...)
+#'
+#' ergm.checkargs(...)
+#'
+#' ergm.checkbipartite(...)
+#'
+#' ergm.checkdirected(...)
+#'
+#' summary.gof(...)
+#'
+#' ergm.getMCMCsample(...)
+#'
+#' ergm.MHP.table(...)
+#'
+#' MHproposal(...)
+#'
+#' MHproposal.character(...)
+#'
+#' MHproposal.ergm(...)
+#'
+#' MHproposal.formula(...)
+#'
+#' ergm.init.methods(...)
+#'
+#' ergm.ConstraintImplications(...)
+#'
+#' ergm.mcmcslave(...)
+#'
+#' ergm.update.formula(...)
+#'
+#' remove.offset.formula(...)
+#'
+#' network.update(...)
+#'
+#' ergm.getmodel(...)
+#'
+#' ergm.getglobalstats(...)
+#'
+#' as.edgelist.compressed(...)
+#'
+#' as.network.uncompressed(...)
+#'
+#' standardize.network(...)
+#'
+#' newnw.extract(...)
+#'
+#' san.ergm(...)
+#'
+#' is.inCH(...)
+#'
+#' as.rlebdm.ergm(...)
+#'
 #' @description Functions that have been removed after a period of deprecation.
 #' @param ... Arguments to defunct functions.
+#' @details
+#' `robust.inverse()`: use `MASS::ginv()`.
+#'
+#' `plot.network.ergm()`: use `latentnet::plot.ergmm()`.
+#'
+#' `ergm.getterms()`: use `statnet.common::list_rhs.formula()` and `statnet.common::eval_lhs.formula()`.
+#'
+#' `plot.mcmc.list.ergm()`: use `ergm_plot.mcmc.list()`.
+#'
+#' `plot.ergm()`: use `mcmc.diagnostics()`.
+#'
+#' `summary.statistics()`: use `summary_formula()`.
+#'
+#' `ergm.checkargs()`: use `check.ErgmTerm()`.
+#'
+#' `ergm.checkbipartite()`: use `check.ErgmTerm()`.
+#'
+#' `ergm.checkdirected()`: use `check.ErgmTerm()`.
+#'
+#' `summary.gof()`: use `print.gof()`.
+#'
+#' `ergm.getMCMCsample()`: use `ergm_MCMC_sample()`.
+#'
+#' `ergm.MHP.table()`: use `ergm_proposal_table()`.
+#'
+#' `MHproposal()`: use `ergm_proposal()`.
+#'
+#' `MHproposal.character()`: use `ergm_proposal()`.
+#'
+#' `MHproposal.ergm()`: use `ergm_proposal()`.
+#'
+#' `MHproposal.formula()`: use `ergm_proposal()`.
+#'
+#' `ergm.init.methods()`: Initial methods are now specified in `InitErgmReference.*()` functions.
+#'
+#' `ergm.ConstraintImplications()`: Implications are now specified in the `InitErgmConstraint.*()` functions.
+#'
+#' `ergm.mcmcslave()`: use `ergm_MCMC_slave()`.
+#'
+#' `ergm.update.formula()`: use `statnet.common::nonsimp_update.formula()`.
+#'
+#' `remove.offset.formula()`: use `statnet.common::filter_rhs.formula()`.
+#'
+#' `network.update()`: use `update.network()`.
+#'
+#' `ergm.getmodel()`: use `ergm_model()`.
+#'
+#' `ergm.getglobalstats()`: use `summary.ergm_model()`.
+#'
+#' `as.edgelist.compressed()`: no longer used
+#'
+#' `as.network.uncompressed()`: no longer used
+#'
+#' `standardize.network()`: obviated by improvements to `network` package.
+#'
+#' `newnw.extract()`: use `ergm_state` "API"
+#'
+#' `san.ergm()`: removed due to no meaningful use case
+#'
+#' `is.inCH()`: use `shrink_into_CH()`.
+#'
+#' `as.rlebdm.ergm()`: no longer used
+#'
+#' @aliases robust.inverse plot.network.ergm ergm.getterms plot.mcmc.list.ergm plot.ergm summary.statistics ergm.checkargs ergm.checkbipartite ergm.checkdirected summary.gof ergm.getMCMCsample ergm.MHP.table MHproposal MHproposal.character MHproposal.ergm MHproposal.formula ergm.init.methods ergm.ConstraintImplications ergm.mcmcslave ergm.update.formula remove.offset.formula network.update ergm.getmodel ergm.getglobalstats as.edgelist.compressed as.network.uncompressed standardize.network newnw.extract san.ergm is.inCH as.rlebdm.ergm
+#'
 #' @keywords internal
-
 NULL
-
-# The following were defunct-ed on 2018-04-07.
-
-#' @rdname ergm-defunct
-robust.inverse <- function (...) .Defunct("MASS::ginv")
-
-# The following were defunct-ed on 2019-03-07.
-#' @rdname ergm-defunct
-plot.network.ergm <- function(...) .Defunct("latentnet::plot.ergmm()")
-
-#' @rdname ergm-defunct
-ergm.getterms<-function(...) .Defunct("statnet.common::list_rhs.formula() and statnet.common::eval_lhs.formula()")
-
-#' @rdname ergm-defunct
-plot.mcmc.list.ergm <- function(...) .Defunct("ergm_plot.mcmc.list()")
-
-#' @rdname ergm-defunct
-plot.ergm <- function(...) .Defunct("mcmc.diagnostics(x,...)")
-
-#' @rdname ergm-defunct
-summary.statistics <- function(...) .Defunct("summary_formula()")
-
-#' @rdname ergm-defunct
-ergm.checkargs <- function(...) .Defunct("check.ErgmTerm")
-
-#' @rdname ergm-defunct
-ergm.checkbipartite <- function(...) .Defunct("check.ErgmTerm")
-
-#' @rdname ergm-defunct
-ergm.checkdirected <- function(...) .Defunct("check.ErgmTerm")
-
-#' @rdname ergm-defunct
-summary.gof <- function(...) .Defunct("print.gof")
-
-#' @rdname ergm-defunct
-ergm.getMCMCsample <- function(...) .Defunct("ergm_MCMC_sample")
-
-#' @rdname ergm-defunct
-ergm.MHP.table <- function(...) .Defunct("ergm_proposal_table()")
-
-#' @rdname ergm-defunct
-MHproposal <- function(...) .Defunct("ergm_proposal()")
-
-#' @rdname ergm-defunct
-MHproposal.character <- function(...) .Defunct("ergm_proposal()")
-
-#' @rdname ergm-defunct
-MHproposal.ergm <- function(...) .Defunct("ergm_proposal()")
-
-#' @rdname ergm-defunct
-MHproposal.formula <- function(...) .Defunct("ergm_proposal()")
-
-#' @rdname ergm-defunct
-ergm.init.methods <- function(...) .Defunct(msg="Function ergm.init.methods() has been deprecated in favor of specifying init_methods in InitErgmReference.*() functions, and has no effect.")
-
-#' @rdname ergm-defunct
-ergm.ConstraintImplications <- function(...) .Defunct(msg="Function ergm.ConstraintImplications() has been deprecated in favor of specifying the implications in the InitErgmConstraint.*() functions, and has no effect.")
-
-#' @rdname ergm-defunct
-ergm.mcmcslave <- function(...) .Defunct("ergm_MCMC_slave")
-
-# The following were defunct-ed on 2019-08-21.
-
-#' @rdname ergm-defunct
-ergm.update.formula <- function(...) .Defunct("statnet.common::nonsimp_update.formula")
-
-#' @rdname ergm-defunct
-remove.offset.formula <- function(...) .Defunct("statnet.common::filter_rhs.formula")
-
-#' @rdname ergm-defunct
-network.update<-function(...) .Defunct("update.network")
-
-#' @rdname ergm-defunct
-ergm.getmodel <- function(...) .Defunct("ergm_model")
-
-#' @rdname ergm-defunct
-ergm.getglobalstats <- function(...) .Defunct("summary.ergm_model")
-
-#' @rdname ergm-defunct
-as.edgelist.compressed<-function(...) .Defunct(msg="No longer used.")
-
-#' @rdname ergm-defunct
-as.network.uncompressed<-function(...) .Defunct(msg="No longer used.")
-
-# The following were defunct-ed 2020-09-25.
-
-#' @rdname ergm-defunct
-standardize.network <- function(...) .Defunct(msg=paste0("Obviated by improvements to ", sQuote("network"), " package."))
-
-#' @rdname ergm-defunct
-newnw.extract<-function(...) .Defunct('ergm_state "API"')
-
-# The following were defunct-ed 2022-06-21.
-
-#' @rdname ergm-defunct
-san.ergm <- function(...) .Defunct(msg="Removed due to no meaningful use case.")
-
-# The following were defunct-ed 2022-09-10.
-#' @rdname ergm-defunct
-is.inCH <- function(...) .Defunct("shrink_into_CH")

@@ -277,11 +277,6 @@ compress.rlebdm <- function(x, ...){
   structure(y, n=attr(x, "n"), class=class(x))
 }
 
-# TODO: Remove this after the next release.
-as.rlebdm.ergm <- function(x, ...){
-  as.rlebdm(x$constrained, x$constrained.obs, ...)
-}
-
 #' @describeIn rlebdm
 #'
 #' Convert an [`rlebdm`] object to an [`edgelist`]: a two-column
