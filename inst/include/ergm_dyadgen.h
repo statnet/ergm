@@ -160,6 +160,7 @@ static inline void DyadGenRandNonedge(Vertex *tail, Vertex *head, DyadGen *gen){
         case RLEBDM1DGen:
         case WtRLEBDM1DGen:
           GetRandRLEBDM1D(tail, head, &gen->dyads.rlebdm);
+          break;
         case EdgeListGen:
         case WtEdgeListGen:
           {
