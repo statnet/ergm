@@ -64,6 +64,55 @@
 
 %% }
 
+\section{Changes in version 4.6.0}{
+
+  \subsection{NEW FEATURES}{
+    \itemize{
+      \item{
+        \code{\link[=edges-ergmConstraint]{edges}} constraint can now be combined with arbitrary dyadic constraints.
+      }
+    }
+  }
+
+
+  \subsection{BUG FIXES}{
+    \itemize{
+      \item{
+        Syntactic fixes in documentation.
+      }
+      \item{
+        The bounded degree support in the dyad noise proposal (see \code{\link{dyadnoise-ergmConstraint}}) has been fixed.
+      }
+      \item{
+        A number of potential errors and vulnerabilities in C code flagged by CRAN have been fixed.
+      }
+      \item{
+        In some models, with high degree of multicollinearity among the sufficient statistics, detection thresholds were too sensitive, ultimately resulting in some standard errors being severely underestimated.
+      }
+    }
+  }
+
+
+  \subsection{OTHER USER-VISIBLE CHANGES}{
+    \itemize{
+      \item{
+        In \code{\link{simulate.ergm}()} with \code{observational=TRUE}, the basis (initial network) defaults to \code{object$network}, not \code{object$newnetwork}, since the latter often has missing edges and other metadata missing.
+      }
+      \item{
+        The proposal lookup API is now more flexible: instead of selecting one proposal, it returns a list ordered by priority and suitability. Each proposal on the list is tried in turn and can \dQuote{reject} a sampling scenario at initialization, in which case the next proposal is tried. This means that \dQuote{special case} proposals can offer themselves up and then pass on if it is not their special case.
+      }
+    }
+  }
+
+  \subsection{C-LEVEL FACILITIES}{
+    \itemize{
+      \item{
+        New C macros to simplify initialization of the standard dyad generator and bounded degree sampler.
+      }
+    }
+  }
+}
+
 
 \section{Changes in version 4.5.0}{
 
