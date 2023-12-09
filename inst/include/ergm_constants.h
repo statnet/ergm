@@ -12,7 +12,7 @@
 
 // Macros indicating the version of the C API.
 #define ERGM_API_MAJOR 4
-#define ERGM_API_MINOR 0
+#define ERGM_API_MINOR 6
 
 typedef enum MCMCStatus_enum {
   MCMC_OK = 0,
