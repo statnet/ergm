@@ -321,7 +321,7 @@ ergm.MCMLE <- function(init, s, s.obs,
       # if some statistic has a variance of exactly 0.
       novar <- diag(Vm) == 0
       Vm[!novar,!novar] <- snearPD(Vm[!novar,!novar,drop=FALSE], posd.tol=0, base.matrix=TRUE)$mat
-      iVm <- sginv(Vm)
+      iVm <- sginv(Vm, tol=.Machine$double.eps^(3/4))
       diag(Vm)[novar] <- sqrt(.Machine$double.xmax) # Virtually any nonzero difference in estimating functions will map to a very large number.
       d2 <- xTAx(estdiff, iVm)
       if(d2<2) last.adequate <- TRUE

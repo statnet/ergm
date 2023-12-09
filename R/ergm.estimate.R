@@ -225,7 +225,7 @@ ergm.estimate<-function(init, model, statsmatrices, statsmatrices.obs=NULL,
     # or more statistics.
     if(inherits(Lout$par,"try-error")){
       Lout$par <- try(eta0 
-                      + sginv(-Lout$hessian) %*%
+                      + sginv(-Lout$hessian, tol=.Machine$double.eps^(3/4)) %*%
                       xobs,
                       silent=TRUE)
     }
@@ -339,10 +339,10 @@ ergm.estimate<-function(init, model, statsmatrices, statsmatrices.obs=NULL,
     }
     
     covar <- matrix(NA, ncol=length(theta), nrow=length(theta))
-    covar[!model$etamap$offsettheta,!model$etamap$offsettheta ] <- sginv(-Lout$hessian)
+    covar[!model$etamap$offsettheta, !model$etamap$offsettheta] <- sginv(-Lout$hessian, tol=.Machine$double.eps^(3/4))
     dimnames(covar) <- list(names(theta),names(theta))
     He <- matrix(NA, ncol=length(theta), nrow=length(theta))
-    He[!model$etamap$offsettheta,!model$etamap$offsettheta ] <- Lout$hessian
+    He[!model$etamap$offsettheta, !model$etamap$offsettheta] <- Lout$hessian
     dimnames(He) <- list(names(theta),names(theta))
     Lout$hessian <- He
     

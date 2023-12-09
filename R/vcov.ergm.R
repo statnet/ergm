@@ -39,7 +39,7 @@ vcov.ergm <- function(object, sources=c("all","model","estimation"), ...){
     if(is.null(object$hessian) && is.null(object$covar)){
       object$covar <- matrix(NA, p, p)
     }
-    v.mod <- NVL(object$covar, sginv(-object$hessian))
+    v.mod <- NVL(object$covar, sginv(-object$hessian, tol=.Machine$double.eps^(3/4)))
     v.mod[is.na(diag(v.mod))|diag(v.mod)<0|is.infinite(coef(object)),] <- NA
     v.mod[,is.na(diag(v.mod))|diag(v.mod)<0|is.infinite(coef(object))] <- NA
     v.mod[object$offset,] <- 0

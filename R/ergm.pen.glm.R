@@ -101,7 +101,7 @@ ergm.pen.glm <- function(formula,
    iter <- iter + 1
    XW2 <- sweep(x, 1, (weights*(pi * (1 - pi)))^0.5, "*") #### X' (W ^ 1/2)
    Fisher <- crossprod(XW2)  #### X' W  X
-   covs <- sginv(Fisher)  ### (X' W  X) ^ -1
+   covs <- sginv(Fisher, tol=.Machine$double.eps^(3/4))  ### (X' W  X) ^ -1
 #  H <- crossprod(XW2, covs) %*% XW2
 #  H <- XW2 %*% covs %*% t(XW2)
    diagH <- pi
