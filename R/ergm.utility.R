@@ -264,3 +264,25 @@ trim_env_const_formula <- function(x, keep=NULL){
 
   if(needs_env) x else trim_env(x, keep)
 }
+
+### A patched version of statnet.common::sginv() that uses
+### eigendecomposition rather than the SVD for the case when symmetric
+### non-negative-definite (snnd) is TRUE.
+###
+### TODO: Delete after incorporation into statnet.common.
+sginv <- function(X, tol = sqrt(.Machine$double.eps), ..., snnd = TRUE){
+  if(!snnd) statnet.common::sginv(X, ..., snnd)
+
+  d <- diag(as.matrix(X))
+  d <- ifelse(d==0, 1, 1/d)
+
+  d <- sqrt(d)
+  if(anyNA(d)) stop("Matrix a has negative elements on the diagonal, and snnd=TRUE.")
+  dd <- rep(d, each = length(d)) * d
+  X <- X * dd
+
+  ## Perform inverse via eigendecomposition, removing too-small eigenvalues.
+  e <- eigen(X, symmetric=TRUE)
+  keep <- e$values > max(tol * e$values[1L], 0)
+  e$vectors[, keep, drop=FALSE] %*% ((1/e$values[keep]) * t(e$vectors[, keep, drop=FALSE])) * dd
+}
