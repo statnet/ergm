@@ -225,7 +225,7 @@ ergm.estimate<-function(init, model, statsmatrices, statsmatrices.obs=NULL,
     # or more statistics.
     if(inherits(Lout$par,"try-error")){
       Lout$par <- try(eta0 
-                      + sginv(-Lout$hessian, tol=.Machine$double.eps^(3/4)) %*%
+                      + sginv(-Lout$hessian) %*%
                       xobs,
                       silent=TRUE)
     }

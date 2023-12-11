@@ -315,15 +315,7 @@ ergm.MCMLE <- function(init, s, s.obs,
       estdiff <- NVL3(esteq.obs, colMeans(.), 0) - colMeans(esteq)
       pprec <- diag(sqrt(control$MCMLE.MCMC.precision), nrow=length(estdiff))
       Vm <- pprec%*%(cov(esteq) - NVL3(esteq.obs, cov(.), 0))%*%pprec
-
-      # Ensure tolerance hyperellipsoid is PSD. (If it's not PD, the
-      # ellipsoid is workable, if flat.) Special handling is required
-      # if some statistic has a variance of exactly 0.
-      novar <- diag(Vm) == 0
-      Vm[!novar,!novar] <- snearPD(Vm[!novar,!novar,drop=FALSE], posd.tol=0, base.matrix=TRUE)$mat
-      iVm <- sginv(Vm, tol=.Machine$double.eps^(3/4))
-      diag(Vm)[novar] <- sqrt(.Machine$double.xmax) # Virtually any nonzero difference in estimating functions will map to a very large number.
-      d2 <- xTAx(estdiff, iVm)
+      d2 <- xTAx_seigen(estdiff, Vm)
       if(d2<2) last.adequate <- TRUE
     }
 
@@ -411,7 +403,7 @@ ergm.MCMLE <- function(init, s, s.obs,
       }
     }else if(control$MCMLE.termination=='confidence'){
       if(!is.null(estdiff.prev)){
-        d2.prev <- xTAx(estdiff.prev, iVm)
+        d2.prev <- xTAx_seigen(estdiff.prev, Vm)
         if(verbose) message("Distance from origin on tolerance region scale: ", format(d2), " (previously ", format(d2.prev), ").")
         d2.not.improved <- d2.not.improved[-1] 
         if(d2 >= d2.prev){
@@ -448,9 +440,9 @@ ergm.MCMLE <- function(init, s, s.obs,
           estdiff <- estdiff[!hotel$novar]
           estcov <- estcov[!hotel$novar, !hotel$novar]
 
-          d2e <- xTAx(estdiff, iVm[!hotel$novar, !hotel$novar])
+          d2e <- xTAx_seigen(estdiff, Vm[!hotel$novar, !hotel$novar])
           if(d2e<1){ # Update ends within tolerance ellipsoid.
-            T2 <- try(.ellipsoid_mahalanobis(estdiff, estcov, iVm[!hotel$novar, !hotel$novar]), silent=TRUE) # Distance to the nearest point on the tolerance region boundary.
+            T2 <- try(.ellipsoid_mahalanobis(estdiff, estcov, Vm[!hotel$novar, !hotel$novar]), silent=TRUE) # Distance to the nearest point on the tolerance region boundary.
             if(inherits(T2, "try-error")){ # Within tolerance ellipsoid, but cannot be tested.
               message("Unable to test for convergence; increasing sample size.")
               .boost_samplesize(control$MCMLE.confidence.boost)
@@ -591,26 +583,26 @@ ergm.MCMLE <- function(init, s, s.obs,
 }
 
 #' Find the shortest squared Mahalanobis distance (with covariance W)
-#' from a point `y` to an ellipsoid defined by `x'U x = 1`, provided
+#' from a point `y` to an ellipsoid defined by `x'U^-1 x = 1`, provided
 #' that `y` is in the interior of the ellipsoid.
 #'
 #' @param y a vector
 #' @param W,U a square matrix
 #'
 #' @noRd
-.ellipsoid_mahalanobis <- function(y, W, U){
+.ellipsoid_mahalanobis <- function(y, W, U, tol=sqrt(.Machine$double.eps)){
   y <- c(y)
-  if(xTAx(y,U)>=1) stop("Point is not in the interior of the ellipsoid.")
+  if(xTAx_seigen(y,U,tol=tol)>=1) stop("Point is not in the interior of the ellipsoid.")
   I <- diag(length(y))
-  WU <- W%*%U
-  x <- function(l) c(solve(I+l*WU, y)) # Singluar for negative reciprocals of eigenvalues of WiU.
-  zerofn <- function(l) ERRVL(try({x <- x(l); xTAx(x,U)-1}, silent=TRUE), +Inf)
+  WUi <- t(qr.solve(qr(U, tol=tol), W))
+  x <- function(l) c(solve(I+l*WUi, y)) # Singluar for negative reciprocals of eigenvalues of WiU.
+  zerofn <- function(l) ERRVL(try({x <- x(l); xTAx_seigen(x,U,tol=tol)-1}, silent=TRUE), +Inf)
 
   # For some reason, WU sometimes has 0i element in its eigenvalues.
-  eig <- Re(eigen(WU, only.values=TRUE)$values)
+  eig <- Re(eigen(WUi, only.values=TRUE)$values)
   lmin <- -1/max(eig)
   l <- uniroot(zerofn, lower=lmin, upper=0, tol=sqrt(.Machine$double.xmin))$root
   x <- x(l)
 
-  xTAx_qrssolve(y-x, W)
+  xTAx_seigen(y-x, W, tol=tol)
 }

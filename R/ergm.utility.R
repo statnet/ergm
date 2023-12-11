@@ -286,3 +286,37 @@ sginv <- function(X, tol = sqrt(.Machine$double.eps), ..., snnd = TRUE){
   keep <- e$values > max(tol * e$values[1L], 0)
   e$vectors[, keep, drop=FALSE] %*% ((1/e$values[keep]) * t(e$vectors[, keep, drop=FALSE])) * dd
 }
+
+#' Evaluate a quadratic form with a possibly singular matrix using
+#' eigendecomposition after scaling to correlation.
+#'
+#' Let \eqn{A} be the matrix of interest, and let \eqn{D} is a
+#' diagonal matrix whose diagonal is same as that of \eqn{A}.
+#'
+#' Let \eqn{R = D^{-1/2} A D^{-1/2}}. Then \eqn{A = D^{1/2} R D^{1/2}} and
+#' \eqn{A^{-1} = D^{-1/2} R^{-1} D^{-1/2}}.
+#'
+#' Decompose \eqn{R = P L P'} for \eqn{L} diagonal matrix of eigenvalues
+#' and \eqn{P} orthogonal. Then \eqn{R^{-1} = P L^{-1} P'}.
+#'
+#' Substituting,
+#' \deqn{x' A^{-1} x  = x' D^{-1/2} P L^{-1} P' D^{-1/2} x = h' L^{-1} h}
+#' for \eqn{h = P' D^{-1/2} x}.
+#'
+#' @noRd
+xTAx_seigen <- function(x, A, tol=sqrt(.Machine$double.eps), ...) {
+  d <- diag(as.matrix(A))
+  d <- ifelse(d<=0, 0, 1/d)
+
+  d <- sqrt(d)
+  dd <- rep(d, each = length(d)) * d
+  A <- A * dd
+
+  e <- eigen(A)
+
+  keep <- e$values > max(tol * e$values[1L], 0)
+
+  h <- drop(crossprod(x*d, e$vectors[,keep,drop=FALSE]))
+
+  structure(sum(h*h/e$values[keep]), rank = sum(keep), nullity = sum(!keep))
+}

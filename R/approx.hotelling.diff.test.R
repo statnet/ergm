@@ -166,7 +166,7 @@ approx.hotelling.diff.test<-function(x,y=NULL, mu0=0, assume.indep=FALSE, var.eq
 
   if(p==0) stop("data are essentially constant")
   
-  ivcov.d <-sginv(vcov.d[!novar,!novar,drop=FALSE])
+  ivcov.d <- sginv(vcov.d[!novar,!novar,drop=FALSE])
   
   method <- paste0("Hotelling's ",
                   NVL2(y, "Two", "One"),
@@ -189,7 +189,7 @@ approx.hotelling.diff.test<-function(x,y=NULL, mu0=0, assume.indep=FALSE, var.eq
                    " do not vary in x or in y but have differences equal to mu0"),
               "; they have been ignored for the purposes of testing.")
     }
-    T2 <- xTAx((d-mu0)[!novar], ivcov.d)
+    T2 <- xTAx_seigen((d-mu0)[!novar], vcov.d[!novar,!novar,drop=FALSE])
   }
 
   NANVL <- function(z, ifNAN) ifelse(is.nan(z),ifNAN,z)
