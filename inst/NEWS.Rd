@@ -84,6 +84,9 @@
         The bounded degree support in the dyad noise proposal (see \code{\link{dyadnoise-ergmConstraint}}) has been fixed.
       }
       \item{
+        Fixed a bug in the DyadGen API implementation that would sometimes cause a crash when sampling non-edges with RLEBDM (such as when combining the \code{\link[edges-ergmConstraint]{edges}} with some dyadic constraint). (Thanks to  Benjamin Rosche (Cornell University) for the bug report.)
+      }
+      \item{
         A number of potential errors and vulnerabilities in C code flagged by CRAN have been fixed.
       }
       \item{
@@ -96,10 +99,16 @@
   \subsection{OTHER USER-VISIBLE CHANGES}{
     \itemize{
       \item{
+        The proposal lookup API is now more flexible: instead of selecting one proposal, it returns a list ordered by priority and suitability. Each proposal on the list is tried in turn and can \dQuote{reject} a sampling scenario at initialization, in which case the next proposal is tried. This means that \dQuote{special case} proposals can offer themselves up and then pass on if it is not their special case.
+      }
+      \item{
         In \code{\link{simulate.ergm}()} with \code{observational=TRUE}, the basis (initial network) defaults to \code{object$network}, not \code{object$newnetwork}, since the latter often has missing edges and other metadata missing.
       }
       \item{
-        The proposal lookup API is now more flexible: instead of selecting one proposal, it returns a list ordered by priority and suitability. Each proposal on the list is tried in turn and can \dQuote{reject} a sampling scenario at initialization, in which case the next proposal is tried. This means that \dQuote{special case} proposals can offer themselves up and then pass on if it is not their special case.
+        Documentation for defunct functions (in \code{\link{ergm-defunct}}) no longer includes function prototypes as they triggered CRAN warnings.
+      }
+      \item{
+        Some changes to minimize matrix inversions and improve numerical stability.
       }
     }
   }
