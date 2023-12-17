@@ -26,7 +26,7 @@
  Default MH algorithm with dyad generator API.
 *********************/
 MH_I_FN(Mi_randomtoggle){
-  INIT_DYADGEN_AND_DEGREE_BOUND;
+  INIT_DYADGEN_AND_DEGREE_BOUND(FALSE);
   MHp->ntoggles = storage->gen->ndyads!=0 ? 1 : MH_FAILED;
 }
 
@@ -55,7 +55,7 @@ MH_F_FN(Mf_randomtoggle){
 ***********************/
 
 MH_I_FN(Mi_TNT){
-  INIT_DYADGEN_AND_DEGREE_BOUND;
+  INIT_DYADGEN_AND_DEGREE_BOUND(TRUE);
   MHp->ntoggles = storage->gen->ndyads!=0 ? 1 : MH_FAILED;
 }
 
@@ -493,7 +493,7 @@ MH_F_FN(Mf_TNT10){
  datasets are sparse, so this is not likely to be an issue.
 *********************/
 MH_I_FN(Mi_ConstantEdges){
-  INIT_DYADGEN_AND_DEGREE_BOUND;
+  INIT_DYADGEN_AND_DEGREE_BOUND(TRUE);
   Edge nedges = DyadGenEdgecount(storage->gen);
   MHp->ntoggles = nedges>0 && nedges<storage->gen->ndyads && storage->gen->ndyads>=2 ? 2 : MH_FAILED;
 }

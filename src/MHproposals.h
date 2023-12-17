@@ -16,9 +16,9 @@
 
 typedef struct{DyadGen *gen; DegreeBound *bd;} StoreDyadGenAndDegreeBound;
 
-#define INIT_DYADGEN_AND_DEGREE_BOUND                           \
+#define INIT_DYADGEN_AND_DEGREE_BOUND(el)                       \
   ALLOC_STORAGE(1, StoreDyadGenAndDegreeBound, storage);        \
-  storage->gen = DyadGenInitializeR(MHp->R, nwp, TRUE);         \
+  storage->gen = DyadGenInitializeR(MHp->R, nwp, el);           \
   storage->bd = DegreeBoundInitializeR(MHp->R, nwp);
 
 #define DESTROY_DYADGEN_AND_DEGREE_BOUND                \
