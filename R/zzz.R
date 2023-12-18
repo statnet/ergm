@@ -8,8 +8,6 @@
 #  Copyright 2003-2023 Statnet Commons
 ################################################################################
 #' @importFrom Rdpack reprompt
-#' @importFrom MASS ginv
-#' @importFrom Matrix nearPD
 .onAttach <- function(libname, pkgname){
   #' @importFrom statnet.common statnetStartupMessage
   sm <- statnetStartupMessage("ergm", c("statnet","ergm.count","tergm"), TRUE)
