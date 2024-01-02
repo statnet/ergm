@@ -116,7 +116,8 @@ get.node.attr <- function(nw, attrname, functionname=NULL, numeric=FALSE) {
 #' transform the attribute by collapsing the smallest `n` categories
 #' into one, naming it `into`. Note that `into` must be of the same
 #' type (numeric, character, etc.) as the vertex attribute in
-#' question.
+#' question. If there are ties for `n`th smallest category, they will
+#' be broken in lexicographic order, and a warning will be issued.
 #'
 #' The name the nodal attribute receives in the statistic can be
 #' overridden by setting a an [attr()]-style attribute `"name"`.
@@ -140,9 +141,10 @@ get.node.attr <- function(nw, attrname, functionname=NULL, numeric=FALSE) {
 #' is `LARGEST`, which will refer to the most frequent category, so,
 #' say, to set such a category as the baseline, pass
 #' `levels=-LARGEST`. In addition, `LARGEST(n)` will refer to the `n`
-#' largest categories. `SMALLEST` works analogously. Note that if there
-#' are ties in frequencies, they will be broken arbitrarily. To
-#' specify numeric or logical levels literally, wrap in [I()].}
+#' largest categories. `SMALLEST` works analogously. If there are ties
+#' in frequencies, they will be broken in lexicographic order, and a
+#' warning will be issued. To specify numeric or logical levels
+#' literally, wrap in [I()].}
 #'
 #'\item{[`NULL`]}{Retain all possible levels; usually equivalent to
 #' passing `TRUE`.}
@@ -192,6 +194,10 @@ get.node.attr <- function(nw, attrname, functionname=NULL, numeric=FALSE) {
 #' table(faux.mesa.high %v% "Grade")
 #' summary(faux.mesa.high~nodefactor((~Grade) %>% COLLAPSE_SMALLEST(2, 0),
 #'                                   levels=TRUE))
+#'
+#' # Handling of tied frequencies
+#' faux.mesa.high %v% "Plans" <- sample(rep(c("College", "Trade School", "Apprenticeship", "Undecided"), c(80,80,20,25)))
+#' summary(faux.mesa.high ~ nodefactor("Plans", levels = -LARGEST))
 #' 
 #' # Mixing between lower and upper grades:
 #' summary(faux.mesa.high~mm(~Grade>=10))
@@ -652,14 +658,38 @@ ERGM_VATTR_SPEC_NULL <- "function,formula,character,AsIs,NULL"
 #' @export
 ERGM_LEVELS_SPEC <- "function,formula,character,numeric,logical,AsIs,NULL,matrix"
 
+rank_cut <- function(x, n, tie_action = c("warning", "error"), top = FALSE){    
+  ordrank <- if(top) function(r) length(x) + 1 - r else identity
+  s1 <- ordrank(rank(x, ties.method="min")) <= n
+  s2 <- ordrank(rank(x, ties.method="max")) <= n
+
+  if(identical(s1, s2)) which(s1)
+  else{
+    tie_action <- match.arg(tie_action)
+    msg <- paste0("Levels ", paste.and(sQuote(names(x)[s1!=s2])), " are tied.")
+    switch(tie_action,
+           error = ergm_Init_abort(msg, " Specify explicitly."),
+           warning = {
+             ergm_Init_warn(msg, " Using the order given.")
+             which(ordrank(rank(x, ties.method="first")) <= n)
+           })
+  }
+}
+
+levels_cut <- function(x, n, lvls = sort(unique(x)), top = FALSE, ...){
+  f <- setNames(tabulate(match(x, lvls)), lvls)
+  sel <- rank_cut(f, n, top=top, ...)
+  if(missing(lvls)) lvls[sel] else sel
+}
+
 #' @rdname nodal_attributes
 #' @export
 LARGEST <- structure(function(l, a){
-  if(!missing(a)) which.max(tabulate(match(a, l))) # passed as levels=LARGEST
+  if(!missing(a)) levels_cut(a, 1, l, top=TRUE) # passed as levels=LARGEST
   else{ # passed as levels=LARGEST(n): return a function
     n <- l
     structure(function(l, a){
-      which(order(tabulate(match(a,l)), decreasing=TRUE)<=n)
+      levels_cut(a, n, l, top=TRUE)
     }, class = c("ergm_levels_spec_function", "function"))
   }
 }, class = c("ergm_levels_spec_function", "function"))
@@ -667,11 +697,11 @@ LARGEST <- structure(function(l, a){
 #' @rdname nodal_attributes
 #' @export
 SMALLEST <- structure(function(l, a){
-  if(!missing(a)) which.min(tabulate(match(a, l))) # passed as levels=SMALLEST
+  if(!missing(a)) levels_cut(a, 1, l) # passed as levels=SMALLEST
   else{ # passed as levels=SMALLEST(n): return a function
     n <- l
     structure(function(l, a){
-      which(order(tabulate(match(a,l)), decreasing=FALSE)<=n)
+      levels_cut(a, n, l)
     }, class = c("ergm_levels_spec_function", "function"))
   }
 }, class = c("ergm_levels_spec_function", "function"))
@@ -698,10 +728,8 @@ COLLAPSE_SMALLEST <- function(object, n, into){
   attr <- object
   function(...){
     vattr <- ergm_get_vattr(attr, ...)
-    lvls <- unique(vattr)
-    vattr.codes <- match(vattr,lvls)
-    smallest <- which(order(tabulate(vattr.codes), decreasing=FALSE)<=n)
-    vattr[vattr.codes %in% smallest] <- into
+    smallest <- levels_cut(vattr, n)
+    vattr[vattr %in% smallest] <- into
     vattr
   }
 }

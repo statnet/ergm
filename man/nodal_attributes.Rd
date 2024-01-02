@@ -78,7 +78,8 @@ Any of these arguments may also be wrapped in or piped through
 transform the attribute by collapsing the smallest \code{n} categories
 into one, naming it \code{into}. Note that \code{into} must be of the same
 type (numeric, character, etc.) as the vertex attribute in
-question.
+question. If there are ties for \code{n}th smallest category, they will
+be broken in lexicographic order, and a warning will be issued.
 
 The name the nodal attribute receives in the statistic can be
 overridden by setting a an \code{\link[=attr]{attr()}}-style attribute \code{"name"}.
@@ -104,9 +105,10 @@ retain all levels. Negative values exclude. Another special value
 is \code{LARGEST}, which will refer to the most frequent category, so,
 say, to set such a category as the baseline, pass
 \code{levels=-LARGEST}. In addition, \code{LARGEST(n)} will refer to the \code{n}
-largest categories. \code{SMALLEST} works analogously. Note that if there
-are ties in frequencies, they will be broken arbitrarily. To
-specify numeric or logical levels literally, wrap in \code{\link[=I]{I()}}.}
+largest categories. \code{SMALLEST} works analogously. If there are ties
+in frequencies, they will be broken in lexicographic order, and a
+warning will be issued. To specify numeric or logical levels
+literally, wrap in \code{\link[=I]{I()}}.}
 
 \item{\code{\link{NULL}}}{Retain all possible levels; usually equivalent to
 passing \code{TRUE}.}
@@ -156,6 +158,10 @@ summary(faux.mesa.high~nodefactor(~Grade, levels=-LARGEST))
 table(faux.mesa.high \%v\% "Grade")
 summary(faux.mesa.high~nodefactor((~Grade) \%>\% COLLAPSE_SMALLEST(2, 0),
                                   levels=TRUE))
+
+# Handling of tied frequencies
+faux.mesa.high \%v\% "Plans" <- sample(rep(c("College", "Trade School", "Apprenticeship", "Undecided"), c(80,80,20,25)))
+summary(faux.mesa.high ~ nodefactor("Plans", levels = -LARGEST))
 
 # Mixing between lower and upper grades:
 summary(faux.mesa.high~mm(~Grade>=10))
