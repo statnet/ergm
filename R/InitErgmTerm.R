@@ -553,7 +553,8 @@ InitErgmTerm.absdiffcat <- function(nw, arglist, ..., version=packageVersion("er
   nodecov <- ergm_get_vattr(attrarg, nw, accept = "numeric")
   attrname <- attr(nodecov, "name")
 
-  u <- sort(unique(as.vector(abs(outer(nodecov,nodecov,"-")))),na.last=NA)
+  unodecov <- unique(nodecov)
+  u <- sort(unique(as.vector(abs(outer(unodecov,unodecov,"-")))),na.last=NA)
   u <- u[u>0]
   
   u <- ergm_attr_levels(a$levels, nodecov, nw, levels = u)
