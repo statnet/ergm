@@ -27,6 +27,21 @@ InitErgmConstraint.sparse<-function(nw, arglist, ...){
   list(priority=10, impliedby=c("sparse", "edges", "degrees", "edges", "idegrees", "odegrees", "b1degrees", "b2degrees", "idegreedist", "odegreedist", "degreedist", "b1degreedist", "b2degreedist"), constrain="sparse")
 }
 
+#' @templateVar name triadic
+#' @title Network with strong triadic effects
+#' @description The network has strong triadic effects. This typically results in alternating between the Tie-Non-Tie (TNT) proposal and the Fellows triadic proposal.
+#'
+#' @usage
+#' # triadic
+#'
+#' @template ergmHint-general
+#'
+#' @concept dyad-dependent
+InitErgmConstraint.triadic<-function(nw, arglist, ...){
+  a <- check.ErgmTerm(nw, arglist)
+  list(priority=10, constrain="triadic")
+}
+
 InitErgmConstraint.Strat<-function(nw, arglist, ...){
   .Deprecate_once("strat")
   InitErgmConstraint.strat(nw, arglist, ...)

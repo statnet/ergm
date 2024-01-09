@@ -387,3 +387,13 @@ InitErgmProposal.HammingTNT <- function(arguments, nw) {
   }
   proposal
 }
+
+#' @templateVar name SPDyad
+#' @aliases InitErgmProposal.SPDyad
+#' @title TODO
+#' @description TODO
+#' @template ergmProposal-general
+NULL
+InitErgmProposal.SPDyad <- function(arguments, nw) {
+  list(name = "SPDyad", inputs=NULL, auxiliaries=~.spcache.net("UTP"))
+}
