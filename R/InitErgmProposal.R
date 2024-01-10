@@ -395,5 +395,5 @@ InitErgmProposal.HammingTNT <- function(arguments, nw) {
 #' @template ergmProposal-general
 NULL
 InitErgmProposal.SPDyad <- function(arguments, nw) {
-  list(name = "SPDyad", inputs=c(NVL(arguments$constraints$triadic$triFocus,0.25)), auxiliaries=~.spcache.net("UTP"))
+  list(name = "SPDyad", inputs=c(NVL(arguments$constraints$triadic$triFocus,0.25)), auxiliaries=~.spcache.net("UTP"), dyadgen = ergm_dyadgen_select(arguments, nw), bd = ergm_bd_init(arguments, nw))
 }

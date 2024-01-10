@@ -1,67 +1,54 @@
 #define STRICT_MH_HEADERS
 
-#include "Rmath.h"
-#include "ergm_MHproposal.h"
-#include "ergm_changestat.h"
+#include "MHproposals.h"
 #include "ergm_MHstorage.h"
+#include "ergm_changestat.h"
 #include "ergm_dyad_hashmap.h"
-
-
-MH_I_FN(Mi_TNT_simple){
-  MHp->ntoggles = 1;
-}
-
-MH_P_FN(Mp_TNT_simple){
-  const double P=0.5, Q=1-P;
-  double DP = P*N_DYADS, DO = DP/Q;
-
-  Edge nedges = N_EDGES;
-  double logratio=0;
-  if (unif_rand() < P && nedges > 0) { /* Select a tie at random from the network of eligibles */
-    GetRandEdge(Mtail, Mhead, nwp);
-    logratio = TNT_LR_E(nedges, Q, DP, DO);
-  }else{ /* Select a dyad at random from the list */
-    GetRandDyad(Mtail, Mhead, nwp);
-
-    if(IS_OUTEDGE(Mtail[0],Mhead[0])){
-      logratio = TNT_LR_DE(nedges, Q, DP, DO);
-    }else{
-      logratio = TNT_LR_DN(nedges, Q, DP, DO);
-    }
-  }
-
-  MHp->logratio += logratio;
-}
-
 
 /*********************
  void MH_SPDyad
 *********************/
 MH_I_FN(Mi_SPDyad){
-  MHp->ntoggles = 1;
+  Mi_TNT(MHp, nwp);
 }
 
 MH_P_FN(Mp_SPDyad){
+  MH_GET_STORAGE(StoreDyadGenAndDegreeBound, storage);
   MH_GET_AUX_STORAGE(StoreDyadMapUInt, spcache);
 
+  // With probability 1-MH_INPUTS[0], or if no dyad has any shared
+  // partners, just fall back to TNT. This is OK to do because it is
+  // impossible for the triadic proposal to produce a network with no
+  // shared partners.
   if(kh_size(spcache) == 0 || unif_rand() > MH_INPUTS[0]){
-    Mp_TNT_simple(MHp, nwp);
+    Mp_TNT(MHp, nwp);
     return;
   }
 
-  // Select a random key from the shared partner hash table; only
-  // those dyads that have at least one shared partner can be
-  // selected.
-  khiter_t pos;
-  do{
-    pos = unif_rand() * kh_n_buckets(spcache);
-  }while(!kh_exist(spcache, pos));
-  TailHead dyad = kh_key(spcache, pos);
+  BD_COND_LOOP(storage->bd, {
+      // Select a random key from the shared partner hash table; only
+      // those dyads that have at least one shared partner can be thus
+      // selected.
+      khiter_t pos;
+      do{
+        pos = unif_rand() * kh_n_buckets(spcache);
+      }while(!kh_exist(spcache, pos));
+      TailHead dyad = kh_key(spcache, pos);
 
-  // As of right now, the data structure does not guarantee correct
-  // tail-head ordering for undirected networks.
-  *Mtail = MIN(dyad.tail, dyad.head);
-  *Mhead = MAX(dyad.tail, dyad.head);
+      // As of right now, the data structure does not guarantee correct
+      // tail-head ordering for undirected networks.
+      *Mtail = MIN(dyad.tail, dyad.head);
+      *Mhead = MAX(dyad.tail, dyad.head);
+    },
+    DyadGenSearch(*Mtail, *Mhead, storage->gen),
+    4.0/MAX_TRIES);
+
+  // If we keep trying to propose dyads that are fixed, fall back to
+  // TNT.
+  if(*Mtail == MH_FAILED && *Mhead == MH_UNSUCCESSFUL){
+    Mp_TNT(MHp, nwp);
+    return;
+  }
 
   // q(y* | y) = 1/TD(y), where TD(y) is the number of transitive
   // dyads in y.
@@ -87,5 +74,6 @@ MH_P_FN(Mp_SPDyad){
   MHp->logratio += log(oldtd) - log(newtd);
 }
 
-/* MH_F_FN(Mf_SPDyad){ */
-/* } */
+MH_F_FN(Mf_SPDyad){
+  Mf_TNT(MHp, nwp);
+}

@@ -73,7 +73,7 @@ eval(UPDATE_MY_SCTRL_EXPR)
   ergm_proposal_table("c", "Bernoulli", "&hamming&sparse",  0, "random", "HammingTNT")
   ergm_proposal_table("c", "Bernoulli", "&dyadnoise&sparse",  1, "TNT", "dyadnoiseTNT")
   ergm_proposal_table("c", "Bernoulli", "&dyadnoise",  0, "random", "dyadnoise")
-  ergm_proposal_table("c", "Bernoulli", "&sparse&triadic",  0, "TNT", "SPDyad")
+  ergm_proposal_table("c", "Bernoulli", "|.dyads|bd&sparse&triadic",  0, "TNT", "SPDyad")
 
   ergm_proposal_table("c", "StdNormal", "",  0, "random", "StdNormal")
   ergm_proposal_table("c", "StdNormal", "|.dyads",  0, "random", "DistRLE")

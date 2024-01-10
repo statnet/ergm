@@ -26,4 +26,10 @@ typedef struct{DyadGen *gen; DegreeBound *bd;} StoreDyadGenAndDegreeBound;
   DyadGenDestroy(storage->gen);                         \
   DegreeBoundDestroy(storage->bd);
 
+// Declared here so other routines can use it as a subroutine.
+MH_I_FN(Mi_TNT);
+MH_P_FN(Mp_TNT);
+MH_F_FN(Mf_TNT);
+
+
 #endif 
