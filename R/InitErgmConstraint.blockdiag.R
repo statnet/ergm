@@ -75,6 +75,8 @@ InitErgmConstraint.blockdiag<-function(nw, arglist, ...){
                       defaultvalues = list(NULL),
                       required = c(TRUE))
 
+  contigmsg <- paste0("Current implementation of the block-diagonal constraint requires that the blocks be contiguous. See ", sQuote("ergmConstraint?blockdiag"), " for more information.")
+
   list(attr=a$attr,
        free_dyads = {
          n <- network.size(nw)
@@ -84,7 +86,7 @@ InitErgmConstraint.blockdiag<-function(nw, arglist, ...){
            bip <- nw %n% "bipartite"
            ea <- a[seq_len(bip)]
            aa <- a[bip+seq_len(n-bip)]
-           if(length(rle(ea)$lengths)!=length(unique(rle(ea)$values)) || length(rle(aa)$lengths)!=length(unique(rle(aa)$values))) stop("Current implementation of block-diagonal sampling requires that the blocks of the egos and the alters be contiguous. See ", sQuote("ergmConstraint?blockdiag"), " for more information.")
+           if(anyDuplicated(rle(ea)$values) || anyDuplicated(rle(aa)$values)) stop(contigmsg)
 
            tmp <- .double.rle(ea, aa)
            el <- tmp$lengths1
@@ -108,6 +110,7 @@ InitErgmConstraint.blockdiag<-function(nw, arglist, ...){
            compress(o | ot)
          }else{
            a <- rle(a)
+           if(anyDuplicated(a$values)) stop(contigmsg)
            rlebdm(compress(do.call(c,rep(
                                        Map(function(blen,bend){rep(rle(c(FALSE,TRUE,FALSE)), c(bend-blen, blen, n-bend), scale="run")},
                                            a$lengths, cumsum(a$lengths)),
