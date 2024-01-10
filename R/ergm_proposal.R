@@ -221,7 +221,7 @@ ergm_proposal.character <- function(object, arguments, nw, ..., reference=ergm_r
     }else as.call(list(f, arguments, nw))
 
   proposal <- eval(prop.call)
-  if(is.null(proposal)) return(NULL)
+  if(is.null(proposal) || is.character(proposal)) return(proposal)
 
   storage.mode(proposal$inputs) <- "double"
   storage.mode(proposal$iinputs) <- "integer"
@@ -463,7 +463,8 @@ ergm_proposal.ergm_conlist <- function(object, arguments, nw, weights="default",
     proposal <- ergm_proposal(name, arguments, nw, reference = reference, ..., term.options = term.options)
 
     ## Keep trying until some proposal function accepts.
-    if(!is.null(proposal)) break
+    if(!is.null(proposal) && !is.character(proposal)) break
+    if(is.character(proposal)) message(proposal," Falling back.")
   }
 
   if(proposals[i,]$Unmet!="") message("Best valid proposal ", sQuote(proposals[i,]$Proposal), " cannot take into account hint(s) ", proposals[i,]$Unmet, ".")
