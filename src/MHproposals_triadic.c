@@ -4,6 +4,7 @@
 #include "ergm_MHstorage.h"
 #include "ergm_changestat.h"
 #include "ergm_dyad_hashmap.h"
+#include "changestats_dgw_sp.h"
 
 /*********************
  void MH_SPDyad
@@ -37,8 +38,18 @@ MH_P_FN(Mp_SPDyad){
 
       // As of right now, the data structure does not guarantee correct
       // tail-head ordering for undirected networks.
-      *Mtail = MIN(dyad.tail, dyad.head);
-      *Mhead = MAX(dyad.tail, dyad.head);
+      if(DIRECTED){
+        if(MH_IINPUTS[0] == ESPITP){
+          *Mtail = dyad.head;
+          *Mhead = dyad.tail;
+        }else{
+          *Mtail = dyad.tail;
+          *Mhead = dyad.head;
+        }
+      }else{
+        *Mtail = MIN(dyad.tail, dyad.head);
+        *Mhead = MAX(dyad.tail, dyad.head);
+      }
     },
     DyadGenSearch(*Mtail, *Mhead, storage->gen),
     4.0/MAX_TRIES);
@@ -53,22 +64,25 @@ MH_P_FN(Mp_SPDyad){
   // q(y* | y) = 1/TD(y), where TD(y) is the number of transitive
   // dyads in y.
   Dyad oldtd = kh_size(spcache), newtd = oldtd;
+
+
+  // The following is setting up to use macros developed for the *sp
+  // terms.
   Rboolean edgeflag = IS_UNDIRECTED_EDGE(*Mtail, *Mhead);
   int echange = edgeflag ? -1 : +1;
+  Vertex tail = *Mtail, head = *Mhead;
 
-  EXEC_THROUGH_EDGES(*Mhead,e,u, {
-      if (u!=*Mtail){
-        int L2tu = GETDMUI(*Mtail,u,spcache);
-        newtd += (L2tu + echange != 0) - (L2tu != 0);
-      }
-    });
+#define sp_nonzero newtd += (L + echange != 0) - (L != 0);
 
-  EXEC_THROUGH_EDGES(*Mtail,e,u, {
-      if (u!=*Mhead){
-        int L2uh = GETDMUI(u,*Mhead,spcache);
-        newtd += (L2uh + echange != 0) - (L2uh != 0);
-      }
-    });
+  switch(MH_IINPUTS[0]){
+  case ESPUTP: dspUTP_change(L, sp_nonzero, ); break;
+  case ESPOTP: dspOTP_change(L, sp_nonzero, ); break;
+  case ESPITP: dspITP_change(L, sp_nonzero, ); break;
+  case ESPOSP: dspOSP_change(L, sp_nonzero, ); break;
+  case ESPISP: dspISP_change(L, sp_nonzero, ); break;
+  }
+
+#undef sp_nonzero
 
   // q(y | y*) / q(y* | y) = 1/TD(y*) / (1/TD(y)) = TD(y) / TD(y*)
   MHp->logratio += log(oldtd) - log(newtd);

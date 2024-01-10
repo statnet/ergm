@@ -175,11 +175,6 @@ ergm_cutoff_message <- function(cutoff, term, stat, arg=NULL, opt=NULL){
                )
 }
 
-.spcache.aux <- function(type){
-  type <- toupper(type)
-  trim_env(as.formula(as.call(list(as.name('~'), as.call(list(as.name('.spcache.net'),type=if(type=='ITP')'OTP' else type))))))
-}
-
 nodecov_names <- function(nodecov, prefix=NULL){
   cn <- if(is.matrix(nodecov)){
           cn <- colnames(nodecov)

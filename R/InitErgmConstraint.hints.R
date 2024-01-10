@@ -32,20 +32,24 @@ InitErgmConstraint.sparse<-function(nw, arglist, ...){
 #' @description The network has a high clustering coefficient. This typically results in alternating between the Tie-Non-Tie (TNT) proposal and a triad-focused proposal.
 #'
 #' @usage
-#' # triadic(triFocus = 0.25)
+#' # triadic(triFocus = 0.25, type="OTP")
 #'
 #' @param triFocus A number between 0 and 1, indicating how often triad-focused proposals should be made relative to the standard proposals.
+#' @template ergmTerm-sp-type
+#'
+#' @template ergmTerm-sp-types
 #'
 #' @template ergmHint-general
 #'
 #' @concept dyad-dependent
 InitErgmConstraint.triadic<-function(nw, arglist, ...){
   a <- check.ErgmTerm(nw, arglist, bipartite = FALSE,
-                      varnames = c("triFocus"),
-                      vartypes = c("numeric"),
-                      defaultvalues = list(0.25),
-                      required = c(FALSE))
-  list(triFocus=a$triFocus, priority=10, constrain="triadic")
+                      varnames = c("triFocus", "type"),
+                      vartypes = c("numeric", "character"),
+                      defaultvalues = list(0.25, "OTP"),
+                      required = c(FALSE, FALSE))
+  if(!is.directed(nw)) a$type <- "UTP"
+  list(triFocus=a$triFocus, type = a$type, priority=10, constrain="triadic")
 }
 
 InitErgmConstraint.Strat<-function(nw, arglist, ...){
