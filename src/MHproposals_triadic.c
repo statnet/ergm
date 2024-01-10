@@ -44,7 +44,7 @@ MH_I_FN(Mi_SPDyad){
 MH_P_FN(Mp_SPDyad){
   MH_GET_AUX_STORAGE(StoreDyadMapUInt, spcache);
 
-  if(kh_size(spcache) == 0 || unif_rand() < 0.5){
+  if(kh_size(spcache) == 0 || unif_rand() > MH_INPUTS[0]){
     Mp_TNT_simple(MHp, nwp);
     return;
   }

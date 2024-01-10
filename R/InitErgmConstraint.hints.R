@@ -28,18 +28,24 @@ InitErgmConstraint.sparse<-function(nw, arglist, ...){
 }
 
 #' @templateVar name triadic
-#' @title Network with strong triadic effects
-#' @description The network has strong triadic effects. This typically results in alternating between the Tie-Non-Tie (TNT) proposal and the Fellows triadic proposal.
+#' @title Network with strong clustering (triad-closure) effects
+#' @description The network has a high clustering coefficient. This typically results in alternating between the Tie-Non-Tie (TNT) proposal and a triad-focused proposal.
 #'
 #' @usage
-#' # triadic
+#' # triadic(triFocus = 0.25)
+#'
+#' @param triFocus A number between 0 and 1, indicating how often triad-focused proposals should be made relative to the standard proposals.
 #'
 #' @template ergmHint-general
 #'
 #' @concept dyad-dependent
 InitErgmConstraint.triadic<-function(nw, arglist, ...){
-  a <- check.ErgmTerm(nw, arglist)
-  list(priority=10, constrain="triadic")
+  a <- check.ErgmTerm(nw, arglist, bipartite = FALSE,
+                      varnames = c("triFocus"),
+                      vartypes = c("numeric"),
+                      defaultvalues = list(0.25),
+                      required = c(FALSE))
+  list(triFocus=a$triFocus, priority=10, constrain="triadic")
 }
 
 InitErgmConstraint.Strat<-function(nw, arglist, ...){
