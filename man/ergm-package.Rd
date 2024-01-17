@@ -3,13 +3,13 @@
 \docType{package}
 \name{ergm-package}
 \alias{ergm-package}
-\title{Fit, Simulate and Diagnose Exponential-Family Models for Networks}
+\title{ergm: Fit, Simulate and Diagnose Exponential-Family Models for Networks}
 \description{
-\code{\link[=ergm-package]{ergm}} \insertCite{HuHa08e,KrHu23e}{ergm} is a collection of functions to plot, fit,
-diagnose, and simulate from exponential-family random graph models (ERGMs).
-For a list of functions type: \code{help(package='ergm')}
+An integrated set of tools to analyze and simulate networks based on exponential-family random graph models (ERGMs). 'ergm' is a part of the Statnet suite of packages for network analysis. See Hunter, Handcock, Butts, Goodreau, and Morris (2008) \doi{10.18637/jss.v024.i03} and Krivitsky, Hunter, Morris, and Klumb (2023) \doi{10.18637/jss.v105.i06}.
 }
 \details{
+\insertNoCite{HuHa08e,KrHu23e}{ergm}
+
 For a complete list of the functions, use \code{library(help="ergm")} or
 read the rest of the manual. For a simple demonstration, use
 \code{demo(packages="ergm")}.
@@ -23,8 +23,8 @@ file \code{LICENSE} and \url{https://statnet.org/attribution}.
 Recent advances in the statistical modeling of random networks have had an
 impact on the empirical study of social networks. Statistical exponential
 family models (Strauss and Ikeda 1990) are a generalization of the Markov
-random network models introduced by Frank and Strauss (1986), which in turn
-derived from developments in spatial statistics (Besag, 1974). These models
+random network models introduced by \insertCite{FrSt86m;textual}{ergm}, which in turn
+derived from developments in spatial statistics \insertCite{Be74s}{ergm}. These models
 recognize the complex dependencies within relational data structures.  To
 date, the use of stochastic network models for networks has been limited by
 three interrelated factors: the complexity of realistic models, the lack of
@@ -69,10 +69,6 @@ and Animating Longitudinal Network Data: \pkg{dynamicnetwork} and
 \pkg{rSoNIA}.  \emph{Journal of Statistical Software}, 24(7).
 \doi{10.18637/jss.v024.i07}
 
-Besag, J., 1974, Spatial interaction and the statistical analysis of lattice
-systems (with discussion), \emph{Journal of the Royal Statistical Society,
-B}, 36, 192-236.
-
 Boer P, Huisman M, Snijders T, Zeggelink E (2003).  StOCNET: an open
 software system for the advanced statistical analysis of social networks.
 Groningen: ProGAMMA / ICS, version 1.4 edition.
@@ -87,9 +83,6 @@ Butts CT (2008).  \pkg{network}: A Package for Managing Relational Data in .
 Butts C (2015). \pkg{network}: Classes for Relational Data. The Statnet
 Project (\url{https://statnet.org}). R package version 1.12.0,
 \url{https://cran.r-project.org/package=network}.
-
-Frank, O., and Strauss, D.(1986). Markov graphs. \emph{Journal of the
-American Statistical Association}, 81, 832-842.
 
 Goodreau SM, Handcock MS, Hunter DR, Butts CT, Morris M (2008a).  A
 \pkg{statnet} Tutorial.  \emph{Journal of Statistical Software}, 24(8).
@@ -108,11 +101,6 @@ Handcock MS (2003b).  \pkg{degreenet}: Models for Skewed Count Distributions
 Relevant to Networks.  Statnet Project, Seattle, WA.  Version 1.0,
 \url{https://statnet.org}.
 
-Handcock MS, Hunter DR, Butts CT, Goodreau SM, Morris M (2003a).
-\pkg{ergm}: A Package to Fit, Simulate and Diagnose Exponential-Family
-Models for Networks.  Statnet Project, Seattle, WA.  Version 3,
-\url{https://statnet.org}.
-
 Handcock MS, Hunter DR, Butts CT, Goodreau SM, Morris M (2003b).
 \pkg{statnet}: Software Tools for the Statistical Modeling of Network Data.
 Statnet Project, Seattle, WA.  Version 3, \url{https://statnet.org}.
@@ -120,11 +108,6 @@ Statnet Project, Seattle, WA.  Version 3, \url{https://statnet.org}.
 Hunter, D. R. and Handcock, M. S. (2006) Inference in curved exponential
 family models for networks, \emph{Journal of Computational and Graphical
 Statistics}, 15: 565-583
-
-Hunter DR, Handcock MS, Butts CT, Goodreau SM, Morris M (2008b).
-\pkg{ergm}: A Package to Fit, Simulate and Diagnose Exponential-Family
-Models for Networks.  \emph{Journal of Statistical Software}, 24(3).
-\doi{10.18637/jss.v024.i03}
 
 Krivitsky PN, Handcock MS (2007).  \pkg{latentnet}: Latent position and
 cluster models for statistical networks.  Seattle, WA.  Version 2,
@@ -149,14 +132,30 @@ networks. \emph{Journal of the American Statistical Association}, 85,
 specification and estimation components visible to the \CRANpkg{ergm}'s API at any given time.
 }
 \author{
-Mark S. Handcock \email{handcock@stat.ucla.edu},\cr David R. Hunter
-\email{dhunter@stat.psu.edu},\cr Carter T. Butts
-\email{buttsc@uci.edu},\cr Steven M. Goodreau
-\email{goodreau@u.washington.edu},\cr Pavel N. Krivitsky
-\email{pavel@statnet.org}, and\cr Martina Morris
-\email{morrism@u.washington.edu}
+\strong{Maintainer}: Pavel N. Krivitsky \email{pavel@statnet.org} (\href{https://orcid.org/0000-0002-9101-3362}{ORCID})
 
-Maintainer: Pavel N. Krivitsky \email{pavel@statnet.org}
+Authors:
+\itemize{
+  \item Mark S. Handcock \email{handcock@stat.ucla.edu}
+  \item David R. Hunter \email{dhunter@stat.psu.edu}
+  \item Carter T. Butts \email{buttsc@uci.edu}
+  \item Steven M. Goodreau \email{goodreau@u.washington.edu}
+  \item Martina Morris \email{morrism@u.washington.edu}
+}
+
+Other contributors:
+\itemize{
+  \item Li Wang \email{lxwang@gmail.com} [contributor]
+  \item Kirk Li \email{kirkli@u.washington.edu} [contributor]
+  \item Skye Bender-deMoll \email{skyebend@u.washington.edu} [contributor]
+  \item Chad Klumb \email{cklumb@gmail.com} [contributor]
+  \item Michał  Bojanowski \email{michal2992@gmail.com} (\href{https://orcid.org/0000-0001-7503-852X}{ORCID}) [contributor]
+  \item Ben Bolker \email{bbolker+lme4@gmail.com} [contributor]
+  \item Christian Schmid \email{songhyo86@gmail.com} [contributor]
+  \item Joyce Cheng \email{joyce.cheng@student.unsw.edu.au} [contributor]
+  \item Arya Karami \email{a.karami@unsw.edu.au} [contributor]
+}
+
 }
 \keyword{internal}
 \keyword{models}

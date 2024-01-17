@@ -7,12 +7,8 @@
 #
 #  Copyright 2003-2023 Statnet Commons
 ################################################################################
-#' Fit, Simulate and Diagnose Exponential-Family Models for Networks
-#' 
-#' \code{\link[=ergm-package]{ergm}} \insertCite{HuHa08e,KrHu23e}{ergm} is a collection of functions to plot, fit,
-#' diagnose, and simulate from exponential-family random graph models (ERGMs).
-#' For a list of functions type: \code{help(package='ergm')}
-#' 
+#' @details \insertNoCite{HuHa08e,KrHu23e}{ergm}
+#'
 #' For a complete list of the functions, use \code{library(help="ergm")} or
 #' read the rest of the manual. For a simple demonstration, use
 #' \code{demo(packages="ergm")}.
@@ -26,8 +22,8 @@
 #' Recent advances in the statistical modeling of random networks have had an
 #' impact on the empirical study of social networks. Statistical exponential
 #' family models (Strauss and Ikeda 1990) are a generalization of the Markov
-#' random network models introduced by Frank and Strauss (1986), which in turn
-#' derived from developments in spatial statistics (Besag, 1974). These models
+#' random network models introduced by \insertCite{FrSt86m;textual}{ergm}, which in turn
+#' derived from developments in spatial statistics \insertCite{Be74s}{ergm}. These models
 #' recognize the complex dependencies within relational data structures.  To
 #' date, the use of stochastic network models for networks has been limited by
 #' three interrelated factors: the complexity of realistic models, the lack of
@@ -63,16 +59,6 @@
 #'   [`ergmHint`], and [`ergmProposal`] for indices of model
 #'   specification and estimation components visible to the \CRANpkg{ergm}'s API at any given time.
 #' 
-#' @name ergm-package
-#' @docType package
-#' @author Mark S. Handcock \email{handcock@@stat.ucla.edu},\cr David R. Hunter
-#' \email{dhunter@@stat.psu.edu},\cr Carter T. Butts
-#' \email{buttsc@@uci.edu},\cr Steven M. Goodreau
-#' \email{goodreau@@u.washington.edu},\cr Pavel N. Krivitsky
-#' \email{pavel@@statnet.org}, and\cr Martina Morris
-#' \email{morrism@@u.washington.edu}
-#' 
-#' Maintainer: Pavel N. Krivitsky \email{pavel@@statnet.org}
 #' @references \insertAllCited{}
 #'
 #' Admiraal R, Handcock MS (2007).  \pkg{networksis}: Simulate
@@ -84,10 +70,6 @@
 #' and Animating Longitudinal Network Data: \pkg{dynamicnetwork} and
 #' \pkg{rSoNIA}.  \emph{Journal of Statistical Software}, 24(7).
 #' \doi{10.18637/jss.v024.i07}
-#' 
-#' Besag, J., 1974, Spatial interaction and the statistical analysis of lattice
-#' systems (with discussion), \emph{Journal of the Royal Statistical Society,
-#' B}, 36, 192-236.
 #' 
 #' Boer P, Huisman M, Snijders T, Zeggelink E (2003).  StOCNET: an open
 #' software system for the advanced statistical analysis of social networks.
@@ -103,9 +85,6 @@
 #' Butts C (2015). \pkg{network}: Classes for Relational Data. The Statnet
 #' Project (\url{https://statnet.org}). R package version 1.12.0,
 #' \url{https://cran.r-project.org/package=network}.
-#' 
-#' Frank, O., and Strauss, D.(1986). Markov graphs. \emph{Journal of the
-#' American Statistical Association}, 81, 832-842.
 #' 
 #' Goodreau SM, Handcock MS, Hunter DR, Butts CT, Morris M (2008a).  A
 #' \pkg{statnet} Tutorial.  \emph{Journal of Statistical Software}, 24(8).
@@ -124,11 +103,6 @@
 #' Relevant to Networks.  Statnet Project, Seattle, WA.  Version 1.0,
 #' \url{https://statnet.org}.
 #' 
-#' Handcock MS, Hunter DR, Butts CT, Goodreau SM, Morris M (2003a).
-#' \pkg{ergm}: A Package to Fit, Simulate and Diagnose Exponential-Family
-#' Models for Networks.  Statnet Project, Seattle, WA.  Version 3,
-#' \url{https://statnet.org}.
-#' 
 #' Handcock MS, Hunter DR, Butts CT, Goodreau SM, Morris M (2003b).
 #' \pkg{statnet}: Software Tools for the Statistical Modeling of Network Data.
 #' Statnet Project, Seattle, WA.  Version 3, \url{https://statnet.org}.
@@ -136,11 +110,6 @@
 #' Hunter, D. R. and Handcock, M. S. (2006) Inference in curved exponential
 #' family models for networks, \emph{Journal of Computational and Graphical
 #' Statistics}, 15: 565-583
-#' 
-#' Hunter DR, Handcock MS, Butts CT, Goodreau SM, Morris M (2008b).
-#' \pkg{ergm}: A Package to Fit, Simulate and Diagnose Exponential-Family
-#' Models for Networks.  \emph{Journal of Statistical Software}, 24(3).
-#' \doi{10.18637/jss.v024.i03}
 #' 
 #' Krivitsky PN, Handcock MS (2007).  \pkg{latentnet}: Latent position and
 #' cluster models for statistical networks.  Seattle, WA.  Version 2,
