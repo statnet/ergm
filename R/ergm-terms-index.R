@@ -415,7 +415,7 @@ PROPOSAL_NOT_IN_TABLE <- "This proposal is not referenced in the lookup table."
 }
 
 # output listings of terms, grouped by keywords
-#' @importFrom magrittr "%>%" "%<>%"
+#' @importFrom magrittr %>% %<>%
 .formatIndexText <- function(df) {
   if(is.null(df)) return(NULL)
 

@@ -158,5 +158,5 @@ Mark S. Handcock \email{handcock@stat.ucla.edu},\cr David R. Hunter
 
 Maintainer: Pavel N. Krivitsky \email{pavel@statnet.org}
 }
+\keyword{internal}
 \keyword{models}
-\keyword{package}

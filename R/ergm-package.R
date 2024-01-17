@@ -158,15 +158,14 @@
 #' Strauss, D., and Ikeda, M.(1990). Pseudolikelihood estimation for social
 #' networks. \emph{Journal of the American Statistical Association}, 85,
 #' 204-212.
-#' @keywords package models
-NULL
+#' @keywords models internal
+"_PACKAGE"
 
 
 #' Terms used in Exponential Family Random Graph Models
 #'
 #' @name ergmTerm
 #' @aliases ergm-terms ergm.terms terms-ergm terms.ergm InitErgmTerm InitErgmWtTerm
-#' @docType package
 #' @description This page explains how to specify the network statistics \eqn{g(y)} to functions in the [`ergm`][ergm-package] package and packages that extend it. It also provides an indexed list of the possible terms (and hence network statistics) visible to the \CRANpkg{ergm} API. Terms can also be searched via [`search.ergmTerms`], and help for an individual term can be obtained with `ergmTerm?<term>` or `help("<term>-ergmTerm")`.
 #'
 #' @section Specifying models:
@@ -405,7 +404,6 @@ NULL
 #'
 #' @name ergmConstraint
 #' @aliases ergm-constraints constraints-ergm ergm.constraints constraints.ergm
-#' @docType package
 #' @description This page describes how to specify the constraints on the network sample space (the set of possible networks \eqn{Y}, the set of networks \eqn{y} for which \eqn{h(y)>0}) and sometimes the baseline weights \eqn{h(y)} to functions in the [`ergm`][ergm-package]
 #' package. It also provides an indexed list of the constraints visible to the \CRANpkg{ergm}'s API. Constraints can also be searched via [`search.ergmConstraints`], and help for an individual constraint can be obtained with `ergmConstraint?<constraint>` or `help("<constraint>-ergmConstraint")`.
 #'
@@ -516,7 +514,6 @@ NULL
 #'
 #' @name ergmHint
 #' @aliases ergm-hints hints-ergm ergm.hints hints.ergm hints
-#' @docType package
 #' @description This page describes how to provide to the
 #'   \CRANpkg{ergm}'s MCMC algorithms information about the sample space. Hints can also be searched via [`search.ergmHints`], and help for an individual hint can be obtained with `ergmHint?<hint>` or `help("<hint>-ergmHint")`.
 #'
@@ -596,7 +593,6 @@ NULL
 #'
 #' @name ergmReference
 #' @aliases ergm-references references-ergm ergm.references references.ergm
-#' @docType package
 #' @description This page describes how to specify the reference measures (baseline distributions)
 #' (the set of possible networks \eqn{Y} and the baseline weights \eqn{h(y)} to functions in the [`ergm`][ergm-package]
 #' package. It also provides an indexed list of the references visible to the \CRANpkg{ergm}'s API. References can also be searched via [search.ergmReferences()], and help for an individual reference can be obtained with `ergmReference?<reference>` or `help("<reference>-ergmReference")`.
@@ -644,7 +640,6 @@ NULL
 #'
 #' @name ergmProposal
 #' @aliases ergm-proposals proposals-ergm ergm.proposals proposals.ergm InitErgmProposal InitWtErgmProposal
-#' @docType package
 #' @description [`ergm`]  uses a Metropolis-Hastings (MH) algorithm to control the behavior of the Markov Chain
 #'   Monte Carlo (MCMC) for sampling networks.  The MCMC chain is intended to step around the sample space of
 #'   possible networks, selecting a network at regular intervals to evaluate the statistics in the model.  For
