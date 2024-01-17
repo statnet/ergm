@@ -7,13 +7,45 @@
 #
 #  Copyright 2003-2023 Statnet Commons
 ################################################################################
-#' Auxiliary for Controlling ERGM Fitting
-#' 
-#' Auxiliary function as user interface for fine-tuning 'ergm' fitting.
+#' Auxiliary function for fine-tuning ERGM fitting.
 #' 
 #' This function is only used within a call to the [ergm()] function.
-#' See the \code{usage} section in [ergm()] for details.
-#' 
+#' See the \code{usage} section in [ergm()] for details. Also see the
+#' Details section about some of the interactions between its
+#' arguments.
+#'
+#' Different estimation methods or components of estimation have
+#' different efficient tuning parameters; and we generally want to use
+#' the estimation controls to inform the simulation controls in
+#' [control.simulate.ergm()]. To accomplish this, `control.ergm()` uses
+#' method-specific controls, with the method identified by the prefix:
+#' \describe{
+#'
+#' \item{`CD`}{Contrastive Divergence estimation \insertCite{Kr17u}{ergm}}
+#'
+#' \item{`MPLE`}{Maximum Pseudo-Likelihood Estimation \insertCite{StIk90p}{ergm}}
+#'
+#' \item{`MCMLE`}{Monte-Carlo MLE \insertCite{HuHa06i,HuHu12i}{ergm}}
+#'
+#' \item{`SA`}{Stochastic Approximation via Robbins--Monro \insertCite{RoMo51s,Sn02m}{ergm}}
+#'
+#' \item{`SAN`}{Simulated Annealing used when `target.stats` are specified for [ergm()]}
+#'
+#' \item{`obs`}{Missing data MLE \insertCite{HaGi10m}{ergm}}
+#'
+#' \item{`init`}{Affecting how initial parameter guesses are obtained}
+#'
+#' \item{`parallel`}{Affecting parallel processing}
+#'
+#' \item{`MCMC`}{Low-level MCMC simulation controls}
+#'
+#' }
+#'
+#' Corresponding `MCMC` controls will usually be overwritten by the
+#' method-specific ones. After the estimation finishes, they will
+#' contain the last MCMC parameters used.
+#'
+#'
 #' @templateVar MCMCType MCMC
 #'
 #' @param drop Logical: If TRUE, terms whose observed statistic values are at
@@ -441,30 +473,15 @@
 #' @template seed
 #' @template control_MCMC_packagenames
 #' @template control_dots
+#'
 #' @return A list with arguments as components.
 #' @seealso [ergm()]. The \code{\link{control.simulate}} function
 #' performs a similar function for \code{\link{simulate.ergm}};
 #' \code{\link{control.gof}} performs a similar function for \code{\link{gof}}.
 #' @references \insertAllCited{}
 #'
-#' * Snijders, T.A.B. (2002), Markov Chain Monte
-#' Carlo Estimation of Exponential Random Graph Models.  Journal of Social
-#' Structure.  Available from
-#' \url{https://www.cmu.edu/joss/content/articles/volume3/Snijders.pdf}.
-#' 
-#' 
 #' * Firth (1993), Bias Reduction in Maximum Likelihood Estimates.
 #' Biometrika, 80: 27-38.
-#' 
-#' 
-#' * Hunter, D. R. and M. S. Handcock (2006), Inference in curved
-#' exponential family models for networks. Journal of Computational and
-#' Graphical Statistics, 15: 565-583.
-#' 
-#' 
-#' * Hummel, R. M., Hunter, D. R., and Handcock, M. S. (2012), Improving
-#' Simulation-Based Algorithms for Fitting ERGMs, Journal of Computational and
-#' Graphical Statistics, 21: 920-939.
 #' 
 #' 
 #' * Kristoffer Sahlin. Estimating convergence of Markov chain Monte Carlo

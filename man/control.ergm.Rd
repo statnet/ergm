@@ -2,7 +2,7 @@
 % Please edit documentation in R/control.ergm.R
 \name{control.ergm}
 \alias{control.ergm}
-\title{Auxiliary for Controlling ERGM Fitting}
+\title{Auxiliary function for fine-tuning ERGM fitting.}
 \usage{
 control.ergm(
   drop = TRUE,
@@ -689,27 +689,48 @@ processes inherit the \code{\link[=set.MT_terms]{set.MT_terms()}} setting.}
 A list with arguments as components.
 }
 \description{
-Auxiliary function as user interface for fine-tuning 'ergm' fitting.
+This function is only used within a call to the \code{\link[=ergm]{ergm()}} function.
+See the \code{usage} section in \code{\link[=ergm]{ergm()}} for details. Also see the
+Details section about some of the interactions between its
+arguments.
 }
 \details{
-This function is only used within a call to the \code{\link[=ergm]{ergm()}} function.
-See the \code{usage} section in \code{\link[=ergm]{ergm()}} for details.
+Different estimation methods or components of estimation have
+different efficient tuning parameters; and we generally want to use
+the estimation controls to inform the simulation controls in
+\code{\link[=control.simulate.ergm]{control.simulate.ergm()}}. To accomplish this, \code{control.ergm()} uses
+method-specific controls, with the method identified by the prefix:
+\describe{
+
+\item{\code{CD}}{Contrastive Divergence estimation \insertCite{Kr17u}{ergm}}
+
+\item{\code{MPLE}}{Maximum Pseudo-Likelihood Estimation \insertCite{StIk90p}{ergm}}
+
+\item{\code{MCMLE}}{Monte-Carlo MLE \insertCite{HuHa06i,HuHu12i}{ergm}}
+
+\item{\code{SA}}{Stochastic Approximation via Robbins--Monro \insertCite{RoMo51s,Sn02m}{ergm}}
+
+\item{\code{SAN}}{Simulated Annealing used when \code{target.stats} are specified for \code{\link[=ergm]{ergm()}}}
+
+\item{\code{obs}}{Missing data MLE \insertCite{HaGi10m}{ergm}}
+
+\item{\code{init}}{Affecting how initial parameter guesses are obtained}
+
+\item{\code{parallel}}{Affecting parallel processing}
+
+\item{\code{MCMC}}{Low-level MCMC simulation controls}
+
+}
+
+Corresponding \code{MCMC} controls will usually be overwritten by the
+method-specific ones. After the estimation finishes, they will
+contain the last MCMC parameters used.
 }
 \references{
 \insertAllCited{}
 \itemize{
-\item Snijders, T.A.B. (2002), Markov Chain Monte
-Carlo Estimation of Exponential Random Graph Models.  Journal of Social
-Structure.  Available from
-\url{https://www.cmu.edu/joss/content/articles/volume3/Snijders.pdf}.
 \item Firth (1993), Bias Reduction in Maximum Likelihood Estimates.
 Biometrika, 80: 27-38.
-\item Hunter, D. R. and M. S. Handcock (2006), Inference in curved
-exponential family models for networks. Journal of Computational and
-Graphical Statistics, 15: 565-583.
-\item Hummel, R. M., Hunter, D. R., and Handcock, M. S. (2012), Improving
-Simulation-Based Algorithms for Fitting ERGMs, Journal of Computational and
-Graphical Statistics, 21: 920-939.
 \item Kristoffer Sahlin. Estimating convergence of Markov chain Monte Carlo
 simulations. Master's Thesis. Stockholm University, 2011.
 \url{https://www2.math.su.se/matstat/reports/master/2011/rep2/report.pdf}
