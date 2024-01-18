@@ -674,7 +674,7 @@ InitErgmTerm.Symmetrize <- function(nw, arglist, ...){
 InitErgmTerm.Sum <- function(nw, arglist,...){
   a <- check.ErgmTerm(nw, arglist,
                       varnames = c("formulas", "label"),
-                      vartypes = c("list,formula", "character,function"),
+                      vartypes = c("list,formula", "character,function,AsIs"),
                       defaultvalues = list(NULL, NULL),
                       required = c(TRUE, TRUE))
 
@@ -1085,7 +1085,7 @@ InitErgmTerm.Exp <- function(nw, arglist, ...){
 InitErgmTerm.Prod <- function(nw, arglist, ..., env=baseenv()){
   a <- check.ErgmTerm(nw, arglist,
                       varnames = c("formulas", "label"),
-                      vartypes = c("list,formula", "character,function"),
+                      vartypes = c("list,formula", "character,function,AsIs"),
                       defaultvalues = list(NULL, NULL),
                       required = c(TRUE, TRUE))
   formulas <- if(is(a$formulas, "formula")) list(a$formulas) else a$formulas
@@ -1099,7 +1099,15 @@ InitErgmTerm.Prod <- function(nw, arglist, ..., env=baseenv()){
   })
   a$formulas <- if(length(formulas)==1) formulas[[1]] else formulas
   cl <- call("Exp", as.formula(call("~",call("Sum", a$formulas, a$label)),env=env))
-  call.ErgmTerm(cl, env, nw, ...)
+  trm <- call.ErgmTerm(cl, env, nw, ...)
+  renamer <-
+    if(inherits(a$label, "AsIs")) function(x) sub("^Exp~", "", x)
+    else function(x) sub("^Exp~Sum~", "Prod~", x)
+
+  trm$coef.names %<>% renamer()
+  if(!is.null(trm$params)) names(trm$params) %<>% renamer()
+
+  trm
 }
 
 
