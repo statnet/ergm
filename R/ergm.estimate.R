@@ -337,9 +337,9 @@ ergm.estimate<-function(init, model, statsmatrices, statsmatrices.obs=NULL,
                         eta0=eta0, etamap=etamap.no
                         )
     }
-    
+
     covar <- matrix(NA, ncol=length(theta), nrow=length(theta))
-    covar[!model$etamap$offsettheta, !model$etamap$offsettheta] <- sginv(-Lout$hessian, tol=.Machine$double.eps^(3/4))
+    covar[!model$etamap$offsettheta, !model$etamap$offsettheta] <- ERRVL(try(sginv(-Lout$hessian, tol=.Machine$double.eps^(3/4)), TRUE), NA)
     dimnames(covar) <- list(names(theta),names(theta))
     He <- matrix(NA, ncol=length(theta), nrow=length(theta))
     He[!model$etamap$offsettheta, !model$etamap$offsettheta] <- Lout$hessian
