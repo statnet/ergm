@@ -14,7 +14,7 @@
 \item{type}{A string indicating the type of shared partner or path to be considered for directed networks: \code{"OTP"} (default for directed), \code{"ITP"}, \code{"RTP"}, \code{"OSP"}, and \code{"ISP"}; has no effect for undirected. See the section below on Shared partner types for details.}
 }
 \description{
-The network has a high clustering coefficient. This typically results in alternating between the Tie-Non-Tie (TNT) proposal and a triad-focused proposal.
+The network has a high clustering coefficient. This typically results in alternating between the Tie-Non-Tie (TNT) proposal and a triad-focused proposal along the lines of that of \insertCite{WaAt13a;textual}{ergm}.
 }
 \section{Shared partner types}{
  While there is only one shared partner configuration in the undirected
@@ -40,6 +40,9 @@ define closely related statistics to several of the above, using slightly differ
 }
 }
 
+\references{
+\insertAllCited{}
+}
 \seealso{
 \code{\link{ergmHint}} for index of constraints and hints currently visible to the package.
 

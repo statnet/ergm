@@ -390,8 +390,16 @@ InitErgmProposal.HammingTNT <- function(arguments, nw) {
 
 #' @templateVar name SPDyad
 #' @aliases InitErgmProposal.SPDyad
-#' @title TODO
-#' @description TODO
+#' @title A proposal alternating between TNT and a triad-focused
+#'   proposal
+#' @description The specified proportion of the time, the proposal
+#'   proceeds along the lines of \insertCite{WaAt13a;textual}{ergm}, albeit
+#'   with different weighting. A dyad is selected uniformly at random
+#'   from among those dyads with at least one shared partnership or
+#'   transitivity of the specified type.
+#'
+#' @references \insertAllCited{}
+#'
 #' @template ergmProposal-general
 NULL
 InitErgmProposal.SPDyad <- function(arguments, nw) {

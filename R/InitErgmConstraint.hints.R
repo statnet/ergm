@@ -29,7 +29,7 @@ InitErgmConstraint.sparse<-function(nw, arglist, ...){
 
 #' @templateVar name triadic
 #' @title Network with strong clustering (triad-closure) effects
-#' @description The network has a high clustering coefficient. This typically results in alternating between the Tie-Non-Tie (TNT) proposal and a triad-focused proposal.
+#' @description The network has a high clustering coefficient. This typically results in alternating between the Tie-Non-Tie (TNT) proposal and a triad-focused proposal along the lines of that of \insertCite{WaAt13a;textual}{ergm}.
 #'
 #' @usage
 #' # triadic(triFocus = 0.25, type="OTP")
@@ -40,6 +40,8 @@ InitErgmConstraint.sparse<-function(nw, arglist, ...){
 #' @template ergmTerm-sp-types
 #'
 #' @template ergmHint-general
+#'
+#' @references \insertAllCited{}
 #'
 #' @concept dyad-dependent
 InitErgmConstraint.triadic<-function(nw, arglist, ...){
