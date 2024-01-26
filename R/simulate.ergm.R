@@ -618,7 +618,7 @@ simulate.ergm <- function(object, nsim=1, seed=NULL,
                           simplify=TRUE,
                           sequential=TRUE,
                           control=control.simulate.ergm(),
-                          verbose=FALSE, ...) {
+                          verbose=FALSE, ..., return.args=NULL) {
   check_dots_used(error = unused_dots_warning)
   check.control.class(c("simulate.ergm","simulate.formula"), "simulate.ergm")
   handle.control.toplevel("simulate.ergm", ...)
@@ -656,5 +656,5 @@ simulate.ergm <- function(object, nsim=1, seed=NULL,
                    monitor=monitor,
                    basis=basis,
            output=output, simplify=simplify,
-                   control=control, verbose=verbose, seed=seed, ...)
+                   control=control, verbose=verbose, seed=seed, ..., return.args=return.args)
 }

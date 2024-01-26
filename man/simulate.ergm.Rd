@@ -117,7 +117,8 @@ simulate_formula(object, ..., basis = eval_lhs.formula(object))
   sequential = TRUE,
   control = control.simulate.ergm(),
   verbose = FALSE,
-  ...
+  ...,
+  return.args = NULL
 )
 }
 \arguments{
