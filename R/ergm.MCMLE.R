@@ -315,6 +315,8 @@ ergm.MCMLE <- function(init, s, s.obs,
       estdiff <- NVL3(esteq.obs, colMeans(.), 0) - colMeans(esteq)
       pprec <- diag(sqrt(control$MCMLE.MCMC.precision), nrow=length(estdiff))
       Vm <- pprec%*%(cov(esteq) - NVL3(esteq.obs, cov(.), 0))%*%pprec
+      novar <- diag(Vm) <= 0
+      Vm[,novar] <- Vm[novar,] <- 0
       d2 <- xTAx_seigen(estdiff, Vm)
       if(d2<2) last.adequate <- TRUE
     }
