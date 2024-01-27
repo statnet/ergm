@@ -139,7 +139,7 @@ ergm.estimate<-function(init, model, statsmatrices, statsmatrices.obs=NULL,
       V.obs <- tmp$cov
     }else{
       av.obs <- lweighted.mean(xsim.obs, lrowweights(xsim.obs))
-      V.obs <- lweighted.var(xsim.obs, lrowweights(xsim.obs))
+      V.obs <- lweighted.var(xsim.obs, lrowweights(xsim.obs), 0)
     }
 
     xobs <- av.obs - av
@@ -354,11 +354,12 @@ ergm.estimate<-function(init, model, statsmatrices, statsmatrices.obs=NULL,
       mcse.metric <-
         if ((metric == "lognormal" || metric == "Likelihood") && length(model$etamap$curved) == 0) "lognormal"
         else "IS"
-      mc.cov <- ergm.MCMCse(model = model, theta = theta, init = init,
-                            statsmatrices = statsmatrices,
-                            statsmatrices.obs = statsmatrices.obs,
-                            H = V, H.obs = V.obs,
-                            metric = mcse.metric)
+      mc.cov <- ERRVL(try(ergm.MCMCse(model = model, theta = theta, init = init,
+                                      statsmatrices = statsmatrices,
+                                      statsmatrices.obs = statsmatrices.obs,
+                                      H = V, H.obs = V.obs,
+                                      metric = mcse.metric)),
+                      matrix(NA, length(theta), length(theta), dimnames=list(names(theta),names(theta))))
     }
 
     # Output results as ergm-class object
