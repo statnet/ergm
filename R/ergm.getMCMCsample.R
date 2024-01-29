@@ -248,16 +248,18 @@ ergm_MCMC_sample <- function(state, control, theta=NULL,
       }
 
       best.burnin <- .find_OK_burnin(esteq, control)
-      if(is.na(best.burnin$burnin)){
-        if(verbose>1) message("Can not compute a valid burn-in. Setting burn-in to",interval,".")
-        best.burnin$burnin <- interval
-      }
       burnin.pval <- best.burnin$pval
-      if(is.na(burnin.pval) | burnin.pval <= control$MCMC.effectiveSize.burnin.pval){
+      postburnin.mcmc <- window(esteq, start=start(esteq)+best.burnin$burnin*thin(esteq))
+
+      if(is.na(burnin.pval) || burnin.pval <= control$MCMC.effectiveSize.burnin.pval){
+        if(is.const.sample(postburnin.mcmc)){
+          message("Post-burnin sample is constant; returning.")
+          eS <- 1
+          break
+        }
         if(verbose>1) message("Selected burn-in ", format(start(esteq)+best.burnin$burnin*thin(esteq), digits=2, scientific=TRUE), " (",round(best.burnin$burnin/niter(esteq)*100,2),"%) p-value = ", format(burnin.pval), " is below the threshold of ",control$MCMC.effectiveSize.burnin.pval,".")
         next
       }
-      postburnin.mcmc <- window(esteq, start=start(esteq)+best.burnin$burnin*thin(esteq))
       
       eS <- niter(postburnin.mcmc)*nchain(postburnin.mcmc)/attr(spectrum0.mvar(postburnin.mcmc, order.max=control$MCMC.effectiveSize.order.max),"infl")
       
@@ -428,7 +430,7 @@ ergm_MCMC_slave <- function(state, eta,control,verbose,..., burnin=NULL, samples
 
   FAIL <- list(burnin=round(nit*control$MCMC.effectiveSize.burnin.max), pval=0)
 
-  bestfits <- unlist(lapply(x, function(chain) lapply(seq_len(p), function(i) fit_decay(chain[,i], c(0,nit*log2(bscl)*8)))), recursive=FALSE) %>% compact
+  bestfits <- lapply(x, function(chain) lapply(seq_len(p), function(i) fit_decay(chain[,i], c(0,nit*log2(bscl)*8)))) %>% unlist(recursive=FALSE) %>% compact
 
   best <- ifelse(sapply(bestfits, function(fit) sd(resid(fit))/sd(fit$y)<1-1/bscl*2),
                  sapply(bestfits, best_burnin.lm),

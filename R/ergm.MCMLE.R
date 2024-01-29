@@ -261,7 +261,7 @@ ergm.MCMLE <- function(init, s, s.obs,
     # Compute the sample estimating equations and the convergence p-value. 
     esteqs <- ergm.estfun(statsmatrices, theta=mcmc.init, model=model)
     esteq <- as.matrix(esteqs)
-    if(isTRUE(all.equal(apply(esteq,2,stats::sd), rep(0,ncol(esteq)), check.names=FALSE))&&!all(esteq==0))
+    if(is.const.sample(esteq) && !all(esteq==0))
       stop("Unconstrained MCMC sampling did not mix at all. Optimization cannot continue.")
 
     check_nonidentifiability(esteq, NULL, model,
