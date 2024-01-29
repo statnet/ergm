@@ -32,12 +32,12 @@ warning_once <- once(warning)
 #'   which to shrink; must be in the interior of the convex hull of
 #'   \eqn{M}, and defaults to its centroid (column means).
 #' @template verbose
+#' @param max_run if there are no decreases in step length in this
+#'   many consecutive test points, conclude that diminishing returns
+#'   have been reached and finish.
 #' @param \dots arguments passed directly to linear program solver.
 #' @param solver a character string selecting which solver to use; by
 #'   default, tries `Rglpk`'s but falls back to `lpSolveAPI`'s.
-#' @return Logical, telling whether \code{p} is (or all rows of
-#'   \code{p} are) in the closed convex hull of the points in
-#'   \code{M}.
 #'
 #' @return The scaling factor described above is
 #'   returned. `shrink_into_CH() >= 1` indicates that all points in
@@ -49,7 +49,7 @@ warning_once <- once(warning)
 #'
 #' @keywords internal
 #' @export
-shrink_into_CH <- function(p, M, m = NULL, verbose=FALSE, ..., solver = c("glpk", "lpsolve")) { # Pass extra arguments directly to LP solver
+shrink_into_CH <- function(p, M, m = NULL, verbose = FALSE, max_run = nrow(M), ..., solver = c("glpk", "lpsolve")) { # Pass extra arguments directly to LP solver
   solver <- match.arg(solver)
   verbose <- max(0, min(verbose, 4))
 
@@ -103,8 +103,9 @@ shrink_into_CH <- function(p, M, m = NULL, verbose=FALSE, ..., solver = c("glpk"
     M <- slam::as.simple_triplet_matrix(M)
   }
 
-  if (verbose >= 2) message("Iterating over ", np, " test points:")
+  if (verbose >= 2) message("Iterating over at most ", np, " test points:")
   g <- Inf
+  run <- 0L
   for (i in seq_len(np)) { # Iterate over test points.
     message(i, " ", appendLF=FALSE)
     if (all(abs((x <- p[i,])) <= sqrt(.Machine$double.eps))) next # Test point is at centroid. TODO: Allow the user to specify tolerance?
@@ -140,7 +141,13 @@ shrink_into_CH <- function(p, M, m = NULL, verbose=FALSE, ..., solver = c("glpk"
     g.prev <- g
     g <- min(g, abs(-1/o)) # abs() guards against optimum being numerically equivalent to 0 with -1/0 = -Inf.
 
-    if (verbose >= 3 && g < g.prev) message("|", sprintf("%0.4f", g), "| ", appendLF = FALSE)
+    if (g < g.prev){
+      if (verbose >= 3) message("|", sprintf("%0.4f", g), "| ", appendLF = FALSE)
+      run <- 0L
+    } else {
+      run <- run + 1L
+      if (run >= max_run) break
+    }
   }
   if(verbose >= 3) message("")
 

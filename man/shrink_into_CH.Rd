@@ -9,6 +9,7 @@ shrink_into_CH(
   M,
   m = NULL,
   verbose = FALSE,
+  max_run = nrow(M),
   ...,
   solver = c("glpk", "lpsolve")
 )
@@ -30,16 +31,16 @@ produces minimal output, with higher values producing more
 detail. Note that very high values (5+) may significantly slow
 down processing.}
 
+\item{max_run}{if there are no decreases in step length in this
+many consecutive test points, conclude that diminishing returns
+have been reached and finish.}
+
 \item{\dots}{arguments passed directly to linear program solver.}
 
 \item{solver}{a character string selecting which solver to use; by
 default, tries \code{Rglpk}'s but falls back to \code{lpSolveAPI}'s.}
 }
 \value{
-Logical, telling whether \code{p} is (or all rows of
-\code{p} are) in the closed convex hull of the points in
-\code{M}.
-
 The scaling factor described above is
 returned. \code{shrink_into_CH() >= 1} indicates that all points in
 \code{p} are in the convex hull of \code{M}.

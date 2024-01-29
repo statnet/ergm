@@ -32,7 +32,7 @@
 
 ## This is a variant of Hummel et al. (2010)'s steplength algorithm
 ## also usable for missing data MLE.
-.Hummel.steplength <- function(x1, x2=NULL, margin=0.05, steplength.max=1, x2.num.max=ceiling(sqrt(ncol(rbind(x1)))), parallel=c("observational","never"), control=NULL, verbose=FALSE){
+.Hummel.steplength <- function(x1, x2=NULL, margin=0.05, steplength.max=1, x2.num.max=c(max(ncol(rbind(x1))*2, 30), 10), parallel=c("observational","never"), control=NULL, verbose=FALSE){
   parallel <- match.arg(parallel)
   margin <- 1 + margin
   x1 <- rbind(x1); m1 <- rbind(colMeans(x1)); ; n1 <- nrow(x1)
@@ -88,20 +88,22 @@
     }
   }
 
-  if(!is.null(x2) && nrow(x2crs) > x2.num.max){
+  if(!is.null(x2) && nrow(x2crs) > x2.num.max[1]){
     ## If constrained sample size > x2.num.max
     if(verbose>1){message("Using fast and approximate Hummel et al search.")}
     d <- rowSums(sweep(x2crs, 2, m1crs)^2)
-    x2crs <- x2crs[order(-d)[1:x2.num.max],,drop=FALSE]
+    x2crs <- x2crs[order(-d)[1:x2.num.max[1]],,drop=FALSE]
   }
+
+  max_run <- if(length(x2.num.max) > 1) x2.num.max[2] else Inf
 
   if(!is.null(cl)){
     # NBs: parRapply() would call shrink_into_CH() for every
     # row. Direct reference to split.data.frame() is necessary here
     # since no matrix method.
     x2crs <- split.data.frame(x2crs, rep_len(seq_along(cl), nrow(x2crs)))
-    min(steplength.max, unlist(parallel::parLapply(cl=cl, x2crs, shrink_into_CH, x1crs, verbose=verbose))/margin)
+    min(steplength.max, unlist(parallel::parLapply(cl=cl, x2crs, shrink_into_CH, x1crs, verbose=verbose, max_run=max_run))/margin)
   }else{
-    min(steplength.max, shrink_into_CH(if(!is.null(x2)) x2crs else m2crs, x1crs, verbose=verbose)/margin)
+    min(steplength.max, shrink_into_CH(if(!is.null(x2)) x2crs else m2crs, x1crs, verbose=verbose, max_run=max_run)/margin)
   }
 }

@@ -109,7 +109,7 @@ control.ergm(
   MCMLE.steplength.solver = c("glpk", "lpsolve"),
   MCMLE.last.boost = 4,
   MCMLE.steplength.esteq = TRUE,
-  MCMLE.steplength.miss.sample = function(x1) ceiling(sqrt(ncol(rbind(x1)))),
+  MCMLE.steplength.miss.sample = function(x1) c(max(ncol(rbind(x1)) * 2, 30), 10),
   MCMLE.steplength.min = 1e-04,
   MCMLE.effectiveSize.interval_drop = 2,
   MCMLE.save_intermediates = NULL,
@@ -586,7 +586,11 @@ against whether they are in the convex hull, so to speed up the
 procedure, a sample is taken of the points most likely to be
 outside it.  This parameter specifies the sample size or a
 function of the unconstrained sample matrix to determine the
-sample size.}
+sample size. If the parameter or the return value of the function
+has a length of 2, the first element is used as the sample size,
+and the second element is used in an early-termination heuristic,
+only continuing the tests until this many test points in a row
+did not yield a change in the step length.}
 
 \item{MCMLE.steplength.min}{Stops MCMLE estimation when the step length gets
 stuck below this minimum value.}
