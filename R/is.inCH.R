@@ -18,11 +18,11 @@ warning_once <- once(warning)
 #' `M`. If `p` is a matrix, a value that scales all rows of `p` into
 #' the convex hull of `M` is found.
 #'
-#' @note This is a successor to the deprecated function `is.inCH()`, which
-#' was originally written for the "stepping" algorithm of Hummel et al
-#' (2012). See Krivitsky, Kuvelkar, and Hunter (2022) for detailed
-#' discussion of algorithms used in `is.inCH()` and
-#' `shrink_into_CH()`.
+#' @note This is a successor to the deprecated function `is.inCH()`,
+#'   which was originally written for the "stepping" algorithm of
+#'   \insertCite{HuHu12i;textual}{ergm}. See the updated of
+#'   \insertCite{KrKu23l;textual}{ergm} for detailed discussion of algorithms
+#'   used in `is.inCH()` and `shrink_into_CH()`.
 #'
 #' @param p a \eqn{d}-dimensional vector or a matrix with \eqn{d}
 #'   columns.
@@ -43,18 +43,9 @@ warning_once <- once(warning)
 #'   returned. `shrink_into_CH() >= 1` indicates that all points in
 #'   `p` are in the convex hull of `M`.
 #'
-#' @references
+#' @references \insertAllCited{}
 #'
 #' \url{https://www.cs.mcgill.ca/~fukuda/soft/polyfaq/node22.html}
-#' 
-#' Hummel, R. M., Hunter, D. R., and Handcock, M. S. (2012), Improving
-#' Simulation-Based Algorithms for Fitting ERGMs, *Journal of
-#' Computational and Graphical Statistics*, 21: 920-939.
-#'
-#' Krivitsky, P. N., Kuvelkar, A. R., and Hunter,
-#' D. R. (2022). Likelihood-based Inference for Exponential-Family
-#' Random Graph Models via Linear Programming. *arXiv preprint*
-#' arXiv:2202.03572. \url{https://arxiv.org/abs/2202.03572}
 #'
 #' @keywords internal
 #' @export
@@ -112,10 +103,10 @@ shrink_into_CH <- function(p, M, m = NULL, verbose=FALSE, ..., solver = c("glpk"
     M <- slam::as.simple_triplet_matrix(M)
   }
 
-  if (verbose >= 2) message("Iterating over ", np, " test points.")
+  if (verbose >= 2) message("Iterating over ", np, " test points:")
   g <- Inf
   for (i in seq_len(np)) { # Iterate over test points.
-    if (verbose >= 3) message("Test point ", i)
+    message(i, " ", appendLF=FALSE)
     if (all(abs((x <- p[i,])) <= sqrt(.Machine$double.eps))) next # Test point is at centroid. TODO: Allow the user to specify tolerance?
 
     if(solver == "lpsolve"){
@@ -146,10 +137,12 @@ shrink_into_CH <- function(p, M, m = NULL, verbose=FALSE, ..., solver = c("glpk"
       o <- Rglpk::Rglpk_solve_LP(x, M, dir, rhs, list(lower=list(ind=seq_len(d), val=lb)), control=list(..., verbose=max(0,verbose-3)))$optimum
     }
 
+    g.prev <- g
     g <- min(g, abs(-1/o)) # abs() guards against optimum being numerically equivalent to 0 with -1/0 = -Inf.
 
-    if (verbose >= 3) message("Step length is now ", g, ".")
+    if (verbose >= 3 && g < g.prev) message("\n-> ", g)
   }
+  message("\nDone.")
 
   g
 }
