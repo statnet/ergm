@@ -140,9 +140,9 @@ shrink_into_CH <- function(p, M, m = NULL, verbose=FALSE, ..., solver = c("glpk"
     g.prev <- g
     g <- min(g, abs(-1/o)) # abs() guards against optimum being numerically equivalent to 0 with -1/0 = -Inf.
 
-    if (verbose >= 3 && g < g.prev) message("\n-> ", g)
+    if (verbose >= 3 && g < g.prev) message("|", sprintf("%0.4f", g), "| ", appendLF = FALSE)
   }
-  message("\nDone.")
+  if(verbose >= 3) message("")
 
   g
 }
