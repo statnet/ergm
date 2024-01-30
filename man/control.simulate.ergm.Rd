@@ -188,19 +188,25 @@ If \code{MCMC.effectiveSize.burnin.PC>0}, instead of using the full
 sample for burn-in estimation, at most this many principal
 components are used instead.
 
-The effective
-size of the post-burn-in sample is computed via Vats, Flegal, and
-Jones (2015), and compared to the target effective size. If it is
-not matched, the MCMC run is resumed, with the additional draws
-needed linearly extrapolated but weighted in favor of the
-baseline \code{MCMC.samplesize} by the weighting factor
-\code{MCMC.effectiveSize.damp} (higher = less damping). Lastly, if
-after an MCMC run, the number of samples equals or exceeds
-\code{2*MCMC.samplesize}, the chain will be thinned by 2 until it
-falls below that, while doubling
+The effective size of the post-burn-in sample is computed via
+\insertCite{VaFl15m;textual}{ergm}, and compared to the target
+effective size. If it is not matched, the MCMC run is resumed,
+with the additional draws needed linearly extrapolated but
+weighted in favor of the baseline \code{MCMC.samplesize} by the
+weighting factor \code{MCMC.effectiveSize.damp} (higher = less
+damping). Lastly, if after an MCMC run, the number of samples
+equals or exceeds \code{2*MCMC.samplesize}, the chain will be thinned
+by 2 until it falls below that, while doubling
 \code{MCMC.interval}. \code{MCMC.effectiveSize.order.max} can be used to
 set the order of the AR model used to estimate the effective
-sample size and the variance for the Geweke diagnostic.}
+sample size and the variance for the Geweke diagnostic.
+
+Lastly, if \code{MCMC.effectiveSize} is a matrix, say, \eqn{W}, it
+will be treated as a target precision (inverse-variance) matrix.
+If \eqn{V} is the sample covariance matrix, the target effective
+size \eqn{n_{\text{eff}}} will be set such that
+\eqn{V/n_{\text{eff}}} is close to \eqn{W} in magnitude,
+specifically that \eqn{(V/n_{\text{eff}})W\approx 1}.}
 
 \item{MCMC.maxedges}{The maximum number of edges that may occur during the MCMC sampling. If this number is exceeded at any time, sampling is stopped immediately.}
 

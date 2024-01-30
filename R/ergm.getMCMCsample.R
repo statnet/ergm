@@ -260,6 +260,13 @@ ergm_MCMC_sample <- function(state, control, theta=NULL,
         if(verbose>1) message("Selected burn-in ", format(start(esteq)+best.burnin$burnin*thin(esteq), digits=2, scientific=TRUE), " (",round(best.burnin$burnin/niter(esteq)*100,2),"%) p-value = ", format(burnin.pval), " is below the threshold of ",control$MCMC.effectiveSize.burnin.pval,".")
         next
       }
+
+      if(is.matrix(control$MCMC.effectiveSize)){
+        ## Target effective size determined by covariance matrix.
+        postburnin.var <- var.mcmc.list(postburnin.mcmc)
+        control.parallel$MCMC.effectiveSize <- mean(diag(control$MCMC.effectiveSize%*%postburnin.var))
+        if(verbose>1) message("Variance-based adaptive MCMC set target effective size to ", format(control.parallel$MCMC.effectiveSize), ".")
+      }
       
       eS <- niter(postburnin.mcmc)*nchain(postburnin.mcmc)/attr(spectrum0.mvar(postburnin.mcmc, order.max=control$MCMC.effectiveSize.order.max),"infl")
       
