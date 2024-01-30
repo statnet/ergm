@@ -294,6 +294,12 @@
 #'   corresponding `obs` parameters are set to them multiplied by
 #'   `obs.MCMC.mul`.
 #'
+#'   Lastly, if `MCMLE.effectiveSize` is not NULL but
+#'   `obs.MCMLE.effectiveSize`, the constrained sample's target
+#'   effective size is set adaptively to achieve a similar precision
+#'   for the estimating functions as that achieved for the
+#'   unconstrained.
+#'
 #' @param
 #'   obs.MCMC.impute.min_informative,obs.MCMC.impute.default_density
 #'   Controls for imputation of missing dyads for initializing MCMC

@@ -376,7 +376,7 @@ will be treated as a target precision (inverse-variance) matrix.
 If \eqn{V} is the sample covariance matrix, the target effective
 size \eqn{n_{\text{eff}}} will be set such that
 \eqn{V/n_{\text{eff}}} is close to \eqn{W} in magnitude,
-specifically that \eqn{(V/n_{\text{eff}})W\approx 1}.}
+specifically that \eqn{\operatorname{tr}((V/n_{\text{eff}})W)/p\approx 1}.}
 
 \item{MCMC.return.stats}{Numeric: If positive, include an
 \code{\link{mcmc.list}} (two, if observational process was involved) of
@@ -485,7 +485,13 @@ size. For example, for \code{obs.MCMC.mul=1/4} (the default),
 respective unconstrained sampling parameters. When
 \code{MCMC.effectiveSize} or \code{MCMLE.effectiveSize} are given, their
 corresponding \code{obs} parameters are set to them multiplied by
-\code{obs.MCMC.mul}.}
+\code{obs.MCMC.mul}.
+
+Lastly, if \code{MCMLE.effectiveSize} is not NULL but
+\code{obs.MCMLE.effectiveSize}, the constrained sample's target
+effective size is set adaptively to achieve a similar precision
+for the estimating functions as that achieved for the
+unconstrained.}
 
 \item{obs.MCMC.impute.min_informative, obs.MCMC.impute.default_density}{Controls for imputation of missing dyads for initializing MCMC
 sampling. If numeric, \code{obs.MCMC.impute.min_informative} specifies

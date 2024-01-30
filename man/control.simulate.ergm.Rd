@@ -206,7 +206,7 @@ will be treated as a target precision (inverse-variance) matrix.
 If \eqn{V} is the sample covariance matrix, the target effective
 size \eqn{n_{\text{eff}}} will be set such that
 \eqn{V/n_{\text{eff}}} is close to \eqn{W} in magnitude,
-specifically that \eqn{(V/n_{\text{eff}})W\approx 1}.}
+specifically that \eqn{\operatorname{tr}((V/n_{\text{eff}})W)/p\approx 1}.}
 
 \item{MCMC.maxedges}{The maximum number of edges that may occur during the MCMC sampling. If this number is exceeded at any time, sampling is stopped immediately.}
 

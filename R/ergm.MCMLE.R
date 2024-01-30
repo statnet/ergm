@@ -78,6 +78,10 @@ ergm.MCMLE <- function(init, s, s.obs,
   control$MCMC.base.samplesize <- control$MCMC.samplesize
   control$obs.MCMC.base.samplesize <- control$obs.MCMC.samplesize
 
+  adapt <- !is.null(control$MCMC.effectiveSize)
+  adapt.obs.ESS <- obs && adapt && !is.null(control$obs.MCMC.effectiveSize)
+  adapt.obs.var <- obs && adapt && !adapt.obs.ESS
+
   control0 <- control
 
   # Start cluster if required (just in case we haven't already).
@@ -103,9 +107,9 @@ ergm.MCMLE <- function(init, s, s.obs,
     s.obs <- rep(list(s.obs),nthreads(control))
   }
 
-  # A helper function to increase the MCMC sample size and target effective size by the specified factor.
+  ## A helper function to increase the MCMC sample size and target effective size by the specified factor.
   .boost_samplesize <- function(boost, base=FALSE){
-    for(ctrl in c("control", if(obs) "control.obs")){
+    for(ctrl in c("control", if(obs && !adapt.obs.var) "control.obs")){
       control <- get(ctrl, parent.frame())
       sampsize.boost <-
         NVL2(control$MCMC.effectiveSize,
@@ -119,6 +123,19 @@ ergm.MCMLE <- function(init, s, s.obs,
       
       assign(ctrl, control, parent.frame())
     }
+
+    .set_obs_samplesize()
+    NULL
+  }
+
+  ## A helper function to set the variance-based effective size and
+  ## MCMC sample size for the constrained sample.  There is no great
+  ## way to compute the corresponding raw sample size, so we'll just
+  ## set it to the same as the unconstrained.
+  .set_obs_samplesize <- function(){
+    if(!adapt.obs.var) return()
+    control.obs$MCMC.effectiveSize <<- ssolve(esteq.var) * control$MCMC.effectiveSize
+    control.obs$MCMC.samplesize <<- control$MCMC.samplesize
     NULL
   }
 
@@ -222,9 +239,24 @@ ergm.MCMLE <- function(init, s, s.obs,
         message_print(colMeans(statsmatrix))
       }
     }
+
+    ## Compute the sample estimating equations.
+    esteqs <- ergm.estfun(statsmatrices, theta=mcmc.init, model=model)
+    esteq <- as.matrix(esteqs)
+    if(is.const.sample(esteq) && !all(esteq==0))
+      stop("Unconstrained MCMC sampling did not mix at all. Optimization cannot continue.")
+
+    check_nonidentifiability(esteq, NULL, model,
+                             tol = control$MCMLE.nonident.tol, type="statistics",
+                             nonident_action = control$MCMLE.nonident,
+                             nonvar_action = control$MCMLE.nonvar)
+
     
-    ##  Does the same, if observation process:
+    ##  Do the same, if observation process:
     if(obs){
+      if(adapt.obs.var) esteq.var <- var(esteq)
+      .set_obs_samplesize()
+
       if(verbose) message("Starting constrained MCMC...")
       z.obs <- ergm_MCMC_sample(s.obs, control.obs, theta=mcmc.init, verbose=max(verbose-1,0))
       
@@ -258,22 +290,11 @@ ergm.MCMLE <- function(init, s, s.obs,
       save(list=intersect(ls(), INTERMEDIATE_VARIABLES), file=sprintf(control$MCMLE.save_intermediates, iteration))
     }
 
-    # Compute the sample estimating equations and the convergence p-value. 
-    esteqs <- ergm.estfun(statsmatrices, theta=mcmc.init, model=model)
-    esteq <- as.matrix(esteqs)
-    if(is.const.sample(esteq) && !all(esteq==0))
-      stop("Unconstrained MCMC sampling did not mix at all. Optimization cannot continue.")
-
-    check_nonidentifiability(esteq, NULL, model,
-                             tol = control$MCMLE.nonident.tol, type="statistics",
-                             nonident_action = control$MCMLE.nonident,
-                             nonvar_action = control$MCMLE.nonvar)
-
     esteqs.obs <- if(obs) ergm.estfun(statsmatrices.obs, theta=mcmc.init, model=model) else NULL
     esteq.obs <- if(obs) as.matrix(esteqs.obs) else NULL
 
     # Update the interval to be used.
-    if(!is.null(control$MCMC.effectiveSize)){
+    if(adapt){
       control$MCMC.interval <- round(max(z$final.interval/control$MCMLE.effectiveSize.interval_drop,1))
       control$MCMC.burnin <- round(max(z$final.interval*16,16))
       if(verbose) message("New interval = ",control$MCMC.interval,".")
@@ -506,7 +527,7 @@ ergm.MCMLE <- function(init, s, s.obs,
         last.adequate <- FALSE
         prec.scl <- max(sqrt(mean(prec.loss^2, na.rm=TRUE))/control$MCMLE.MCMC.precision, 1) # Never decrease it.
         
-        if (!is.null(control$MCMC.effectiveSize)) { # ESS-based sampling
+        if (adapt) { # ESS-based sampling
           control$MCMC.effectiveSize <- round(control$MCMC.effectiveSize * prec.scl)
           if(control$MCMC.effectiveSize/control$MCMC.samplesize>control$MCMLE.MCMC.max.ESS.frac) control$MCMC.samplesize <- control$MCMC.effectiveSize/control$MCMLE.MCMC.max.ESS.frac
           # control$MCMC.samplesize <- round(control$MCMC.samplesize * prec.scl)
@@ -518,11 +539,13 @@ ergm.MCMLE <- function(init, s, s.obs,
         }
 
         if(obs){
-          if (!is.null(control.obs$MCMC.effectiveSize)) { # ESS-based sampling
+          if (adapt.obs.ESS) { # ESS-based sampling
             control.obs$MCMC.effectiveSize <- round(control.obs$MCMC.effectiveSize * prec.scl)
             if(control.obs$MCMC.effectiveSize/control.obs$MCMC.samplesize>control.obs$MCMLE.MCMC.max.ESS.frac) control.obs$MCMC.samplesize <- control.obs$MCMC.effectiveSize/control.obs$MCMLE.MCMC.max.ESS.frac
             # control$MCMC.samplesize <- round(control$MCMC.samplesize * prec.scl)
             message("Increasing target constrained MCMC sample size to ", control.obs$MCMC.samplesize, ", ESS to",control.obs$MCMC.effectiveSize,".")
+          } else if(adapt.obs.var){
+            .set_obs_samplesize()
           } else { # Fixed-interval sampling
             control.obs$MCMC.samplesize <- round(control.obs$MCMC.samplesize * prec.scl)
             control.obs$MCMC.burnin <- round(control.obs$MCMC.burnin * prec.scl)
