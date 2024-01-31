@@ -295,7 +295,7 @@
 #'   `obs.MCMC.mul`.
 #'
 #'   Lastly, if `MCMLE.effectiveSize` is not NULL but
-#'   `obs.MCMLE.effectiveSize`, the constrained sample's target
+#'   `obs.MCMLE.effectiveSize` is, the constrained sample's target
 #'   effective size is set adaptively to achieve a similar precision
 #'   for the estimating functions as that achieved for the
 #'   unconstrained.
@@ -603,7 +603,7 @@ control.ergm<-function(drop=TRUE,
                        MCMLE.density.guard.min=10000,
                        MCMLE.density.guard=exp(3),
                        MCMLE.effectiveSize=64,
-                       obs.MCMLE.effectiveSize=NVL3(MCMLE.effectiveSize, .*obs.MCMC.mul),
+                       obs.MCMLE.effectiveSize=NULL,
                        MCMLE.interval=1024,
                        MCMLE.burnin=MCMLE.interval*16,
                        MCMLE.samplesize.per_theta=32,
