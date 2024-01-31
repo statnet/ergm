@@ -135,7 +135,7 @@ ergm.MCMLE <- function(init, s, s.obs,
   .set_obs_samplesize <- function(){
     if(!adapt.obs.var) return()
     control.obs$MCMC.effectiveSize <<- ssolve(esteq.var) * control$MCMC.effectiveSize
-    control.obs$MCMC.samplesize <<- control$MCMC.samplesize
+    control.obs$MCMC.samplesize <<- ceiling(control$MCMC.samplesize * min(obs.ESS.adj * 1.2, 1)) # Fudge factor
     NULL
   }
 
@@ -150,6 +150,7 @@ ergm.MCMLE <- function(init, s, s.obs,
   mcmc.init <- init
   calc.MCSE <- FALSE
   last.adequate <- FALSE
+  if(adapt.obs.var) obs.ESS.adj <- 1
 
   # ERGM_STATE_ELEMENTS = elements of the ergm_state objects (currently s and s.obs) that need to be saved.
   # STATE_VARIABLES = variables collectively containing the state of the optimizer that would allow it to resume, excluding control lists.
@@ -251,7 +252,6 @@ ergm.MCMLE <- function(init, s, s.obs,
                              nonident_action = control$MCMLE.nonident,
                              nonvar_action = control$MCMLE.nonvar)
 
-    
     ##  Do the same, if observation process:
     if(obs){
       if(adapt.obs.var) esteq.var <- var(esteq)
@@ -259,8 +259,11 @@ ergm.MCMLE <- function(init, s, s.obs,
 
       if(verbose) message("Starting constrained MCMC...")
       z.obs <- ergm_MCMC_sample(s.obs, control.obs, theta=mcmc.init, verbose=max(verbose-1,0))
-      
-      ## if(z.obs$status==1) stop("Number of edges in the simulated network exceeds that observed by a large factor (",control$MCMC.max.maxedges,"). This is a strong indication of model degeneracy. If you are reasonably certain that this is not the case, increase the MCMLE.density.guard control.ergm() parameter.")
+
+      if(adapt.obs.var){
+        obs.ESS.adj <- z.obs$final.effectiveSize / control$MCMC.effectiveSize
+        if(verbose>1) message("New constrained vs. unconstrained target ESS adjustment factor: ", format(obs.ESS.adj), ".")
+      }
 
       statsmatrices.obs <- z.obs$stats
       s.obs.returned <- z.obs$networks
