@@ -135,7 +135,7 @@ ergm.MCMLE <- function(init, s, s.obs,
   .set_obs_samplesize <- function(){
     if(!adapt.obs.var) return()
     control.obs$MCMC.effectiveSize <<- ssolve(esteq.var) * control$MCMC.effectiveSize
-    control.obs$MCMC.samplesize <<- ceiling(control$MCMC.samplesize * min(obs.ESS.adj * 1.2, 1)) # Fudge factor
+    control.obs$MCMC.samplesize <<- max(control$obs.MCMLE.samplesize.min, ceiling(control$MCMC.samplesize * min(obs.ESS.adj * 1.2, 1))) # Fudge factor
     NULL
   }
 
