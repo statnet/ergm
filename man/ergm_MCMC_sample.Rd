@@ -59,6 +59,7 @@ containing:
 \item{networks}{a list of final sampled networks, one for each thread.}
 \item{status}{status code, propagated from \code{ergm_MCMC_slave()}.}
 \item{final.interval}{adaptively determined MCMC interval.}
+\item{final.effectiveSize}{adaptively determined target ESS interval.}
 
 \item{sampnetworks}{If \code{control$MCMC.save_networks} is set and is
 \code{TRUE}, a list of lists of \code{ergm_state}s corresponding to the

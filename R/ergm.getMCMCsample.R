@@ -34,6 +34,7 @@
 #' \item{networks}{a list of final sampled networks, one for each thread.}
 #' \item{status}{status code, propagated from `ergm_MCMC_slave()`.}
 #' \item{final.interval}{adaptively determined MCMC interval.}
+#' \item{final.effectiveSize}{adaptively determined target ESS interval.}
 #'
 #' \item{sampnetworks}{If `control$MCMC.save_networks` is set and is
 #' `TRUE`, a list of lists of `ergm_state`s corresponding to the
@@ -289,8 +290,10 @@ ergm_MCMC_sample <- function(state, control, theta=NULL,
       if(best.burnin$burnin) sms[[i]] <- sms[[i]][-seq_len(best.burnin$burnin),,drop=FALSE]
       sms[[i]] <- coda::mcmc(sms[[i]], (best.burnin$burnin+1)*interval, thin=interval)
       if(!is.null(nws)) nws[[i]] <- nws[[i]][seq_len(floor(length(nws[[i]])/2))*2+length(nws[[i]])%%2]
-      outl[[i]]$final.interval <- interval
     }
+
+    final.interval <- interval
+    final.effectiveSize <- control.parallel$MCMC.effectiveSize
   }else{
     #################################
     ########## Static MCMC ##########
@@ -303,6 +306,8 @@ ergm_MCMC_sample <- function(state, control, theta=NULL,
     if(control.parallel$MCMC.runtime.traceplot){
       lapply(sms, function(sm) NVL3(theta, ergm.estfun(sm, ., as.ergm_model(state0[[1]])), sm[,!as.ergm_model(state0[[1]])$etamap$offsetmap,drop=FALSE])) %>% lapply(mcmc, start=control.parallel$MCMC.burnin+1, thin=control.parallel$MCMC.interval) %>% as.mcmc.list() %>% window(., thin=thin(.)*max(1,floor(niter(.)/1000))) %>% plot(ask=FALSE,smooth=TRUE,density=FALSE)
     }
+
+    final.effectiveSize <- final.interval <- NULL
   }
 
   #
@@ -312,20 +317,18 @@ ergm_MCMC_sample <- function(state, control, theta=NULL,
   newnetworks <- vector("list", nthreads(control))
   sampnetworks <- if(!is.null(nws)) vector("list", nthreads(control))
 
-  final.interval <- c()
   for(i in (1:nthreads(control))){
     z <- outl[[i]]
     statsmatrices[[i]] <- sms[[i]]
     newnetworks[[i]] <- update(state0[[i]], state=z$state)
     if(!is.null(nws)) sampnetworks[[i]] <- lapply(nws[[i]], function(state) update(state0[[i]], state=state))
-    final.interval <- c(final.interval, z$final.interval)
   }
   
   stats <- as.mcmc.list(statsmatrices)
   if(verbose){message("Sample size = ",niter(stats)*nchain(stats)," by ",
                   niter(stats),".")}
   
-  list(stats = stats, networks=newnetworks, sampnetworks=sampnetworks, status=0, final.interval=final.interval)
+  list(stats = stats, networks=newnetworks, sampnetworks=sampnetworks, status=0, final.interval=final.interval, final.effectiveSize=final.effectiveSize)
 }
 
 #' @rdname ergm_MCMC_sample
