@@ -4,9 +4,13 @@
 \alias{triadic-ergmHint}
 \alias{InitErgmConstraint.triadic}
 \alias{triadic-ergmConstraint}
+\alias{InitErgmConstraint..triadic}
+\alias{.triadic-ergmHint}
 \title{Network with strong clustering (triad-closure) effects}
 \usage{
 # triadic(triFocus = 0.25, type="OTP")
+
+# .triadic(triFocus = 0.25, type = "OTP")
 }
 \arguments{
 \item{triFocus}{A number between 0 and 1, indicating how often triad-focused proposals should be made relative to the standard proposals.}
@@ -38,6 +42,15 @@ pair \eqn{(i,j)} iff \eqn{k \to i, k \to j}{k->i, k->j}.
 By default, outgoing two-paths (\code{"OTP"}) are calculated. Note that Robins et al. (2009)
 define closely related statistics to several of the above, using slightly different terminology.
 }
+}
+
+\section{\code{.triadic()} versus \code{triadic()}}{
+ If given a bipartite
+network, the dotted form will skip silently, whereas the plain
+form will raise an error, since triadic effects are not possible
+in bipartite networks. The dotted form is thus suitable as a
+default argument when the bipartitedness of the network is not
+known \emph{a priori}.
 }
 
 \references{

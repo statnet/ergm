@@ -54,6 +54,22 @@ InitErgmConstraint.triadic<-function(nw, arglist, ...){
   list(triFocus=a$triFocus, type = a$type, priority=10, constrain="triadic")
 }
 
+#' @templateVar name triadic
+#' @template ergmHint-rdname
+#' @aliases .triadic-ergmHint
+#' @usage
+#' # .triadic(triFocus = 0.25, type = "OTP")
+#' @section `.triadic()` versus `triadic()`: If given a bipartite
+#'   network, the dotted form will skip silently, whereas the plain
+#'   form will raise an error, since triadic effects are not possible
+#'   in bipartite networks. The dotted form is thus suitable as a
+#'   default argument when the bipartitedness of the network is not
+#'   known *a priori*.
+InitErgmConstraint..triadic<-function(nw, arglist, ...){
+  if(is.bipartite(nw)) NULL
+  else InitErgmConstraint.triadic(nw, arglist, ...)
+}
+
 InitErgmConstraint.Strat<-function(nw, arglist, ...){
   .Deprecate_once("strat")
   InitErgmConstraint.strat(nw, arglist, ...)
