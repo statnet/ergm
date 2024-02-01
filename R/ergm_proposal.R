@@ -311,10 +311,13 @@ ergm_conlist.term_list <- function(object, nw, ..., term.options=list()){
     }
 
     con <- eval(as.call(init.call), conenv)
-    NVL(con$dependence) <- TRUE
-    if(con$dependence && consign < 0) stop("Only dyad-independent costraints can have negative signs.")
+    if(is.null(con)) next
+
+    NVL(con$priority) <- Inf # Default priority
+    if(con$priority < Inf) con$dependence <- FALSE # Hints do not induce dependence in the sample space.
+    NVL(con$dependence) <- TRUE # Default dependence
+    if(con$dependence && consign < 0) stop("Only dyad-independent constraints can have negative signs.")
     con$sign <- consign
-    NVL(con$priority) <- Inf
     NVL(con$constrain) <- conname
     if(!con$dependence && con$priority==Inf){
       con$constrain <- if(con$sign < 0) ".dyads" # If disjunctive, override specific in favour of general.

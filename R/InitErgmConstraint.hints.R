@@ -24,7 +24,7 @@ InitErgmConstraint.TNT<-function(nw, arglist, ...){
 #' @concept dyad-independent
 InitErgmConstraint.sparse<-function(nw, arglist, ...){
   a <- check.ErgmTerm(nw, arglist)
-  list(dependence = FALSE, priority=10, impliedby=c("sparse", "edges", "degrees", "edges", "idegrees", "odegrees", "b1degrees", "b2degrees", "idegreedist", "odegreedist", "degreedist", "b1degreedist", "b2degreedist"), constrain="sparse")
+  list(priority=10, impliedby=c("sparse", "edges", "degrees", "edges", "idegrees", "odegrees", "b1degrees", "b2degrees", "idegreedist", "odegreedist", "degreedist", "b1degreedist", "b2degreedist"), constrain="sparse")
 }
 
 InitErgmConstraint.Strat<-function(nw, arglist, ...){
@@ -128,8 +128,7 @@ InitErgmConstraint.strat <- function(nw, arglist, ...) {
   # record the number of unique attr codes
   nlevels <- length(strat_levels)
 
-  list(dependence = FALSE,
-       priority = 10,
+  list(priority = 10,
        tailattrs = tailattrs,
        headattrs = headattrs,
        probvec = probvec,
