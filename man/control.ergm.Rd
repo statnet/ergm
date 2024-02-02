@@ -49,11 +49,12 @@ control.ergm(
   MCMC.packagenames = c(),
   SAN.maxit = 4,
   SAN.nsteps.times = 8,
-  SAN = control.san(term.options = term.options, SAN.maxit = SAN.maxit, SAN.prop.weights
-    = MCMC.prop.weights, SAN.prop.args = MCMC.prop.args, SAN.nsteps = EVL(MCMC.burnin,
-    16384) * SAN.nsteps.times, SAN.samplesize = EVL(MCMC.samplesize, 1024),
-    SAN.packagenames = MCMC.packagenames, parallel = parallel, parallel.type =
-    parallel.type, parallel.version.check = parallel.version.check),
+  SAN = control.san(term.options = term.options, SAN.maxit = SAN.maxit, SAN.prop =
+    MCMC.prop, SAN.prop.weights = MCMC.prop.weights, SAN.prop.args = MCMC.prop.args,
+    SAN.nsteps = EVL(MCMC.burnin, 16384) * SAN.nsteps.times, SAN.samplesize =
+    EVL(MCMC.samplesize, 1024), SAN.packagenames = MCMC.packagenames, parallel =
+    parallel, parallel.type = parallel.type, parallel.version.check =
+    parallel.version.check),
   MCMLE.termination = c("confidence", "Hummel", "Hotelling", "precision", "none"),
   MCMLE.maxit = 60,
   MCMLE.conv.min.pval = 0.5,

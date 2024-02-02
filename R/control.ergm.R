@@ -552,6 +552,7 @@ control.ergm<-function(drop=TRUE,
                        SAN=control.san(
                          term.options=term.options,
                          SAN.maxit=SAN.maxit,
+                         SAN.prop=MCMC.prop,
                          SAN.prop.weights=MCMC.prop.weights,
                          SAN.prop.args=MCMC.prop.args,
                          
