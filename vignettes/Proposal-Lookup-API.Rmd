@@ -46,7 +46,7 @@ Arguments
 Most of this is implemented in the `ergm_proposal.formula()` method:
 
 1. `InitErgmReference.<REFERENCE>` is called with arguments of `reference=`'s LHS, obtaining the name of the reference.
-1. For each term in the following formula's RHS, the corresponding `InitErgmConstraint.<CONSTRAINT>` function is called and their outputs are stored in a list of initialized constraints (an `ergm_conlist` object). `.dyads` pseudo-constraint is added to dyad-independent constraints (not to hints with `$priority < Inf`).
+1. For each term in the following formula's RHS, the corresponding `InitErgmConstraint.<CONSTRAINT>` function is called and their outputs are stored in a list of initialized constraints (an `ergm_conlist` object). `.dyads` pseudo-constraint is added to dyad-independent constraints (not to hints with `$priority < Inf`). For hints, `$dependence` element is overwritten to `FALSE`. The list is named, with the name taken from the first element of the `$constrains`.
     1. `constraints=`
     1. `MCMC.prop=`
 1. Constraint lists from the previous two steps are concatenated, with redundant constraints removed based on their `$implies`/`$impliedby` settings.

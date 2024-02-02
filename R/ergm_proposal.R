@@ -319,6 +319,7 @@ ergm_conlist.term_list <- function(object, nw, ..., term.options=list()){
     if(con$dependence && consign < 0) stop("Only dyad-independent constraints can have negative signs.")
     con$sign <- consign
     NVL(con$constrain) <- conname
+    conname <- con$constrain[1] # If constraint provides a name, use it.
     if(!con$dependence && con$priority==Inf){
       con$constrain <- if(con$sign < 0) ".dyads" # If disjunctive, override specific in favour of general.
                        else unique(c(con$constrain,".dyads")) # FIXME: should .dyads go first?
