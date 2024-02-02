@@ -18,7 +18,7 @@ control.ergm.bridge(
     obs.MCMC.interval * 16),
   obs.MCMC.interval = MCMC.interval,
   obs.MCMC.samplesize = MCMC.samplesize,
-  MCMC.prop = trim_env(~sparse),
+  MCMC.prop = trim_env(~sparse + .triadic),
   MCMC.prop.weights = "default",
   MCMC.prop.args = list(),
   obs.MCMC.prop = MCMC.prop,

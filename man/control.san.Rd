@@ -12,7 +12,7 @@ control.san(
   SAN.nsteps.alloc = function(nsim) 2^seq_len(nsim),
   SAN.nsteps = 2^19,
   SAN.samplesize = 2^12,
-  SAN.prop = trim_env(~sparse),
+  SAN.prop = trim_env(~sparse + .triadic),
   SAN.prop.weights = "default",
   SAN.prop.args = list(),
   SAN.packagenames = c(),

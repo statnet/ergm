@@ -10,7 +10,7 @@
 control.simulate.formula.ergm(
   MCMC.burnin = MCMC.interval * 16,
   MCMC.interval = 1024,
-  MCMC.prop = trim_env(~sparse),
+  MCMC.prop = trim_env(~sparse + .triadic),
   MCMC.prop.weights = "default",
   MCMC.prop.args = list(),
   MCMC.batch = NULL,
@@ -40,7 +40,7 @@ control.simulate.formula.ergm(
 control.simulate(
   MCMC.burnin = MCMC.interval * 16,
   MCMC.interval = 1024,
-  MCMC.prop = trim_env(~sparse),
+  MCMC.prop = trim_env(~sparse + .triadic),
   MCMC.prop.weights = "default",
   MCMC.prop.args = list(),
   MCMC.batch = NULL,
@@ -70,7 +70,7 @@ control.simulate(
 control.simulate.formula(
   MCMC.burnin = MCMC.interval * 16,
   MCMC.interval = 1024,
-  MCMC.prop = trim_env(~sparse),
+  MCMC.prop = trim_env(~sparse + .triadic),
   MCMC.prop.weights = "default",
   MCMC.prop.args = list(),
   MCMC.batch = NULL,

@@ -25,7 +25,7 @@ control.ergm(
   MPLE.covariance.sim.burnin = 1024,
   MPLE.covariance.sim.interval = 1024,
   MPLE.constraints.ignore = FALSE,
-  MCMC.prop = trim_env(~sparse),
+  MCMC.prop = trim_env(~sparse + .triadic),
   MCMC.prop.weights = "default",
   MCMC.prop.args = list(),
   MCMC.interval = NULL,

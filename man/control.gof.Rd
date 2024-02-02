@@ -11,7 +11,7 @@ control.gof.formula(
   MCMC.burnin = 10000,
   MCMC.interval = 1000,
   MCMC.batch = 0,
-  MCMC.prop = trim_env(~sparse),
+  MCMC.prop = trim_env(~sparse + .triadic),
   MCMC.prop.weights = "default",
   MCMC.prop.args = list(),
   MCMC.maxedges = Inf,
