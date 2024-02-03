@@ -473,26 +473,31 @@ ergm <- function(formula, response=NULL,
   }else proposal <- constraints
   
   if (verbose) message(sQuote(paste0(proposal$pkgname,":MH_",proposal$name)),".")
-  
-  if (verbose) message("Initializing model...")
-  model <- ergm_model(formula, nw, extra.aux=NVL3(proposal$auxiliaries,list(proposal=.)), term.options=control$term.options)
-  proposal$aux.slots <- model$slots.extra.aux$proposal
-  if (verbose) message("Model initialized.")
-  
+
   if(!is(obs.constraints, "ergm_proposal")){
     if(!is.null(conterms.obs)){
       if (verbose) message("Initializing constrained Metropolis-Hastings proposal: ", appendLF=FALSE)
       proposal.obs <- ergm_proposal(conterms.obs, hints=control$obs.MCMC.prop, weights=control$obs.MCMC.prop.weights, control$obs.MCMC.prop.args, nw, class=proposalclass, reference=reference, term.options=control$term.options)
-      if (verbose) message(sQuote(paste0(proposal.obs$pkgname,":MH_",proposal.obs$name)), appendLF=FALSE)
-      
-      if(!is.null(proposal.obs$auxiliaries)){
-        if(verbose) message(" (requests auxiliaries: updating model).")
-        model$obs.model <- c(model, ergm_model(trim_env(~.), nw, extra.aux=list(proposal=proposal.obs$auxiliaries), term.options=control$term.options))
-        proposal.obs$slots.extra.aux <- model$model.obs$slots.extra.aux$proposal
-        if(verbose) message("Model reinitialized.")
-      }else if(verbose) message(".")
     }else proposal.obs <- NULL
   }else proposal.obs <- obs.constraints
+
+  if (verbose && !is.null(proposal.obs)) message(sQuote(paste0(proposal.obs$pkgname,":MH_",proposal.obs$name)),".")
+
+  if (verbose) message("Initializing model...")
+  model <- ergm_model(formula, nw, extra.aux = NVL3(proposal$auxiliaries,list(proposal=.)), term.options=control$term.options)
+  proposal$aux.slots <- model$slots.extra.aux$proposal
+  if (verbose) message("Model initialized.")
+
+  model.obs <- NULL
+  if(identical(proposal$auxiliaries, proposal.obs$auxiliaries)){
+    ## Reuse auxiliaries from the unconstrained proposal if identical.
+    proposal.obs$slots.extra.aux <- model$slots.extra.aux$proposal
+  }else if(!is.null(proposal.obs$auxiliaries)){
+    if (verbose) message("Constrained proposal requires different auxiliaries: reinitializing model...")
+    model.obs <- ergm_model(formula, nw, extra.aux = NVL3(proposal.obs$auxiliaries,list(proposal=.)), term.options=control$term.options)
+    proposal.obs$aux.slots <- model.obs$slots.extra.aux$proposal
+    if (verbose) message("Model reinitialized.")
+  }
 
   info <- list(
     terms_dind = is.dyad.independent(model),
@@ -618,7 +623,7 @@ ergm <- function(formula, response=NULL,
   }
   
   ## Run the fit.
-  fit <- ergm.fit(nw, target.stats, model, proposal, proposal.obs, info, control, verbose, ...)
+  fit <- ergm.fit(nw, target.stats, model, model.obs, proposal, proposal.obs, info, control, verbose, ...)
 
   ## Process MCMC sample results.
   if(control$MCMC.return.stats == 0) fit$sample <- fit$sample.obs <- NULL
@@ -682,7 +687,7 @@ ergm <- function(formula, response=NULL,
   fit
 }
 
-ergm.fit <- function(nw, target.stats, model, proposal, proposal.obs, info, control, verbose, ...){
+ergm.fit <- function(nw, target.stats, model, model.obs, proposal, proposal.obs, info, control, verbose, ...){
   ## Short-circuit the optimization if all terms are either offsets or dropped.
   if(all(model$etamap$offsettheta)){
     ## Note that this cannot be overridden with control$force.main.
@@ -719,7 +724,7 @@ ergm.fit <- function(nw, target.stats, model, proposal, proposal.obs, info, cont
   statshift[is.na(statshift)] <- 0
 
   s <- update(s, model=model, proposal=proposal, stats=statshift)
-  s.obs <- if(!is.null(proposal.obs)) update(s, model=NVL(model$obs.model,model), proposal=proposal.obs)
+  s.obs <- NVL3(proposal.obs, update(s, model=NVL(model.obs,model), proposal=.))
 
   ## If all other criteria for MPLE=MLE are met, _and_ SAN network matches target.stats exactly, we can get away with MPLE.
   if (!is.null(target.stats) && !isTRUE(all.equal(target.stats[!is.na(target.stats)],nw.stats[!is.na(target.stats)])))
