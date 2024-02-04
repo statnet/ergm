@@ -16,24 +16,25 @@ void DyadGenSetUpIntersect(DyadGen *gen, void *track_nwp, Rboolean force){
     switch(gen->type){
     case RandDyadGen:
     case WtRandDyadGen:
-      gen->intersect = NULL;
+      gen->inter.uel = NULL;
       break;
     case EdgeListGen:
     case RLEBDM1DGen:
       {
         Network *nwp = track_nwp ? track_nwp : gen->nwp.b;
         gen->nwp.b = nwp;
-        gen->intersect = UnsrtELInitialize(0, NULL, NULL, FALSE);
+        gen->inter.uel = UnsrtELInitialize(0, NULL, NULL, FALSE);
         EXEC_THROUGH_NET_EDGES(t, h, e, {
             if(DyadGenSearch(t, h, gen)){
-              UnsrtELInsert(t, h, gen->intersect);
+              UnsrtELInsert(t, h, gen->inter.uel);
             }
           });
         
-        if(!force && gen->intersect->nedges==EDGECOUNT(nwp)){ // There are no ties in the initial network that are fixed.
-          UnsrtELDestroy(gen->intersect);
-          gen->intersect = NULL; // "Signal" that there is no discordance network.
+        if(!force && gen->inter.uel->nedges==EDGECOUNT(nwp)){ // There are no ties in the initial network that are fixed.
+          UnsrtELDestroy(gen->inter.uel);
+          gen->inter.uel = NULL; // "Signal" that there is no discordance network.
         }else{
+          gen->intertype = UnsrtELDyadGen;
           AddOnNetworkEdgeChange(nwp, (OnNetworkEdgeChange) DyadGenUpdate, gen, INT_MAX);
         }
       }
@@ -43,18 +44,19 @@ void DyadGenSetUpIntersect(DyadGen *gen, void *track_nwp, Rboolean force){
       {
         WtNetwork *nwp = track_nwp ? track_nwp : gen->nwp.w;
         gen->nwp.w = nwp;
-        gen->intersect = UnsrtELInitialize(0, NULL, NULL, FALSE);
+        gen->inter.uel = UnsrtELInitialize(0, NULL, NULL, FALSE);
         WtEXEC_THROUGH_NET_EDGES(t, h, w, e, {
             (void) e;
             if(w!=0 && DyadGenSearch(t, h, gen)){
-              UnsrtELInsert(t, h, gen->intersect);
+              UnsrtELInsert(t, h, gen->inter.uel);
             }
           });
         
-      if(!force && gen->intersect->nedges==EDGECOUNT(nwp)){ // There are no ties in the initial network that are fixed.
-        UnsrtELDestroy(gen->intersect);
-        gen->intersect = NULL; // "Signal" that there is no discordance network.
+      if(!force && gen->inter.uel->nedges==EDGECOUNT(nwp)){ // There are no ties in the initial network that are fixed.
+        UnsrtELDestroy(gen->inter.uel);
+        gen->inter.uel = NULL; // "Signal" that there is no discordance network.
       }else{
+        gen->intertype = UnsrtELDyadGen;
         AddOnWtNetworkEdgeChange(nwp, (OnWtNetworkEdgeChange) WtDyadGenUpdate, gen, INT_MAX);
       }
       }
@@ -64,21 +66,49 @@ void DyadGenSetUpIntersect(DyadGen *gen, void *track_nwp, Rboolean force){
     }
 }
 
+void DyadGenUpgradeIntersect(DyadGen *gen){
+  if(gen->intertype == UnsrtELDyadGen){
+    Rboolean directed;
+    switch(gen->type){
+    case RandDyadGen:
+    case EdgeListGen:
+    case RLEBDM1DGen:
+      {
+        Network *nwp = gen->nwp.b;
+        directed = DIRECTED;
+      }
+      break;
+    case WtRandDyadGen:
+    case WtEdgeListGen:
+    case WtRLEBDM1DGen:
+      {
+        WtNetwork *nwp = gen->nwp.w;
+        directed = DIRECTED;
+      }
+      break;
+    default:
+      error("Undefined dyad generator type.");
+    }
+    gen->inter.hel = UnsrtELIntoHashEL(gen->inter.uel, directed);
+    gen->intertype = HashELDyadGen;
+  }
+}
+
 DyadGen *DyadGenInitialize(DyadGenType type, void *dyads, void *track_nwp){
   DyadGen *gen = Calloc(1, DyadGen);
   gen->type = type;
+  gen->intertype = NoELDyadGen;
   gen->sleeping = FALSE;
+  gen->inter.uel = NULL;
 
   switch(gen->type){
   case RandDyadGen:
     gen->nwp.b = dyads;
     gen->ndyads = DYADCOUNT(gen->nwp.b);
-    gen->intersect = NULL;
     break;
   case WtRandDyadGen:
     gen->nwp.w = dyads;
     gen->ndyads = DYADCOUNT(gen->nwp.w);
-    gen->intersect = NULL;
     break;
   case RLEBDM1DGen:
   case WtRLEBDM1DGen:
@@ -137,21 +167,21 @@ DyadGen *DyadGenInitializeR(SEXP pR, void *any_nwp, Rboolean el){
 
 
 void DyadGenDestroy(DyadGen *gen){
-  if(gen->intersect){
+  if(gen->intertype != NoELDyadGen){
+    switch(gen->intertype){
+    case UnsrtELDyadGen: UnsrtELDestroy(gen->inter.uel); break;
+    case HashELDyadGen: HashELDestroy(gen->inter.hel); break;
+    case NoELDyadGen: break;
+    }
+
     switch(gen->type){
     case RLEBDM1DGen:
     case EdgeListGen:
-      if(gen->intersect){
-        UnsrtELDestroy(gen->intersect);
-        DeleteOnNetworkEdgeChange(gen->nwp.b, (OnNetworkEdgeChange) DyadGenUpdate, gen);
-      }
+      DeleteOnNetworkEdgeChange(gen->nwp.b, (OnNetworkEdgeChange) DyadGenUpdate, gen);
       break;
     case WtRLEBDM1DGen:
     case WtEdgeListGen:
-      if(gen->intersect){
-        UnsrtELDestroy(gen->intersect);
-        DeleteOnWtNetworkEdgeChange(gen->nwp.w, (OnWtNetworkEdgeChange) WtDyadGenUpdate, gen);
-      }
+      DeleteOnWtNetworkEdgeChange(gen->nwp.w, (OnWtNetworkEdgeChange) WtDyadGenUpdate, gen);
       break;
     case RandDyadGen:
     case WtRandDyadGen:
@@ -166,13 +196,39 @@ void DyadGenDestroy(DyadGen *gen){
 
 void DyadGenUpdate(Vertex tail, Vertex head, DyadGen *gen, Network *nwp, Rboolean edgestate){
   if(gen->sleeping) return;
-  if(edgestate) UnsrtELDelete(tail, head, gen->intersect); // Deleting
-  else UnsrtELInsert(tail, head, gen->intersect); // Inserting
+
+  switch(gen->intertype){
+  case UnsrtELDyadGen:
+    if(edgestate) UnsrtELDelete(tail, head, gen->inter.uel); // Deleting
+    else UnsrtELInsert(tail, head, gen->inter.uel); // Inserting
+    if(gen->inter.uel->linsearch >= DYADGEN_MISSES_BEFORE_UPGRADE) DyadGenUpgradeIntersect(gen);
+    break;
+
+  case HashELDyadGen:
+    if(edgestate) HashELDelete(tail, head, gen->inter.hel); // Deleting
+    else HashELInsert(tail, head, gen->inter.hel); // Inserting
+    break;
+
+  case NoELDyadGen: break;
+  }
 }
 
 
 void WtDyadGenUpdate(Vertex tail, Vertex head, double weight, DyadGen *gen, WtNetwork *nwp, double edgestate){
   if(gen->sleeping) return;
-  if(edgestate!=0 && weight==0) UnsrtELDelete(tail, head, gen->intersect); // Deleting
-  else if(edgestate==0 && weight!=0) UnsrtELInsert(tail, head, gen->intersect); // Inserting
+
+  switch(gen->intertype){
+  case UnsrtELDyadGen:
+    if(edgestate!=0 && weight==0) UnsrtELDelete(tail, head, gen->inter.uel); // Deleting
+    else if(edgestate==0 && weight!=0) UnsrtELInsert(tail, head, gen->inter.uel); // Inserting
+    if(gen->inter.uel->linsearch >= DYADGEN_MISSES_BEFORE_UPGRADE) DyadGenUpgradeIntersect(gen);
+    break;
+
+  case HashELDyadGen:
+    if(edgestate!=0 && weight==0) HashELDelete(tail, head, gen->inter.hel); // Deleting
+    else if(edgestate==0 && weight!=0) HashELInsert(tail, head, gen->inter.hel); // Inserting
+    break;
+
+  case NoELDyadGen: break;
+  }
 }

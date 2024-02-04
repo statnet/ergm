@@ -15,14 +15,17 @@
 #include "ergm_wtedgetree.h"
 #include "ergm_rlebdm.h"
 #include "ergm_edgelist.h"
-#include "ergm_unsorted_edgelist.h"
+#include "ergm_hash_edgelist.h"
 #include "ergm_changestat.h"
 #include "ergm_wtchangestat.h"
 
 typedef enum{RandDyadGen, WtRandDyadGen, RLEBDM1DGen, WtRLEBDM1DGen, EdgeListGen, WtEdgeListGen} DyadGenType;
+typedef enum{NoELDyadGen, UnsrtELDyadGen, HashELDyadGen} DyadGenInterType;
+#define DYADGEN_MISSES_BEFORE_UPGRADE 8
 
 typedef struct {
   DyadGenType type;
+  DyadGenInterType intertype;
   union {
     Network *b;
     WtNetwork *w;
@@ -32,7 +35,10 @@ typedef struct {
     int *el;
   } dyads;
   Dyad ndyads;
-  UnsrtEL *intersect;
+  union {
+    UnsrtEL *uel;
+    HashEL *hel;
+  } inter;
   Rboolean sleeping;
 } DyadGen;
 
@@ -70,7 +76,7 @@ static inline void DyadGenRandDyad(Vertex *tail, Vertex *head, DyadGen *gen){
     error("Undefined dyad generator type.");
   }
 
-  if(gen->intersect){ /* If we are maintaining an unsorted edgelist (which also implies that we are *not* in a *RandDyadGen mode)... */
+  if(gen->intertype == UnsrtELDyadGen){ /* If we are maintaining an unsorted edgelist (which also implies that we are *not* in a *RandDyadGen mode)... */
     /* Use the appropriate function to check if we had selected an extant edge, */
     Rboolean extant;
     switch(gen->type){
@@ -87,15 +93,14 @@ static inline void DyadGenRandDyad(Vertex *tail, Vertex *head, DyadGen *gen){
     }
 
     /* ... and if so, reselect it from the unsorted edgelist. */
-    if(extant) UnsrtELGetRand(tail, head, gen->intersect);
+    if(extant) UnsrtELGetRand(tail, head, gen->inter.uel);
   }
 }
 
 
 static inline Edge DyadGenEdgecount(DyadGen *gen){
-  if(gen->intersect){
-    return gen->intersect->nedges;
-  }else{
+  switch(gen->intertype){
+  case NoELDyadGen:
     switch(gen->type){
     case RandDyadGen:
     case RLEBDM1DGen:
@@ -108,7 +113,10 @@ static inline Edge DyadGenEdgecount(DyadGen *gen){
     default:
       error("Undefined dyad generator type.");
     }
+  case UnsrtELDyadGen: return gen->inter.uel->nedges;
+  case HashELDyadGen: return gen->inter.hel->list->nedges;
   }
+  return 0; // Fix a warning.
 }
 
 
@@ -126,16 +134,22 @@ static inline void DyadGenRandEdge(Vertex *tail, Vertex *head, DyadGen *gen){
   case RLEBDM1DGen:
   case EdgeListGen:
     {
-      if(gen->intersect) UnsrtELGetRand(tail, head, gen->intersect);
-      else GetRandEdge(tail, head, gen->nwp.b);
+      switch(gen->intertype){
+      case NoELDyadGen: GetRandEdge(tail, head, gen->nwp.b); break;
+      case UnsrtELDyadGen: UnsrtELGetRand(tail, head, gen->inter.uel); break;
+      case HashELDyadGen: HashELGetRand(tail, head, gen->inter.hel); break;
+      }
     }
     break;
   case WtRLEBDM1DGen:
   case WtEdgeListGen:
     {
       double dummy;
-      if(gen->intersect) UnsrtELGetRand(tail, head, gen->intersect);
-      else WtGetRandEdge(tail, head, &dummy, gen->nwp.w);
+      switch(gen->intertype){
+      case NoELDyadGen: WtGetRandEdge(tail, head, &dummy, gen->nwp.w); break;
+      case UnsrtELDyadGen: UnsrtELGetRand(tail, head, gen->inter.uel); break;
+      case HashELDyadGen: HashELGetRand(tail, head, gen->inter.hel); break;
+      }
     }
     break;
   default:
@@ -190,18 +204,27 @@ static inline void DyadGenRandWtEdge(Vertex *tail, Vertex *head, double *weight,
     break;
   case RLEBDM1DGen:
   case EdgeListGen:
-    if(gen->intersect) UnsrtELGetRand(tail, head, gen->intersect);
-    else GetRandEdge(tail, head, gen->nwp.b);
+      switch(gen->intertype){
+      case NoELDyadGen: GetRandEdge(tail, head, gen->nwp.b); break;
+      case UnsrtELDyadGen: UnsrtELGetRand(tail, head, gen->inter.uel); break;
+      case HashELDyadGen: HashELGetRand(tail, head, gen->inter.hel); break;
+      }
     *weight = 1;
     break;
   case WtRLEBDM1DGen:
   case WtEdgeListGen:
-    if(gen->intersect){
-      UnsrtELGetRand(tail, head, gen->intersect);
-      *weight = WtGetEdge(*tail, *head, gen->nwp.w);
-    }
-    else WtGetRandEdge(tail, head, weight, gen->nwp.w);
-    break;
+      switch(gen->intertype){
+      case NoELDyadGen: WtGetRandEdge(tail, head, weight, gen->nwp.w); break;
+      case UnsrtELDyadGen:
+        UnsrtELGetRand(tail, head, gen->inter.uel);
+        *weight = WtGetEdge(*tail, *head, gen->nwp.w);
+        break;
+      case HashELDyadGen:
+        HashELGetRand(tail, head, gen->inter.hel);
+        *weight = WtGetEdge(*tail, *head, gen->nwp.w);
+        break;
+      }
+      break;
   default:
     error("Undefined dyad generator type.");
   }
@@ -232,7 +255,7 @@ static inline void DyadGenSleep(DyadGen *gen){
      that it must keep track of what they are.
 
      FIXME: Maybe we should *always* maintain an UnsrtEL? Need to benchmark. */
-  if(!gen->intersect) DyadGenSetUpIntersect(gen, NULL, TRUE);
+  if(gen->intertype != NoELDyadGen) DyadGenSetUpIntersect(gen, NULL, TRUE);
 }
 
 static inline void DyadGenWake(DyadGen *gen){
