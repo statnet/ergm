@@ -25,23 +25,29 @@ typedef struct {
   StoreDyadMapUInt *hash;
 } HashEL;
 
-static inline HashEL *HashELInitialize(unsigned int nedges, Vertex *tails, Vertex *heads, Rboolean copy, Rboolean directed) {
+/* Embed an existing UnsrtEL into a HashEL. */
+static inline HashEL *UnsrtELIntoHashEL(UnsrtEL *el, Rboolean directed) {
   HashEL *hash = Calloc(1, HashEL);
 
-  hash->list = UnsrtELInitialize(nedges, tails, heads, copy);
+  hash->list = el;
 
   hash->hash = kh_init(DyadMapUInt);
   hash->hash->directed = directed;
 
-  if(nedges > 0) {
-    kh_resize(DyadMapUInt, hash->hash, 2*(nedges + 1));
+  if(el->nedges > 0) {
+    kh_resize(DyadMapUInt, hash->hash, 2*(el->nedges + 1));
 
-    for(unsigned int i = 0; i < nedges; i++) {
-      kh_set(DyadMapUInt, hash->hash, TH(tails[i], heads[i]), i + 1);
+    for(unsigned int i = 1; i <= el->nedges; i++) {
+      kh_set(DyadMapUInt, hash->hash, TH(el->tails[i], el->heads[i]), i);
     }
   }
 
   return hash;
+}
+
+static inline HashEL *HashELInitialize(unsigned int nedges, Vertex *tails, Vertex *heads, Rboolean copy, Rboolean directed) {
+  UnsrtEL *el = UnsrtELInitialize(nedges, tails, heads, copy);
+  return UnsrtELIntoHashEL(el, directed);
 }
 
 static inline void HashELDestroy(HashEL *hash) {
