@@ -32,6 +32,7 @@ typedef struct {
   unsigned int lindex;
   unsigned int nedges;
   unsigned int maxedges;
+  unsigned int linsearch;
 } UnsrtEL;
 
 static inline UnsrtEL *UnsrtELInitialize(unsigned int nedges, Vertex *tails, Vertex *heads, Rboolean copy) {
@@ -56,6 +57,7 @@ static inline UnsrtEL *UnsrtELInitialize(unsigned int nedges, Vertex *tails, Ver
   el->lindex = 0;
   el->nedges = nedges;
   el->maxedges = nedges;
+  el->linsearch = 0;
 
   return el;
 }
@@ -92,10 +94,10 @@ static inline unsigned int UnsrtELSearch(Vertex tail, Vertex head, UnsrtEL *el) 
    return el->lindex;
   } else {
     // linear search
-
+    el->linsearch++;
 #ifdef DEBUG_UnsrtEL
     /* To stop on an inefficient search, have the debugger break on the next line. */
-    Rprintf("UnsrtELSearch() called for an edge other than the last one inserted or selected, resulting in a linear search. This is O(E) slow and should be avoided whenever possible.\n");
+    Rprintf("UnsrtELSearch() called for an edge other than the last one inserted or selected, resulting in a linear search. This is O(E) slow and should be avoided whenever possible. (So far: %u times.)\n", el->linsearch);
 #endif
 
     unsigned int i = el->nedges;
