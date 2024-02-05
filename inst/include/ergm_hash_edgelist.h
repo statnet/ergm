@@ -60,8 +60,12 @@ static inline void HashELGetRand(Vertex *tail, Vertex *head, HashEL *hash) {
 }
 
 static inline void HashELInsert(Vertex tail, Vertex head, HashEL *hash) {
+  kh_put_code r;
+  khiter_t pos = kh_put(DyadMapUInt, hash->hash, TH(tail, head), &r);
+  if(r == kh_put_present) return; // Already in the list.
+
   UnsrtELInsert(tail, head, hash->list);
-  kh_set(DyadMapUInt, hash->hash, TH(tail, head), hash->list->nedges);
+  kh_val(hash->hash, pos) = hash->list->nedges;
 }
 
 static inline void HashELDelete(Vertex tail, Vertex head, HashEL *hash) {
