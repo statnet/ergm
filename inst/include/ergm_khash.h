@@ -171,6 +171,7 @@ typedef unsigned long long khint64_t;
 
 typedef khint32_t khint_t;
 typedef khint_t khiter_t;
+typedef enum{kh_put_failed = -1, kh_put_present = 0, kh_put_empty = 1, kh_put_deleted = 2} kh_put_code;
 
 #define __ac_intpos(i) ((i)>>4)
 #define __ac_bitpos(i) (((i)&0xfU)<<1)
@@ -385,11 +386,11 @@ static const double __ac_HASH_UPPER = 0.77;
 		if (h->n_occupied >= h->upper_bound) { /* update the hash table */ \
 			if (h->n_buckets > (h->size<<1)) {							\
 				if (kh_resize_##name(h, h->n_buckets - 1) < 0) { /* clear "deleted" elements */ \
-					if(ret) *ret = -1;											\
+					if(ret) *ret = kh_put_failed;											\
 					return kh_none;												\
 				}														\
 			} else if (kh_resize_##name(h, h->n_buckets + 1) < 0) { /* expand the hash table */ \
-				if(ret) *ret = -1;												\
+				if(ret) *ret = kh_put_failed;												\
 				return kh_none;													\
 			}															\
 		} /* TODO: to implement automatically shrinking; resize() already support shrinking */ \
@@ -415,13 +416,13 @@ static const double __ac_HASH_UPPER = 0.77;
 			h->keys[x] = key;											\
 			__ac_set_isboth_false2(xi, xb);			\
 			++h->size; ++h->n_occupied;									\
-			if(ret) *ret = 1;													\
+			if(ret) *ret = kh_put_empty;													\
 		} else if (__ac_isdel2(xi, xb)) { /* deleted */		\
 			h->keys[x] = key;											\
 			__ac_set_isboth_false2(xi, xb);			\
 			++h->size;													\
-			if(ret) *ret = 2;													\
-		} else if(ret) *ret = 0; /* Don't touch h->keys[x] if present and not deleted */ \
+			if(ret) *ret = kh_put_deleted;													\
+		} else if(ret) *ret = kh_put_present; /* Don't touch h->keys[x] if present and not deleted */ \
 		return x;														\
 	}																	\
 	SCOPE void kh_del_##name(kh_##name##_t *h, khint_t x)				\
@@ -571,10 +572,10 @@ static kh_inline khint_t __ac_Wang_hash(khint_t key)
   @param  name  Name of the hash table [symbol]
   @param  h     Pointer to the hash table [khash_t(name)*]
   @param  k     Key [type of keys]
-  @param  r     Extra return code: -1 if the operation failed;
-                0 if the key is present in the hash table;
-                1 if the bucket is empty (never used); 2 if the element in
-				the bucket has been deleted [int*]
+  @param  r     Extra return code: kh_put_failed (-1) if the operation failed;
+                kh_put_present (0) if the key is present in the hash table;
+                kh_put_empty (1) if the bucket is empty (never used);
+                kh_put_deleted (2) if the element in the bucket has been deleted [int*]
 		r may be NULL, in which case it is not set.
   @return       Iterator to the inserted element [khint_t]
  */

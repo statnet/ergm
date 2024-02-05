@@ -90,7 +90,7 @@ typedef khash_t(DyadSet) StoreDyadSet;
 // Toggle an element of a DyadSet.
 static inline Rboolean DyadSetToggle(Vertex tail, Vertex head, StoreDyadSet *h){
   TailHead th = TH(tail, head);
-  int ret;
+  kh_put_code ret;
   // Attempt insertion
   khiter_t i = kh_put(DyadSet, h, th, &ret);
   if(ret==0){

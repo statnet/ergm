@@ -111,10 +111,10 @@ SEXP MPLE_wrapper(SEXP stateR,
 
 static inline void insCovMatRow(StoreDVecMapENE *h, double *pred, int response){
   size_t nstat = h->l;
-  int ret;
+  kh_put_code ret;
 
   khiter_t pos = kh_put(DVecMapENE, h, pred, &ret);
-  if(ret){ // New element inserted:
+  if(ret != kh_put_present){ // New element inserted:
     // Copy and replace the key, since it'll get overwritten later.
     double *newpred = MPLE_workspace_push(Calloc(nstat, double));
     memcpy(newpred, pred, nstat*sizeof(double));
