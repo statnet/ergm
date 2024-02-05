@@ -54,9 +54,9 @@ eval(UPDATE_MY_SCTRL_EXPR)
 
 .RegisterProposals <- function(){
   ergm_proposal_table("c", "Bernoulli", "|.dyads|bd",  -2, "random", "randomtoggle")
-  ergm_proposal_table("c", "Bernoulli", "|.dyads|bd&sparse",  -1, "TNT", "TNT")
+  ergm_proposal_table("c", "Bernoulli", "|.dyads|bd&sparse",  0, "TNT", "TNT")
   ergm_proposal_table("c", "Bernoulli", "|bdmax|blocks|strat&sparse",  -3, "BDStratTNT", "BDStratTNT")
-  ergm_proposal_table("c", "Bernoulli", c("&bdmax|blocks|strat&sparse", "|bdmax&blocks|strat&sparse", "|bdmax|blocks&strat&sparse"),  0, "BDStratTNT", "BDStratTNT")
+  ergm_proposal_table("c", "Bernoulli", c("&bdmax|blocks|strat&sparse", "|bdmax&blocks|strat&sparse", "|bdmax|blocks&strat&sparse"),  5, "BDStratTNT", "BDStratTNT")
   ergm_proposal_table("c", "Bernoulli", "", -100, "TNT10", "TNT10")
   ergm_proposal_table("c", "Bernoulli", "&degrees",  0, "random", "CondDegree")
   ergm_proposal_table("c", "Bernoulli", "&degreesmix",  0, "random", "CondDegreeMix")

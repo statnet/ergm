@@ -51,7 +51,7 @@ InitErgmConstraint.triadic<-function(nw, arglist, ...){
                       defaultvalues = list(0.25, "OTP"),
                       required = c(FALSE, FALSE))
   if(!is.directed(nw)) a$type <- "UTP"
-  list(triFocus=a$triFocus, type = a$type, priority=10, constrain="triadic")
+  list(triFocus=a$triFocus, type = a$type, priority=4, constrain="triadic")
 }
 
 #' @templateVar name triadic
@@ -171,7 +171,7 @@ InitErgmConstraint.strat <- function(nw, arglist, ...) {
   # record the number of unique attr codes
   nlevels <- length(strat_levels)
 
-  list(priority = 10,
+  list(priority = 4,
        tailattrs = tailattrs,
        headattrs = headattrs,
        probvec = probvec,
