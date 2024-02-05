@@ -71,11 +71,11 @@ test_that("test search ergm constraint", {
 test_that("test search ergm proposal", {
   expect_equal(length(search.ergmProposals('bipartite', packages='ergm')), 2)
 
-  expect_equal(length(search.ergmProposals(constraints='.dyads', packages='ergm')), 4)
+  expect_equal(length(search.ergmProposals(constraints='.dyads', packages='ergm')), 5)
 
   ## expect_equal(length(search.ergmProposals(reference='Bernoulli')), 17)
   expect_equal(length(search.ergmProposals(reference='Bernoulli', packages='ergm.count')), 0)
-  expect_equal(length(search.ergmProposals(reference='Bernoulli', packages='ergm')), 17)
+  expect_equal(length(search.ergmProposals(reference='Bernoulli', packages='ergm')), 18)
 
   expect_equal(length(search.ergmProposals(name = 'randomtoggle', packages='ergm')), 1)
   expect_equal(length(search.ergmProposals(name = 'mandomtoggle', packages='ergm')), 0)
