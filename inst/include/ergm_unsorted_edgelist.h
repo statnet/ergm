@@ -148,8 +148,8 @@ static inline void UnsrtELInsert(Vertex tail, Vertex head, UnsrtEL *el) {
   while(i != 0 && (tail != el->tails[i] || head != el->heads[i])) {
     i--;
   }
-  if(i) { /* To stop on an invariant violation, have the debugger break on the next line. */
-    Rprintf("UnsrtELInsert() called for an edge already present in the list. This should never happen.\n");
+  if(i) {
+    error("UnsrtELInsert() called for an edge already present in the list. This should never happen.");
   }
 #endif
 
