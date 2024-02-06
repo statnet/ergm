@@ -435,6 +435,10 @@ simulate.ergm_model <- function(object, nsim=1, seed=NULL,
     if (verbose) message(sQuote(paste0(proposal$pkgname,":MH_",proposal$name)),".")
   }
 
+  proposal$aux.slots <- m$slots.extra.aux$proposal
+
+  ## TODO: In principle, we can initialize an empty model with just
+  ## the auxiliary and append it to the model.
   if(length(proposal$auxiliaries) && !length(m$slots.extra.aux$proposal))
     stop("The proposal appears to be requesting auxiliaries, but the initialized model does not export any proposal auxiliaries.")
   
