@@ -21,9 +21,58 @@ MH_P_FN(Mp_SPDyad){
   // partners, just fall back to TNT. This is OK to do because it is
   // impossible for the triadic proposal to produce a network with no
   // shared partners.
-  if(kh_size(spcache) == 0 || unif_rand() > MH_INPUTS[0]){
+  if(unif_rand() > MH_INPUTS[0]){
     Mp_TNT(MHp, nwp);
     return;
+  }else if(kh_size(spcache) == 0){
+    // It's triadic proposal's turn, but there isn't one to propose.
+    *Mtail = MH_FAILED;
+    *Mhead = MH_CONSTRAINT;
+    return;
+
+    // FIXME: This code *should* adjust the acceptance probability if
+    // the proposal falls back to TNT rather than failing, but it's
+    // not working.
+
+    /*   Rboolean edgestate = IS_OUTEDGE(*Mtail, *Mhead); */
+    /*   if(kh_size(spcache) == 0 && !edgestate){ */
+    /*   // Find out if we are jumping from 0-SP to a 1-SP state: if we */
+    /*   // currently have 0 SP and are adding an edge... */
+    /*     Rboolean SP01 = FALSE; // Indicator of whether the toggle will create an SP of an appropriate type. */
+    /*     switch(MH_IINPUTS[0]){ */
+    /*     case ESPUTP: */
+    /*       SP01 = (OUT_DEG[*Mtail]+IN_DEG[*Mtail]) || (OUT_DEG[*Mhead]+IN_DEG[*Mhead]); break; */
+    /*     case ESPOTP: */
+    /*     case ESPITP: */
+    /*       SP01 = IN_DEG[*Mtail] || OUT_DEG[*Mhead]; break; */
+    /*     case ESPOSP: SP01 = IN_DEG[*Mhead] != 0; break; */
+    /*     case ESPISP: SP01 = OUT_DEG[*Mtail] != 0; break; */
+    /*     } */
+    /*     if(!SP01) return; */
+
+    /*     MHp->logratio += log1p(-MH_INPUTS[0]) - log(DyadGenEdgecount(storage->gen)+1) */
+    /*       - log(0.5) + log(storage->gen->ndyads); */
+    /*     return; */
+    /*   }else if(kh_size(spcache) == 1 && edgestate){ */
+    /*   // Find out if we are jumping from 1-SP to a 0-SP state: if we */
+    /*   // currently have 1 SP and are removing an edge... */
+    /*     Rboolean SP10 = FALSE; // Indicator of whether the toggle will remove an SP of an appropriate type. */
+    /*     switch(MH_IINPUTS[0]){ */
+    /*     case ESPUTP: */
+    /*       SP10 = (OUT_DEG[*Mtail]+IN_DEG[*Mtail] == 1) || (OUT_DEG[*Mhead]+IN_DEG[*Mhead] == 1); break; */
+    /*     case ESPOTP: */
+    /*     case ESPITP: */
+    /*       SP10 = (IN_DEG[*Mtail] == 1) || (OUT_DEG[*Mhead] == 1); break; */
+    /*     case ESPOSP: SP10 = IN_DEG[*Mhead] == 1; break; */
+    /*     case ESPISP: SP10 = OUT_DEG[*Mtail] == 1; break; */
+    /*     } */
+    /*     if(!SP10) return; */
+
+    /*     MHp->logratio += log(0.5) - log(storage->gen->ndyads) */
+    /*       - log1p(-MH_INPUTS[0]) + log(DyadGenEdgecount(storage->gen)); */
+    /*     return; */
+    /*   } */
+    /* } */
   }
 
   BD_COND_LOOP(storage->bd, {
