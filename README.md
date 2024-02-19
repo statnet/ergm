@@ -5,7 +5,7 @@
 [![Coverage status](https://codecov.io/gh/statnet/ergm/branch/master/graph/badge.svg)](https://codecov.io/github/statnet/ergm?branch=master)
 [![R build status](https://github.com/statnet/ergm/workflows/R-CMD-check/badge.svg)](https://github.com/statnet/ergm/actions)
 
-An integrated set of tools to analyze and simulate networks based on exponential-family random graph models (ERGMs). 'ergm' is a part of the Statnet suite of packages for network analysis. See Hunter, Handcock, Butts, Goodreau, and Morris (2008) <doi:10.18637/jss.v024.i03> and Krivitsky, Hunter, Morris, and Klumb (2021) <arXiv:2106.04997>.
+An integrated set of tools to analyze and simulate networks based on exponential-family random graph models (ERGMs). 'ergm' is a part of the Statnet suite of packages for network analysis. See Hunter, Handcock, Butts, Goodreau, and Morris (2008) <doi:10.18637/jss.v024.i03> and Krivitsky, Hunter, Morris, and Klumb (2023) <doi:10.18637/jss.v105.i06>.
 
 ## Public and Private repositories
 

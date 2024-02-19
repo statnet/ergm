@@ -28,6 +28,9 @@
 #   debug: compile package with -DDEBUG and -UNDEBUG
 #
 #   covr: run in covr mode may be used with 'full' but probably not with others.
+#
+#
+# Typical public, private, and release configurations are provided in the variables below.
 
 on: [push, pull_request]
 
@@ -37,6 +40,21 @@ name: R-CMD-check
 env:
   PUBLIC: ''
   PRIVATE: ''
+  PUBLIC_CONFIG: '{"config":[
+            {"os":"windows-latest", "r":"release", "timeout":360, "flags":"binaries"},
+            {"os":"macOS-latest", "r":"release", "timeout":360, "flags":"binaries, ubsan"},
+            {"os":"ubuntu-latest", "r":"release", "timeout":360, "flags":"full, ubsan, debug"},
+            {"os":"ubuntu-latest", "r":"devel", "timeout":360, "flags":"vignettes, remote"},
+            {"os":"ubuntu-latest", "r":"release", "timeout":360, "flags":"full, covr"}]}'
+  RELEASE_CONFIG: '{"config":[
+            {"os":"windows-latest", "r":"release", "timeout":360, "flags":"binaries, vignettes, remote, strict"},
+            {"os":"macOS-latest", "r":"release", "timeout":360, "flags":"binaries, ubsan, vignettes, remote, strict"},
+            {"os":"ubuntu-latest", "r":"release", "timeout":360, "flags":"full, ubsan, debug, strict"},
+            {"os":"ubuntu-latest", "r":"devel", "timeout":360, "flags":"vignettes, remote, strict"},
+            {"os":"ubuntu-latest", "r":"release", "timeout":360, "flags":"full, covr, strict"}]}'
+  PRIVATE_CONFIG: '{"config":[
+            {"os":"ubuntu-latest", "r":"release", "timeout":10, "flags":"none"}
+            ]}'
 
 jobs:
   Set-Matrix-Private:
@@ -76,17 +94,10 @@ jobs:
         run: |
           if [[ "${{ env.IAM }}" == 'public' ]] # Public: full set.
           then
-            config='{"config":[
-            {"os":"windows-latest", "r":"release", "timeout":360, "flags":"binaries"},
-            {"os":"macOS-latest", "r":"release", "timeout":360, "flags":"binaries, ubsan"},
-            {"os":"ubuntu-latest", "r":"release", "timeout":360, "flags":"full, ubsan, debug"},
-            {"os":"ubuntu-latest", "r":"devel", "timeout":360, "flags":"vignettes, remote"},
-            {"os":"ubuntu-latest", "r":"release", "timeout":360, "flags":"full, covr"}]}'
+            config='${{ env.PUBLIC_CONFIG }}'
           elif [[ "${{ env.FOUND_PUBLIC }}" != '0' ]] # Private with no public analogue: reduced set.
           then
-            config='{"config":[
-            {"os":"ubuntu-latest", "r":"release", "timeout":10, "flags":"none"}
-            ]}'
+            config='${{ env.PRIVATE_CONFIG }}'
           else # Private with public analogue: no checking.
             config=''
           fi
@@ -123,7 +134,7 @@ jobs:
           fi
         shell: bash
 
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - uses: r-lib/actions/setup-r@v2
         with:
@@ -169,7 +180,7 @@ jobs:
 
       - name: Upload build results
         if: contains(matrix.config.flags, 'binaries') && !failure()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: ${{ runner.os }}-r${{ matrix.config.r }}-binaries
           path: binaries
@@ -243,7 +254,7 @@ jobs:
         
       - name: Upload check results
         if: contains(matrix.config.flags, 'covr') == false && failure()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: ${{ runner.os }}-r${{ matrix.config.r }}-results
           path: |
