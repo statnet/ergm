@@ -35,7 +35,7 @@ as.ergm_model(x, ...)
 
 \method{is.curved}{ergm_model}(object, ...)
 
-\method{is.dyad.independent}{ergm_model}(object, ...)
+\method{is.dyad.independent}{ergm_model}(object, ..., ignore_aux = TRUE)
 
 \method{nparam}{ergm_model}(object, canonical = FALSE, offset = NA, byterm = FALSE, ...)
 
@@ -66,6 +66,10 @@ initialization of each model term.}
 \item{x}{object to be converted to an \code{ergm_model}.}
 
 \item{object}{An \code{ergm_model} object.}
+
+\item{ignore_aux}{A flag to specify whether a dyad-dependent
+auxiliary should make the model dyad-dependent or should be
+ignored.}
 
 \item{canonical}{Whether the canonical (eta) parameters or the curved (theta) parameters are used.}
 

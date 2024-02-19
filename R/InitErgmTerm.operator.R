@@ -17,6 +17,11 @@
 #' with the `params` element; wrap empty network statistics; wrap
 #' indicator of dyadic independence; and wrap offset indicators.
 #'
+#' `namewrap` also controls how dyadic dependence flag is propagated
+#' for auxiliaries. If `NULL`, it is propagated; if not, the
+#' auxiliaries are ignored and only terms's dyadic dependence is
+#' propagated.
+#'
 #' @param m An `ergm_model` object.
 #' @param nw A `network` object.
 #' @param namewrap An optional function taking a character vector and
@@ -53,11 +58,14 @@ wrap.ergm_model <- function(m, nw, namewrap = identity){
       names(params) <- namewrap(param_names(m, canonical=FALSE))
       ## names(params)[offsettheta] <- paste0("offset(", names(params)[offsettheta], ")")
     }else map <- gradient <- params <- NULL
+
+    dependence <- !is.dyad.independent(m, ignore_aux=TRUE)
   }else{
     minpar <- maxpar <- offsettheta <- coef.names <- emptynwstats <- map <- gradient <- params <- NULL
+    dependence <- !is.dyad.independent(m, ignore_aux=FALSE)
   }
 
-  list(map=map, gradient=gradient, params=params, minpar=minpar, maxpar=maxpar, coef.names=coef.names, emptynwstats=emptynwstats, dependence=!is.dyad.independent(m), offset=offsettheta)
+  list(map=map, gradient=gradient, params=params, minpar=minpar, maxpar=maxpar, coef.names=coef.names, emptynwstats=emptynwstats, dependence=dependence, offset=offsettheta)
 }
 
 ergm_rename_terms <- function(model, namewrap){

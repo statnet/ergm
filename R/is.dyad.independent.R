@@ -38,10 +38,13 @@ is.dyad.independent<-function(object,...) UseMethod("is.dyad.independent")
 is.dyad.independent.NULL <- function(object, ...) TRUE # By convention.
 
 #' @describeIn ergm_model Tests whether the model is dyad-independent.
+#' @param ignore_aux A flag to specify whether a dyad-dependent
+#'   auxiliary should make the model dyad-dependent or should be
+#'   ignored.
 #' @export
-is.dyad.independent.ergm_model <- function(object, ...){
+is.dyad.independent.ergm_model <- function(object, ..., ignore_aux=TRUE){
   ## NB: Auxiliaries (i.e., terms without statistics) do not affect dyadic dependence.
-  ! any(sapply(object$terms, function(term) length(term$coef.name) && (is.null(term$dependence) || term$dependence)))
+  ! any(sapply(object$terms, function(term) (!ignore_aux || length(term$coef.names)) && (is.null(term$dependence) || term$dependence)))
 }
 
 #' @rdname is.dyad.independent
@@ -63,7 +66,7 @@ is.dyad.independent.formula<-function(object,response=NULL,basis=NULL,...){
 
   ergm_preprocess_response(nw, response)
   m<-ergm_model(object, nw, ...)
-  is.dyad.independent(m)
+  is.dyad.independent(m, ...)
 }
 
 #' @rdname is.dyad.independent

@@ -32,4 +32,10 @@ parameter names, wrap the calls to its \code{ergm.eta()} and
 with the \code{params} element; wrap empty network statistics; wrap
 indicator of dyadic independence; and wrap offset indicators.
 }
+\details{
+\code{namewrap} also controls how dyadic dependence flag is propagated
+for auxiliaries. If \code{NULL}, it is propagated; if not, the
+auxiliaries are ignored and only terms's dyadic dependence is
+propagated.
+}
 \keyword{internal}
