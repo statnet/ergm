@@ -22,43 +22,42 @@
 
 typedef struct {
   UnsrtEL *list;
-  StoreDyadMapUInt *hash;
+  StoreStrictDyadMapUInt *hash;
 } HashEL;
 
 /* Embed an existing UnsrtEL into a HashEL. */
-static inline HashEL *UnsrtELIntoHashEL(UnsrtEL *el, Rboolean directed) {
+static inline HashEL *UnsrtELIntoHashEL(UnsrtEL *el) {
   HashEL *hash = Calloc(1, HashEL);
 
   hash->list = el;
 
-  hash->hash = kh_init(DyadMapUInt);
-  hash->hash->directed = directed;
+  hash->hash = kh_init(StrictDyadMapUInt);
 
   if(el->nedges > 0) {
-    kh_resize(DyadMapUInt, hash->hash, 2*(el->nedges + 1));
+    kh_resize(StrictDyadMapUInt, hash->hash, 2*(el->nedges + 1));
 
     for(unsigned int i = 1; i <= el->nedges; i++) {
-      kh_set(DyadMapUInt, hash->hash, TH(el->tails[i], el->heads[i]), i);
+      kh_set(StrictDyadMapUInt, hash->hash, TH(el->tails[i], el->heads[i]), i);
     }
   }
 
   return hash;
 }
 
-static inline HashEL *HashELInitialize(unsigned int nedges, Vertex *tails, Vertex *heads, Rboolean copy, Rboolean directed) {
+static inline HashEL *HashELInitialize(unsigned int nedges, Vertex *tails, Vertex *heads, Rboolean copy) {
   UnsrtEL *el = UnsrtELInitialize(nedges, tails, heads, copy);
-  return UnsrtELIntoHashEL(el, directed);
+  return UnsrtELIntoHashEL(el);
 }
 
 static inline void HashELDestroy(HashEL *hash) {
-  kh_destroy(DyadMapUInt, hash->hash);
+  kh_destroy(StrictDyadMapUInt, hash->hash);
   UnsrtELDestroy(hash->list);
   Free(hash);
 }
 
 static inline void HashELClear(HashEL *hash) {
   UnsrtELClear(hash->list);
-  kh_clear(DyadMapUInt, hash->hash);
+  kh_clear(StrictDyadMapUInt, hash->hash);
 }
 
 static inline void HashELGetRand(Vertex *tail, Vertex *head, HashEL *hash) {
@@ -67,7 +66,7 @@ static inline void HashELGetRand(Vertex *tail, Vertex *head, HashEL *hash) {
 
 static inline void HashELInsert(Vertex tail, Vertex head, HashEL *hash) {
   kh_put_code r;
-  khiter_t pos = kh_put(DyadMapUInt, hash->hash, TH(tail, head), &r);
+  khiter_t pos = kh_put(StrictDyadMapUInt, hash->hash, TH(tail, head), &r);
   if(r == kh_put_present) return; // Already in the list.
 
   UnsrtELInsert(tail, head, hash->list);
@@ -75,12 +74,12 @@ static inline void HashELInsert(Vertex tail, Vertex head, HashEL *hash) {
 }
 
 static inline void HashELDelete(Vertex tail, Vertex head, HashEL *hash) {
-  khint_t i = kh_get(DyadMapUInt, hash->hash, TH(tail, head));
+  khint_t i = kh_get(StrictDyadMapUInt, hash->hash, TH(tail, head));
   unsigned int index = kh_value(hash->hash, i);
-  kh_del(DyadMapUInt, hash->hash, i);
+  kh_del(StrictDyadMapUInt, hash->hash, i);
 
   if(index < hash->list->nedges) {
-    kh_set(DyadMapUInt,
+    kh_set(StrictDyadMapUInt,
            hash->hash,
            TH(hash->list->tails[hash->list->nedges],
               hash->list->heads[hash->list->nedges]),
@@ -99,7 +98,7 @@ static inline void HashELToggleKnown(Vertex tail, Vertex head, HashEL *hash, int
 }
 
 static inline unsigned int HashELSearch(Vertex tail, Vertex head, HashEL *hash) {
-  return kh_getval(DyadMapUInt, hash->hash, TH(tail, head), 0);
+  return kh_getval(StrictDyadMapUInt, hash->hash, TH(tail, head), 0);
 }
 
 #endif // _ERGM_HASH_EDGELIST_H_

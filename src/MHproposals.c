@@ -217,7 +217,7 @@ MH_I_FN(Mi_BDStratTNT) {
     sto->hash[i] = HashELInitialize(els[i]->nedges,
                                     els[i]->tails ? els[i]->tails + 1 : els[i]->tails,
                                     els[i]->heads ? els[i]->heads + 1 : els[i]->heads,
-                                    FALSE, DIRECTED);
+                                    FALSE);
     Free(els[i]);
   }
   Free(els);
