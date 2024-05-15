@@ -25,7 +25,7 @@
 #define sp_args tail,head,mtp,nwp,edgestate,spcache,N_CHANGE_STATS,dvec,CHANGE_STAT
 
 #define dvec_calc(term)                                                 \
-  static inline void term ## _calc(Vertex tail, Vertex head, ModelTerm *mtp, Network *nwp, Rboolean edgestate, StoreDyadMapUInt *spcache, int nd, Vertex *dvec, double *cs) { \
+  static inline void term ## _calc(Vertex tail, Vertex head, ModelTerm *mtp, Network *nwp, Rboolean edgestate, StoreStrictDyadMapUInt *spcache, int nd, Vertex *dvec, double *cs) { \
     int echange = edgestate ? -1 : 1;                                   \
     term ## _change(L, {                                                \
         for(unsigned int j = 0; j < nd; j++){                           \
@@ -41,7 +41,7 @@
   }
 
 #define dvec_calc2(term)                                                \
-  static inline void term ## _calc(Vertex tail, Vertex head, ModelTerm *mtp, Network *nwp, Rboolean edgestate, StoreDyadMapUInt *spcache, int nd, Vertex *dvec, double *cs) { \
+  static inline void term ## _calc(Vertex tail, Vertex head, ModelTerm *mtp, Network *nwp, Rboolean edgestate, StoreStrictDyadMapUInt *spcache, int nd, Vertex *dvec, double *cs) { \
     int echange = edgestate ? -1 : 1;                                   \
     term ## _change(L, {                                                \
         for(unsigned int j = 0; j < nd; j++){                           \
@@ -60,7 +60,7 @@
 #define spd_args tail,head,mtp,nwp,edgestate,spcache,N_CHANGE_STATS,CHANGE_STAT
 
 #define dist_calc(term)                                                 \
-  static inline void term ## _dist_calc(Vertex tail, Vertex head, ModelTerm *mtp, Network *nwp, Rboolean edgestate, StoreDyadMapUInt *spcache, int nd, double *cs) { \
+  static inline void term ## _dist_calc(Vertex tail, Vertex head, ModelTerm *mtp, Network *nwp, Rboolean edgestate, StoreStrictDyadMapUInt *spcache, int nd, double *cs) { \
     int echange = edgestate ? -1 : 1;                                   \
     term ## _change(L, {                                                \
         int nL = L + echange;                                           \
@@ -74,7 +74,7 @@
   }
 
 #define dist_calc2(term)                                                \
-  static inline void term ## _dist_calc(Vertex tail, Vertex head, ModelTerm *mtp, Network *nwp, Rboolean edgestate, StoreDyadMapUInt *spcache, int nd, double *cs) { \
+  static inline void term ## _dist_calc(Vertex tail, Vertex head, ModelTerm *mtp, Network *nwp, Rboolean edgestate, StoreStrictDyadMapUInt *spcache, int nd, double *cs) { \
     int echange = edgestate ? -1 : 1;                                   \
     term ## _change(L, {                                                \
         int nL = L + echange;                                           \
@@ -91,7 +91,7 @@
 #define gwsp_args tail,head,mtp,nwp,edgestate,spcache,alpha,oneexpa
 
 #define gw_calc(term)                                                   \
-  static inline double term ## _gw_calc(Vertex tail, Vertex head, ModelTerm *mtp, Network *nwp, Rboolean edgestate, StoreDyadMapUInt *spcache, double alpha, double oneexpa) { \
+  static inline double term ## _gw_calc(Vertex tail, Vertex head, ModelTerm *mtp, Network *nwp, Rboolean edgestate, StoreStrictDyadMapUInt *spcache, double alpha, double oneexpa) { \
     double cumchange = 0;                                               \
     term ## _change(L, {                                                \
         cumchange += pow(oneexpa, L-edgestate);                         \
@@ -104,7 +104,7 @@
 
 
 #define gw_calc2(term)                                                  \
-  static inline double term ## _gw_calc(Vertex tail, Vertex head, ModelTerm *mtp, Network *nwp, Rboolean edgestate, StoreDyadMapUInt *spcache, double alpha, double oneexpa) { \
+  static inline double term ## _gw_calc(Vertex tail, Vertex head, ModelTerm *mtp, Network *nwp, Rboolean edgestate, StoreStrictDyadMapUInt *spcache, double alpha, double oneexpa) { \
     double cumchange = 0;                                               \
     term ## _change(L, {                                                \
         cumchange += pow(oneexpa, L-edgestate)*2;                       \
@@ -144,7 +144,7 @@ all_calcs2(dspRTP)
 */
 C_CHANGESTAT_FN(c_ddsp) { 
   /*Set things up*/
-  StoreDyadMapUInt *spcache = N_AUX ? AUX_STORAGE : NULL;
+  StoreStrictDyadMapUInt *spcache = N_AUX ? AUX_STORAGE : NULL;
   int type = IINPUT_PARAM[0];     /*Get the ESP type code to be used*/
   Vertex *dvec = (Vertex*) IINPUT_PARAM+1;           /*Get the pointer to the ESP stats list*/
 
@@ -163,7 +163,7 @@ C_CHANGESTAT_FN(c_ddsp) {
 
 C_CHANGESTAT_FN(c_ddspdist) {
   /*Set things up*/
-  StoreDyadMapUInt *spcache = N_AUX ? AUX_STORAGE : NULL;
+  StoreStrictDyadMapUInt *spcache = N_AUX ? AUX_STORAGE : NULL;
   int type = IINPUT_PARAM[0];     /*Get the ESP type code to be used*/
 
   /*Obtain the ESP changescores (by type)*/
@@ -196,7 +196,7 @@ C_CHANGESTAT_FN(c_ddspdist) {
 */
 C_CHANGESTAT_FN(c_dgwdsp) {
   /*Set things up*/
-  StoreDyadMapUInt *spcache = N_AUX ? AUX_STORAGE : NULL;
+  StoreStrictDyadMapUInt *spcache = N_AUX ? AUX_STORAGE : NULL;
   double alpha = INPUT_PARAM[0];       /*Get alpha*/
   double oneexpa = 1.0-exp(-alpha);    /*Precompute (1-exp(-alpha))*/
   int type = IINPUT_PARAM[0];     /*Get the ESP type code to be used*/
@@ -245,7 +245,7 @@ all_calcs(espRTP)
 */
 C_CHANGESTAT_FN(c_desp) {
   /*Set things up*/
-  StoreDyadMapUInt *spcache = N_AUX ? AUX_STORAGE : NULL;
+  StoreStrictDyadMapUInt *spcache = N_AUX ? AUX_STORAGE : NULL;
   int type = IINPUT_PARAM[0];     /*Get the ESP type code to be used*/
   Vertex *dvec = (Vertex*) IINPUT_PARAM+1;           /*Get the pointer to the ESP stats list*/
 
@@ -264,7 +264,7 @@ C_CHANGESTAT_FN(c_desp) {
 
 C_CHANGESTAT_FN(c_despdist) {
   /*Set things up*/
-  StoreDyadMapUInt *spcache = N_AUX ? AUX_STORAGE : NULL;
+  StoreStrictDyadMapUInt *spcache = N_AUX ? AUX_STORAGE : NULL;
   int type = IINPUT_PARAM[0];     /*Get the ESP type code to be used*/
 
   /*Obtain the ESP changescores (by type)*/
@@ -297,7 +297,7 @@ C_CHANGESTAT_FN(c_despdist) {
 */
 C_CHANGESTAT_FN(c_dgwesp) { 
   /*Set things up*/
-  StoreDyadMapUInt *spcache = N_AUX ? AUX_STORAGE : NULL;
+  StoreStrictDyadMapUInt *spcache = N_AUX ? AUX_STORAGE : NULL;
   double alpha = INPUT_PARAM[0];       /*Get alpha*/
   double oneexpa = 1.0-exp(-alpha);    /*Precompute (1-exp(-alpha))*/
   int type = IINPUT_PARAM[0];     /*Get the ESP type code to be used*/
@@ -339,7 +339,7 @@ C_CHANGESTAT_FN(c_dgwesp) {
 #define NEGATE_CHANGE_STATS for(unsigned int i = 0; i < N_CHANGE_STATS; i++) CHANGE_STAT[i] *= -1;
 C_CHANGESTAT_FN(c_dnsp) {
   /*Set things up*/
-  StoreDyadMapUInt *spcache = N_AUX ? AUX_STORAGE : NULL;
+  StoreStrictDyadMapUInt *spcache = N_AUX ? AUX_STORAGE : NULL;
   int type = IINPUT_PARAM[0];     /*Get the ESP type code to be used*/
   Vertex *dvec = (Vertex*) IINPUT_PARAM+1;           /*Get the pointer to the ESP stats list*/
   
@@ -382,7 +382,7 @@ C_CHANGESTAT_FN(c_dnsp) {
 
 C_CHANGESTAT_FN(c_dnspdist) {
   /*Set things up*/
-  StoreDyadMapUInt *spcache = N_AUX ? AUX_STORAGE : NULL;
+  StoreStrictDyadMapUInt *spcache = N_AUX ? AUX_STORAGE : NULL;
   int type = IINPUT_PARAM[0];     /*Get the ESP type code to be used*/
 
   /*Obtain the ESP changescores (by type)*/
@@ -439,7 +439,7 @@ C_CHANGESTAT_FN(c_dnspdist) {
 */
 C_CHANGESTAT_FN(c_dgwnsp) {
   /*Set things up*/
-  StoreDyadMapUInt *spcache = N_AUX ? AUX_STORAGE : NULL;
+  StoreStrictDyadMapUInt *spcache = N_AUX ? AUX_STORAGE : NULL;
   double alpha = INPUT_PARAM[0];       /*Get alpha*/
   double oneexpa = 1.0-exp(-alpha);    /*Precompute (1-exp(-alpha))*/
   int type = IINPUT_PARAM[0];     /*Get the ESP type code to be used*/
