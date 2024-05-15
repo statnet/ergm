@@ -50,113 +50,113 @@ F_CHANGESTAT_FN(f__discord_isociomatrix){
 }
 
 I_CHANGESTAT_FN(i__discord_net_DyadSet){
-  ALLOC_AUX_STORAGE(1, StoreDyadSetAndRefEL, storage);
-  StoreDyadSet *dnwp = storage->nwp = NetworkToDyadSet(nwp);
+  ALLOC_AUX_STORAGE(1, StoreStrictDyadSetAndRefEL, storage);
+  StoreStrictDyadSet *dnwp = storage->nwp = NetworkToStrictDyadSet(nwp);
   int *ref_el = storage->ref_el = IINPUT_PARAM;
   
   Edge nedges = *ref_el;
   for(Edge i=0; i<nedges; i++){
     Vertex tail=ref_el[1+i], head=ref_el[1+nedges+i];
-    DyadSetToggle(tail,head, dnwp);
+    DDyadSetToggle(tail,head, dnwp);
   }
 }
 
 U_CHANGESTAT_FN(u__discord_net_DyadSet){
-  GET_AUX_STORAGE(StoreDyadSetAndRefEL, storage);
-  StoreDyadSet *dnwp = storage->nwp;
+  GET_AUX_STORAGE(StoreStrictDyadSetAndRefEL, storage);
+  StoreStrictDyadSet *dnwp = storage->nwp;
 
-  DyadSetToggle(tail,head, dnwp);
+  DDyadSetToggle(tail,head, dnwp);
 }
 
 F_CHANGESTAT_FN(f__discord_net_DyadSet){
-  GET_AUX_STORAGE(StoreDyadSetAndRefEL, storage);
-  StoreDyadSet *dnwp = storage->nwp;
+  GET_AUX_STORAGE(StoreStrictDyadSetAndRefEL, storage);
+  StoreStrictDyadSet *dnwp = storage->nwp;
 
-  kh_destroy(DyadSet, dnwp);
+  kh_destroy(StrictDyadSet, dnwp);
 }
 
 I_CHANGESTAT_FN(i__intersect_net_DyadSet){
-  ALLOC_AUX_STORAGE(1, StoreDyadSetAndRefEL, storage);
-  StoreDyadSet *dnwp = storage->nwp = kh_init(DyadSet); dnwp->directed=DIRECTED;
+  ALLOC_AUX_STORAGE(1, StoreStrictDyadSetAndRefEL, storage);
+  StoreStrictDyadSet *dnwp = storage->nwp = kh_init(StrictDyadSet);
   int *ref_el = storage->ref_el = IINPUT_PARAM;
   
   Edge nedges = *ref_el;
   for(Edge i=0; i<nedges; i++){
     Vertex tail=ref_el[1+i], head=ref_el[1+nedges+i];
     if(IS_OUTEDGE(tail, head)) {
-      DyadSetToggle(tail,head, dnwp);
+      DDyadSetToggle(tail,head, dnwp);
     }
   }
 }
 
 U_CHANGESTAT_FN(u__intersect_net_DyadSet){
-  GET_AUX_STORAGE(StoreDyadSetAndRefEL, storage);
-  StoreDyadSet *dnwp = storage->nwp;
+  GET_AUX_STORAGE(StoreStrictDyadSetAndRefEL, storage);
+  StoreStrictDyadSet *dnwp = storage->nwp;
   int *ref_el = storage->ref_el;
   // only toggle if the edge is in y0. otherwise changing y1 won't matter.
   if(iEdgeListSearch(tail, head, ref_el))
-    DyadSetToggle(tail,head, dnwp);
+    DDyadSetToggle(tail,head, dnwp);
 }
 
 F_CHANGESTAT_FN(f__intersect_net_DyadSet){
-  GET_AUX_STORAGE(StoreDyadSetAndRefEL, storage);
-  StoreDyadSet *dnwp = storage->nwp;
+  GET_AUX_STORAGE(StoreStrictDyadSetAndRefEL, storage);
+  StoreStrictDyadSet *dnwp = storage->nwp;
 
-  kh_destroy(DyadSet, dnwp);
+  kh_destroy(StrictDyadSet, dnwp);
 }
 
 I_CHANGESTAT_FN(i__intersect_net_toggles_in_list_DyadSet){
-  ALLOC_AUX_STORAGE(1, StoreDyadSetAndRefEL, storage);
-  StoreDyadSet *dnwp = storage->nwp = kh_init(DyadSet); dnwp->directed=DIRECTED;
+  ALLOC_AUX_STORAGE(1, StoreStrictDyadSetAndRefEL, storage);
+  StoreStrictDyadSet *dnwp = storage->nwp = kh_init(StrictDyadSet);
   int *ref_el = storage->ref_el = IINPUT_PARAM;
   
   Edge nedges = *ref_el;
   for(Edge i=0; i<nedges; i++){
     Vertex tail=ref_el[1+i], head=ref_el[1+nedges+i];
     if(IS_OUTEDGE(tail, head)!=0)
-      DyadSetToggle(tail,head, dnwp);
+      DDyadSetToggle(tail,head, dnwp);
   }
 }
 
 U_CHANGESTAT_FN(u__intersect_net_toggles_in_list_DyadSet){
-  GET_AUX_STORAGE(StoreDyadSetAndRefEL, storage);
-  StoreDyadSet *dnwp = storage->nwp;
+  GET_AUX_STORAGE(StoreStrictDyadSetAndRefEL, storage);
+  StoreStrictDyadSet *dnwp = storage->nwp;
 
-  DyadSetToggle(tail,head, dnwp);
+  DDyadSetToggle(tail,head, dnwp);
 }
 
 F_CHANGESTAT_FN(f__intersect_net_toggles_in_list_DyadSet){
-  GET_AUX_STORAGE(StoreDyadSetAndRefEL, storage);
-  StoreDyadSet *dnwp = storage->nwp;
+  GET_AUX_STORAGE(StoreStrictDyadSetAndRefEL, storage);
+  StoreStrictDyadSet *dnwp = storage->nwp;
 
-  kh_destroy(DyadSet, dnwp);
+  kh_destroy(StrictDyadSet, dnwp);
 }
 
 I_CHANGESTAT_FN(i__union_net_DyadSet){
-  ALLOC_AUX_STORAGE(1, StoreDyadSetAndRefEL, storage);
-  StoreDyadSet *dnwp = storage->nwp = NetworkToDyadSet(nwp);
+  ALLOC_AUX_STORAGE(1, StoreStrictDyadSetAndRefEL, storage);
+  StoreStrictDyadSet *dnwp = storage->nwp = NetworkToStrictDyadSet(nwp);
   int *ref_el = storage->ref_el = IINPUT_PARAM;
   
   Edge nedges = *ref_el;
   for(Edge i=0; i<nedges; i++){
     Vertex tail=ref_el[1+i], head=ref_el[1+nedges+i];
     if(IS_OUTEDGE(tail, head)==0)
-      DyadSetToggle(tail,head, dnwp);
+      DDyadSetToggle(tail,head, dnwp);
   }
 }
 
 U_CHANGESTAT_FN(u__union_net_DyadSet){
-  GET_AUX_STORAGE(StoreDyadSetAndRefEL, storage);
-  StoreDyadSet *dnwp = storage->nwp;
+  GET_AUX_STORAGE(StoreStrictDyadSetAndRefEL, storage);
+  StoreStrictDyadSet *dnwp = storage->nwp;
   int *ref_el = storage->ref_el;
   // If the edge is in y0, changing y1 won't matter.
   if(iEdgeListSearch(tail, head, ref_el)==0)
-    DyadSetToggle(tail,head, dnwp);
+    DDyadSetToggle(tail,head, dnwp);
 }
 
 F_CHANGESTAT_FN(f__union_net_DyadSet){
-  GET_AUX_STORAGE(StoreDyadSetAndRefEL, storage);
-  StoreDyadSet *dnwp = storage->nwp;
+  GET_AUX_STORAGE(StoreStrictDyadSetAndRefEL, storage);
+  StoreStrictDyadSet *dnwp = storage->nwp;
 
-  kh_destroy(DyadSet, dnwp);
+  kh_destroy(StrictDyadSet, dnwp);
 }
