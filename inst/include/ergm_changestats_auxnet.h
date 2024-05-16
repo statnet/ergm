@@ -13,7 +13,7 @@
 #include "ergm_changestat_auxnet.h"
 #include "ergm_dyad_hashmap.h"
 
-typedef struct{StoreDyadSet *nwp; int *ref_el;} StoreDyadSetAndRefEL;
+typedef struct{StoreStrictDyadSet *nwp; int *ref_el;} StoreStrictDyadSetAndRefEL;
 
 #define map_toggle_maxtoggles__discord_net_Network 1
 MAP_TOGGLE_FN(map_toggle__discord_net_Network){

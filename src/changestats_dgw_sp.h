@@ -52,7 +52,7 @@
   EXEC_THROUGH_EDGES(head,e,u, {                                \
       if (u!=tail){                                             \
         int L2tu;                                               \
-        if(spcache) L2tu = GETDMUI(tail,u,spcache);             \
+        if(spcache) L2tu = GETUDMUI(tail,u,spcache);            \
         else{                                                   \
           L2tu=0;                                               \
           /* step through edges of u */                         \
@@ -66,7 +66,7 @@
   EXEC_THROUGH_EDGES(tail,e,u, {                                \
       if (u!=head){                                             \
         int L2uh;                                               \
-        if(spcache) L2uh = GETDMUI(u,head,spcache);             \
+        if(spcache) L2uh = GETUDMUI(u,head,spcache);            \
         else{                                                   \
           L2uh=0;                                               \
           /* step through edges of u */                         \
@@ -90,7 +90,7 @@
   EXEC_THROUGH_OUTEDGES(head, e, k, {                                   \
       if(k!=tail){ /*Only use contingent cases*/                        \
         int L2tk;                                                       \
-        if(spcache) L2tk = GETDMUI(tail,k,spcache);                     \
+        if(spcache) L2tk = GETDDMUI(tail,k,spcache);                     \
 	else{                                                           \
 	  L2tk=0;                                                       \
 	  /* step through inedges of k, incl. (head,k) itself */        \
@@ -105,7 +105,7 @@
   EXEC_THROUGH_INEDGES(tail, e, k, {                                    \
       if (k!=head){ /*Only use contingent cases*/                       \
         int L2kh;                                                       \
-	if(spcache) L2kh = GETDMUI(k,head,spcache);                     \
+	if(spcache) L2kh = GETDDMUI(k,head,spcache);                     \
 	else{                                                           \
 	  L2kh=0;                                                       \
 	  /* step through outedges of k , incl. (k,tail) itself */      \
@@ -135,7 +135,7 @@
       if((k!=tail)){ /*Only use contingent cases*/                      \
         int L2kt;                                                       \
         /*We have a h->k->t two-path, so add it to our count.*/         \
-        if(spcache) L2kt = GETDMUI(tail,k,spcache); /* spcache is an OTP cache. */ \
+        if(spcache) L2kt = GETDDMUI(tail,k,spcache); /* spcache is an OTP cache. */ \
         else{                                                           \
           L2kt=0;                                                       \
           /*Now, count # u such that k->u->h (so that we know k's ESP value)*/ \
@@ -150,7 +150,7 @@
   EXEC_THROUGH_INEDGES(tail, e, k, {                                    \
       if((k!=head)){ /*Only use contingent cases*/                      \
         int L2hk;                                                       \
-        if(spcache) L2hk = GETDMUI(k,head,spcache);                     \
+        if(spcache) L2hk = GETDDMUI(k,head,spcache);                     \
         else{                                                           \
           L2hk=0;                                                       \
           /*Now, count # u such that t->u->k (so that we know k's ESP value)*/ \
@@ -179,7 +179,7 @@
       if(k!=tail){                                                      \
         int L2tk;                                                       \
         /*Do we have a t->k,h->k SP?  If so, add it to our count.*/     \
-        if(spcache) L2tk = GETDMUI(tail,k,spcache);                     \
+        if(spcache) L2tk = GETUDMUI(tail,k,spcache);                    \
         else{                                                           \
           L2tk=0;                                                       \
           /*Now, count # u such that t->u,k->u (to get t->k's ESP value)*/ \
@@ -209,7 +209,7 @@
   EXEC_THROUGH_OUTEDGES(tail, e, k, {                                   \
       int L2kh;                                                         \
       if(k!=head){                                                      \
-        if(spcache) L2kh = GETDMUI(k,head,spcache);                     \
+        if(spcache) L2kh = GETUDMUI(k,head,spcache);                    \
         else{                                                           \
           L2kh=0;                                                       \
           /*Now, count # u such that u->h,u->k (to get h>k's ESP value)*/ \
@@ -241,7 +241,7 @@
     EXEC_THROUGH_OUTEDGES(tail,e,k,{                                    \
         if(k!=head&&IS_OUTEDGE(k,tail)){                                \
           int L2kh;                                                     \
-          if(spcache) L2kh = GETDMUI(k,head,spcache);                   \
+          if(spcache) L2kh = GETUDMUI(k,head,spcache);                  \
           else{                                                         \
             L2kh=0;                                                     \
             /*Now, count # u such that k<->u<->h (to get k->h's SP value)*/ \
@@ -257,7 +257,7 @@
     EXEC_THROUGH_OUTEDGES(head,e,k,{                                    \
         if(k!=tail&&IS_OUTEDGE(k,head)){                                \
           int L2kt;                                                     \
-          if(spcache) L2kt = GETDMUI(k,tail,spcache);                   \
+          if(spcache) L2kt = GETUDMUI(k,tail,spcache);                  \
           else{                                                         \
             L2kt=0;                                                     \
             /*Now, count # u such that k<->u<->t (to get k->t's SP value)*/ \
@@ -289,15 +289,15 @@
 */
 #define espUTP_change(L, subroutine_path, subroutine_focus)     \
   int L2th;                                                     \
-  if(spcache) L2th = GETDMUI(tail,head,spcache); else L2th=0;   \
+  if(spcache) L2th = GETDDMUI(tail,head,spcache); else L2th=0;   \
   /* step through outedges of head */                           \
   EXEC_THROUGH_EDGES(head,e,u, {                                \
       if (IS_UNDIRECTED_EDGE(u,tail) != 0){                     \
         int L2tu;                                               \
         int L2uh;                                               \
 	if(spcache){                                            \
-	  L2tu = GETDMUI(tail,u,spcache);                       \
-	  L2uh = GETDMUI(u,head,spcache);                       \
+	  L2tu = GETUDMUI(tail,u,spcache);                      \
+	  L2uh = GETUDMUI(u,head,spcache);                      \
 	}else{                                                  \
 	  L2th++;                                               \
 	  L2tu=0;                                               \
@@ -327,7 +327,7 @@
 */
 #define espOTP_change(L, subroutine_path, subroutine_focus)             \
   int L2th;                                                             \
-  if(spcache) L2th = GETDMUI(tail,head,spcache); else L2th=0;           \
+  if(spcache) L2th = GETDDMUI(tail,head,spcache); else L2th=0;           \
   /* step through outedges of tail (i.e., k: t->k)*/                    \
   EXEC_THROUGH_OUTEDGES(tail,e,k, {                                     \
       if(!spcache&&(k!=head)&&(IS_OUTEDGE(k,head))){                    \
@@ -336,7 +336,7 @@
       }                                                                 \
       int L2tk;                                                         \
       if((k!=head)&&(IS_OUTEDGE(head,k))){ /*Only use contingent cases*/ \
-        if(spcache) L2tk = GETDMUI(tail,k,spcache);                     \
+        if(spcache) L2tk = GETDDMUI(tail,k,spcache);                     \
 	else{                                                           \
 	  L2tk=0;                                                       \
 	  /*Now, count # u such that t->u->k (to find t->k's ESP value)*/ \
@@ -352,7 +352,7 @@
   EXEC_THROUGH_INEDGES(head,e,k, {                                      \
       int L2kh;                                                         \
       if((k!=tail)&&(IS_OUTEDGE(k,tail))){ /*Only use contingent cases*/ \
-        if(spcache) L2kh = GETDMUI(k,head,spcache);                     \
+        if(spcache) L2kh = GETDDMUI(k,head,spcache);                     \
 	else{                                                           \
 	  L2kh=0;                                                       \
 	  /*Now, count # u such that k->u->j (to find k->h's ESP value)*/ \
@@ -379,12 +379,12 @@
 */
 #define espITP_change(L, subroutine_path, subroutine_focus)             \
   int L2th;                                                             \
-  if(spcache) L2th = GETDMUI(head,tail,spcache); else L2th=0;           \
+  if(spcache) L2th = GETDDMUI(head,tail,spcache); else L2th=0;           \
   /* step through outedges of head (i.e., k: h->k)*/                    \
   EXEC_THROUGH_OUTEDGES(head,e,k, {                                     \
       int L2hk;                                                         \
       if((k!=tail)&&(IS_OUTEDGE(k,tail))){ /*Only use contingent cases*/ \
-        if(spcache) L2hk = GETDMUI(k,head,spcache);                     \
+        if(spcache) L2hk = GETDDMUI(k,head,spcache);                     \
 	else{                                                           \
 	  /*We have a h->k->t two-path, so add it to our count.*/       \
 	  L2th++;                                                       \
@@ -402,7 +402,7 @@
   EXEC_THROUGH_INEDGES(tail,e,k, {                                      \
       int L2kt;                                                         \
       if((k!=head)&&(IS_OUTEDGE(head,k))){ /*Only use contingent cases*/ \
-        if(spcache) L2kt = GETDMUI(tail,k,spcache);                     \
+        if(spcache) L2kt = GETDDMUI(tail,k,spcache);                     \
 	else{                                                           \
 	  L2kt=0;                                                       \
 	  /*Now, count # u such that t->u->k (so that we know k's ESP value)*/ \
@@ -429,7 +429,7 @@
 */
 #define espOSP_change(L, subroutine_path, subroutine_focus)             \
   int L2th;                                                             \
-  if(spcache) L2th = GETDMUI(tail,head,spcache); else L2th=0;           \
+  if(spcache) L2th = GETUDMUI(tail,head,spcache); else L2th=0;           \
   /* step through outedges of tail (i.e., k: t->k, k->h, k!=h)*/        \
   EXEC_THROUGH_OUTEDGES(tail,e,k, {                                     \
       if(k!=head){                                                      \
@@ -439,7 +439,7 @@
                                                                         \
 	if(IS_OUTEDGE(k,head)){ /*Only consider stats that could change*/ \
           int L2tk;                                                     \
-          if(spcache) L2tk = GETDMUI(tail,k,spcache);                   \
+          if(spcache) L2tk = GETUDMUI(tail,k,spcache);                  \
 	  else{                                                         \
 	    L2tk=0;                                                     \
 	    /*Now, count # u such that t->u,k->u (to get t->k's ESP value)*/ \
@@ -456,7 +456,7 @@
   EXEC_THROUGH_INEDGES(tail,e,k, {                                      \
       if((k!=head)&&(IS_OUTEDGE(k,head))){ /*Only stats that could change*/ \
         int L2kt;                                                       \
-        if(spcache) L2kt = GETDMUI(k,tail,spcache);                     \
+        if(spcache) L2kt = GETUDMUI(k,tail,spcache);                    \
 	else{                                                           \
 	  L2kt=0;                                                       \
 	  /*Now, count # u such that t->u,k->u (to get k->t's ESP value)*/ \
@@ -483,7 +483,7 @@
 */
 #define espISP_change(L, subroutine_path, subroutine_focus)             \
   int L2th;                                                             \
-  if(spcache) L2th = GETDMUI(tail,head,spcache); else L2th=0;           \
+  if(spcache) L2th = GETUDMUI(tail,head,spcache); else L2th=0;           \
   /* step through inedges of head (i.e., k: k->h, t->k, k!=t)*/         \
   EXEC_THROUGH_INEDGES(head,e,k, {                                      \
       if(k!=tail){                                                      \
@@ -493,7 +493,7 @@
                                                                         \
 	if(IS_OUTEDGE(tail,k)){ /*Only consider stats that could change*/ \
           int L2kh;                                                     \
-          if(spcache) L2kh = GETDMUI(k,head,spcache);                   \
+          if(spcache) L2kh = GETUDMUI(k,head,spcache);                  \
 	  else{                                                         \
 	    L2kh=0;                                                     \
 	    /*Now, count # u such that u->h,u->k (to get h>k's ESP value)*/ \
@@ -510,7 +510,7 @@
   EXEC_THROUGH_OUTEDGES(head,e,k, {                                     \
       if((k!=tail)&&(IS_OUTEDGE(tail,k))){ /*Only stats that could change*/ \
         int L2hk;                                                       \
-        if(spcache) L2hk = GETDMUI(head,k,spcache);                     \
+        if(spcache) L2hk = GETUDMUI(head,k,spcache);                    \
 	else{                                                           \
 	  L2hk=0;                                                       \
 	  /*Now, count # u such that u->h,u->k (to get k->h's ESP value)*/ \
@@ -539,7 +539,7 @@
 */
 #define espRTP_change(L, subroutine_path, subroutine_focus)             \
   int L2th; /*Two-path counts for various edges*/                       \
-  if(spcache) L2th = GETDMUI(tail,head,spcache); else L2th=0;           \
+  if(spcache) L2th = GETDDMUI(tail,head,spcache); else L2th=0;           \
   int htedge=IS_OUTEDGE(head,tail);  /*Is there an h->t (reciprocating) edge?*/ \
   /* step through inedges of tail (k->t: k!=h,h->t,k<->h)*/             \
   EXEC_THROUGH_INEDGES(tail,e,k, {                                      \
@@ -549,7 +549,7 @@
           L2th+=(IS_OUTEDGE(tail,k)&&IS_OUTEDGE(head,k)&&IS_OUTEDGE(k,head)); \
         if(htedge&&IS_OUTEDGE(head,k)&&IS_OUTEDGE(k,head)){ /*Only consider stats that could change*/ \
           int L2kt;                                                     \
-          if(spcache) L2kt = GETDMUI(k,tail,spcache);                   \
+          if(spcache) L2kt = GETUDMUI(k,tail,spcache);                  \
           else{                                                         \
             L2kt=0;                                                     \
             /*Now, count # u such that k<->u<->t (to get (k,t)'s ESP value)*/ \
@@ -567,7 +567,7 @@
       if(k!=head){                                                      \
         if(htedge&&IS_OUTEDGE(head,k)&&IS_OUTEDGE(k,head)){ /*Only consider stats that could change*/ \
           int L2tk;                                                     \
-          if(spcache) L2tk = GETDMUI(tail,k,spcache);                   \
+          if(spcache) L2tk = GETUDMUI(tail,k,spcache);                  \
           else{                                                         \
             L2tk=0;                                                     \
             /*Now, count # u such that k<->u<->t (to get (tk)'s ESP value)*/ \
@@ -585,7 +585,7 @@
       if(k!=tail){                                                      \
         if(htedge&&IS_OUTEDGE(tail,k)&&IS_OUTEDGE(k,tail)){ /*Only consider stats that could change*/ \
           int L2kh;                                                     \
-          if(spcache) L2kh = GETDMUI(k,head,spcache);                   \
+          if(spcache) L2kh = GETUDMUI(k,head,spcache);                  \
           else{                                                         \
             L2kh=0;                                                     \
             /*Now, count # u such that k<->u<->h (to get k->h's ESP value)*/ \
@@ -603,7 +603,7 @@
       if(k!=tail){                                                      \
         if(htedge&&IS_OUTEDGE(tail,k)&&IS_OUTEDGE(k,tail)){ /*Only consider stats that could change*/ \
           int L2hk;                                                     \
-          if(spcache) L2hk = GETDMUI(head,k,spcache);                   \
+          if(spcache) L2hk = GETUDMUI(head,k,spcache);                  \
           else{                                                         \
             L2hk=0;                                                     \
             /*Now, count # u such that k<->u<->h (to get h->k's ESP value)*/ \

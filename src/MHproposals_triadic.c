@@ -15,7 +15,7 @@ MH_I_FN(Mi_SPDyad){
 
 MH_P_FN(Mp_SPDyad){
   MH_GET_STORAGE(StoreDyadGenAndDegreeBound, storage);
-  MH_GET_AUX_STORAGE(StoreDyadMapUInt, spcache);
+  MH_GET_AUX_STORAGE(StoreStrictDyadMapUInt, spcache);
 
   // With probability 1-MH_INPUTS[0], or if no dyad has any shared
   // partners, just fall back to TNT. This is OK to do because it is
@@ -117,7 +117,7 @@ MH_P_FN(Mp_SPDyad){
 
   // The following is setting up to use macros developed for the *sp
   // terms.
-  Rboolean edgeflag = IS_UNDIRECTED_EDGE(*Mtail, *Mhead);
+  Rboolean edgeflag = IS_OUTEDGE(*Mtail, *Mhead);
   int echange = edgeflag ? -1 : +1;
   Vertex tail = *Mtail, head = *Mhead;
 

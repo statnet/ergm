@@ -68,28 +68,7 @@ void DyadGenSetUpIntersect(DyadGen *gen, void *track_nwp, Rboolean force){
 
 void DyadGenUpgradeIntersect(DyadGen *gen){
   if(gen->intertype == UnsrtELDyadGen){
-    Rboolean directed;
-    switch(gen->type){
-    case RandDyadGen:
-    case EdgeListGen:
-    case RLEBDM1DGen:
-      {
-        Network *nwp = gen->nwp.b;
-        directed = DIRECTED;
-      }
-      break;
-    case WtRandDyadGen:
-    case WtEdgeListGen:
-    case WtRLEBDM1DGen:
-      {
-        WtNetwork *nwp = gen->nwp.w;
-        directed = DIRECTED;
-      }
-      break;
-    default:
-      error("Undefined dyad generator type.");
-    }
-    gen->inter.hel = UnsrtELIntoHashEL(gen->inter.uel, directed);
+    gen->inter.hel = UnsrtELIntoHashEL(gen->inter.uel);
     gen->intertype = HashELDyadGen;
   }
 }

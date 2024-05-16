@@ -15,7 +15,10 @@
 
 /* Utility function declarations. */
 void PrintDyadMapUInt(StoreDyadMapUInt *h);
+void PrintStrictDyadMapUInt(StoreStrictDyadMapUInt *h);
 void PrintDyadSet(StoreDyadSet *h);
+void PrintStrictDyadSet(StoreStrictDyadSet *h);
 StoreDyadSet *NetworkToDyadSet(Network *nwp);
+StoreStrictDyadSet *NetworkToStrictDyadSet(Network *nwp);
 
 #endif // _ERGM_DYAD_HASHMAP_H_
