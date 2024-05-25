@@ -20,8 +20,7 @@ columns.}
 
 \item{aic}{use AIC to select the order (up to \code{order.max}).}
 
-\item{tol}{drop components until the reciprocal condition number of
-the transformed variance-covariance matrix is greater than this.}
+\item{tol}{tolerance used in detecting multicollinearity. See Note below.}
 
 \item{...}{additional arguments to \code{\link[=ar]{ar()}}.}
 }
@@ -39,7 +38,14 @@ of \code{x} if \code{x} is a multivatriate time series with AR(\eqn{p}) structur
 \eqn{p} determined by AIC.
 }
 \note{
-\code{\link[=ar]{ar()}} fails if \code{crossprod(x)} is singular,
-which is remedied by mapping the variables onto the principal
-components of \code{x}, dropping redundant dimentions.
+\code{\link[=ar]{ar()}} fails if \code{crossprod(x)} is singular. This is
+is remedied as follows:
+\enumerate{
+\item Standardize the variables.
+\item Use the eigenvectors to map the variables onto their principal components.
+\item Use the eigenvalues to standardize the principal components.
+\item Drop those components whose standard deviation differs from 1 by more than \code{tol}. This should filter out redundant components or those too numerically unstable.
+\item Call \code{\link[=ar]{ar()}} and calculate the variance.
+\item Reverse the mapping in steps 1-4 to obtain the variance of the original data.
+}
 }

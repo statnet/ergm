@@ -287,8 +287,7 @@ geweke.diag.mv <- function(x, frac1 = 0.1, frac2 = 0.5, split.mcmc.list = FALSE,
 #'   columns.
 #' @param order.max maximum (or fixed) order for the AR model.
 #' @param aic use AIC to select the order (up to `order.max`).
-#' @param tol drop components until the reciprocal condition number of
-#'   the transformed variance-covariance matrix is greater than this.
+#' @param tol tolerance used in detecting multicollinearity. See Note below.
 #' @param ... additional arguments to [ar()].
 #'
 #' @return A square matrix with dimension equalling to the number of
@@ -297,9 +296,15 @@ geweke.diag.mv <- function(x, frac1 = 0.1, frac2 = 0.5, split.mcmc.list = FALSE,
 #'   autocorrelation, according to the Vats, Flegal, and Jones (2015)
 #'   estimate for ESS.
 #' 
-#' @note [ar()] fails if `crossprod(x)` is singular,
-#' which is remedied by mapping the variables onto the principal
-#' components of `x`, dropping redundant dimentions.
+#' @note [ar()] fails if `crossprod(x)` is singular. This is
+#' is remedied as follows:
+#'
+#' 1. Standardize the variables.
+#' 2. Use the eigenvectors to map the variables onto their principal components.
+#' 3. Use the eigenvalues to standardize the principal components.
+#' 4. Drop those components whose standard deviation differs from 1 by more than `tol`. This should filter out redundant components or those too numerically unstable.
+#' 5. Call [ar()] and calculate the variance.
+#' 6. Reverse the mapping in steps 1-4 to obtain the variance of the original data.
 #' @export spectrum0.mvar
 spectrum0.mvar <- function(x, order.max=NULL, aic=is.null(order.max), tol=.Machine$double.eps^0.5, ...){
   breaks <- if(is.mcmc.list(x)) c(0,cumsum(sapply(x, niter))) else NULL
@@ -313,6 +318,7 @@ spectrum0.mvar <- function(x, order.max=NULL, aic=is.null(order.max), tol=.Machi
   # TODO: What if the variable actually has a tiny magnitude?
   xscl <- apply(x, 2L, stats::sd)
   novar <- xscl < tol
+  p.var <- sum(!novar)
   x <- x[,!novar,drop=FALSE]
   x.full <- x.full[,!novar,drop=FALSE]
   xscl <- xscl[!novar]
@@ -327,13 +333,13 @@ spectrum0.mvar <- function(x, order.max=NULL, aic=is.null(order.max), tol=.Machi
   }
   
   # Map the variables onto their principal components, dropping
-  # redundant (linearly-dependent) dimensions. Here, we keep the
-  # eigenvectors such that the reciprocal condition number defined as
-  # s.min/s.max, where s.min and s.max are the smallest and the
-  # biggest eigenvalues, respectively, is greater than the tolerance.
+  # redundant (linearly-dependent) dimensions.
   e <- eigen(cov(x), symmetric=TRUE)
-  Q <- e$vectors[,sqrt(pmax(e$values,0)/max(e$values))>tol*2,drop=FALSE]
-  xr <- x.full%*%Q # Columns of xr are guaranteed to be linearly independent.
+  xr <- x.full %*% e$vectors %*% diag(1/sqrt(pmax(e$values,0)),p.var) # Columns of xr are guaranteed to be linearly independent with variance 1.
+  xr.sd <- apply(xr, 2, sd, na.rm=TRUE)
+  ind <- !is.na(xr.sd) & abs(xr.sd - 1) < tol
+  unmapper <- diag(xscl, p.var) %*% e$vectors[, ind, drop=FALSE] %*% diag(sqrt(e$values[ind]), sum(ind))
+  xr <- xr[, ind, drop=FALSE]
 
   ind.var <- cov(xr, use="complete.obs") # Get the sample variance of the transformed columns.
 
@@ -371,10 +377,9 @@ spectrum0.mvar <- function(x, order.max=NULL, aic=is.null(order.max), tol=.Machi
   infl <- exp((determinant(v.var)$modulus-determinant(ind.var)$modulus)/ncol(ind.var))
   
   # Reverse the mapping for the variance estimate.
-  v.var <- xAxT(xscl*Q, v.var)
+  v.var <- xAxT(unmapper, v.var)
   
   v[!novar,!novar] <- v.var
-  
-  attr(v, "infl") <- infl
-  v
+
+  structure(v, infl = as.vector(infl), rank = sum(ind))
 }
