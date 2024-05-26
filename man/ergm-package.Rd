@@ -149,7 +149,7 @@ Other contributors:
   \item Kirk Li \email{kirkli@u.washington.edu} [contributor]
   \item Skye Bender-deMoll \email{skyebend@u.washington.edu} [contributor]
   \item Chad Klumb \email{cklumb@gmail.com} [contributor]
-  \item Michał  Bojanowski \email{michal2992@gmail.com} (\href{https://orcid.org/0000-0001-7503-852X}{ORCID}) [contributor]
+  \item Michał Bojanowski \email{michal2992@gmail.com} (\href{https://orcid.org/0000-0001-7503-852X}{ORCID}) [contributor]
   \item Ben Bolker \email{bbolker+lme4@gmail.com} [contributor]
   \item Christian Schmid \email{songhyo86@gmail.com} [contributor]
   \item Joyce Cheng \email{joyce.cheng@student.unsw.edu.au} [contributor]

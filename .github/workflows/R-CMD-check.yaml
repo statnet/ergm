@@ -159,6 +159,7 @@ jobs:
             any::rcmdcheck
             any::covr
             any::V8
+            any::xml2
           needs: |
             check
             coverage
@@ -268,5 +269,22 @@ jobs:
           _R_CHECK_CRAN_INCOMING_REMOTE_: false
           _R_CHECK_FORCE_SUGGESTS_: ${{ runner.os != 'macOS' }} # Rmpi is not available on macOS.
           ENABLE_statnet_TESTS: ${{ contains(matrix.config.flags, 'full') }}
-        run: covr::codecov(type=c("tests","examples"))
+        run: |
+          cov <- covr::package_coverage(
+            type=c("tests", "examples"),
+            quiet = FALSE,
+            clean = FALSE,
+            install_path = file.path(normalizePath(Sys.getenv("RUNNER_TEMP"), winslash = "/"), "package")
+          )
+          covr::to_cobertura(cov)
         shell: Rscript {0}
+
+      - name: Upload coverage results
+        if: contains(matrix.config.flags, 'covr')
+        uses: codecov/codecov-action@v4
+        with:
+          fail_ci_if_error: ${{ github.event_name != 'pull_request' && true || false }}
+          file: ./cobertura.xml
+          plugin: noop
+          disable_search: true
+          token: ${{ secrets.CODECOV_TOKEN }}
