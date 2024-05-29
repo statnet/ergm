@@ -255,7 +255,7 @@ static inline void DyadGenSleep(DyadGen *gen){
      that it must keep track of what they are.
 
      FIXME: Maybe we should *always* maintain an UnsrtEL? Need to benchmark. */
-  if(gen->intertype != NoELDyadGen) DyadGenSetUpIntersect(gen, NULL, TRUE);
+  if(gen->intertype == NoELDyadGen) DyadGenSetUpIntersect(gen, NULL, TRUE);
 }
 
 static inline void DyadGenWake(DyadGen *gen){
