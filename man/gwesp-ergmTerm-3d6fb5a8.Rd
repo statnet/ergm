@@ -57,9 +57,10 @@ pair \eqn{(i,j)} iff \eqn{i \leftrightarrow k \leftrightarrow j}{i<->k<->j}.
 ordered pair \eqn{(i,j)} iff \eqn{i \to k, j \to k}{i->k, j->k}.
 \item Incoming Shared Partner (\code{"ISP"}): vertex \eqn{k} is an ISP shared partner of ordered
 pair \eqn{(i,j)} iff \eqn{k \to i, k \to j}{k->i, k->j}.
+}
+
 By default, outgoing two-paths (\code{"OTP"}) are calculated. Note that Robins et al. (2009)
 define closely related statistics to several of the above, using slightly different terminology.
-}
 }
 
 \seealso{
