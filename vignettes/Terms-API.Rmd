@@ -246,7 +246,7 @@ These functions overwrite `mtp->dstats` (often aliased as `CHANGE_STAT`) with th
 
 Every `ergm` term has private storage, found at `void *mtp->storage`, which allows it to store arbitrary information about the state of the network, as well as precalculated values of variables, preallocated memory it needs for its calculations, or any other use. It does so by specifying an updating function (and, optionally, an initialization and a finalization function). This updating function is called every time the network is about to change. The API for these functions is defined below.
 
-Public storage is found at `void **mtp->aux_storage`. Each auxiliary term gets assigned a slot (i.e., `void *nwp->mtp->aux_storage[i]`) to manage; its slot number is the first element of its input vector, and terms requesting it are told which slot to look in in a similar fashion. An auxiliary term that requests other auxiliaries will have its own slot as the first input and the slots of auxiliaries it requests as subsequent inputs.
+Public storage is found at `void **mtp->aux_storage`. Each auxiliary term gets assigned a slot (i.e., `void *nwp->mtp->aux_storage[i]`) to manage; its slot number is the first element of its `aux_slots` vector, and terms requesting it are told which slot to look in in a similar fashion. An auxiliary term that requests other auxiliaries will have its own slot as the first element of `aux_slots` and the slots of auxiliaries it requests as subsequent elements.
 
 ### `R` side
 
@@ -390,7 +390,7 @@ MHproposals may also request auxiliary terms. An `InitErgmProposal.<NAME>()` or 
 
 ## Private storage
 
-Functions prefixed with `Mi_`, `Mu_`, and, `Mf_` serve as respectively the initializers, the updaters, and the finalizers of the MHproposal storage, though the old-style call with `MHp->ntoggles==0` is also supported. Macros in the `MHstorage.h` header file can be used to access storage the same way as for the statistics.
+Functions prefixed with `Mi_`, `Mu_`, and, `Mf_` serve as respectively the initializers, the updaters, and the finalizers of the MHproposal storage, though the old-style call with `MHp->ntoggles==0` is also supported. Macros in the `ergm_MHstorage.h` header file can be used to access storage the same way as for the statistics.
 
 The function called to generate the proposal can have a prefix of either `MH_` (for backwards compatibility) or `Mp_` for consistency.
 
