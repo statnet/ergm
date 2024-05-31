@@ -196,7 +196,8 @@ get.node.attr <- function(nw, attrname, functionname=NULL, numeric=FALSE) {
 #'                                   levels=TRUE))
 #'
 #' # Handling of tied frequencies
-#' faux.mesa.high %v% "Plans" <- sample(rep(c("College", "Trade School", "Apprenticeship", "Undecided"), c(80,80,20,25)))
+#' faux.mesa.high %v% "Plans" <-
+#'     sample(rep(c("College", "Trade School", "Apprenticeship", "Undecided"), c(80,80,20,25)))
 #' summary(faux.mesa.high ~ nodefactor("Plans", levels = -LARGEST))
 #' 
 #' # Mixing between lower and upper grades:
