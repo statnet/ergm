@@ -4269,6 +4269,7 @@ InitErgmTerm.nodemix<-function (nw, arglist, ..., version=packageVersion("ergm")
       indmat[as.matrix(u)] <- seq_len(NROW(u)) + length(cn)
 
       namescov <- c(b1namescov, b2namescov)
+      u[,2L] <- u[,2L] + nr
       cn <- c(cn, paste("mix", paste(attrname,collapse="."), apply(matrix(namescov[as.matrix(u)],ncol=2),
                                          1,paste,collapse="."), sep="."))
     }
