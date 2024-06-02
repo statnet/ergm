@@ -10,16 +10,29 @@
 \alias{InitWtErgmProposal}
 \title{Metropolis-Hastings Proposal Methods for ERGM MCMC}
 \description{
-\code{\link{ergm}}  uses a Metropolis-Hastings (MH) algorithm to control the behavior of the Markov Chain
-Monte Carlo (MCMC) for sampling networks.  The MCMC chain is intended to step around the sample space of
-possible networks, selecting a network at regular intervals to evaluate the statistics in the model.  For
-each MCMC step, \eqn{n} (\eqn{n=1} in the simple case) toggles are proposed to change the dyad(s) to the
-opposite value. The probability of accepting the proposed change is determined by the MH acceptance ratio.
-The role of the different MH methods implemented in \code{\link{ergm}} is to vary how the sets of dyads are
-selected for toggle proposals.  This is used in some cases to improve the performance (speed and mixing) of
-the algorithm, and in other cases to constrain the sample space. Proposals can also be searched via \code{\link{search.ergmProposals}}, and help for an individual proposal can be obtained with \verb{ergmProposal?<proposal>} or \code{help("<proposal>-ergmProposal")}.
+This page describes the low-level Metropolis--Hastings
+(MH) proposal algorithms. They are rarely invoked directly by the
+user but are rather selected based on the provided \link[=ergmConstraint]{sample space constraints} and \link[=ergmHint]{hints about the network process}.  They can also be searched via
+\code{\link{search.ergmProposals}}, and help for an individual proposal can
+be obtained with \verb{ergmProposal?<proposal>} or
+\code{help("<proposal>-ergmProposal")}.
 }
-\section{Implemented proposals for ergm models}{
+\details{
+\code{\link{ergm}} uses a Metropolis-Hastings (MH) algorithm to
+control the behavior of the Markov Chain Monte Carlo (MCMC) for
+sampling networks.  The MCMC chain is intended to step around the
+sample space of possible networks, generating a network at
+regular intervals to evaluate the statistics in the model.  For
+each MCMC step, one or more toggles are proposed to change the
+dyads to the opposite value. The probability of accepting the
+proposed change is determined by the MH acceptance ratio.  The
+role of the different MH methods implemented in
+\code{\link{ergm}} is to vary how the sets of dyads are selected
+for toggle proposals.  This is used in some cases to improve the
+performance (speed and mixing) of the algorithm, and in other
+cases to constrain the sample space.
+}
+\section{Proposals available to the package}{
 
 
 \ergmCSS
@@ -27,6 +40,8 @@ the algorithm, and in other cases to constrain the sample space. Proposals can a
 \if{html}{\Sexpr[results=rd,stage=render]{ergm:::.formatProposalsHtml(ergm:::.buildProposalsList(), keepProposal=TRUE)}}
 \if{text}{\Sexpr[results=rd,stage=render]{ergm:::.formatProposalsText(ergm:::.buildProposalsList(), keepProposal=TRUE)}}
 \if{latex}{\Sexpr[results=rd,stage=render]{ergm:::.formatProposalsLatex(ergm:::.buildProposalsList(), keepProposal=TRUE)}}
+
+Note that \code{\link[=.dyads-ergmConstraint]{.dyads}} is a meta-constraint, indicating that the proposal supports an arbitrary dyad-level constraint combination.
 }
 
 \references{
@@ -48,6 +63,6 @@ Terms and Computational Aspects. \emph{Journal of Statistical Software}, 24(4).
 }
 }
 \seealso{
-\code{\link[=ergm-package]{ergm}} package, \code{\link{ergm}}, \code{\link{ergmConstraint}}, \code{\link{ergm_proposal}}
+\code{\link[=ergm-package]{ergm}} package, \code{\link{ergm}}, \code{\link{ergmConstraint}}, \code{\link{ergmHint}}, \code{\link{ergm_proposal}}
 }
 \keyword{models}

@@ -608,17 +608,32 @@ NULL
 #' Metropolis-Hastings Proposal Methods for ERGM MCMC
 #'
 #' @name ergmProposal
-#' @aliases ergm-proposals proposals-ergm ergm.proposals proposals.ergm InitErgmProposal InitWtErgmProposal
-#' @description [`ergm`]  uses a Metropolis-Hastings (MH) algorithm to control the behavior of the Markov Chain
-#'   Monte Carlo (MCMC) for sampling networks.  The MCMC chain is intended to step around the sample space of
-#'   possible networks, selecting a network at regular intervals to evaluate the statistics in the model.  For
-#'   each MCMC step, \eqn{n} (\eqn{n=1} in the simple case) toggles are proposed to change the dyad(s) to the
-#'   opposite value. The probability of accepting the proposed change is determined by the MH acceptance ratio.
-#'   The role of the different MH methods implemented in \code{\link{ergm}} is to vary how the sets of dyads are
-#'   selected for toggle proposals.  This is used in some cases to improve the performance (speed and mixing) of
-#'   the algorithm, and in other cases to constrain the sample space. Proposals can also be searched via [`search.ergmProposals`], and help for an individual proposal can be obtained with `ergmProposal?<proposal>` or `help("<proposal>-ergmProposal")`.
+#' @aliases ergm-proposals proposals-ergm ergm.proposals
+#'   proposals.ergm InitErgmProposal InitWtErgmProposal
+#' @description This page describes the low-level Metropolis--Hastings
+#'   (MH) proposal algorithms. They are rarely invoked directly by the
+#'   user but are rather selected based on the provided [sample space
+#'   constraints][ergmConstraint] and [hints about the network
+#'   process][ergmHint].  They can also be searched via
+#'   [`search.ergmProposals`], and help for an individual proposal can
+#'   be obtained with `ergmProposal?<proposal>` or
+#'   `help("<proposal>-ergmProposal")`.
 #'
-#' @section Implemented proposals for ergm models:
+#' @details [`ergm`] uses a Metropolis-Hastings (MH) algorithm to
+#'   control the behavior of the Markov Chain Monte Carlo (MCMC) for
+#'   sampling networks.  The MCMC chain is intended to step around the
+#'   sample space of possible networks, generating a network at
+#'   regular intervals to evaluate the statistics in the model.  For
+#'   each MCMC step, one or more toggles are proposed to change the
+#'   dyads to the opposite value. The probability of accepting the
+#'   proposed change is determined by the MH acceptance ratio.  The
+#'   role of the different MH methods implemented in
+#'   \code{\link{ergm}} is to vary how the sets of dyads are selected
+#'   for toggle proposals.  This is used in some cases to improve the
+#'   performance (speed and mixing) of the algorithm, and in other
+#'   cases to constrain the sample space.
+#'
+#' @section Proposals available to the package:
 #'
 #' \ergmCSS
 #'
@@ -626,7 +641,9 @@ NULL
 #' \if{text}{\Sexpr[results=rd,stage=render]{ergm:::.formatProposalsText(ergm:::.buildProposalsList(), keepProposal=TRUE)}}
 #' \if{latex}{\Sexpr[results=rd,stage=render]{ergm:::.formatProposalsLatex(ergm:::.buildProposalsList(), keepProposal=TRUE)}}
 #'
-#' @seealso [`ergm`][ergm-package] package, [`ergm`], [`ergmConstraint`], [`ergm_proposal`]
+#' Note that [`.dyads`][.dyads-ergmConstraint] is a meta-constraint, indicating that the proposal supports an arbitrary dyad-level constraint combination.
+#'
+#' @seealso [`ergm`][ergm-package] package, [`ergm`], [`ergmConstraint`], [`ergmHint`], [`ergm_proposal`]
 #'
 #' @references
 #' - Goodreau SM, Handcock MS, Hunter DR, Butts CT, Morris M (2008a).  A \pkg{statnet} Tutorial.
