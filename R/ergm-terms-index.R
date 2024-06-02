@@ -270,7 +270,7 @@ ergmTermCache <- local({
 .buildProposalsList <- function(proposal) {
   proposals <- ergmTermCache("ergmProposal")
   if (!missing(proposal)) {
-    proposals <- proposals[[paste0(proposal, '-ergmProposal')]]$rules
+    proposals <- proposals[[paste0(proposal)]]$rules
   } else {
     proposals <- proposals %>% map("rules") %>% flatten()
   }
