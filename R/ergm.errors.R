@@ -18,15 +18,31 @@
 #'   character vector, concatenated into the message.
 #' @param default.loc Optional name for the source of the error, to be
 #'   used if an initializer cannot be autodetected.
+#' @param call.,call See [stop()] and [abort()] respectively; note the
+#'   different defaults.
 #'
+#' @note At this time, the \CRANpkg{rlang} analogues
+#'   `ergm_Init_abort()`, `ergm_Init_warn()`, and `ergm_Init_inform()`
+#'   all concatenate their arguments like their base \R
+#'   counterparts. This may change in the future, and if you wish to
+#'   retain their old behavior, please switch to their base \R
+#'   analogues `ergm_Init_stop()`, `ergm_Init_warning()`, and
+#'   `ergm_Init_message()`.
 #' @importFrom rlang abort
 #' @seealso [stop()], [abort()]
 #' @name ergm-errors
 #' @keywords internal
 #' @export
-ergm_Init_abort <- function(..., default.loc=NULL){
+ergm_Init_abort <- function(..., default.loc=NULL, call=NULL){
   loc <- traceback.Initializers() %>% format_traceback()
-  abort(paste0('In ', NVL(loc, default.loc, "unknown function"), ': ', ...))
+  abort(paste0('In ', NVL(loc, default.loc, "unknown function"), ': ', ...), call=call)
+}
+
+#' @rdname ergm-errors
+#' @export
+ergm_Init_stop <- function(..., call. = FALSE, default.loc=NULL){
+  loc <- traceback.Initializers() %>% format_traceback()
+  stop(paste0('In ', NVL(loc, default.loc, "unknown function"), ': '), ..., call.=call.)
 }
 
 #' @rdname ergm-errors
@@ -39,12 +55,26 @@ ergm_Init_warn <- function(..., default.loc=NULL){
 }
 
 #' @rdname ergm-errors
+#' @export
+ergm_Init_warning <- function(..., call. = FALSE, default.loc=NULL){
+  loc <- traceback.Initializers() %>% format_traceback()
+  warning(paste0('In ', NVL(loc, default.loc, "unknown function"), ': '), ..., call.=call.)
+}
+
+#' @rdname ergm-errors
 #' @seealso [message()], [inform()]
 #' @importFrom rlang inform
 #' @export
 ergm_Init_inform <- function(..., default.loc=NULL){
   loc <- traceback.Initializers() %>% format_traceback()
   inform(paste0('In ', NVL(loc, default.loc, "unknown function"), ': ', ...))
+}
+
+#' @rdname ergm-errors
+#' @export
+ergm_Init_message <- function(..., default.loc=NULL){
+  loc <- traceback.Initializers() %>% format_traceback()
+  message(paste0('In ', NVL(loc, default.loc, "unknown function"), ': '), ...)
 }
 
 #' @describeIn ergm-errors A helper function that evaluates the

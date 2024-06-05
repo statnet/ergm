@@ -3,16 +3,25 @@
 \name{ergm-errors}
 \alias{ergm-errors}
 \alias{ergm_Init_abort}
+\alias{ergm_Init_stop}
 \alias{ergm_Init_warn}
+\alias{ergm_Init_warning}
 \alias{ergm_Init_inform}
+\alias{ergm_Init_message}
 \alias{ergm_Init_try}
 \title{Sensible error and warning messages by \code{ergm} initializers}
 \usage{
-ergm_Init_abort(..., default.loc = NULL)
+ergm_Init_abort(..., default.loc = NULL, call = NULL)
+
+ergm_Init_stop(..., call. = FALSE, default.loc = NULL)
 
 ergm_Init_warn(..., default.loc = NULL)
 
+ergm_Init_warning(..., call. = FALSE, default.loc = NULL)
+
 ergm_Init_inform(..., default.loc = NULL)
+
+ergm_Init_message(..., default.loc = NULL)
 
 ergm_Init_try(expr)
 }
@@ -22,6 +31,9 @@ character vector, concatenated into the message.}
 
 \item{default.loc}{Optional name for the source of the error, to be
 used if an initializer cannot be autodetected.}
+
+\item{call., call}{See \code{\link[=stop]{stop()}} and \code{\link[=abort]{abort()}} respectively; note the
+different defaults.}
 
 \item{expr}{Expression to be evaluated (in the caller's
 environment).}
@@ -39,6 +51,15 @@ specified expression in the caller's environment, passing any
 errors to \code{\link[=ergm_Init_abort]{ergm_Init_abort()}}.
 
 }}
+\note{
+At this time, the \CRANpkg{rlang} analogues
+\code{ergm_Init_abort()}, \code{ergm_Init_warn()}, and \code{ergm_Init_inform()}
+all concatenate their arguments like their base \R
+counterparts. This may change in the future, and if you wish to
+retain their old behavior, please switch to their base \R
+analogues \code{ergm_Init_stop()}, \code{ergm_Init_warning()}, and
+\code{ergm_Init_message()}.
+}
 \seealso{
 \code{\link[=stop]{stop()}}, \code{\link[=abort]{abort()}}
 
