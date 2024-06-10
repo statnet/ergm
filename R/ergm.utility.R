@@ -144,6 +144,12 @@ single.impute.dyads <- function(nw, constraints=NULL, constraints.obs=NULL, min_
   response <- nw %ergmlhs% "response"
   stopifnot(!is.null(constraints)||is.null(constraints.obs))
 
+  if(!is.dyad.independent(constraints) || !is.dyad.independent(constraints.obs)){
+    message("Model and/or observational constraints are not dyad-independent. Dyad imputation cannot be used. Please ensure your LHS network satisfies all constraints.")
+    if(output=="network") return(nw)
+    else return(ergm_state(nw))
+  }
+
   if(!is.null(constraints)){
     imputable <- as.rlebdm(constraints, constraints.obs, "missing")
     nae <- NVL3(imputable, sum(.), 0)
