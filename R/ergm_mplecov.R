@@ -83,8 +83,6 @@ ergm_mplecov <- function(pl,
     message("Estimating Godambe Matrix using ", R, " simulated networks.")
 
     # calculation of V(theta) = Var(u(theta,y)) using the sim.num networks
-    # net.stat <- attr(sim.mple, "stats")
-    # colnames(net.stat) <- colnames(pl$xmat)
     u.data <- matrix(0,nrow=length(sim.mple), ncol=num.variables)
 
     for(i in 1:length(sim.mple)){
