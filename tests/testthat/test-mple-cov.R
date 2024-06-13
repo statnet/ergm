@@ -26,6 +26,18 @@ test_that("Godambe covariance method for MPLE", {
   expect_equal(StdErr1, c(0.255, 0.059), ignore_attr = TRUE, tolerance=.05)
 })
 
+test_that("Godambe covariance method for MPLE with offset", {
+  set.seed(111)
+  fit <- ergm(
+    init.sim ~ edges + triangles + offset(edges), 
+    offset.coef = 0,
+    estimate = "MPLE",
+    control=control.ergm(MPLE.covariance.method = "Godambe")
+  )
+  StdErr <- sqrt(diag(vcov(fit)))
+  expect_equal(StdErr, c(0.255, 0.059, 0), ignore_attr = TRUE, tolerance=.05)
+})
+
 test_that("Inverse Hessian from logistic regression model", {
   set.seed(222) # However, this method is not stochastic
   m2 <- ergm(init.sim ~ edges+triangles, estimate = "MPLE",
@@ -50,3 +62,5 @@ test_that("Bootstrap covariance method for MPLE with offsets", {
   StdErr4 <- sqrt(diag(vcov(m4)))
   expect_equal(StdErr4, c(0.155, 0.034, 0), ignore_attr = TRUE, tolerance=.05)
 })
+
+
