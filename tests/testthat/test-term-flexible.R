@@ -159,6 +159,16 @@ test_that("edges, either", {
   expect_summary(s.0, e.0, 203, -.9072)
 })
 
+test_that("edgecov, dimension check, unipartite", {
+  cov <- matrix(0, 18, 19)
+  expect_error(summary(samplike~edgecov(cov)), '.*Dyadic covariate matrix has dimension 18x19, 18x18 expected.*')
+})
+
+test_that("edgecov, dimension check, bipartite", {
+  cov <- matrix(0, 129, 129)
+  expect_error(summary(bipnw~edgecov(cov)), '.*Dyadic covariate matrix has dimension 129x129, 100x29 expected.*')
+})
+
 #test_that("hamming, any", {
 #  mat.d <- matrix(0,18,18)
 #  mat.u <- matrix(0, 205, 205)
