@@ -377,7 +377,7 @@ InitErgmTerm..filter.formula.net <- function(nw, arglist, ...){
   m <- ergm_model(a$formula, nw, ..., offset.decorate=FALSE)
   ergm_no_ext.encode(m)
 
-  if(!is.dyad.independent(m) || nparam(m)!=1) ergm_Init_abort("The filter test formula must be dyad-independent and have exactly one statistc.")
+  if(!is.dyad.independent(m) || nparam(m)!=1) ergm_Init_abort("The filter test formula must be dyad-independent and have exactly one statistic.")
 
   nw[,] <- FALSE
   gs <- summary(m, nw)
