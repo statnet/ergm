@@ -71,14 +71,13 @@ ergm.MCMCse <- function(model, theta, init, statsmatrices, statsmatrices.obs,
     H <- crossprod(htmp, htmp)
   } else prob <- rep.int(1 / nrow(xsim), nrow(xsim))
 
+  # Identify canonical parameters corresponding to non-offset statistics that do not vary
+  novar <- diag(H) < sqrt(.Machine$double.eps)
+
   #  Calculate the auto-covariance of the MCMC suff. stats.
   #  and hence the MCMC s.e.
   cov.zbar <- spectrum0.mvar(gsims) * sum(prob^2)
   imp.factor <- sum(prob^2)*length(prob)
-
-  # Identify canonical parameters corresponding to non-offset statistics that do not vary
-  novar <- rep(TRUE, nrow(H))
-  novar <- diag(H) < sqrt(.Machine$double.eps)
 
   #  Calculate the auto-covariance of the Conditional MCMC suff. stats.
   #  and hence the Conditional MCMC s.e.
@@ -92,11 +91,13 @@ ergm.MCMCse <- function(model, theta, init, statsmatrices, statsmatrices.obs,
       H.obs <- crossprod(htmp.obs, htmp.obs)
     } else prob.obs <- rep.int(1 / nrow(xsim.obs), nrow(xsim.obs))
 
-    cov.zbar.obs <- spectrum0.mvar(gsims.obs) * sum(prob.obs^2)
-    imp.factor.obs <- sum(prob.obs^2)*length(prob.obs)
-
     novar.obs <- diag(H.obs)<sqrt(.Machine$double.eps)
     if(any(novar&!novar.obs)) warning("Non-varying statistics in the unconstrained sample vary in the constrained sample. This should not be happening.")
+
+    # Handle the corner case in which the constrained statistics do not vary.
+    cov.zbar.obs <- if(all(novar.obs)) matrix(0, length(novar.obs), length(novar.obs))
+                    else spectrum0.mvar(gsims.obs) * sum(prob.obs^2)
+    imp.factor.obs <- sum(prob.obs^2)*length(prob.obs)
   }else{
     cov.zbar.obs <- cov.zbar
     cov.zbar.obs[,] <- 0

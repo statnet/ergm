@@ -14,7 +14,7 @@ library(statnet.common)
 opttest({
 library(ergm)
 theta0err<- 1 # Perturbation in the initial values
-tolerance<-4 # Result must be within 5*MCMCSE of truth.
+tolerance <- 4 # Result must be within 4*MCMCSE of truth.
 bridge.target.se <- 0.005 # Log-likelihood MCMC standard error must be within this.
 
 n<-20 # Number of nodes

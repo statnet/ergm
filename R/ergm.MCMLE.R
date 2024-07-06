@@ -447,7 +447,15 @@ ergm.MCMLE <- function(init, s, s.obs,
           basepred <- sm[,!nochg,drop=FALSE] %*% etadiff[!nochg]
         }
         lw2w <- function(lw){w<-exp(lw-max(lw)); w/sum(w)}
-        hotel <- try(suppressWarnings(approx.hotelling.diff.test(esteqs, esteqs.obs)), silent=TRUE)
+        # Handle a corner case in which none of the constrained sample
+        # statistics vary. Then, Hotelling's test must be performed in
+        # the 1-sample mode.
+        novar.obs <- NVL3(esteq.obs, all(sweep(., 2L, .[1L,], `==`)), FALSE)
+        hotel <- try(suppressWarnings(
+          approx.hotelling.diff.test(esteqs,
+                                     if(!novar.obs) esteqs.obs,
+                                     mu0 = if(novar.obs) esteq.obs[1L,])
+        ), silent=TRUE)
         if(inherits(hotel, "try-error")){ # Within tolerance ellipsoid, but cannot be tested.
           message("Unable to test for convergence; increasing sample size.")
           .boost_samplesize(control$MCMLE.confidence.boost)
@@ -457,7 +465,7 @@ ergm.MCMLE <- function(init, s, s.obs,
           esteq.w <- lw2w(esteq.lw)
           estdiff <- -lweighted.mean(esteq, esteq.lw)
           estcov <- hotel$covariance.x*sum(esteq.w^2)*length(esteq.w)
-          if(obs){
+          if(obs && !novar.obs){
             esteq.obs.lw <- IS.lw(statsmatrix.obs, etadiff)
             esteq.obs.w <- lw2w(esteq.obs.lw)
             estdiff <- estdiff + lweighted.mean(esteq.obs, esteq.obs.lw)
@@ -478,7 +486,7 @@ ergm.MCMLE <- function(init, s, s.obs,
               if(T2nullity && verbose) message("Estimated covariance matrix of the statistics has nullity ", format(T2nullity), ". Effective parameter number adjusted to ", format(T2param), ".")
               nonconv.pval <- .ptsq(T2, T2param, hotel$parameter["df"], lower.tail=FALSE)
               if(verbose) message("Test statistic: T^2 = ", format(T2),", with ",
-                                  format(T2param), " free parameters and ", format(hotel$parameter["df"]), " degrees of freedom.")
+                                  format(T2param), " free parameter(s) and ", format(hotel$parameter["df"]), " degrees of freedom.")
               message("Convergence test p-value: ", fixed.pval(nonconv.pval, 4), ". ", appendLF=FALSE)
               if(nonconv.pval < 1-control$MCMLE.confidence){
                 message("Converged with ",control$MCMLE.confidence*100,"% confidence.")
