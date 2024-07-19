@@ -134,7 +134,7 @@ ergm.MCMLE <- function(init, s, s.obs,
   ## set it to the same as the unconstrained.
   .set_obs_samplesize <- function(){
     if(!adapt.obs.var) return()
-    control.obs$MCMC.effectiveSize <<- ssolve(esteq.var) * control$MCMC.effectiveSize
+    control.obs$MCMC.effectiveSize <<- sginv(esteq.var, tol=.Machine$double.eps^(3/4)) * control$MCMC.effectiveSize
     control.obs$MCMC.samplesize <<- max(control$obs.MCMLE.samplesize.min, ceiling(control$MCMC.samplesize * min(obs.ESS.adj * 1.2, 1))) # Fudge factor
     NULL
   }
