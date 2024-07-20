@@ -33,8 +33,9 @@ test_that("simulating from the MPLE target statistics fit", {
 
 test_that("MPLE with no estimable parameters fails at a later stage", {
   net1<-network.initialize(5578,directed=FALSE)
-  expect_error(expect_warning(
+  expect_error(expect_warning(expect_warning(
     ergm(net1~triangles,target.stats=c(1)),
+    "^The MPLE does not exist!.*"),
     "^Model statistics .*triangle.* are not varying..*"),
     "^Number of edges in a simulated network exceeds that in the observed by a factor of more than.*")
 })

@@ -8,6 +8,8 @@
 #  Copyright 2003-2023 Statnet Commons
 ################################################################################
 
+set.seed(0)
+
 net1 <- network.initialize(10,directed=FALSE)
 net1[,] <- 1
 absent <- as.edgelist(net1)[sample.int(network.edgecount(net1), 2), ]
@@ -44,8 +46,10 @@ present <- as.network(present, matrix.type = "edgelist", directed = FALSE)
 absent <- as.network(absent, matrix.type = "edgelist", directed = FALSE)
 
 test_that("fixedas with network input", {
-  t1 <- ergm(net1~edges, constraint = ~fixedas(present = present, absent = absent))
-  s1 <- simulate(t1, 100)
+  expect_warning(t1 <- ergm(net1~edges, constraint = ~fixedas(present = present, absent = absent)),
+                 "^In constraint 'fixedas' in package 'ergm': Network size of argument\\(s\\) 'present' and 'absent' differs from that of the response network\\..*")
+  expect_warning(s1 <- simulate(t1, 100),
+                 "^In constraint 'fixedas' in package 'ergm': Network size of argument\\(s\\) 'present' and 'absent' differs from that of the response network\\..*")
 
   expect_true(all(sapply(s1,function(x)as.data.frame(t(as.edgelist(present))) %in% as.data.frame(t(as.edgelist(x))))))
   expect_true(all(!sapply(s1,function(x)as.data.frame(t(as.edgelist(absent))) %in% as.data.frame(t(as.edgelist(x))))))

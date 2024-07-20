@@ -414,13 +414,21 @@ InitErgmConstraint.observed <- function(nw, arglist, ...){
        dependence = FALSE, implies = c("observed"))
 }
 
+warn_netsize <- function(.n, ...){
+  mismatch <- vapply(list(...), function(x) is.network(x) && network.size(x) != .n, logical(1))
+  if(any(mismatch))
+    ergm_Init_warning("Network size of argument(s) ", paste.and(sQuote(...names()[mismatch])), " differs from that of the response network.")
+}
+
 #' @templateVar name fixedas
 #' @title Preserve and preclude edges
 #' @description Preserve the edges in 'present' and preclude the edges in 'absent'.
 #'
 #' @usage
 #' # fixedas(present, absent)
-#' @param present,absent edgelist or network
+#' @param present,absent a two-column edge list or a [`network`]
+#'
+#' @note The current implementation of `fixedas()` simply fixes the dyads found in the `present` and `absent` lists, regardless of their status. That is, if a dyad in the `present` edge list does not already have an edge, no edge is created, and analogously with the `absent` edge list. Thus, it is up to the user to ensure that this is the case in their LHS network. This may change in the future.
 #'
 #' @template ergmConstraint-general
 #'
@@ -434,8 +442,11 @@ InitErgmConstraint.fixedas<-function(nw, arglist,...){
                       defaultvalues = list(NULL, NULL),
                       required = c(FALSE, FALSE))
   present <- a$present; absent <- a$absent
+
   if(is.null(present) && is.null(absent))
     ergm_Init_abort(paste("fixedas constraint takes at least one argument, either present or absent or both."))
+
+  warn_netsize(network.size(nw), present = present, absent = absent)
 
   list(
     free_dyads = function(){
@@ -477,6 +488,8 @@ InitErgmConstraint.fixallbut<-function(nw, arglist,...){
                       defaultvalues = list(NULL),
                       required = c(TRUE))
   free.dyads <- a$free.dyads
+
+  warn_netsize(network.size(nw), free.dyads = free.dyads)
 
   list(
     free_dyads = function(){
