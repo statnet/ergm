@@ -255,7 +255,7 @@ mcmc.diagnostics.ergm <- function(object,
       # This can probably be improved.
       if(is.null(sm.obs)){
         cat("\nAre sample statistics significantly different from observed?\n")
-        ds <- colMeans.mcmc.list(sm) - if(!center) object$target.stats else 0
+        ds <- colMeans.mcmc.list(sm) - if(!center) NVL(object$target.stats, object$nw.stats) else 0
         sds <- apply(as.matrix(sm),2,sd)
         ns <- effectiveSize(sm)
 
