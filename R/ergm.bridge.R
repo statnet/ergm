@@ -153,7 +153,7 @@ ergm.bridge.llr<-function(object, response=NULL, reference=~Bernoulli, constrain
   }
 
   ## Miscellaneous settings
-  Dtheta.Du <- (to-from)[!state[[1]]$model$etamap$offsettheta]
+  Dtheta.Du <- ifelse(mapply(identical, to, from), 0, to - from)[!state[[1]]$model$etamap$offsettheta]
 
   ## Handle target statistics, if passed.
   if(!is.null(target.stats)){
@@ -339,7 +339,7 @@ ergm.bridge.dindstart.llk<-function(object, response=NULL, constraints=~., coef,
 
   message("Fitting the dyad-independent submodel...")
   if(is.null(coef.dind)){
-    ergm.dind<-suppressMessages(suppressWarnings(ergm(dind,basis=nw,estimate="MPLE",constraints=constraints,obs.constraints=obs.constraints,eval.loglik=FALSE,control=control.ergm(drop=FALSE, term.options=control$term.options, MPLE.max.dyad.types=control$MPLE.max.dyad.types), offset.coef = offset.dind)))
+    ergm.dind <- suppressMessages(suppressWarnings(ergm(dind, basis=nw, estimate="MPLE", constraints=constraints, obs.constraints=obs.constraints, eval.loglik=FALSE, control=control.ergm(drop=control$drop, term.options=control$term.options, MPLE.max.dyad.types=control$MPLE.max.dyad.types), offset.coef=offset.dind)))
     etamap.dind <- ergm.dind$etamap
     stats.dind <- ergm.dind$nw.stats
 
@@ -347,7 +347,7 @@ ergm.bridge.dindstart.llk<-function(object, response=NULL, constraints=~., coef,
     eta.dind <- ifelse(is.na(eta.dind),0,eta.dind)
     llk.dind <- ergm.dind$mple.lik
   }else{
-    mple.dind <- suppressMessages(suppressWarnings(ergmMPLE(dind, output="matrix", constraints=constraints,obs.constraints=obs.constraints, control=control.ergm(drop=FALSE, term.options=control$term.options, MPLE.max.dyad.types=control$MPLE.max.dyad.types))))
+    mple.dind <- suppressMessages(suppressWarnings(ergmMPLE(dind, output="matrix", constraints=constraints,obs.constraints=obs.constraints, control=control.ergm(drop=control$drop, term.options=control$term.options, MPLE.max.dyad.types=control$MPLE.max.dyad.types))))
     etamap.dind <- attr(ergm.dind, "etamap")
     stats.dind <- summary(dind, basis=nw)
 

@@ -718,7 +718,7 @@ STATIC_MCMC_CONTROLS <- c("MCMC.samplesize", "MCMC.prop", "MCMC.prop.weights", "
 ADAPTIVE_MCMC_CONTROLS <- c("MCMC.effectiveSize", "MCMC.effectiveSize.damp", "MCMC.effectiveSize.maxruns", "MCMC.effectiveSize.burnin.pval", "MCMC.effectiveSize.burnin.min", "MCMC.effectiveSize.burnin.max", "MCMC.effectiveSize.burnin.nmin", "MCMC.effectiveSize.burnin.nmax", "MCMC.effectiveSize.burnin.PC", "MCMC.effectiveSize.burnin.scl", "obs.MCMC.effectiveSize")
 PARALLEL_MCMC_CONTROLS <- c("parallel","parallel.type","parallel.version.check")
 OBS_MCMC_CONTROLS <- c("MCMC.base.samplesize", "MCMC.base.effectiveSize", "MCMC.samplesize", "MCMC.effectiveSize", "MCMC.interval", "MCMC.burnin")
-MPLE_CONTROLS <- c("MPLE.samplesize","MPLE.type","MPLE.maxit")
+MPLE_CONTROLS <- c("MPLE.samplesize", "MPLE.type", "MPLE.maxit", "drop")
 
 remap_algorithm_MCMC_controls <- function(control, algorithm){
   CTRLS <- c(SCALABLE_MCMC_CONTROLS, STATIC_MCMC_CONTROLS, ADAPTIVE_MCMC_CONTROLS) %>% keep(startsWith,"MCMC.") %>% substr(6, 10000L)

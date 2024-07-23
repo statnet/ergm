@@ -24,6 +24,8 @@ control.logLik.ergm<-function(bridge.nsteps=16,
                               bridge.target.se=NULL,
                               bridge.bidirectional = TRUE,
 
+                              drop = NULL,
+
                               MCMC.burnin=NULL,
                               MCMC.interval=NULL,
                               MCMC.samplesize=NULL,

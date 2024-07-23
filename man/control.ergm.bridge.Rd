@@ -9,6 +9,7 @@ control.ergm.bridge(
   bridge.nsteps = 16,
   bridge.target.se = NULL,
   bridge.bidirectional = TRUE,
+  drop = TRUE,
   MCMC.burnin = MCMC.interval * 128,
   MCMC.burnin.between = max(ceiling(MCMC.burnin/sqrt(bridge.nsteps)), MCMC.interval * 16),
   MCMC.interval = 128,
@@ -39,6 +40,7 @@ control.logLik.ergm(
   bridge.nsteps = 16,
   bridge.target.se = NULL,
   bridge.bidirectional = TRUE,
+  drop = NULL,
   MCMC.burnin = NULL,
   MCMC.interval = NULL,
   MCMC.samplesize = NULL,
@@ -68,6 +70,8 @@ control.logLik.ergm(
 \item{bridge.target.se}{If not \code{NULL}, if the estimated MCMC standard error of the likelihood estimate exceeds this, repeat the bridge sampling, accumulating samples.}
 
 \item{bridge.bidirectional}{Whether the bridge sampler first bridges from \code{from} to \code{to}, then from \code{to} to \code{from} (skipping the first burn-in), etc. if multiple attempts are required.}
+
+\item{drop}{See \code{\link[=control.ergm]{control.ergm()}}.}
 
 \item{MCMC.burnin}{Number of proposals before any MCMC sampling is done. It
 typically is set to a fairly large number.}
