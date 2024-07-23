@@ -8,9 +8,6 @@
 #  Copyright 2003-2023 Statnet Commons
 ################################################################################
 
-
-library(statnet.common)
-opttest({
 data(sampson)
 
 # Just one covariate. Note that the .mcmc tests mainly test detection
@@ -68,5 +65,3 @@ crash.test <- function() {
 test_that("doesn't crash for dyad-dependent and curved terms", {
   capture_warnings(expect_error(crash.test(), NA))
 })
-
-}, "drop")

@@ -8,9 +8,6 @@
 #  Copyright 2003-2023 Statnet Commons
 ################################################################################
 
-library(statnet.common)
-opttest({
-
 test_that("MPLE + offset", {
   set.seed(0)
 
@@ -22,5 +19,3 @@ test_that("MPLE + offset", {
     ergm(flomarriage~edges+offset(edgecov(boo))+gwesp(0.25,fixed=T),offset.coef=20))
   expect_lte(max(abs(coef(foo)), na.rm=T), 20)
 })
-
-}, "MPLE + offset")

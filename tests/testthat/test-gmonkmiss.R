@@ -8,11 +8,8 @@
 #  Copyright 2003-2023 Statnet Commons
 ################################################################################
 
+o <- options(ergm.eval.loglik=FALSE)
 
-library(statnet.common)
-opttest({
-
-options(ergm.eval.loglik=FALSE)
 data(sampson)
 
 run.test <- function() {
@@ -62,4 +59,4 @@ test_that("directed network with missing data and dyadic dependence", {
   expect_error(run.test(), NA)
 })
 
-},"directed network with missing data and dyadic dependence")
+options(o)

@@ -9,9 +9,6 @@
 ################################################################################
 # Simulate a network with a high number of nodes with outdegree=3 and a low number with indegree=3:
 
-library(statnet.common)
-opttest({
-
 data(sampson)
 
 test_that("extreme outdegree and indegree simulation test", {
@@ -19,5 +16,3 @@ test_that("extreme outdegree and indegree simulation test", {
   s <- summary(m~odegree(3)+idegree(3))
   expect_lt(diff(s), 0)
 })
-
-}, "")
