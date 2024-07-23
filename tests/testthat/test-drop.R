@@ -34,22 +34,25 @@ test_that("multiple covariates", {
   samplike.m <- as.matrix(samplike, matrix.type="adjacency")
   samplike.m[4:10,4:10] <- 0
 
-  truth <- c(logit((network.edgecount(samplike)-sum(samplike.m))/(network.dyadcount(samplike)-sum(samplike.m))),Inf)
+  truth <- c(edges = logit((network.edgecount(samplike)-sum(samplike.m))/(network.dyadcount(samplike)-sum(samplike.m))),
+             edgecov.samplike.m = Inf)
 
   maxed.mple <- ergm(samplike~edges+edgecov(samplike.m))
-  expect_true(all.equal(truth, coef(maxed.mple),check.attributes=FALSE))
+  expect_equal(coef(maxed.mple), truth)
 
   maxed.mcmc <- ergm(samplike~edges+edgecov(samplike.m), control=control.ergm(force.main=TRUE, MCMLE.maxit=10))
-  expect_true(all.equal(truth, coef(maxed.mcmc), check.attributes=FALSE,tolerance=0.1))
+  expect_equal(coef(maxed.mcmc), truth, tolerance = 0.05)
+  expect_equal(logLik(maxed.mcmc), logLik(maxed.mple), tolerance = 0.05, ignore_attr = TRUE)
 
-
-  truth <- c(logit((network.edgecount(samplike)-sum(samplike.m))/(network.dyadcount(samplike)-sum(samplike.m))),-Inf)
+  truth <- c(edges = logit((network.edgecount(samplike)-sum(samplike.m))/(network.dyadcount(samplike)-sum(samplike.m))),
+             `edgecov.-samplike.m` = -Inf)
 
   mined.mple <- ergm(samplike~edges+edgecov(-samplike.m))
-  expect_true(all.equal(truth, coef(mined.mple),check.attributes=FALSE))
+  expect_equal(coef(mined.mple), truth)
 
   mined.mcmc <- ergm(samplike~edges+edgecov(-samplike.m), control=control.ergm(force.main=TRUE, MCMLE.maxit=10))
-  expect_true(all.equal(truth, coef(mined.mcmc), check.attributes=FALSE, tolerance=0.1))
+  expect_equal(coef(mined.mcmc), truth, tolerance=0.05)
+  expect_equal(logLik(mined.mcmc), logLik(mined.mple), tolerance = 0.05, ignore_attr = TRUE)
 })
 
 # This is mainly to make sure it doesn't crash for dyad-dependent
