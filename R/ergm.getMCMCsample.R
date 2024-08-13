@@ -34,7 +34,7 @@
 #' \item{networks}{a list of final sampled networks, one for each thread.}
 #' \item{status}{status code, propagated from `ergm_MCMC_slave()`.}
 #' \item{final.interval}{adaptively determined MCMC interval.}
-#' \item{final.effectiveSize}{adaptively determined target ESS interval.}
+#' \item{final.effectiveSize}{adaptively determined target ESS (non-trivial if `control$MCMC.effectiveSize` is specified via a matrix).}
 #'
 #' \item{sampnetworks}{If `control$MCMC.save_networks` is set and is
 #' `TRUE`, a list of lists of `ergm_state`s corresponding to the
@@ -255,7 +255,7 @@ ergm_MCMC_sample <- function(state, control, theta=NULL,
       if(is.na(burnin.pval) || burnin.pval <= control$MCMC.effectiveSize.burnin.pval){
         if(is.const.sample(postburnin.mcmc)){
           message("Post-burnin sample is constant; returning.")
-          eS <- 1
+          control.parallel$MCMC.effectiveSize <- eS <- 1
           break
         }
         if(verbose>1) message("Selected burn-in ", format(start(esteq)+best.burnin$burnin*thin(esteq), digits=2, scientific=TRUE), " (",round(best.burnin$burnin/niter(esteq)*100,2),"%) p-value = ", format(burnin.pval), " is below the threshold of ",control$MCMC.effectiveSize.burnin.pval,".")
@@ -283,7 +283,7 @@ ergm_MCMC_sample <- function(state, control, theta=NULL,
       }
     }
 
-    if(eS<control.parallel$MCMC.effectiveSize)
+    if(control.parallel$MCMC.effectiveSize > 1 && eS < control.parallel$MCMC.effectiveSize)
       warning("Unable to reach target effective size in iterations alotted.")
 
     for(i in seq_along(outl)){
