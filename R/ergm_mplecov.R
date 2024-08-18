@@ -122,8 +122,8 @@ ergm_mplecov <- function(pl,
       dat <- ergm.pl(sim.mple[[i]], NULL, theta.offset = init, control=control)
 
       # calculate MPLE of simulated network
-      glm.sim <- glm(dat$zy ~ .-1 + offset(dat$foffset) , data=data.frame(dat$xmat),
-                     weights=dat$wend, family="binomial")
+      glm.sim <- glm.fit(dat$xmat, dat$zy, dat$wend, offset = dat$foffset,
+                         family = binomial(), intercept = FALSE)
       boot.mple.mat[i,] <- coef(glm.sim)
 
     }# end for i

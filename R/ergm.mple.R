@@ -40,7 +40,7 @@
 #' @param init a vector of initial theta coefficients
 #' @param family the family to use in the R native routine
 #'   \code{\link{glm}}; only applicable if "glm" is the 'MPLEtype';
-#'   default="binomial"
+#'   default=binomial()
 #'
 #' @templateVar mycontrol control.ergm
 #' @template control
@@ -56,7 +56,7 @@
 #' \code{\link{ergm}},\code{\link{control.ergm}}
 #' @references \insertAllCited{}
 ergm.mple<-function(s, s.obs, init=NULL,
-                    family="binomial",
+                    family=binomial(),
                     control=NULL,
                     verbose=FALSE,
                     ...) {
@@ -97,14 +97,14 @@ ergm.mple<-function(s, s.obs, init=NULL,
 # # Note:  It appears that specifying a starting vector can lead to problems!
 # #               start=init[!m$etamap$offsettheta]),
 #                     silent = TRUE))
-     glm.result <- quietly(function() glm(pl$zy ~ .-1 + offset(pl$foffset),
-                                          data=data.frame(pl$xmat), weights=pl$wend, family=family))()
+     glm.result <- quietly(function() glm.fit(pl$xmat, pl$zy, pl$wend, offset = pl$foffset,
+                                              family = family, intercept = FALSE))()
 
    # estimate variability matrix V for Godambe covariance matrix or via bootstrapping, only for dyad dependent models and
    #  init.method="MPLE"
      if(!is.dyad.independent(s$model) && control$MPLE.covariance.method=="Godambe" ||
         control$MPLE.covariance.method=="bootstrap"){
-       invHess <- summary(glm.result$result)$cov.unscaled
+       invHess <- summary.glm(glm.result$result)$cov.unscaled
        mple.cov <- ergm_mplecov(pl=pl, s=s, init=init, theta.mple=coef(glm.result$result), invHess=invHess,
                                 verbose=verbose, control=control)
      }
@@ -116,10 +116,8 @@ ergm.mple<-function(s, s.obs, init=NULL,
        if (max(abs(coef(glm.result$result)), na.rm=T) > 1e6) {
          warning("GLM may be separable; restarting glm with zeros.\n")
          glm.result <- list(
-           result = glm(pl$zy ~ .-1 + offset(pl$foffset),
-                       data=data.frame(pl$xmat),
-                       weights=pl$wend, family=family, 
-                       start=rep.int(0, length(init[!m$etamap$offsettheta])))
+           result = glm.fit(pl$xmat, pl$zy, pl$wend, integer(length(init[!m$etamap$offsettheta])),
+                            offset = pl$foffset, family = family, intercept = FALSE)
          )
        } else if(length(glm.result$warnings)) {
          # unknown warning, just report it
@@ -128,7 +126,7 @@ ergm.mple<-function(s, s.obs, init=NULL,
      }
 
      mplefit <- glm.result$result
-     mplefit.summary <- summary(mplefit)
+     mplefit.summary <- summary.glm(mplefit)
    }
   }
   real.coef <- coef(mplefit)
@@ -172,7 +170,8 @@ ergm.mple<-function(s, s.obs, init=NULL,
     mplefit.null <- ergm.logitreg(x=matrix(0,ncol=1,nrow=length(pl$zy)),
                                   y=pl$zy, offset=pl$foffset, wt=pl$wend, verbose=max(verbose-2,0))
   }else{
-    mplefit.null <- try(glm(pl$zy ~ -1 + offset(pl$foffset), family=family, weights=pl$wend),
+    mplefit.null <- try(glm.fit(matrix(, length(pl$zy), 0), pl$zy, pl$wend,
+                                offset = pl$foffset, family = family, intercept = FALSE),
                         silent = TRUE)
     if (inherits(mplefit.null, "try-error")) {
       mplefit.null <- list(coefficients=0, deviance=0, null.deviance=0,

@@ -15,7 +15,9 @@ test_that("MPLE + offset", {
   data(florentine)
   boo<-flomarriage
   boo[1:3,]<-0
-  foo <- suppressWarnings(
-    ergm(flomarriage~edges+offset(edgecov(boo))+gwesp(0.25,fixed=T),offset.coef=20))
+  expect_warning(
+    foo <- ergm(flomarriage~edges+offset(edgecov(boo))+gwesp(0.25,fixed=T),offset.coef=20),
+    "^GLM may be separable; restarting glm with zeros."
+  )
   expect_lte(max(abs(coef(foo)), na.rm=T), 20)
 })

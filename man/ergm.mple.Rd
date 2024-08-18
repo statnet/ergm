@@ -9,7 +9,7 @@ ergm.mple(
   s,
   s.obs,
   init = NULL,
-  family = "binomial",
+  family = binomial(),
   control = NULL,
   verbose = FALSE,
   ...
@@ -30,7 +30,7 @@ ergm.pl(
 
 \item{family}{the family to use in the R native routine
 \code{\link{glm}}; only applicable if "glm" is the 'MPLEtype';
-default="binomial"}
+default=binomial()}
 
 \item{control}{A list of control parameters for algorithm tuning,
 typically constructed with \code{\link[=control.ergm]{control.ergm()}}. Its documentation
