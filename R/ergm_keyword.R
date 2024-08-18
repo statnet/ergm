@@ -36,7 +36,7 @@ ergm_keyword <- local({
     if (all(is.null(name), is.null(short), is.null(description), is.null(popular), is.null(package))) {
       return(cache)
     } else if (any(is.null(name), is.null(short), is.null(description), is.null(popular), is.null(package))) {
-      stop("All arguments are needed to register Ergm keyword")
+      stop("All arguments are needed to register ", sQuote("ergm"), " keyword")
     } else if (!is.logical(popular)) {
       stop("Logical value expected for argument 'popular'")
     } else {
