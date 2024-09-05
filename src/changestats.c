@@ -156,7 +156,7 @@ I_CHANGESTAT_FN(i_attrcov) {
   int nc = asInteger(getListElement(mtp->R, "nc"));
   
   // rows vary faster than columns because we did not transpose a$mat in the InitErgmTerm function
-  sto->mat = Calloc(nc, double *);
+  sto->mat = R_Calloc(nc, double *);
   sto->mat[0] = REAL(getListElement(mtp->R, "mat"));
   for(int i = 1; i < nc; i++) {
     sto->mat[i] = sto->mat[i - 1] + nr;
@@ -171,7 +171,7 @@ C_CHANGESTAT_FN(c_attrcov) {
 
 F_CHANGESTAT_FN(f_attrcov) {
   GET_STORAGE(attrcov_storage, sto);
-  Free(sto->mat);
+  R_Free(sto->mat);
 }
 
 
@@ -1344,7 +1344,7 @@ void edgewise_cycle_census(Network *nwp, Vertex tail, Vertex head,
     return;                 /*Failsafe for graphs of order 2*/
   
   /*Perform the recursive path count*/
-  visited=Calloc(maxlen,Vertex); /*Initialize the list of visited nodes*/
+  visited=R_Calloc(maxlen,Vertex); /*Initialize the list of visited nodes*/
   visited[0]=tail;
   visited[1]=head;
   
@@ -1359,7 +1359,7 @@ void edgewise_cycle_census(Network *nwp, Vertex tail, Vertex head,
         edgewise_path_recurse(nwp,tail,v,visited,1,countv,maxlen, semi);
     }
   }
-  Free(visited);  /*Free the visited node list*/
+  R_Free(visited);  /*R_Free the visited node list*/
 }
 
 /********************  changestats:  D    ***********/
@@ -2796,7 +2796,7 @@ I_CHANGESTAT_FN(i_nodemix) {
   int nr = asInteger(getListElement(mtp->R, "nr"));
   int nc = asInteger(getListElement(mtp->R, "nc"));
   
-  sto->indmat = Calloc(nr, int *);
+  sto->indmat = R_Calloc(nr, int *);
   sto->indmat[0] = INTEGER(getListElement(mtp->R, "indmat"));
   for(int i = 1; i < nr; i++) {
     sto->indmat[i] = sto->indmat[i - 1] + nc;
@@ -2813,7 +2813,7 @@ C_CHANGESTAT_FN(c_nodemix) {
 
 F_CHANGESTAT_FN(f_nodemix) {
   GET_STORAGE(nodemix_storage, sto);
-  Free(sto->indmat);  
+  R_Free(sto->indmat);
 }
 
 S_CHANGESTAT_FN(s_nodemix) {
@@ -2822,7 +2822,7 @@ S_CHANGESTAT_FN(s_nodemix) {
   int nr = asInteger(getListElement(mtp->R, "nr"));
   int nc = asInteger(getListElement(mtp->R, "nc"));
   
-  int **indmat = Calloc(nr, int *);
+  int **indmat = R_Calloc(nr, int *);
   indmat[0] = INTEGER(getListElement(mtp->R, "indmat"));
   for(int i = 1; i < nr; i++) {
     indmat[i] = indmat[i - 1] + nc;
@@ -2835,7 +2835,7 @@ S_CHANGESTAT_FN(s_nodemix) {
     }
   });
   
-  Free(indmat);
+  R_Free(indmat);
 }
 
 /*****************
@@ -3182,7 +3182,7 @@ S_CHANGESTAT_FN(s_rdegcor) {
   Edge e;
   double mu, mu2, sigma2, cross;
   Vertex tailrank, headrank;
-  Vertex *ndeg=Calloc(N_NODES+1, Vertex);
+  Vertex *ndeg=R_Calloc(N_NODES+1, Vertex);
 
   for(Vertex tail=0; tail <= N_NODES; tail++) { ndeg[tail]=0; }
   for(Vertex tail=0; tail < N_NODES; tail++) {
@@ -3217,7 +3217,7 @@ for(Vertex tail=1; tail <= N_NODES; tail++) {
   mu = mu / (2.0*N_EDGES);
   sigma2 = mu2/(2.0*N_EDGES) -  mu*mu;
   CHANGE_STAT[0] = (cross / (2.0*N_EDGES) -  mu*mu) / sigma2;
-  Free(ndeg);
+  R_Free(ndeg);
 }
 
 /*****************

@@ -40,7 +40,7 @@ typedef struct {
 // constructor; weights should be an array of length size, consisting of
 // non-negative numbers, with at least one strictly positive
 static inline WtPop *WtPopInitialize(int size, double *weights, char type) {
-  WtPop *wtp = Calloc(1, WtPop);
+  WtPop *wtp = R_Calloc(1, WtPop);
 
   if(size < 1) {
     error("cannot initialize weighted population of size less than 1");
@@ -56,9 +56,9 @@ static inline WtPop *WtPopInitialize(int size, double *weights, char type) {
     wtp->type = 'B';
     wtp->height = ceil(log2(size));
 
-    wtp->weights = Calloc(wtp->height + 1, double *);
+    wtp->weights = R_Calloc(wtp->height + 1, double *);
     for(int i = 0; i <= wtp->height; i++) {
-      wtp->weights[i] = Calloc(pow(2,i), double);
+      wtp->weights[i] = R_Calloc(pow(2,i), double);
     }
     memcpy(wtp->weights[wtp->height], weights, size*sizeof(double));
 
@@ -75,9 +75,9 @@ static inline WtPop *WtPopInitialize(int size, double *weights, char type) {
     wtp->type = 'W';
     wtp->size = size;
 
-    wtp->originalweights = Calloc(wtp->size, double);
-    wtp->prob = Calloc(wtp->size, double);
-    wtp->alias = Calloc(wtp->size, int);
+    wtp->originalweights = R_Calloc(wtp->size, double);
+    wtp->prob = R_Calloc(wtp->size, double);
+    wtp->alias = R_Calloc(wtp->size, int);
 
     memcpy(wtp->originalweights, weights, wtp->size*sizeof(double));
     memcpy(wtp->prob, weights, wtp->size*sizeof(double));
@@ -136,16 +136,16 @@ static inline WtPop *WtPopInitialize(int size, double *weights, char type) {
 static inline void WtPopDestroy(WtPop *wtp) {
   if(wtp->type == 'B') {
     for(int i = 0; i <= wtp->height; i++) {
-      Free(wtp->weights[i]);
+      R_Free(wtp->weights[i]);
     }
-    Free(wtp->weights);
+    R_Free(wtp->weights);
   } else {
-    Free(wtp->prob);
-    Free(wtp->alias);
-    Free(wtp->originalweights);
+    R_Free(wtp->prob);
+    R_Free(wtp->alias);
+    R_Free(wtp->originalweights);
   }
 
-  Free(wtp);
+  R_Free(wtp);
 }
 
 // sample a random category according to the weights
@@ -186,11 +186,11 @@ static inline void WtPopSetWt(int position, double weight, WtPop *wtp) {
   } else {
     wtp->originalweights[position] = weight;
     WtPop *new_wtp = WtPopInitialize(wtp->size, wtp->originalweights, 'W');
-    Free(wtp->prob);
-    Free(wtp->alias);
-    Free(wtp->originalweights);
+    R_Free(wtp->prob);
+    R_Free(wtp->alias);
+    R_Free(wtp->originalweights);
     memcpy(wtp, new_wtp, sizeof(WtPop));
-    Free(new_wtp);
+    R_Free(new_wtp);
   }
 }
 

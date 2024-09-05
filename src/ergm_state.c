@@ -16,7 +16,7 @@ static unsigned int ergm_state_array_maxlen = 0;
 
 ErgmState *ErgmStateInit(SEXP stateR,
                          unsigned int flags){
-  ErgmState *s = Calloc(1, ErgmState);
+  ErgmState *s = R_Calloc(1, ErgmState);
 
   /* Save a reference to the corresponding R object */
   s->R = stateR;
@@ -43,7 +43,7 @@ ErgmState *ErgmStateInit(SEXP stateR,
 
   if(ergm_state_array_len == ergm_state_array_maxlen){
     ergm_state_array_maxlen = MAX(1, ergm_state_array_maxlen*2);
-    ergm_state_array = Realloc(ergm_state_array, ergm_state_array_maxlen, ErgmState*);
+    ergm_state_array = R_Realloc(ergm_state_array, ergm_state_array_maxlen, ErgmState*);
   }
   ergm_state_array[ergm_state_array_len++] = s;
 
@@ -101,12 +101,12 @@ void ErgmStateDestroy(ErgmState *s){
   if(s->MHp) MHProposalDestroy(s->MHp, s->nwp);
   if(s->m) ModelDestroy(s->nwp, s->m);
   if(s->nwp) NetworkDestroy(s->nwp);
-  Free(s);
+  R_Free(s);
 }
 
 SEXP ErgmStateArrayClear(void){
   while(ergm_state_array_len) ErgmStateDestroy(ergm_state_array[0]);
   ergm_state_array_maxlen = 0;
-  Free(ergm_state_array);
+  R_Free(ergm_state_array);
   return R_NilValue;
 }

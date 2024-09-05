@@ -27,7 +27,7 @@ typedef struct {
 
 /* Embed an existing UnsrtEL into a HashEL. */
 static inline HashEL *UnsrtELIntoHashEL(UnsrtEL *el) {
-  HashEL *hash = Calloc(1, HashEL);
+  HashEL *hash = R_Calloc(1, HashEL);
 
   hash->list = el;
 
@@ -52,7 +52,7 @@ static inline HashEL *HashELInitialize(unsigned int nedges, Vertex *tails, Verte
 static inline void HashELDestroy(HashEL *hash) {
   kh_destroy(StrictDyadMapUInt, hash->hash);
   UnsrtELDestroy(hash->list);
-  Free(hash);
+  R_Free(hash);
 }
 
 static inline void HashELClear(HashEL *hash) {

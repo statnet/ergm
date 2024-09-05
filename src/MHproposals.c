@@ -111,8 +111,8 @@ MH_I_FN(Mi_BDStratTNT) {
   sto->bd_nlevels = asInteger(getListElement(MHp->R, "bd_nlevels"));
 
   // set up degree bound arrays
-  sto->maxout = Calloc(sto->bd_nlevels, int *);
-  sto->maxin = DIRECTED ? Calloc(sto->bd_nlevels, int *) : sto->maxout;
+  sto->maxout = R_Calloc(sto->bd_nlevels, int *);
+  sto->maxin = DIRECTED ? R_Calloc(sto->bd_nlevels, int *) : sto->maxout;
   sto->maxout[0] = INTEGER(getListElement(MHp->R, "maxout")) - 1;
   if(DIRECTED) {
     sto->maxin[0] = INTEGER(getListElement(MHp->R, "maxin")) - 1;
@@ -125,11 +125,11 @@ MH_I_FN(Mi_BDStratTNT) {
   }
 
   // initialize degree storage
-  sto->indegree = Calloc(sto->bd_nlevels, int *);
-  sto->outdegree = Calloc(sto->bd_nlevels, int *);
+  sto->indegree = R_Calloc(sto->bd_nlevels, int *);
+  sto->outdegree = R_Calloc(sto->bd_nlevels, int *);
   for(int i = 0; i < sto->bd_nlevels; i++) {
-    sto->indegree[i] = Calloc(N_NODES + 1, int);
-    sto->outdegree[i] = Calloc(N_NODES + 1, int);
+    sto->indegree[i] = R_Calloc(N_NODES + 1, int);
+    sto->outdegree[i] = R_Calloc(N_NODES + 1, int);
   }
 
   // tabulate initial degrees
@@ -141,7 +141,7 @@ MH_I_FN(Mi_BDStratTNT) {
   // odds and ends
   sto->CD = getListElement(getListElement(MHp->R, "flags"), "CD") != R_NilValue;
   sto->strat_nmixtypes = length(getListElement(MHp->R, "probvec"));
-  sto->strat_mixtypestoupdate = Calloc(sto->strat_nmixtypes, int);
+  sto->strat_mixtypestoupdate = R_Calloc(sto->strat_nmixtypes, int);
 
   // set up submaximal node lists given degrees, degree bounds, and attribute information
   sto->lists = BDNodeListsInitialize(sto->maxout,
@@ -176,9 +176,9 @@ MH_I_FN(Mi_BDStratTNT) {
   int *stratheadattrs = INTEGER(getListElement(MHp->R, "strat_heads"));
 
   // indmat stores indices of included strat mixing types
-  sto->indmat = Calloc(sto->strat_nlevels, int *);
+  sto->indmat = R_Calloc(sto->strat_nlevels, int *);
   for(int i = 0; i < sto->strat_nlevels; i++) {
-    sto->indmat[i] = Calloc(sto->strat_nlevels, int);
+    sto->indmat[i] = R_Calloc(sto->strat_nlevels, int);
     for(int j = 0; j < sto->strat_nlevels; j++) {
       sto->indmat[i][j] = -1;
     }
@@ -191,14 +191,14 @@ MH_I_FN(Mi_BDStratTNT) {
   }
 
   // amat stores toggleability status of blocks mixing types
-  int **amat = Calloc(nblockslevels, int *);
+  int **amat = R_Calloc(nblockslevels, int *);
   amat[0] = INTEGER(getListElement(MHp->R, "amat"));
   for(int i = 1; i < nblockslevels; i++) {
     amat[i] = amat[i - 1] + nblockslevels;
   }
 
   // put edges in unsorted edgelists to start
-  UnsrtEL **els = Calloc(sto->strat_nmixtypes, UnsrtEL *);
+  UnsrtEL **els = R_Calloc(sto->strat_nmixtypes, UnsrtEL *);
   for(int i = 0; i < sto->strat_nmixtypes; i++) {
     els[i] = UnsrtELInitialize(0, NULL, NULL, FALSE);
   }
@@ -209,21 +209,21 @@ MH_I_FN(Mi_BDStratTNT) {
       UnsrtELInsert(tail, head, els[index]);
     }
   });
-  Free(amat);
+  R_Free(amat);
 
   // then initialize hash edgelists from unsorted edgelists
-  sto->hash = Calloc(sto->strat_nmixtypes, HashEL *);
+  sto->hash = R_Calloc(sto->strat_nmixtypes, HashEL *);
   for(int i = 0; i < sto->strat_nmixtypes; i++) {
     sto->hash[i] = HashELInitialize(els[i]->nedges,
                                     els[i]->tails ? els[i]->tails + 1 : els[i]->tails,
                                     els[i]->heads ? els[i]->heads + 1 : els[i]->heads,
                                     FALSE);
-    Free(els[i]);
+    R_Free(els[i]);
   }
-  Free(els);
+  R_Free(els);
 
   // initialize sampling weights for strat mixing types
-  sto->original_weights = Calloc(sto->strat_nmixtypes, double);
+  sto->original_weights = R_Calloc(sto->strat_nmixtypes, double);
   if(asInteger(getListElement(MHp->R, "empirical_flag"))) {
     // use edgecounts as weights
     for(int i = 0; i < sto->strat_nmixtypes; i++) {
@@ -239,7 +239,7 @@ MH_I_FN(Mi_BDStratTNT) {
   }
 
   // determine what strat mixing types are initially toggleable
-  double *currentprobvec = Calloc(sto->strat_nmixtypes, double);
+  double *currentprobvec = R_Calloc(sto->strat_nmixtypes, double);
   for(int i = 0; i < sto->strat_nmixtypes; i++) {
     // if any edges or dyads of this type are toggleable, then the mixing type is toggleable
     if(sto->hash[i]->list->nedges > 0 || BDStratBlocksDyadCountPositive(sto->blocks, i)) {
@@ -252,7 +252,7 @@ MH_I_FN(Mi_BDStratTNT) {
   sto->wtp = WtPopInitialize(sto->strat_nmixtypes,
                              currentprobvec,
                              asInteger(getListElement(MHp->R, "dyad_indep")) ? 'W' : 'B');
-  Free(currentprobvec);
+  R_Free(currentprobvec);
 
   // check degree bounds
   for(Vertex vertex = 1; vertex <= N_NODES; vertex++) {
@@ -409,31 +409,31 @@ MH_F_FN(Mf_BDStratTNT) {
   for(int i = 0; i < sto->strat_nmixtypes; i++) {
     HashELDestroy(sto->hash[i]);
   }
-  Free(sto->hash);
+  R_Free(sto->hash);
 
   for(int i = 0; i < sto->strat_nlevels; i++) {
-    Free(sto->indmat[i]);
+    R_Free(sto->indmat[i]);
   }
-  Free(sto->indmat);
+  R_Free(sto->indmat);
 
-  Free(sto->original_weights);
+  R_Free(sto->original_weights);
 
-  Free(sto->strat_mixtypestoupdate);
+  R_Free(sto->strat_mixtypestoupdate);
 
   WtPopDestroy(sto->wtp);
 
-  Free(sto->maxout);
+  R_Free(sto->maxout);
   if(DIRECTED) {
-    Free(sto->maxin);
+    R_Free(sto->maxin);
   }
 
   for(int i = 0; i < sto->bd_nlevels; i++) {
-    Free(sto->indegree[i]);
-    Free(sto->outdegree[i]);
+    R_Free(sto->indegree[i]);
+    R_Free(sto->outdegree[i]);
   }
-  Free(sto->indegree);
-  Free(sto->outdegree);
-  // MHp->storage itself should be Freed by MHProposalDestroy
+  R_Free(sto->indegree);
+  R_Free(sto->outdegree);
+  // MHp->storage itself should be R_Freed by MHProposalDestroy
 }
 
 /********************
@@ -1101,7 +1101,7 @@ MH_P_FN(MH_ReallocateWithReplacement){
   /* select a node at random */
   root = 1 + unif_rand() * N_NODES;
 
-  edges = (Vertex *) Calloc(N_NODES+1, Vertex);
+  edges = (Vertex *) R_Calloc(N_NODES+1, Vertex);
   for (i = 0; i <= N_NODES; i++)
     edges[i] = NO_EDGE;
   
@@ -1157,7 +1157,7 @@ MH_P_FN(MH_ReallocateWithReplacement){
 	}
       edgecount++;
     }
-  Free(edges);
+  R_Free(edges);
 }
 
 /*********************
@@ -1207,8 +1207,8 @@ MH_P_FN(MH_SwitchLabelTwoNodesToggles){
   /* *** don't forget tail-> head now */
   
   /* select a node at random */
-  edges1 = (Vertex *) Calloc(N_NODES+1, Vertex);
-  edges2 = (Vertex *) Calloc(N_NODES+1, Vertex);
+  edges1 = (Vertex *) R_Calloc(N_NODES+1, Vertex);
+  edges2 = (Vertex *) R_Calloc(N_NODES+1, Vertex);
   
   while(nedge1==0){
     tail1 = 1 + unif_rand() * N_NODES;
@@ -1298,8 +1298,8 @@ MH_P_FN(MH_SwitchLabelTwoNodesToggles){
     }
     if(tail2 != edges1[k]) ntoggles++;
   }
-  Free(edges1);
-  Free(edges2);
+  R_Free(edges1);
+  R_Free(edges2);
 }
 
 
@@ -1316,8 +1316,8 @@ MH_P_FN(MH_ConstrainedCondDegDist){
   /* *** don't forget tail-> head now */
   
   /* select a node at random */
-  outedges = (Vertex *) Calloc(N_NODES+1, Vertex);
-  inedges = (Vertex *) Calloc(N_NODES+1, Vertex);
+  outedges = (Vertex *) R_Calloc(N_NODES+1, Vertex);
+  inedges = (Vertex *) R_Calloc(N_NODES+1, Vertex);
   
   while(noutedge==0 && ninedge==0){
     tail = 1 + unif_rand() * N_NODES;
@@ -1400,8 +1400,8 @@ MH_P_FN(MH_ConstrainedCondDegDist){
     Mtail[1] = Mhead[1] = 0;
   }
   
-  Free(outedges);
-  Free(inedges);
+  R_Free(outedges);
+  R_Free(inedges);
   
   /* Check undirected degrees */
 
@@ -1537,7 +1537,7 @@ void MH_ConstrainedReallocateWithReplacement (MHProposal *MHp,
   /* select a node at random */
   root = 1 + unif_rand() * N_NODES;
 
-  edges = (Vertex *) Calloc(N_NODES+1, Vertex);
+  edges = (Vertex *) R_Calloc(N_NODES+1, Vertex);
   for (i = 0; i <= N_NODES; i++)
     edges[i] = NO_EDGE;
   
@@ -1594,7 +1594,7 @@ void MH_ConstrainedReallocateWithReplacement (MHProposal *MHp,
 	}
       edgecount++;
     }
-  Free(edges);
+  R_Free(edges);
 }
 
 /*********************
@@ -1686,8 +1686,8 @@ void MH_ConstrainedCondDeg (MHProposal *MHp,
   Vertex e, tail2=0, head2, tail1, head1;
   
   /* select a node at random */
-  edges1 = (Vertex *) Calloc(N_NODES+1, Vertex);
-  edges2 = (Vertex *) Calloc(N_NODES+1, Vertex);
+  edges1 = (Vertex *) R_Calloc(N_NODES+1, Vertex);
+  edges2 = (Vertex *) R_Calloc(N_NODES+1, Vertex);
   
   while(nedge1==0){
     tail1 = 1 + unif_rand() * N_NODES;
@@ -1764,8 +1764,8 @@ void MH_ConstrainedCondDeg (MHProposal *MHp,
   if (!fvalid || toomany==10){
     Mtail[0] = Mhead[0] = 0;
     Mtail[1] = Mhead[1] = 0;
-    Free(edges1);
-    Free(edges2);
+    R_Free(edges1);
+    R_Free(edges2);
       }
   if (tail2 > head2)
     {
@@ -1775,8 +1775,8 @@ void MH_ConstrainedCondDeg (MHProposal *MHp,
       Mtail[1] = tail2;
       Mhead[1] = head2;
     }
-  Free(edges1);
-  Free(edges2);
+  R_Free(edges1);
+  R_Free(edges2);
 }
 
 /*********************
@@ -1792,8 +1792,8 @@ void MH_ConstrainedSwitchLabelTwoNodesToggles (MHProposal *MHp,
   
   /* select a node at random */
 
-  edges1 = (Vertex *) Calloc(N_NODES+1, Vertex);
-  edges2 = (Vertex *) Calloc(N_NODES+1, Vertex);
+  edges1 = (Vertex *) R_Calloc(N_NODES+1, Vertex);
+  edges2 = (Vertex *) R_Calloc(N_NODES+1, Vertex);
 
   while(nedge1==0){
     tail1 = 1 + unif_rand() * N_NODES;
@@ -1883,8 +1883,8 @@ void MH_ConstrainedSwitchLabelTwoNodesToggles (MHProposal *MHp,
     }
     if(tail2 != edges1[k]) ntoggles++;
   }
-  Free(edges1);
-  Free(edges2);
+  R_Free(edges1);
+  R_Free(edges2);
 }
 
 /*********************

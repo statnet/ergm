@@ -90,10 +90,10 @@ static inline void CheckEdgetreeFull (Network *nwp) {
   if(nwp->last_outedge==nwp->maxedges-2 || nwp->last_inedge==nwp->maxedges-2){
     // Only enlarge the non-root part of the array.
     Edge newmax = nwp->nnodes + 1 + (nwp->maxedges - nwp->nnodes - 1)*mult;
-    nwp->inedges = (TreeNode *) Realloc(nwp->inedges, newmax, TreeNode);
+    nwp->inedges = (TreeNode *) R_Realloc(nwp->inedges, newmax, TreeNode);
     memset(nwp->inedges+nwp->maxedges, 0,
 	   sizeof(TreeNode) * (newmax-nwp->maxedges));
-    nwp->outedges = (TreeNode *) Realloc(nwp->outedges, newmax, TreeNode);
+    nwp->outedges = (TreeNode *) R_Realloc(nwp->outedges, newmax, TreeNode);
     memset(nwp->outedges+nwp->maxedges, 0,
 	   sizeof(TreeNode) * (newmax-nwp->maxedges));
     nwp->maxedges = newmax;

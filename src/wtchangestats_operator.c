@@ -281,7 +281,7 @@ WtI_CHANGESTAT_FN(i__wtsubmodel_and_summary_term){
   // Unpack the submodel.
   WtModel *m = storage->m = WtModelInitialize(getListElement(mtp->R, "submodel"),  NULL, nwp, FALSE);
 
-  storage->stats = Calloc(m->n_stats, double);
+  storage->stats = R_Calloc(m->n_stats, double);
 
   WtSummStats(0, NULL, NULL, NULL, nwp, m);
   memcpy(storage->stats, m->workspace, m->n_stats*sizeof(double));
@@ -300,7 +300,7 @@ WtU_CHANGESTAT_FN(u__wtsubmodel_and_summary_term){
 WtF_CHANGESTAT_FN(f__wtsubmodel_and_summary_term){
   GET_AUX_STORAGE(StoreWtModelAndStats, storage);
 
-  Free(storage->stats);
+  R_Free(storage->stats);
   WtModelDestroy(nwp, storage->m);
 }
 

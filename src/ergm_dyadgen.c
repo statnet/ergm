@@ -74,7 +74,7 @@ void DyadGenUpgradeIntersect(DyadGen *gen){
 }
 
 DyadGen *DyadGenInitialize(DyadGenType type, void *dyads, void *track_nwp){
-  DyadGen *gen = Calloc(1, DyadGen);
+  DyadGen *gen = R_Calloc(1, DyadGen);
   gen->type = type;
   gen->intertype = NoELDyadGen;
   gen->sleeping = FALSE;
@@ -169,7 +169,7 @@ void DyadGenDestroy(DyadGen *gen){
       error("Undefined dyad generator type.");
     }
   }
-  Free(gen);
+  R_Free(gen);
 }
 
 

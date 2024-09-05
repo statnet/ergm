@@ -31,18 +31,18 @@ Note: passing nedges > 0 and tails == heads == NULL is OK: it creates an empty n
 WtNetwork *WtNetworkInitialize(Vertex *tails, Vertex *heads, double *weights,
 			       Edge nedges, Vertex nnodes, int directed_flag, Vertex bipartite,
 			       int lasttoggle_flag, int time, int *lasttoggle) {
-  WtNetwork *nwp = Calloc(1, WtNetwork);
+  WtNetwork *nwp = R_Calloc(1, WtNetwork);
 
   nwp->eattrname = NULL;
 
   nwp->last_inedge = nwp->last_outedge = (Edge)nnodes;
-  /* Calloc will zero the allocated memory for us, probably a lot
+  /* R_Calloc will zero the allocated memory for us, probably a lot
      faster. */
-  nwp->outdegree = (Vertex *) Calloc((nnodes+1), Vertex);
-  nwp->indegree  = (Vertex *) Calloc((nnodes+1), Vertex);
+  nwp->outdegree = (Vertex *) R_Calloc((nnodes+1), Vertex);
+  nwp->indegree  = (Vertex *) R_Calloc((nnodes+1), Vertex);
   nwp->maxedges = MAX(nedges,1)+nnodes+2; /* Maybe larger than needed? */
-  nwp->inedges = (WtTreeNode *) Calloc(nwp->maxedges, WtTreeNode);
-  nwp->outedges = (WtTreeNode *) Calloc(nwp->maxedges, WtTreeNode);
+  nwp->inedges = (WtTreeNode *) R_Calloc(nwp->maxedges, WtTreeNode);
+  nwp->outedges = (WtTreeNode *) R_Calloc(nwp->maxedges, WtTreeNode);
 
   if(lasttoggle_flag) error("The lasttoggle API has been removed from ergm.");
 
@@ -83,8 +83,8 @@ WtNetwork *WtNetworkInitializeD(double *tails, double *heads, double *weights, E
 
   /* *** don't forget, tail -> head */
 
-  Vertex *itails=(Vertex*)Calloc(nedges, Vertex);
-  Vertex *iheads=(Vertex*)Calloc(nedges, Vertex);
+  Vertex *itails=(Vertex*)R_Calloc(nedges, Vertex);
+  Vertex *iheads=(Vertex*)R_Calloc(nedges, Vertex);
   
   for(Edge i=0; i<nedges; i++){
     itails[i]=tails[i];
@@ -93,8 +93,8 @@ WtNetwork *WtNetworkInitializeD(double *tails, double *heads, double *weights, E
 
   WtNetwork *nwp=WtNetworkInitialize(itails,iheads,weights,nedges,nnodes,directed_flag,bipartite,lasttoggle_flag, time, lasttoggle);
 
-  Free(itails);
-  Free(iheads);
+  R_Free(itails);
+  R_Free(iheads);
   return nwp;
 }
 
@@ -102,35 +102,35 @@ WtNetwork *WtNetworkInitializeD(double *tails, double *heads, double *weights, E
  void NetworkDestroy
 *******************/
 void WtNetworkDestroy(WtNetwork *nwp) {
-  Free(nwp->on_edge_change);
-  Free(nwp->on_edge_change_payload);
-  Free(nwp->indegree);
-  Free(nwp->outdegree);
-  Free(nwp->inedges);
-  Free(nwp->outedges);
-  Free(nwp);
+  R_Free(nwp->on_edge_change);
+  R_Free(nwp->on_edge_change_payload);
+  R_Free(nwp->indegree);
+  R_Free(nwp->outdegree);
+  R_Free(nwp->inedges);
+  R_Free(nwp->outedges);
+  R_Free(nwp);
 }
 
 /******************
  Network WtNetworkCopy
 *****************/
 WtNetwork *WtNetworkCopy(WtNetwork *src){
-  WtNetwork *dest = Calloc(1, WtNetwork);
+  WtNetwork *dest = R_Calloc(1, WtNetwork);
 
   Vertex nnodes = dest->nnodes = src->nnodes;
   dest->last_inedge = src->last_inedge;
   dest->last_outedge = src->last_outedge;
 
-  dest->outdegree = (Vertex *) Calloc((nnodes+1), Vertex);
+  dest->outdegree = (Vertex *) R_Calloc((nnodes+1), Vertex);
   memcpy(dest->outdegree, src->outdegree, (nnodes+1)*sizeof(Vertex));
-  dest->indegree = (Vertex *) Calloc((nnodes+1), Vertex);
+  dest->indegree = (Vertex *) R_Calloc((nnodes+1), Vertex);
   memcpy(dest->indegree, src->indegree, (nnodes+1)*sizeof(Vertex));
 
   Vertex maxedges = dest->maxedges = src->maxedges;
 
-  dest->inedges = (WtTreeNode *) Calloc(maxedges, WtTreeNode);
+  dest->inedges = (WtTreeNode *) R_Calloc(maxedges, WtTreeNode);
   memcpy(dest->inedges, src->inedges, maxedges*sizeof(WtTreeNode));
-  dest->outedges = (WtTreeNode *) Calloc(maxedges, WtTreeNode);
+  dest->outedges = (WtTreeNode *) R_Calloc(maxedges, WtTreeNode);
   memcpy(dest->outedges, src->outedges, maxedges*sizeof(WtTreeNode));
 
   dest->directed_flag = src->directed_flag;
@@ -237,8 +237,8 @@ int WtDeleteEdgeFromTrees(Vertex tail, Vertex head, WtNetwork *nwp){
 void AddOnWtNetworkEdgeChange(WtNetwork *nwp, OnWtNetworkEdgeChange callback, void *payload, unsigned int pos){
   if(nwp->n_on_edge_change+1 > nwp->max_on_edge_change){
     nwp->max_on_edge_change = MAX(nwp->max_on_edge_change,1)*2;
-    nwp->on_edge_change = Realloc(nwp->on_edge_change, nwp->max_on_edge_change, OnWtNetworkEdgeChange);
-    nwp->on_edge_change_payload = Realloc(nwp->on_edge_change_payload, nwp->max_on_edge_change, void*);
+    nwp->on_edge_change = R_Realloc(nwp->on_edge_change, nwp->max_on_edge_change, OnWtNetworkEdgeChange);
+    nwp->on_edge_change_payload = R_Realloc(nwp->on_edge_change_payload, nwp->max_on_edge_change, void*);
   }
 
   pos = MIN(pos, nwp->n_on_edge_change); // Last position.
