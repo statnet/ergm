@@ -13,11 +13,6 @@
 #include <R.h>
 #include "ergm_edgetree_types.h"
 
-/* Specify allocators. */
-#define kcalloc(N,Z) R_chk_calloc(N,Z)
-#define kmalloc(Z) R_chk_calloc(Z,1)
-#define krealloc(P,Z) R_chk_realloc(P,Z)
-#define kfree(P) R_chk_free(P)
 #include "ergm_khash.h"
 
 /* Data structure to represent a dyad that can serve as a key to the hash. */
