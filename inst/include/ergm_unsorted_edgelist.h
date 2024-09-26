@@ -36,16 +36,16 @@ typedef struct {
 } UnsrtEL;
 
 static inline UnsrtEL *UnsrtELInitialize(unsigned int nedges, Vertex *tails, Vertex *heads, Rboolean copy) {
-  UnsrtEL *el = Calloc(1, UnsrtEL);
+  UnsrtEL *el = R_Calloc(1, UnsrtEL);
 
   if(nedges == 0) {
     el->tails = NULL;
     el->heads = NULL;
   } else {
     if(copy) {
-      el->tails = Calloc(nedges, Vertex);
+      el->tails = R_Calloc(nedges, Vertex);
       memcpy(el->tails, tails, nedges*sizeof(Vertex));
-      el->heads = Calloc(nedges, Vertex);
+      el->heads = R_Calloc(nedges, Vertex);
       memcpy(el->heads, heads, nedges*sizeof(Vertex));
     } else {
       el->tails = tails;
@@ -66,10 +66,10 @@ static inline void UnsrtELDestroy(UnsrtEL *el) {
   if(el->tails) {
     el->tails++;
     el->heads++;
-    Free(el->tails);
-    Free(el->heads);
+    R_Free(el->tails);
+    R_Free(el->heads);
   }
-  Free(el);
+  R_Free(el);
 }
 
 static inline void UnsrtELClear(UnsrtEL *el) {
@@ -141,8 +141,8 @@ static inline void UnsrtELInsert(Vertex tail, Vertex head, UnsrtEL *el) {
       el->tails++;
       el->heads++;
     }
-    el->tails = Realloc(el->tails, el->maxedges, Vertex) - 1;
-    el->heads = Realloc(el->heads, el->maxedges, Vertex) - 1;
+    el->tails = R_Realloc(el->tails, el->maxedges, Vertex) - 1;
+    el->heads = R_Realloc(el->heads, el->maxedges, Vertex) - 1;
   }
 
 #ifdef DEBUG_UnsrtEL

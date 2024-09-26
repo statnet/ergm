@@ -138,6 +138,7 @@ int main() {
 #include <string.h>
 #include <limits.h>
 #include <stdbool.h>
+#include <R.h>
 
 /* compiler specific configuration */
 
@@ -223,19 +224,6 @@ static kh_inline klib_unused bool __ac_set_isempty_if_isdel(khint32_t *flag, khi
 #define kroundup32(x) (--(x), (x)|=(x)>>1, (x)|=(x)>>2, (x)|=(x)>>4, (x)|=(x)>>8, (x)|=(x)>>16, ++(x))
 #endif
 
-#ifndef kcalloc
-#define kcalloc(N,Z) calloc(N,Z)
-#endif
-#ifndef kmalloc
-#define kmalloc(Z) malloc(Z)
-#endif
-#ifndef krealloc
-#define krealloc(P,Z) realloc(P,Z)
-#endif
-#ifndef kfree
-#define kfree(P) free(P)
-#endif
-
 static const double __ac_HASH_UPPER = 0.77;
 
 #define __KHASH_TYPE(name, khkey_t, khval_t, __extra_data)	\
@@ -260,23 +248,23 @@ static const double __ac_HASH_UPPER = 0.77;
 
 #define __KHASH_IMPL(name, SCOPE, khkey_t, khval_t, kh_is_map, __hash_func, __hash_equal) \
 	SCOPE kh_##name##_t *kh_init_##name(void) {							\
-		return (kh_##name##_t*)kcalloc(1, sizeof(kh_##name##_t));		\
+          return R_Calloc(1, kh_##name##_t);                            \
 	}																	\
 	SCOPE kh_##name##_t *kh_copy_##name(kh_##name##_t *h)		\
 	{								\
 	  kh_##name##_t *src = h;					\
-	    h = (kh_##name##_t*)kcalloc(1, sizeof(kh_##name##_t));	\
+          h = R_Calloc(1, kh_##name##_t);                               \
 	    *h = *src; /*  Shallow copy struct. */			\
 	  if(h->flags){							\
-	    h->flags = (khint32_t*)kmalloc(__ac_fsize(src->n_buckets) * sizeof(khint32_t)); \
+	    h->flags = R_Calloc(__ac_fsize(src->n_buckets), khint32_t); \
 	    memcpy(h->flags, src->flags, __ac_fsize(src->n_buckets) * sizeof(khint32_t)); \
 	  }								\
 	  if(h->keys){							\
-	    h->keys = (khkey_t*)kmalloc(src->n_buckets * sizeof(khkey_t)); \
+	    h->keys = R_Calloc(src->n_buckets, khkey_t);                \
 	    memcpy(h->keys, src->keys, src->n_buckets * sizeof(khkey_t)); \
 	  }								\
 	  if(h->vals){							\
-	    h->vals = (khval_t*)kmalloc(src->n_buckets * sizeof(khval_t)); \
+	    h->vals = R_Calloc(src->n_buckets, khval_t);       \
 	    memcpy(h->vals, src->vals, src->n_buckets * sizeof(khval_t)); \
 	  }								\
 	  return h;							\
@@ -284,9 +272,9 @@ static const double __ac_HASH_UPPER = 0.77;
 	SCOPE void kh_destroy_##name(kh_##name##_t *h)						\
 	{																	\
 		if (h) {														\
-			kfree((void *)h->keys); kfree(h->flags);					\
-			kfree((void *)h->vals);										\
-			kfree(h);													\
+			R_Free(h->keys); R_Free(h->flags);					\
+			R_Free(h->vals);										\
+			R_Free(h);													\
 		}																\
 	}																	\
 	SCOPE void kh_clear_##name(kh_##name##_t *h)						\
@@ -324,17 +312,12 @@ static const double __ac_HASH_UPPER = 0.77;
 			if (new_n_buckets < 4) new_n_buckets = 4;					\
 			if (h->size >= (khint_t)(new_n_buckets * __ac_HASH_UPPER + 0.5)) j = 0;	/* requested size is too small */ \
 			else { /* hash table size to be changed (shrink or expand); rehash */ \
-				new_flags = (khint32_t*)kmalloc(__ac_fsize(new_n_buckets) * sizeof(khint32_t));	\
-				if (!new_flags) return -1;								\
+                          new_flags = R_Calloc(__ac_fsize(new_n_buckets), khint32_t); \
 				memset(new_flags, 0xaa, __ac_fsize(new_n_buckets) * sizeof(khint32_t)); \
 				if (h->n_buckets < new_n_buckets) {	/* expand */		\
-					khkey_t *new_keys = (khkey_t*)krealloc((void *)h->keys, new_n_buckets * sizeof(khkey_t)); \
-					if (!new_keys) { kfree(new_flags); return -1; }		\
-					h->keys = new_keys;									\
+                                  h->keys = R_Realloc(h->keys, new_n_buckets, khkey_t); \
 					if (kh_is_map) {									\
-						khval_t *new_vals = (khval_t*)krealloc((void *)h->vals, new_n_buckets * sizeof(khval_t)); \
-						if (!new_vals) { kfree(new_flags); return -1; }	\
-						h->vals = new_vals;								\
+                                          h->vals = R_Realloc(h->vals, new_n_buckets, khval_t); \
 					}													\
 				} /* otherwise shrink */								\
 			}															\
@@ -367,10 +350,10 @@ static const double __ac_HASH_UPPER = 0.77;
 				}														\
 			}															\
 			if (h->n_buckets > new_n_buckets) { /* shrink the hash table */ \
-				h->keys = (khkey_t*)krealloc((void *)h->keys, new_n_buckets * sizeof(khkey_t)); \
-				if (kh_is_map) h->vals = (khval_t*)krealloc((void *)h->vals, new_n_buckets * sizeof(khval_t)); \
+                          h->keys = R_Realloc(h->keys, new_n_buckets, khkey_t); \
+                          if (kh_is_map) h->vals = R_Realloc(h->vals, new_n_buckets, khval_t); \
 			}															\
-			kfree(h->flags); /* free the working space */				\
+			R_Free(h->flags); /* free the working space */				\
 			h->flags = new_flags;										\
 			h->n_buckets = new_n_buckets;								\
 			h->mask = h->n_buckets - 1;			\

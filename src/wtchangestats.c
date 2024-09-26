@@ -855,7 +855,7 @@ WtI_CHANGESTAT_FN(i_nodemix_nonzero) {
   int nr = asInteger(getListElement(mtp->R, "nr"));
   int nc = asInteger(getListElement(mtp->R, "nc"));
   
-  sto->indmat = Calloc(nr, int *);
+  sto->indmat = R_Calloc(nr, int *);
   sto->indmat[0] = INTEGER(getListElement(mtp->R, "indmat"));
   for(int i = 1; i < nr; i++) {
     sto->indmat[i] = sto->indmat[i - 1] + nc;
@@ -872,7 +872,7 @@ WtC_CHANGESTAT_FN(c_nodemix_nonzero) {
 
 WtF_CHANGESTAT_FN(f_nodemix_nonzero) {
   GET_STORAGE(nodemix_storage, sto);
-  Free(sto->indmat);
+  R_Free(sto->indmat);
 }
 
 /*****************
@@ -887,7 +887,7 @@ WtI_CHANGESTAT_FN(i_nodemix_sum) {
   int nr = asInteger(getListElement(mtp->R, "nr"));
   int nc = asInteger(getListElement(mtp->R, "nc"));
   
-  sto->indmat = Calloc(nr, int *);
+  sto->indmat = R_Calloc(nr, int *);
   sto->indmat[0] = INTEGER(getListElement(mtp->R, "indmat"));
   for(int i = 1; i < nr; i++) {
     sto->indmat[i] = sto->indmat[i - 1] + nc;
@@ -904,7 +904,7 @@ WtC_CHANGESTAT_FN(c_nodemix_sum) {
 
 WtF_CHANGESTAT_FN(f_nodemix_sum) {
   GET_STORAGE(nodemix_storage, sto);
-  Free(sto->indmat);
+  R_Free(sto->indmat);
 }
 /*****************
  stat: node o[ut] covar[iance] 
@@ -991,7 +991,7 @@ WtC_CHANGESTAT_FN(c_nodesqrtcovar_centered){
 WtU_CHANGESTAT_FN(u_nodesqrtcovar_centered){
   double *ssq;
   if(!STORAGE){
-    STORAGE = Calloc(1, double);
+    STORAGE = R_Calloc(1, double);
     ssq = (double *)STORAGE;
     *ssq = 0;
     EXEC_THROUGH_NET_EDGES(i, e, j, yij, {

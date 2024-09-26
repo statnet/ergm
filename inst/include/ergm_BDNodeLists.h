@@ -55,7 +55,7 @@ static inline BDNodeLists *BDNodeListsInitialize(int **maxout,
                                                  int bd_nlevels,
                                                  int *combined_vattr_counts,
                                                  Network *nwp) {
-  BDNodeLists *lists = Calloc(1, BDNodeLists);
+  BDNodeLists *lists = R_Calloc(1, BDNodeLists);
 
   // do some copying
   lists->directed = DIRECTED;
@@ -67,25 +67,25 @@ static inline BDNodeLists *BDNodeListsInitialize(int **maxout,
   lists->bd_nlevels = bd_nlevels;
 
   // set up node lists
-  lists->bothpos = Calloc(bd_nlevels, int *);
-  lists->tailpos = DIRECTED ? Calloc(bd_nlevels, int *) : lists->bothpos;
-  lists->headpos = DIRECTED ? Calloc(bd_nlevels, int *) : lists->bothpos;
+  lists->bothpos = R_Calloc(bd_nlevels, int *);
+  lists->tailpos = DIRECTED ? R_Calloc(bd_nlevels, int *) : lists->bothpos;
+  lists->headpos = DIRECTED ? R_Calloc(bd_nlevels, int *) : lists->bothpos;
 
-  lists->boths = Calloc(bd_nlevels, NodeList **);
-  lists->tails = DIRECTED ? Calloc(bd_nlevels, NodeList **) : lists->boths;
-  lists->heads = DIRECTED ? Calloc(bd_nlevels, NodeList **) : lists->boths;
+  lists->boths = R_Calloc(bd_nlevels, NodeList **);
+  lists->tails = DIRECTED ? R_Calloc(bd_nlevels, NodeList **) : lists->boths;
+  lists->heads = DIRECTED ? R_Calloc(bd_nlevels, NodeList **) : lists->boths;
 
   for(int i = 0; i < bd_nlevels; i++) {
-    lists->bothpos[i] = Calloc(N_NODES + 1, int);
+    lists->bothpos[i] = R_Calloc(N_NODES + 1, int);
     if(DIRECTED) {
-      lists->tailpos[i] = Calloc(N_NODES + 1, int);
-      lists->headpos[i] = Calloc(N_NODES + 1, int);
+      lists->tailpos[i] = R_Calloc(N_NODES + 1, int);
+      lists->headpos[i] = R_Calloc(N_NODES + 1, int);
     }
 
-    lists->boths[i] = Calloc(combined_nlevels, NodeList *);
+    lists->boths[i] = R_Calloc(combined_nlevels, NodeList *);
     if(DIRECTED) {
-      lists->tails[i] = Calloc(combined_nlevels, NodeList *);
-      lists->heads[i] = Calloc(combined_nlevels, NodeList *);
+      lists->tails[i] = R_Calloc(combined_nlevels, NodeList *);
+      lists->heads[i] = R_Calloc(combined_nlevels, NodeList *);
     }
 
     for(int j = 0; j < combined_nlevels; j++) {
@@ -128,32 +128,32 @@ static inline void BDNodeListsDestroy(BDNodeLists *lists) {
       }
     }
 
-    Free(lists->boths[i]);
+    R_Free(lists->boths[i]);
     if(lists->directed) {
-      Free(lists->tails[i]);
-      Free(lists->heads[i]);
+      R_Free(lists->tails[i]);
+      R_Free(lists->heads[i]);
     }
 
-    Free(lists->bothpos[i]);
+    R_Free(lists->bothpos[i]);
     if(lists->directed) {
-      Free(lists->tailpos[i]);
-      Free(lists->headpos[i]);
+      R_Free(lists->tailpos[i]);
+      R_Free(lists->headpos[i]);
     }
   }
 
-  Free(lists->boths);
+  R_Free(lists->boths);
   if(lists->directed) {
-    Free(lists->tails);
-    Free(lists->heads);
+    R_Free(lists->tails);
+    R_Free(lists->heads);
   }
 
-  Free(lists->bothpos);
+  R_Free(lists->bothpos);
   if(lists->directed) {
-    Free(lists->tailpos);
-    Free(lists->headpos);
+    R_Free(lists->tailpos);
+    R_Free(lists->headpos);
   }
 
-  Free(lists);
+  R_Free(lists);
 }
 
 // update NodeLists as appropriate for a toggle with tail, head maximality

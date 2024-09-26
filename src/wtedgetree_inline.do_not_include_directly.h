@@ -92,10 +92,10 @@ static inline void WtCheckEdgetreeFull (WtNetwork *nwp) {
   if(nwp->last_outedge==nwp->maxedges-2 || nwp->last_inedge==nwp->maxedges-2){
     // Only enlarge the non-root part of the array.
     Edge newmax = nwp->nnodes + 1 + (nwp->maxedges - nwp->nnodes - 1)*mult;
-    nwp->inedges = (WtTreeNode *) Realloc(nwp->inedges, newmax, WtTreeNode);
+    nwp->inedges = (WtTreeNode *) R_Realloc(nwp->inedges, newmax, WtTreeNode);
     memset(nwp->inedges+nwp->maxedges, 0,
 	   sizeof(WtTreeNode) * (newmax-nwp->maxedges));
-    nwp->outedges = (WtTreeNode *) Realloc(nwp->outedges, newmax, WtTreeNode);
+    nwp->outedges = (WtTreeNode *) R_Realloc(nwp->outedges, newmax, WtTreeNode);
     memset(nwp->outedges+nwp->maxedges, 0,
 	   sizeof(WtTreeNode) * (newmax-nwp->maxedges));
     nwp->maxedges = newmax;

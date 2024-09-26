@@ -8,6 +8,7 @@
  *  Copyright 2003-2023 Statnet Commons
  */
 #include "ergm_etamap.h"
+#include <Rversion.h>
 
 #define SETUP_CALL(fun)                         \
   SEXP cm = VECTOR_ELT(curved, i);              \
@@ -27,6 +28,23 @@
   SETCAR(pos, ScalarInteger(nto)); pos = CDR(pos);                      \
   SETCAR(pos, cov);
 
+
+/*
+   A local implementation of allocLang(), recommended by Writing R
+   Extensions.
+
+   TODO: Delete in mid 2026.
+*/
+#if R_VERSION < R_Version(4, 4, 1)
+static inline SEXP allocLang(int n)
+{
+    if (n > 0)
+	  return LCONS(R_NilValue, allocList(n - 1));
+    else
+	  return R_NilValue;
+}
+#endif
+/* End local implementation of allocLang(). */
 
 SEXP ergm_eta_wrapper(SEXP thetaR, SEXP etamap){
   unsigned int neta = asInteger(getListElement(etamap, "etalength"));
@@ -56,9 +74,8 @@ void ergm_eta(double *theta, SEXP etamap, double *eta){
   unsigned int ncurved = length(curved);
 
   if(ncurved){
-    SEXP call = PROTECT(allocList(4));
-    SET_TYPEOF(call, LANGSXP);
-    
+    SEXP call = PROTECT(allocLang(4));
+
     for(unsigned int i = 0; i < ncurved; i++){
       SETUP_CALL(map);
       memcpy(eta1+to, REAL(eval(call, R_EmptyEnv)), nto*sizeof(double));
@@ -100,9 +117,8 @@ void ergm_etagrad(double *theta, SEXP etamap, double *etagrad){
   unsigned int ncurved = length(curved);
 
   if(ncurved){
-    SEXP call = PROTECT(allocList(4));
-    SET_TYPEOF(call, LANGSXP);
-    
+    SEXP call = PROTECT(allocLang(4));
+
     for(unsigned int i = 0; i < ncurved; i++){
       SETUP_CALL(gradient);
       double *g = REAL(eval(call, R_EmptyEnv));
@@ -158,9 +174,8 @@ void ergm_etagradmult(double *theta, double *v, unsigned int nv, SEXP etamap, do
   unsigned int ncurved = length(curved);
 
   if(ncurved){
-    SEXP call = PROTECT(allocList(4));
-    SET_TYPEOF(call, LANGSXP);
-    
+    SEXP call = PROTECT(allocLang(4));
+
     for(unsigned int i = 0; i < ncurved; i++){
       SETUP_CALL(gradient);
       double *g = REAL(eval(call, R_EmptyEnv));

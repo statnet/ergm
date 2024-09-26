@@ -45,14 +45,14 @@ static inline BDStratBlocks *BDStratBlocksInitialize(BDNodeLists *lists,
                                                      int *bd_tails,
                                                      int *bd_heads,
                                                      Network *nwp) {
-  BDStratBlocks *blocks = Calloc(1, BDStratBlocks);
+  BDStratBlocks *blocks = R_Calloc(1, BDStratBlocks);
 
   // do some copying
   blocks->lists = lists;
 
   // set up blocks
-  blocks->blocks = Calloc(strat_nmixtypes, Block **);
-  blocks->nblocks = Calloc(strat_nmixtypes, int);
+  blocks->blocks = R_Calloc(strat_nmixtypes, Block **);
+  blocks->nblocks = R_Calloc(strat_nmixtypes, int);
   blocks->strat_nmixtypes = strat_nmixtypes;
   for(int i = 0; i < strat_nmixtypes; i++) {
     int strat_diag = (strat_tails[i] == strat_heads[i]);
@@ -67,7 +67,7 @@ static inline BDStratBlocks *BDStratBlocksInitialize(BDNodeLists *lists,
     int base_nblocks = (1 + !strat_diag)*nblocksoffdiag*bd_mixtypes[0] + nblocksdiag*bd_mixtypes[strat_diag];
     blocks->nblocks[i] = DIRECTED ? 4*base_nblocks : base_nblocks;
 
-    blocks->blocks[i] = Calloc(blocks->nblocks[i], Block *);
+    blocks->blocks[i] = R_Calloc(blocks->nblocks[i], Block *);
     int l = 0;
     for(int j = 0; j < nblocksmixtypes; j++) {
       int blocks_diag = (blocks_tails[j] == blocks_heads[j]);
@@ -108,11 +108,11 @@ static inline void BDStratBlocksDestroy(BDStratBlocks *blocks) {
     for(int j = 0; j < blocks->nblocks[i]; j++) {
       BlockDestroy(blocks->blocks[i][j]);
     }
-    Free(blocks->blocks[i]);
+    R_Free(blocks->blocks[i]);
   }
-  Free(blocks->blocks);
-  Free(blocks->nblocks);
-  Free(blocks);
+  R_Free(blocks->blocks);
+  R_Free(blocks->nblocks);
+  R_Free(blocks);
 }
 
 static inline Dyad BDStratBlocksDyadCount(BDStratBlocks *blocks, int stratmixingtype) {

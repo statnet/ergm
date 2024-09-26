@@ -19,7 +19,7 @@ static khint_t MPLE_nalloc_max = 0;
 // TODO: Consider preallocating space for these vectors parcelling them out.
 static inline double *MPLE_workspace_push(double *ptr){
   if(MPLE_nalloc == MPLE_nalloc_max)
-    MPLE_workspace = Realloc(MPLE_workspace, (MPLE_nalloc_max = MAX(MPLE_nalloc_max, 1u) * 2u), double*);
+    MPLE_workspace = R_Realloc(MPLE_workspace, (MPLE_nalloc_max = MAX(MPLE_nalloc_max, 1u) * 2u), double*);
 
   MPLE_workspace[MPLE_nalloc++] = ptr;
   return ptr;
@@ -32,8 +32,8 @@ SEXP MPLE_workspace_free(void){
   }
 
   if(MPLE_workspace){
-    for(unsigned int i = 0; i < MPLE_nalloc; i++) Free(MPLE_workspace[i]);
-    Free(MPLE_workspace);
+    for(unsigned int i = 0; i < MPLE_nalloc; i++) R_Free(MPLE_workspace[i]);
+    R_Free(MPLE_workspace);
     MPLE_nalloc_max = MPLE_nalloc = 0;
   }
 
@@ -116,7 +116,7 @@ static inline void insCovMatRow(StoreDVecMapENE *h, double *pred, int response){
   khiter_t pos = kh_put(DVecMapENE, h, pred, &ret);
   if(ret != kh_put_present){ // New element inserted:
     // Copy and replace the key, since it'll get overwritten later.
-    double *newpred = MPLE_workspace_push(Calloc(nstat, double));
+    double *newpred = MPLE_workspace_push(R_Calloc(nstat, double));
     memcpy(newpred, pred, nstat*sizeof(double));
     kh_key(h, pos) = newpred;
     kh_val(h, pos) = (ENE){0,0}; // Initialize the counters, just in case.
