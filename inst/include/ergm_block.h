@@ -49,7 +49,7 @@ static inline void BlockPut2Dyad(Vertex *tail, Vertex *head, Dyad dyadindex, Blo
     if(block->directed) {
       dyadindex /= 2;
     }
-    tailindex = dyadindex / block->tails->length;
+    tailindex = dyadindex / (block->heads->length - 1);
     headindex = dyadindex % (block->heads->length - 1);
     if(tailindex == headindex) {
       headindex = block->heads->length - 1;
