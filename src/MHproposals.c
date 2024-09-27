@@ -213,13 +213,8 @@ MH_I_FN(Mi_BDStratTNT) {
 
   // then initialize hash edgelists from unsorted edgelists
   sto->hash = R_Calloc(sto->strat_nmixtypes, HashEL *);
-  for(int i = 0; i < sto->strat_nmixtypes; i++) {
-    sto->hash[i] = HashELInitialize(els[i]->nedges,
-                                    els[i]->tails ? els[i]->tails + 1 : els[i]->tails,
-                                    els[i]->heads ? els[i]->heads + 1 : els[i]->heads,
-                                    FALSE);
-    R_Free(els[i]);
-  }
+  for(int i = 0; i < sto->strat_nmixtypes; i++)
+    sto->hash[i] = UnsrtELIntoHashEL(els[i]);
   R_Free(els);
 
   // initialize sampling weights for strat mixing types
@@ -227,8 +222,8 @@ MH_I_FN(Mi_BDStratTNT) {
   if(asInteger(getListElement(MHp->R, "empirical_flag"))) {
     // use edgecounts as weights
     for(int i = 0; i < sto->strat_nmixtypes; i++) {
-      if(sto->hash[i]->list->nedges > 0) {
-        sto->original_weights[i] = sto->hash[i]->list->nedges;
+      if(HashELSize(sto->hash[i]) > 0) {
+        sto->original_weights[i] = HashELSize(sto->hash[i]);
       }
     }
   } else {
@@ -242,7 +237,7 @@ MH_I_FN(Mi_BDStratTNT) {
   double *currentprobvec = R_Calloc(sto->strat_nmixtypes, double);
   for(int i = 0; i < sto->strat_nmixtypes; i++) {
     // if any edges or dyads of this type are toggleable, then the mixing type is toggleable
-    if(sto->hash[i]->list->nedges > 0 || BDStratBlocksDyadCountPositive(sto->blocks, i)) {
+    if(HashELSize(sto->hash[i]) > 0 || BDStratBlocksDyadCountPositive(sto->blocks, i)) {
       currentprobvec[i] = sto->original_weights[i];
       sto->current_total_weight += sto->original_weights[i];
     }
@@ -273,7 +268,7 @@ MH_P_FN(MH_BDStratTNT) {
   sto->stratmixingtype = WtPopGetRand(sto->wtp);
 
   // number of (toggleable) edges and (toggleable) submaximal dyads of this mixing type
-  int nedgestype = sto->hash[sto->stratmixingtype]->list->nedges;
+  int nedgestype = HashELSize(sto->hash[sto->stratmixingtype]);
   Dyad ndyadstype = BDStratBlocksDyadCount(sto->blocks, sto->stratmixingtype);
 
   int edgestate;

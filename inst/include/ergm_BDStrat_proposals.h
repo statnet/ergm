@@ -123,7 +123,7 @@ static inline void ComputeChangesToToggleability(Vertex *tail, Vertex *head, BDS
       int toggle_curr = WtPopGetWt(infl_i, sto->wtp) > 0;
 
       // will we be able to toggle this mixing type in the proposed network? 
-      int toggle_prop = sto->hash[infl_i]->list->nedges > 0
+      int toggle_prop = HashELSize(sto->hash[infl_i]) > 0
                         || BDStratBlocksDyadCountPositive(sto->blocks, infl_i);
 
       // will there be a change in toggleability status?

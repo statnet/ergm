@@ -35,6 +35,8 @@ typedef struct {
   unsigned int linsearch;
 } UnsrtEL;
 
+#define UnsrtELSize(el) ((el)->nedges)
+
 static inline UnsrtEL *UnsrtELInitialize(unsigned int nedges, Vertex *tails, Vertex *heads, Rboolean copy) {
   UnsrtEL *el = R_Calloc(1, UnsrtEL);
 

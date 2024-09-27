@@ -25,6 +25,8 @@ typedef struct {
   StoreStrictDyadMapUInt *hash;
 } HashEL;
 
+#define HashELSize(hash) (UnsrtELSize((hash)->list))
+
 /* Embed an existing UnsrtEL into a HashEL. */
 static inline HashEL *UnsrtELIntoHashEL(UnsrtEL *el) {
   HashEL *hash = R_Calloc(1, HashEL);
@@ -33,10 +35,10 @@ static inline HashEL *UnsrtELIntoHashEL(UnsrtEL *el) {
 
   hash->hash = kh_init(StrictDyadMapUInt);
 
-  if(el->nedges > 0) {
-    kh_resize(StrictDyadMapUInt, hash->hash, 2*(el->nedges + 1));
+  if(UnsrtELSize(el) > 0) {
+    kh_resize(StrictDyadMapUInt, hash->hash, 2*(UnsrtELSize(el) + 1));
 
-    for(unsigned int i = 1; i <= el->nedges; i++) {
+    for(unsigned int i = 1; i <= UnsrtELSize(el); i++) {
       kh_set(StrictDyadMapUInt, hash->hash, TH(el->tails[i], el->heads[i]), i);
     }
   }
@@ -70,7 +72,7 @@ static inline void HashELInsert(Vertex tail, Vertex head, HashEL *hash) {
   if(r == kh_put_present) return; // Already in the list.
 
   UnsrtELInsert(tail, head, hash->list);
-  kh_val(hash->hash, pos) = hash->list->nedges;
+  kh_val(hash->hash, pos) = HashELSize(hash);
 }
 
 static inline void HashELDelete(Vertex tail, Vertex head, HashEL *hash) {
@@ -78,11 +80,11 @@ static inline void HashELDelete(Vertex tail, Vertex head, HashEL *hash) {
   unsigned int index = kh_value(hash->hash, i);
   kh_del(StrictDyadMapUInt, hash->hash, i);
 
-  if(index < hash->list->nedges) {
+  if(index < HashELSize(hash)) {
     kh_set(StrictDyadMapUInt,
            hash->hash,
-           TH(hash->list->tails[hash->list->nedges],
-              hash->list->heads[hash->list->nedges]),
+           TH(hash->list->tails[HashELSize(hash)],
+              hash->list->heads[HashELSize(hash)]),
            index);
   }
 

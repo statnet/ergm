@@ -30,7 +30,7 @@ void DyadGenSetUpIntersect(DyadGen *gen, void *track_nwp, Rboolean force){
             }
           });
         
-        if(!force && gen->inter.uel->nedges==EDGECOUNT(nwp)){ // There are no ties in the initial network that are fixed.
+        if(!force && UnsrtELSize(gen->inter.uel) == EDGECOUNT(nwp)){ // There are no ties in the initial network that are fixed.
           UnsrtELDestroy(gen->inter.uel);
           gen->inter.uel = NULL; // "Signal" that there is no discordance network.
         }else{
@@ -51,14 +51,14 @@ void DyadGenSetUpIntersect(DyadGen *gen, void *track_nwp, Rboolean force){
               UnsrtELInsert(t, h, gen->inter.uel);
             }
           });
-        
-      if(!force && gen->inter.uel->nedges==EDGECOUNT(nwp)){ // There are no ties in the initial network that are fixed.
-        UnsrtELDestroy(gen->inter.uel);
-        gen->inter.uel = NULL; // "Signal" that there is no discordance network.
-      }else{
-        gen->intertype = UnsrtELDyadGen;
-        AddOnWtNetworkEdgeChange(nwp, (OnWtNetworkEdgeChange) WtDyadGenUpdate, gen, INT_MAX);
-      }
+
+        if(!force && UnsrtELSize(gen->inter.uel) == EDGECOUNT(nwp)){ // There are no ties in the initial network that are fixed.
+          UnsrtELDestroy(gen->inter.uel);
+          gen->inter.uel = NULL; // "Signal" that there is no discordance network.
+        }else{
+          gen->intertype = UnsrtELDyadGen;
+          AddOnWtNetworkEdgeChange(nwp, (OnWtNetworkEdgeChange) WtDyadGenUpdate, gen, INT_MAX);
+        }
       }
       break;
     default:

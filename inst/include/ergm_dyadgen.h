@@ -113,8 +113,8 @@ static inline Edge DyadGenEdgecount(DyadGen *gen){
     default:
       error("Undefined dyad generator type.");
     }
-  case UnsrtELDyadGen: return gen->inter.uel->nedges;
-  case HashELDyadGen: return gen->inter.hel->list->nedges;
+  case UnsrtELDyadGen: return UnsrtELSize(gen->inter.uel);
+  case HashELDyadGen: return HashELSize(gen->inter.hel);
   }
   return 0; // Fix a warning.
 }
