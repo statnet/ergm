@@ -165,6 +165,9 @@
 #'   simulate, the MCMC burn-in, and the MCMC interval for `Godambe`
 #'   and `bootstrap` methods.
 #'
+#' @param MPLE.check If `TRUE` (the default), perform the MPLE
+#'   existence check described by \insertCite{ScHu23c;textual}{ergm}.
+#'
 #' @param MPLE.constraints.ignore If `TRUE`, MPLE will ignore all
 #'   dyad-independent constraints except for those due to attributes
 #'   missingness. This can be used to avert evaluating and storing the
@@ -523,7 +526,8 @@ control.ergm<-function(drop=TRUE,
                        MPLE.covariance.method ="invHess",
                        MPLE.covariance.sim.burnin = 1024,
                        MPLE.covariance.sim.interval = 1024,
-                       MPLE.constraints.ignore=FALSE,
+                       MPLE.check = TRUE,
+                       MPLE.constraints.ignore = FALSE,
 
                        MCMC.prop=trim_env(~sparse + .triadic),
                        MCMC.prop.weights="default", MCMC.prop.args=list(),

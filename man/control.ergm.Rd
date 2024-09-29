@@ -24,6 +24,7 @@ control.ergm(
   MPLE.covariance.method = "invHess",
   MPLE.covariance.sim.burnin = 1024,
   MPLE.covariance.sim.interval = 1024,
+  MPLE.check = TRUE,
   MPLE.constraints.ignore = FALSE,
   MCMC.prop = trim_env(~sparse + .triadic),
   MCMC.prop.weights = "default",
@@ -288,6 +289,9 @@ bootstrapping approach \insertCite{@see @ScDe17e}{ergm}. The
 other parameters control, respectively, the number of networks to
 simulate, the MCMC burn-in, and the MCMC interval for \code{Godambe}
 and \code{bootstrap} methods.}
+
+\item{MPLE.check}{If \code{TRUE} (the default), perform the MPLE
+existence check described by \insertCite{ScHu23c;textual}{ergm}.}
 
 \item{MPLE.constraints.ignore}{If \code{TRUE}, MPLE will ignore all
 dyad-independent constraints except for those due to attributes
