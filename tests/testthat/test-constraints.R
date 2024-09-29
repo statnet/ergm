@@ -15,11 +15,12 @@ net1[,] <- 1
 absent <- as.edgelist(net1)[sample.int(network.edgecount(net1), 2), ]
 net1[absent] <- 0
 present <- as.edgelist(net1)[sample.int(network.edgecount(net1), 2), ]
+fixed <- rbind(present, absent)
 
 net1[as.edgelist(net1)[sample.int(network.edgecount(net1), round(network.edgecount(net1)/2)), ]] <- 0
 net1[present] <- 1
 
-test_that("fixedas", {
+test_that("fixedas(present, absent)", {
   t1 <- ergm(net1~edges, constraint = ~fixedas(present = present, absent = absent))
   s1 <- simulate(t1, 100)
 
@@ -30,16 +31,34 @@ test_that("fixedas", {
   expect_true(all(!sapply(s1,function(x)as.data.frame(t(absent)) %in% as.data.frame(t(as.edgelist(x))))))
 })
 
+
+test_that("fixedas(fixed.dyads)", {
+  t1 <- ergm(net1~edges, constraint = ~fixedas(fixed))
+  s1 <- simulate(t1, 100)
+
+  # check that fixed edges are identical between simulated networks and the original network
+  expect_true(all(sapply(s1,function(x) identical(x[fixed], net1[fixed]))))
+})
+
+
 test_that("only present", {
   t1 <- ergm(net1~edges, constraint = ~fixedas(present = present))
   s1 <- simulate(t1,100)
   expect_true(all(sapply(s1,function(x)as.data.frame(t(present)) %in% as.data.frame(t(as.edgelist(x))))))
+
+  # Also test for inconsistent constraint.
+  expect_error(ergm(net1~edges, constraint = ~fixedas(present = absent)),
+               "In constraint 'fixedas' in package 'ergm': Edges constrained to be present are absent in the LHS network.")
 })
 
 test_that("only absent", {
-t1 <- ergm(net1~edges, constraint = ~fixedas(absent = absent))
-s1 <- simulate(t1, 100)
-expect_true(all(!sapply(s1,function(x)as.data.frame(t(absent)) %in% as.data.frame(t(as.edgelist(x))))))
+  t1 <- ergm(net1~edges, constraint = ~fixedas(absent = absent))
+  s1 <- simulate(t1, 100)
+  expect_true(all(!sapply(s1,function(x)as.data.frame(t(absent)) %in% as.data.frame(t(as.edgelist(x))))))
+
+  # Also test for inconsistent constraint.
+  expect_error(ergm(net1~edges, constraint = ~fixedas(absent = present)),
+               "In constraint 'fixedas' in package 'ergm': Edges constrained to be absent are present in the LHS network.")
 })
 
 present <- as.network(present, matrix.type = "edgelist", directed = FALSE)

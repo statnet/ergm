@@ -3,18 +3,20 @@
 \name{fixedas-ergmConstraint}
 \alias{fixedas-ergmConstraint}
 \alias{InitErgmConstraint.fixedas}
-\title{Preserve and preclude edges}
+\title{Fix specific dyads}
 \usage{
-# fixedas(present, absent)
+# fixedas(fixed.dyads, present, absent)
 }
 \arguments{
-\item{present, absent}{a two-column edge list or a \code{\link{network}}}
+\item{fixed.dyads, present, absent}{a two-column edge list or a \code{\link{network}}}
 }
 \description{
-Preserve the edges in 'present' and preclude the edges in 'absent'.
+Fix the dyads in \code{fixed.dyads} at their current value, preserve the edges in \code{present}, and preclude the edges in \code{absent}.
 }
-\note{
-The current implementation of \code{fixedas()} simply fixes the dyads found in the \code{present} and \code{absent} lists, regardless of their status. That is, if a dyad in the \code{present} edge list does not already have an edge, no edge is created, and analogously with the \code{absent} edge list. Thus, it is up to the user to ensure that this is the case in their LHS network. This may change in the future.
+\details{
+\code{present} and \code{absent} differ from \code{fixed.dyads} in that
+they check that the specified edges are in fact present and/or
+absent and stop with an error if not.
 }
 \seealso{
 \code{\link{ergmConstraint}} for index of constraints and hints currently visible to the package.

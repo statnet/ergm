@@ -421,14 +421,16 @@ warn_netsize <- function(.n, ...){
 }
 
 #' @templateVar name fixedas
-#' @title Preserve and preclude edges
-#' @description Preserve the edges in 'present' and preclude the edges in 'absent'.
+#' @title Fix specific dyads
+#' @description Fix the dyads in `fixed.dyads` at their current value, preserve the edges in `present`, and preclude the edges in `absent`.
 #'
 #' @usage
-#' # fixedas(present, absent)
-#' @param present,absent a two-column edge list or a [`network`]
+#' # fixedas(fixed.dyads, present, absent)
+#' @param fixed.dyads,present,absent a two-column edge list or a [`network`]
 #'
-#' @note The current implementation of `fixedas()` simply fixes the dyads found in the `present` and `absent` lists, regardless of their status. That is, if a dyad in the `present` edge list does not already have an edge, no edge is created, and analogously with the `absent` edge list. Thus, it is up to the user to ensure that this is the case in their LHS network. This may change in the future.
+#' @details `present` and `absent` differ from `fixed.dyads` in that
+#'   they check that the specified edges are in fact present and/or
+#'   absent and stop with an error if not.
 #'
 #' @template ergmConstraint-general
 #'
@@ -437,35 +439,36 @@ warn_netsize <- function(.n, ...){
 #' @concept undirected
 InitErgmConstraint.fixedas<-function(nw, arglist,...){
   a <- check.ErgmTerm(nw, arglist,
-                      varnames = c("present", "absent"),
-                      vartypes = c("network,matrix", "network,matrix"),
-                      defaultvalues = list(NULL, NULL),
-                      required = c(FALSE, FALSE))
-  present <- a$present; absent <- a$absent
+                      varnames = c("fixed.dyads", "present", "absent"),
+                      vartypes = c("network,matrix", "network,matrix", "network,matrix"),
+                      defaultvalues = list(NULL, NULL, NULL),
+                      required = c(FALSE, FALSE, FALSE))
+  fixed <- a$fixed.dyads; present <- a$present; absent <- a$absent
 
-  if(is.null(present) && is.null(absent))
-    ergm_Init_abort(paste("fixedas constraint takes at least one argument, either present or absent or both."))
+  if(is.null(fixed) && is.null(present) && is.null(absent))
+    ergm_Init_stop(sQuote("fixedas()"), " constraint requires at least one argument.")
 
-  warn_netsize(network.size(nw), present = present, absent = absent)
+  warn_netsize(network.size(nw), fixed.dyads = fixed, present = present, absent = absent)
+
+  if(is.network(fixed)) fixed <- as.edgelist(fixed)
+  if(is.network(present)) present <- as.edgelist(present)
+  if(is.network(absent)) absent <- as.edgelist(absent)
+
+  if(!is.null(present) && any(nw[present] == 0)) ergm_Init_stop("Edges constrained to be present are absent in the LHS network.")
+  if(!is.null(absent) && any(nw[absent] != 0)) ergm_Init_stop("Edges constrained to be absent are present in the LHS network.")
+
+  fixed <- as.edgelist(unique(rbind(fixed, present, absent)),
+                       n = nw%n%"n",
+                       directed = nw%n%"directed",
+                       bipartite = nw%n%"bipartite",
+                       loops = nw%n%"loops")
+
+  rm(nw, a, present, absent, arglist, "...")
 
   list(
-    free_dyads = function(){
-      if(is.network(present)) present <- as.edgelist(present)
-      if(is.network(absent)) absent <- as.edgelist(absent)
-
-      # FixedEdgeList
-      fixed <- as.edgelist(rbind(present,absent),
-                           n=nw%n%"n",
-                           directed=nw%n%"directed",
-                           bipartite=nw%n%"bipartite",
-                           loops=nw%n%"loops")
-      if(any(duplicated(fixed))){
-        ergm_Init_abort("Dyads cannot be fixed at both present and absent")
-      }
-
-      !as.rlebdm(fixed)
-    },
-    dependence = FALSE)
+    free_dyads = function() !as.rlebdm(fixed),
+    dependence = FALSE
+  )
 }
 
 #' @templateVar name fixallbut
