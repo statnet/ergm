@@ -17,7 +17,8 @@ Authors@R: c(
              person("Ben", "Bolker", role=c("ctb"), email="bbolker+lme4@gmail.com"),
              person("Christian", "Schmid", role=c("ctb"), email="songhyo86@gmail.com"),
              person("Joyce", "Cheng", role=c("ctb"), email="joyce.cheng@student.unsw.edu.au"),
-             person("Arya", "Karami", role=c("ctb"), email="a.karami@unsw.edu.au"))
+             person("Arya", "Karami", role=c("ctb"), email="a.karami@unsw.edu.au"),
+             person("Adrien", "Le Guillou", role=c("ctb"), email="git@aleguillou.org", comment=c(ORCID="0000-0002-4791-418X")))
 Depends:
     R (>= 4.1),
     network (>= 1.18.0)
