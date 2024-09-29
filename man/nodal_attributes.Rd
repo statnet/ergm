@@ -195,6 +195,12 @@ summary(faux.mesa.high~mm("Sex", levels2=M)+mm("Sex", levels2=t(M)))
 # Select via an index of a cell:
 idx <- cbind(1,2)
 summary(faux.mesa.high~mm("Sex", levels2=idx))
+# Or, select by specific attribute value combinations, though note
+# the names 'row' and 'col' and the order for undirected networks:
+summary(faux.mesa.high~mm("Sex",
+                          levels2 = I(list(list(row="M",col="M"),
+                                           list(row="M",col="F"),
+                                           list(row="F",col="M")))))
 
 # mm() term allows two-sided attribute formulas with different attributes:
 summary(faux.mesa.high~mm(Grade~Race, levels2=TRUE))
