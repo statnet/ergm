@@ -75,6 +75,12 @@
       \item{
         Adaptive MCMC code can now be given a target precision matrix as opposed to effective sample size. See help for \code{\link{control.ergm}()}. This is used to make missing data MCMLE more adaptive.
       }
+      \item{
+        Constraint \code{\link[fixedas-ergmConstraint]{fixedas}()} now has \code{fixed.dyads=} as its first argument, and if \code{present=} or \code{absent=} is passed explicitly, it will check that the LHS network conforms before proceeding.
+      }
+      \item{
+        MPLE existence check can now be disabled.
+      }
     }
   }
 
@@ -100,6 +106,30 @@
       }
       \item{
         A bug in \code{\link{simulate.ergm}()} triggered by a combination of a proposal using an auxiliary and \code{monitor=} argument being passed has been fixed.
+      }
+      \item{
+        In proposal help, listing of proposal table entries works again.
+      }
+      \item{
+        \code{\link[=nodemix-ergmTerm]{nodemix}()} now uses correct parameter names.
+      }
+      \item{
+        Godambe information for the MPLE now works if the model has an offset. (Thanks, Cornelius Fritz for reporting and Michał Bojanowski for fixing.)
+      }
+      \item{
+        When constructing the starting networks for missing data MCMC, imputation of dyads is skipped if the constraints are dyad-dependent, since inserting edges may break the constraint.
+      }
+      \item{
+        \code{\link[=edgecov-ergmTerm]{edgecov}()} and \code{\link[=dyadcov-ergmTerm]{dyadcov}()} now handle \code{\link[network]{network}}-format input correctly.
+      }
+      \item{
+        Missing data MLE code can now handle the scenarios in which the statistics in the constrained sample are constant and/or the statistics in the unconstrained sample are highly correlated.
+      }
+      \item{
+        MCMC diagnostics for non-confidence convergence criteria no longer rely on \code{$target.stats} being part of the ergm object.
+      }
+      \item{
+        Likelihood calculation is now robust to dropped parameters and parameters fixed at infinity.
       }
     }
   }
@@ -130,6 +160,21 @@
       \item{
         \code{\link{spectrum0.mvar}()}'s multicollinearity detection now attempts to normalize the rotated components, discarding those that cannot be normalized (likely due to being redundant or numericanly unstable). This should be more robust than the previous approach.
       }
+      \item{
+        Improvements to the \code{\link{ergmProposal}} documentation.
+      }
+      \item{
+        \code{\link{ergm_Init_stop}()}, \code{\link{ergm_Init_warning}()}, and \code{\link{ergm_Init_message}()} that behave more like their \pkg{base} counterparts have been added to the API. \code{\link{ergm_Init_abort}()}, \code{\link{ergm_Init_warn}()}, and \code{\link{ergm_Init_info}()} will eventually change to use their \CRANpkg{rlang} semantics.
+      }
+      \item{
+        \code{\link[=edgecov-ergmTerm]{edgecov}()} and \code{\link[=dyadcov-ergmTerm]{dyadcov}()} now check that their covariate matrix has the correct dimension.
+      }
+      \item{
+        Constraints \code{\link[fixedas-ergmConstraint]{fixedas}()} and \code{\link[fixedas-ergmConstraint]{fixallbut}()} now warn when given a network whose size does not match the LHS network's.
+      }
+      \item{
+        Nodal attribute specification documentation (\code{?nodal_attributes?}) now includes an example for specifying \code{levels2=} levels by value.
+      }
     }
   }
 
@@ -146,6 +191,21 @@
       }
       \item{
         \code{HashELInitialize()} function no longer takes the \code{directed} argument. Instead, it expects that any dyads passed to it be appropriately sorted.
+      }
+      \item{
+        Calls to \code{Calloc()}, \code{Realloc()}, and \code{Free()} have been replaced with their \code{R_}-prefixed counterparts.
+      }
+      \item{
+        \verb{khash} no longer allows allocators to be specified via macros; they are now hardcoded to use those from \R.
+      }
+      \item{
+        Non-API \code{SET_TYPEOF()} is no longer used.
+      }
+      \item{
+        \code{UnsrtEL} and \code{HashEL} now have, respectively, \code{UnsrtELSize()} and \code{HashELSize()} methods to query their current numbers of edges stored. This should allow seamless changes to their internal representations.
+      }
+      \item{
+        The \verb{kvec} macro library (from \url{https://github.com/attractivechaos/klib/}) has been incorporated into the package with some modifications and is available to use for dynamic arrays (that automatically grow as needed). It can be found in \verb{/inst/include/ergm_kvec.h}. (Thanks to Adrien Le Guillou for taking the lead on this.)
       }
     }
   }
@@ -1191,7 +1251,7 @@
       }
 
       \item{
-        The \verb{khash} macro library (from \url{https://github.com/attractivechaos/klib/}) has been incorporated into the package with some modifications and is available to use, in particular, for \eqn{O(1)} storage of dyad information, particularly in applications where efficient interation over edges incident on a node is not needed. It can be found in \verb{/inst/include/ergm_khash.h}.
+        The \verb{khash} macro library (from \url{https://github.com/attractivechaos/klib/}) has been incorporated into the package with some modifications and is available to use, in particular, for \eqn{O(1)} storage of dyad information, particularly in applications where efficient iteration over edges incident on a node is not needed. It can be found in \verb{/inst/include/ergm_khash.h}.
 
         A variety of helper data structures and functions make use of it and are also available, particularly \verb{/inst/include/ergm_dyad_hashmap.h}.
       }
