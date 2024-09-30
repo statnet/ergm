@@ -2,24 +2,18 @@
 % Please edit documentation in R/ergm.allstats.R
 \name{ergm.allstats}
 \alias{ergm.allstats}
+\alias{ergm.exact}
 \title{Calculate all possible vectors of statistics on a network for an ERGM}
 \usage{
-ergm.allstats(
-  formula,
-  zeroobs = TRUE,
-  force = FALSE,
-  maxNumChangeStatVectors = 2^16,
-  ...
-)
+ergm.allstats(formula, constraints = ~., zeroobs = TRUE, force = FALSE, ...)
+
+ergm.exact(eta, formula, constraints = ~., statmat = NULL, weights = NULL, ...)
 }
 \arguments{
-\item{formula}{an \code{\link{formula}} object of the form \code{y ~ <model
-terms>}, where \code{y} is a network object or a matrix that can be coerced
-to a \code{\link[network]{network}} object.  For the details on the possible
-\code{<model terms>}, see \code{\link{ergmTerm}}.  To create a
-\code{\link[network]{network}} object in , use the \code{network()}
-function, then add nodal attributes to it using the \code{\%v\%} operator if
-necessary.}
+\item{formula, constraints}{An ERGM formula and
+(optionally) a constraint specification formulas. See
+\code{\link[=ergm]{ergm()}}. This function supports only dyad-independent
+constraints.}
 
 \item{zeroobs}{Logical: Should the vectors be centered so that the network
 passed in the \code{formula} has the zero vector as its statistics?}
@@ -28,22 +22,28 @@ passed in the \code{formula} has the zero vector as its statistics?}
 that the problem may be very large, thus bypassing the warning message that
 normally terminates the function in such cases?}
 
-\item{maxNumChangeStatVectors}{Maximum possible number of distinct values of
-the vector of statistics.  It's good to use a power of 2 for this.}
+\item{\dots}{further arguments, passed to \code{\link[=ergm_model]{ergm_model()}}.}
 
-\item{\dots}{further arguments; not currently used.}
+\item{eta}{vector of canonical parameter values at which the loglikelihood
+should be evaluated.}
+
+\item{statmat, weights}{outputs from \code{ergm.allstats()}: if passed, used in lieu of running it.}
 }
 \value{
-Returns a list object with these two elements:
+\code{ergm.allstats()} returns a list object with these two elements:
 \item{weights}{integer of counts, one for each row of \code{statmat} telling
 how many networks share the corresponding vector of statistics.}
 \item{statmat}{matrix in which each row is a unique vector of statistics.}
+
+\code{ergm.exact()} returns the exact value of the loglikelihood, evaluated at
+\code{eta}.
 }
 \description{
-\code{ergm.allstats} produces a matrix of network statistics for an
-arbitrary \code{statnet} exponential-family random graph model.  One
-possible use for this function is to calculate the exact loglikelihood
-function for a small network via the \code{\link{ergm.exact}} function.
+\code{ergm.allstats} calculates the sufficient statistics of an
+ERGM over the network's sample space.
+
+\code{ergm.exact()} uses \code{ergm.allstats()} to calculate the exact loglikelihood, evaluated at
+\code{eta}.
 }
 \details{
 The mechanism for doing this is a recursive algorithm, where the number of
@@ -52,21 +52,27 @@ changed from 0 to 1 and back again.  The algorithm starts with the network
 passed in \code{formula}, then recursively toggles each edge twice so that
 every possible network is visited.
 
-\code{ergm.allstats} should only be used for small networks, since the
-number of possible networks grows extremely fast with the number of nodes.
-An error results if it is used on a directed network of more than 6 nodes or
-an undirected network of more than 8 nodes; use \code{force=TRUE} to
-override this error.
+\code{ergm.allstats()} and \code{ergm.exact()} should only be used for small
+networks, since the number of possible networks grows extremely
+fast with the number of nodes.  An error results if it is used on a
+network with more than 31 free dyads, which corresponds to a
+directed network of more than 6 nodes or an undirected network of
+more than 8 nodes; use \code{force=TRUE} to override this error.
+
+In case \code{ergm.exact()} is to be called repeatedly, for instance by an
+optimization routine, it is preferable to call \code{ergm.allstats()}
+first, then pass \code{statmat} and \code{weights} explicitly to avoid
+repeatedly calculating these objects.
 }
 \examples{
 
 # Count by brute force all the edge statistics possible for a 7-node 
 # undirected network
-mynw <- network(matrix(0,7,7),dir=FALSE)
+mynw <- network.initialize(7, dir = FALSE)
 system.time(a <- ergm.allstats(mynw~edges))
 
 # Summarize results
-rbind(t(a$statmat),a$weights)
+rbind(t(a$statmat), .freq. = a$weights)
 
 # Each value of a$weights is equal to 21-choose-k, 
 # where k is the corresponding statistic (and 21 is 
@@ -74,15 +80,17 @@ rbind(t(a$statmat),a$weights)
 # Here's a check of that fact:
 as.vector(a$weights - choose(21, t(a$statmat)))
 
-# Simple ergm.exact outpuf for this network.  
+# Dyad-independent constraints are also supported:
+system.time(a <- ergm.allstats(mynw~edges, constraints = ~fixallbut(cbind(1:2,2:3))))
+rbind(t(a$statmat), .freq. = a$weights)
+
+
+# Simple ergm.exact output for this network.
 # We know that the loglikelihood for my empty 7-node network
 # should simply be -21*log(1+exp(eta)), so we may check that
 # the following two values agree:
 -21*log(1+exp(.1234)) 
 ergm.exact(.1234, mynw~edges, statmat=a$statmat, weights=a$weights)
 
-}
-\seealso{
-\code{\link{ergm.exact}}
 }
 \keyword{models}

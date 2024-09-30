@@ -12,17 +12,39 @@
 #include "ergm_state.h"
 #include "ergm_util.h"
 
-void RecurseOffOn(ErgmState *s, Vertex *nodelist1,Vertex *nodelist2, Vertex nodelistlength, 
-       Vertex currentnodes, double *changeStats, double *cumulativeStats,
-       double *covmat, unsigned int *weightsvector,
-       unsigned int maxNumDyadTypes);
+KHASH_INIT(DVecMapUInt, double*, unsigned int, true, kh_DVec_hash_func, kh_DVec_hash_equal, size_t l;)
+typedef khash_t(DVecMapUInt) StoreDVecMapUInt;
 
-unsigned int InsNetStatRow(double *newRow, double *matrix, unsigned int rowLength, 
-       unsigned int numRows, unsigned int *weights );
+static double **allstats_workspace = NULL;
+static StoreDVecMapUInt *allstats_freq = NULL;
+static khint_t allstats_nalloc = 0;
+static khint_t allstats_nalloc_max = 0;
 
-unsigned int hashNetStatRow(double *newRow, unsigned int rowLength, 
-       unsigned int numRows);
+// TODO: Consider preallocating space for these vectors parcelling them out.
+static inline double *allstats_workspace_push(double *ptr){
+  if(allstats_nalloc == allstats_nalloc_max)
+    allstats_workspace = R_Realloc(allstats_workspace, (allstats_nalloc_max = MAX(allstats_nalloc_max, 1u) * 2u), double*);
 
+  allstats_workspace[allstats_nalloc++] = ptr;
+  return ptr;
+}
+
+SEXP allstats_workspace_free(void){
+  if(allstats_freq){
+    kh_destroy(DVecMapUInt, allstats_freq);
+    allstats_freq = NULL;
+  }
+
+  if(allstats_workspace){
+    for(unsigned int i = 0; i < allstats_nalloc; i++) R_Free(allstats_workspace[i]);
+    R_Free(allstats_workspace);
+    allstats_nalloc_max = allstats_nalloc = 0;
+  }
+
+  return R_NilValue;
+}
+
+void RecurseOffOn(ErgmState *s, RLEBDM1D *wl, Dyad d, RLERun hint, double *cumulativeStats, StoreDVecMapUInt *statfreq);
         
 /* *****************
  void AllStatistics
@@ -36,171 +58,108 @@ unsigned int hashNetStatRow(double *newRow, unsigned int rowLength,
 
 SEXP AllStatistics(SEXP stateR,
                    // Allstats settings
-                   SEXP maxNumDyadTypes){
+                   SEXP wl){
 
   /* Step 1:  Initialize empty network and initialize model */
   GetRNGstate(); /* Necessary for R random number generator */
   ErgmState *s = ErgmStateInit(stateR, ERGM_STATE_NO_INIT_PROP);
 
-  Network *nwp = s->nwp;
   Model *m = s->m;
+  double *tmp = REAL(wl);
+  RLEBDM1D wlm = unpack_RLEBDM1D(&tmp);
 
-  /* Step 2:  Build nodelist1 and nodelist2, which together give all of the
-  dyads in the network. */
-  Dyad nodelistlength = DYADCOUNT(nwp);
-  Vertex rowmax;
-  if (BIPARTITE > 0) { /* Assuming undirected in the bipartite case */
-    rowmax = BIPARTITE + 1;
-  } else {
-    rowmax = N_NODES;
-  }
-  Vertex *nodelist1 = (Vertex *) R_alloc(nodelistlength, sizeof(int));
-  Vertex *nodelist2 = (Vertex *) R_alloc(nodelistlength, sizeof(int));
-  int count = 0;
-  for(int i=1; i < rowmax; i++) {
-    for(int j = MAX(i,BIPARTITE)+1; j <= N_NODES; j++) {
-      for(int d=0; d <= DIRECTED; d++) { /*trivial loop if undirected*/
-        nodelist1[count] = d==1? j : i;
-        nodelist2[count] = d==1? i : j;
-        count++;
-      }
-    }
-  }
+  StoreDVecMapUInt *statfreq = allstats_freq = kh_init(DVecMapUInt);
+  statfreq->l = m->n_stats;
 
   /* Step 3:  Initialize values of mtp->dstats so they point to the correct
   spots in the newRow vector.  These values will never change. */
-  double *changeStats     = (double *) R_alloc(m->n_stats,sizeof(double));
-  double *cumulativeStats = (double *) R_alloc(m->n_stats,sizeof(double));
-  for (int i=0; i < m->n_stats; i++) cumulativeStats[i]=0.0;
-
-  unsigned int totalStats = 0;
-  EXEC_THROUGH_TERMS(m, {
-    mtp->dstats = changeStats + totalStats;
-    /* Update mtp->dstats pointer to skip atail by mtp->nstats */
-    totalStats += mtp->nstats; 
-    });
-  if (totalStats != m->n_stats) {
-    Rprintf("I thought totalStats=%d and m->n_stats=%d should be the same.\n", 
-    totalStats, m->n_stats);
-  }
-
-  SEXP stats = PROTECT(allocVector(REALSXP, asInteger(maxNumDyadTypes)*m->n_stats));
-  memset(REAL(stats), 0, asInteger(maxNumDyadTypes)*m->n_stats*sizeof(double));
-  SEXP weights = PROTECT(allocVector(INTSXP, asInteger(maxNumDyadTypes)));
-  memset(INTEGER(weights), 0, asInteger(maxNumDyadTypes)*sizeof(int));
-  SEXP outl = PROTECT(allocVector(VECSXP, 2));
-  SET_VECTOR_ELT(outl, 0, stats);
-  SET_VECTOR_ELT(outl, 1, weights);
+  double *cumulativeStats = allstats_workspace_push(R_Calloc(m->n_stats,double));
 
   /* Step 4:  Begin recursion */
-  RecurseOffOn(s, nodelist1, nodelist2, nodelistlength, 0, changeStats, 
-	       cumulativeStats, REAL(stats), (unsigned int*) INTEGER(weights), asInteger(maxNumDyadTypes));
+  RecurseOffOn(s, &wlm, FirstRLEBDM1D(&wlm), 1, cumulativeStats, statfreq);
 
-  /* Step 5:  Deallocate memory and return */
+  /* Step 5:  Store results and return */
+  unsigned int ntypes = kh_size(statfreq), nstats = m->n_stats;
+  SEXP statsR = PROTECT(allocMatrix(REALSXP, nstats, ntypes));
+  SEXP weightsR = PROTECT(allocVector(INTSXP, ntypes));
+
+  double *stats = REAL(statsR);
+  int *weights = INTEGER(weightsR);
+
+  double *k;
+  unsigned int v;
+  unsigned int i = 0;
+  kh_foreach(statfreq, k, v, {
+      memcpy(stats + i*nstats, k, nstats*sizeof(double));
+      weights[i] = v;
+      i++;
+    });
+  const char *outn[] = {"stats", "weights", ""};
+  SEXP outl = PROTECT(mkNamed(VECSXP, outn));
+  SET_VECTOR_ELT(outl, 0, statsR);
+  SET_VECTOR_ELT(outl, 1, weightsR);
+
+
   ErgmStateDestroy(s);
   PutRNGstate(); /* Must be called after GetRNGstate before returning to R */
   UNPROTECT(3);
   return outl;
 }
 
+
+static inline void InsNetStatRow(StoreDVecMapUInt *h, double *newRow){
+  size_t nstat = h->l;
+  kh_put_code ret;
+  khiter_t pos = kh_put(DVecMapUInt, h, newRow, &ret);
+
+  if(ret != kh_put_present){ // New element inserted:
+    // Copy and replace the key, since it'll get overwritten later.
+    double *newstat = allstats_workspace_push(R_Calloc(nstat, double));
+    memcpy(newstat, newRow, nstat*sizeof(double));
+    kh_key(h, pos) = newstat;
+    kh_val(h, pos) = 1;
+  }else kh_val(h, pos)++;
+}
+
+
 static unsigned int interrupt_steps = 0; // It's OK if this overflows.
 
 void RecurseOffOn(ErgmState *s,
-       Vertex *nodelist1, 
-       Vertex *nodelist2, 
-       Vertex nodelistlength, 
-       Vertex currentnodes, 
-       double *changeStats,
-       double *cumulativeStats,
-       double *covmat,
-       unsigned int *weightsvector,
-       unsigned int maxNumDyadTypes) {
+                  RLEBDM1D *wl,
+                  Dyad d,
+                  RLERun hint,
+                  double *cumulativeStats,
+                  StoreDVecMapUInt *statfreq) {
 
   R_CheckUserInterruptEvery(1024u, interrupt_steps++);
   Network *nwp = s->nwp;
   Model *m = s->m;
 
+  /* Current dyad */
+  Vertex t, h;
+  Dyad2TH(&t, &h, d, nwp->nnodes);
+
+  /* Next dyad */
+  RLERun nhint = hint;
+  Dyad nd = NextRLEBDM1D(d, 1, wl, &nhint);
+
   /* Loop through twice for each dyad: Once for edge and once for no edge */
   for (int i=0; i<2; i++) {
     /* Recurse if currentnodes+1 is not yet nodelistlength */
-    if (currentnodes+1 < nodelistlength) {
-      RecurseOffOn(s, nodelist1, nodelist2, nodelistlength, currentnodes+1, changeStats, 
-              cumulativeStats, covmat, weightsvector, maxNumDyadTypes);
+    if (nd != FirstRLEBDM1D(wl)) { /* We've wrapped around. */
+      RecurseOffOn(s, wl, nd, nhint, cumulativeStats, statfreq);
     } else { /* Add newRow of statistics to hash table */
-      //Rprintf("Here's network number %d with changestat %f\n",counter++, changeStats[0]);
-      //NetworkEdgeList(nwp);
-      if(!InsNetStatRow(cumulativeStats, covmat, m->n_stats, maxNumDyadTypes, weightsvector)) {
-        error("Too many unique dyads!");
-      }
+      InsNetStatRow(statfreq, cumulativeStats);
     }
 
     /* Calculate the change statistic(s) associated with toggling the 
-       dyad represented by nodelist1[currentnodes], nodelist2[currentnodes] */
-    Rboolean edgestate = IS_OUTEDGE((Vertex)nodelist1[currentnodes], (Vertex)nodelist2[currentnodes]);
-    EXEC_THROUGH_TERMS(m, {
-	if(mtp->c_func){
-	  ZERO_ALL_CHANGESTATS();
-	  (*(mtp->c_func))((Vertex)nodelist1[currentnodes], (Vertex)nodelist2[currentnodes], mtp, nwp, edgestate);
-	}else if(mtp->d_func){
-	  (*(mtp->d_func))(1, (Vertex*)nodelist1+currentnodes, (Vertex*)nodelist2+currentnodes, mtp, nwp);
-	}
-      });
+       dyad. */
+    Rboolean edgestate = IS_OUTEDGE(t, h);
+    ChangeStats1(t, h, nwp, m, edgestate);
+    addonto(cumulativeStats, m->workspace, m->n_stats);
 
-    addonto(cumulativeStats, changeStats, m->n_stats);
     /* Now toggle the dyad so it's ready for the next pass */
     /* Inform u_* functions that the network is about to change. */
-    ToggleKnownEdge(nodelist1[currentnodes], nodelist2[currentnodes], nwp, edgestate);
+    ToggleKnownEdge(t, h, nwp, edgestate);
   }
 }
-
-unsigned int InsNetStatRow(
-                     double *newRow, 
-                     double *matrix, 
-                     unsigned int rowLength, 
-                     unsigned int numRows, 
-                     unsigned int *weights ){
-  unsigned int pos, round;
-  unsigned int hash_pos = hashNetStatRow(newRow, rowLength, numRows);
-  
-  for(pos=hash_pos, round=0; !round ; pos = (pos+1)%numRows, round+=(pos==hash_pos)?1:0){
-    if(weights[pos]==0){ /* Space is unoccupied. */
-      weights[pos]=1;
-      memcpy(matrix+rowLength*pos,newRow,rowLength*sizeof(double));
-      return TRUE;
-    }else{
-      if(memcmp(matrix+rowLength*pos, newRow, rowLength*sizeof(double))==0 ){ /* Rows are identical. */
-        weights[pos]++;
-        return TRUE;
-      }
-    }
-  }
-  return FALSE; /* Insertion unsuccessful: the table is full. */
-}
-
-
-/*************
-Hashes the covariates, offset, and response onto an unsigned integer in the interval [0,numRows).
-Uses Jenkins One-at-a-Time hash.
-
-numRows should, ideally, be a power of 2, but it doesn't have to be.
-**************/
-unsigned int hashNetStatRow(double *newRow, unsigned int rowLength, unsigned int numRows) {
-  /* Cast all pointers to unsigned char pointers, since data need to 
-     be fed to the hash function one byte at a time. */
-  unsigned char *cnewRow = (unsigned char *) newRow;
-  unsigned int crowLength = rowLength * sizeof(double);
-  unsigned int hash=0;
-
-#define HASH_LOOP(hash, keybyte){ hash+=keybyte; hash+=(hash<<10); hash^= (hash>>6); }
-  for(unsigned int i=0; i<crowLength; i++) HASH_LOOP(hash, cnewRow[i]);
-#undef HASH_LOOP
-
-  hash += (hash<<3);
-  hash ^= (hash>>11);
-  hash += (hash<<15);
-
-  return(hash % numRows);
-}
-
-
-
