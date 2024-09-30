@@ -154,6 +154,7 @@ Other contributors:
   \item Christian Schmid \email{songhyo86@gmail.com} [contributor]
   \item Joyce Cheng \email{joyce.cheng@student.unsw.edu.au} [contributor]
   \item Arya Karami \email{a.karami@unsw.edu.au} [contributor]
+  \item Adrien Le Guillou \email{git@aleguillou.org} (\href{https://orcid.org/0000-0002-4791-418X}{ORCID}) [contributor]
 }
 
 }
