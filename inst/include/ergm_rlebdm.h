@@ -239,6 +239,9 @@ static inline Dyad NextRLEBDM1D(Dyad d, Dyad stride, const RLEBDM1D *m, RLERun *
   return nxtdi - m->cumlens[nxtl-1] + m->starts[nxtl-1];
 }
 
+#define FirstRLEBDM1D(m) ((m)->starts[0])
+#define LastRLEBDM1D(m) ((m)->starts[(m)->nruns-1] - (m)->cumlens[(m)->nruns-2] + (m)->cumlens[(m)->nruns-1] - 1)
+
 void PrintRLEBDM1D(const RLEBDM1D *m);
 
 #endif // _ERGM_RLEBDM_H_
