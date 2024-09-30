@@ -18,7 +18,9 @@ ergmMPLE(
 }
 \arguments{
 \item{formula, constraints, obs.constraints}{An ERGM formula and
-(optional) constraint specification formulas. See \code{\link{ergm}}.}
+(optionally) a constraint specification formulas. See
+\code{\link[=ergm]{ergm()}}. This function supports only dyad-independent
+constraints.}
 
 \item{output}{Character, partially matched. See Value.}
 

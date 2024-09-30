@@ -29,7 +29,9 @@
 #' below.
 #' 
 #' @param formula,constraints,obs.constraints An ERGM formula and
-#'   (optional) constraint specification formulas. See \code{\link{ergm}}.
+#'   (optionally) a constraint specification formulas. See
+#'   [ergm()]. This function supports only dyad-independent
+#'   constraints.
 #' 
 #' @param output Character, partially matched. See Value.
 #'
