@@ -190,38 +190,33 @@ InitErgmTerm.Label <- function(nw, arglist, ...){
                       defaultvalues = list(NULL, NULL, "("),
                       required = c(TRUE, TRUE, FALSE))
 
+  m <- ergm_model(a$formula, nw, ..., offset.decorate = FALSE, terms.only = TRUE)
+  ca <- param_names(m, canonical = TRUE)
+  cu <- param_names(m, canonical = FALSE)
 
-  m <- ergm_model(a$formula, nw, ..., offset.decorate=FALSE)
-
-  if(is.character(a$label)){
+  if(is.character(a$label) || (is.list(a$label) && is.character(a$label[[1]]))){
     pos <- match.arg(a$pos, c("prepend","replace", "(" ,"append"))
     
-    renamer <- switch(pos,
-                      prepend=function(x) paste0(a$label,x),
-                      replace={
-                        if(is.curved(m)){
-                          if(!is.list(a$label) || length(a$label)!=2) ergm_Init_abort("For a curved ERGM, replacement label must be a list of length 2, giving the canonical and the curved names, respectively, with NULL to leave alone.")
-                          ll <- NVL(a$label[[1]], param_names(m, canonical=TRUE))
-                          lc <- NVL(a$label[[1]], param_names(m, canonical=FALSE))
-                        }else{
-                          ll <- NVL(a$label, param_names(m))
-                        }
-                        function(x){
-                          if(length(x)==nparam(m,canonical=TRUE)) ll
-                          else if(length(x)==nparam(m,canonical=FALSE)) lc
-                          else ergm_Init_abort("Incorrect length for replacement label vector(s).")
-                        }
-                      },
-                      `(`=function(x) paste0(a$label,"(",x,")"),
-                      append=function(x) paste0(x,a$label))
+    new <- switch(pos,
+                  prepend = list(paste0(a$label, ca), paste0(a$label, cu)),
+                  replace =
+                    if(is.curved(m)){
+                      if(!is.list(a$label) || length(a$label)!=2) ergm_Init_abort("For a curved ERGM, replacement label must be a list of length 2, giving the canonical and the curved names, respectively, with NULL to leave alone.")
+                      list(NVL(a$label[[1]], ca), NVL(a$label[[2]], cu))
+                    }else rep(list(NVL(a$label, ca)), 2),
+                  `(` = list(paste0(a$label,"(",ca,")"),
+                             paste0(a$label,"(",cu,")")),
+                  append = list(paste0(ca, a$label), paste0(cu, a$label))
+                  )
   }else{
     #' @importFrom purrr as_mapper
     renamer <- as_mapper(a$label)
+    new <- list(ca,cu) %>% map(renamer)
   }
 
-  c(list(name="passthrough_term", submodel=m),
-    ergm_propagate_ext.encode(m),
-    wrap.ergm_model(m, nw, renamer))
+  param_names(m, canonical = TRUE) <- new[[1]]
+  param_names(m, canonical = FALSE) <- new[[2]]
+  m
 }
 
 

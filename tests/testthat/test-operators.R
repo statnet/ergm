@@ -149,7 +149,7 @@ test_that("Binary Label() summary", {
   )
 })
 
-test_that("Binary Label() estimation and offsets in submodels", {
+test_that("Binary Label() estimation, offsets, and curved terms", {
   expect_equal(
     coef(ergm(flomarriage ~ Label(~edges+offset(absdiff("wealth")), "abc"), offset.coef=-.5)),
     coef(ergm(flomarriage ~ edges+offset(absdiff("wealth")), offset.coef=-.5)), ignore_attr=TRUE
@@ -159,6 +159,18 @@ test_that("Binary Label() estimation and offsets in submodels", {
     coef(ergm(flomarriage ~ Label(~edges+offset(gwesp), "abc"), offset.coef=c(-.5,1), estimate="MPLE")),
     coef(ergm(flomarriage ~ edges+offset(gwesp), offset.coef=c(-.5,1), estimate="MPLE")), ignore_attr=TRUE
   )
+
+  ca <- c("abc", paste0("def", 1:14))
+  cu <- c("abc", "ijk", "lmn")
+  f <- flomarriage ~ Label(~edges+gwesp, list(ca, cu), "replace")
+
+  expect_named(summary(f), ca)
+  expect_named(coef(ergm(f, estimate="MPLE")), cu)
+
+  f <- flomarriage ~ Label(~edges+gwesp, ~gsub("[.#]","!",.))
+  expect_named(summary(f), c("edges", paste0("esp!", 1:14)))
+  expect_named(coef(ergm(f, estimate="MPLE")),
+               c("edges", "gwesp", "gwesp!decay"))
 })
 
 
