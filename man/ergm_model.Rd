@@ -83,8 +83,10 @@ if \code{TRUE}, only offset terms are counted; and if
 \item{byterm}{Whether to return a vector of the numbers of
 coefficients for each term.}
 
-\item{value}{For \code{\link[=param_names<-]{param_names<-()}}, a character vector equal in
-length to the number of parameters of the specified type.}
+\item{value}{For \code{\link[=param_names<-]{param_names<-()}}, either a character vector equal
+in length to the number of parameters of the specified type, or a
+\code{\link{list}} of two character vectors, one for non-canonical, the
+other for canonical, in which case \verb{canonical=} will be ignored.}
 }
 \value{
 \code{ergm_model} returns an  \code{ergm_model} object as a list

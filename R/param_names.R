@@ -53,11 +53,19 @@ param_names.ergm_model <- function(object, canonical=FALSE, offset=NA, ...){
 
 #' @describeIn ergm_model Rename the parameters.
 #'
-#' @param value For [param_names<-()], a character vector equal in
-#'   length to the number of parameters of the specified type.
+#' @param value For [param_names<-()], either a character vector equal
+#'   in length to the number of parameters of the specified type, or a
+#'   [`list`] of two character vectors, one for non-canonical, the
+#'   other for canonical, in which case `canonical=` will be ignored.
 #'
 #' @export
 `param_names<-.ergm_model` <- function(object, canonical = FALSE, ..., value){
+  if(is.list(value)){
+    if(length(value) != 2) stop("a character vector of a list of two character vectors is expected")
+    param_names(object, FALSE) <- value[[1]]
+    param_names(object, TRUE) <- value[[2]]
+    return(object)
+  }
   lens <- nparam(object, canonical, byterm = TRUE)
   values <- split(value, factor(rep(seq_along(lens), lens), levels = seq_along(lens)))
   for(i in seq_along(object$terms)){
