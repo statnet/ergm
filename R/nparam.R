@@ -36,12 +36,14 @@ nparam.default <- function(object, ...){
 #' @export
 nparam.ergm_model <- function(object, canonical=FALSE, offset=NA, byterm=FALSE, ...){
   tocount <- if(canonical) object$etamap$offsetmap else object$etamap$offsettheta
-  tocount <-
-    if(is.na(offset)) rep(TRUE, length(tocount))
-    else if(offset) tocount
-    else if(!offset) !tocount
+  tocount <- NVL3(tocount,
+                  if(is.na(offset)) rep(TRUE, length(.))
+                  else if(offset) .
+                  else if(!offset) !.,
+                  if(!is.na(offset)) stop("Model must have offset information to filter by offset.")
+                  else NULL)
 
-  if(byterm){
+  if(is.null(tocount) || byterm){
     terms <- object$terms
     lens <-
       if(canonical) terms %>% map("coef.names") %>% lengths
@@ -52,7 +54,9 @@ nparam.ergm_model <- function(object, canonical=FALSE, offset=NA, byterm=FALSE, 
         else length(term$coef.names)
       })
 
-    tocount %>% split(factor(rep(seq_along(terms), lens),levels=seq_along(terms))) %>% map_int(sum)
+    NVL(tocount) <- rep(TRUE, sum(lens))
+    counts <- tocount %>% split(factor(rep(seq_along(terms), lens),levels=seq_along(terms))) %>% map_int(sum)
+    if(byterm) counts else sum(counts)
   }else sum(tocount)
 }
 

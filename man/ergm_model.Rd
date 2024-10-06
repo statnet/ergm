@@ -11,6 +11,7 @@
 \alias{is.dyad.independent.ergm_model}
 \alias{nparam.ergm_model}
 \alias{param_names.ergm_model}
+\alias{param_names<-.ergm_model}
 \title{Internal representation of an \code{ergm} network model}
 \usage{
 ergm_model(
@@ -40,6 +41,8 @@ as.ergm_model(x, ...)
 \method{nparam}{ergm_model}(object, canonical = FALSE, offset = NA, byterm = FALSE, ...)
 
 \method{param_names}{ergm_model}(object, canonical = FALSE, offset = NA, ...)
+
+\method{param_names}{ergm_model}(object, canonical = FALSE, ...) <- value
 }
 \arguments{
 \item{formula}{An \code{\link[=ergm]{ergm()}}
@@ -79,6 +82,9 @@ if \code{TRUE}, only offset terms are counted; and if
 
 \item{byterm}{Whether to return a vector of the numbers of
 coefficients for each term.}
+
+\item{value}{For \code{\link[=param_names<-]{param_names<-()}}, a character vector equal in
+length to the number of parameters of the specified type.}
 }
 \value{
 \code{ergm_model} returns an  \code{ergm_model} object as a list
@@ -107,6 +113,8 @@ initialized via the \code{InitErgmTerm} functions to create a
 \item \code{nparam(ergm_model)}: Number of parameters of the model.
 
 \item \code{param_names(ergm_model)}: Parameter names of the model.
+
+\item \code{param_names(ergm_model) <- value}: Rename the parameters.
 
 }}
 \note{

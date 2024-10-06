@@ -34,10 +34,40 @@ param_names.default <- function(object, ...){
 param_names.ergm_model <- function(object, canonical=FALSE, offset=NA, ...){
   tocount <- if(canonical) object$etamap$offsetmap else object$etamap$offsettheta
   tocount <-
-    if(is.na(offset)) rep(TRUE, length(tocount))
+    if(is.na(offset)) TRUE
     else if(offset) tocount
     else if(!offset) !tocount
 
   if(canonical) unlist(lapply(object$terms, function(term) term$coef.names))[tocount]
   else unlist(lapply(object$terms, function(term) NVL(names(term$params),term$coef.names)))[tocount]
+}
+
+#' @describeIn param_names a method for modifying parameter names of an object.
+#'
+#' @param value Specification for the new parameter names.
+#'
+#' @export
+`param_names<-` <- function(object, ..., value){
+  UseMethod("param_names<-")
+}
+
+#' @describeIn ergm_model Rename the parameters.
+#'
+#' @param value For [param_names<-()], a character vector equal in
+#'   length to the number of parameters of the specified type.
+#'
+#' @export
+`param_names<-.ergm_model` <- function(object, canonical = FALSE, ..., value){
+  lens <- nparam(object, canonical, byterm = TRUE)
+  values <- split(value, factor(rep(seq_along(lens), lens), levels = seq_along(lens)))
+  for(i in seq_along(object$terms)){
+    if(lens[i]){
+      if(canonical || is.null(object$terms[[i]]$params)) object$terms[[i]]$coef.names <- values[[i]]
+      else names(object$terms[[i]]$params) <- values[[i]]
+    }
+  }
+  ## TODO: Check if the API still needs this.
+  if(canonical && !is.null(object$coef.names)) object$coef.names <- values
+
+  object
 }

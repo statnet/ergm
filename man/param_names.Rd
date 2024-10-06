@@ -3,16 +3,21 @@
 \name{param_names}
 \alias{param_names}
 \alias{param_names.default}
+\alias{param_names<-}
 \title{Names of the parameters associated with an object.}
 \usage{
 param_names(object, ...)
 
 \method{param_names}{default}(object, ...)
+
+param_names(object, ...) <- value
 }
 \arguments{
 \item{object}{An object for which parameter names are defined.}
 
 \item{...}{Additional arguments to methods.}
+
+\item{value}{Specification for the new parameter names.}
 }
 \description{
 This is a generic that returns a vector giving the names of the parameters associated with a model or a model fit.
@@ -20,5 +25,10 @@ This is a generic that returns a vector giving the names of the parameters assoc
 \section{Methods (by class)}{
 \itemize{
 \item \code{param_names(default)}: By default, the names of the \code{\link[=coef]{coef()}} vector is returned.
+
+}}
+\section{Functions}{
+\itemize{
+\item \code{param_names(object, ...) <- value}: a method for modifying parameter names of an object.
 
 }}

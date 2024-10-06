@@ -38,7 +38,8 @@ is.curved.NULL <- function(object, ...) FALSE # By convention.
 #' @describeIn ergm_model Tests whether the model is curved.
 #' @export
 is.curved.ergm_model <- function(object, ...){
-  length(object$etamap$curved)>0
+  NVL3(object$etamap$curved, length(.) > 0,
+       map(object$terms, "map") %>% map_lgl(is.null) %>% all() %>% `!`)
 }
 
 #' @rdname is.curved 
