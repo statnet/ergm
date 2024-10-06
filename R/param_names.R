@@ -54,9 +54,11 @@ param_names.ergm_model <- function(object, canonical=FALSE, offset=NA, ...){
 #' @describeIn ergm_model Rename the parameters.
 #'
 #' @param value For [param_names<-()], either a character vector equal
-#'   in length to the number of parameters of the specified type, or a
-#'   [`list`] of two character vectors, one for non-canonical, the
-#'   other for canonical, in which case `canonical=` will be ignored.
+#'   in length to the number of parameters of the specified type
+#'   (though recycled as needed), or a [`list`] of two character
+#'   vectors, one for non-canonical, the other for canonical, in which
+#'   case `canonical=` will be ignored. `NA` elements preserve
+#'   existing name.
 #'
 #' @export
 `param_names<-.ergm_model` <- function(object, canonical = FALSE, ..., value){
@@ -67,15 +69,17 @@ param_names.ergm_model <- function(object, canonical=FALSE, offset=NA, ...){
     return(object)
   }
   lens <- nparam(object, canonical, byterm = TRUE)
+  value <- rep_len(value, sum(lens))
+  ## TODO: Check if the API still needs this:
+  if(canonical && !is.null(object$coef.names)) object$coef.names %<>% replace(!is.na(value), na.omit(value))
+
   values <- split(value, factor(rep(seq_along(lens), lens), levels = seq_along(lens)))
   for(i in seq_along(object$terms)){
     if(lens[i]){
-      if(canonical || is.null(object$terms[[i]]$params)) object$terms[[i]]$coef.names <- values[[i]]
-      else names(object$terms[[i]]$params) <- values[[i]]
+      if(canonical || is.null(object$terms[[i]]$params)) object$terms[[i]]$coef.names %<>% replace(!is.na(values[[i]]), na.omit(values[[i]]))
+      else names(object$terms[[i]]$params) %<>% replace(!is.na(values[[i]]), na.omit(values[[i]]))
     }
   }
-  ## TODO: Check if the API still needs this.
-  if(canonical && !is.null(object$coef.names)) object$coef.names <- values
 
   object
 }
