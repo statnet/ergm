@@ -68,14 +68,6 @@ wrap.ergm_model <- function(m, nw, namewrap = identity){
   list(map=map, gradient=gradient, params=params, minpar=minpar, maxpar=maxpar, coef.names=coef.names, emptynwstats=emptynwstats, dependence=dependence, offset=offsettheta)
 }
 
-ergm_rename_terms <- function(model, namewrap){
-  for(i in seq_along(model$terms)){
-    model$terms[[i]]$coef.names <- namewrap(model$terms[[i]]$coef.names)
-    if(!is.null(model$terms[[i]]$params)) names(model$terms[[i]]$params) <- namewrap(names(model$terms[[i]]$params))
-  }
-  model
-}
-
 #' Combine an operator term's and a subterm's name in a standard fashion.
 #'
 #' @param opname Name of the operator (or an abbreviation thereof).
@@ -166,7 +158,8 @@ InitErgmTerm.Passthrough <- function(nw, arglist, ...){
     m <- ergm_model(a$formula, nw, ..., offset.decorate=FALSE, terms.only=TRUE)
 
     namewrap <- if(a$label) ergm_mk_std_op_namewrap('Passthrough') else identity
-    ergm_rename_terms(m, namewrap)
+    param_names(m) <- list(namewrap(param_names(m, canonical = FALSE)), namewrap(param_names(m, canonical = TRUE)))
+    m
   }
 }
 
@@ -177,8 +170,17 @@ InitErgmTerm.Passthrough <- function(nw, arglist, ...){
 #' @usage
 #' # binary: Label(formula, label, pos)
 #' @template ergmTerm-formula
-#' @param label either a character vector specifying the label for the terms or a function through which term names are mapped (or a `as_mapper` -style formula).
+#' @param label a character vector specifying the label for the terms, a [`list`] of two character vectors (see Details), or a function through which term names are mapped (or a [`as_mapper`] -style formula).
 #' @param pos controls how `label` modifies the term names: one of `"prepend"` , `"replace"` , `"append"` , or `"("` , with the latter wrapping the term names in parentheses like a function call with name specified by `label` .
+#'
+#' @details If `pos == "replace"`:
+#'
+#' * Elements for which `is.na(label) == TRUE` are preserved.
+#'
+#' * If the model is curved, `label=` can be a either function/mapper
+#'   or a [`list`] with two elements, the first element giving the
+#'   curved (model) parameter names and second giving the canonical
+#'   parameter names. `NULL` leaves the respective name unchanged.
 #'
 #' @template ergmTerm-general
 #'
@@ -191,31 +193,29 @@ InitErgmTerm.Label <- function(nw, arglist, ...){
                       required = c(TRUE, TRUE, FALSE))
 
   m <- ergm_model(a$formula, nw, ..., offset.decorate = FALSE, terms.only = TRUE)
-  ca <- param_names(m, canonical = TRUE)
   cu <- param_names(m, canonical = FALSE)
+  ca <- param_names(m, canonical = TRUE)
 
-  if(is.character(a$label) || (is.list(a$label) && is.character(a$label[[1]]))){
+  if(is.character(a$label) || is.list(a$label)){
     pos <- match.arg(a$pos, c("prepend","replace", "(" ,"append"))
     
     new <- switch(pos,
-                  prepend = list(paste0(a$label, ca), paste0(a$label, cu)),
+                  prepend = list(paste0(a$label, cu), paste0(a$label, ca)),
                   replace =
                     if(is.curved(m)){
-                      if(!is.list(a$label) || length(a$label)!=2) ergm_Init_abort("For a curved ERGM, replacement label must be a list of length 2, giving the canonical and the curved names, respectively, with NULL to leave alone.")
-                      list(NVL(a$label[[1]], ca), NVL(a$label[[2]], cu))
-                    }else rep(list(NVL(a$label, ca)), 2),
-                  `(` = list(paste0(a$label,"(",ca,")"),
-                             paste0(a$label,"(",cu,")")),
-                  append = list(paste0(ca, a$label), paste0(cu, a$label))
+                      if(!is.list(a$label) || length(a$label)!=2) ergm_Init_abort("For a curved ERGM, replacement label must be a list of length 2, giving the curved and the canonical names, respectively, with NULL to leave alone.")
+                      list(NVL(a$label[[1]], NA), NVL(a$label[[2]], NA))
+                    }else rep(list(NVL(a$label, cu)), 2),
+                  `(` = list(paste0(a$label,"(",cu,")"), paste0(a$label,"(",ca,")")),
+                  append = list(paste0(cu, a$label), paste0(ca, a$label))
                   )
   }else{
     #' @importFrom purrr as_mapper
     renamer <- as_mapper(a$label)
-    new <- list(ca,cu) %>% map(renamer)
+    new <- list(cu,ca) %>% map(renamer)
   }
 
-  param_names(m, canonical = TRUE) <- new[[1]]
-  param_names(m, canonical = FALSE) <- new[[2]]
+  param_names(m) <- new
   m
 }
 

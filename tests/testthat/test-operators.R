@@ -160,17 +160,30 @@ test_that("Binary Label() estimation, offsets, and curved terms", {
     coef(ergm(flomarriage ~ edges+offset(gwesp), offset.coef=c(-.5,1), estimate="MPLE")), ignore_attr=TRUE
   )
 
+  ## list label
   ca <- c("abc", paste0("def", 1:14))
   cu <- c("abc", "ijk", "lmn")
-  f <- flomarriage ~ Label(~edges+gwesp, list(ca, cu), "replace")
-
-  expect_named(summary(f), ca)
+  f <- flomarriage ~ Label(~edges+gwesp, list(cu, ca), "replace")
   expect_named(coef(ergm(f, estimate="MPLE")), cu)
+  expect_named(summary(f), ca)
 
+  ## list label with omitted vector
+  f <- flomarriage ~ Label(~edges+gwesp, list(cu, NULL), "replace")
+  f0 <- flomarriage ~edges+gwesp
+  expect_named(coef(ergm(f, estimate="MPLE")), cu)
+  expect_named(summary(f), c("abc", names(summary(f0))[-1]))
+
+  f <- flomarriage ~ Label(~edges+gwesp, list(NA, ca), "replace")
+  f0 <- flomarriage ~edges+gwesp
+  expect_named(coef(ergm(f, estimate="MPLE")), param_names(ergm(f, estimate="MPLE")))
+  expect_named(summary(f), ca)
+
+  ## mapper label
   f <- flomarriage ~ Label(~edges+gwesp, ~gsub("[.#]","!",.))
-  expect_named(summary(f), c("edges", paste0("esp!", 1:14)))
   expect_named(coef(ergm(f, estimate="MPLE")),
                c("edges", "gwesp", "gwesp!decay"))
+  expect_named(summary(f), c("edges", paste0("esp!", 1:14)))
+
 })
 
 

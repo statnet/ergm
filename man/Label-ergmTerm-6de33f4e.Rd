@@ -14,12 +14,22 @@
 \arguments{
 \item{formula}{a one-sided \code{\link[=ergm]{ergm()}}-style formula with the terms to be evaluated}
 
-\item{label}{either a character vector specifying the label for the terms or a function through which term names are mapped (or a \code{as_mapper} -style formula).}
+\item{label}{a character vector specifying the label for the terms, a \code{\link{list}} of two character vectors (see Details), or a function through which term names are mapped (or a \code{\link{as_mapper}} -style formula).}
 
 \item{pos}{controls how \code{label} modifies the term names: one of \code{"prepend"} , \code{"replace"} , \code{"append"} , or \code{"("} , with the latter wrapping the term names in parentheses like a function call with name specified by \code{label} .}
 }
 \description{
 This operator evaluates \code{formula} without modification, but modifies its coefficient and/or parameter names based on \code{label} and \code{pos} .
+}
+\details{
+If \code{pos == "replace"}:
+\itemize{
+\item Elements for which \code{is.na(label) == TRUE} are preserved.
+\item If the model is curved, \verb{label=} can be a either function/mapper
+or a \code{\link{list}} with two elements, the first element giving the
+curved (model) parameter names and second giving the canonical
+parameter names. \code{NULL} leaves the respective name unchanged.
+}
 }
 \seealso{
 \code{\link{ergmTerm}} for index of model terms currently visible to the package.
