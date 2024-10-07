@@ -1,12 +1,3 @@
-/*  File inst/include/ergm_stubs.c in package ergm, part of the
- *  Statnet suite of packages for network analysis, https://statnet.org .
- *
- *  This software is distributed under the GPL-3 license.  It is free,
- *  open source, and has the attribution requirements (GPL Section 7) at
- *  https://statnet.org/attribution .
- *
- *  Copyright 2003-2023 Statnet Commons
- */
 
 #define STUBFILE
 #include <stddef.h>
@@ -81,15 +72,15 @@ fun(tail,head,weight,gen,nwp,edgestate);
 #define STUBFILE
 #include <stddef.h>
 #include <R_ext/Rdynload.h>
-#include "ergm_dyad_hashmap.h"
-
-#define STUBFILE
-#include <stddef.h>
-#include <R_ext/Rdynload.h>
 #include "ergm_dyad_hashmap_utils.h"
 void PrintDyadMapUInt(StoreDyadMapUInt *h){
 static void (*fun)(StoreDyadMapUInt *) = NULL;
 if(fun==NULL) fun = (void (*)(StoreDyadMapUInt *)) R_FindSymbol("PrintDyadMapUInt", "ergm", NULL);
+fun(h);
+}
+void PrintStrictDyadMapUInt(StoreStrictDyadMapUInt *h){
+static void (*fun)(StoreStrictDyadMapUInt *) = NULL;
+if(fun==NULL) fun = (void (*)(StoreStrictDyadMapUInt *)) R_FindSymbol("PrintStrictDyadMapUInt", "ergm", NULL);
 fun(h);
 }
 void PrintDyadSet(StoreDyadSet *h){
@@ -97,9 +88,19 @@ static void (*fun)(StoreDyadSet *) = NULL;
 if(fun==NULL) fun = (void (*)(StoreDyadSet *)) R_FindSymbol("PrintDyadSet", "ergm", NULL);
 fun(h);
 }
+void PrintStrictDyadSet(StoreStrictDyadSet *h){
+static void (*fun)(StoreStrictDyadSet *) = NULL;
+if(fun==NULL) fun = (void (*)(StoreStrictDyadSet *)) R_FindSymbol("PrintStrictDyadSet", "ergm", NULL);
+fun(h);
+}
 StoreDyadSet * NetworkToDyadSet(Network *nwp){
 static StoreDyadSet * (*fun)(Network *) = NULL;
 if(fun==NULL) fun = (StoreDyadSet * (*)(Network *)) R_FindSymbol("NetworkToDyadSet", "ergm", NULL);
+return fun(nwp);
+}
+StoreStrictDyadSet * NetworkToStrictDyadSet(Network *nwp){
+static StoreStrictDyadSet * (*fun)(Network *) = NULL;
+if(fun==NULL) fun = (StoreStrictDyadSet * (*)(Network *)) R_FindSymbol("NetworkToStrictDyadSet", "ergm", NULL);
 return fun(nwp);
 }
 
