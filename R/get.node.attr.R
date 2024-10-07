@@ -49,7 +49,7 @@
 #' not numeric; default=FALSE
 #' @return returns the vector of 'attrname' covariates for the vertices in the
 #' network
-#' @seealso \code{\link[network]{get.vertex.attribute}} for a version without
+#' @seealso [get.vertex.attribute()] for a version without
 #' the checking functionality
 #' @examples
 #' 

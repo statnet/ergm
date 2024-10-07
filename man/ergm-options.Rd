@@ -17,7 +17,7 @@ Options set via the built-in \code{\link[=options]{options()}} functions that af
 
 \item{\code{ergm.loglik.warn_dyads = TRUE}}{Whether log-likelihood evaluation should issue a warning when the effective number of dyads that can vary in the sample space is poorly defined, such as if the degree sequence is constrained.}
 
-\item{\code{ergm.cluster.retries = 5}}{\pkg{ergm}'s parallel routines implement rudimentary fault-tolerance. This option controls the number of retries for a cluster call before giving up.}
+\item{\code{ergm.cluster.retries = 5}}{\CRANpkg{ergm}'s parallel routines implement rudimentary fault-tolerance. This option controls the number of retries for a cluster call before giving up.}
 
 \item{\code{ergm.term = list()}}{The default term options below.}
 

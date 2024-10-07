@@ -22,7 +22,7 @@
 #' Most generally, this function computes those summaries of the
 #' object on the LHS of the formula that are specified by its RHS.  In
 #' particular, if given a network as its LHS and
-#' \code{\link{ergmTerm}} on its RHS, it computes the sufficient
+#' [`ergmTerm`] on its RHS, it computes the sufficient
 #' statistics associated with those terms.
 #' 
 #' 
@@ -32,8 +32,8 @@
 #'
 #' @aliases summary
 #' @param object A formula having as its LHS a
-#'   \code{\link[network]{network}} object or a matrix that can be
-#'   coerced to a \code{\link[network]{network}} object, a
+#'   [`network`] object or a matrix that can be
+#'   coerced to a [`network`] object, a
 #'   [`network.list`], or other types to be summarized using a formula. (See
 #'   `methods('summary_formula') for the possible LHS types.
 #' @param \dots further arguments passed to or used by methods.

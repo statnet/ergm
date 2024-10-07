@@ -125,9 +125,9 @@ simulate_formula(object, ..., basis = eval_lhs.formula(object))
 \item{object}{Either a \code{\link{formula}} or an
 \code{\link{ergm}} object.  The \code{\link{formula}} should be of the form
 \code{y ~ <model terms>}, where \code{y} is a network object or a matrix
-that can be coerced to a \code{\link[network]{network}} object.  For the
+that can be coerced to a \code{\link[network:network]{network}} object.  For the
 details on the possible \code{<model terms>}, see \code{\link{ergmTerm}}.
-To create a \code{\link[network]{network}} object in , use the
+To create a \code{\link[network:network]{network}} object in , use the
 \code{network()} function, then add nodal attributes to it using the
 \code{\%v\%} operator if necessary.}
 
@@ -265,7 +265,7 @@ the \verb{monitor=} formula is stored in \code{\link[=attr]{attr()}}-style attri
 Otherwise, a representation of the simulated network is returned,
 in the form specified by \code{output}. In addition to a network
 representation or a list thereof, they have the following
-\code{\link{attr}}-style attributes: \describe{
+\code{\link[=attr]{attr()}}-style attributes: \describe{
 
 \item{\code{formula}}{The \code{\link{formula}} used to generate the
 sample.}
@@ -310,7 +310,7 @@ network itself will be returned.
 }
 \description{
 \code{\link[stats]{simulate}} is used to draw from exponential
-family random network models.  See \code{\link{ergm}} for more
+family random network models.  See \code{\link[=ergm]{ergm()}} for more
 information on these models.
 
 The method for \code{\link{ergm}} objects inherits the model,
@@ -325,7 +325,7 @@ network to which the ERGM was fit.
 A sample of networks is randomly drawn from the specified model.  The model
 is specified by the first argument of the function.  If the first argument
 is a \code{\link{formula}} then this defines the model.  If the first
-argument is the output of a call to \code{\link{ergm}} then the model used
+argument is the output of a call to \code{\link[=ergm]{ergm()}} then the model used
 for that call is the one fit -- and unless \code{coef} is specified, the
 sample is from the MLE of the parameters.  If neither of those are given as
 the first argument then a Bernoulli network is generated with the
@@ -336,7 +336,7 @@ and any subsequent networks are sampled each \code{interval} steps
 after the first.
 
 More information can be found by looking at the documentation of
-\code{\link{ergm}}.
+\code{\link[=ergm]{ergm()}}.
 }
 \section{Functions}{
 \itemize{
@@ -421,7 +421,7 @@ g.sim <- simulate(gest, nsim=3,
 unclass(g.sim)
 }
 \seealso{
-\code{\link{ergm}}, \code{\link[network]{network}},
+\code{\link[=ergm]{ergm()}}, \code{\link[network:network]{network}},
 \code{\link[=ergm_MCMC_sample]{ergm_MCMC_sample()}} for a demonstration of \verb{return.args=}.
 }
 \keyword{models}

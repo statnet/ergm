@@ -131,7 +131,7 @@ are \code{"MPI"} and \code{"PSOCK"}. Defaults to using the \code{parallel}
 package with PSOCK clusters. See \code{\link{ergm-parallel}}}
 
 \item{parallel.version.check}{Logical: If TRUE, check that the version of
-\code{\link[=ergm-package]{ergm}} running on the slave nodes is the same as
+\pkg{ergm} running on the slave nodes is the same as
 that running on the master node.}
 
 \item{parallel.inherit.MT}{Logical: If TRUE, slave nodes and
@@ -162,6 +162,6 @@ the user to selectively override them.
 \seealso{
 \code{\link[=ergm.bridge.llr]{ergm.bridge.llr()}}
 
-\code{\link{logLik.ergm}}
+\code{\link[=logLik.ergm]{logLik.ergm()}}
 }
 \keyword{models}

@@ -48,7 +48,7 @@ gof(object, ...)
 }
 \arguments{
 \item{object}{Either a formula or an \code{\link{ergm}} object.
-See documentation for \code{\link{ergm}}.}
+See documentation for \code{\link[=ergm]{ergm()}}.}
 
 \item{\dots}{Additional arguments, to be passed to lower-level functions.}
 
@@ -75,7 +75,7 @@ variation in the estimates of the mean value parameters.  To omit the
 
 \item{constraints}{A one-sided formula specifying one or more constraints on
 the support of the distribution of the networks being modeled. See the help
-for similarly-named argument in \code{\link{ergm}} for more information. For
+for similarly-named argument in \code{\link[=ergm]{ergm()}} for more information. For
 \code{gof.formula}, defaults to unconstrained. For \code{gof.ergm}, defaults
 to the constraints with which \code{object} was fitted.}
 
@@ -116,20 +116,20 @@ normalized to make it more comparable with the other geodesic distance
 proportions.}
 }
 \value{
-\code{\link{gof}}, \code{\link{gof.ergm}}, and
-\code{\link{gof.formula}} return an object of class \code{gof.ergm}, which inherits from class \code{gof}.  This
+\code{\link[=gof]{gof()}}, \code{\link[=gof.ergm]{gof.ergm()}}, and
+\code{\link[=gof.formula]{gof.formula()}} return an object of class \code{gof.ergm}, which inherits from class \code{gof}.  This
 is a list of the tables of statistics and \eqn{p}-values.  This is typically
-plotted using \code{\link{plot.gof}}.
+plotted using \code{\link[=plot.gof]{plot.gof()}}.
 }
 \description{
-\code{\link{gof}} calculates \eqn{p}-values for geodesic distance, degree,
+\code{\link[=gof]{gof()}} calculates \eqn{p}-values for geodesic distance, degree,
 and reachability summaries to diagnose the goodness-of-fit of exponential
-family random graph models.  See \code{\link{ergm}} for more information on
+family random graph models.  See \code{\link[=ergm]{ergm()}} for more information on
 these models.
 }
 \details{
 A sample of graphs is randomly drawn from the specified model.  The first
-argument is typically the output of a call to \code{\link{ergm}} and the
+argument is typically the output of a call to \code{\link[=ergm]{ergm()}} and the
 model used for that call is the one fit.
 
 For \code{GOF = ~model}, the model's observed sufficient statistics are
@@ -152,17 +152,16 @@ constraints, and other settings.
 }}
 \section{Methods (by generic)}{
 \itemize{
-\item \code{print(gof)}: \code{\link{print.gof}} summaries the diagnostics such as the
+\item \code{print(gof)}: \code{\link[=print.gof]{print.gof()}} summaries the diagnostics such as the
 degree distribution, geodesic distances, shared partner
 distributions, and reachability for the goodness-of-fit of
-exponential family random graph models.  See \code{\link{ergm}} for
-more information on these models. (\code{summary.gof} is a deprecated
+exponential family random graph models. (\code{summary.gof} is a deprecated
 alias that may be repurposed in the future.)
 
-\item \code{plot(gof)}: \code{\link{plot.gof}} plots diagnostics such as the degree
+\item \code{plot(gof)}: \code{\link[=plot.gof]{plot.gof()}} plots diagnostics such as the degree
 distribution, geodesic distances, shared partner distributions, and
 reachability for the goodness-of-fit of exponential family random graph
-models.  See \code{\link{ergm}} for more information on these models.
+models.
 
 }}
 \note{

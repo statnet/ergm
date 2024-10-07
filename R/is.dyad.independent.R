@@ -49,7 +49,7 @@ is.dyad.independent.ergm_model <- function(object, ..., ignore_aux=TRUE){
 
 #' @rdname is.dyad.independent
 #' @template response
-#' @param basis See \code{\link{ergm}}.
+#' @param basis See [ergm()].
 #' @export
 is.dyad.independent.formula<-function(object,response=NULL,basis=NULL,...){
   # If basis is not null, replace network in formula by basis.

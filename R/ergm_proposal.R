@@ -33,10 +33,10 @@
 #' 
 #' @param Class default to "c"
 #' @param Reference The reference measure used in the model. For the list of
-#' reference measures, see \code{\link{ergmReference}}
+#' reference measures, see [`ergmReference`]
 #'
 #' @param Constraints The constraints used in the model. For the list
-#'   of constraints, see \code{\link{ergmConstraint}}. They are
+#'   of constraints, see [`ergmConstraint`]. They are
 #'   specified as a single string of text, with each contrast prefixed
 #'   by either `&` for constraints that the proposal *always* enforces
 #'   or `|` for constraints that the proposal *can* enforce if needed.
@@ -146,7 +146,7 @@ prune.ergm_conlist <- function(conlist){
 #' S3 Functions that initialize the Metropolis-Hastings Proposal (ergm_proposal)
 #' object using the `InitErgmProposal.*` function that corresponds to the name given in
 #' 'object'.  These functions are not generally called directly by the user.
-#' See \link{ergm-proposals} for general explanation and lists of available
+#' See [`ergmProposal`] for general explanation and lists of available
 #' Metropolis-Hastings proposal types.
 #' 
 #' 
@@ -168,7 +168,7 @@ prune.ergm_conlist <- function(conlist){
 #' \item{uid}{a string generated with the proposal, \UIDalgo; different proposals are, generally, guaranteed to have different strings, but identical proposals are not guaranteed to have the same string}
 #' }
 #' }
-#' @seealso \code{\link{InitErgmProposal}}
+#' @seealso [`InitErgmProposal`]
 #' @keywords models internal
 #' @export
 ergm_proposal<-function(object, ...) UseMethod("ergm_proposal")
@@ -201,7 +201,7 @@ ergm_proposal.ergm_proposal<-function(object,...) return(object)
 
 #' @describeIn ergm_proposal `object` argument is a character string
 #'   giving the \R name of the proposal.
-#' @param nw The network object originally given to \code{\link{ergm}}
+#' @param nw The network object originally given to [ergm()]
 #'   via 'formula'
 #' @param arguments A list of parameters used by the InitErgmProposal routines
 #' @template term_options
@@ -439,7 +439,7 @@ ergm_reference.formula <- function(object, nw, ..., term.options=list()) {
 #' @describeIn ergm_proposal `object` argument is an ERGM constraint formula; constructs the [`ergm_conlist`] object and hands off to `ergm_proposal.ergm_conlist()`.
 #' @param constraints A one-sided formula specifying one or more constraints on
 #' the support of the distribution of the networks being simulated. See the
-#' documentation for a similar argument for \code{\link{ergm}} and see
+#' documentation for a similar argument for [ergm()] and see
 #' [`ergmConstraint`] for more information.
 #' @export
 ergm_proposal.formula <- function(object, arguments, nw, hints=trim_env(~sparse), ..., term.options=list()) {

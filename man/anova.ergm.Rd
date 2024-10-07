@@ -10,8 +10,8 @@
 \method{anova}{ergmlist}(object, ..., eval.loglik = FALSE)
 }
 \arguments{
-\item{object, ...}{objects of class \code{\link{ergm}}, usually, a result of a
-call to \code{\link{ergm}}.}
+\item{object, ...}{objects of \code{\link{ergm}}, usually, a result of a
+call to \code{\link[=ergm]{ergm()}}.}
 
 \item{eval.loglik}{a logical specifying whether the log-likelihood will be
 evaluated if missing.}
@@ -46,7 +46,7 @@ error, unless \code{eval.loglik=TRUE}.
  The comparison between two or more models will only be
 valid if they are fitted to the same dataset. This may be a problem if there
 are missing values and 's default of \code{na.action = na.omit} is used, and
-\code{\link{anova.ergmlist}} will detect this with an error.
+\code{\link[=anova.ergmlist]{anova.ergmlist()}} will detect this with an error.
 }
 
 \examples{
@@ -65,9 +65,9 @@ anova(fit0, fit1, fit2)
 
 }
 \seealso{
-The model fitting function \code{\link{ergm}}, \code{\link{anova}},
-\code{\link{logLik.ergm}} for adding the log-likelihood to an existing
-\code{\link[=ergm.object]{ergm}} object.
+The model fitting function \code{\link[=ergm]{ergm()}}, \code{\link[=anova]{anova()}},
+\code{\link[=logLik.ergm]{logLik.ergm()}} for adding the log-likelihood to an existing
+\code{\link{ergm}} object.
 }
 \keyword{models}
 \keyword{regression}

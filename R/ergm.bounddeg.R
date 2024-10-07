@@ -54,7 +54,7 @@
 #' \item{maxin}{ as defined above}
 #' \item{minout}{ as defined above}
 #' \item{minin}{ as defined above}
-#' @seealso \code{\link{ergm-proposals}}
+#' @seealso [`ergmProposal`]
 #' @keywords internal
 #' @export
 ergm_bd_init <- function(arguments,nw){

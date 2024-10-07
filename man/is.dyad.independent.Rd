@@ -33,7 +33,7 @@ is.dyad.independent(object, ...)
 
 }}
 
-\item{basis}{See \code{\link{ergm}}.}
+\item{basis}{See \code{\link[=ergm]{ergm()}}.}
 
 \item{object.obs}{For the \code{\link{ergm_conlist}} method, the observed data constraint.}
 

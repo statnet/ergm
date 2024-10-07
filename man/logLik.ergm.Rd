@@ -5,7 +5,7 @@
 \alias{deviance.ergm}
 \alias{AIC.ergm}
 \alias{BIC.ergm}
-\title{A \code{\link{logLik}} method for \code{\link{ergm}} fits.}
+\title{A \code{\link[=logLik]{logLik()}} method for \code{\link{ergm}} fits.}
 \usage{
 \method{logLik}{ergm}(
   object,
@@ -24,8 +24,8 @@
 \method{BIC}{ergm}(object, ...)
 }
 \arguments{
-\item{object}{An \code{\link[=ergm.object]{ergm}} fit, returned by
-\code{\link{ergm}}.}
+\item{object}{An \code{\link{ergm}} fit, returned by
+\code{\link[=ergm]{ergm()}}.}
 
 \item{add}{Logical: If \code{TRUE}, instead of returning the
 log-likelihood, return \code{object} with log-likelihood value
@@ -58,7 +58,7 @@ down processing.}
 The form of the output of \code{logLik.ergm} depends on
 \code{add}: \code{add=FALSE} (the default), a
 \code{\link{logLik}} object. If \code{add=TRUE} (the default), an
-\code{\link[=ergm.object]{ergm}} object with the log-likelihood
+\code{\link{ergm}} object with the log-likelihood
 set.
 
 As of version 3.1, all likelihoods for which \code{logLikNull} is
@@ -69,7 +69,7 @@ that.)
 }
 \description{
 A function to return the log-likelihood associated with an
-\code{\link[=ergm.object]{ergm}} fit, evaluating it if
+\code{\link{ergm}} fit, evaluating it if
 necessary. If the log-likelihood was not computed for
 \code{object}, produces an error unless \code{eval.loglik=TRUE}.
 }
@@ -116,7 +116,7 @@ Hunter, D. R. and Handcock, M. S. (2006)
 networks}, Journal of Computational and Graphical Statistics.
 }
 \seealso{
-\code{\link{logLik}}, \code{\link{logLikNull}}, \code{\link{ergm.bridge.llr}},
-\code{\link{ergm.bridge.dindstart.llk}}
+\code{\link[=logLik]{logLik()}}, \code{\link[=logLikNull]{logLikNull()}}, \code{\link[=ergm.bridge.llr]{ergm.bridge.llr()}},
+\code{\link[=ergm.bridge.dindstart.llk]{ergm.bridge.dindstart.llk()}}
 }
 \keyword{models}

@@ -12,7 +12,7 @@ data(g4)
 }
 \description{
 This is an example thought of by Steve Goodreau. It is a directed network of
-four nodes and five ties stored as a \code{\link[network]{network}} object.
+four nodes and five ties stored as a \code{\link[network:network]{network}} object.
 }
 \details{
 It is interesting because the maximum likelihood estimator of the model with

@@ -16,15 +16,15 @@
 #' Draw from the distribution of an Exponential Family Random Graph Model
 #' 
 #' \code{\link[stats]{simulate}} is used to draw from exponential
-#' family random network models.  See \code{\link{ergm}} for more
+#' family random network models.  See [ergm()] for more
 #' information on these models. 
 #'
 #' 
 #'
 #' A sample of networks is randomly drawn from the specified model.  The model
 #' is specified by the first argument of the function.  If the first argument
-#' is a \code{\link{formula}} then this defines the model.  If the first
-#' argument is the output of a call to \code{\link{ergm}} then the model used
+#' is a [`formula`] then this defines the model.  If the first
+#' argument is the output of a call to [ergm()] then the model used
 #' for that call is the one fit -- and unless \code{coef} is specified, the
 #' sample is from the MLE of the parameters.  If neither of those are given as
 #' the first argument then a Bernoulli network is generated with the
@@ -35,14 +35,14 @@
 #' after the first.
 #' 
 #' More information can be found by looking at the documentation of
-#' \code{\link{ergm}}.
+#' [ergm()].
 #' 
 #' @param object Either a [`formula`] or an
 #' [`ergm`] object.  The [`formula`] should be of the form
 #' \code{y ~ <model terms>}, where \code{y} is a network object or a matrix
-#' that can be coerced to a \code{\link[network]{network}} object.  For the
-#' details on the possible \code{<model terms>}, see \code{\link{ergmTerm}}.
-#' To create a \code{\link[network]{network}} object in , use the
+#' that can be coerced to a [`network`] object.  For the
+#' details on the possible \code{<model terms>}, see [`ergmTerm`].
+#' To create a [`network`] object in , use the
 #' \code{network()} function, then add nodal attributes to it using the
 #' \code{\%v\%} operator if necessary.
 #' @param nsim Number of networks to be randomly drawn from the given
@@ -129,7 +129,7 @@
 #' Otherwise, a representation of the simulated network is returned,
 #' in the form specified by `output`. In addition to a network
 #' representation or a list thereof, they have the following
-#' \code{\link{attr}}-style attributes: \describe{
+#' [attr()]-style attributes: \describe{
 #'
 #' \item{`formula`}{The [`formula`] used to generate the
 #' sample.}
@@ -152,7 +152,7 @@
 #'
 #' \item{`"network"`}{If \code{nsim==1}, an object of class
 #' \code{network}.  If \code{nsim>1}, it returns an object of class
-#' \code{\link{network.list}} (a list of networks) with the
+#' [`network.list`] (a list of networks) with the
 #' above-listed additional attributes.}
 #'
 #' \item{`"edgelist"`}{An [`edgelist`] representation of the network,
@@ -178,7 +178,7 @@
 #'   extension packages, such as `tergm`, but also accessed directly
 #'   when needed.
 #'
-#' @seealso \code{\link{ergm}}, \code{\link[network]{network}},
+#' @seealso [ergm()], [`network`],
 #'   [ergm_MCMC_sample()] for a demonstration of `return.args=`.
 #' @keywords models
 #' @examples

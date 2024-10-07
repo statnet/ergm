@@ -36,7 +36,7 @@ nthreads(clinfo = NULL, ...)
 \method{nthreads}{control.list}(clinfo = NULL, ...)
 }
 \arguments{
-\item{control}{a \code{\link{control.ergm}} (or similar) list of
+\item{control}{a \code{\link[=control.ergm]{control.ergm()}} (or similar) list of
 parameter values from which the parallel settings should be read;
 can also be \code{\link{NULL}}, in which case an existing cluster is used
 if started, or no cluster otherwise.}
@@ -71,9 +71,9 @@ estimation and simulation.
 
 The \code{ergm.getCluster} function is usually called
 internally by the ergm process (in
-\code{\link{ergm_MCMC_sample}}) and will attempt to start the
+\code{\link[=ergm_MCMC_sample]{ergm_MCMC_sample()}}) and will attempt to start the
 appropriate type of cluster indicated by the
-\code{\link{control.ergm}} settings. It will also check that the
+\code{\link[=control.ergm]{control.ergm()}} settings. It will also check that the
 same version of \code{ergm} is installed on each node.
 
 The \code{ergm.stopCluster} shuts down a

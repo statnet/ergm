@@ -13,7 +13,7 @@
 #' The \code{ergm.mple} function finds a maximizer to the psuedolikelihood
 #' function (MPLE). It is the default method for finding the ERGM starting
 #' coefficient values. It is normally called internally the ergm process and
-#' not directly by the user. Generally \code{\link{ergmMPLE}} would be called
+#' not directly by the user. Generally [ergmMPLE()] would be called
 #' by users instead.
 #' 
 #' According to \insertCite{HuHa08e;textual}{ergm}: "The maximizer of the pseudolikelihood
@@ -26,7 +26,7 @@
 #' computes these change statistics and the ergm.mple function implements the
 #' logistic regression using \R's [glm()] function.  Generally, neither ergm.mple
 #' nor ergm.pl should be called by users if the logistic regression output is
-#' desired; instead, use the \code{\link{ergmMPLE}} function.
+#' desired; instead, use the [ergmMPLE()] function.
 #' 
 #' In the case where the ERGM is a dyadic independence model, the MPLE is the
 #' same as the MLE.  However, in general this is not the case and, as \insertCite{DuGi09f;textual}{ergm}
@@ -39,7 +39,7 @@
 #' @param state,state.obs [`ergm_state`] objects.
 #' @param init a vector of initial theta coefficients
 #' @param family the family to use in the R native routine
-#'   \code{\link{glm}}; only applicable if "glm" is the 'MPLEtype';
+#'   [glm()]; only applicable if "glm" is the 'MPLEtype';
 #'   default="binomial"
 #'
 #' @templateVar mycontrol control.ergm
@@ -49,11 +49,11 @@
 #' @param \dots additional parameters passed from within; all will be
 #'   ignored
 #' @return \code{ergm.mple} returns an ergm object as a list
-#'   containing several items; for details see the return list in the
-#'   \code{\link{ergm}}
+#'   containing several items; for details see the return list of
+#'   [ergm()]
 #' 
-#' @seealso \code{\link{ergmMPLE}},
-#' \code{\link{ergm}},\code{\link{control.ergm}}
+#' @seealso [ergmMPLE()],
+#' [ergm()],[control.ergm()]
 #' @references \insertAllCited{}
 ergm.mple<-function(s, s.obs, init=NULL,
                     family="binomial",

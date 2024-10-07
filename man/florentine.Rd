@@ -17,7 +17,7 @@ data(florentine)
 \description{
 This is a data set of marriage and business ties among Renaissance
 Florentine families. The data is originally from Padgett (1994) via
-\code{UCINET} and stored as a \code{\link[network]{network}} object.
+\code{UCINET} and stored as a \code{\link[network:network]{network}} object.
 }
 \details{
 Breiger & Pattison (1986), in their discussion of local role analysis, use

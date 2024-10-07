@@ -95,13 +95,13 @@ formula will suppress the inherited formula altogether.
 \references{
 \itemize{
 \item Goodreau SM, Handcock MS, Hunter DR, Butts CT, Morris M (2008a).  A
-\pkg{statnet} Tutorial. \emph{Journal of Statistical Software}, 24(8).
+\CRANpkg{statnet} Tutorial. \emph{Journal of Statistical Software}, 24(8).
 \doi{10.18637/jss.v024.i08}
 \item Hunter, D. R. and Handcock, M. S. (2006) \emph{Inference in curved
 exponential family models for networks}, Journal of Computational and
 Graphical Statistics.
 \item Hunter DR, Handcock MS, Butts CT, Goodreau SM, Morris M (2008b).
-\pkg{ergm}: A Package to Fit, Simulate and Diagnose Exponential-Family
+\CRANpkg{ergm}: A Package to Fit, Simulate and Diagnose Exponential-Family
 Models for Networks.  \emph{Journal of Statistical Software}, 24(3).
 \doi{10.18637/jss.v024.i03}
 \item Karwa V, Krivitsky PN, and Slavkovi\'c AB (2016). Sharing Social Network

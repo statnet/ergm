@@ -13,7 +13,7 @@
 #' using the Godambe matrix as described in Schmid and Hunter (2020) or by parametric bootstrap
 #' as described by Schmid and Desmarais (2017).
 #'
-#' @param pl An \code{\link{ergm.pl}} object.
+#' @param pl An [`ergm.pl`] object.
 #' @param init a vector a vector of initial theta coefficients
 #' @param theta.mple the MPLE of a given model
 #' @param invHess the inverse Hessian matrix obtained from glm()

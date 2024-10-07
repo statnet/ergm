@@ -49,7 +49,7 @@ optionally restricting by additional keywords and search term
 matches.
 }
 \details{
-Uses \code{\link{grep}} internally to match the search terms against the term
+Uses \code{\link[=grep]{grep()}} internally to match the search terms against the term
 description, so \code{search} is currently matched as a single phrase.
 Keyword tags will only return a match if all of the specified tags are
 included in the term.
@@ -121,7 +121,7 @@ search.ergmProposals('MH algorithm', packages='ergm')
 \seealso{
 See also \code{\link{ergmTerm}},
 \code{\link{ergmConstraint}}, \code{\link{ergmReference}}, \code{\link{ergmHint}}, and
-\code{\link{ergmProposal}}, for lists of terms and term-alikes visible to \pkg{ergm}.
+\code{\link{ergmProposal}}, for lists of terms and term-alikes visible to \CRANpkg{ergm}.
 }
 \author{
 skyebend@uw.edu

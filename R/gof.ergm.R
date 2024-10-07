@@ -11,13 +11,13 @@
 #' Conduct Goodness-of-Fit Diagnostics on a Exponential Family Random Graph
 #' Model
 #' 
-#' \code{\link{gof}} calculates \eqn{p}-values for geodesic distance, degree,
+#' [gof()] calculates \eqn{p}-values for geodesic distance, degree,
 #' and reachability summaries to diagnose the goodness-of-fit of exponential
-#' family random graph models.  See \code{\link{ergm}} for more information on
+#' family random graph models.  See [ergm()] for more information on
 #' these models.
 #' 
 #' A sample of graphs is randomly drawn from the specified model.  The first
-#' argument is typically the output of a call to \code{\link{ergm}} and the
+#' argument is typically the output of a call to [ergm()] and the
 #' model used for that call is the one fit.
 #' 
 #' For \code{GOF = ~model}, the model's observed sufficient statistics are
@@ -30,7 +30,7 @@
 #'
 #' @aliases gof.default
 #' @param object Either a formula or an [`ergm`] object.
-#' See documentation for \code{\link{ergm}}.
+#' See documentation for [ergm()].
 #' @param \dots Additional arguments, to be passed to lower-level functions.
 #' @param coef When given either a formula or an object of class ergm,
 #' \code{coef} are the parameters from which the sample is drawn. By default
@@ -53,7 +53,7 @@
 #' \dQuote{model} term, add \dQuote{- model} to the formula.
 #' @param constraints A one-sided formula specifying one or more constraints on
 #' the support of the distribution of the networks being modeled. See the help
-#' for similarly-named argument in \code{\link{ergm}} for more information. For
+#' for similarly-named argument in [ergm()] for more information. For
 #' \code{gof.formula}, defaults to unconstrained. For \code{gof.ergm}, defaults
 #' to the constraints with which \code{object} was fitted.
 #'
@@ -66,10 +66,10 @@
 #' conditional on the observed dyads. This is primarily used internally when
 #' the network has missing data and a conditional GoF is produced.
 #' @template basis
-#' @return \code{\link{gof}}, \code{\link{gof.ergm}}, and
-#' \code{\link{gof.formula}} return an object of class \code{gof.ergm}, which inherits from class `gof`.  This
+#' @return [gof()], [gof.ergm()], and
+#' [gof.formula()] return an object of class \code{gof.ergm}, which inherits from class `gof`.  This
 #' is a list of the tables of statistics and \eqn{p}-values.  This is typically
-#' plotted using \code{\link{plot.gof}}.
+#' plotted using [plot.gof()].
 #' @seealso [ergm()], [network()], [simulate.ergm()], [summary.ergm()]
 #' @keywords models
 #' @examples
@@ -374,11 +374,10 @@ gof.formula <- function(object, ...,
 
 #' @describeIn gof
 #' 
-#' \code{\link{print.gof}} summaries the diagnostics such as the
+#' [print.gof()] summaries the diagnostics such as the
 #' degree distribution, geodesic distances, shared partner
 #' distributions, and reachability for the goodness-of-fit of
-#' exponential family random graph models.  See \code{\link{ergm}} for
-#' more information on these models. (`summary.gof` is a deprecated
+#' exponential family random graph models. (`summary.gof` is a deprecated
 #' alias that may be repurposed in the future.)
 #' 
 #' @param x an object of class \code{gof} for printing or plotting.
@@ -437,10 +436,10 @@ print.gof <- function(x, ...){
 
 #' @describeIn gof
 #' 
-#' \code{\link{plot.gof}} plots diagnostics such as the degree
+#' [plot.gof()] plots diagnostics such as the degree
 #' distribution, geodesic distances, shared partner distributions, and
 #' reachability for the goodness-of-fit of exponential family random graph
-#' models.  See \code{\link{ergm}} for more information on these models.
+#' models.
 #' 
 #' @param cex.axis Character expansion of the axis labels relative to that for
 #' the plot.

@@ -45,7 +45,7 @@ typically as the \code{reference} argument.
 
 \references{
 \itemize{
-\item Hunter DR, Handcock MS, Butts CT, Goodreau SM, Morris M (2008b). \pkg{ergm}:
+\item Hunter DR, Handcock MS, Butts CT, Goodreau SM, Morris M (2008b). \CRANpkg{ergm}:
 A Package to Fit, Simulate and Diagnose Exponential-Family Models for
 Networks. \emph{Journal of Statistical Software}, 24(3).
 \doi{10.18637/jss.v024.i03}

@@ -14,7 +14,7 @@
 #' @param stats.print Logical: If TRUE, print network statistics.
 #' @param net.print Logical: If TRUE, print network overviews.
 #' @param net.summary Logical: If TRUE, print network summaries.
-#' @seealso \code{\link{simulate.ergm}}
+#' @seealso [simulate.ergm()]
 #' @examples
 #' 
 #' # Draw from a Bernoulli model with 16 nodes

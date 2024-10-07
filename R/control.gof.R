@@ -51,8 +51,8 @@
 #' Auxiliary function as user interface for fine-tuning ERGM Goodness-of-Fit
 #' Evaluation.
 #' 
-#' This function is only used within a call to the \code{\link{gof}} function.
-#' See the \code{usage} section in \code{\link{gof}} for details.
+#' This function is only used within a call to the [gof()] function.
+#' See the Usage section in [gof()] for details.
 #' 
 #' @aliases control.gof control.gof.formula control.gof.ergm
 #'
@@ -76,10 +76,10 @@
 #' @template seed
 #' @template control_MCMC_packagenames
 #' @return A list with arguments as components.
-#' @seealso \code{\link{gof}}. The \code{\link{control.simulate}} function
-#' performs a similar function for \code{\link{simulate.ergm}};
-#' \code{\link{control.ergm}} performs a similar function for
-#' \code{\link{ergm}}.
+#' @seealso [gof()]. The [control.simulate()] function
+#' performs a similar function for [simulate.ergm()];
+#' [control.ergm()] performs a similar function for
+#' [ergm()].
 #' @name control.gof
 #' @export control.gof.ergm
 control.gof.formula<-function(nsim=100,

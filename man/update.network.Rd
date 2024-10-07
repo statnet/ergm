@@ -37,7 +37,7 @@ the edge attribute whose names to set.}
 
 \item{matrix.type}{One of \code{"adjacency"} or \code{"edgelist"} telling
 which type of matrix \code{new} is.  Default is to use the
-\code{\link[network]{which.matrix.type}} function.}
+\code{\link[network:which.matrix.type]{which.matrix.type()}} function.}
 }
 \value{
 A new \code{\link[network:network]{network}} object with the edges specified by

@@ -63,7 +63,7 @@
 #' @return For \code{ergm.eta}, the canonical eta parameters as mapped
 #'   from theta.
 #'
-#' @seealso \code{\link{ergmTerm}}
+#' @seealso [`ergmTerm`]
 #' @references \itemize{ \item Hunter, D. R. and M. S. Handcock
 #'   (2006).  Inference in curved exponential family models for
 #'   networks. \emph{Journal of Computational and Graphical

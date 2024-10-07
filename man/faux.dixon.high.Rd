@@ -5,7 +5,7 @@
 \alias{faux.dixon.high}
 \title{Faux dixon High School as a network object}
 \format{
-\code{faux.dixon.high} is a \code{\link[network]{network}} object
+\code{faux.dixon.high} is a \code{\link[network:network]{network}} object
 with 248 vertices (students, in this case) and 1197 directed edges
 (friendship nominations). To obtain additional summary information about it,
 type \code{summary(faux.dixon.high)}.
@@ -34,7 +34,7 @@ take the AddHealth survey or who were not listed by name on the schools'
 student roster are not included in the stucture files.  In addition, we
 removed any students with missing values for race, grade or sex.
 
-The following \code{\link{ergm}} model was fit to the original data
+The following \code{\link[=ergm]{ergm()}} specification was fit to the original data
 (with code updated for modern syntax):
 
 \preformatted{ dixon.fit <- ergm(original.net ~ edges + mutual +
@@ -79,8 +79,8 @@ Adolescent Health}, \emph{Journal of the American Medical Association}, 278:
 823-32.
 }
 \seealso{
-\code{\link[network]{network}},
-\code{\link[network]{plot.network}}, \code{\link{ergm}},
+\code{\link[network:network]{network}},
+\code{\link[network:plot.network]{plot.network()}}, \code{\link[=ergm]{ergm()}},
 \code{\link{faux.desert.high}}, \code{\link{faux.mesa.high}},
 \code{\link{faux.magnolia.high}}
 }

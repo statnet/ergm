@@ -44,13 +44,13 @@ is.ergm(object)
 \arguments{
 \item{formula}{An \R \code{\link{formula}}, of the form
 \code{y ~ <model terms>}, where \code{y} is a
-\code{\link[network]{network}} object or a matrix that can be
-coerced to a \code{\link[network]{network}} object.  For the
+\code{\link[network:network]{network}} object or a matrix that can be
+coerced to a \code{\link[network:network]{network}} object.  For the
 details on the possible \code{<model terms>}, see
 \code{\link{ergmTerm}} and Morris, Handcock and Hunter (2008)
 for binary ERGM terms and Krivitsky (2012) for valued ERGM terms
 (terms for weighted edges).  To create a
-\code{\link[network]{network}} object in \R, use the
+\code{\link[network:network]{network}} object in \R, use the
 \code{network()} function, then add nodal attributes to it using
 the \code{\%v\%} operator if necessary. Enclosing a model term in
 \code{offset()} fixes its value to one specified in
@@ -143,7 +143,7 @@ is returned.  If "MLE" (the default), then an approximate maximum likelihood
 estimator is returned.  For certain models, the MPLE and MLE are equivalent,
 in which case this argument is ignored.  (To force MCMC-based approximate
 likelihood calculation even when the MLE and MPLE are the same, see the
-\code{force.main} argument of \code{\link{control.ergm}}. If "CD" (\emph{EXPERIMENTAL}),
+\code{force.main} argument of \code{\link[=control.ergm]{control.ergm()}}. If "CD" (\emph{EXPERIMENTAL}),
 the Monte-Carlo contrastive divergence estimate is returned. )
 }}
 
@@ -181,7 +181,7 @@ the covariance matrix from the ERGM model, the estimation
 process, or both combined.}
 }
 \value{
-\code{\link{ergm}} returns an object of class \code{\link{ergm}} that is a list
+\code{\link[=ergm]{ergm()}} returns an object of \code{\link{ergm}} that is a list
 consisting of the following elements:
 \item{coef}{The Monte Carlo maximum likelihood estimate
 of \eqn{\theta}, the vector of coefficients for the model
@@ -268,7 +268,7 @@ The value is only approximate because it is estimated based
 on the MCMC random sample.}
 }
 \description{
-\code{\link{ergm}} is used to fit exponential-family random graph
+\code{\link[=ergm]{ergm()}} is used to fit exponential-family random graph
 models (ERGMs), in which
 the probability of a given network, \eqn{y}, on a set of nodes is
 \eqn{h(y) \exp\{\eta(\theta) \cdot
@@ -278,11 +278,11 @@ g(y)\}/c(\theta)}, where
 \eqn{\eta(\theta)} is a natural parameter vector of the same
 length (with \eqn{\eta(\theta)=\theta} for most terms), and \eqn{c(\theta)} is the
 normalizing constant for the distribution.
-\code{\link{ergm}} can return a maximum pseudo-likelihood
+\code{\link[=ergm]{ergm()}} can return a maximum pseudo-likelihood
 estimate, an approximate maximum likelihood estimate based on a Monte
 Carlo scheme, or an approximate contrastive divergence estimate based
 on a similar scheme.
-(For an overview of the package \insertCite{HuHa08e,KrHu23e}{ergm}, see \code{\link{ergm-package}}.)
+(For an overview of the package \insertCite{HuHa08e,KrHu23e}{ergm}, see \CRANpkg{ergm}.)
 }
 \section{Methods (by generic)}{
 \itemize{
@@ -309,7 +309,7 @@ a census of all triangles in the observed network is never
 taken; instead, only the change in the number of triangles
 is recorded for each edge toggle.
 
-In the implementation of \code{\link{ergm}}, the model is
+In the implementation of \code{\link[=ergm]{ergm()}}, the model is
 initialized in \R, then all the model information is passed to a C
 program that generates the sample of network statistics using MCMC.
 This sample is then returned to \R, which then uses one of several
@@ -324,7 +324,7 @@ and the weights placed on these possible steps by the
 proposal distribution.  The former may be controlled using the
 \code{constraints} argument described above.  The latter may
 be controlled using the \code{prop.weights} argument to the
-\code{\link{control.ergm}} function.
+\code{\link[=control.ergm]{control.ergm()}} function.
 
 The package is designed so that the user could conceivably add additional
 proposal types.
@@ -417,7 +417,7 @@ vcov(gest, sources="all") # the default
 \insertAllCited{}
 
 Admiraal R, Handcock MS (2007).
-\pkg{networksis}: Simulate bipartite graphs with fixed
+\CRANpkg{networksis}: Simulate bipartite graphs with fixed
 marginals through sequential importance sampling.
 Statnet Project, Seattle, WA.
 Version 1. \url{https://statnet.org}.
@@ -429,19 +429,19 @@ Network Data: \pkg{dynamicnetwork} and \pkg{rSoNIA}.
 \doi{10.18637/jss.v024.i07}
 
 Butts CT (2007).
-\pkg{sna}: Tools for Social Network Analysis.
+\CRANpkg{sna}: Tools for Social Network Analysis.
 R package version 2.3-2. \url{https://cran.r-project.org/package=sna}.
 
 Butts CT (2008).
-\pkg{network}: A Package for Managing Relational Data in \R.
+\CRANpkg{network}: A Package for Managing Relational Data in \R.
 \emph{Journal of Statistical Software}, 24(2).
 \doi{10.18637/jss.v024.i02}
 
 Butts C (2015).
-\pkg{network}: The Statnet Project (https://statnet.org). R package version 1.12.0, \url{https://cran.r-project.org/package=network}.
+\CRANpkg{network}: The Statnet Project (https://statnet.org). R package version 1.12.0, \url{https://cran.r-project.org/package=network}.
 
 Goodreau SM, Handcock MS, Hunter DR, Butts CT, Morris M (2008a).
-A \pkg{statnet} Tutorial.
+A \CRANpkg{statnet} Tutorial.
 \emph{Journal of Statistical Software}, 24(8).
 \doi{10.18637/jss.v024.i08}
 
@@ -458,7 +458,7 @@ University of Washington.
 \url{https://csss.uw.edu/research/working-papers/assessing-degeneracy-statistical-models-social-networks}
 
 Handcock MS (2003b).
-\pkg{degreenet}: Models for Skewed Count Distributions Relevant
+\CRANpkg{degreenet}: Models for Skewed Count Distributions Relevant
 to Networks.
 Statnet Project, Seattle, WA.
 Version 1.0, \url{https://statnet.org}.
@@ -466,13 +466,13 @@ Version 1.0, \url{https://statnet.org}.
 Handcock MS and Gile KJ (2010). Modeling Social Networks from Sampled Data. \emph{Annals of Applied Statistics}, 4(1), 5-25. \doi{10.1214/08-AOAS221}
 
 Handcock MS, Hunter DR, Butts CT, Goodreau SM, Morris M (2003a).
-\pkg{ergm}: A Package to Fit, Simulate and Diagnose
+\CRANpkg{ergm}: A Package to Fit, Simulate and Diagnose
 Exponential-Family Models for Networks.
 Statnet Project, Seattle, WA.
 Version 2, \url{https://statnet.org}.
 
 Handcock MS, Hunter DR, Butts CT, Goodreau SM, Morris M (2003b).
-\pkg{statnet}: Software Tools for the Statistical Modeling of
+\CRANpkg{statnet}: Software Tools for the Statistical Modeling of
 Network Data.
 Statnet Project, Seattle, WA.
 Version 2, \url{https://statnet.org}.
@@ -482,7 +482,7 @@ Hunter, D. R. and Handcock, M. S. (2006)
 Journal of Computational and Graphical Statistics.
 
 Hunter DR, Handcock MS, Butts CT, Goodreau SM, Morris M (2008b).
-\pkg{ergm}: A Package to Fit, Simulate and Diagnose
+\CRANpkg{ergm}: A Package to Fit, Simulate and Diagnose
 Exponential-Family Models for Networks.
 \emph{Journal of Statistical Software}, 24(3).
 \doi{10.18637/jss.v024.i03}

@@ -92,7 +92,7 @@ are \code{"MPI"} and \code{"PSOCK"}. Defaults to using the \code{parallel}
 package with PSOCK clusters. See \code{\link{ergm-parallel}}}
 
 \item{parallel.version.check}{Logical: If TRUE, check that the version of
-\code{\link[=ergm-package]{ergm}} running on the slave nodes is the same as
+\pkg{ergm} running on the slave nodes is the same as
 that running on the master node.}
 
 \item{parallel.inherit.MT}{Logical: If TRUE, slave nodes and
@@ -106,10 +106,10 @@ Auxiliary function as user interface for fine-tuning simulated annealing
 algorithm.
 }
 \details{
-This function is only used within a call to the \code{\link{san}} function.
-See the \code{usage} section in \code{\link{san}} for details.
+This function is only used within a call to the \code{\link[=san]{san()}} function.
+See the Usage section in \code{\link[=san]{san()}} for details.
 }
 \seealso{
-\code{\link{san}}
+\code{\link[=san]{san()}}
 }
 \keyword{models}

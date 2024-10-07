@@ -22,7 +22,7 @@
 #' statistics of the network, and, optionally, the final network.
 #' 
 #' 
-#' @param formula An \code{\link{ergm}}-style formula, with a
+#' @param formula An [ergm()]-style formula, with a
 #'   [`network`] on its LHS.
 #' @param changes Either a matrix with three columns: tail, head, and
 #'   new value, describing the changes to be made; or a list of such

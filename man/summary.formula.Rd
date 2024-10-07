@@ -10,8 +10,8 @@ specified on a formula}
 }
 \arguments{
 \item{object}{A formula having as its LHS a
-\code{\link[network]{network}} object or a matrix that can be
-coerced to a \code{\link[network]{network}} object, a
+\code{\link[network:network]{network}} object or a matrix that can be
+coerced to a \code{\link[network:network]{network}} object, a
 \code{\link{network.list}}, or other types to be summarized using a formula. (See
 `methods('summary_formula') for the possible LHS types.}
 

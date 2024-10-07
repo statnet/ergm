@@ -70,7 +70,7 @@ ergm_proposal(object, ...)
 
 \item{arguments}{A list of parameters used by the InitErgmProposal routines}
 
-\item{nw}{The network object originally given to \code{\link{ergm}}
+\item{nw}{The network object originally given to \code{\link[=ergm]{ergm()}}
 via 'formula'}
 
 \item{reference}{A one-sided formula specifying
@@ -91,7 +91,7 @@ and "d" default="c".}
 
 \item{constraints}{A one-sided formula specifying one or more constraints on
 the support of the distribution of the networks being simulated. See the
-documentation for a similar argument for \code{\link{ergm}} and see
+documentation for a similar argument for \code{\link[=ergm]{ergm()}} and see
 \code{\link{ergmConstraint}} for more information.}
 }
 \value{
@@ -114,7 +114,7 @@ the \code{InitErgmProposal} function; in particular,
 S3 Functions that initialize the Metropolis-Hastings Proposal (ergm_proposal)
 object using the \verb{InitErgmProposal.*} function that corresponds to the name given in
 'object'.  These functions are not generally called directly by the user.
-See \link{ergm-proposals} for general explanation and lists of available
+See \code{\link{ergmProposal}} for general explanation and lists of available
 Metropolis-Hastings proposal types.
 }
 \section{Methods (by class)}{

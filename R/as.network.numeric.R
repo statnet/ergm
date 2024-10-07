@@ -10,8 +10,8 @@
 
 #' Create a Simple Random network of a Given Size
 #' 
-#' \code{\link{as.network.numeric}} creates a random Bernoulli network of the
-#' given size as an object of class \code{\link[network]{network}}.
+#' [as.network.numeric()] creates a random Bernoulli network of the
+#' given size as an object of class [`network`].
 #' 
 #' The network will not have vertex, edge or network attributes.  These
 #' can be added with operators such as \code{\%v\%}, \code{\%n\%}, \code{\%e\%}.
@@ -40,8 +40,8 @@
 #' on this number of edges (rather than independently with the specified
 #' probability).
 #' @param ... additional arguments
-#' @return An object of class \code{\link[network]{network}}
-#' @seealso \code{\link[network]{network}}
+#' @return An object of class [`network`]
+#' @seealso [`network`]
 #' @references Butts, C.T.  2002.  ``Memory Structures for Relational Data in
 #' R: Classes and Interfaces'' Working Paper.
 #' @keywords classes graphs

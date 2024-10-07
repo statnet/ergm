@@ -29,7 +29,7 @@ ergm.pl(
 \item{init}{a vector of initial theta coefficients}
 
 \item{family}{the family to use in the R native routine
-\code{\link{glm}}; only applicable if "glm" is the 'MPLEtype';
+\code{\link[=glm]{glm()}}; only applicable if "glm" is the 'MPLEtype';
 default="binomial"}
 
 \item{control}{A list of control parameters for algorithm tuning,
@@ -67,8 +67,8 @@ column.}
 }
 \value{
 \code{ergm.mple} returns an ergm object as a list
-containing several items; for details see the return list in the
-\code{\link{ergm}}
+containing several items; for details see the return list of
+\code{\link[=ergm]{ergm()}}
 
 \code{ergm.pl} returns a list containing:
 
@@ -88,7 +88,7 @@ and \code{zy}}
 The \code{ergm.mple} function finds a maximizer to the psuedolikelihood
 function (MPLE). It is the default method for finding the ERGM starting
 coefficient values. It is normally called internally the ergm process and
-not directly by the user. Generally \code{\link{ergmMPLE}} would be called
+not directly by the user. Generally \code{\link[=ergmMPLE]{ergmMPLE()}} would be called
 by users instead.
 
 \code{ergm.pl} is an even more internal workhorse
@@ -108,7 +108,7 @@ the vector of change statistics for that node pair.  The ergm.pl function
 computes these change statistics and the ergm.mple function implements the
 logistic regression using \R's \code{\link[=glm]{glm()}} function.  Generally, neither ergm.mple
 nor ergm.pl should be called by users if the logistic regression output is
-desired; instead, use the \code{\link{ergmMPLE}} function.
+desired; instead, use the \code{\link[=ergmMPLE]{ergmMPLE()}} function.
 
 In the case where the ERGM is a dyadic independence model, the MPLE is the
 same as the MLE.  However, in general this is not the case and, as \insertCite{DuGi09f;textual}{ergm}
@@ -122,7 +122,7 @@ starting points for the MCMC algorithm.
 \insertAllCited{}
 }
 \seealso{
-\code{\link{ergmMPLE}},
-\code{\link{ergm}},\code{\link{control.ergm}}
+\code{\link[=ergmMPLE]{ergmMPLE()}},
+\code{\link[=ergm]{ergm()}},\code{\link[=control.ergm]{control.ergm()}}
 }
 \keyword{internal}

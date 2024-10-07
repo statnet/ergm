@@ -18,7 +18,7 @@
 #' @details `control.logLik.ergm()` is only used within a call to the
 #'   [logLik.ergm()].
 #'
-#' @seealso \code{\link{logLik.ergm}}
+#' @seealso [logLik.ergm()]
 #' @export control.logLik.ergm
 control.logLik.ergm<-function(bridge.nsteps=16,
                               bridge.target.se=NULL,

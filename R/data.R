@@ -55,7 +55,7 @@ NULL
 #' data(faux.desert.high)
 #' @docType data
 #' @name faux.desert.high
-#' @format \code{faux.desert.high} is a \code{\link[network]{network}} object
+#' @format \code{faux.desert.high} is a [`network`] object
 #' with 107 vertices (students, in this case) and 439 directed edges
 #' (friendship nominations). To obtain additional summary information about it,
 #' type \code{summary(faux.desert.high)}.
@@ -77,10 +77,10 @@ NULL
 #' Mark S. Handcock, David R. Hunter, Carter T. Butts, Steven M. Goodreau, and
 #' Martina Morris. 2003 \emph{statnet: Software tools for the Statistical
 #' Modeling of Network Data} \cr \url{https://statnet.org}.
-#' @seealso \code{\link[network]{network}},
-#' \code{\link[network]{plot.network}}, \code{\link{ergm}},
-#' \code{\link{faux.desert.high}}, \code{\link{faux.mesa.high}},
-#' \code{\link{faux.magnolia.high}}
+#' @seealso [`network`],
+#' [plot.network()], [ergm()],
+#' [`faux.desert.high`], [`faux.mesa.high`],
+#' [`faux.magnolia.high`]
 #' @references
 #' 
 #' Resnick M.D., Bearman, P.S., Blum R.W. et al. (1997). \emph{Protecting
@@ -103,7 +103,7 @@ NULL
 #' student roster are not included in the stucture files.  In addition, we
 #' removed any students with missing values for race, grade or sex.
 #' 
-#' The following \code{\link{ergm}} model was fit to the original data
+#' The following [ergm()] specification was fit to the original data
 #' (with code updated for modern syntax):
 #' 
 #' \preformatted{ desert.fit <- ergm(original.net ~ edges + mutual +
@@ -133,7 +133,7 @@ NULL
 #' data(faux.dixon.high)
 #' @docType data
 #' @name faux.dixon.high
-#' @format \code{faux.dixon.high} is a \code{\link[network]{network}} object
+#' @format \code{faux.dixon.high} is a [`network`] object
 #' with 248 vertices (students, in this case) and 1197 directed edges
 #' (friendship nominations). To obtain additional summary information about it,
 #' type \code{summary(faux.dixon.high)}.
@@ -155,10 +155,10 @@ NULL
 #' Mark S. Handcock, David R. Hunter, Carter T. Butts, Steven M. Goodreau, and
 #' Martina Morris. 2003 \emph{statnet: Software tools for the Statistical
 #' Modeling of Network Data} \cr \url{https://statnet.org}.
-#' @seealso \code{\link[network]{network}},
-#' \code{\link[network]{plot.network}}, \code{\link{ergm}},
-#' \code{\link{faux.desert.high}}, \code{\link{faux.mesa.high}},
-#' \code{\link{faux.magnolia.high}}
+#' @seealso [`network`],
+#' [plot.network()], [ergm()],
+#' [`faux.desert.high`], [`faux.mesa.high`],
+#' [`faux.magnolia.high`]
 #' @references
 #' 
 #' Resnick M.D., Bearman, P.S., Blum R.W. et al. (1997). \emph{Protecting
@@ -181,7 +181,7 @@ NULL
 #' student roster are not included in the stucture files.  In addition, we
 #' removed any students with missing values for race, grade or sex.
 #' 
-#' The following \code{\link{ergm}} model was fit to the original data
+#' The following [ergm()] specification was fit to the original data
 #' (with code updated for modern syntax):
 #' 
 #' \preformatted{ dixon.fit <- ergm(original.net ~ edges + mutual +
@@ -211,7 +211,7 @@ NULL
 #' data(faux.magnolia.high)
 #' @docType data
 #' @name faux.magnolia.high
-#' @format \code{faux.magnolia.high} is a \code{\link[network]{network}} object
+#' @format \code{faux.magnolia.high} is a [`network`] object
 #' with 1461 vertices (students, in this case) and 974 undirected edges (mutual
 #' friendships). To obtain additional summary information about it, type
 #' \code{summary(faux.magnolia.high)}.
@@ -233,9 +233,9 @@ NULL
 #' Mark S. Handcock, David R. Hunter, Carter T. Butts, Steven M. Goodreau, and
 #' Martina Morris. 2003 \emph{statnet: Software tools for the Statistical
 #' Modeling of Network Data} \cr \url{https://statnet.org}.
-#' @seealso \code{\link[network]{network}},
-#' \code{\link[network]{plot.network}}, \code{\link{ergm}},
-#' \code{\link{faux.mesa.high}}
+#' @seealso [`network`],
+#' [plot.network()], [ergm()],
+#' [`faux.mesa.high`]
 #' @references
 #' 
 #' Resnick M.D., Bearman, P.S., Blum R.W. et al. (1997). \emph{Protecting
@@ -254,7 +254,7 @@ NULL
 #' grade, and sex values were replaced by a random draw with weights determined
 #' by the size of the attribute classes in the school.
 #' 
-#' The following \code{\link{ergm}} model was fit to the original data:
+#' The following [ergm()] specification was fit to the original data:
 #' 
 #' \preformatted{ magnolia.fit <- ergm (magnolia ~ edges +
 #' nodematch("Grade",diff=T) + nodematch("Race",diff=T) +
@@ -283,7 +283,7 @@ NULL
 #' @docType data
 #' @name faux.mesa.high
 #' @aliases faux.mesa.high fauxhigh
-#' @format \code{faux.mesa.high} is a \code{\link[network]{network}} object
+#' @format \code{faux.mesa.high} is a [`network`] object
 #' with 205 vertices (students, in this case) and 203 undirected edges (mutual
 #' friendships).  To obtain additional summary information about it, type
 #' \code{summary(faux.mesa.high)}.
@@ -305,9 +305,9 @@ NULL
 #' Mark S. Handcock, David R. Hunter, Carter T. Butts, Steven M. Goodreau, and
 #' Martina Morris. 2003 \emph{statnet: Software tools for the Statistical
 #' Modeling of Network Data} \cr \url{https://statnet.org}.
-#' @seealso \code{\link[network]{network}},
-#' \code{\link[network]{plot.network}}, \code{\link{ergm}},
-#' \code{\link{faux.magnolia.high}}
+#' @seealso [`network`],
+#' [plot.network()], [ergm()],
+#' [`faux.magnolia.high`]
 #' @references
 #' 
 #' Hunter D.R., Goodreau S.M. and Handcock M.S. (2008). \emph{Goodness of Fit
@@ -328,7 +328,7 @@ NULL
 #' Missing values for each were randomly assigned with weights determined by
 #' the size of the attribute classes in the school.
 #' 
-#' The following \code{\link{ergm}} formula was used to fit a model to the
+#' The following [ergm()] specification was used to fit a model to the
 #' original data:
 #' 
 #' \preformatted{ ~ edges + nodefactor("Grade") + nodefactor("Race") +
@@ -349,7 +349,7 @@ NULL
 #' 
 #' This is a data set of marriage and business ties among Renaissance
 #' Florentine families. The data is originally from Padgett (1994) via
-#' \code{UCINET} and stored as a \code{\link[network]{network}} object.
+#' \code{UCINET} and stored as a [`network`] object.
 #' 
 #' Breiger & Pattison (1986), in their discussion of local role analysis, use
 #' a subset of data on the social relations among Renaissance Florentine
@@ -397,7 +397,7 @@ NULL
 #' Goodreau's four node network as a "network" object
 #' 
 #' This is an example thought of by Steve Goodreau. It is a directed network of
-#' four nodes and five ties stored as a \code{\link[network]{network}} object.
+#' four nodes and five ties stored as a [`network`] object.
 #' 
 #' It is interesting because the maximum likelihood estimator of the model with
 #' out degree 3 in it exists, but the maximum psuedolikelihood estimator does
@@ -473,9 +473,9 @@ NULL
 #' Synthetic network with 20 nodes and 28 edges
 #' 
 #' This is a synthetic network of 20 nodes that is used as an example within
-#' the \code{\link{ergm}} documentation. It has an interesting elongated shape
+#' the [ergm()] documentation. It has an interesting elongated shape
 #' - reminencent of a chemical molecule.  It is stored as a
-#' \code{\link[network]{network}} object.
+#' [`network`] object.
 #' 
 #' 
 #' @usage
@@ -518,18 +518,18 @@ NULL
 #' the corresponding network data sets are named \code{samplk1},
 #' \code{samplk2}, and \code{samplk3}, respectively.
 #' 
-#' See also the data set \code{\link{sampson}} containing the time-aggregated
+#' See also the data set [`sampson`] containing the time-aggregated
 #' graph \code{samplike}.
 #' 
 #' \code{samplk3} is a data set of Hoff, Raftery and Handcock (2002).
 #' 
-#' The data sets are stored as \code{\link[network]{network}} objects with
+#' The data sets are stored as [`network`] objects with
 #' three vertex attributes:
 #' 
 #' \describe{ \item{group}{Groups of novices as classified by Sampson, that is,
 #' "Loyal", "Outcasts", and "Turks", but with a fourth group called the
 #' "Waverers" by White et al. (1975) that comprises two of the original Loyal
-#' opposition and one of the original Outcasts. See the \code{\link{samplike}}
+#' opposition and one of the original Outcasts. See the [`samplike`]
 #' data set for the original classifications of these three waverers.}
 #' \item{cloisterville}{An indicator of attendance in the minor seminary of
 #' "Cloisterville" before coming to the monastery.} \item{vertex.names}{The
@@ -554,8 +554,8 @@ NULL
 #' @name samplk
 #' @aliases samplk samplk1 samplk2 samplk3
 #' @section Mislabeling in Versions Prior to 3.6.1: In \code{ergm} versions
-#' 3.6.0 and earlier, The adjacency matrices of the \code{\link{samplike}},
-#' \code{\link{samplk1}}, \code{\link{samplk2}}, and \code{\link{samplk3}}
+#' 3.6.0 and earlier, The adjacency matrices of the [`samplike`],
+#' [`samplk1`], [`samplk2`], and [`samplk3`]
 #' networks reflected the original Sampson (1969) ordering of the names even
 #' though the vertex labels used the name order of de Nooy, Mrvar, and Batagelj
 #' (2005). That is, in \code{ergm} version 3.6.0 and earlier, the vertices were
@@ -615,11 +615,11 @@ NULL
 #' monk A to monk B exists if A nominated B as one of his three (or four, in
 #' case of ties) best friends at any of the three time points.
 #' 
-#' See also the data sets \code{\link{samplk1}}, \code{\link{samplk2}}, and
-#' \code{\link{samplk3}}, containing the networks at each of the three
+#' See also the data sets [`samplk1`], [`samplk2`], and
+#' [`samplk3`], containing the networks at each of the three
 #' individual time points.
 #' 
-#' The data set is stored as a \code{\link[network]{network}} object with three
+#' The data set is stored as a [`network`] object with three
 #' vertex attributes:
 #' 
 #' \describe{ \item{group}{Groups of novices as classified by Sampson:
@@ -651,8 +651,8 @@ NULL
 #' @name sampson
 #' @aliases sampson samplike
 #' @section Mislabeling in Versions Prior to 3.6.1: In \code{ergm} version
-#' 3.6.0 and earlier, The adjacency matrices of the \code{\link{samplike}},
-#' \code{\link{samplk1}}, \code{\link{samplk2}}, and \code{\link{samplk3}}
+#' 3.6.0 and earlier, The adjacency matrices of the [`samplike`],
+#' [`samplk1`], [`samplk2`], and [`samplk3`]
 #' networks reflected the original Sampson (1969) ordering of the names even
 #' though the vertex labels used the name order of de Nooy, Mrvar, and Batagelj
 #' (2005). That is, in \code{ergm} version 3.6.0 and earlier, the vertices were

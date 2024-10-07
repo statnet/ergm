@@ -54,7 +54,7 @@ graph \code{samplike}.
 
 \code{samplk3} is a data set of Hoff, Raftery and Handcock (2002).
 
-The data sets are stored as \code{\link[network]{network}} objects with
+The data sets are stored as \code{\link[network:network]{network}} objects with
 three vertex attributes:
 
 \describe{ \item{group}{Groups of novices as classified by Sampson, that is,

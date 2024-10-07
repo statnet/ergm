@@ -6,7 +6,7 @@
 \alias{print.network.list}
 \alias{summary.network.list}
 \title{A convenience container for a list of \code{\link[network:network]{network}} objects, output
-by \code{\link{simulate.ergm}} among others.}
+by \code{\link[=simulate.ergm]{simulate.ergm()}} among others.}
 \usage{
 network.list(object, ...)
 
@@ -35,7 +35,7 @@ lower-level functions.}
 }
 \description{
 A convenience container for a list of \code{\link[network:network]{network}} objects, output
-by \code{\link{simulate.ergm}} among others.
+by \code{\link[=simulate.ergm]{simulate.ergm()}} among others.
 }
 \section{Methods (by generic)}{
 \itemize{
@@ -63,5 +63,5 @@ summary(g.sim)
 
 }
 \seealso{
-\code{\link{simulate.ergm}}
+\code{\link[=simulate.ergm]{simulate.ergm()}}
 }

@@ -47,8 +47,8 @@
 #' error, unless \code{eval.loglik=TRUE}.
 #' 
 #' @aliases anova.ergm anova.ergmlist
-#' @param object,... objects of class \code{\link{ergm}}, usually, a result of a
-#' call to \code{\link{ergm}}.
+#' @param object,... objects of [`ergm`], usually, a result of a
+#' call to [ergm()].
 #' @param eval.loglik a logical specifying whether the log-likelihood will be
 #' evaluated if missing.
 #' @return An object of class \code{"anova"} inheriting from class
@@ -56,10 +56,10 @@
 #' @section Warning: The comparison between two or more models will only be
 #' valid if they are fitted to the same dataset. This may be a problem if there
 #' are missing values and 's default of \code{na.action = na.omit} is used, and
-#' \code{\link{anova.ergmlist}} will detect this with an error.
-#' @seealso The model fitting function \code{\link{ergm}}, \code{\link{anova}},
-#' \code{\link{logLik.ergm}} for adding the log-likelihood to an existing
-#' \code{\link[=ergm.object]{ergm}} object.
+#' [anova.ergmlist()] will detect this with an error.
+#' @seealso The model fitting function [ergm()], [anova()],
+#' [logLik.ergm()] for adding the log-likelihood to an existing
+#' [`ergm`] object.
 #' @keywords regression models
 #' @examples
 #' 

@@ -43,7 +43,7 @@ model estimating the curved parameters but simulate the "fixed" statistic.
 
 This function thus takes in a fit or a formula and performs this mapping,
 returning a "fixed" model and parameter specification.  It only works for
-curved ERGM terms included with the \code{\link[=ergm-package]{ergm}}
+curved ERGM terms included with the \CRANpkg{ergm}
 package. It does not work with curved terms not included in ergm.
 }
 \examples{
@@ -67,6 +67,6 @@ simulate(tmp$formula, coef=tmp$theta, output="stats")
 
 }
 \seealso{
-\code{\link{ergm}}, \code{\link{simulate.ergm}}
+\code{\link[=ergm]{ergm()}}, \code{\link[=simulate.ergm]{simulate.ergm()}}
 }
 \keyword{model}

@@ -32,20 +32,20 @@ vector with curved parameter estimates removed.}
 The generic \code{enformulate.curved} converts an \code{\link{ergm}} object
 or formula of a model with curved terms to the variant in which the curved
 parameters embedded into the formula and are removed from the parameter
-vector. This is the form that used to be required by \code{\link{ergm}} calls.
+vector. This is the form that used to be required by \code{\link[=ergm]{ergm()}} calls.
 }
 \details{
-Because of a current kludge in \code{\link{ergm}}, output from one run
+Because of a current kludge in \code{\link[=ergm]{ergm()}}, output from one run
 cannot be directly passed as initial values (\code{control.ergm(init=)}) for
 the next run if any of the terms are curved. One workaround is to embed the
 curved parameters into the formula (while keeping \code{fixed=FALSE}) and
 remove them from \code{control.ergm(init=)}.
 
 This function automates this process for curved ERGM terms included with the
-\code{\link[=ergm-package]{ergm}} package. It does not work with curved
+\CRANpkg{ergm} package. It does not work with curved
 terms not included in ergm.
 }
 \seealso{
-\code{\link{ergm}}, \code{\link{simulate.ergm}}
+\code{\link[=ergm]{ergm()}}, \code{\link[=simulate.ergm]{simulate.ergm()}}
 }
 \keyword{model}

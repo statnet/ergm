@@ -9,10 +9,10 @@ data(molecule)
 }
 \description{
 This is a synthetic network of 20 nodes that is used as an example within
-the \code{\link{ergm}} documentation. It has an interesting elongated shape
+the \code{\link[=ergm]{ergm()}} documentation. It has an interesting elongated shape
 \itemize{
 \item reminencent of a chemical molecule.  It is stored as a
-\code{\link[network]{network}} object.
+\code{\link[network:network]{network}} object.
 }
 }
 \seealso{

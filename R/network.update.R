@@ -51,7 +51,7 @@
 #' 
 #' @param matrix.type One of `"adjacency"` or `"edgelist"` telling
 #'   which type of matrix \code{new} is.  Default is to use the
-#'   \code{\link[network]{which.matrix.type}} function.
+#'   [which.matrix.type()] function.
 #' 
 #' @param attrname For a network with edge weights gives the name of
 #'   the edge attribute whose names to set.

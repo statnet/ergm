@@ -10,7 +10,7 @@
 #' Auxiliary function for fine-tuning ERGM fitting.
 #' 
 #' This function is only used within a call to the [ergm()] function.
-#' See the \code{usage} section in [ergm()] for details. Also see the
+#' See the Usage section in [ergm()] for details. Also see the
 #' Details section about some of the interactions between its
 #' arguments.
 #'
@@ -125,7 +125,7 @@
 #'
 #' @param MPLE.type One of `"glm"`, `"penalized"`, or
 #' `"logitreg"`.  Chooses method of calculating MPLE.  `"glm"` is the
-#' usual formal logistic regression called via \code{\link{glm}}, whereas
+#' usual formal logistic regression called via [glm()], whereas
 #' `"penalized"` uses the bias-reduced method of Firth (1993) as
 #' originally implemented by Meinhard Ploner, Daniela Dunkler, Harry
 #' Southworth, and Georg Heinze in the "logistf" package. `"logitreg"` is
@@ -215,14 +215,14 @@
 #' @param MCMC.addto.se Whether to add the standard errors induced by the MCMC
 #' algorithm to the estimates' standard errors.
 #' @param SAN.maxit When \code{target.stats} argument is passed to
-#' [ergm()], the maximum number of attempts to use \code{\link{san}}
+#' [ergm()], the maximum number of attempts to use [san()]
 #' to obtain a network with statistics close to those specified.
 #' @param SAN.nsteps.times Multiplier for \code{SAN.nsteps} relative to
 #' \code{MCMC.burnin}. This lets one control the amount of SAN burn-in
 #' (arguably, the most important of SAN parameters) without overriding the
 #' other `SAN` defaults.
-#' @param SAN Control arguments to \code{\link{san}}.  See
-#' \code{\link{control.san}} for details.
+#' @param SAN Control arguments to [san()].  See
+#' [control.san()] for details.
 #' @param MCMLE.termination The criterion used for terminating MCMLE
 #' estimation:  
 #' * `"Hummel"` Terminate when the Hummel step length is
@@ -480,7 +480,7 @@
 #'   Note that only the Hotelling's stopping criterion is implemented
 #'   for CD.
 #' 
-#' @param loglik See \code{\link{control.ergm.bridge}}
+#' @param loglik See [control.ergm.bridge()]
 #' @template term_options
 #' @template control_MCMC_parallel
 #' @template seed
@@ -488,9 +488,9 @@
 #' @template control_dots
 #'
 #' @return A list with arguments as components.
-#' @seealso [ergm()]. The \code{\link{control.simulate}} function
-#' performs a similar function for \code{\link{simulate.ergm}};
-#' \code{\link{control.gof}} performs a similar function for \code{\link{gof}}.
+#' @seealso [ergm()]. The [control.simulate()] function
+#' performs a similar function for [simulate.ergm()];
+#' [control.gof()] performs a similar function for [gof()].
 #' @references \insertAllCited{}
 #'
 #' * Firth (1993), Bias Reduction in Maximum Likelihood Estimates.

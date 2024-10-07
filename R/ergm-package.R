@@ -32,16 +32,16 @@
 #' 
 #' This manual introduces software tools for the representation, visualization,
 #' and analysis of network data that address each of these previous
-#' shortcomings.  The package relies on the \code{\link[network]{network}}
+#' shortcomings.  The package relies on the [`network`]
 #' package which allows networks to be represented in . The
-#' \code{\link[=ergm-package]{ergm}} package implements maximum likelihood
+#' \CRANpkg{ergm} package implements maximum likelihood
 #' estimates of ERGMs to be calculated using Markov Chain Monte Carlo (via
-#' \code{\link{ergm}}). The package also provides tools for simulating networks
-#' (via \code{\link{simulate.ergm}}) and assessing model goodness-of-fit (see
-#' \code{\link{mcmc.diagnostics}} and \code{\link{gof.ergm}}).
+#' [ergm()]). The package also provides tools for simulating networks
+#' (via [simulate.ergm()]) and assessing model goodness-of-fit (see
+#' [mcmc.diagnostics()] and [gof.ergm()]).
 #'
 #' A number of Statnet Project packages extend and enhance
-#' \pkg{\link[=ergm-package]{ergm}}. These include
+#' \CRANpkg{ergm}. These include
 #' \CRANpkg{tergm} (Temporal ERGM), which provides
 #' extensions for modeling evolution of networks over time;
 #' \CRANpkg{ergm.count}, which facilitates
@@ -51,7 +51,7 @@
 #' allows users to implement their own ERGM terms.
 #' 
 #' For detailed information on how to download and install the software, go to
-#' the \code{\link[=ergm-package]{ergm}} website: \url{https://statnet.org}. A
+#' the \CRANpkg{ergm} website: \url{https://statnet.org}. A
 #' tutorial, support newsgroup, references and links to further resources are
 #' provided there.
 #'
@@ -61,7 +61,7 @@
 #' 
 #' @references \insertAllCited{}
 #'
-#' Admiraal R, Handcock MS (2007).  \pkg{networksis}: Simulate
+#' Admiraal R, Handcock MS (2007).  \CRANpkg{networksis}: Simulate
 #' bipartite graphs with fixed marginals through sequential importance
 #' sampling.  Statnet Project, Seattle, WA.  Version 1,
 #' \url{https://statnet.org}.
@@ -75,19 +75,19 @@
 #' software system for the advanced statistical analysis of social networks.
 #' Groningen: ProGAMMA / ICS, version 1.4 edition.
 #' 
-#' Butts CT (2007).  \pkg{sna}: Tools for Social Network Analysis.  R package
+#' Butts CT (2007).  \CRANpkg{sna}: Tools for Social Network Analysis.  R package
 #' version 2.3-2. \url{https://cran.r-project.org/package=sna}
 #' 
-#' Butts CT (2008).  \pkg{network}: A Package for Managing Relational Data in .
+#' Butts CT (2008).  \CRANpkg{network}: A Package for Managing Relational Data in .
 #' \emph{Journal of Statistical Software}, 24(2).
 #' \doi{10.18637/jss.v024.i02}
 #' 
-#' Butts C (2015). \pkg{network}: Classes for Relational Data. The Statnet
+#' Butts C (2015). \CRANpkg{network}: Classes for Relational Data. The Statnet
 #' Project (\url{https://statnet.org}). R package version 1.12.0,
 #' \url{https://cran.r-project.org/package=network}.
 #' 
 #' Goodreau SM, Handcock MS, Hunter DR, Butts CT, Morris M (2008a).  A
-#' \pkg{statnet} Tutorial.  \emph{Journal of Statistical Software}, 24(8).
+#' \CRANpkg{statnet} Tutorial.  \emph{Journal of Statistical Software}, 24(8).
 #' \doi{10.18637/jss.v024.i08}
 #' 
 #' Goodreau SM, Kitts J, Morris M (2008b).  Birds of a Feather, or Friend of a
@@ -99,19 +99,19 @@
 #' University of Washington.
 #' \url{https://csss.uw.edu/research/working-papers/assessing-degeneracy-statistical-models-social-networks}
 #' 
-#' Handcock MS (2003b).  \pkg{degreenet}: Models for Skewed Count Distributions
+#' Handcock MS (2003b).  \CRANpkg{degreenet}: Models for Skewed Count Distributions
 #' Relevant to Networks.  Statnet Project, Seattle, WA.  Version 1.0,
 #' \url{https://statnet.org}.
 #' 
 #' Handcock MS, Hunter DR, Butts CT, Goodreau SM, Morris M (2003b).
-#' \pkg{statnet}: Software Tools for the Statistical Modeling of Network Data.
+#' \CRANpkg{statnet}: Software Tools for the Statistical Modeling of Network Data.
 #' Statnet Project, Seattle, WA.  Version 3, \url{https://statnet.org}.
 #' 
 #' Hunter, D. R. and Handcock, M. S. (2006) Inference in curved exponential
 #' family models for networks, \emph{Journal of Computational and Graphical
 #' Statistics}, 15: 565-583
 #' 
-#' Krivitsky PN, Handcock MS (2007).  \pkg{latentnet}: Latent position and
+#' Krivitsky PN, Handcock MS (2007).  \CRANpkg{latentnet}: Latent position and
 #' cluster models for statistical networks.  Seattle, WA.  Version 2,
 #' \url{https://statnet.org}.
 #' 
@@ -452,7 +452,7 @@ NULL
 #'
 #' @references
 #' - Goodreau SM, Handcock MS, Hunter DR, Butts CT, Morris M (2008a).  A
-#' \pkg{statnet} Tutorial. *Journal of Statistical Software*, 24(8).
+#' \CRANpkg{statnet} Tutorial. *Journal of Statistical Software*, 24(8).
 #' \doi{10.18637/jss.v024.i08}
 #'
 #' - Hunter, D. R. and Handcock, M. S. (2006) *Inference in curved
@@ -460,7 +460,7 @@ NULL
 #' Graphical Statistics.
 #'
 #' - Hunter DR, Handcock MS, Butts CT, Goodreau SM, Morris M (2008b).
-#' \pkg{ergm}: A Package to Fit, Simulate and Diagnose Exponential-Family
+#' \CRANpkg{ergm}: A Package to Fit, Simulate and Diagnose Exponential-Family
 #' Models for Networks.  *Journal of Statistical Software*, 24(3).
 #' \doi{10.18637/jss.v024.i03}
 #'
@@ -530,7 +530,7 @@ NULL
 #' 
 #' @references
 #' - Goodreau SM, Handcock MS, Hunter DR, Butts CT, Morris M (2008a).  A
-#' \pkg{statnet} Tutorial. *Journal of Statistical Software*, 24(8).
+#' \CRANpkg{statnet} Tutorial. *Journal of Statistical Software*, 24(8).
 #' \doi{10.18637/jss.v024.i08}
 #' 
 #' - Hunter, D. R. and Handcock, M. S. (2006) *Inference in curved
@@ -538,7 +538,7 @@ NULL
 #' Graphical Statistics.
 #' 
 #' - Hunter DR, Handcock MS, Butts CT, Goodreau SM, Morris M (2008b).
-#' \pkg{ergm}: A Package to Fit, Simulate and Diagnose Exponential-Family
+#' \CRANpkg{ergm}: A Package to Fit, Simulate and Diagnose Exponential-Family
 #' Models for Networks.  *Journal of Statistical Software*, 24(3).
 #' \doi{10.18637/jss.v024.i03}
 #' 
@@ -593,7 +593,7 @@ NULL
 #' @seealso [`ergm`][ergm-package], [`network`], \CRANpkg{sna}, [`summary.ergm`], [`print.ergm`], `\%v\%`, `\%n\%`
 #' 
 #' @references
-#' - Hunter DR, Handcock MS, Butts CT, Goodreau SM, Morris M (2008b). \pkg{ergm}:
+#' - Hunter DR, Handcock MS, Butts CT, Goodreau SM, Morris M (2008b). \CRANpkg{ergm}:
 #' A Package to Fit, Simulate and Diagnose Exponential-Family Models for
 #' Networks. *Journal of Statistical Software*, 24(3).
 #' \doi{10.18637/jss.v024.i03}
@@ -628,7 +628,7 @@ NULL
 #'   dyads to the opposite value. The probability of accepting the
 #'   proposed change is determined by the MH acceptance ratio.  The
 #'   role of the different MH methods implemented in
-#'   \code{\link{ergm}} is to vary how the sets of dyads are selected
+#'   [ergm()] is to vary how the sets of dyads are selected
 #'   for toggle proposals.  This is used in some cases to improve the
 #'   performance (speed and mixing) of the algorithm, and in other
 #'   cases to constrain the sample space.
@@ -646,13 +646,13 @@ NULL
 #' @seealso [`ergm`][ergm-package] package, [`ergm`], [`ergmConstraint`], [`ergmHint`], [`ergm_proposal`]
 #'
 #' @references
-#' - Goodreau SM, Handcock MS, Hunter DR, Butts CT, Morris M (2008a).  A \pkg{statnet} Tutorial.
+#' - Goodreau SM, Handcock MS, Hunter DR, Butts CT, Morris M (2008a).  A \CRANpkg{statnet} Tutorial.
 #' *Journal of Statistical Software*, 24(8). \doi{10.18637/jss.v024.i08}
 #'
 #' - Hunter, D. R. and Handcock, M. S. (2006) Inference in curved exponential family models for networks.
 #' *Journal of Computational and Graphical Statistics*.
 #'
-#' - Hunter DR, Handcock MS, Butts CT, Goodreau SM, Morris M (2008b). \pkg{ergm}:
+#' - Hunter DR, Handcock MS, Butts CT, Goodreau SM, Morris M (2008b). \CRANpkg{ergm}:
 #' A Package to Fit, Simulate and Diagnose Exponential-Family Models for
 #' Networks. *Journal of Statistical Software*, 24(3).
 #' \doi{10.18637/jss.v024.i03}

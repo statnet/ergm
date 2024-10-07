@@ -717,7 +717,7 @@ search.ergmTermType <-function(term.type, search, net, keywords, name, packages)
 #' optionally restricting by additional keywords and search term
 #' matches.
 #' 
-#' Uses \code{\link{grep}} internally to match the search terms against the term
+#' Uses [grep()] internally to match the search terms against the term
 #' description, so \code{search} is currently matched as a single phrase.
 #' Keyword tags will only return a match if all of the specified tags are
 #' included in the term.
@@ -738,7 +738,7 @@ search.ergmTermType <-function(term.type, search, net, keywords, name, packages)
 #' @author skyebend@uw.edu
 #' @seealso See also [`ergmTerm`],
 #' [`ergmConstraint`], [`ergmReference`], [`ergmHint`], and
-#' [`ergmProposal`], for lists of terms and term-alikes visible to \pkg{ergm}.
+#' [`ergmProposal`], for lists of terms and term-alikes visible to \CRANpkg{ergm}.
 #' @examples
 #' \donttest{
 #' # find all of the terms that mention triangles

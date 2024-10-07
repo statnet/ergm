@@ -10,15 +10,15 @@
 ## A function to compute and return the log-likelihood of an ERGM MLE.
 
 
-#' A \code{\link{logLik}} method for [`ergm`] fits.
+#' A [logLik()] method for [`ergm`] fits.
 #' 
 #' A function to return the log-likelihood associated with an
-#' \code{\link[=ergm.object]{ergm}} fit, evaluating it if
+#' [`ergm`] fit, evaluating it if
 #' necessary. If the log-likelihood was not computed for
 #' \code{object}, produces an error unless \code{eval.loglik=TRUE}.
 #' 
-#' @param object An \code{\link[=ergm.object]{ergm}} fit, returned by
-#'   \code{\link{ergm}}.
+#' @param object An [`ergm`] fit, returned by
+#'   [ergm()].
 #' @param add Logical: If `TRUE`, instead of returning the
 #'   log-likelihood, return \code{object} with log-likelihood value
 #'   (and the null likelihood value) set.
@@ -35,8 +35,8 @@
 #' @param \dots Other arguments to the likelihood functions.
 #' @return The form of the output of \code{logLik.ergm} depends on
 #'   \code{add}: \code{add=FALSE} (the default), a
-#'   \code{\link{logLik}} object. If \code{add=TRUE} (the default), an
-#'   \code{\link[=ergm.object]{ergm}} object with the log-likelihood
+#'   [`logLik`] object. If \code{add=TRUE} (the default), an
+#'   [`ergm`] object with the log-likelihood
 #'   set.
 #' 
 #'   As of version 3.1, all likelihoods for which \code{logLikNull} is
@@ -44,8 +44,8 @@
 #'   measure. (I.e., a null model, with no terms, is defined to have
 #'   likelihood of 0, and all other models are defined relative to
 #'   that.)
-#' @seealso \code{\link{logLik}}, \code{\link{logLikNull}}, \code{\link{ergm.bridge.llr}},
-#'   \code{\link{ergm.bridge.dindstart.llk}}
+#' @seealso [logLik()], [logLikNull()], [ergm.bridge.llr()],
+#'   [ergm.bridge.dindstart.llk()]
 #' @references Hunter, D. R. and Handcock, M. S. (2006)
 #'   \emph{Inference in curved exponential family models for
 #'   networks}, Journal of Computational and Graphical Statistics.
@@ -151,7 +151,7 @@ NO_LOGLIK_MESSAGE <- paste0("Log-likelihood was not estimated for this fit. To g
 #' the data under the null model (reference distribution).
 #' 
 #' @return
-#' \code{logLikNull} returns an object of type \code{\link{logLik}} if it is
+#' \code{logLikNull} returns an object of type [`logLik`] if it is
 #' able to compute the null model probability, and \code{NA} otherwise.
 #' @export
 logLikNull <- function(object, ...) UseMethod("logLikNull")

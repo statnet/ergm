@@ -25,7 +25,7 @@
 #' the corresponding edge exists or not).
 #' 
 #' Using \code{output="matrix"}, note that the result of the fit may be
-#' obtained from the \code{\link{glm}} function, as shown in the examples
+#' obtained from the [glm()] function, as shown in the examples
 #' below.
 #' 
 #' @param formula,constraints,obs.constraints An ERGM formula and
@@ -80,10 +80,10 @@
 #' containing the [mapping and offset information][ergm.eta].
 #' 
 #' If \code{output=="fit"}, then \code{ergmMPLE} simply calls the
-#' \code{\link{ergm}} function with the \code{estimate="MPLE"} option set,
+#' [ergm()] function with the \code{estimate="MPLE"} option set,
 #' returning an object of class \code{ergm} that gives the fitted
 #' pseudolikelihood model.
-#' @seealso \code{\link{ergm}}, \code{\link{glm}}
+#' @seealso [ergm()], [glm()]
 #' @keywords regression models
 #' @examples
 #' 

@@ -52,7 +52,7 @@ See also the data sets \code{\link{samplk1}}, \code{\link{samplk2}}, and
 \code{\link{samplk3}}, containing the networks at each of the three
 individual time points.
 
-The data set is stored as a \code{\link[network]{network}} object with three
+The data set is stored as a \code{\link[network:network]{network}} object with three
 vertex attributes:
 
 \describe{ \item{group}{Groups of novices as classified by Sampson:

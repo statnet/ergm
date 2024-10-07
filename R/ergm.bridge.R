@@ -12,29 +12,29 @@
 #' 
 #' \code{ergm.bridge.llr} uses bridge sampling with geometric spacing to
 #' estimate the difference between the log-likelihoods of two parameter vectors
-#' for an ERGM via repeated calls to \code{\link{simulate.formula.ergm}}.
+#' for an ERGM via repeated calls to [simulate.formula.ergm()].
 #' 
 #' 
 #' 
-#' @param object A model formula. See \code{\link{ergm}} for details.
+#' @param object A model formula. See [ergm()] for details.
 #' @template response
 #' @param constraints,obs.constraints One-sided formulas specifying
 #'   one or more constraints on the support of the distribution of the
 #'   networks being simulated and on the observation process
 #'   respectively. See the documentation for similar arguments for
-#'   \code{\link{ergm}} for more information.
+#'   [ergm()] for more information.
 #' @param reference {A one-sided formula specifying the reference
 #'   measure (\eqn{h(y)}) to be used.  (Defaults to
 #'   \code{~Bernoulli}.)}
 #' @param target.stats {A vector of sufficient statistics to be used
 #'   in place of those of the network in the formula.}
 #' @param from,to The initial and final parameter vectors.
-#' @param basis An optional \code{\link[network]{network}} object to
+#' @param basis An optional [`network`] object to
 #'   start the Markov chain.  If omitted, the default is the
 #'   left-hand-side of the \code{object}.
 #' @template verbose
 #' @param \dots Further arguments to \code{ergm.bridge.llr} and
-#'   \code{\link{simulate.formula.ergm}}.
+#'   [simulate.formula.ergm()].
 #' @param llronly Logical: If TRUE, only the estiamted log-ratio will
 #'   be returned by `ergm.bridge.llr`.
 #'
@@ -71,7 +71,7 @@
 #'
 #'   \item{Dtheta.Du}{The gradient vector of the parameter values with
 #'   respect to position of the bridge.}
-#' @seealso \code{\link{simulate.formula.ergm}}
+#' @seealso [simulate.formula.ergm()]
 #' @references Hunter, D. R. and Handcock, M. S. (2006)
 #'   \emph{Inference in curved exponential family models for
 #'   networks}, Journal of Computational and Graphical Statistics.

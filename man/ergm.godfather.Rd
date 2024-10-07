@@ -16,7 +16,7 @@ ergm.godfather(
 )
 }
 \arguments{
-\item{formula}{An \code{\link{ergm}}-style formula, with a
+\item{formula}{An \code{\link[=ergm]{ergm()}}-style formula, with a
 \code{\link[network:network]{network}} on its LHS.}
 
 \item{changes}{Either a matrix with three columns: tail, head, and

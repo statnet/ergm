@@ -5,7 +5,7 @@
 \alias{faux.desert.high}
 \title{Faux desert High School as a network object}
 \format{
-\code{faux.desert.high} is a \code{\link[network]{network}} object
+\code{faux.desert.high} is a \code{\link[network:network]{network}} object
 with 107 vertices (students, in this case) and 439 directed edges
 (friendship nominations). To obtain additional summary information about it,
 type \code{summary(faux.desert.high)}.
@@ -34,7 +34,7 @@ take the AddHealth survey or who were not listed by name on the schools'
 student roster are not included in the stucture files.  In addition, we
 removed any students with missing values for race, grade or sex.
 
-The following \code{\link{ergm}} model was fit to the original data
+The following \code{\link[=ergm]{ergm()}} specification was fit to the original data
 (with code updated for modern syntax):
 
 \preformatted{ desert.fit <- ergm(original.net ~ edges + mutual +
@@ -80,8 +80,8 @@ Adolescent Health}, \emph{Journal of the American Medical Association}, 278:
 823-32.
 }
 \seealso{
-\code{\link[network]{network}},
-\code{\link[network]{plot.network}}, \code{\link{ergm}},
+\code{\link[network:network]{network}},
+\code{\link[network:plot.network]{plot.network()}}, \code{\link[=ergm]{ergm()}},
 \code{\link{faux.desert.high}}, \code{\link{faux.mesa.high}},
 \code{\link{faux.magnolia.high}}
 }

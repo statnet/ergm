@@ -40,7 +40,7 @@
 #' @param nw a [`network`] object.
 #' @param ... term options.
 #'
-#' @return \code{ergm.design} returns a \code{\link{rlebdm}} of
+#' @return \code{ergm.design} returns a [`rlebdm`] of
 #'   informative (non-missing, non fixed) dyads.
 #' @export ergm.design
 ergm.design <- function(nw, ...){

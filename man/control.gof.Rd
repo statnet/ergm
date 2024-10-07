@@ -105,7 +105,7 @@ are \code{"MPI"} and \code{"PSOCK"}. Defaults to using the \code{parallel}
 package with PSOCK clusters. See \code{\link{ergm-parallel}}}
 
 \item{parallel.version.check}{Logical: If TRUE, check that the version of
-\code{\link[=ergm-package]{ergm}} running on the slave nodes is the same as
+\pkg{ergm} running on the slave nodes is the same as
 that running on the master node.}
 
 \item{parallel.inherit.MT}{Logical: If TRUE, slave nodes and
@@ -123,12 +123,12 @@ with \code{\link[=gof.ergm]{gof.ergm()}} specifically and will "inherit" as many
 parameters from \code{\link{ergm}} fit as possible().
 }
 \details{
-This function is only used within a call to the \code{\link{gof}} function.
-See the \code{usage} section in \code{\link{gof}} for details.
+This function is only used within a call to the \code{\link[=gof]{gof()}} function.
+See the Usage section in \code{\link[=gof]{gof()}} for details.
 }
 \seealso{
-\code{\link{gof}}. The \code{\link{control.simulate}} function
-performs a similar function for \code{\link{simulate.ergm}};
-\code{\link{control.ergm}} performs a similar function for
-\code{\link{ergm}}.
+\code{\link[=gof]{gof()}}. The \code{\link[=control.simulate]{control.simulate()}} function
+performs a similar function for \code{\link[=simulate.ergm]{simulate.ergm()}};
+\code{\link[=control.ergm]{control.ergm()}} performs a similar function for
+\code{\link[=ergm]{ergm()}}.
 }

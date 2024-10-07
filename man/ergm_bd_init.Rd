@@ -56,6 +56,6 @@ it must satisfy all of the degree constraints itself; thus, this function
 returns an error message if any bound is violated by the observed network.
 }
 \seealso{
-\code{\link{ergm-proposals}}
+\code{\link{ergmProposal}}
 }
 \keyword{internal}

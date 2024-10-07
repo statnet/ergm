@@ -8,7 +8,7 @@
 #  Copyright 2003-2024 Statnet Commons
 ################################################################################
 #' A convenience container for a list of [`network`] objects, output
-#' by \code{\link{simulate.ergm}} among others.
+#' by [simulate.ergm()] among others.
 #'
 #' @param object,x a `list` of networks or a `network.list` object.
 #' @param ... for `network.list`, additional attributes to be set on

@@ -254,7 +254,7 @@ the number of informative dyads is safe.}
 
 \item{MPLE.type}{One of \code{"glm"}, \code{"penalized"}, or
 \code{"logitreg"}.  Chooses method of calculating MPLE.  \code{"glm"} is the
-usual formal logistic regression called via \code{\link{glm}}, whereas
+usual formal logistic regression called via \code{\link[=glm]{glm()}}, whereas
 \code{"penalized"} uses the bias-reduced method of Firth (1993) as
 originally implemented by Meinhard Ploner, Daniela Dunkler, Harry
 Southworth, and Georg Heinze in the "logistf" package. \code{"logitreg"} is
@@ -402,7 +402,7 @@ statistic functions in addition to those autodetected. This argument should
 not be needed outside of very strange setups.}
 
 \item{SAN.maxit}{When \code{target.stats} argument is passed to
-\code{\link[=ergm]{ergm()}}, the maximum number of attempts to use \code{\link{san}}
+\code{\link[=ergm]{ergm()}}, the maximum number of attempts to use \code{\link[=san]{san()}}
 to obtain a network with statistics close to those specified.}
 
 \item{SAN.nsteps.times}{Multiplier for \code{SAN.nsteps} relative to
@@ -410,8 +410,8 @@ to obtain a network with statistics close to those specified.}
 (arguably, the most important of SAN parameters) without overriding the
 other \code{SAN} defaults.}
 
-\item{SAN}{Control arguments to \code{\link{san}}.  See
-\code{\link{control.san}} for details.}
+\item{SAN}{Control arguments to \code{\link[=san]{san()}}.  See
+\code{\link[=control.san]{control.san()}} for details.}
 
 \item{MCMLE.termination}{The criterion used for terminating MCMLE
 estimation:
@@ -682,7 +682,7 @@ value, as the network passed is not necessarily a good start for CD.
 Therefore, these settings are in effect if there are missing dyads in the
 observed network, using a higher default number of steps.}
 
-\item{loglik}{See \code{\link{control.ergm.bridge}}}
+\item{loglik}{See \code{\link[=control.ergm.bridge]{control.ergm.bridge()}}}
 
 \item{term.options}{A list of additional arguments to be passed to term initializers. See \code{\link[=term.options]{? term.options}}.}
 
@@ -698,7 +698,7 @@ are \code{"MPI"} and \code{"PSOCK"}. Defaults to using the \code{parallel}
 package with PSOCK clusters. See \code{\link{ergm-parallel}}}
 
 \item{parallel.version.check}{Logical: If TRUE, check that the version of
-\code{\link[=ergm-package]{ergm}} running on the slave nodes is the same as
+\pkg{ergm} running on the slave nodes is the same as
 that running on the master node.}
 
 \item{parallel.inherit.MT}{Logical: If TRUE, slave nodes and
@@ -711,7 +711,7 @@ A list with arguments as components.
 }
 \description{
 This function is only used within a call to the \code{\link[=ergm]{ergm()}} function.
-See the \code{usage} section in \code{\link[=ergm]{ergm()}} for details. Also see the
+See the Usage section in \code{\link[=ergm]{ergm()}} for details. Also see the
 Details section about some of the interactions between its
 arguments.
 }
@@ -758,8 +758,8 @@ simulations. Master's Thesis. Stockholm University, 2011.
 }
 }
 \seealso{
-\code{\link[=ergm]{ergm()}}. The \code{\link{control.simulate}} function
-performs a similar function for \code{\link{simulate.ergm}};
-\code{\link{control.gof}} performs a similar function for \code{\link{gof}}.
+\code{\link[=ergm]{ergm()}}. The \code{\link[=control.simulate]{control.simulate()}} function
+performs a similar function for \code{\link[=simulate.ergm]{simulate.ergm()}};
+\code{\link[=control.gof]{control.gof()}} performs a similar function for \code{\link[=gof]{gof()}}.
 }
 \keyword{models}

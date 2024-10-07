@@ -27,7 +27,7 @@ each MCMC step, one or more toggles are proposed to change the
 dyads to the opposite value. The probability of accepting the
 proposed change is determined by the MH acceptance ratio.  The
 role of the different MH methods implemented in
-\code{\link{ergm}} is to vary how the sets of dyads are selected
+\code{\link[=ergm]{ergm()}} is to vary how the sets of dyads are selected
 for toggle proposals.  This is used in some cases to improve the
 performance (speed and mixing) of the algorithm, and in other
 cases to constrain the sample space.
@@ -46,11 +46,11 @@ Note that \code{\link[=.dyads-ergmConstraint]{.dyads}} is a meta-constraint, ind
 
 \references{
 \itemize{
-\item Goodreau SM, Handcock MS, Hunter DR, Butts CT, Morris M (2008a).  A \pkg{statnet} Tutorial.
+\item Goodreau SM, Handcock MS, Hunter DR, Butts CT, Morris M (2008a).  A \CRANpkg{statnet} Tutorial.
 \emph{Journal of Statistical Software}, 24(8). \doi{10.18637/jss.v024.i08}
 \item Hunter, D. R. and Handcock, M. S. (2006) Inference in curved exponential family models for networks.
 \emph{Journal of Computational and Graphical Statistics}.
-\item Hunter DR, Handcock MS, Butts CT, Goodreau SM, Morris M (2008b). \pkg{ergm}:
+\item Hunter DR, Handcock MS, Butts CT, Goodreau SM, Morris M (2008b). \CRANpkg{ergm}:
 A Package to Fit, Simulate and Diagnose Exponential-Family Models for
 Networks. \emph{Journal of Statistical Software}, 24(3).
 \doi{10.18637/jss.v024.i03}

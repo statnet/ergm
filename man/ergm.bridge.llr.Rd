@@ -50,7 +50,7 @@ ergm.bridge.dindstart.llk(
 )
 }
 \arguments{
-\item{object}{A model formula. See \code{\link{ergm}} for details.}
+\item{object}{A model formula. See \code{\link[=ergm]{ergm()}} for details.}
 
 \item{response}{Either a character string, a formula, or \code{NULL} (the default), to specify the response attributes and whether the ERGM is binary or valued. Interpreted as follows: \describe{
 
@@ -70,14 +70,14 @@ measure (\eqn{h(y)}) to be used.  (Defaults to
 one or more constraints on the support of the distribution of the
 networks being simulated and on the observation process
 respectively. See the documentation for similar arguments for
-\code{\link{ergm}} for more information.}
+\code{\link[=ergm]{ergm()}} for more information.}
 
 \item{from, to}{The initial and final parameter vectors.}
 
 \item{target.stats}{{A vector of sufficient statistics to be used
 in place of those of the network in the formula.}}
 
-\item{basis}{An optional \code{\link[network]{network}} object to
+\item{basis}{An optional \code{\link[network:network]{network}} object to
 start the Markov chain.  If omitted, the default is the
 left-hand-side of the \code{object}.}
 
@@ -88,7 +88,7 @@ detail. Note that very high values (5+) may significantly slow
 down processing.}
 
 \item{\dots}{Further arguments to \code{ergm.bridge.llr} and
-\code{\link{simulate.formula.ergm}}.}
+\code{\link[=simulate.formula.ergm]{simulate.formula.ergm()}}.}
 
 \item{llronly}{Logical: If TRUE, only the estiamted log-ratio will
 be returned by \code{ergm.bridge.llr}.}
@@ -153,7 +153,7 @@ dyad-independent model.
 \description{
 \code{ergm.bridge.llr} uses bridge sampling with geometric spacing to
 estimate the difference between the log-likelihoods of two parameter vectors
-for an ERGM via repeated calls to \code{\link{simulate.formula.ergm}}.
+for an ERGM via repeated calls to \code{\link[=simulate.formula.ergm]{simulate.formula.ergm()}}.
 
 \code{ergm.bridge.0.llk} is a convenience wrapper that
 returns the log-likelihood of configuration \eqn{\theta}
@@ -174,6 +174,6 @@ Hunter, D. R. and Handcock, M. S. (2006)
 networks}, Journal of Computational and Graphical Statistics.
 }
 \seealso{
-\code{\link{simulate.formula.ergm}}
+\code{\link[=simulate.formula.ergm]{simulate.formula.ergm()}}
 }
 \keyword{model}

@@ -154,7 +154,7 @@ model.transform.formula <- function(object, theta, recipes, ...){
 #' 
 #' This function thus takes in a fit or a formula and performs this mapping,
 #' returning a "fixed" model and parameter specification.  It only works for
-#' curved ERGM terms included with the \code{\link[=ergm-package]{ergm}}
+#' curved ERGM terms included with the \CRANpkg{ergm}
 #' package. It does not work with curved terms not included in ergm.
 #' 
 #' @param object An [`ergm`] object or an ERGM formula. The curved
@@ -163,7 +163,7 @@ model.transform.formula <- function(object, theta, recipes, ...){
 #' @param \dots Unused at this time.
 #' @return A list with the following components: \item{formula}{The "fixed"
 #' formula.} \item{theta}{The "fixed" parameter vector.}
-#' @seealso \code{\link{ergm}}, \code{\link{simulate.ergm}}
+#' @seealso [ergm()], [simulate.ergm()]
 #' @keywords model
 #' @examples
 #' 
@@ -216,16 +216,16 @@ fix.curved.formula <- function(object, theta, ...){
 #' The generic \code{enformulate.curved} converts an [`ergm`] object
 #' or formula of a model with curved terms to the variant in which the curved
 #' parameters embedded into the formula and are removed from the parameter
-#' vector. This is the form that used to be required by \code{\link{ergm}} calls.
+#' vector. This is the form that used to be required by [ergm()] calls.
 #' 
-#' Because of a current kludge in \code{\link{ergm}}, output from one run
+#' Because of a current kludge in [ergm()], output from one run
 #' cannot be directly passed as initial values (\code{control.ergm(init=)}) for
 #' the next run if any of the terms are curved. One workaround is to embed the
 #' curved parameters into the formula (while keeping \code{fixed=FALSE}) and
 #' remove them from \code{control.ergm(init=)}.
 #' 
 #' This function automates this process for curved ERGM terms included with the
-#' \code{\link[=ergm-package]{ergm}} package. It does not work with curved
+#' \CRANpkg{ergm} package. It does not work with curved
 #' terms not included in ergm.
 #' 
 #' @param object An [`ergm`] object or an ERGM formula. The curved
@@ -235,7 +235,7 @@ fix.curved.formula <- function(object, theta, ...){
 #' @return A list with the following components: \item{formula}{The formula
 #' with curved parameter estimates incorporated.} \item{theta}{The coefficient
 #' vector with curved parameter estimates removed.}
-#' @seealso \code{\link{ergm}}, \code{\link{simulate.ergm}}
+#' @seealso [ergm()], [simulate.ergm()]
 #' @keywords model
 #' @name enformulate.curved-deprecated
 ## #' @examples

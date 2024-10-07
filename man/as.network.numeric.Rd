@@ -59,11 +59,11 @@ probability).}
 \item{...}{additional arguments}
 }
 \value{
-An object of class \code{\link[network]{network}}
+An object of class \code{\link[network:network]{network}}
 }
 \description{
-\code{\link{as.network.numeric}} creates a random Bernoulli network of the
-given size as an object of class \code{\link[network]{network}}.
+\code{\link[=as.network.numeric]{as.network.numeric()}} creates a random Bernoulli network of the
+given size as an object of class \code{\link[network:network]{network}}.
 }
 \details{
 The network will not have vertex, edge or network attributes.  These
@@ -87,7 +87,7 @@ Butts, C.T.  2002.  ``Memory Structures for Relational Data in
 R: Classes and Interfaces'' Working Paper.
 }
 \seealso{
-\code{\link[network]{network}}
+\code{\link[network:network]{network}}
 }
 \keyword{classes}
 \keyword{graphs}

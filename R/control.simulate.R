@@ -15,8 +15,8 @@
 #' `control.simulate.formula.ergm` are all aliases for the same
 #' function.
 #' 
-#' This function is only used within a call to the \code{\link{simulate}}
-#' function.  See the \code{usage} section in \code{\link{simulate.ergm}} for
+#' This function is only used within a call to the ERGM [simulate()]
+#' function.  See the Usage section in [simulate.ergm()] for
 #' details.
 #'
 #' @templateVar MCMCType MCMC
@@ -49,10 +49,10 @@
 #' @template control_MCMC_packagenames
 #' @template control_dots
 #' @return A list with arguments as components.
-#' @seealso \code{\link{simulate.ergm}}, \code{\link{simulate.formula}}.
-#' \code{\link{control.ergm}} performs a similar function for
-#' \code{\link{ergm}}; \code{\link{control.gof}} performs a similar function
-#' for \code{\link{gof}}.
+#' @seealso [simulate.ergm()], [simulate.formula()].
+#' [control.ergm()] performs a similar function for
+#' [ergm()]; [control.gof()] performs a similar function
+#' for [gof()].
 #'
 #' @name control.simulate.ergm
 #' @keywords models

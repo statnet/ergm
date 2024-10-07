@@ -6,7 +6,7 @@
 \alias{ergm_conlist}
 \title{Internal ergm Objects}
 \description{
-Internal \code{\link[=ergm-package]{ergm}} functions.
+Internal \CRANpkg{ergm} functions.
 }
 \details{
 Most of these are not to be called by the user (or in some cases are just

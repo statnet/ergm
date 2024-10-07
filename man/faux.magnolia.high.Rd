@@ -5,7 +5,7 @@
 \alias{faux.magnolia.high}
 \title{Goodreau's Faux Magnolia High School as a network object}
 \format{
-\code{faux.magnolia.high} is a \code{\link[network]{network}} object
+\code{faux.magnolia.high} is a \code{\link[network:network]{network}} object
 with 1461 vertices (students, in this case) and 974 undirected edges (mutual
 friendships). To obtain additional summary information about it, type
 \code{summary(faux.magnolia.high)}.
@@ -30,7 +30,7 @@ two individuals who both named each other as a friend.  All missing race,
 grade, and sex values were replaced by a random draw with weights determined
 by the size of the attribute classes in the school.
 
-The following \code{\link{ergm}} model was fit to the original data:
+The following \code{\link[=ergm]{ergm()}} specification was fit to the original data:
 
 \preformatted{ magnolia.fit <- ergm (magnolia ~ edges +
 nodematch("Grade",diff=T) + nodematch("Race",diff=T) +
@@ -73,8 +73,8 @@ Adolescent Health}, \emph{Journal of the American Medical Association}, 278:
 823-32.
 }
 \seealso{
-\code{\link[network]{network}},
-\code{\link[network]{plot.network}}, \code{\link{ergm}},
+\code{\link[network:network]{network}},
+\code{\link[network:plot.network]{plot.network()}}, \code{\link[=ergm]{ergm()}},
 \code{\link{faux.mesa.high}}
 }
 \keyword{datasets}

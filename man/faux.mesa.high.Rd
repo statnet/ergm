@@ -6,7 +6,7 @@
 \alias{fauxhigh}
 \title{Goodreau's Faux Mesa High School as a network object}
 \format{
-\code{faux.mesa.high} is a \code{\link[network]{network}} object
+\code{faux.mesa.high} is a \code{\link[network:network]{network}} object
 with 205 vertices (students, in this case) and 203 undirected edges (mutual
 friendships).  To obtain additional summary information about it, type
 \code{summary(faux.mesa.high)}.
@@ -29,7 +29,7 @@ race and grade.  These three attribute vectors were permuted independently.
 Missing values for each were randomly assigned with weights determined by
 the size of the attribute classes in the school.
 
-The following \code{\link{ergm}} formula was used to fit a model to the
+The following \code{\link[=ergm]{ergm()}} specification was used to fit a model to the
 original data:
 
 \preformatted{ ~ edges + nodefactor("Grade") + nodefactor("Race") +
@@ -78,8 +78,8 @@ Adolescent Health}, \emph{Journal of the American Medical Association}, 278:
 823-32.
 }
 \seealso{
-\code{\link[network]{network}},
-\code{\link[network]{plot.network}}, \code{\link{ergm}},
+\code{\link[network:network]{network}},
+\code{\link[network:plot.network]{plot.network()}}, \code{\link[=ergm]{ergm()}},
 \code{\link{faux.magnolia.high}}
 }
 \keyword{datasets}
