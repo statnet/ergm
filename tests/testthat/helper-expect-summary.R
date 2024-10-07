@@ -5,7 +5,7 @@
 #  open source, and has the attribution requirements (GPL Section 7) at
 #  https://statnet.org/attribution .
 #
-#  Copyright 2003-2023 Statnet Commons
+#  Copyright 2003-2024 Statnet Commons
 ################################################################################
 expect_summary <- function(s, e, value, coefficients, tolerance=0.001) {
   expect_equal(s, value, tolerance=tolerance, ignore_attr=is.null(names(value)))

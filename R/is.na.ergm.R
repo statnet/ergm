@@ -5,7 +5,7 @@
 #  open source, and has the attribution requirements (GPL Section 7) at
 #  https://statnet.org/attribution .
 #
-#  Copyright 2003-2023 Statnet Commons
+#  Copyright 2003-2024 Statnet Commons
 ################################################################################
 #' @describeIn ergm Return `TRUE` if the ERGM was fit to a partially observed network and/or an observational process, such as missing (`NA`) dyads.
 #' @export

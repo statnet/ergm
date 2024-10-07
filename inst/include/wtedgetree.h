@@ -5,7 +5,7 @@
  *  open source, and has the attribution requirements (GPL Section 7) at
  *  https://statnet.org/attribution .
  *
- *  Copyright 2003-2023 Statnet Commons
+ *  Copyright 2003-2024 Statnet Commons
  */
 #pragma message ("warning: The header file \"wtedgetree.h\" has been deprecated in favor of \"ergm_wtedgetree.h\" and may be removed in the future.")
 #include "ergm_wtedgetree.h"
