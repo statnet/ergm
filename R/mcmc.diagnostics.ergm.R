@@ -85,20 +85,19 @@ mcmc.diagnostics.default <- function(object, ...) {
 #'   observed network statistics. For that functionality, please use
 #'   the GOF command: \code{gof(object, GOF=~model)}.
 #'
-#'   In fact, an ergm output \code{object} contains the matrix of
-#'   statistics from the MCMC run as component \code{$sample}.  This
-#'   matrix is actually an object of class \code{mcmc} and can be used
-#'   directly in the \code{coda} package to assess MCMC
-#'   convergence. \emph{Hence all MCMC diagnostic methods available in
-#'   \code{coda} are available directly.} See the examples and
-#'   \url{https://www.mrc-bsu.cam.ac.uk/software/bugs/the-bugs-project-winbugs/coda-readme/}.
+#'   In fact, an [ergm()] output object contains the sample of
+#'   statistics from the last MCMC run as element `$sample`. If
+#'   missing data MLE is fit, the corresponding element is named
+#'   `$sample.obs`. These are objects of [`mcmc`] and can be used
+#'   directly in the \CRANpkg{coda} package to assess MCMC
+#'   convergence.
 #'
 #'   More information can be found by looking at the documentation of
 #'   [ergm()].
 #'
-#' @param center Logical: If TRUE, center the samples on the observed
+#' @param center Logical: If `TRUE`, center the samples on the observed
 #'   statistics.
-#' @param esteq Logical: If TRUE, for statistics corresponding to
+#' @param esteq Logical: If `TRUE`, for statistics corresponding to
 #'   curved ERGM terms, summarize the curved statistics by their
 #'   negated estimating function values (evaluated at the MLE of any curved
 #'   parameters) (i.e., \eqn{\eta'_{I}(\hat{\theta})\cdot (g_{I}(Y)-g_{I}(y))}

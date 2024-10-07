@@ -23,10 +23,10 @@ mcmc.diagnostics(object, ...)
 
 \item{\dots}{Additional arguments, to be passed to plotting functions.}
 
-\item{center}{Logical: If TRUE, center the samples on the observed
+\item{center}{Logical: If \code{TRUE}, center the samples on the observed
 statistics.}
 
-\item{esteq}{Logical: If TRUE, for statistics corresponding to
+\item{esteq}{Logical: If \code{TRUE}, for statistics corresponding to
 curved ERGM terms, summarize the curved statistics by their
 negated estimating function values (evaluated at the MLE of any curved
 parameters) (i.e., \eqn{\eta'_{I}(\hat{\theta})\cdot (g_{I}(Y)-g_{I}(y))}
@@ -79,13 +79,12 @@ to ensure that the mean statistics from the model match the
 observed network statistics. For that functionality, please use
 the GOF command: \code{gof(object, GOF=~model)}.
 
-In fact, an ergm output \code{object} contains the matrix of
-statistics from the MCMC run as component \code{$sample}.  This
-matrix is actually an object of class \code{mcmc} and can be used
-directly in the \code{coda} package to assess MCMC
-convergence. \emph{Hence all MCMC diagnostic methods available in
-\code{coda} are available directly.} See the examples and
-\url{https://www.mrc-bsu.cam.ac.uk/software/bugs/the-bugs-project-winbugs/coda-readme/}.
+In fact, an \code{\link[=ergm]{ergm()}} output object contains the sample of
+statistics from the last MCMC run as element \verb{$sample}. If
+missing data MLE is fit, the corresponding element is named
+\verb{$sample.obs}. These are objects of \code{\link[coda:mcmc]{mcmc}} and can be used
+directly in the \CRANpkg{coda} package to assess MCMC
+convergence.
 
 More information can be found by looking at the documentation of
 \code{\link[=ergm]{ergm()}}.
