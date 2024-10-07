@@ -259,8 +259,9 @@ san.ergm_model <- function(object, reference=~Bernoulli, constraints=~., target.
   out.list <- list()
   out.mat <- numeric(0)
 
+  ## TODO: Remove in 4.9 or thereabout.
   if(!is.null(nsim)){
-    .Deprecate_once(msg = "nsim= argument for the san() functions has been deprecated. Just use replicate().")
+    .Deprecate_once(msg = "nsim= argument for the san() functions has been deprecated and may be removed in the a version. Just use replicate().")
     if(nsim>1 && !is.null(control$seed)) warn("Setting the random seed with nsim>1 will produce a list of identical networks.")
     if(nsim>1){
       return(structure(replicate(nsim,
