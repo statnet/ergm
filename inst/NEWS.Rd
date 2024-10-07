@@ -79,7 +79,15 @@
         Constraint \code{\link[fixedas-ergmConstraint]{fixedas}()} now has \code{fixed.dyads=} as its first argument, and if \code{present=} or \code{absent=} is passed explicitly, it will check that the LHS network conforms before proceeding.
       }
       \item{
-        MPLE existence check can now be disabled.
+        In \code{\link{ergm}()} and related, MPLE existence check can now be disabled by passing \code{MPLE.check=FALSE} to \code{\link{control.ergm}()}. Auxiliary calls to MPLE do so by default.
+      }
+      \item{
+        A number of improvements to \code{\link{ergm.allstats}()} and \code{\link{ergm.exact}()}:
+        \itemize{
+          \item The statistic frequency table is grown dynamically, so the user no longer has to specify the maximum table size.
+          \item Both functions now accept the \code{constraints=} argument with arbitrary dyad-independent constraints.
+          \item Excessive runtime check now works in terms of free dyad counts rather than network sizes.
+        }
       }
     }
   }
@@ -131,6 +139,9 @@
       \item{
         Likelihood calculation is now robust to dropped parameters and parameters fixed at infinity.
       }
+      \item{
+        \code{\link[Label-ergmTerm]{Label}()} operator now documents its behavior when the model is curved more clearly.
+      }
     }
   }
 
@@ -175,6 +186,12 @@
       \item{
         Nodal attribute specification documentation (\code{?nodal_attributes?}) now includes an example for specifying \code{levels2=} levels by value.
       }
+      \item{
+        Miscellaneous documentation fixes.
+      }
+      \item{
+       \code{\link{param_names}()} API now allows assignment, and its method for \code{\link{ergm_model}} objects is more explicit about whether canonical or curved parameters are being modified and when.
+      }
     }
   }
 
@@ -206,6 +223,9 @@
       }
       \item{
         The \verb{kvec} macro library (from \url{https://github.com/attractivechaos/klib/}) has been incorporated into the package with some modifications and is available to use for dynamic arrays (that automatically grow as needed). It can be found in \verb{/inst/include/ergm_kvec.h}. (Thanks to Adrien Le Guillou for taking the lead on this.)
+      }
+      \item{
+        \code{RLEBDM1D} C API now exports \code{FirstRLEBDM1D()} and \code{LastRLEBDM1D()} macros, providing dyad indices of the first and the last dyad in the RLEBDM, respectively.
       }
     }
   }
