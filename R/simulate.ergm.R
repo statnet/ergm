@@ -396,10 +396,6 @@ simulate.ergm_model <- function(object, nsim=1, seed=NULL,
     output <- "function"
   }
 
-  # TODO: Remove this in the next release.
-  if(theta0pos <- "theta0" %in% ...names())
-    stop("Passing the parameter vector as theta0= is deprecated. Use coef= instead.")
-
   if(!is.null(seed)) {set.seed(as.integer(seed))}
   
   # define nw as either the basis argument or (if NULL) the LHS of the formula

@@ -305,9 +305,7 @@ Model* ModelInitialize(SEXP mR, SEXP ext_state, Network *nwp, Rboolean noinit_s)
   /* Trigger initial storage update */
   InitStats(nwp, m);
 
-  /* Now, check that no term exports both a d_ and a c_
-     function. TODO: provide an informative "traceback" to which term
-     caused the problem.*/
+  /* Now, check that no term exports both a d_ and a c_ function. */
   FOR_EACH_TERM(m){
     if(mtp->c_func && mtp->d_func) error("A term exports both a change and a difference function.  Memory has not been deallocated, so restart R sometime soon.\n");
   }

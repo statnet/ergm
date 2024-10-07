@@ -18,10 +18,9 @@
 #' @export network.list
 network.list <- function(object,...){
   if(any(!sapply(object, is.network))) stop("network.list() takes a list of networks as its first argument.")
-  ddd <- list(...) # FIXME: Use alist here?
-  ns <- names(ddd)
-  for(i in seq_along(ddd)){
-    attr(object, ns[i]) <- ddd[[i]]
+  ns <- ...names()
+  for(i in seq_len(...length())){
+    attr(object, ns[i]) <- ...elt(i)
   }
   class(object) <- c("network.list","list")
   object
