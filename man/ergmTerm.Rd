@@ -20,7 +20,7 @@ Network statistics \eqn{g(y)} and mappings \eqn{\eta(\theta)} are specified by a
 \code{y} is a network object or a matrix that can be coerced to a network
 object, and \verb{<term 1>}, \verb{<term 2>}, etc, are each terms chosen
 from the list given below.  To create a network object in , use the
-\code{\link{network}} function, then add nodal attributes to it
+\code{\link[network:network]{network}} function, then add nodal attributes to it
 using the \verb{\%v\%} operator if necessary.
 \subsection{Term operators}{
 
@@ -257,6 +257,6 @@ Exponential-Family Random Graph Models: Terms and Computational Aspects.
 }
 }
 \seealso{
-\code{\link[=ergm-package]{ergm}} package, \code{\link{search.ergmTerms}}, \code{\link{ergm}}, \code{\link{network}}, \code{\link{\%v\%}}, \code{\link{\%n\%}}
+\code{\link[=ergm-package]{ergm}} package, \code{\link{search.ergmTerms}}, \code{\link{ergm}}, \code{\link[network:network]{network}}, \code{\link[network:network.extraction]{\%v\%}}, \code{\link[network:network.extraction]{\%n\%}}
 }
 \keyword{models}

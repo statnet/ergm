@@ -14,7 +14,7 @@
 \arguments{
 \item{formula}{a one-sided \code{\link[=ergm]{ergm()}}-style formula with the terms to be evaluated}
 
-\item{label}{a character vector specifying the label for the terms, a \code{\link{list}} of two character vectors (see Details), or a function through which term names are mapped (or a \code{\link{as_mapper}} -style formula).}
+\item{label}{a character vector specifying the label for the terms, a \code{\link{list}} of two character vectors (see Details), or a function through which term names are mapped (or a \code{\link[purrr:as_mapper]{as_mapper}} -style formula).}
 
 \item{pos}{controls how \code{label} modifies the term names: one of \code{"prepend"} , \code{"replace"} , \code{"append"} , or \code{"("} , with the latter wrapping the term names in parentheses like a function call with name specified by \code{label} .}
 }

@@ -7,7 +7,7 @@
 ergm_plot.mcmc.list(x, main = NULL, vars.per.page = 3, ...)
 }
 \arguments{
-\item{x}{an \code{\link{mcmc.list}} object containing the mcmc diagnostic
+\item{x}{an \code{\link[coda:mcmc.list]{mcmc.list}} object containing the mcmc diagnostic
 samples.}
 
 \item{main}{character, main plot heading title.}

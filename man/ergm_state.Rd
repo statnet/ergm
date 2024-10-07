@@ -139,7 +139,7 @@ ergm_state_receive(x, ...)
 \arguments{
 \item{...}{Additional arguments, passed to further methods.}
 
-\item{nw0}{a \code{\link{network}} object, whose edges are absent or ignored.}
+\item{nw0}{a \code{\link[network:network]{network}} object, whose edges are absent or ignored.}
 
 \item{model}{an \code{\link{ergm_model}} object.}
 
@@ -160,9 +160,9 @@ a list containing some subset of the following elements, with
 on how it is used:
 \describe{
 
-\item{el}{a \code{\link{tibble}} \code{\link{edgelist}} representing the edge state of the network}
+\item{el}{a \code{\link[tibble:tibble]{tibble}} \code{\link[network:as.edgelist]{edgelist}} representing the edge state of the network}
 
-\item{nw0}{a \code{\link{network}} object with all edges removed.}
+\item{nw0}{a \code{\link[network:network]{network}} object with all edges removed.}
 
 \item{model}{an \code{\link{ergm_model}} object.}
 
@@ -197,13 +197,13 @@ they can be used for. Specifically,
 }
 \section{Methods (by class)}{
 \itemize{
-\item \code{ergm_state(edgelist)}: a method for constructing an ergm_state from an \code{\link{edgelist}} object and an empty \code{\link{network}}.
+\item \code{ergm_state(edgelist)}: a method for constructing an ergm_state from an \code{\link[network:as.edgelist]{edgelist}} object and an empty \code{\link[network:network]{network}}.
 
-\item \code{ergm_state(matrix)}: a method for constructing an ergm_state from a matrix object and an empty \code{\link{network}}.
+\item \code{ergm_state(matrix)}: a method for constructing an ergm_state from a matrix object and an empty \code{\link[network:network]{network}}.
 
 \item \code{ergm_state(network)}: a method for constructing an ergm_state from
-a \code{\link{network}} object. Note that \code{...} arguments will be passed
-directly to the \code{\link{edgelist}} method.
+a \code{\link[network:network]{network}} object. Note that \code{...} arguments will be passed
+directly to the \code{\link[network:as.edgelist]{edgelist}} method.
 
 \item \code{ergm_state(ergm_state)}: a method for constructing an \code{ergm_state}.
 

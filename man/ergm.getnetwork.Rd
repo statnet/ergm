@@ -8,13 +8,13 @@ and verify that it is a valid network.}
 ergm.getnetwork(formula, loopswarning = TRUE)
 }
 \arguments{
-\item{formula}{a two-sided formula whose LHS is a \code{\link{network}}, an object that can be coerced to a \code{\link{network}}, or an expression that evaluates to one.}
+\item{formula}{a two-sided formula whose LHS is a \code{\link[network:network]{network}}, an object that can be coerced to a \code{\link[network:network]{network}}, or an expression that evaluates to one.}
 
 \item{loopswarning}{whether warnings about loops should be printed
 (\code{TRUE} or \code{FALSE}); defaults to \code{TRUE}.}
 }
 \value{
-A \code{\link{network}} object constructed by evaluating the LHS of
+A \code{\link[network:network]{network}} object constructed by evaluating the LHS of
 the model formula in the formula's environment.
 }
 \description{

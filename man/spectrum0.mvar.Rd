@@ -2,7 +2,7 @@
 % Please edit documentation in R/approx.hotelling.diff.test.R
 \name{spectrum0.mvar}
 \alias{spectrum0.mvar}
-\title{Multivariate version of \code{coda}'s \code{\link[=spectrum0.ar]{spectrum0.ar()}}.}
+\title{Multivariate version of \code{coda}'s \code{\link[coda:spectrum0.ar]{spectrum0.ar()}}.}
 \usage{
 spectrum0.mvar(
   x,

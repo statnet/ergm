@@ -57,7 +57,7 @@ edgelist will not have self-loops either,e ven if the dyad matrix
 has non-\code{FALSE} diagonal).}
 
 \item{output}{a string specifying whether the result should be a
-matrix or a \code{\link{tibble}}.}
+matrix or a \code{\link[tibble:tibble]{tibble}}.}
 }
 \description{
 A simple class representing boolean (logical) square matrix
@@ -68,8 +68,8 @@ run-length encoded in a column-major order.
 \item \code{compress(rlebdm)}: Compress the \code{rle} data structure in the
 \code{rlebdm} by merging successive runs with identical values.
 
-\item \code{as.edgelist(rlebdm)}: Convert an \code{\link{rlebdm}} object to an \code{\link{edgelist}}: a two-column
-integer matrix or \code{\link{tibble}} giving the cells with \code{TRUE} values.
+\item \code{as.edgelist(rlebdm)}: Convert an \code{\link{rlebdm}} object to an \code{\link[network:as.edgelist]{edgelist}}: a two-column
+integer matrix or \code{\link[tibble:tibble]{tibble}} giving the cells with \code{TRUE} values.
 
 }}
 \section{Functions}{
@@ -77,11 +77,11 @@ integer matrix or \code{\link{tibble}} giving the cells with \code{TRUE} values.
 \item \code{as.rlebdm(matrix)}: Convert a square matrix of mode coercible to \code{\link{logical}} to an
 \code{\link{rlebdm}}.
 
-\item \code{as.rlebdm(edgelist)}: Convert an object of class \code{\link{edgelist}} to an \code{\link{rlebdm}} object
+\item \code{as.rlebdm(edgelist)}: Convert an object of class \code{\link[network:as.edgelist]{edgelist}} to an \code{\link{rlebdm}} object
 whose cells in the edge list are set to \code{TRUE} and whose other
 cells are set to \code{FALSE}.
 
-\item \code{as.rlebdm(network)}: Convert an object of class \code{\link{network}} to an \code{\link{rlebdm}} object
+\item \code{as.rlebdm(network)}: Convert an object of class \code{\link[network:network]{network}} to an \code{\link{rlebdm}} object
 whose cells corresponding to extant edges are set to \code{TRUE} and
 whose other cells are set to \code{FALSE}.
 
@@ -109,6 +109,6 @@ stopifnot(length(big)==50000^2)
 \seealso{
 \code{\link[=as.rlebdm.ergm_conlist]{as.rlebdm.ergm_conlist()}}
 
-\code{\link[=as.edgelist]{as.edgelist()}}
+\code{\link[network:as.edgelist]{as.edgelist()}}
 }
 \keyword{internal}

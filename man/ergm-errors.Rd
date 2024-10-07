@@ -32,7 +32,7 @@ character vector, concatenated into the message.}
 \item{default.loc}{Optional name for the source of the error, to be
 used if an initializer cannot be autodetected.}
 
-\item{call., call}{See \code{\link[=stop]{stop()}} and \code{\link[=abort]{abort()}} respectively; note the
+\item{call., call}{See \code{\link[=stop]{stop()}} and \code{\link[rlang:abort]{abort()}} respectively; note the
 different defaults.}
 
 \item{expr}{Expression to be evaluated (in the caller's
@@ -61,11 +61,11 @@ analogues \code{ergm_Init_stop()}, \code{ergm_Init_warning()}, and
 \code{ergm_Init_message()}.
 }
 \seealso{
-\code{\link[=stop]{stop()}}, \code{\link[=abort]{abort()}}
+\code{\link[=stop]{stop()}}, \code{\link[rlang:abort]{abort()}}
 
-\code{\link[=warning]{warning()}}, \code{\link[=warn]{warn()}}
+\code{\link[=warning]{warning()}}, \code{\link[rlang:abort]{warn()}}
 
-\code{\link[=message]{message()}}, \code{\link[=inform]{inform()}}
+\code{\link[=message]{message()}}, \code{\link[rlang:abort]{inform()}}
 
 \code{\link[=try]{try()}}, \code{\link[=tryCatch]{tryCatch()}}
 }

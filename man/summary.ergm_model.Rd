@@ -9,7 +9,7 @@
 \arguments{
 \item{object}{an \code{\link{ergm_model}} object.}
 
-\item{nw}{a \code{\link{network}} whose statistics are to be evaluated,
+\item{nw}{a \code{\link[network:network]{network}} whose statistics are to be evaluated,
 though an \code{\link{ergm_state}} object will also work. If \code{NULL},
 returns empty network's statistics for that model.}
 

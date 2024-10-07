@@ -12,7 +12,7 @@ call.ErgmTerm(term, env, nw, ..., term.options = list())
 
 \item{env}{Environment in which it is to be evaluated.}
 
-\item{nw}{A \code{\link{network}} object.}
+\item{nw}{A \code{\link[network:network]{network}} object.}
 
 \item{...}{Additional term options.}
 

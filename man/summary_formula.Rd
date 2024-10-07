@@ -57,7 +57,7 @@ method.
 
 \item \code{summary_formula(network.list)}: a method for a \code{\link{network.list}} on the LHS of the formula.
 
-\item \code{summary_formula(network)}: a method for a \code{\link{network}} on the LHS of the formula.
+\item \code{summary_formula(network)}: a method for a \code{\link[network:network]{network}} on the LHS of the formula.
 
 \item \code{summary_formula(ergm_state)}: a method for the semi-internal \code{\link{ergm_state}} on the LHS of the formula.
 
@@ -82,7 +82,7 @@ summary(m ~ edges, directed=FALSE) # Now it's correct
 
 }
 \seealso{
-\code{\link[=ergm]{ergm()}}, \code{\link[=network]{network()}}, \code{\link{ergmTerm}}
+\code{\link[=ergm]{ergm()}}, \code{\link[network:network]{network()}}, \code{\link{ergmTerm}}
 
 \code{\link[=summary.ergm_model]{summary.ergm_model()}}
 }

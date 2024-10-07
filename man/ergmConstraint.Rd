@@ -50,7 +50,7 @@ equal to \code{((A|B)&C)|D}.
 Terms with a positive sign can be viewed as "adding" a constraint
 while those with a negative sign can be viewed as "relaxing" a constraint.
 
-\subsection{Inheriting constraints from LHS \code{\link{network}}}{
+\subsection{Inheriting constraints from LHS \code{\link[network:network]{network}}}{
 
 By default, \code{\link{\%ergmlhs\%}} attributes \code{constraints} or
 \code{constraints.obs} (depending on which constraint) attached to the

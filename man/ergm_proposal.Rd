@@ -124,7 +124,7 @@ giving the \R name of the proposal.
 
 \item \code{ergm_proposal(formula)}: \code{object} argument is an ERGM constraint formula; constructs the \code{\link{ergm_conlist}} object and hands off to \code{ergm_proposal.ergm_conlist()}.
 
-\item \code{ergm_proposal(term_list)}: \code{object} argument is a \code{\link{term_list}};
+\item \code{ergm_proposal(term_list)}: \code{object} argument is a \code{\link[statnet.common:term_list]{term_list}};
 same implementation as the \code{formula} method.
 
 \item \code{ergm_proposal(ergm_conlist)}: \code{object} argument is an ERGM constraint

@@ -163,7 +163,7 @@ down processing.}
 \item{\dots}{Additional
 arguments, to be passed to lower-level functions.}
 
-\item{basis}{a value (usually a \code{\link{network}}) to override the LHS of the formula.}
+\item{basis}{a value (usually a \code{\link[network:network]{network}}) to override the LHS of the formula.}
 
 \item{newnetwork}{One of \code{"one"} (the default), \code{"all"}, or
 \code{"none"} (or, equivalently, \code{FALSE}), specifying whether the
@@ -509,7 +509,7 @@ Available from
 \url{https://www.cmu.edu/joss/content/articles/volume3/Snijders.pdf}.
 }
 \seealso{
-\code{\link{network}}, \code{\link{\%v\%}}, \code{\link{\%n\%}}, \code{\link{ergmTerm}}, \code{\link{ergmMPLE}},
+\code{\link[network:network]{network}}, \code{\link[network:network.extraction]{\%v\%}}, \code{\link[network:network.extraction]{\%n\%}}, \code{\link{ergmTerm}}, \code{\link{ergmMPLE}},
 \code{\link[=summary.ergm]{summary.ergm()}}
 }
 \keyword{models}

@@ -7,7 +7,7 @@
 ergm.design(nw, ...)
 }
 \arguments{
-\item{nw}{a \code{\link{network}} object.}
+\item{nw}{a \code{\link[network:network]{network}} object.}
 
 \item{...}{term options.}
 }

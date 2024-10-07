@@ -48,6 +48,6 @@ summary(m ~ edges, directed=FALSE) # Now it's correct
 
 }
 \seealso{
-\code{\link[=ergm]{ergm()}}, \code{\link[=network]{network()}}, \code{\link{ergmTerm}}
+\code{\link[=ergm]{ergm()}}, \code{\link[network:network]{network()}}, \code{\link{ergmTerm}}
 }
 \keyword{models}

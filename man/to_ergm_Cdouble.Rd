@@ -49,7 +49,7 @@ serialization of the edgelist matrix.
 }
 \section{Methods (by class)}{
 \itemize{
-\item \code{to_ergm_Cdouble(network)}: Method for \code{\link{network}} objects.
+\item \code{to_ergm_Cdouble(network)}: Method for \code{\link[network:network]{network}} objects.
 
 \item \code{to_ergm_Cdouble(ergm_state)}: Method for \code{\link{ergm_state}} objects, extracting their edgelists.
 

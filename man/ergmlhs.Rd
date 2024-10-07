@@ -30,7 +30,7 @@ convert_ergmlhs(lhs)
 \method{print}{summary.ergm_lhs}(x, ...)
 }
 \arguments{
-\item{lhs}{a \code{\link{network}} intended to serve as LHS of a \code{\link{ergm}}
+\item{lhs}{a \code{\link[network:network]{network}} intended to serve as LHS of a \code{\link{ergm}}
 call.}
 
 \item{setting}{a character string holding a setting's name.}

@@ -140,7 +140,7 @@ algorithm.}
 
 \item{\dots}{Further arguments passed to or used by methods.}
 
-\item{basis}{a value (usually a \code{\link{network}}) to override the LHS of the formula.}
+\item{basis}{a value (usually a \code{\link[network:network]{network}}) to override the LHS of the formula.}
 
 \item{coef}{Vector of parameter values for the model from which the
 sample is to be drawn.  If \code{object} is of class \code{ergm},
@@ -254,9 +254,9 @@ proposal every time. Valid inputs at this time are \code{"formula"},
 respective stopping points.}
 }
 \value{
-If \code{output=="stats"} an \code{\link{mcmc}} object containing the
+If \code{output=="stats"} an \code{\link[coda:mcmc]{mcmc}} object containing the
 simulated network statistics. If \code{control$parallel>0}, an
-\code{\link{mcmc.list}} object. If \code{simplify=TRUE} (the default), these
+\code{\link[coda:mcmc.list]{mcmc.list}} object. If \code{simplify=TRUE} (the default), these
 would then be "stacked" and converted to a standard \code{\link{matrix}}. A
 logical vector indicating whether or not the term had come from
 the \verb{monitor=} formula is stored in \code{\link[=attr]{attr()}}-style attribute
@@ -270,7 +270,7 @@ representation or a list thereof, they have the following
 \item{\code{formula}}{The \code{\link{formula}} used to generate the
 sample.}
 
-\item{\code{stats}}{An \code{\link{mcmc}} or \code{\link{mcmc.list}} object as above.}
+\item{\code{stats}}{An \code{\link[coda:mcmc]{mcmc}} or \code{\link[coda:mcmc.list]{mcmc.list}} object as above.}
 
 \item{\code{control}}{Control parameters used to generate the sample.}
 
@@ -291,11 +291,11 @@ The following are the permitted network formats: \describe{
 \code{\link{network.list}} (a list of networks) with the
 above-listed additional attributes.}
 
-\item{\code{"edgelist"}}{An \code{\link{edgelist}} representation of the network,
+\item{\code{"edgelist"}}{An \code{\link[network:as.edgelist]{edgelist}} representation of the network,
 or a list thereof, depending on \code{nsim}.}
 
 \item{\code{"ergm_state"}}{A semi-internal representation of
-a network consisting of a \code{\link{network}} object emptied of edges, with
+a network consisting of a \code{\link[network:network]{network}} object emptied of edges, with
 an attached edgelist matrix, or a list thereof, depending on
 \code{nsim}.}
 
@@ -344,7 +344,7 @@ More information can be found by looking at the documentation of
 
 }}
 \note{
-The actual \code{\link{network}} method for \code{\link[=simulate_formula]{simulate_formula()}} is
+The actual \code{\link[network:network]{network}} method for \code{\link[=simulate_formula]{simulate_formula()}} is
 actually called \code{.simulate_formula.network()} and is also
 exported as an object. This allows it to be overridden by
 extension packages, such as \code{tergm}, but also accessed directly

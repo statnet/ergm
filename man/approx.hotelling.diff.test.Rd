@@ -57,7 +57,7 @@ difference between them. This version attempts to adjust for
 multivariate autocorrelation in the samples.
 }
 \note{
-For \code{\link{mcmc.list}} input, the variance for this test is
+For \code{\link[coda:mcmc.list]{mcmc.list}} input, the variance for this test is
 estimated with unpooled means. This is not strictly correct.
 }
 \references{

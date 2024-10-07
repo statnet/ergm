@@ -7,7 +7,7 @@
 geweke.diag.mv(x, frac1 = 0.1, frac2 = 0.5, split.mcmc.list = FALSE, ...)
 }
 \arguments{
-\item{x}{an \code{\link{mcmc}}, \code{\link{mcmc.list}}, or just a matrix with
+\item{x}{an \code{\link[coda:mcmc]{mcmc}}, \code{\link[coda:mcmc.list]{mcmc.list}}, or just a matrix with
 observations in rows and variables in columns.}
 
 \item{frac1, frac2}{the fraction at the start and, respectively, at

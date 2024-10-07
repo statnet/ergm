@@ -7,7 +7,7 @@
 ergm_preprocess_response(nw, response)
 }
 \arguments{
-\item{nw}{a \code{\link{network}} object.}
+\item{nw}{a \code{\link[network:network]{network}} object.}
 
 \item{response}{Either a character string, a formula, or \code{NULL} (the default), to specify the response attributes and whether the ERGM is binary or valued. Interpreted as follows: \describe{
 

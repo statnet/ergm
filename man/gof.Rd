@@ -93,7 +93,7 @@ produces minimal output, with higher values producing more
 detail. Note that very high values (5+) may significantly slow
 down processing.}
 
-\item{basis}{a value (usually a \code{\link{network}}) to override the LHS of the formula.}
+\item{basis}{a value (usually a \code{\link[network:network]{network}}) to override the LHS of the formula.}
 
 \item{unconditional}{logical; if \code{TRUE}, the simulation is
 unconditional on the observed dyads.  if not \code{TRUE}, the simulation is
@@ -200,7 +200,7 @@ plot(gofflo2)
 
 }
 \seealso{
-\code{\link[=ergm]{ergm()}}, \code{\link[=network]{network()}}, \code{\link[=simulate.ergm]{simulate.ergm()}}, \code{\link[=summary.ergm]{summary.ergm()}}
+\code{\link[=ergm]{ergm()}}, \code{\link[network:network]{network()}}, \code{\link[=simulate.ergm]{simulate.ergm()}}, \code{\link[=summary.ergm]{summary.ergm()}}
 }
 \keyword{graphs}
 \keyword{models}

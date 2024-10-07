@@ -17,7 +17,7 @@ ergm_symmetrize(x, rule = c("weak", "strong", "upper", "lower"), ...)
 
 \item{rule}{a string specifying how the network is to be
 symmetrized; see \code{\link[sna:symmetrize]{sna::symmetrize()}} for details; for the
-\code{\link{network}} method, it can also be a function or a list; see
+\code{\link[network:network]{network}} method, it can also be a function or a list; see
 Details.}
 
 \item{...}{additional arguments to \code{\link[sna:symmetrize]{sna::symmetrize()}}.}
@@ -26,7 +26,7 @@ Details.}
 Return a symmetrized version of a binary network
 }
 \details{
-The \code{\link{network}} method requires more flexibility, in order
+The \code{\link[network:network]{network}} method requires more flexibility, in order
 to specify how the edge attributes are handled. Therefore, \code{rule}
 can be one of the following types: \describe{
 
@@ -36,7 +36,7 @@ maximum value and \code{"strong"} takes the minimum
 value" for ordered attributes, and drops the unordered.}
 
 \item{a function}{ The function is evaluated on a \code{\link{data.frame}}
-constructed by joining (via \code{\link[=merge]{merge()}}) the edge \code{\link{tibble}} with all
+constructed by joining (via \code{\link[=merge]{merge()}}) the edge \code{\link[tibble:tibble]{tibble}} with all
 attributes and \code{NA} indicators with itself reversing tail and head
 columns, and appending original columns with \code{".th"} and the
 reversed columns with \code{".ht"}. It is then evaluated for each
@@ -55,7 +55,7 @@ arguments are dropped. }
 \itemize{
 \item \code{ergm_symmetrize(default)}: The default method, passing the input on to \code{\link[sna:symmetrize]{sna::symmetrize()}}.
 
-\item \code{ergm_symmetrize(network)}: A method for \code{\link{network}} objects, which preserves network and vertex attributes, and handles edge attributes.
+\item \code{ergm_symmetrize(network)}: A method for \code{\link[network:network]{network}} objects, which preserves network and vertex attributes, and handles edge attributes.
 
 }}
 \note{

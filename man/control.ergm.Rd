@@ -384,7 +384,7 @@ size \eqn{n_{\text{eff}}} will be set such that
 specifically that \eqn{\operatorname{tr}((V/n_{\text{eff}})W)/p\approx 1}.}
 
 \item{MCMC.return.stats}{Numeric: If positive, include an
-\code{\link{mcmc.list}} (two, if observational process was involved) of
+\code{\link[coda:mcmc.list]{mcmc.list}} (two, if observational process was involved) of
 MCMC network statistics from the last iteration of network of the
 estimation. They will be thinned to have length of at most
 \code{MCMC.return.stats}. They are used for MCMC diagnostics.}

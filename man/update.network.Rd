@@ -22,7 +22,7 @@ update_network(object, new, ...)
 \method{update_network}{ergm_state}(object, new, ...)
 }
 \arguments{
-\item{object}{a \code{\link{network}} object.}
+\item{object}{a \code{\link[network:network]{network}} object.}
 
 \item{\dots}{Additional arguments; currently unused.}
 
@@ -40,12 +40,12 @@ which type of matrix \code{new} is.  Default is to use the
 \code{\link[network]{which.matrix.type}} function.}
 }
 \value{
-A new \code{\link{network}} object with the edges specified by
+A new \code{\link[network:network]{network}} object with the edges specified by
 \code{new} and network and vertex attributes copied from
 the input network \code{object}. Input network is not modified.
 }
 \description{
-Replaces the edges in a \code{\link{network}} object with the edges corresponding
+Replaces the edges in a \code{\link[network:network]{network}} object with the edges corresponding
 to the sociomatrix or edge list specified by \code{new}.
 }
 \section{Functions}{
@@ -80,6 +80,6 @@ update(flomarriage, rand.mat, matrix.type="edgelist")
 
 }
 \seealso{
-\code{\link[=ergm]{ergm()}}, \code{\link{network}}
+\code{\link[=ergm]{ergm()}}, \code{\link[network:network]{network}}
 }
 \keyword{models}

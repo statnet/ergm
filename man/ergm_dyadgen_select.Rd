@@ -9,7 +9,7 @@ ergm_dyadgen_select(arguments, nw, extra_rlebdm = NULL)
 \arguments{
 \item{arguments}{argumements passed to the \code{\link{ergm_proposal}}.}
 
-\item{nw}{a \code{\link{network}}.}
+\item{nw}{a \code{\link[network:network]{network}}.}
 
 \item{extra_rlebdm}{an \code{\link{rlebdm}} representing any additional constraints.}
 }

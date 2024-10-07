@@ -55,7 +55,7 @@ to temporarily override those in the \code{control} list.}
 \value{
 \code{ergm_MCMC_sample} returns a list
 containing:
-\item{stats}{an \code{\link{mcmc.list}} with sampled statistics.}
+\item{stats}{an \code{\link[coda:mcmc.list]{mcmc.list}} with sampled statistics.}
 \item{networks}{a list of final sampled networks, one for each thread.}
 \item{status}{status code, propagated from \code{ergm_MCMC_slave()}.}
 \item{final.interval}{adaptively determined MCMC interval.}
@@ -91,7 +91,7 @@ formats. For example, \code{ergm_MCMC_sample} expects \code{ergm_state}
 rather than network/model/proposal, and \code{theta} or \code{eta} rather than \code{eta0};
 and it does not return \code{statsmatrix} or \code{newnetwork}
 elements. Rather, if parallel processing is not in effect,
-\code{stats} is an \code{\link{mcmc.list}} with one chain and \code{networks} is a
+\code{stats} is an \code{\link[coda:mcmc.list]{mcmc.list}} with one chain and \code{networks} is a
 list with one element.
 
 Note that unless \code{stats} is a part of the \code{ergm_state}, the

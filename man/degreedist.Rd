@@ -34,7 +34,7 @@ function. For help about \link[=degreedist-ergmConstraint]{the ERGM sample space
 }
 \section{Methods (by class)}{
 \itemize{
-\item \code{degreedist(network)}: Method for \code{\link{network}} objects.
+\item \code{degreedist(network)}: Method for \code{\link[network:network]{network}} objects.
 
 }}
 \examples{

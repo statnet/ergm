@@ -41,7 +41,7 @@ down processing.}
 
 \item{\dots}{Additional arguments, to be passed to lower-level functions.}
 
-\item{basis}{a value (usually a \code{\link{network}}) to override the LHS of the formula.}
+\item{basis}{a value (usually a \code{\link[network:network]{network}}) to override the LHS of the formula.}
 }
 \value{
 If \code{output=="matrix"} (the default), then only the response, predictor,

@@ -8,7 +8,7 @@
 # fixedas(fixed.dyads, present, absent)
 }
 \arguments{
-\item{fixed.dyads, present, absent}{a two-column edge list or a \code{\link{network}}}
+\item{fixed.dyads, present, absent}{a two-column edge list or a \code{\link[network:network]{network}}}
 }
 \description{
 Fix the dyads in \code{fixed.dyads} at their current value, preserve the edges in \code{present}, and preclude the edges in \code{absent}.
