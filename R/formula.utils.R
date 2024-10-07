@@ -138,7 +138,7 @@ model.transform.formula <- function(object, theta, recipes, ...){
 
 #' Convert a curved ERGM into a corresponding "fixed" ERGM.
 #' 
-#' The generic \code{fix.curved} converts an \code{\link{ergm}} object or
+#' The generic \code{fix.curved} converts an [`ergm`] object or
 #' formula of a model with curved terms to the variant in which the curved
 #' parameters are fixed. Note that each term has to be treated as a special
 #' case.
@@ -157,7 +157,7 @@ model.transform.formula <- function(object, theta, recipes, ...){
 #' curved ERGM terms included with the \code{\link[=ergm-package]{ergm}}
 #' package. It does not work with curved terms not included in ergm.
 #' 
-#' @param object An \code{\link{ergm}} object or an ERGM formula. The curved
+#' @param object An [`ergm`] object or an ERGM formula. The curved
 #' terms of the given formula (or the formula used in the fit) must have all of
 #' their arguments passed by name.
 #' @param \dots Unused at this time.
@@ -213,7 +213,7 @@ fix.curved.formula <- function(object, theta, ...){
 #' Convert a curved ERGM into a form suitable as initial values for the same
 #' ergm. Deprecated in 4.0.0.
 #' 
-#' The generic \code{enformulate.curved} converts an \code{\link{ergm}} object
+#' The generic \code{enformulate.curved} converts an [`ergm`] object
 #' or formula of a model with curved terms to the variant in which the curved
 #' parameters embedded into the formula and are removed from the parameter
 #' vector. This is the form that used to be required by \code{\link{ergm}} calls.
@@ -228,7 +228,7 @@ fix.curved.formula <- function(object, theta, ...){
 #' \code{\link[=ergm-package]{ergm}} package. It does not work with curved
 #' terms not included in ergm.
 #' 
-#' @param object An \code{\link{ergm}} object or an ERGM formula. The curved
+#' @param object An [`ergm`] object or an ERGM formula. The curved
 #' terms of the given formula (or the formula used in the fit) must have all of
 #' their arguments passed by name.
 #' @param \dots Unused at this time.

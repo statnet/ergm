@@ -48,12 +48,12 @@ end-users, but may be useful to developers.
 \itemize{
 \item \code{ergm_Init_try()}: A helper function that evaluates the
 specified expression in the caller's environment, passing any
-errors to \code{\link[=ergm_Init_abort]{ergm_Init_abort()}}.
+errors to \code{\link[=ergm_Init_stop]{ergm_Init_stop()}}.
 
 }}
 \note{
 At this time, the \CRANpkg{rlang} analogues
-\code{ergm_Init_abort()}, \code{ergm_Init_warn()}, and \code{ergm_Init_inform()}
+\code{ergm_Init_stop()}, \code{ergm_Init_warning()}, and \code{ergm_Init_message()}
 all concatenate their arguments like their base \R
 counterparts. This may change in the future, and if you wish to
 retain their old behavior, please switch to their base \R

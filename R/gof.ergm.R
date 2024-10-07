@@ -29,7 +29,7 @@
 #' argument described above.
 #'
 #' @aliases gof.default
-#' @param object Either a formula or an \code{\link{ergm}} object.
+#' @param object Either a formula or an [`ergm`] object.
 #' See documentation for \code{\link{ergm}}.
 #' @param \dots Additional arguments, to be passed to lower-level functions.
 #' @param coef When given either a formula or an object of class ergm,

@@ -21,13 +21,13 @@
 #' Calculate geodesic distance distribution for a network or edgelist
 #' 
 #' \code{ergm.geodistdist} calculates geodesic distance distribution for a
-#' given \code{\link{network}} and returns it as a vector.
+#' given [`network`] and returns it as a vector.
 #' 
 #' \code{ergm.geodistdist} is a network wrapper for \code{ergm.geodistn}, which
 #' calculates and returns the geodesic distance distribution for a given
 #' network via full_geodesic_distribution.C
 #' 
-#' @param nw \code{\link{network}} object over which distances should be
+#' @param nw [`network`] object over which distances should be
 #' calculated
 #' @param directed logical, should the network be treated as directed
 #' @param edgelist an edgelist representation of a network as an mx2 matrix
@@ -38,7 +38,7 @@
 #' geodesic length `i`
 #' \item `ans[n]` is the number of pairs of geodesic length
 #' infinity.  }
-#' @seealso See also the sna package \code{\link[sna]{geodist}} function
+#' @seealso See also the sna package [geodist()] function
 #' @examples
 #' 
 #' data(faux.mesa.high)

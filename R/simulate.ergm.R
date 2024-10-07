@@ -37,8 +37,8 @@
 #' More information can be found by looking at the documentation of
 #' \code{\link{ergm}}.
 #' 
-#' @param object Either a \code{\link{formula}} or an
-#' \code{\link{ergm}} object.  The \code{\link{formula}} should be of the form
+#' @param object Either a [`formula`] or an
+#' [`ergm`] object.  The [`formula`] should be of the form
 #' \code{y ~ <model terms>}, where \code{y} is a network object or a matrix
 #' that can be coerced to a \code{\link[network]{network}} object.  For the
 #' details on the possible \code{<model terms>}, see \code{\link{ergmTerm}}.
@@ -131,7 +131,7 @@
 #' representation or a list thereof, they have the following
 #' \code{\link{attr}}-style attributes: \describe{
 #'
-#' \item{`formula`}{The \code{\link{formula}} used to generate the
+#' \item{`formula`}{The [`formula`] used to generate the
 #' sample.}
 #'
 #' \item{`stats`}{An [`mcmc`] or [`mcmc.list`] object as above.}

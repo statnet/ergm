@@ -23,7 +23,7 @@
 #' 
 #' 
 #' @param formula An \code{\link{ergm}}-style formula, with a
-#'   \code{\link{network}} on its LHS.
+#'   [`network`] on its LHS.
 #' @param changes Either a matrix with three columns: tail, head, and
 #'   new value, describing the changes to be made; or a list of such
 #'   matrices to apply these changes in a sequence. For binary network
@@ -47,15 +47,15 @@
 #' @template verbose
 #'
 #' @return If \code{end.network==FALSE} (the default), an
-#'   \code{\link{mcmc}} object with the requested network statistics
+#'   [`mcmc`] object with the requested network statistics
 #'   associed with the network series produced by applying the
-#'   specified changes. Its \code{\link{mcmc}} attributes encode the
+#'   specified changes. Its [`mcmc`] attributes encode the
 #'   timing information: so \code{\link{start}(out)} gives the time
 #'   point associated with the first row returned, and
 #'   \code{\link{end}(out)} out the last. The "thinning interval" is
 #'   always 1.
 #' 
-#' If \code{end.network==TRUE}, return a \code{\link{network}} object,
+#' If \code{end.network==TRUE}, return a [`network`] object,
 #' representing the final network, with a matrix of statistics
 #' described in the previous paragraph attached to it as an
 #' \code{attr}-style attribute \code{"stats"}.

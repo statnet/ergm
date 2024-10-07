@@ -151,8 +151,8 @@ prune.ergm_conlist <- function(conlist){
 #' 
 #' 
 #' @aliases ergm_proposal.NULL ergm_proposal.ergm_proposal
-#' @param object Either a character, a \code{\link{formula}} or an
-#' \code{\link{ergm}} object.  The \code{\link{formula}} should be of the format documented in the `constraints` argument of [ergm()] and in the [ERGM constraints][ergmConstraint] documentation.
+#' @param object Either a character, a [`formula`] or an
+#' [`ergm`] object.  The [`formula`] should be of the format documented in the `constraints` argument of [ergm()] and in the [ERGM constraints][ergmConstraint] documentation.
 #' @param \dots Further arguments passed to other functions.
 #' @return Returns an ergm_proposal object: a list with class `ergm_proposal`
 #' containing the following named elements:

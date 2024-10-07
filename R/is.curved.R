@@ -21,7 +21,7 @@
 #' 
 #' Curvature is checked by testing if all model parameters are canonical.
 #' 
-#' @param object An \code{\link{ergm}} object or an ERGM formula.
+#' @param object An [`ergm`] object or an ERGM formula.
 #' @param \dots Arguments passed on to lower-level functions.
 #' @return \code{TRUE} if the object represents a
 #' curved exponential family; \code{FALSE} otherwise.

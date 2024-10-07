@@ -26,7 +26,7 @@
 #' on a similar scheme.
 #' (For an overview of the package \insertCite{HuHa08e,KrHu23e}{ergm}, see \code{\link{ergm-package}}.)
 #' 
-#' @param formula An \R \code{\link{formula}} object, of the form
+#' @param formula An \R [`formula`], of the form
 #'   \code{y ~ <model terms>}, where \code{y} is a
 #'   \code{\link[network]{network}} object or a matrix that can be
 #'   coerced to a \code{\link[network]{network}} object.  For the
@@ -150,7 +150,7 @@
 #' \item{etamap}{The set of functions mapping the true parameter theta
 #' to the canonical parameter eta (irrelevant except in a curved exponential
 #' family model)}
-#' \item{formula}{The original \code{\link{formula}} entered into the \code{\link{ergm}} function.}
+#' \item{formula}{The original [`formula`] passed to [ergm()].}
 #' \item{target.stats}{The target.stats used during estimation (passed through from the Arguments)}
 #' \item{target.esteq}{Used for curved models to preserve the target mean values of the curved terms. It is identical to target.stats for non-curved models.}
 #' \item{constraints}{Constraints used during estimation (passed through from the Arguments)}

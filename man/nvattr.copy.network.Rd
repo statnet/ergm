@@ -11,13 +11,13 @@ nvattr.copy.network(
 )
 }
 \arguments{
-\item{to}{the \code{\link{network}} that attributes should be copied to}
+\item{to}{the \code{\link[network:network]{network}} that attributes should be copied to}
 
-\item{from}{the \code{\link{network}} that attributes should be copied to}
+\item{from}{the \code{\link[network:network]{network}} that attributes should be copied to}
 
 \item{ignore}{vector of charcter names of network attributes that should not
 be copied. Default is the standard list of network properties created by
-\code{\link{network.initialize}}}
+\code{\link[network:network.initialize]{network.initialize()}}}
 }
 \value{
 returns the \code{to} network, with attributes copied from
@@ -25,14 +25,14 @@ returns the \code{to} network, with attributes copied from
 }
 \description{
 An internal ergm utility function to copy the network-level attributes and
-vertex-level attributes from one \code{\link{network}} object to another,
+vertex-level attributes from one \code{\link[network:network]{network}} object to another,
 ignoring some standard properties by default.
 }
 \note{
 does not check that networks are of the same size, etc
 }
 \seealso{
-\code{\link{set.vertex.attribute}},
-\code{\link{set.network.attribute}}
+\code{\link[network:attribute.methods]{set.vertex.attribute()}},
+\code{\link[network:attribute.methods]{set.network.attribute()}}
 }
 \keyword{internal}

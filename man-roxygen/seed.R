@@ -8,4 +8,4 @@
 #  Copyright 2003-2024 Statnet Commons
 ################################################################################
 #' @param seed Seed value (integer) for the random number generator.  See
-#' \code{\link[base]{set.seed}}.
+#' [set.seed()].

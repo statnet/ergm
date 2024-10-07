@@ -17,7 +17,7 @@ dissertation, Department of Sociology, Cornell University.
 data(sampson)
 }
 \description{
-A \code{\link{network}} object containing the cumulative "liking"
+A \code{\link[network:network]{network}} object containing the cumulative "liking"
 nominations of Sampson's (1969) monks over the three time points.
 }
 \details{

@@ -41,7 +41,7 @@
 #' attribute data into an ergm term.
 #' 
 #' 
-#' @param nw a \code{\link{network}} object
+#' @param nw a [`network`] object
 #' @param attrname the name of a nodal attribute, as a character string
 #' @param functionname the name of the calling function a character string;
 #' this is only used for the warning messages that accompany a halt

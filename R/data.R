@@ -489,7 +489,7 @@ NULL
 #' Longitudinal networks of positive affection within a monastery as a
 #' "network" object
 #' 
-#' Three \code{\link{network}} objects containing the "liking" nominations of
+#' Three [`network`] objects containing the "liking" nominations of
 #' Sampson's (1969) monks at the three time points.
 #' 
 #' Sampson (1969) recorded the social interactions among a group of monks while
@@ -585,7 +585,7 @@ NULL
 #' Cumulative network of positive affection within a monastery as a "network"
 #' object
 #' 
-#' A \code{\link{network}} object containing the cumulative "liking"
+#' A [`network`] object containing the cumulative "liking"
 #' nominations of Sampson's (1969) monks over the three time points.
 #' 
 #' Sampson (1969) recorded the social interactions among a group of monks while

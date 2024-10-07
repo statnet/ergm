@@ -81,7 +81,7 @@ not be needed outside of very strange setups.}
 \item{term.options}{A list of additional arguments to be passed to term initializers. See \code{\link[=term.options]{? term.options}}.}
 
 \item{seed}{Seed value (integer) for the random number generator.  See
-\code{\link[base]{set.seed}}.}
+\code{\link[=set.seed]{set.seed()}}.}
 
 \item{parallel}{Number of threads in which to run the sampling. Defaults to
 0 (no parallelism). See the entry on \link[=ergm-parallel]{parallel processing}

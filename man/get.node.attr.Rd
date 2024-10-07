@@ -8,7 +8,7 @@ a network}
 get.node.attr(nw, attrname, functionname = NULL, numeric = FALSE)
 }
 \arguments{
-\item{nw}{a \code{\link{network}} object}
+\item{nw}{a \code{\link[network:network]{network}} object}
 
 \item{attrname}{the name of a nodal attribute, as a character string}
 

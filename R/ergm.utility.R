@@ -110,20 +110,20 @@ degreedist.network <- function(object, print=TRUE, ...)
 #' Copy network- and vertex-level attributes between two network objects
 #' 
 #' An internal ergm utility function to copy the network-level attributes and
-#' vertex-level attributes from one \code{\link{network}} object to another,
+#' vertex-level attributes from one [`network`] object to another,
 #' ignoring some standard properties by default.
 #' 
 #' 
-#' @param to the \code{\link{network}} that attributes should be copied to
-#' @param from the \code{\link{network}} that attributes should be copied to
+#' @param to the [`network`] that attributes should be copied to
+#' @param from the [`network`] that attributes should be copied to
 #' @param ignore vector of charcter names of network attributes that should not
 #' be copied. Default is the standard list of network properties created by
-#' \code{\link{network.initialize}}
+#' [network.initialize()]
 #' @return returns the \code{to} network, with attributes copied from
 #' \code{from}
 #' @note does not check that networks are of the same size, etc
-#' @seealso \code{\link{set.vertex.attribute}},
-#' \code{\link{set.network.attribute}}
+#' @seealso [set.vertex.attribute()],
+#' [set.network.attribute()]
 #' @keywords internal
 #' @export nvattr.copy.network
 nvattr.copy.network <- function(to, from, ignore=c("bipartite","directed","hyper","loops","mnext","multiple","n")){

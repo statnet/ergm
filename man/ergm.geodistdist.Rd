@@ -10,7 +10,7 @@ ergm.geodistdist(nw, directed = is.directed(nw))
 ergm.geodistn(edgelist, n = max(edgelist), directed = FALSE)
 }
 \arguments{
-\item{nw}{\code{\link{network}} object over which distances should be
+\item{nw}{\code{\link[network:network]{network}} object over which distances should be
 calculated}
 
 \item{directed}{logical, should the network be treated as directed}
@@ -29,7 +29,7 @@ infinity.  }
 }
 \description{
 \code{ergm.geodistdist} calculates geodesic distance distribution for a
-given \code{\link{network}} and returns it as a vector.
+given \code{\link[network:network]{network}} and returns it as a vector.
 
 \code{ergm.geodistn} calculates geodesic deistance
 distribution based on an input edgelist, and has very little
@@ -48,6 +48,6 @@ ergm.geodistdist(faux.mesa.high)
 
 }
 \seealso{
-See also the sna package \code{\link[sna]{geodist}} function
+See also the sna package \code{\link[sna:geodist]{geodist()}} function
 }
 \keyword{internal}

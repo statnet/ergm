@@ -42,7 +42,7 @@ is.ergm(object)
 \method{vcov}{ergm}(object, sources = c("all", "model", "estimation"), ...)
 }
 \arguments{
-\item{formula}{An \R \code{\link{formula}} object, of the form
+\item{formula}{An \R \code{\link{formula}}, of the form
 \code{y ~ <model terms>}, where \code{y} is a
 \code{\link[network]{network}} object or a matrix that can be
 coerced to a \code{\link[network]{network}} object.  For the
@@ -222,7 +222,7 @@ For the MCMLE method, the history of coefficients, Hummel step lengths, and aver
 \item{etamap}{The set of functions mapping the true parameter theta
 to the canonical parameter eta (irrelevant except in a curved exponential
 family model)}
-\item{formula}{The original \code{\link{formula}} entered into the \code{\link{ergm}} function.}
+\item{formula}{The original \code{\link{formula}} passed to \code{\link[=ergm]{ergm()}}.}
 \item{target.stats}{The target.stats used during estimation (passed through from the Arguments)}
 \item{target.esteq}{Used for curved models to preserve the target mean values of the curved terms. It is identical to target.stats for non-curved models.}
 \item{constraints}{Constraints used during estimation (passed through from the Arguments)}

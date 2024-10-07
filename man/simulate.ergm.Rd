@@ -136,7 +136,7 @@ distribution on the set of all networks, returned by the Metropolis-Hastings
 algorithm.}
 
 \item{seed}{Seed value (integer) for the random number generator.  See
-\code{\link[base]{set.seed}}.}
+\code{\link[=set.seed]{set.seed()}}.}
 
 \item{\dots}{Further arguments passed to or used by methods.}
 
