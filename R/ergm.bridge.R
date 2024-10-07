@@ -339,7 +339,7 @@ ergm.bridge.dindstart.llk<-function(object, response=NULL, constraints=~., coef,
 
   message("Fitting the dyad-independent submodel...")
   if(is.null(coef.dind)){
-    ergm.dind <- suppressMessages(suppressWarnings(ergm(dind, basis=nw, estimate="MPLE", constraints=constraints, obs.constraints=obs.constraints, eval.loglik=FALSE, control=control.ergm(drop=control$drop, term.options=control$term.options, MPLE.max.dyad.types=control$MPLE.max.dyad.types), offset.coef=offset.dind)))
+    ergm.dind <- suppressMessages(suppressWarnings(ergm(dind, basis=nw, estimate="MPLE", constraints=constraints, obs.constraints=obs.constraints, eval.loglik=FALSE, control=control.ergm(drop=control$drop, term.options=control$term.options, MPLE.check=FALSE, MPLE.max.dyad.types=control$MPLE.max.dyad.types), offset.coef=offset.dind)))
     etamap.dind <- ergm.dind$etamap
     stats.dind <- ergm.dind$nw.stats
 
