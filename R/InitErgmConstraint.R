@@ -262,7 +262,7 @@ InitErgmConstraint.bd<-function(nw, arglist, ...){
                       defaultvalues = list(NULL, NA_integer_, NA_integer_, NA_integer_, NA_integer_),
                       required = c(FALSE, FALSE, FALSE, FALSE, FALSE))
 
-  if(!is.directed(nw) && (!all(is.na(a$minin)) || !all(is.na(a$maxin)))) ergm_Init_abort(sQuote("minin"), " and ", sQuote("maxin"), " cannot be used with undirected networks.")
+  if(!is.directed(nw) && (!all(is.na(a$minin)) || !all(is.na(a$maxin)))) ergm_Init_stop(sQuote("minin"), " and ", sQuote("maxin"), " cannot be used with undirected networks.")
 
    if(all(is.na(a$minout)) && all(is.na(a$minin))) {
      constrain <- c("bd","bdmax")
@@ -614,12 +614,12 @@ InitErgmConstraint.Dyads<-function(nw, arglist, ...){
   fix <- a$fix; vary <- a$vary
 
   if(is.null(fix) & is.null(vary))
-    ergm_Init_abort(paste("Dyads constraint takes at least one argument, either",sQuote("fix"),"or",sQuote("vary"),"or both."))
+    ergm_Init_stop("Dyads constraint takes at least one argument, either ",sQuote("fix")," or ",sQuote("vary")," or both.")
 
   for(f in c(fix, vary)){
     f[[3]] <- f[[2]]
     f[[2]] <- nw
-    if(!is.dyad.independent(f)) ergm_Init_abort(paste("Terms passed to the Dyads constraint must be dyad-independent."))
+    if(!is.dyad.independent(f)) ergm_Init_stop("Terms passed to the Dyads constraint must be dyad-independent.")
   }
 
   list(

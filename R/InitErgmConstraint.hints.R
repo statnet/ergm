@@ -149,7 +149,7 @@ InitErgmConstraint.strat <- function(nw, arglist, ...) {
   pmat <- NVL(pmat, matrix(1, nrow = length(strat_row_levels), ncol = length(strat_col_levels)))
 
   if(NROW(pmat) != length(strat_row_levels) || NCOL(pmat) != length(strat_col_levels)) {
-    ergm_Init_abort(sQuote("pmat"), " does not have the correct dimensions for ", sQuote("attr"), ".")
+    ergm_Init_stop(sQuote("pmat"), " does not have the correct dimensions for ", sQuote("attr"), ".")
   }
 
   if(!is.bipartite(nw) && !is.directed(nw)) {

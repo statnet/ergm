@@ -365,7 +365,7 @@ InitWtErgmTerm.ininterval<-function(nw, arglist, ...) {
 
   OPENSPECS = c('()', '(]', '[)', '[]')
   if(is(open, "character")){
-    if(! open%in%OPENSPECS) ergm_Init_abort("Interval openness specification via a string must be ", paste.and(OPENSPECS,'"','"',"or"),".")
+    if(! open%in%OPENSPECS) ergm_Init_stop("Interval openness specification via a string must be ", paste.and(OPENSPECS,'"','"',"or"),".")
     open <- c(substr(open,1,1)=="(",
               substr(open,2,2)==")")
   }

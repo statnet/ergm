@@ -28,7 +28,7 @@ NULL
 InitWtErgmProposal.DiscUnif <- function(arguments, nw) {
   a <- NVL(arguments$reference$arguments$a, -Inf)
   b <- NVL(arguments$reference$arguments$b, Inf)
-  if(!is.finite(a) || !is.finite(b)) ergm_Init_abort('Uniform reference measures that are not bounded are not implemented at this time. Specifiy a and b to be finite.')
+  if(!is.finite(a) || !is.finite(b)) ergm_Init_stop('Uniform reference measures that are not bounded are not implemented at this time. Specifiy a and b to be finite.')
   proposal <- list(name = "DiscUnif", inputs=c(a,b))
   proposal
 }
@@ -56,7 +56,7 @@ NULL
 InitWtErgmProposal.DiscUnifNonObserved <- function(arguments, nw) {
   a <- NVL(arguments$reference$arguments$a, -Inf)
   b <- NVL(arguments$reference$arguments$b, Inf)
-  if(!is.finite(a) || !is.finite(b)) ergm_Init_abort('Uniform reference measures that are not bounded are not implemented at this time. Specifiy a and b to be finite.')
+  if(!is.finite(a) || !is.finite(b)) ergm_Init_stop('Uniform reference measures that are not bounded are not implemented at this time. Specifiy a and b to be finite.')
   proposal <- list(name = "DiscUnifNonObserved", inputs=c(a,b,to_ergm_Cdouble(is.na(nw))))
   proposal
 }
@@ -70,7 +70,7 @@ NULL
 InitWtErgmProposal.Unif <- function(arguments, nw) {
   a <- NVL(arguments$reference$arguments$a, -Inf)
   b <- NVL(arguments$reference$arguments$b, Inf)
-  if(!is.finite(a) || !is.finite(b)) ergm_Init_abort('Uniform reference measures that are not bounded are not implemented at this time. Specifiy a and b to be finite.')
+  if(!is.finite(a) || !is.finite(b)) ergm_Init_stop('Uniform reference measures that are not bounded are not implemented at this time. Specifiy a and b to be finite.')
   proposal <- list(name = "Unif", inputs=c(a,b))
   proposal
 }
@@ -84,7 +84,7 @@ NULL
 InitWtErgmProposal.UnifNonObserved <- function(arguments, nw) {
   a <- NVL(arguments$reference$arguments$a, -Inf)
   b <- NVL(arguments$reference$arguments$b, Inf)
-  if(!is.finite(a) || !is.finite(b)) ergm_Init_abort('Uniform reference measures that are not bounded are not implemented at this time. Specifiy a and b to be finite.')
+  if(!is.finite(a) || !is.finite(b)) ergm_Init_stop('Uniform reference measures that are not bounded are not implemented at this time. Specifiy a and b to be finite.')
   proposal <- list(name = "UnifNonObserved", inputs=c(a,b,to_ergm_Cdouble(is.na(nw))))
   proposal
 }

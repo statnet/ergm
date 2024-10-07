@@ -87,6 +87,6 @@ InitErgmReference.DiscUnif <- function(nw, arglist, a, b, ...){
                       vartypes = c("numeric", "numeric"),
                       defaultvalues = list(NULL, NULL),
                       required = c(TRUE, TRUE))
-  if(a$a!=round(a$a) || a$b != round(a$b)) ergm_Init_abort(paste("arguments ", sQuote("a"), "and", sQuote("b"), "must be integers"))
+  if(a$a!=round(a$a) || a$b != round(a$b)) ergm_Init_stop("arguments ", sQuote("a"), " and ", sQuote("b"), "must be integers")
   list(name="DiscUnif", arguments=list(a=a$a, b=a$b), init_methods=c("CD","zeros"))
 }

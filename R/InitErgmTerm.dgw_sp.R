@@ -154,7 +154,7 @@ SPTYPE_CODE <- c(UTP = 0L, OTP = 1L, ITP = 2L, RTP = 3L, OSP = 4L, ISP = 5L)
 
   ## Check that the ultimate result is valid:
   if(! type%in%names(SPTYPE_CODE))
-    ergm_Init_abort("Illegal value for ", sQuote("type"), "; valid types are:", paste.and(sQuote(names(SPTYPE_CODE))))
+    ergm_Init_stop("Illegal value for ", sQuote("type"), "; valid types are:", paste.and(sQuote(names(SPTYPE_CODE))))
 
   type
 }

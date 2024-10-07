@@ -232,7 +232,7 @@ NULL
 InitErgmProposal.CondOutDegree <- function(arguments, nw) {
   proposal <- list(name = "CondOutDegree", inputs=NULL)
   if (!is.directed(nw)) # Really, this should never trigger, since the InitErgmConstraint function should check.
-    ergm_Init_abort("The CondOutDegree proposal function does not work with an",
+    ergm_Init_stop("The CondOutDegree proposal function does not work with an",
           "undirected network.")
   proposal
 }
@@ -247,7 +247,7 @@ NULL
 InitErgmProposal.CondInDegree <- function(arguments, nw) {
   proposal <- list(name = "CondInDegree", inputs=NULL)
   if (!is.directed(nw)) # Really, this should never trigger, since the InitErgmConstraint function should check.
-    ergm_Init_abort("The CondInDegree proposal function does not work with an",
+    ergm_Init_stop("The CondInDegree proposal function does not work with an",
           "undirected network.")
   proposal
 }
@@ -263,7 +263,7 @@ NULL
 InitErgmProposal.CondB1Degree <- function(arguments, nw) {
   proposal <- list(name = "CondB1Degree", inputs=NULL)
   if (!is.bipartite(nw)) # Really, this should never trigger, since the InitErgmConstraint function should check.
-    ergm_Init_abort("The CondB1Degree proposal function does not work with a non-bipartite network.")
+    ergm_Init_stop("The CondB1Degree proposal function does not work with a non-bipartite network.")
   
   proposal
 }
@@ -279,7 +279,7 @@ NULL
 InitErgmProposal.CondB2Degree <- function(arguments, nw) {
   proposal <- list(name = "CondB2Degree", inputs=NULL)
   if (!is.bipartite(nw)) # Really, this should never trigger, since the InitErgmConstraint function should check.
-    ergm_Init_abort("The CondB2Degree proposal function does not work with a non-bipartite network.")
+    ergm_Init_stop("The CondB2Degree proposal function does not work with a non-bipartite network.")
   proposal
 }
 
@@ -294,7 +294,7 @@ NULL
 InitErgmProposal.CondDegreeDist <- function(arguments, nw) {
   proposal <- list(name = "CondDegreeDist", inputs=NULL)
   if (is.directed(nw)) {
-    ergm_Init_warn("Using the 'degreedist' constraint with a directed network ",
+    ergm_Init_warning("Using the 'degreedist' constraint with a directed network ",
           "is currently perilous.  We recommend that you use 'outdegree' or ",
           "'idegrees' instead.")
   }
@@ -314,7 +314,7 @@ NULL
 InitErgmProposal.CondInDegreeDist <- function(arguments, nw) {
   proposal <- list(name = "CondInDegreeDist", inputs=NULL)
   if (!is.directed(nw)) {
-    ergm_Init_warn("Using the 'idegreedist' constraint with an undirected network ",
+    ergm_Init_warning("Using the 'idegreedist' constraint with an undirected network ",
           "is currently perilous.  We recommend that you use 'degreedist' ",
           " instead.")
   }
@@ -334,7 +334,7 @@ NULL
 InitErgmProposal.CondOutDegreeDist <- function(arguments, nw) {
   proposal <- list(name = "CondOutDegreeDist", inputs=NULL)
   if (!is.directed(nw)) {
-    ergm_Init_warn("Using the 'odegreedist' constraint with an undirected network n",
+    ergm_Init_warning("Using the 'odegreedist' constraint with an undirected network n",
           "is currently perilous.  We recommend that you use 'degreedist' ",
           " instead.")
   }

@@ -110,7 +110,7 @@ check.ErgmTerm <- function(nw, arglist, directed=NULL, bipartite=NULL, nonnegati
     message <- "networks with negative dyad weights"
   }
   if (!is.null(message)) {
-    ergm_Init_abort("Term may not be used with ",message,".")
+    ergm_Init_stop("Term may not be used with ",message,".")
   }
 
   # Construct a dummy function that copies all its arguments into a
@@ -149,7 +149,7 @@ check.ErgmTerm <- function(nw, arglist, directed=NULL, bipartite=NULL, nonnegati
     if(!is.na(vartypes[m]) && nchar(vartypes[m]) &&
        !(is.null(val) && !required[[m]] && is.null(defaultvalues[[m]])) &&
        all(sapply(types, function(vartype) !is(val, vartype))))
-      ergm_Init_abort(sQuote(name), " argument is not of any of the expected types: ", paste.and(sQuote(types), con="or"), ".")
+      ergm_Init_stop(sQuote(name), " argument is not of any of the expected types: ", paste.and(sQuote(types), con="or"), ".")
 
     # Check deprecation (but only if passed explicitly)
     if(!miss){

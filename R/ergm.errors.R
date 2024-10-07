@@ -22,7 +22,7 @@
 #'   different defaults.
 #'
 #' @note At this time, the \CRANpkg{rlang} analogues
-#'   `ergm_Init_abort()`, `ergm_Init_warn()`, and `ergm_Init_inform()`
+#'   `ergm_Init_stop()`, `ergm_Init_warning()`, and `ergm_Init_message()`
 #'   all concatenate their arguments like their base \R
 #'   counterparts. This may change in the future, and if you wish to
 #'   retain their old behavior, please switch to their base \R
@@ -79,7 +79,7 @@ ergm_Init_message <- function(..., default.loc=NULL){
 
 #' @describeIn ergm-errors A helper function that evaluates the
 #'   specified expression in the caller's environment, passing any
-#'   errors to [ergm_Init_abort()].
+#'   errors to [ergm_Init_stop()].
 #' @param expr Expression to be evaluated (in the caller's
 #'   environment).
 #' @seealso [try()], [tryCatch()]
@@ -87,7 +87,7 @@ ergm_Init_message <- function(..., default.loc=NULL){
 ergm_Init_try <- function(expr){
   expr <- substitute(expr)
   tryCatch(eval(expr, parent.frame(1)),
-           error = function(e) ergm_Init_abort(e$message))
+           error = function(e) ergm_Init_stop(e$message))
 }
 
 format_traceback <- function(x){

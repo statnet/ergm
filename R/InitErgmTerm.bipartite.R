@@ -87,9 +87,9 @@ InitErgmTerm.b1nodematch	<-	function (nw, arglist, ..., version=packageVersion("
   }
   ### Process the arguments
   if (!is.numeric(a$beta) || a$beta>1 || a$beta<0)
-    ergm_Init_abort("beta argument to b1nodematch must be between 0 and 1 inclusive.")
+    ergm_Init_stop("beta argument to b1nodematch must be between 0 and 1 inclusive.")
   if (!is.numeric(a$alpha) || a$alpha>1 || a$alpha<0)
-    ergm_Init_abort("alpha argument to b1nodematch must be between 0 and 1 inclusive.")
+    ergm_Init_stop("alpha argument to b1nodematch must be between 0 and 1 inclusive.")
   
   nodecov <- ergm_get_vattr(attrarg, nw, bip="b1")
   attrname <- attr(nodecov, "name")
@@ -117,7 +117,7 @@ InitErgmTerm.b1nodematch	<-	function (nw, arglist, ..., version=packageVersion("
   	b2dontmatch 				<- b2nodecov == (length(v)+1)					
   	b2nodecov[b2dontmatch] 		<- length(v) + (1:sum(b2dontmatch))				
   	vi							<- seq(along = v)         						
-  	if (length(vi) < 2) {ergm_Init_abort("byb2attr should have at least two levels")}		
+  	if (length(vi) < 2) {ergm_Init_stop("byb2attr should have at least two levels")}		
   	
   }	else {b2attrsize <- 0}	# to indicate that an b2attr does not exist	
   
@@ -223,9 +223,9 @@ InitErgmTerm.b2nodematch	<-	function (nw, arglist, ..., version=packageVersion("
   }
    ### Process the arguments
   if (!is.numeric(a$beta) || a$beta>1 || a$beta<0)
-    ergm_Init_abort("beta argument to b2nodematch must be between 0 and 1 inclusive.")
+    ergm_Init_stop("beta argument to b2nodematch must be between 0 and 1 inclusive.")
   if (!is.numeric(a$alpha) || a$alpha>1 || a$alpha<0)
-    ergm_Init_abort("alpha argument to b2nodematch must be between 0 and 1 inclusive.")
+    ergm_Init_stop("alpha argument to b2nodematch must be between 0 and 1 inclusive.")
   
   nodecov <- ergm_get_vattr(attrarg, nw, bip="b2")
   attrname <- attr(nodecov, "name")
@@ -256,7 +256,7 @@ InitErgmTerm.b2nodematch	<-	function (nw, arglist, ..., version=packageVersion("
   	b1nodecov[b1dontmatch] 		<- length(v) + (1:sum(b1dontmatch))				
   	vi							<- seq(along = v)         						
   	
-  	if (length(vi) < 2){ergm_Init_abort("byb1attr should have at least two levels")}		
+  	if (length(vi) < 2){ergm_Init_stop("byb1attr should have at least two levels")}		
   
   } else {b1attrsize <- 0}	# to indicate that an b1attr does not exist 	
    

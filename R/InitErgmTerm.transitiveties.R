@@ -49,7 +49,7 @@ InitErgmTerm.transitiveties<-function (nw, arglist, ..., version=packageVersion(
 	attrarg <- a$attr
 	levels <- a$levels
   }
-  if (a$diff) ergm_Init_abort("diff=TRUE is not currently implemented in transitiveties")
+  if (a$diff) ergm_Init_stop("diff=TRUE is not currently implemented in transitiveties")
 
   diff <- a$diff
   if(!is.null(attrarg)) {
@@ -113,7 +113,7 @@ InitErgmTerm.cyclicalties<-function (nw, arglist, ..., version=packageVersion("e
 	attrarg <- a$attr
 	levels <- a$levels  
   }
-  if (a$diff) ergm_Init_abort("diff=TRUE is not currently implemented in cyclicalties")
+  if (a$diff) ergm_Init_stop("diff=TRUE is not currently implemented in cyclicalties")
 
   diff <- a$diff
   if(!is.null(attrarg)) {

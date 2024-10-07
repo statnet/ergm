@@ -11,11 +11,11 @@ check_interact_term <- function(m, dependent_action){
   msg <- paste0("Change statistic interactions are poorly defined for dyad-dependent terms. Use ", sQuote("interact.dependent"), " term option to set the behavior.")
   if(!is.dyad.independent(m))
     switch(dependent_action,
-           error = ergm_Init_abort(msg, call.=FALSE),
-           warning = ergm_Init_warn(msg, immediate.=TRUE, call.=FALSE), # Warn immediately, so the user gets the warning before the MCMC starts.
+           error = ergm_Init_stop(msg, call.=FALSE),
+           warning = ergm_Init_warning(msg, immediate.=TRUE, call.=FALSE), # Warn immediately, so the user gets the warning before the MCMC starts.
            message = message(msg))
 
-  if(is.curved(m)) ergm_Init_abort("Interactions are undefined for curved terms at this time.")
+  if(is.curved(m)) ergm_Init_stop("Interactions are undefined for curved terms at this time.")
 }
 
 ## This will always be passed with two arguments in arglist, which
@@ -46,7 +46,7 @@ check_interact_term <- function(m, dependent_action){
   cn <- outer(cn1,cn2,paste,sep=":")
 
   wm <- wrap.ergm_model(m, nw, NULL)
-  if(any(wm$offsettheta) || any(wm$offsetmap)) ergm_Init_warn(paste0("The interaction operator does not propagate offset() decorators."))
+  if(any(wm$offsettheta) || any(wm$offsetmap)) ergm_Init_warning("The interaction operator does not propagate offset() decorators.")
 
   c(list(name="interact", coef.names = cn, inputs=inputs, submodel=m, dependence=wm$dependence),
     ergm_propagate_ext.encode(m))
@@ -81,7 +81,7 @@ check_interact_term <- function(m, dependent_action){
   cn <- c(cn1,cn2,outer(cn1,cn2,paste,sep=":"))
   
   wm <- wrap.ergm_model(m, nw, NULL)
-  if(any(wm$offsettheta) || any(wm$offsetmap)) ergm_Init_warn(paste0("The interaction operator does not propagate offset() decorators."))
+  if(any(wm$offsettheta) || any(wm$offsetmap)) ergm_Init_warning("The interaction operator does not propagate offset() decorators.")
 
   c(list(name="main_interact", coef.names = cn, inputs=inputs, submodel=m, dependence=wm$dependence),
     ergm_propagate_ext.encode(m))
