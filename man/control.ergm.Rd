@@ -690,16 +690,16 @@ observed network, using a higher default number of steps.}
 \code{\link[=set.seed]{set.seed()}}.}
 
 \item{parallel}{Number of threads in which to run the sampling. Defaults to
-0 (no parallelism). See the entry on \link[=ergm-parallel]{parallel processing}
+0 (no parallelism). See \code{\link{ergm-parallel}}
 for details and troubleshooting.}
 
-\item{parallel.type}{API to use for parallel processing. Supported values
-are \code{"MPI"} and \code{"PSOCK"}. Defaults to using the \code{parallel}
-package with PSOCK clusters. See \code{\link{ergm-parallel}}}
+\item{parallel.type}{API to use for parallel processing. Defaults
+to using the \pkg{parallel} package with PSOCK clusters. See
+\code{\link{ergm-parallel}}.}
 
-\item{parallel.version.check}{Logical: If TRUE, check that the version of
-\pkg{ergm} running on the slave nodes is the same as
-that running on the master node.}
+\item{parallel.version.check}{Logical: If TRUE, check that the
+version of \CRANpkg{ergm} running on the slave
+nodes is the same as that running on the master node.}
 
 \item{parallel.inherit.MT}{Logical: If TRUE, slave nodes and
 processes inherit the \code{\link[=set.MT_terms]{set.MT_terms()}} setting.}
