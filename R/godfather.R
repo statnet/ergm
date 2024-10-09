@@ -46,6 +46,10 @@
 #' @template control
 #' @template verbose
 #'
+#' @param ... additional arguments to [ergm_model()].
+#'
+#' @template basis
+#'
 #' @return If \code{end.network==FALSE} (the default), an
 #'   [`mcmc`] object with the requested network statistics
 #'   associed with the network series produced by applying the
@@ -75,20 +79,23 @@ ergm.godfather <- function(formula, changes=NULL, response=NULL,
                            stats.start=FALSE,
                            changes.only=FALSE,
                            verbose=FALSE,
-                           control=control.ergm.godfather()){
+                           control=NULL, ...,
+                           basis = ergm.getnetwork(formula)){
   on.exit(ergm_Cstate_clear())
 
-  check.control.class("ergm.godfather", "ergm.godfather")
+  if(!is.null(control)) check.control.class("ergm.godfather", "ergm.godfather")
 
   if(!is.list(changes)) changes <- list(changes)
 
-  nw <- ergm.getnetwork(formula)
+  nw <- basis
   ergm_preprocess_response(nw,response)
 
   ncols <- sapply(changes, ncol)
   if(!all_identical(ncols) || ncols[1]<2 || ncols[1]>3 || (is.valued(nw)&&ncols[1]==2)) abort("Invalid format for list of changes. See help('ergm.godfather').")
 
-  m <- ergm_model(formula, nw, term.options=control$term.options)
+  ## TODO: Remove this around the 4.9 release.
+  m <- if("term.options" %in% ...names()) ergm_model(formula, nw, ...)
+       else ergm_model(formula, nw, term.options = control$term.options, ...)
   state <- ergm_state(nw, model=m)
   state <- update(state, stats = if(changes.only) numeric(nparam(state,canonical=TRUE)) else summary(state))
 
@@ -136,16 +143,4 @@ ergm.godfather <- function(formula, changes=NULL, response=NULL,
     attr(newnetwork,"stats")<-stats
     newnetwork
   }else stats
-}
-
-#' Control parameters for [ergm.godfather()].
-#'
-#' Returns a list of its arguments.
-#'
-#' @template term_options
-#' 
-#' @export control.ergm.godfather
-control.ergm.godfather<-function(term.options=NULL){
-  control <- handle.controls("control.ergm.godfather")
-  set.control.class("control.ergm.godfather")
 }

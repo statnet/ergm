@@ -12,7 +12,9 @@ ergm.godfather(
   stats.start = FALSE,
   changes.only = FALSE,
   verbose = FALSE,
-  control = control.ergm.godfather()
+  control = NULL,
+  ...,
+  basis = ergm.getnetwork(formula)
 )
 }
 \arguments{
@@ -61,6 +63,10 @@ gives the the list of recognized control parameters and their
 meaning. The more generic utility \code{\link[=snctrl]{snctrl()}} (StatNet ConTRoL)
 also provides argument completion for the available control
 functions and limited argument name checking.}
+
+\item{...}{additional arguments to \code{\link[=ergm_model]{ergm_model()}}.}
+
+\item{basis}{a value (usually a \code{\link[network:network]{network}}) to override the LHS of the formula.}
 }
 \value{
 If \code{end.network==FALSE} (the default), an

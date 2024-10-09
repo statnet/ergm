@@ -5,6 +5,7 @@
 \alias{ergm-deprecated}
 \alias{coef.ergm}
 \alias{$.ergm}
+\alias{control.ergm.godfather}
 \alias{InitErgmTerm.degreepopularity}
 \alias{InitErgmTerm.hammingmix}
 \alias{hammingmix}
@@ -16,6 +17,8 @@
 \method{coef}{ergm}(object, ...)
 
 \method{$}{ergm}(x, name)
+
+control.ergm.godfather(term.options = NULL)
 
 InitErgmTerm.degreepopularity(nw, arglist, ...)
 
@@ -43,6 +46,8 @@ objects with \verb{$coef} elements in the wild is sufficiently low.
 
 \item \code{$}: accesses elements of \code{ergm} objects;
 needed for backwards compatibility when components get renamed.
+
+\item \code{control.ergm.godfather()}: constructs a control list for \code{\link[=ergm.godfather]{ergm.godfather()}}; not used at this time.
 
 \item \code{InitErgmTerm.degreepopularity()}: Use \code{\link[=degree1.5-ergmTerm]{degree1.5}} instead.
 
