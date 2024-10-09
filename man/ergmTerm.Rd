@@ -24,8 +24,8 @@ from the list given below.  To create a network object in , use the
 using the \verb{\%v\%} operator if necessary.
 \subsection{Term operators}{
 
-Operator terms like \code{B} and \code{F} take
-formulas with other \code{ergm} terms as their arguments and transform them
+Operator terms like \ergmTerm{ergm}{B}{()} and \ergmTerm{ergm}{F}{()} take
+formulas with other \code{\link{ergm}} terms as their arguments and transform them
 by modifying their inputs (e.g., the network they evaluate) and/or their
 outputs.
 
@@ -92,7 +92,7 @@ binary ERGM terms have an argument \code{threshold}, which sets the value
 above which a dyad is conidered to have a tie. (Value less than or equal to
 \code{threshold} is considered a nontie.)
 
-The \code{B()} operator term documented below can be used to pass other
+The \ergmTerm{ergm}{B}{()} operator term documented below can be used to pass other
 binary terms to valued models, and is more flexible, at the cost of being
 somewhat slower.
 }
