@@ -41,25 +41,39 @@
 #' appropriate \code{InitErgmTerm.X} function.}
 #' \item{etamap}{the theta -> eta mapping as a list returned from
 #' <ergm.etamap>}
+#' \item{term.options}{the term options used to initialize the terms}
 #' \item{uid}{a string generated with the model, \UIDalgo; different models are, generally, guaranteed to have different strings, but identical models are not guaranteed to have the same string}
 #' @seealso [summary.ergm_model()], [ergm_preprocess_response()]
 #' @keywords internal
 #' @export
-ergm_model <- function(formula, nw=NULL, silent=FALSE, ..., term.options=list(), extra.aux=list(), env=globalenv(), offset.decorate=TRUE, terms.only=FALSE){
-  if (!is(formula, "formula") && !is(formula, "term_list"))
-    stop("Invalid model specification of class ",sQuote(class(formula)),".", call.=FALSE)
-  
-  #' @importFrom statnet.common eval_lhs.formula
-  if(is.null(nw)) nw <- eval_lhs.formula(formula)
+ergm_model <- function(object, nw=NULL, ..., formula = NULL){
+  ## TODO: Remove workaround around ergm 4.9.
+  if(!is.null(formula)){
+    .Deprecate_once(msg = "ergm_model()'s first argument is now 'object'.")
+    object <- formula
+  }
+  UseMethod("ergm_model", object)
+}
 
+#' @describeIn ergm_model a method for [`formula`]: extracts the [`network`] and the [`term_list`] and passes it on to the next method.
+#' @export
+ergm_model.formula <- function(object, nw=NULL, ...){
+  #' @importFrom statnet.common eval_lhs.formula
+  if(is.null(nw)) nw <- eval_lhs.formula(object)
+
+  #' @importFrom statnet.common list_rhs.formula
+  v <- list_rhs.formula(object)
+
+  ergm_model(v, nw, ...)
+}
+
+#' @describeIn ergm_model a method for [`term_list`]: `nw=` is mandatory;  initializes the terms in the list and passes it on to the next method.
+#' @export
+ergm_model.term_list <- function(object, nw=NULL, silent=FALSE, ..., term.options=list(), env=globalenv(), extra.aux=list(), offset.decorate=TRUE, terms.only=FALSE){
+  v <- object
   nw <- ensure_network(nw)
   nw <- as.network(nw, populate=FALSE) # In case it's an ergm_state.
-  
-  #' @importFrom statnet.common list_rhs.formula
-  v <- if(is(formula, "formula")) list_rhs.formula(formula)
-       else if(is(formula, "term_list")) formula
-       else stop("Invalid format for formula= argument: must be either an R formula or a term_list object.")
-  
+
   model <- structure(list(terms = list()),
                      class = "ergm_model")
 
@@ -102,8 +116,21 @@ ergm_model <- function(formula, nw=NULL, silent=FALSE, ..., term.options=list(),
     for(outlist in subterms) model <- updatemodel.ErgmTerm(model, outlist, offset=offset, offset.decorate=offset.decorate, silent=silent)
   }
 
+  model$term.options <- as.list(getOption("ergm.term")) %>% modifyList(as.list(term.options)) %>% modifyList(list(...))
+  ergm_model(model, nw, extra.aux = extra.aux, offset.decorate = offset.decorate, terms.only = terms.only)
+}
+
+#' @describeIn ergm_model a method for [`term_list`]: `nw=` is mandatory, and `term.options=` must be a part of the [`ergm_model`] object, with `...` ignored; (re)generates the auxiliaries and, the eta map, and the unique ID; and decorates offsets.
+#' @export
+ergm_model.ergm_model <- function(object, nw, ..., env=globalenv(), extra.aux=list(), offset.decorate=TRUE, terms.only=FALSE){
+  model <- object
+
+  ## If initialized auxiliaries are present, get rid of them.
+  np <- nparam(model, byterm = TRUE, canonical = TRUE)
+  model$terms <- model$terms[np != 0]
+
   if(!terms.only){
-    model <- ergm.auxstorage(model, nw, term.options=term.options, ..., extra.aux=extra.aux)
+    model <- ergm.auxstorage(model, nw, term.options=model$term.options, extra.aux=extra.aux)
     model$etamap <- ergm.etamap(model)
     model$uid <- .GUID()
   }
@@ -129,7 +156,6 @@ ergm_model <- function(formula, nw=NULL, silent=FALSE, ..., term.options=list(),
   # Note that soname is not the same, since it's not guaranteed to be a loadable package.
   ergm.MCMC.packagenames(unlist(sapply(model$terms, "[[", "pkgname")))
 
-  class(model) <- "ergm_model"
   model
 }
 
@@ -308,6 +334,7 @@ c.ergm_model <- function(...){
   o
 }
 
+
 #' @rdname ergm_model
 #' @param x object to be converted to an `ergm_model`.
 #' @export
@@ -321,7 +348,7 @@ as.ergm_model.ergm_model <- function(x, ...) x
 #' @rdname ergm_model
 #' @export
 as.ergm_model.formula <- function(x, ...)
-  ergm_model(formula=x, ...)
+  ergm_model(object = x, ...)
 
 #' @noRd
 #' @export
