@@ -292,8 +292,7 @@ c.ergm_model <- function(...){
     # New auxiliary list is o-nonsinks, m-nonsinks, and sinks.
     o$terms <- c(o$terms[!oaux], m$terms[!maux], o$terms[oaux][onaux!=0L], m$terms[maux][mnaux!=0L], sinks)
 
-    for(name in c("coef.names",
-                  "minval",
+    for(name in c("minval",
                   "maxval",
                   "offset",
                   "term.skipped",
