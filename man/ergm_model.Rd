@@ -36,7 +36,7 @@ as.ergm_model(x, ...)
 
 \method{is.curved}{ergm_model}(object, ...)
 
-\method{is.dyad.independent}{ergm_model}(object, ..., ignore_aux = TRUE)
+\method{is.dyad.independent}{ergm_model}(object, byterm = FALSE, ..., ignore_aux = TRUE)
 
 \method{nparam}{ergm_model}(object, canonical = FALSE, offset = NA, byterm = FALSE, ...)
 
@@ -70,6 +70,8 @@ initialization of each model term.}
 
 \item{object}{An \code{ergm_model} object.}
 
+\item{byterm}{Whether to return the result for each term individually.}
+
 \item{ignore_aux}{A flag to specify whether a dyad-dependent
 auxiliary should make the model dyad-dependent or should be
 ignored.}
@@ -79,9 +81,6 @@ ignored.}
 \item{offset}{If \code{NA} (the default), all model terms are counted;
 if \code{TRUE}, only offset terms are counted; and if
 \code{FALSE}, offset terms are skipped.}
-
-\item{byterm}{Whether to return a vector of the numbers of
-coefficients for each term.}
 
 \item{value}{For \code{\link[=param_names<-]{param_names<-()}}, either a character vector equal
 in length to the number of parameters of the specified type

@@ -30,8 +30,7 @@ nparam.default <- function(object, ...){
 #' @describeIn ergm_model Number of parameters of the model.
 #' 
 #' @template offset..filter
-#' @param byterm Whether to return a vector of the numbers of
-#'   coefficients for each term.
+#' @param byterm Whether to return the result for each term individually.
 # #' @template canonical // Documented in one of the other methods of ergm_model.
 #' @export
 nparam.ergm_model <- function(object, canonical=FALSE, offset=NA, byterm=FALSE, ...){
