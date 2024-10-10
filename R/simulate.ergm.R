@@ -358,7 +358,7 @@ simulate_formula.ergm_state <- .simulate_formula.network
 #' @rdname simulate.ergm
 #'
 #' @note [simulate.ergm_model()] is a lower-level interface, providing
-#'   a [simulate()] method for [`ergm_model`] class. The `basis`
+#'   a [simulate()] method for the [`ergm_model`] class. The `basis`
 #'   argument is required; `monitor`, if passed, must be an
 #'   [`ergm_model`] as well; and `constraints` can be an
 #'   [`ergm_proposal`] object instead.

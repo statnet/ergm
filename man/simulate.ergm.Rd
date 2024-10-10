@@ -351,7 +351,7 @@ extension packages, such as \code{tergm}, but also accessed directly
 when needed.
 
 \code{\link[=simulate.ergm_model]{simulate.ergm_model()}} is a lower-level interface, providing
-a \code{\link[=simulate]{simulate()}} method for \code{\link{ergm_model}} class. The \code{basis}
+a \code{\link[=simulate]{simulate()}} method for the \code{\link{ergm_model}} class. The \code{basis}
 argument is required; \code{monitor}, if passed, must be an
 \code{\link{ergm_model}} as well; and \code{constraints} can be an
 \code{\link{ergm_proposal}} object instead.
