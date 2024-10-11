@@ -65,6 +65,49 @@
 %% }
 
 
+
+\section{Changes in version 4.7.2}{
+
+  \subsection{NEW FEATURES}{
+    \itemize{
+      \item{
+        \code{\link{ergm.godfather}()} now takes a \code{basis=} argument like \code{\link{ergm}()}, \code{\link{simulate.ergm}()}, and others. Its term options can be passed directly as well.
+      }
+    }
+  }
+
+
+  \subsection{BUG FIXES}{
+    \itemize{
+      \item{
+        Invalid \code{levels2} specification for \code{\link[=mm-ergmTerm]{mm()}} no longer causes memory errors.
+      }
+    }
+  }
+
+
+  \subsection{OTHER USER-VISIBLE CHANGES}{
+    \itemize{
+      \item{
+        \code{\link{ergm_model}()} constructor is now generic, with methods for \code{\link{formula}}, \code{\link[statnet.common]{term_list}}, and \code{\link{ergm_model}}.
+      }
+
+      \item{
+        \code{\link{is.dyad.independent}()} can now return dyadic-independence information for each term.
+      }
+
+      \item{
+        \code{\link{control.ergm.godfather}()} has been deprecated, since it is no longer used to pass term options.
+      }
+
+      \item{
+        R documentation macros \code{\\ergmTerm}, \code{\\ergmConstraint}, \code{\\ergmReference}, \code{\\ergmHint}, and \code{\\ergmProposal}.
+      }
+    }
+  }
+}
+
+
 \section{Changes in version 4.7.1}{
 
   \subsection{NEW FEATURES}{
