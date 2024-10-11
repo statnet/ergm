@@ -12,23 +12,27 @@
 }
 \arguments{
 \item{attrs}{a two-sided formula whose LHS gives the attribute or
-attribute function (see Specifying Vertex attributes and Levels (\code{?nodal_attributes}) for details.) for the rows of the mixing matrix and whose RHS gives
+attribute function (see Specifying Vertex attributes and Levels (\code{\link[=nodal_attributes]{?nodal_attributes}}) for details.) for the rows of the mixing matrix and whose RHS gives
 for its columns. A one-sided formula (e.g., \code{~A}) is symmetrized (e.g., \code{A~A})}
 
 \item{levels}{subset of rows and columns to be used. (See Specifying Vertex
 attributes and Levels (\code{\link[=nodal_attributes]{?nodal_attributes}}) for details.)}
 
-\item{levels2}{which specific cells of the matrix to include}
+\item{levels2}{which specific cells of the matrix to include; \code{\link[=nodal_attributes]{?nodal_attributes}} for details}
 
 \item{form}{character how to aggregate tie values in a valued ERGM}
 }
 \description{
-\code{attrs} is the rows of the mixing matrix and whose RHS gives
-that for its columns. A one-sided formula (e.g.,
-\code{~A} ) is symmetrized (e.g., \code{A~A} ). A two-sided formula with a dot on one side
-calculates the margins of the mixing matrix, analogously to \code{nodefactor} , with
-\code{A~.} calculating the row/sender/b1 margins and \code{.~A}
-calculating the column/receiver/b2 margins.
+\code{attrs} is the rows of the mixing matrix and whose RHS
+gives that for its columns (which may be different). A one-sided
+formula (e.g., \code{~A} ) is symmetrized (e.g., \code{A~A} ). A two-sided
+formula with a dot on one side calculates the margins of the
+mixing matrix, analogously to \code{nodefactor} , with \code{A~.}
+calculating the row/sender/b1 margins and \code{.~A} calculating the
+column/receiver/b2 margins. If row and column attributes are the
+same and the network is undirected, only the cells at or above
+the diagonal (where \eqn{\text{row} \le \text{column}}{row <=
+  column}) will be calculated.
 }
 \seealso{
 \code{\link{ergmTerm}} for index of model terms currently visible to the package.

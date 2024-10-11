@@ -201,6 +201,10 @@ summary(faux.mesa.high~mm("Sex",
                           levels2 = I(list(list(row="M",col="M"),
                                            list(row="M",col="F"),
                                            list(row="F",col="M")))))
+# Note the warning: in an undirected network with identical row and
+# column attributes, the mixing matrix is symmetric and only the
+# upper triangle (where row < column) is valid, so the [M,F] cell
+# will get a statistic of 0 with a warning.
 
 # mm() term allows two-sided attribute formulas with different attributes:
 summary(faux.mesa.high~mm(Grade~Race, levels2=TRUE))

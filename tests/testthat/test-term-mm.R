@@ -139,6 +139,21 @@ test_that("Undirected mm() summary with level2 filter by numeric matrix", {
   expect_equal(s.ab2, fmh.mm.Race[5], ignore_attr=TRUE)
 })
 
+test_that("Undirected mm() summary with level2 AsIs", {
+  s <- summary(fmh~mm("Sex",
+                      levels2 = I(list(list(row="M",col="M"),
+                                       list(row="F",col="M")))))
+  expect_equal(s, c(`mm[Sex=M,Sex=M]` = 50, `mm[Sex=F,Sex=M]` = 71))
+
+  expect_warning(
+    s <- summary(fmh~mm("Sex",
+                        levels2 = I(list(list(row="M",col="M"),
+                                         list(row="M",col="F"), # Invalid level
+                                         list(row="F",col="M"))))),
+    "In term 'mm' in package 'ergm': Selected cells '\\[M,F\\]' are redundant \\(below the diagonal\\) in the mixing matrix and will have count 0\\.")
+  expect_equal(s, c(`mm[Sex=M,Sex=M]` = 50, `mm[Sex=M,Sex=F]` = 0, `mm[Sex=F,Sex=M]` = 71))
+})
+
 test_that("Directed mm() ERGM with level2 filter", {
   e.ab2 <- ergm(samplike ~ mm("Trinity", levels2=-(3:9)))
   expect_equal(coef(e.ab2),
