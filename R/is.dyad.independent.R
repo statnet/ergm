@@ -41,10 +41,12 @@ is.dyad.independent.NULL <- function(object, ...) TRUE # By convention.
 #' @param ignore_aux A flag to specify whether a dyad-dependent
 #'   auxiliary should make the model dyad-dependent or should be
 #'   ignored.
+# #' @param byterm // Documented in one of the other methods of ergm_model.
 #' @export
-is.dyad.independent.ergm_model <- function(object, ..., ignore_aux=TRUE){
+is.dyad.independent.ergm_model <- function(object, byterm=FALSE, ..., ignore_aux=TRUE){
   ## NB: Auxiliaries (i.e., terms without statistics) do not affect dyadic dependence.
-  ! any(sapply(object$terms, function(term) (!ignore_aux || length(term$coef.names)) && (is.null(term$dependence) || term$dependence)))
+  dind <- !sapply(object$terms, function(term) (!ignore_aux || length(term$coef.names)) && (is.null(term$dependence) || term$dependence))
+  if(byterm) dind else all(dind)
 }
 
 #' @rdname is.dyad.independent

@@ -266,23 +266,20 @@ ergm_proposal.character <- function(object, arguments, nw, ..., reference=ergm_r
 ########################################################################################
 
 #' @noRd
-#' @exportS3method NULL
 ergm_conlist <- function(object, ...) UseMethod("ergm_conlist")
+
 #' @noRd
-#' @exportS3method NULL
 ergm_conlist.ergm_conlist <- function(object, ...) object
+
 #' @noRd
-#' @exportS3method NULL
 ergm_conlist.NULL <- function(object, ...) NULL
 
 #' @noRd
-#' @exportS3method NULL
 ergm_conlist.formula <- function(object, nw, ..., term.options=list())
   object %>% .embed_constraint_lhs() %>% list_rhs.formula() %>%
     ergm_conlist(nw, ..., term.options=term.options)
 
 #' @noRd
-#' @exportS3method NULL
 ergm_conlist.term_list <- function(object, nw, ..., term.options=list()){
   object<-c(object, list(call(".attributes")))
   consigns <- attr(object, "sign")
@@ -335,11 +332,9 @@ ergm_conlist.term_list <- function(object, nw, ..., term.options=list()){
 }
 
 #' @noRd
-#' @exportS3method NULL
 c.ergm_conlist <- function(...) NextMethod() %>% prune.ergm_conlist()
 
 #' @noRd
-#' @exportS3method NULL
 `[.ergm_conlist` <- function(x, ...){
   structure(NextMethod(), class = "ergm_conlist")
 }
@@ -416,7 +411,6 @@ ergm_reference <- function(object, ...) UseMethod("ergm_reference")
 ergm_reference.ergm_reference <- function(object, ...) object
 
 #' @noRd
-#' @exportS3method NULL
 ergm_reference.formula <- function(object, nw, ..., term.options=list()) {
     env <- environment(object)
 

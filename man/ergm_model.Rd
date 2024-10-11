@@ -3,6 +3,9 @@
 %   R/is.dyad.independent.R, R/nparam.R, R/param_names.R
 \name{ergm_model}
 \alias{ergm_model}
+\alias{ergm_model.formula}
+\alias{ergm_model.term_list}
+\alias{ergm_model.ergm_model}
 \alias{c.ergm_model}
 \alias{as.ergm_model}
 \alias{as.ergm_model.ergm_model}
@@ -14,14 +17,28 @@
 \alias{param_names<-.ergm_model}
 \title{Internal representation of an \code{ergm} network model}
 \usage{
-ergm_model(
-  formula,
+ergm_model(object, nw = NULL, ..., formula = NULL)
+
+\method{ergm_model}{formula}(object, nw = NULL, ...)
+
+\method{ergm_model}{term_list}(
+  object,
   nw = NULL,
   silent = FALSE,
   ...,
   term.options = list(),
-  extra.aux = list(),
   env = globalenv(),
+  extra.aux = list(),
+  offset.decorate = TRUE,
+  terms.only = FALSE
+)
+
+\method{ergm_model}{ergm_model}(
+  object,
+  nw,
+  ...,
+  env = globalenv(),
+  extra.aux = list(),
   offset.decorate = TRUE,
   terms.only = FALSE
 )
@@ -36,7 +53,7 @@ as.ergm_model(x, ...)
 
 \method{is.curved}{ergm_model}(object, ...)
 
-\method{is.dyad.independent}{ergm_model}(object, ..., ignore_aux = TRUE)
+\method{is.dyad.independent}{ergm_model}(object, byterm = FALSE, ..., ignore_aux = TRUE)
 
 \method{nparam}{ergm_model}(object, canonical = FALSE, offset = NA, byterm = FALSE, ...)
 
@@ -45,22 +62,24 @@ as.ergm_model(x, ...)
 \method{param_names}{ergm_model}(object, canonical = FALSE, ...) <- value
 }
 \arguments{
+\item{object}{An \code{ergm_model} object.}
+
+\item{nw}{The network of interest, optionally instrumented with \code{\link[=ergm_preprocess_response]{ergm_preprocess_response()}} to have a response attribute specification; if passed, the LHS of \code{formula} is ignored. This is the recommended usage.}
+
+\item{\dots}{additional parameters for model formulation}
+
 \item{formula}{An \code{\link[=ergm]{ergm()}}
 formula of the form \code{network ~ model.term(s)} or \code{~
 model.term(s)} or a \code{\link[statnet.common:term_list]{term_list}} object, typically constructed from a formula's LHS.}
 
-\item{nw}{The network of interest, optionally instrumented with \code{\link[=ergm_preprocess_response]{ergm_preprocess_response()}} to have a response attribute specification; if passed, the LHS of \code{formula} is ignored. This is the recommended usage.}
-
 \item{silent}{logical, whether to print the warning messages from the
 initialization of each model term.}
 
-\item{\dots}{additional parameters for model formulation}
-
 \item{term.options}{A list of additional arguments to be passed to term initializers. See \code{\link[=term.options]{? term.options}}.}
 
-\item{extra.aux}{a list of auxiliary request formulas required elsewhere; if named, the resulting \code{slots.extra.aux} will also be named.}
-
 \item{env}{a throwaway argument needed to prevent conflicts with some usages of \code{ergm_model}. The initialization environment is \emph{always} taken from the \code{formula}.}
+
+\item{extra.aux}{a list of auxiliary request formulas required elsewhere; if named, the resulting \code{slots.extra.aux} will also be named.}
 
 \item{offset.decorate}{logical; whether offset coefficient and parameter names should be enclosed in \code{"offset()"}.}
 
@@ -68,7 +87,7 @@ initialization of each model term.}
 
 \item{x}{object to be converted to an \code{ergm_model}.}
 
-\item{object}{An \code{ergm_model} object.}
+\item{byterm}{Whether to return the result for each term individually.}
 
 \item{ignore_aux}{A flag to specify whether a dyad-dependent
 auxiliary should make the model dyad-dependent or should be
@@ -79,9 +98,6 @@ ignored.}
 \item{offset}{If \code{NA} (the default), all model terms are counted;
 if \code{TRUE}, only offset terms are counted; and if
 \code{FALSE}, offset terms are skipped.}
-
-\item{byterm}{Whether to return a vector of the numbers of
-coefficients for each term.}
 
 \item{value}{For \code{\link[=param_names<-]{param_names<-()}}, either a character vector equal
 in length to the number of parameters of the specified type
@@ -97,6 +113,7 @@ containing:
 appropriate \code{InitErgmTerm.X} function.}
 \item{etamap}{the theta -> eta mapping as a list returned from
 <ergm.etamap>}
+\item{term.options}{the term options used to initialize the terms}
 \item{uid}{a string generated with the model, \UIDalgo; different models are, generally, guaranteed to have different strings, but identical models are not guaranteed to have the same string}
 }
 \description{
@@ -106,6 +123,15 @@ be employed by other depending packages.
 initialized via the \code{InitErgmTerm} functions to create a
 \code{ergm_model} object.
 }
+\section{Methods (by class)}{
+\itemize{
+\item \code{ergm_model(formula)}: a method for \code{\link{formula}}: extracts the \code{\link[network:network]{network}} and the \code{\link[statnet.common:term_list]{term_list}} and passes it on to the next method.
+
+\item \code{ergm_model(term_list)}: a method for \code{\link[statnet.common:term_list]{term_list}}: \verb{nw=} is mandatory;  initializes the terms in the list and passes it on to the next method.
+
+\item \code{ergm_model(ergm_model)}: a method for \code{\link[statnet.common:term_list]{term_list}}: \verb{nw=} is mandatory, and \verb{term.options=} must be a part of the \code{\link{ergm_model}} object, with \code{...} ignored; (re)generates the auxiliaries and, the eta map, and the unique ID; and decorates offsets.
+
+}}
 \section{Methods (by generic)}{
 \itemize{
 \item \code{c(ergm_model)}: A method for concatenating terms of two or more initialized models.

@@ -70,8 +70,6 @@ param_names.ergm_model <- function(object, canonical=FALSE, offset=NA, ...){
   }
   lens <- nparam(object, canonical, byterm = TRUE)
   value <- rep_len(value, sum(lens))
-  ## TODO: Check if the API still needs this:
-  if(canonical && !is.null(object$coef.names)) object$coef.names %<>% replace(!is.na(value), na.omit(value))
 
   values <- split(value, factor(rep(seq_along(lens), lens), levels = seq_along(lens)))
   for(i in seq_along(object$terms)){

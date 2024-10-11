@@ -3512,22 +3512,26 @@ InitErgmTerm.meandeg<-function(nw, arglist, ...) {
 
 #' @templateVar name mm
 #' @title Mixing matrix cells and margins
-#' @description `attrs` is the rows of the mixing matrix and whose RHS gives
-#'   that for its columns. A one-sided formula (e.g.,
-#'   `~A` ) is symmetrized (e.g., `A~A` ). A two-sided formula with a dot on one side
-#'   calculates the margins of the mixing matrix, analogously to `nodefactor` , with
-#'   `A~.` calculating the row/sender/b1 margins and `.~A`
-#'   calculating the column/receiver/b2 margins.
+#' @description `attrs` is the rows of the mixing matrix and whose RHS
+#'   gives that for its columns (which may be different). A one-sided
+#'   formula (e.g., `~A` ) is symmetrized (e.g., `A~A` ). A two-sided
+#'   formula with a dot on one side calculates the margins of the
+#'   mixing matrix, analogously to `nodefactor` , with `A~.`
+#'   calculating the row/sender/b1 margins and `.~A` calculating the
+#'   column/receiver/b2 margins. If row and column attributes are the
+#'   same and the network is undirected, only the cells at or above
+#'   the diagonal (where \eqn{\text{row} \le \text{column}}{row <=
+#'   column}) will be calculated.
 #'
 #' @usage
 #' # binary: mm(attrs, levels=NULL, levels2=-1)
 #'
 #' @param attrs a two-sided formula whose LHS gives the attribute or
-#'   attribute function (see Specifying Vertex attributes and Levels (`?nodal_attributes`) for details.) for the rows of the mixing matrix and whose RHS gives
+#'   attribute function (see Specifying Vertex attributes and Levels ([`?nodal_attributes`][nodal_attributes]) for details.) for the rows of the mixing matrix and whose RHS gives
 #'   for its columns. A one-sided formula (e.g., `~A`) is symmetrized (e.g., `A~A`)
 #' @templateVar explain subset of rows and columns to be used.
 #' @template ergmTerm-levels-doco
-#' @param levels2 which specific cells of the matrix to include
+#' @param levels2 which specific cells of the matrix to include; [`?nodal_attributes`][nodal_attributes] for details
 #'
 #' @template ergmTerm-general
 #'
@@ -3626,6 +3630,15 @@ InitErgmTerm.mm<-function (nw, arglist, ..., version=packageVersion("ergm")) {
   levels2sel <- ergm_attr_levels(a$levels2, list(row=attrval$row$val, col=attrval$col$val), nw, levels=levels2)
   if(length(levels2sel) == 0) return(NULL)
   levels2codes <- levels2codes[match(levels2sel,levels2, NA)]
+  levels2missing <- map_lgl(levels2codes, is.null)
+  if(any(levels2missing) && symm){
+    rev_matches <- levels2sel[levels2missing] %>% map(function(cell) list(row = cell$col, col = cell$row)) %in% levels2
+    if(any(rev_matches)){
+      rev_matches <- map_chr(levels2sel[levels2missing][rev_matches], function(cell) paste0("[", cell$row, ",", cell$col, "]"))
+      ergm_Init_warn("Selected cells ", paste.and(sQuote(rev_matches)), " are redundant (below the diagonal) in the mixing matrix and will have count 0.")
+    }
+  }
+  levels2codes[levels2missing] <- list(list(row = 0, col = 0))
   levels2 <- levels2sel; rm(levels2sel)
 
   # Construct the level names

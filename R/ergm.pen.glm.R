@@ -149,7 +149,6 @@ ergm.pen.glm <- function(formula,
 }
 
 #' @noRd
-#' @exportS3method NULL
 model.matrix.pen.glm <- function(object, ...)
 {
 	object$model.matrix

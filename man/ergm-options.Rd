@@ -29,7 +29,7 @@ Options set via the built-in \code{\link[=options]{options()}} functions that af
 
 Term options can be set in three places, in the order of precedence from high to low:
 \enumerate{
-\item As a term argument (not always). For example, \code{gw.cutoff} below can be set in a \code{\link[=gwesp-ergmTerm]{gwesp}} term by \code{gwesp(..., cutoff=X)}.
+\item As a term argument (not always). For example, \code{gw.cutoff} below can be set in a \ergmTerm{ergm}{gwesp}{} term by \code{gwesp(..., cutoff=X)}.
 \item For functions such as \code{\link[=summary_formula.network]{summary}} that take \code{ergm} formulas but do not take a control list, the named arguments passed in as \code{...}. E.g, \code{summary(nw~gwesp(.5,fix=TRUE), gw.cutoff=60)} will evaluate the GWESP statistic with its cutoff set to 60.
 \item As an element in a \verb{term.options=} list passed via a control function such as \code{\link[=control.ergm]{control.ergm()}} or, for functions that do not, in a list with that argument name. E.g., \code{summary(nw~gwesp(.5,fix=TRUE), term.options=list(gw.cutoff=60))} has the same effect.
 \item As an element in a global option list \code{ergm.term} above.
@@ -43,7 +43,7 @@ The following options are in use by terms in the \code{ergm} package:
 
 \item{\code{gw.cutoff}}{In geometrically weighted terms (\code{gwesp}, \code{gwdegree}, etc.) the highest number of shared partners, degrees, etc. for which to compute the statistic. This usually defaults to 30.}
 
-\item{\code{cache.sp}}{Whether the \code{\link[=gwesp-ergmTerm]{gwesp}}, \code{\link[=dgwesp-ergmTerm]{dgwesp}}, and similar terms need should use a cache for the dyadwise number of shared partners. This usually improves performance significantly at a modest memory cost, and therefore defaults to \code{TRUE}, but it can be disabled.}
+\item{\code{cache.sp}}{Whether the \ergmTerm{ergm}{gwesp}{}, \ergmTerm{ergm}{dgwesp}{}, and similar terms need should use a cache for the dyadwise number of shared partners. This usually improves performance significantly at a modest memory cost, and therefore defaults to \code{TRUE}, but it can be disabled.}
 
 \item{\code{interact.dependent}}{Whether to allow and how to handle the user attempting to interact dyad-dependent terms (e.g., \code{absdiff("age"):triangles} or \code{absdiff("age")*triangles} as opposed to \code{absdiff("age"):nodefactor("sex")}). Possible values are \code{"error"} (the default), \code{"message"}, and \code{"warning"}, for their respective actions, and \code{"silent"} for simply processing the term.}
 

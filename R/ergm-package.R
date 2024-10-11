@@ -148,8 +148,8 @@
 #' using the `%v%` operator if necessary.
 #' 
 #' ## Term operators
-#' Operator terms like `B` and `F` take
-#' formulas with other `ergm` terms as their arguments and transform them
+#' Operator terms like \ergmTerm{ergm}{B}{()} and \ergmTerm{ergm}{F}{()} take
+#' formulas with other [`ergm`] terms as their arguments and transform them
 #' by modifying their inputs (e.g., the network they evaluate) and/or their
 #' outputs.
 #' 
@@ -212,7 +212,7 @@
 #' above which a dyad is conidered to have a tie. (Value less than or equal to
 #' `threshold` is considered a nontie.)
 #' 
-#' The `B()` operator term documented below can be used to pass other
+#' The \ergmTerm{ergm}{B}{()} operator term documented below can be used to pass other
 #' binary terms to valued models, and is more flexible, at the cost of being
 #' somewhat slower.
 #' 

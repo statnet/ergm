@@ -2,22 +2,61 @@
 % Please edit documentation in R/godfather.R
 \name{ergm.godfather}
 \alias{ergm.godfather}
+\alias{ergm.godfather.formula}
+\alias{ergm.godfather.ergm_model}
+\alias{ergm.godfather.ergm_state}
 \title{A function to apply a given series of changes to a network.}
 \usage{
 ergm.godfather(
-  formula,
+  object,
   changes = NULL,
-  response = NULL,
+  ...,
   end.network = FALSE,
   stats.start = FALSE,
   changes.only = FALSE,
   verbose = FALSE,
-  control = control.ergm.godfather()
+  basis = NULL,
+  formula = NULL
+)
+
+\method{ergm.godfather}{formula}(
+  object,
+  changes = NULL,
+  response = NULL,
+  ...,
+  end.network = FALSE,
+  stats.start = FALSE,
+  changes.only = FALSE,
+  verbose = FALSE,
+  control = NULL,
+  basis = ergm.getnetwork(object)
+)
+
+\method{ergm.godfather}{ergm_model}(
+  object,
+  changes = NULL,
+  ...,
+  end.network = FALSE,
+  stats.start = FALSE,
+  changes.only = FALSE,
+  verbose = FALSE,
+  control = NULL,
+  basis = NULL
+)
+
+\method{ergm.godfather}{ergm_state}(
+  object,
+  changes = NULL,
+  ...,
+  end.network = FALSE,
+  stats.start = FALSE,
+  verbose = FALSE,
+  control = NULL
 )
 }
 \arguments{
-\item{formula}{An \code{\link[=ergm]{ergm()}}-style formula, with a
-\code{\link[network:network]{network}} on its LHS.}
+\item{object}{An \code{\link[=ergm]{ergm()}}-style formula, with a \code{\link[network:network]{network}} on its
+LHS, an \code{\link[=ergm_model]{ergm_model()}} or the object appropriate to the method.}
 
 \item{changes}{Either a matrix with three columns: tail, head, and
 new value, describing the changes to be made; or a list of such
@@ -26,15 +65,7 @@ models, the third column may be omitted. In that case, the
 changes are treated as toggles. Note that if a list is passed, it
 must either be all of changes or all of toggles.}
 
-\item{response}{Either a character string, a formula, or \code{NULL} (the default), to specify the response attributes and whether the ERGM is binary or valued. Interpreted as follows: \describe{
-
-\item{\code{NULL}}{Model simple presence or absence, via a binary ERGM.}
-
-\item{character string}{The name of the edge attribute whose value is to be modeled. Type of ERGM will be determined by whether the attribute is \code{\link{logical}} (\code{TRUE}/\code{FALSE}) for binary or \code{\link{numeric}} for valued.}
-
-\item{a formula}{must be of the form \code{NAME~EXPR|TYPE} (with \code{|} being literal). \code{EXPR} is evaluated in the formula's environment with the network's edge attributes accessible as variables. The optional \code{NAME} specifies the name of the edge attribute into which the results should be stored, with the default being a concise version of \code{EXPR}. Normally, the type of ERGM is determined by whether the result of evaluating \code{EXPR} is logical or numeric, but the optional \code{TYPE} can be used to override by specifying a scalar of the type involved (e.g., \code{TRUE} for binary and \code{1} for valued).}
-
-}}
+\item{...}{additional arguments to \code{\link[=ergm_model]{ergm_model()}}.}
 
 \item{end.network}{Whether to return a network that
 results. Defaults to \code{FALSE}.}
@@ -55,12 +86,22 @@ produces minimal output, with higher values producing more
 detail. Note that very high values (5+) may significantly slow
 down processing.}
 
-\item{control}{A list of control parameters for algorithm tuning,
-typically constructed with \code{\link[=control.ergm.godfather]{control.ergm.godfather()}}. Its documentation
-gives the the list of recognized control parameters and their
-meaning. The more generic utility \code{\link[=snctrl]{snctrl()}} (StatNet ConTRoL)
-also provides argument completion for the available control
-functions and limited argument name checking.}
+\item{basis}{a value (usually a \code{\link[network:network]{network}}) to override the LHS of the formula.}
+
+\item{formula}{Deprecated; replaced with \code{object} for consistency.}
+
+\item{response}{Either a character string, a formula, or \code{NULL} (the default), to specify the response attributes and whether the ERGM is binary or valued. Interpreted as follows: \describe{
+
+\item{\code{NULL}}{Model simple presence or absence, via a binary ERGM.}
+
+\item{character string}{The name of the edge attribute whose value is to be modeled. Type of ERGM will be determined by whether the attribute is \code{\link{logical}} (\code{TRUE}/\code{FALSE}) for binary or \code{\link{numeric}} for valued.}
+
+\item{a formula}{must be of the form \code{NAME~EXPR|TYPE} (with \code{|} being literal). \code{EXPR} is evaluated in the formula's environment with the network's edge attributes accessible as variables. The optional \code{NAME} specifies the name of the edge attribute into which the results should be stored, with the default being a concise version of \code{EXPR}. Normally, the type of ERGM is determined by whether the result of evaluating \code{EXPR} is logical or numeric, but the optional \code{TYPE} can be used to override by specifying a scalar of the type involved (e.g., \code{TRUE} for binary and \code{1} for valued).}
+
+}}
+
+\item{control}{Deprecated; arguments such as \code{term.options} can be
+passed directly.}
 }
 \value{
 If \code{end.network==FALSE} (the default), an
@@ -80,6 +121,15 @@ described in the previous paragraph attached to it as an
 \description{
 Gives the network a series of proposals it can't refuse. Returns the
 statistics of the network, and, optionally, the final network.
+}
+\note{
+\code{\link[=ergm.godfather.ergm_model]{ergm.godfather.ergm_model()}} is a lower-level interface, providing
+an \code{\link[=ergm.godfather]{ergm.godfather()}} method for the \code{\link{ergm_model}} class. The \code{basis}
+argument is required.
+
+\code{\link[=ergm.godfather.ergm_model]{ergm.godfather.ergm_model()}} is a lower-level interface, providing
+an \code{\link[=ergm.godfather]{ergm.godfather()}} method for the \code{\link{ergm_model}} class. The \code{basis}
+argument is required.
 }
 \examples{
 data(florentine)
