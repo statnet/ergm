@@ -127,7 +127,8 @@ ergm_model.ergm_model <- function(object, nw, ..., env=globalenv(), extra.aux=li
 
   ## If initialized auxiliaries are present, get rid of them.
   np <- nparam(model, byterm = TRUE, canonical = TRUE)
-  model$terms <- model$terms[np != 0]
+  if(any(np != 0))
+    model$terms <- model$terms[np != 0]
 
   if(!terms.only){
     model <- ergm.auxstorage(model, nw, term.options=model$term.options, extra.aux=extra.aux)
