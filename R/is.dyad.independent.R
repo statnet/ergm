@@ -45,7 +45,7 @@ is.dyad.independent.NULL <- function(object, ...) TRUE # By convention.
 #' @export
 is.dyad.independent.ergm_model <- function(object, byterm=FALSE, ..., ignore_aux=TRUE){
   ## NB: Auxiliaries (i.e., terms without statistics) do not affect dyadic dependence.
-  dind <- !sapply(object$terms, function(term) (!ignore_aux || length(term$coef.names)) && (is.null(term$dependence) || term$dependence))
+  dind <- !sapply(object$terms, function(term) (!ignore_aux || length(term$coef.names)) && term$dependence)
   if(byterm) dind else all(dind)
 }
 
