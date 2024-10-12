@@ -103,6 +103,10 @@
       \item{
         R documentation macros \code{\\ergmTerm}, \code{\\ergmConstraint}, \code{\\ergmReference}, \code{\\ergmHint}, and \code{\\ergmProposal}.
       }
+
+      \item{
+        Some improvements to the Terms API (see Vignette), particularly in handling of dyadic dependence and auxiliaries.
+      }
     }
   }
 }
