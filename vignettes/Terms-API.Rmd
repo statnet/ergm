@@ -129,7 +129,7 @@ In the following, let $p = \dim(\eta) = \dim(g(y))$, the dimension of the statis
 
 `pkgname`: a string containing the name of the `R` package containing the `C` implementation; if not specified, the package in which the `Init*ErgmTerm.*` function was found is assumed.
 
-`dependence`: a logical value indicating whether the addition of this term to the model induces dyadic-dependence; if all terms (ignoring auxiliaries) have `dependence` set to `FALSE`, the model is inferred to be dyad-independent; if not specified, `TRUE` is assumed.
+`dependence`: a logical value indicating whether the addition of this term to the model induces dyadic-dependence; if all terms (ignoring auxiliaries) have `dependence` set to `FALSE`, the model is inferred to be dyad-independent; if not specified, `TRUE` is assumed. A special value of `NA` infers dependence from the auxiliaries used by the term: if all of its auxiliaries are independent, then the term is independent.
 
 `emptynwstats`: a numeric vector of length $p$ providing the value of the statistic if evaluated on an empty network; if not specified or NULL, assumed to be a vector of zeros. (See `InitErgmTerm.degree()` in `R/InitEergmTerm.R` for an example.)
 
