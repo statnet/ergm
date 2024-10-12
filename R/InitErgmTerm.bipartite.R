@@ -7,8 +7,12 @@
 #
 #  Copyright 2003-2024 Statnet Commons
 ################################################################################
-#  See InitErgmTerm.R for a general explanation 
-#  of InitErgmTerm functions
+
+################################################################################
+#
+# See the Terms API vignette for an up to date documentation of the terms API.
+#
+################################################################################
 
 # NOTE: a number of undocumented terms from this file have been removed 
 # but the terms are retained on the experimental_terms svn branch

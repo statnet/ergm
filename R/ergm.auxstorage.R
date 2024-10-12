@@ -84,6 +84,9 @@ ergm.auxstorage <- function(model, nw,..., extra.aux=list(), term.options=list()
   # Check that terms and auxiliaries are properly positioned.
   assert_aux_dependencies(model$terms)
 
+  # For those terms exporting dependence = NA, set it based on their auxiliaries.
+  model$terms <- set_aux_dependence(model$terms)
+
   model$slots.extra.aux <- slots.extra.aux
   model
 }
@@ -110,9 +113,23 @@ assert_aux_dependencies <- function(terms){
   provided <- ifelse(aux, lapply(aux.slots, `[`, 1), NA)
   requested <- ifelse(aux, lapply(aux.slots, `[`, -1), aux.slots)
 
-  if(anyNA(aux.slots, TRUE)) stop("A requested auxiliary is not provided or is positioned after the requester in the term list. This indicates an implementation bug.")
+  if(anyNA(aux.slots, TRUE)) stop("A requested auxiliary is not provided or is positioned before the requester in the term list. This indicates an implementation bug.")
 
   for(i in seq_along(aux))
     if(any(! requested[[i]] %in% unlist(provided[-seq_len(i)])))
-      stop("A requested auxiliary is not provided or is positioned after the requester in the term list. This indicates an implementation bug.")
+      stop("A requested auxiliary is not provided or is positioned before the requester in the term list. This indicates an implementation bug.")
+}
+
+set_aux_dependence <- function(terms){
+  is_aux <- lengths(map(terms, "coef.names")) == 0
+  aux_slots <- ifelse(is_aux, map(terms, attr, "aux.slots") %>% map_int(`[`, 1L), NA)
+
+  for(i in rev(seq_along(terms))){
+    if(is.na(terms[[i]]$dependence)){ # A term is dependent if any of its auxiliaries is dependent.
+      terms[[i]]$dependence <- any(map_lgl(attr(terms[[i]], "aux.slots")[if(is_aux[i]) - 1L else TRUE], # Auxiliaries' first slot is their own.
+                                           function(slot) terms[[which(aux_slots == slot)]]$dependence))
+    }
+  }
+
+  terms
 }

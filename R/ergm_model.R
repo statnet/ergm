@@ -195,6 +195,8 @@ call.ErgmTerm <- function(term, env, nw, ..., term.options=list()){
   # so that it will have access to any parameters of the ergm terms
   out <- eval(termCall, env)
   if(is.null(out)) return(NULL)
+  # If dyadic dependence is not specified, assume dependent.
+  NVL(out$dependence) <- TRUE
   # If SO package name not specified explicitly, autodetect.
   if(is.null(out$pkgname)) out$pkgname <- environmentName(environment(eval(termFun)))
   # Store the term call in the term list (with the term able to override)
