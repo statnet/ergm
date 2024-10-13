@@ -3592,7 +3592,7 @@ InitErgmTerm.mm<-function (nw, arglist, ..., version=packageVersion("ergm")) {
 
   list(name = "mixmat",
        coef.names = coef.names,
-       inputs = c(symm+marg*2, attrval$row$valcodes, attrval$col$valcodes, unlist(levels2codes)),
+       iinputs = c(symm+marg*2, attrval$row$valcodes, attrval$col$valcodes, unlist(levels2codes)),
        dependence = FALSE,
        minval = 0)
 }
