@@ -2603,11 +2603,11 @@ C_CHANGESTAT_FN(c_meandeg) {
  General mixing matrix (mm) implementation.
 *****************/
 C_CHANGESTAT_FN(c_mixmat){
-  unsigned int symm = ((int)INPUT_PARAM[0]) & 1;
-  unsigned int marg = ((int)INPUT_PARAM[0]) & 2;
-  double *tx = INPUT_PARAM;
-  double *hx = BIPARTITE? INPUT_PARAM : INPUT_PARAM + N_NODES;
-  double *cells = BIPARTITE? INPUT_PARAM + N_NODES + 1: INPUT_PARAM + N_NODES*2 + 1;
+  unsigned int symm = IINPUT_PARAM[0] & 1;
+  unsigned int marg = IINPUT_PARAM[0] & 2;
+  int *tx = IINPUT_PARAM;
+  int *hx = BIPARTITE? IINPUT_PARAM : IINPUT_PARAM + N_NODES;
+  int *cells = BIPARTITE? IINPUT_PARAM + N_NODES + 1: IINPUT_PARAM + N_NODES*2 + 1;
   
   unsigned int diag = tx[tail]==tx[head] && hx[tail]==hx[head];
   for(unsigned int j=0; j<N_CHANGE_STATS; j++){
