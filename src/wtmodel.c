@@ -315,13 +315,8 @@ WtModel* WtModelInitialize (SEXP mR, SEXP ext_state, WtNetwork *nwp, Rboolean no
   return m;
 }
 
-/*
-  WtChangeStats
-  A helper's helper function to compute change statistics.
-  The vector of changes is written to m->workspace.
-*/
-void WtChangeStats(unsigned int ntoggles, Vertex *tails, Vertex *heads, double *weights,
-				 WtNetwork *nwp, WtModel *m){
+void WtChangeStatsDo(unsigned int ntoggles, Vertex *tails, Vertex *heads, double *weights,
+                   WtNetwork *nwp, WtModel *m){
   memset(m->workspace, 0, m->n_stats*sizeof(double)); /* Zero all change stats. */ 
 
   /* Make a pass through terms with d_functions. */
@@ -365,12 +360,28 @@ void WtChangeStats(unsigned int ntoggles, Vertex *tails, Vertex *heads, double *
       SETWT_WITH_BACKUP();
     }
   }
-  /* Undo previous storage updates and toggles */
+}
+
+
+void WtChangeStatsUndo(unsigned int ntoggles, Vertex *tails, Vertex *heads, double *weights,
+                       WtNetwork *nwp, WtModel *m){
   UNDO_PREVIOUS{
     GETOLDTOGGLEINFO();
     SETWT(TAIL,HEAD,weights[TOGGLEIND]);
     weights[TOGGLEIND]=OLDWT;
   }
+}
+
+
+/*
+  WtChangeStats
+  A helper's helper function to compute change statistics.
+  The vector of changes is written to m->workspace.
+*/
+void WtChangeStats(unsigned int ntoggles, Vertex *tails, Vertex *heads, double *weights,
+				 WtNetwork *nwp, WtModel *m){
+  WtChangeStatsDo(ntoggles, tails, heads, weights, nwp, m);
+  WtChangeStatsUndo(ntoggles, tails, heads, weights, nwp, m);
 }
 
 /*
