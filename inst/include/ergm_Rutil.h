@@ -30,13 +30,16 @@ static inline SEXP getListElement(SEXP list, const char *str){
 }
 
 static inline SEXP setListElement(SEXP list, const char *str, SEXP value){
+  value = PROTECT(value);
   SEXP names = getAttrib(list, R_NamesSymbol);
 
   for (unsigned int i = 0; i < length(list); i++)
     if(strcmp(CHAR(STRING_ELT(names, i)), str) == 0) {
       SET_VECTOR_ELT(list, i, value);
+      UNPROTECT(1);
       return value;
     }
+  UNPROTECT(1);
   error("List does not have element '%s' to set.", str);
   return R_NilValue;
 }
