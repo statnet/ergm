@@ -2,16 +2,12 @@
 title: "Introduction to Exponential-family Random Graph Models with `ergm`"
 author: "The Statnet Development Team"
 date: "`ergm` version `r packageVersion('ergm')` (`r Sys.Date()`)"
-output:
-  pdf_document:
-    number_sections: true
-    toc: true
-    toc_depth: 2
+output: rmarkdown::html_vignette
 
 vignette: >
   %\VignetteIndexEntry{Introduction to Exponential-family Random Graph Models with ergm}
   %\VignetteEngine{knitr::rmarkdown}
-  \usepackage[utf8]{inputenc}
+  %\VignetteEncoding{UTF-8}
 ---
 
 ```{r setup, include=FALSE}
