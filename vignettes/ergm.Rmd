@@ -10,6 +10,10 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
+```{r, echo=FALSE, cache=FALSE}
+options(rmarkdown.html_vignette.check_title = FALSE)
+```
+
 ```{r setup, include=FALSE}
 library(knitr)
 opts_chunk$set(
@@ -17,7 +21,7 @@ cache=TRUE,
 autodep=TRUE,
 concordance=TRUE,
 error=FALSE,
-width=6,fig.height=6
+fig.width=6,fig.height=6
 )
 options(width=75)
 ```
@@ -206,10 +210,10 @@ data(package='ergm') # tells us the datasets in our packages
 
 We'll start with Padgett's data on Renaissance Florentine families for our first example.  As with all data analysis, we start by looking at our data using graphical and numerical descriptives.
 
-```{r}
+```{r, echo = -1}
+par(mfrow=c(1,2), mar = c(0,0,0,0) + 0.1) # Setup a 2 panel plot
 data(florentine) # loads flomarriage and flobusiness data
 flomarriage # Look at the flomarriage network properties (uses `network`), esp. the vertex attributes
-par(mfrow=c(1,2)) # Setup a 2 panel plot
 plot(flomarriage, 
      main="Florentine Marriage", 
      cex.main=0.8, 
@@ -365,9 +369,9 @@ data(faux.mesa.high)
 mesa <- faux.mesa.high
 ```
 
-```{r}
+```{r, echo = -1}
+par(mfrow=c(1,1), mar = c(0,0,1,0) + 0.1) # Back to 1-panel plots
 mesa
-par(mfrow=c(1,1)) # Back to 1-panel plots
 plot(mesa, vertex.col='Grade')
 legend('bottomleft',fill=7:12,
        legend=paste('Grade',7:12),cex=0.75)
@@ -407,7 +411,8 @@ See also the `ergm` terms `nodemix` and `mm` for fitting mixing patterns other t
 
 Let's try a model for a directed network, and examine the tendency for ties to be reciprocated ("mutuality").  The `ergm` term for this is `mutual`.  We'll fit this model to the third wave of the classic Sampson Monastery data, and we'll start by taking a look at the network.
 
-```{r}
+```{r, echo = -1}
+par(mfrow=c(1,1), mar = c(0,0,1,0) + 0.1) # Back to 1-panel plots
 data(samplk) 
 ls() # directed data: Sampson's Monks
 samplk3
@@ -428,7 +433,8 @@ It is important to distinguish between the absence of a tie and the absence of d
 
 Start by estimating an ergm on a network with two missing ties, where both ties are identified as missing.
 
-```{r}
+```{r, echo = -1}
+par(mfrow=c(1,1), mar = c(0,0,1,0) + 0.1) # Back to 1-panel plots
 missnet <- network.initialize(10,directed=F) # initialize an empty net with 10 nodes
 missnet[1,2] <- missnet[2,7] <- missnet[3,6] <- 1 # add a few ties
 missnet[4,6] <- missnet[4,9] <- missnet[5,6] <- NA # mark a few dyads missing
@@ -552,7 +558,8 @@ of this size. If the model is a good fit to the observed data, then
 networks drawn from this distribution will be more likely to "resemble"
 the observed data.
 
-```{r}
+```{r, echo = -1}
+par(mfrow=c(1,1), mar = c(0,0,1,0) + 0.1) # Back to 1-panel plots
 flomodel.03.sim <- simulate(flomodel.03,nsim=10)
 
 class(flomodel.03.sim) # what does this produce?
@@ -679,7 +686,8 @@ mcmc.diagnostics(fit, center=F)
 
 Now let us look at a more interesting case, using a larger network: 
 
-```{r }
+```{r, echo = -1}
+par(mfrow=c(1,1), mar = c(0,0,1,0) + 0.1) # Back to 1-panel plots
 data('faux.magnolia.high')
 magnolia <- faux.magnolia.high
 plot(magnolia, vertex.cex=.5)
