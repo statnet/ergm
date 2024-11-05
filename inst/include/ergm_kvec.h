@@ -68,8 +68,8 @@ int main() {
 
 */
 
-#ifndef _AC_KVEC_H_
-#define _AC_KVEC_H_
+#ifndef _ERGM_KVEC_H_
+#define _ERGM_KVEC_H_
 
 #include <R.h>
 
