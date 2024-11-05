@@ -11,6 +11,10 @@
 #include "ergm_changestat.h"
 #include "ergm_Rutil.h"
 
+void OnNetworkEdgeChangeMUWrap(Vertex tail, Vertex head, void *MHp, Network *nwp, Rboolean edgestate){
+  ((MHProposal *) MHp)->u_func(tail, head, MHp, nwp, edgestate);
+}
+
 /*********************
  void MHProposalInitialize
 
@@ -91,7 +95,7 @@ MHProposal *MHProposalInitialize(SEXP pR, Network *nwp, void **aux_storage){
   MHp->togglehead = (Vertex *)R_Calloc(MHp->ntoggles, Vertex);
 
   if(MHp->u_func){
-    AddOnNetworkEdgeChange(nwp, (OnNetworkEdgeChange) MHp->u_func, MHp, 0); // Need to insert at the start.
+    AddOnNetworkEdgeChange(nwp, OnNetworkEdgeChangeMUWrap, MHp, 0); // Need to insert at the start.
   }
 
   return MHp;
@@ -104,7 +108,7 @@ MHProposal *MHProposalInitialize(SEXP pR, Network *nwp, void **aux_storage){
 *********************/
 void MHProposalDestroy(MHProposal *MHp, Network *nwp){
   if(!MHp) return;
-  if(MHp->u_func) DeleteOnNetworkEdgeChange(nwp, (OnNetworkEdgeChange) MHp->u_func, MHp);
+  if(MHp->u_func) DeleteOnNetworkEdgeChange(nwp, OnNetworkEdgeChangeMUWrap, MHp);
   if(MHp->f_func) (*(MHp->f_func))(MHp, nwp);
   if(MHp->storage){
     R_Free(MHp->storage);

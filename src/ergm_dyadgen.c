@@ -173,7 +173,8 @@ void DyadGenDestroy(DyadGen *gen){
 }
 
 
-void DyadGenUpdate(Vertex tail, Vertex head, DyadGen *gen, Network *nwp, Rboolean edgestate){
+void DyadGenUpdate(Vertex tail, Vertex head, void *payload, Network *nwp, Rboolean edgestate){
+  DyadGen *gen = payload;
   if(gen->sleeping) return;
 
   switch(gen->intertype){
@@ -193,7 +194,8 @@ void DyadGenUpdate(Vertex tail, Vertex head, DyadGen *gen, Network *nwp, Rboolea
 }
 
 
-void WtDyadGenUpdate(Vertex tail, Vertex head, double weight, DyadGen *gen, WtNetwork *nwp, double edgestate){
+void WtDyadGenUpdate(Vertex tail, Vertex head, double weight, void *payload, WtNetwork *nwp, double edgestate){
+  DyadGen *gen = payload;
   if(gen->sleeping) return;
 
   switch(gen->intertype){
