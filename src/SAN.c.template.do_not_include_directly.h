@@ -223,7 +223,7 @@ MCMCStatus DISPATCH_SANMetropolisHastings(DISPATCH_ErgmState *s,
 
     /* Calculate change statistics,
      remembering that tail -> head */
-    PROP_CHANGESTATS;
+    PROP_CHANGESTATS_DO;
 
     /* Always store the proposal for self-tuning. */
     for (unsigned int i = 0; i < nstats; i++){
@@ -262,8 +262,8 @@ MCMCStatus DISPATCH_SANMetropolisHastings(DISPATCH_ErgmState *s,
 	Rprintf("Accepted.\n");
       }
 
-      /* Make proposed toggles (updating timestamps--i.e., for real this time) */
-      for(unsigned int i=0; i < MHp->ntoggles; i++) PROP_COMMIT;
+      /* Make the last (or sole) toggle. */
+      PROP_FINISH;
       /* record network statistics for posterity */
       Rboolean finished = TRUE;
       for (unsigned int i = 0; i < nstats; i++){
@@ -277,6 +277,8 @@ MCMCStatus DISPATCH_SANMetropolisHastings(DISPATCH_ErgmState *s,
       if(verbose>=5){
 	Rprintf("Rejected.\n");
       }
+
+      PROP_CHANGESTATS_UNDO;
     }
   }
 
