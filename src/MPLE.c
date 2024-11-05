@@ -11,17 +11,12 @@
 #include "ergm_changestat.h"
 #include "ergm_rlebdm.h"
 
-static double **MPLE_workspace = NULL;
+static kvec_t(double*) MPLE_workspace = kv_blank;
 static StoreDVecMapENE *MPLE_covfreq = NULL;
-static khint_t MPLE_nalloc = 0;
-static khint_t MPLE_nalloc_max = 0;
 
 // TODO: Consider preallocating space for these vectors parcelling them out.
 static inline double *MPLE_workspace_push(double *ptr){
-  if(MPLE_nalloc == MPLE_nalloc_max)
-    MPLE_workspace = R_Realloc(MPLE_workspace, (MPLE_nalloc_max = MAX(MPLE_nalloc_max, 1u) * 2u), double*);
-
-  MPLE_workspace[MPLE_nalloc++] = ptr;
+  kv_push(double*, MPLE_workspace, ptr);
   return ptr;
 }
 
@@ -31,11 +26,10 @@ SEXP MPLE_workspace_free(void){
     MPLE_covfreq = NULL;
   }
 
-  if(MPLE_workspace){
-    for(unsigned int i = 0; i < MPLE_nalloc; i++) R_Free(MPLE_workspace[i]);
-    R_Free(MPLE_workspace);
-    MPLE_nalloc_max = MPLE_nalloc = 0;
-  }
+  if(kv_size(MPLE_workspace))
+    for(unsigned int i = 0; i < kv_size(MPLE_workspace); i++)
+      R_Free(kv_A(MPLE_workspace, i));
+  kv_destroy(MPLE_workspace);
 
   return R_NilValue;
 }
