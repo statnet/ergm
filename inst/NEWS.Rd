@@ -66,53 +66,7 @@
 
 
 
-\section{Changes in version 4.7.2}{
-
-  \subsection{NEW FEATURES}{
-    \itemize{
-      \item{
-        \code{\link{ergm.godfather}()} now takes a \code{basis=} argument like \code{\link{ergm}()}, \code{\link{simulate.ergm}()}, and others. Its term options can be passed directly as well.
-      }
-    }
-  }
-
-
-  \subsection{BUG FIXES}{
-    \itemize{
-      \item{
-        Invalid \code{levels2} specification for \code{\link[=mm-ergmTerm]{mm()}} no longer causes memory errors.
-      }
-    }
-  }
-
-
-  \subsection{OTHER USER-VISIBLE CHANGES}{
-    \itemize{
-      \item{
-        \code{\link{ergm_model}()} constructor is now generic, with methods for \code{\link{formula}}, \code{\link[statnet.common]{term_list}}, and \code{\link{ergm_model}}.
-      }
-
-      \item{
-        \code{\link{is.dyad.independent}()} can now return dyadic-independence information for each term.
-      }
-
-      \item{
-        \code{\link{control.ergm.godfather}()} has been deprecated, since it is no longer used to pass term options.
-      }
-
-      \item{
-        R documentation macros \code{\\ergmTerm}, \code{\\ergmConstraint}, \code{\\ergmReference}, \code{\\ergmHint}, and \code{\\ergmProposal}.
-      }
-
-      \item{
-        Some improvements to the Terms API (see Vignette), particularly in handling of dyadic dependence and auxiliaries.
-      }
-    }
-  }
-}
-
-
-\section{Changes in version 4.7.1}{
+\section{Changes in version 4.7.3}{
 
   \subsection{NEW FEATURES}{
     \itemize{
@@ -135,6 +89,9 @@
           \item Both functions now accept the \code{constraints=} argument with arbitrary dyad-independent constraints.
           \item Excessive runtime check now works in terms of free dyad counts rather than network sizes.
         }
+      }
+      \item{
+        \code{\link{ergm.godfather}()} now takes a \code{basis=} argument like \code{\link{ergm}()}, \code{\link{simulate.ergm}()}, and others. Its term options can be passed directly as well.
       }
     }
   }
@@ -189,6 +146,15 @@
       \item{
         \code{\link[Label-ergmTerm]{Label}()} operator now documents its behavior when the model is curved more clearly.
       }
+      \item{
+        Invalid \code{levels2} specification for \code{\link[=mm-ergmTerm]{mm()}} no longer causes memory errors.
+      }
+      \item{
+        Valued proposal updater function was not being passed the current edge state.
+      }
+      \item{
+        Undefined behavior warnings flagged by CRAN's \code{clang-asan} have been fixed.
+      }
     }
   }
 
@@ -239,6 +205,27 @@
       \item{
        \code{\link{param_names}()} API now allows assignment, and its method for \code{\link{ergm_model}} objects is more explicit about whether canonical or curved parameters are being modified and when.
       }
+      \item{
+        \code{\link{ergm_model}()} constructor is now generic, with methods for \code{\link{formula}}, \code{\link[statnet.common]{term_list}}, and \code{\link{ergm_model}}.
+      }
+      \item{
+        \code{\link{is.dyad.independent}()} can now return dyadic-independence information for each term.
+      }
+      \item{
+        \code{\link{control.ergm.godfather}()} has been deprecated, since it is no longer used to pass term options.
+      }
+      \item{
+        R documentation macros \code{\\ergmTerm}, \code{\\ergmConstraint}, \code{\\ergmReference}, \code{\\ergmHint}, and \code{\\ergmProposal}.
+      }
+      \item{
+        Some improvements to the Terms API (see Vignette), particularly in handling of dyadic dependence and auxiliaries.
+      }
+      \item{
+        Documentation improvements to extended state and network callback APIs.
+      }
+      \item{
+        The main ERGM vignette is now in HTML.
+      }
     }
   }
 
@@ -273,6 +260,12 @@
       }
       \item{
         \code{RLEBDM1D} C API now exports \code{FirstRLEBDM1D()} and \code{LastRLEBDM1D()} macros, providing dyad indices of the first and the last dyad in the RLEBDM, respectively.
+      }
+      \item{
+        \code{ChangeStats()} function has been split into \code{ChangeStatsDo()} and \code{ChangeStatsUndo()}, the latter only called on rejection, which speeds up MCMC and SAN when the proposal has multiple toggles.
+      }
+      \item{
+        \code{setListElement()} now protects the value being stored in the list before assigning it (then unprotects it), preventing potential accidental garbage collection.
       }
     }
   }
