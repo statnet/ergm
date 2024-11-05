@@ -356,7 +356,7 @@ $-2.59 + 0.01*(146+146) = 0.33$
 $-2.59 + 0.01*(146+3) = -1.1$
 * The corresponding probabilities are 0.07, 0.58, and 0.25.
 
-This model specification does not include a term for homophily by wealth, i.e., a term accounting for similarity in wealth of the two end nodes of a potential tie.  It just specifies a relation between wealth and mean degree.  To specify homophily on wealth, you could use the `ergm` term `absdiff`. [See section 3 below for more information on ergm-terms.?faux](ergm_tutorial.html#model-terms-available-for-ergm-estimation-and-simulation)
+This model specification does not include a term for homophily by wealth, i.e., a term accounting for similarity in wealth of the two end nodes of a potential tie.  It just specifies a relation between wealth and mean degree.  To specify homophily on wealth, you could use the `ergm` term `absdiff`. [See section 3 below for more information on avaiable model terms.](model-terms-available-for-ergm-estimation-and-simulation)
 
 #### Nodal covariates:  Homophily
 
@@ -630,7 +630,7 @@ never produce an interesting network with this density -- this
 is what we call "model degneracy."
 
 For more detailed discussion of model degeneracy in the ERGM context,
-see the papers by Mark Handcock referenced [below.](ergm_tutorial.html#References)
+see the papers by Mark Handcock referenced [below.](References)
 
 In that worst case scenario, we end up not being able to obtain coefficent estimates, so we can't use the GOF function to identify how the model simulations deviate from the observed data.  We can, however, still use the MCMC diagnostics to observe what is happening with the simulation algorithm, and this (plus some experience and intuition about the behavior of `ergm` terms) can help us improve the model specification.
 
