@@ -1,4 +1,4 @@
-% Encoding: ISO-8859-1
+% Encoding: UTF-8
 
 @Article{KrHu23e,
   author  = {Pavel N. Krivitsky and David R. Hunter and Martina Morris and Chad Klumb},
@@ -35,12 +35,14 @@
 }
 
 @InProceedings{ScDe17e,
-  author       = {Schmid, Christian S and Desmarais, Bruce A},
-  title        = {Exponential random graph models with big networks: Maximum pseudolikelihood estimation and the parametric bootstrap},
-  booktitle    = {2017 IEEE international conference on big data (Big Data)},
-  year         = {2017},
-  pages        = {116--121},
-  organization = {IEEE},
+  author    = {Schmid, Christian S. and Desmarais, Bruce A.},
+  title     = {Exponential random graph models with big networks: Maximum pseudolikelihood estimation and the parametric bootstrap},
+  booktitle = {2017 IEEE International Conference on Big Data (Big Data)},
+  year      = {2017},
+  pages     = {116--121},
+  month     = dec,
+  publisher = {IEEE},
+  doi       = {10.1109/bigdata.2017.8257919},
 }
 
 @Article{ScHu23c,
@@ -55,30 +57,26 @@
 }
 
 @Article{HuHu12i,
-  author   = {Hummel, Ruth M. and Hunter, David R. and Handcock, Mark S.},
-  title    = {Improving Simulation-based Algorithms for Fitting {ERGMs}},
-  journal  = {Journal of Computational and Graphical Statistics},
-  year     = {2012},
-  volume   = {21},
-  number   = {4},
-  pages    = {920--939},
-  abstract = { Markov chain Monte Carlo methods can be used to approximate the intractable normalizing constants that arise in likelihood calculations for many exponential-family random graph models for networks. However, in practice, the resulting approximations degrade as parameter values move away from the value used to define the Markov chain, even in cases where the chain produces perfectly efficient samples. We introduce a new approximation method along with a novel method of moving toward a maximum likelihood estimator (MLE) from an arbitrary starting parameter value in a series of steps based on alternating between the canonical exponential-family parameterization and the mean-value parameterization. This technique enables us to find an approximate MLE in many cases where this was previously not possible. We illustrate these methods on a model for a transcriptional regulation network for E. coli, an example where previous attempts to approximate an MLE had failed, and a model for a well-known social network dataset involving friendships among workers in a tailor shop. These methods are implemented in the publicly available ergm package for R, and computer code to duplicate the results of this article is included in the online supplementary materials. },
-  doi      = {10.1080/10618600.2012.679224},
-  file     = {HuHu12i.pdf:/home/pavel/Documents/Research/References/HuHu12i.pdf:PDF},
+  author  = {Hummel, Ruth M. and Hunter, David R. and Handcock, Mark S.},
+  title   = {Improving Simulation-based Algorithms for Fitting {ERGMs}},
+  journal = {Journal of Computational and Graphical Statistics},
+  year    = {2012},
+  volume  = {21},
+  number  = {4},
+  pages   = {920--939},
+  doi     = {10.1080/10618600.2012.679224},
 }
 
 @Article{HaGi10m,
-  author   = {Handcock, Mark S. and Gile, Krista J.},
-  title    = {Modeling Social Networks from Sampled Data},
-  journal  = {Annals of Applied Statistics},
-  year     = {2010},
-  volume   = {4},
-  number   = {1},
-  pages    = {5--25},
-  issn     = {1932-6157},
-  abstract = {Network models are widely used to represent relational information among interacting units and the structural implications of these relations. Recently, social network studies have focused a great deal of attention on random graph models of networks whose nodes represent individual social actors and whose edges represent a specified relationship between the actors. Most inference for social network models assumes that the presence or absence of all possible links is observed, that the information is completely reliable, and that there are no measurement (e.g., recording) errors. This is clearly not true in practice, as much network data is collected though sample surveys. In addition even if a census of a population is attempted, individuals and links between individuals are missed (i.e., do not appear in the recorded data). In this paper we develop the conceptual and computational theory for inference based on sampled network information. We first review forms of network sampling designs used in practice. We consider inference from the likelihood framework, and develop a typology of network data that reflects their treatment within this frame. We then develop inference for social network models based on information from adaptive network designs. We motivate and illustrate these ideas by analyzing the effect of link-tracing sampling designs on a collaboration network.},
-  doi      = {10.1214/08-AOAS221},
-  file     = {:HaGi10m.pdf:PDF},
+  author  = {Handcock, Mark S. and Gile, Krista J.},
+  title   = {Modeling Social Networks from Sampled Data},
+  journal = {Annals of Applied Statistics},
+  year    = {2010},
+  volume  = {4},
+  number  = {1},
+  pages   = {5--25},
+  issn    = {1932-6157},
+  doi     = {10.1214/08-AOAS221},
 }
 
 @Article{HuHa06i,
@@ -91,7 +89,6 @@
   pages     = {565--583},
   issn      = {1061-8600},
   doi       = {10.1198/106186006X133069},
-  file      = {:HuHa06i.pdf:PDF},
   publisher = {American Statistical Association},
 }
 
@@ -102,18 +99,20 @@
   year    = {2002},
   volume  = {3},
   number  = {2},
-  file    = {:Sn02m.pdf:PDF},
 }
 
 @Article{StIk90p,
-  author  = {Strauss, David and Ikeda, Michael},
-  title   = {Pseudolikelihood Estimation for Social Networks},
-  journal = {Journal of the American Statistical Association},
-  year    = {1990},
-  volume  = {85},
-  number  = {409},
-  pages   = {204--212},
-  issn    = {0162-1459},
+  author    = {Strauss, David and Ikeda, Michael},
+  title     = {Pseudolikelihood Estimation for Social Networks},
+  journal   = {Journal of the American Statistical Association},
+  year      = {1990},
+  volume    = {85},
+  number    = {409},
+  pages     = {204--212},
+  month     = mar,
+  issn      = {0162-1459},
+  doi       = {10.1080/01621459.1990.10475327},
+  publisher = {Informa UK Limited},
 }
 
 @Article{RoMo51s,
@@ -126,9 +125,7 @@
   pages     = {400--407},
   month     = sep,
   issn      = {00034851},
-  abstract  = {Let M(x) denote the expected value at level x of the response to a certain experiment. M(x) is assumed to be a monotone function of x but is unknown to the experimenter, and it is desired to find the solution x = θ of the equation M(x) = α, where α is a given constant. We give a method for making successive experiments at levels x1,x2,⋯ in such a way that xn will tend to θ in probability.},
-  copyright = {Copyright © 1951 Institute of Mathematical Statistics},
-  file      = {:RoMo51s.pdf:PDF},
+  copyright = {Copyright Â© 1951 Institute of Mathematical Statistics},
   publisher = {Institute of Mathematical Statistics},
 }
 
@@ -153,7 +150,6 @@
   pages   = {832--842},
   issn    = {0162-1459},
   doi     = {10.1080/01621459.1986.10478342},
-  file    = {:FrSt86m.pdf:PDF},
 }
 
 @Article{Kr17u,
@@ -165,7 +161,6 @@
   pages   = {149--161},
   month   = mar,
   doi     = {10.1016/j.csda.2016.10.015},
-  file    = {Kr17u.pdf:Mine/Kr17u.pdf:PDF},
 }
 
 @Article{KrKu23l,
@@ -181,17 +176,16 @@
   publisher = {Institute of Mathematical Statistics},
 }
 
-@article{VaFl15m,
-    author = {Vats, Dootika and Flegal, James M. and Jones, Galin L.},
-    title = {Multivariate output analysis for {Markov} chain {Monte} {Carlo}},
-    journal = {Biometrika},
-    volume = {106},
-    number = {2},
-    pages = {321-337},
-    year = {2019},
-    month = {04},
-    abstract = {Markov chain Monte Carlo produces a correlated sample which may be used for estimating expectations with respect to a target distribution. A fundamental question is: when should sampling stop so that we have good estimates of the desired quantities? The key to answering this question lies in assessing the Monte Carlo error through a multivariate Markov chain central limit theorem. The multivariate nature of this Monte Carlo error has been largely ignored in the literature. We present a multivariate framework for terminating a simulation in Markov chain Monte Carlo. We define a multivariate effective sample size, the estimation of which requires strongly consistent estimators of the covariance matrix in the Markov chain central limit theorem, a property we show for the multivariate batch means estimator. We then provide a lower bound on the number of minimum effective samples required for a desired level of precision. This lower bound does not depend on the underlying stochastic process and can be calculated a priori. This result is obtained by drawing a connection between terminating simulation via effective sample size and terminating simulation using a relative standard deviation fixed-volume sequential stopping rule, which we demonstrate is an asymptotically valid procedure. The finite-sample properties of the proposed method are demonstrated in a variety of examples.},
-    doi = {10.1093/biomet/asz002},
+@Article{VaFl15m,
+  author  = {Vats, Dootika and Flegal, James M. and Jones, Galin L.},
+  title   = {Multivariate output analysis for {Markov} chain {Monte} {Carlo}},
+  journal = {Biometrika},
+  year    = {2019},
+  volume  = {106},
+  number  = {2},
+  pages   = {321-337},
+  month   = {04},
+  doi     = {10.1093/biomet/asz002},
 }
 
 @Article{WaAt13a,
@@ -206,6 +200,144 @@
   issn      = {1532-4141},
   doi       = {10.1080/03610918.2012.703359},
   publisher = {Informa UK Limited},
+}
+
+@Article{GoKi09b,
+  author  = {Goodreau, Steven M. and Kitts, James A. and Morris, Martina},
+  title   = {Birds of a Feather, or Friend of a Friend? {Using} Exponential Random Graph Models to Investigate Adolescent Social Networks},
+  journal = {Demography},
+  year    = {2009},
+  volume  = {46},
+  number  = {1},
+  pages   = {103--125},
+  month   = feb,
+  doi     = {10.1353/dem.0.0045},
+}
+
+@Article{HuGo08g,
+  author  = {Hunter, David R. and Goodreau, Steven M. and Handcock, Mark S.},
+  title   = {Goodness of Fit for Social Network Models},
+  journal = {Journal of the American Statistical Association},
+  year    = {2008},
+  volume  = {103},
+  number  = {481},
+  pages   = {248--258},
+  month   = mar,
+  issn    = {0162-1459},
+  doi     = {10.1198/016214507000000446},
+}
+
+@Article{Sc11i,
+  author  = {Schweinberger, Michael},
+  title   = {Instability, Sensitivity, and Degeneracy of Discrete Exponential Families},
+  journal = {Journal of the American Statistical Association},
+  year    = {2011},
+  volume  = {106},
+  number  = {496},
+  pages   = {1361--1370},
+  doi     = {10.1198/jasa.2011.tm10747},
+}
+
+@Article{SnPa06n,
+  author    = {Snijders, Tom A. B. and Pattison, Philippa E. and Robins, Garry L. and Handcock, Mark S.},
+  title     = {New Specifications for Exponential Random Graph Models},
+  journal   = {Sociological Methodology},
+  year      = {2006},
+  volume    = {36},
+  number    = {1},
+  pages     = {99--153},
+  month     = aug,
+  issn      = {1467-9531},
+  doi       = {10.1111/j.1467-9531.2006.00176.x},
+  publisher = {Blackwell Synergy},
+}
+
+@Article{MoHa08s,
+  author    = {Morris, Martina and Handcock, Mark S. and Hunter, David R.},
+  title     = {Specification of Exponential-Family Random Graph Models: Terms and Computational Aspects},
+  journal   = {Journal of Statistical Software},
+  year      = {2008},
+  volume    = {24},
+  number    = {4},
+  pages     = {1--24},
+  month     = may,
+  issn      = {1548-7660},
+  doi       = {10.18637/jss.v024.i04},
+  publisher = {Foundation for Open Access Statistic},
+}
+
+@Article{Hu07c,
+  author  = {Hunter, David R.},
+  title   = {Curved Exponential Family Models for Social Networks},
+  journal = {Social Networks},
+  year    = {2007},
+  volume  = {29},
+  pages   = {216--230},
+  issn    = {0378-8733},
+  doi     = {10.1016/j.socnet.2006.08.005},
+}
+
+@TechReport{Ha03a,
+  author      = {Handcock, Mark S.},
+  title       = {Assessing Degeneracy in Statistical Models of Social Networks},
+  institution = {Center for Statistics and the Social Sciences, University of Washington},
+  year        = {2003},
+  type        = {Working Paper},
+  number      = {39},
+  address     = {Seattle, WA},
+  month       = dec,
+  url         = {https://csss.uw.edu/research/working-papers/assessing-degeneracy-statistical-models-social-networks},
+}
+
+@Article{KrHa11a,
+  author   = {Krivitsky, Pavel N. and Handcock, Mark S. and Morris, Martina},
+  title    = {Adjusting for Network Size and Composition Effects in Exponential-family Random Graph Models},
+  journal  = {Statistical Methodology},
+  year     = {2011},
+  volume   = {8},
+  number   = {4},
+  pages    = {319--339},
+  month    = jul,
+  issn     = {1572-3127},
+  doi      = {10.1016/j.stamet.2011.01.005},
+  keywords = {network size; ERGM; random graph; egocentrically-sampled data},
+}
+
+@Article{KrMo17i,
+  author       = {Pavel N. Krivitsky and Martina Morris},
+  title        = {Inference for Social Network Models from Egocentrically-sampled Data, with Application to Understanding Persistent Racial Disparities in {HIV} Prevalence in the {US}},
+  journal      = {Annals of Applied Statistics},
+  year         = {2017},
+  volume       = {11},
+  number       = {1},
+  pages        = {427--455},
+  doi          = {10.1214/16-AOAS1010},
+  journaltitle = {Annals of Applied Statistics},
+  keywords     = {social network; ERGM; random graph; egocentrically-sampled data; pseudo maximum likelihood; pseudo likelihood},
+}
+
+@Article{KrHa14s,
+  author   = {Krivitsky, Pavel N. and Handcock, Mark S.},
+  title    = {A Separable Model for Dynamic Networks},
+  journal  = {Journal of the Royal Statistical Society, Series B},
+  year     = {2014},
+  volume   = {76},
+  number   = {1},
+  pages    = {29--46},
+  doi      = {10.1111/rssb.12014},
+  keywords = {Social networks; Longitudinal; Exponential random graph model; Markov chain Monte Carlo; Maximum likelihood estimation},
+}
+
+@Article{HuGo13e,
+  author  = {Hunter, David R. and Goodreau, Steven M. and Handcock, Mark S.},
+  title   = {Ergm.userterms: {A} Template Package for Extending Statnet},
+  journal = {Journal of Statistical Software},
+  year    = {2013},
+  volume  = {52},
+  number  = {2},
+  pages   = {1--25},
+  issn    = {1548-7660},
+  doi     = {10.18637/jss.v052.i02},
 }
 
 @Comment{jabref-meta: databaseType:bibtex;}
