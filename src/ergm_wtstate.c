@@ -7,12 +7,11 @@
  *
  *  Copyright 2003-2024 Statnet Commons
  */
+#include "ergm_kvec.h"
 #include "ergm_wtstate.h"
 #include "ergm_constants.h"
 
-static WtErgmState **ergm_wtstate_array = NULL;
-static unsigned int ergm_wtstate_array_len = 0;
-static unsigned int ergm_wtstate_array_maxlen = 0;
+static kvec_t(WtErgmState *) ergm_wtstate_array = kv_blank;
 
 WtErgmState *WtErgmStateInit(SEXP stateR,
                              unsigned int flags){
@@ -41,11 +40,7 @@ WtErgmState *WtErgmStateInit(SEXP stateR,
   if(!(flags & ERGM_STATE_NO_INIT_PROP) && s->m && length(tmp = getListElement(stateR, "proposal"))) // Proposal also requires model's auxiliaries.
     s->MHp = WtMHProposalInitialize(tmp, s->nwp, s->m->termarray->aux_storage);
 
-  if(ergm_wtstate_array_len == ergm_wtstate_array_maxlen){
-    ergm_wtstate_array_maxlen = MAX(1, ergm_wtstate_array_maxlen*2);
-    ergm_wtstate_array = R_Realloc(ergm_wtstate_array, ergm_wtstate_array_maxlen, WtErgmState*);
-  }
-  ergm_wtstate_array[ergm_wtstate_array_len++] = s;
+  kv_push(WtErgmState*, ergm_wtstate_array, s);
 
   return s;
 }
@@ -94,9 +89,8 @@ void WtErgmStateDestroy(WtErgmState *s){
   // array. Note that most of the time, this will be the first element
   // in the array.
   unsigned int i=0;
-  while(ergm_wtstate_array[i] != s) i++;
-  ergm_wtstate_array[i] = ergm_wtstate_array[--ergm_wtstate_array_len];
-  ergm_wtstate_array[ergm_wtstate_array_len] = NULL;
+  while(kv_A(ergm_wtstate_array, i) != s) i++;
+  kv_del_plug(ergm_wtstate_array, i);
 
   if(s->MHp) WtMHProposalDestroy(s->MHp, s->nwp);
   if(s->m) WtModelDestroy(s->nwp, s->m);
@@ -105,8 +99,7 @@ void WtErgmStateDestroy(WtErgmState *s){
 }
 
 SEXP ErgmWtStateArrayClear(void){
-  while(ergm_wtstate_array_len) WtErgmStateDestroy(ergm_wtstate_array[0]);
-  ergm_wtstate_array_maxlen = 0;
-  R_Free(ergm_wtstate_array);
+  while(kv_size(ergm_wtstate_array)) WtErgmStateDestroy(kv_A(ergm_wtstate_array, 0));
+  kv_destroy(ergm_wtstate_array);
   return R_NilValue;
 }
