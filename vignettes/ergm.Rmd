@@ -3,7 +3,7 @@ title: "Introduction to Exponential-family Random Graph Models with `ergm`"
 author: "The Statnet Development Team"
 date: "`ergm` version `r packageVersion('ergm')` (`r Sys.Date()`)"
 output: rmarkdown::html_vignette
-
+bibliography: ../inst/REFERENCES.bib
 vignette: >
   %\VignetteIndexEntry{Introduction to Exponential-family Random Graph Models with ergm}
   %\VignetteEngine{knitr::rmarkdown}
@@ -32,10 +32,10 @@ This vignette provides an introduction to statistical modeling of
 network data with *Exponential family Random Graph Models* (ERGMs)
 using `ergm` package.  It is based on the `ergm` tutorial used in the
 `statnet` workshops, but covers a subset of that material.  
-The complete tutorial can be found on the [`statnet` workshop wiki](https://github.com/statnet/Workshops/wiki/).
+The complete tutorial can be found on the [`statnet` workshops page](https://statnet.org/workshops/).
 
 A more complete overview of the advanced functionality available in the
-`ergm` package can be found in [this preprint](http://arxiv.org/abs/2106.04997).
+`ergm` package can be found in @KrHu23e.
 
 
 ### Software installation
@@ -58,7 +58,7 @@ set.seed(0)
 
 ## 1. Statistical network modeling with ERGMs
 
-This is a *very brief* overview of the modeling framework, as the primary purpose of this tutorial is to show how to implement statistical analysis of network data with ERGMs using the `ergm` package.  For more detail (and to really understand ERGMs) please see the [references](ergm_tutorial.html#references) at the end of this tutorial.
+This is a *very brief* overview of the modeling framework, as the primary purpose of this tutorial is to show how to implement statistical analysis of network data with ERGMs using the `ergm` package.  For more detail (and to really understand ERGMs) please see [further reading](#further-reading) at the end of this tutorial.
 
 Exponential-family random graph models (ERGMs) are a 
 general class of models based on exponential-family theory 
@@ -104,7 +104,7 @@ The statistics $g(y)$ can be thought of as the "covariates" in the model.  In th
 
 As a result, every term in an ERGM must have an associated algorithm for computing its value for your network.  The `ergm` package in `statnet` includes about 150 term-computing algorithms.  We will explore some of these terms in this 
 tutorial, and links to more information are provided in 
-[section 3.](#model-terms-available-for-ergm-estimation-and-simulation).
+[section 3](#model-terms-available-for-ergm-estimation-and-simulation).
 
 You can get the list of all available terms, and the syntax for using them, by typing:
 ```{r, eval=FALSE}
@@ -131,9 +131,7 @@ One key distinction in model terms is worth keeping in mind:  terms are either _
 
 * Dyad _dependent_ terms (like degree terms, or triad terms), by contrast, imply dependence between dyads.  Such terms have very different effects, and much of what is different about network models comes from these terms.  They introduce complex cascading effects that can often lead to counter-intuitive and highly non-linear outcomes.  In addition, a model with dyad dependent terms requires a different estimation algorithm, so when we use them below you will see some different components in the output.
 
-An overview and discussion of many of these terms can be found in
-the 'Specifications'
-paper in the [*Journal of Statistical Software v24(4)*](http://www.jstatsoft.org/v24/i04)
+An overview and discussion of many of these terms can be found in @MoHa08s.
 
 #### ERGM probabilities: at the tie-level
 
@@ -504,11 +502,10 @@ There is a `statnet` package --- `ergm.userterms` ---
 that facilitates the writing of new
 `ergm` terms. The package is available [on GitHub](https://github.com/statnet/ergm.userterms), and installing it will
 include the tutorial (ergmuserterms.pdf).  The tutorial can 
-also be found in the 
-[*Journal of Statistical Software 52(2)*](http://www.jstatsoft.org/v52/i02), 
+also be found in @HuGo13e, 
 and some introductory slides and installation instructions from the workshop 
 we teach on coding `ergm` terms can be found
-[here](https://github.com/statnet/Workshops/tree/master/ergm.userterms).
+[here](https://statnet.org/workshops/). For the most recent API available for implementing terms, see the Terms API vignette.
 
 Note that writing up new `ergm` terms requires some knowledge of 
 C and the ability
@@ -616,9 +613,7 @@ plot(mesamodel.02.gof)
 ```
 
 For a good example of model exploration and fitting for the Add Health
-Friendship networks, see [Goodreau, Kitts & Morris, *Demography* 2009](http://link.springer.com/article/10.1353/dem.0.0045).  
-For more technical details on the approach, see 
-[Hunter, Goodreau and Handcock *JASA* 2008](http://amstat.tandfonline.com/doi/abs/10.1198/016214507000000446?journalCode=uasa20#.U7HZgPldWSo)
+Friendship networks, see @GoKi09b. For more technical details on the approach, see @HuGo08g.
 
 
 ## 7. Diagnostics: troubleshooting and checking for model degeneracy
@@ -754,7 +749,7 @@ mcmc.diagnostics(fit)
 Success! Of course, in real life one might have a lot more trial and
 error.
 
-Degeneracy is often an indicator of a poorly specified model.  It is not a property of all ERGMs, but it is associated with some dyadic-dependent terms, in particular, the reduced homogenous Markov specifications (e.g., 2-stars and triangle terms).  For a good technical discussion of unstable terms see [Schweinberger 2012.](http://www.tandfonline.com/doi/abs/10.1198/jasa.2011.tm10747#.U6R2FvldWSo)  For a discussion of  alternative terms that exhibit more stable behavior see [Snijders et al. 2006.](http://onlinelibrary.wiley.com/doi/10.1111/j.1467-9531.2006.00176.x/abstract) and for the gwesp term (and the curved exponential family terms in general) see [Hunter and Handcock 2006.](http://amstat.tandfonline.com/doi/abs/10.1198/106186006X133069#.U7MxWPldWSo)
+Degeneracy is often an indicator of a poorly specified model.  It is not a property of all ERGMs, but it is associated with some dyadic-dependent terms, in particular, the reduced homogenous Markov specifications (e.g., 2-stars and triangle terms).  For a good technical discussion of unstable terms see @Sc11i. For a discussion of  alternative terms that exhibit more stable behavior see @SnPa06n and for the `gwesp` term (and the curved exponential family terms in general) see @HuHa06i.
 
 
 
@@ -762,12 +757,12 @@ Degeneracy is often an indicator of a poorly specified model.  It is not a prope
 
 One of the most powerful features of ERGMs is that they can be used to estimate models from from egocentrically sampled data, and the fitted models can then be used to simulate complete networks (of any size) that will have the properties of the original network that are observed and represented in the model.
 
-The egocentric estimation/simulation framework extends to temporal ERGMs ("TERGMs") as well, with the minimal addition of an estimate of partnership duration. This makes it possible to simulate complete dynamic networks from a single cross-sectional egocentrically sampled network.  For an example of what you can do with this, check out the network movie we developed to explore the impact of dynamic network structure on HIV transmission, see http://statnet.org/movies
+The egocentric estimation/simulation framework extends to temporal ERGMs ("TERGMs") as well, with the minimal addition of an estimate of partnership duration. This makes it possible to simulate complete dynamic networks from a single cross-sectional egocentrically sampled network.  For an example of what you can do with this, check out the network movie we developed to explore the impact of dynamic network structure on HIV transmission, see https://statnet.org/movies/ .
 
 While the `ergm` package can be used with egocentric data, we recommend instead to use the
 package `ergm.ego`.  This package includes accurate statistical inference and many utilities that simplify the task of reading in the data, conducting exploratory analyses, calculating the sample "target statistics", and specifying model options.
 
-We have a workshop/tutorial for `ergm.ego` at the [statnet Workshops wiki](https://github.com/statnet/Workshops/wiki).
+We have a workshop/tutorial for `ergm.ego` at the [statnet Workshops site](https://statnet.org/workshops/).
 
 
 ## 9. Additional functionality in statnet and other package
@@ -776,7 +771,7 @@ We have a workshop/tutorial for `ergm.ego` at the [statnet Workshops wiki](https
 
 All of these packages can be downloaded from CRAN.
 For more detailed information, please visit the `statnet`
-webpage [www.statnet.org](http://statnet.org).  
+webpage [www.statnet.org](https://statnet.org/).
 
 
 ### Current statnet packages
@@ -785,15 +780,16 @@ Packages developed by statnet team that are not covered in this tutorial:
 
 * `sna` -- classical social network analysis utilities
 * `tsna` -- descriptive statistics for temporal network data
-* `tergm` -- temporal ergms for dynamic networks
+* `tergm` -- temporal ERGMs for dynamic networks
 * `ergm.ego`-- estimation/simulation of ergms from egocentrically sampled data 
 * `ergm.count` -- models for tie count network data
 * `ergm.rank` -- models for tie rank network data
+* `ergm.multi` -- models of multilayer networks and for samples of networks
 * `relevent` -- relational event models for networks
 * `latentnet` -- latent space and latent cluster analysis
 * `degreenet` -- MLE estimation for degree distributions (negative binomial, Poisson, scale-free, etc.) 
 * `networksis` -- simulation of bipartite networks with given degree distributions 
-* `ndtv` package -- network movie maker
+* `ndtv` -- network movie maker
 * `EpiModel` -- network modeling of infectious disease and social diffusion processes  
 
 
@@ -806,8 +802,7 @@ Packages developed by statnet team that are not covered in this tutorial:
 
 There are now a number of excellent packages developed by others that extend 
 the functionality of statnet.  The easiest way to find these is to
-look at the "reverse depends" of the `ergm` package on 
-[CRAN](https://cran.org/packages).  Examples include:
+look at the "reverse depends" of the `ergm` package on CRAN.  Examples include:
 
 * `Bergm` -- Bayesian Exponential Random Graph Models
 * `btergm` -- Temporal Exponential Random Graph Models by Bootstrapped Pseudolikelihood
@@ -825,8 +820,7 @@ Steven M. Goodreau goodreau@u.washington.edu
 Skye Bender-deMoll skyebend@skyeome.net  
 Samuel M. Jenness samuel.m.jenness@emory.edu
 
-
-## References
+## Further reading
 
 The best place to start is the special issue of the *Journal of Statistical Software* (JSS) devoted to `statnet`:  [link](https://www.jstatsoft.org/issue/view/v024)
 
@@ -834,45 +828,28 @@ The nine papers in this issue cover a wide range of theoretical and practical to
 
 HOWEVER:  Note that this issue was written in 2008.  The statnet code base has evolved considerably since that time, so some of the syntax specified in the articles may no longer work (in most cases because it has been replace with something better).
 
-An overview of most recent update, `ergm 4`, can be found in here: [link](http://arxiv.org/abs/2106.04997).
+An overview of most recent update, `ergm 4`, can be found at @KrHu23e.
 
-For social scientists, a good introductory application paper is:
+For social scientists, a good introductory application paper is @GoKi09b.
 
-Goodreau, S., J. Kitts and M. Morris (2009).
-Birds of a Feather, or Friend of a Friend? Using Statistical Network Analysis to Investigate Adolescent Social Networks.
-*Demography* 46(1): 103-125. [link](http://link.springer.com/article/10.1353/dem.0.0045)
+### Dealing with Model Degeneracy
 
+@Ha03a
 
-**Dealing with Model Degeneracy**
+@Sc11i
 
-Handcock MS (2003a). 
-"Assessing Degeneracy in Statistical Models of Social Networks."
-Working Paper 39, Center for Statistics and the Social Sciences, University of Washington. [link](https://csss.uw.edu/research/working-papers/assessing-degeneracy-statistical-models-social-networks)
+@SnPa06n
 
-Schweinberger, Michael (2011)  Instability, Sensitivity, and Degeneracy of Discrete Exponential Families  *JASA* 106(496): 1361-1370.  [link](http://www.tandfonline.com/doi/abs/10.1198/jasa.2011.tm10747#.U7M4A_ldWSo)
+@Hu07c
 
-Snijders, TAB et al (2006) 
-New Specifications For Exponential Random Graph Models  
-*Sociological Methodology* 36(1): 99-153  [link](http://onlinelibrary.wiley.com/doi/10.1111/j.1467-9531.2006.00176.x/abstract)
+### Temporal ERGMs
 
-Hunter, D. R. (2007). 
-Curved Exponential Family Models for Social Networks. 
-*Social Networks*, 29(2), 216-230.[link](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC2031865/)
+@KrHa14s
 
+### Egocentric ERGMS
 
-**Temporal ERGMs**
+@KrHa11a
 
-Krivitsky, P.N., Handcock, M.S,(2014).
-A separable model for dynamic networks
-*JRSS Series B-Statistical Methodology*, 76(1):29-46; 10.1111/rssb.12014 JAN 2014 [link](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3891677/)
+@KrMo17i
 
-Krivitsky, P. N., M. S. Handcock and M. Morris (2011). 
-Adjusting for Network Size and Composition Effects in Exponential-family Random Graph Models,
-*Statistical Methodology* 8(4): 319-339, ISSN 1572-3127  [link](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3117581/)
-
-**Egocentric ERGMS**
-
-Krivitsky, P. N., & Morris, M. (2017). 
-Inference for social network models from egocentrically sampled data, with application to understanding persistent racial disparities in HIV prevalence in the US. 
-*Annals of Applied Statistics*, 11(1), 427-455.[link](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5737754/)
-
+## References
