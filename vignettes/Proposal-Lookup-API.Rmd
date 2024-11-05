@@ -10,7 +10,7 @@ vignette: >
 
 # Summary
 
-This document describes the process by which `ergm` and related packages selects the MCMC proposal for a particular analysis. Note that it is not intended to be a tutorial as much as a description of what inputs and outputs different parts of the system expect. Nor does it cover the C API.
+This document describes the process by which `ergm` and related packages select the MCMC proposal for a particular analysis. Note that it is not intended to be a tutorial as much as a description of what inputs and outputs different parts of the system expect. Nor does it cover the C API.
 
 # Description
 
