@@ -10,4 +10,4 @@
 library(testthat)
 library(ergm)
 
-test_check("ergm")
+test_check("ergm", reporter = LocationReporter)
