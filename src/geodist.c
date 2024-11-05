@@ -7,7 +7,7 @@
  *
  *  Copyright 2003-2024 Statnet Commons
  */
-#include "geodist.h"
+#include "ergm_edgetree.h"
 
 /* The geodist functions are based on breadth-first search.
 
@@ -67,22 +67,23 @@ Main Loop:
  other functions.  Upon return, the value of dist[i-1] should equal 
  the geodesic length from the source node to node i, or nnodes if no 
  path connects these two nodes.  */
-void node_geodesics (int *edgelist, int *nnodes, int *nodelist,
-                     int *nedges, int *nodecolor, int *dist, 
-                     int *Q, int *source) {
-  int i, j, u, v, n=*nnodes, twoe = 2*(*nedges), Qbottom=0, Qtop=0;
+void node_geodesics (Vertex *edgelist, Vertex n, Vertex *nodelist,
+                     Edge nedges, unsigned int *workspace, int source) {
+  Vertex Qbottom=0, Qtop=0,
+    *dist = workspace, *nodecolor = dist + n, *Q = nodecolor + n;
+  Edge twoe = 2 * nedges;
 
-  for (i=0; i<n; i++) {
+  for (Vertex i=0; i<n; i++) {
     nodecolor[i]=0; /* WHITE */
     dist[i]=n; /* Here, n means infinity */
   }
-  nodecolor[*source-1]=1; /* NONWHITE */
-  dist[*source-1]=0; 
-  Q[Qtop++]=*source;  /* Push source onto top of queue */
+  nodecolor[source-1]=1; /* NONWHITE */
+  dist[source-1]=0;
+  Q[Qtop++]=source;  /* Push source onto top of queue */
   while (Qbottom<Qtop) {  /* Repeat until queue is empty */
-    u=Q[Qbottom++]; /* Pop vertex off bottom of queue (it must be NONWHITE) */
-    for (j=2*nodelist[u-1]; j<twoe && edgelist[j]==u; j+=2) {
-      v=edgelist[j+1];
+    Vertex u=Q[Qbottom++]; /* Pop vertex off bottom of queue (it must be NONWHITE) */
+    for (Vertex j=2*nodelist[u-1]; j<twoe && edgelist[j]==u; j+=2) {
+      Vertex v=edgelist[j+1];
       if (nodecolor[v-1]==0) { /* WHITE */
         nodecolor[v-1]=1; /* NONWHITE */
         dist[v-1] = dist[u-1]+1; /* Node v is one step farther than node u */
@@ -99,21 +100,27 @@ void node_geodesics (int *edgelist, int *nnodes, int *nodelist,
        geodist[0]: # node pairs at a distance of infinity
        geodist[i], i>0:  # node pairs at a distance of i
  Simple check:  The sum of the entries of geodist should equal n(n-1). */
-void full_geodesic_distribution (int *edgelist, int *nnodes,
-				 int *nodelist, int *nedges, 
-				 int *nodecolor, int *dist, int *Q,
-				 int *geodist) {
-  int i, j, n=*nnodes;
+SEXP full_geodesic_distribution (SEXP edgelist, SEXP nnodes,
+				 SEXP nodelist, SEXP nedges) {
+  Vertex n = asInteger(nnodes);
 
-  for(i=0; i<n; i++)
+  SEXP geodistR = PROTECT(allocVector(INTSXP, n));
+  unsigned int *geodist = (unsigned int *) INTEGER(geodistR),
+    *workspace = (unsigned int *) R_alloc(n*3, sizeof(int)); /* [dist, color, queue] */
+  memset(geodist, 0, n * sizeof(int));
+  memset(workspace, 0, n * 3 * sizeof(int));
+
+  for(unsigned int i=0; i<n; i++)
     geodist[i]=0;
   /* Rprintf("nnodes = %d, nedges = %d \n", n, *nedges); */
-  for(i=1; i<=n; i++) {
-    node_geodesics(edgelist, nnodes, nodelist, nedges, nodecolor, dist,
-		   Q, &i);
-    for(j=0; j<i-1; j++) 
-      ++geodist[dist[j]-1];
-    for(j=i; j<n; j++) 
-      ++geodist[dist[j]-1];
+  for(Vertex i=1; i<=n; i++) {
+    node_geodesics((Vertex *) INTEGER(edgelist), n, (Vertex *) INTEGER(nodelist), asInteger(nedges), workspace, i);
+    for(Vertex j=0; j<i-1; j++)
+      ++geodist[workspace[j]-1];
+    for(Vertex j=i; j<n; j++)
+      ++geodist[workspace[j]-1];
   }
+
+  UNPROTECT(1);
+  return geodistR;
 }

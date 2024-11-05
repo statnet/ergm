@@ -20,7 +20,7 @@ typedef struct WtModelTermstruct {
   void (*f_func)(struct WtModelTermstruct*, WtNetwork*);
   void (*s_func)(struct WtModelTermstruct*, WtNetwork*);
   SEXP (*w_func)(struct WtModelTermstruct*, WtNetwork*);  
-  void (*x_func)(unsigned int type, void *data, struct WtModelTermstruct*, WtNetwork*);
+  void (*x_func)(unsigned int, void *, struct WtModelTermstruct*, WtNetwork*);
   void (*z_func)(struct WtModelTermstruct*, WtNetwork*, Rboolean);
   double *attrib; /* Ptr to vector of covariates (if necessary; generally unused) */
   int *iattrib; /* Ptr to vector of integer covariates (if necessary; generally unused) */

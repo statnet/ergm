@@ -20,7 +20,7 @@ typedef struct ModelTermstruct {
   void (*f_func)(struct ModelTermstruct*, Network*);
   void (*s_func)(struct ModelTermstruct*, Network*);
   SEXP (*w_func)(struct ModelTermstruct*, Network*);  
-  void (*x_func)(unsigned int type, void *data, struct ModelTermstruct*, Network*);
+  void (*x_func)(unsigned int, void *, struct ModelTermstruct*, Network*);
   void (*z_func)(struct ModelTermstruct*, Network*, Rboolean);
   double *attrib; /* Ptr to vector of covariates (if necessary; generally unused) */
   int *iattrib; /* Ptr to vector of integer covariates (if necessary; generally unused) */

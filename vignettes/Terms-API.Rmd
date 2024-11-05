@@ -147,6 +147,12 @@ For curved terms, all of the following must be present except `cov`:
 
 `cov`: an optional arbitrary data structure that if present is passed to `map` and `gradient`.
 
+If the term has an extended state (such as used by the dynamic simulation of `tergm`), it should also provide the following:
+
+`ext.encode`: a function taking two arguments, `el` (an edge list) and `nw0` (a `network` without edges) and returning an arbitrary `R` data structure encoding the additional information about `nw0`.
+
+`ext.decode`: a function taking three arguments, an encoded extended state (typically created on the `C` side by the `w_` function), `el` (an edge list), and `nw0` (a `network` without edges) and returning a list with two elements: `el` with the updated edge list and `nw0` with the updated network.
+
 ### `C` side
 
 #### `ModelTerm` and `WtModelTerm` data structures
@@ -258,7 +264,7 @@ To request an auxiliary, a term's `InitErgmTerm` call's output list must include
 
 #### `i_` functions: Initializer/Constructor
 
-This function is optional for using storage: if it's not provided, the model code will call the `u_` function with an invalid toggle first, signaling for it to initialize.
+This function is optional for using storage: if it's not provided, the model code will call the `u_` function with an invalid toggle first, signaling for it to initialize. If the term makes use of the extended state API, it is also typically up to the `i_` function to decode the term's extended state created by `term$ext.encode()` into a useful `C` structure in its private or public storage.
 
 Binary: `void i_<NAME>(Model *mtp, Network *nwp)`
 
@@ -342,6 +348,14 @@ This interface is intended to be used by packages extending `ergm` to send arbit
 Binary: `void x_<NAME>(unsigned int type, void *data, Model *mtp, Network *nwp)`
 
 Valued: `void x_<NAME>(unsigned int type, void *data, Model *mtp, Network *nwp)`
+
+## `w_` functions: save extended state
+
+This interface is intended to be used by packages extending `ergm` to send information back other than the edge list back to `R`. For example, for dynamic simulation of temporal ERGMs, it is used to send back information about the last toggle time of each extant edge. It will typically encode the information in its private or public storage and return an `R` object that will be used by `term$ext.decode()` to update the template network `nw0` and edge list `el` of the `ergm_state`.
+
+Binary: `SEXP w_<NAME>(Model *mtp, Network *nwp)`
+
+Valued: `SEXP w_<NAME>(WtModel *mtp, WtNetwork *nwp)`
 
 ##### Expects
 

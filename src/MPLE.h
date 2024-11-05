@@ -16,6 +16,7 @@
 #include "ergm_rlebdm.h"
 #include "ergm_state.h"
 #include "ergm_khash.h"
+#include "ergm_kvec.h"
 
 typedef struct{
   int edges, nonedges;

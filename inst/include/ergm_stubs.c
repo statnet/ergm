@@ -67,14 +67,14 @@ static void (*fun)(DyadGen *) = NULL;
 if(fun==NULL) fun = (void (*)(DyadGen *)) R_FindSymbol("DyadGenDestroy", "ergm", NULL);
 fun(gen);
 }
-void DyadGenUpdate(Vertex tail, Vertex head, DyadGen *gen, Network *nwp, Rboolean edgestate){
-static void (*fun)(Vertex,Vertex,DyadGen *,Network *,Rboolean) = NULL;
-if(fun==NULL) fun = (void (*)(Vertex,Vertex,DyadGen *,Network *,Rboolean)) R_FindSymbol("DyadGenUpdate", "ergm", NULL);
+void DyadGenUpdate(Vertex tail, Vertex head, void *gen, Network *nwp, Rboolean edgestate){
+static void (*fun)(Vertex,Vertex,void *,Network *,Rboolean) = NULL;
+if(fun==NULL) fun = (void (*)(Vertex,Vertex,void *,Network *,Rboolean)) R_FindSymbol("DyadGenUpdate", "ergm", NULL);
 fun(tail,head,gen,nwp,edgestate);
 }
-void WtDyadGenUpdate(Vertex tail, Vertex head, double weight, DyadGen *gen, WtNetwork *nwp, double edgestate){
-static void (*fun)(Vertex,Vertex,double,DyadGen *,WtNetwork *,double) = NULL;
-if(fun==NULL) fun = (void (*)(Vertex,Vertex,double,DyadGen *,WtNetwork *,double)) R_FindSymbol("WtDyadGenUpdate", "ergm", NULL);
+void WtDyadGenUpdate(Vertex tail, Vertex head, double weight, void *gen, WtNetwork *nwp, double edgestate){
+static void (*fun)(Vertex,Vertex,double,void *,WtNetwork *,double) = NULL;
+if(fun==NULL) fun = (void (*)(Vertex,Vertex,double,void *,WtNetwork *,double)) R_FindSymbol("WtDyadGenUpdate", "ergm", NULL);
 fun(tail,head,weight,gen,nwp,edgestate);
 }
 
@@ -337,6 +337,16 @@ static int (*fun)(int) = NULL;
 if(fun==NULL) fun = (int (*)(int)) R_FindSymbol("GetIndexForAttrValue", "ergm", NULL);
 return fun(value);
 }
+void ChangeStatsDo(unsigned int ntoggles, Vertex *tails, Vertex *heads, Network *nwp, Model *m){
+static void (*fun)(unsigned int,Vertex *,Vertex *,Network *,Model *) = NULL;
+if(fun==NULL) fun = (void (*)(unsigned int,Vertex *,Vertex *,Network *,Model *)) R_FindSymbol("ChangeStatsDo", "ergm", NULL);
+fun(ntoggles,tails,heads,nwp,m);
+}
+void ChangeStatsUndo(unsigned int ntoggles, Vertex *tails, Vertex *heads, Network *nwp, Model *m){
+static void (*fun)(unsigned int,Vertex *,Vertex *,Network *,Model *) = NULL;
+if(fun==NULL) fun = (void (*)(unsigned int,Vertex *,Vertex *,Network *,Model *)) R_FindSymbol("ChangeStatsUndo", "ergm", NULL);
+fun(ntoggles,tails,heads,nwp,m);
+}
 void ChangeStats(unsigned int ntoggles, Vertex *tails, Vertex *heads, Network *nwp, Model *m){
 static void (*fun)(unsigned int,Vertex *,Vertex *,Network *,Model *) = NULL;
 if(fun==NULL) fun = (void (*)(unsigned int,Vertex *,Vertex *,Network *,Model *)) R_FindSymbol("ChangeStats", "ergm", NULL);
@@ -556,6 +566,16 @@ void WtModelDestroy(WtNetwork *nwp, WtModel *m){
 static void (*fun)(WtNetwork *,WtModel *) = NULL;
 if(fun==NULL) fun = (void (*)(WtNetwork *,WtModel *)) R_FindSymbol("WtModelDestroy", "ergm", NULL);
 fun(nwp,m);
+}
+void WtChangeStatsDo(unsigned int ntoggles, Vertex *tails, Vertex *heads, double *weights, WtNetwork *nwp, WtModel *m){
+static void (*fun)(unsigned int,Vertex *,Vertex *,double *,WtNetwork *,WtModel *) = NULL;
+if(fun==NULL) fun = (void (*)(unsigned int,Vertex *,Vertex *,double *,WtNetwork *,WtModel *)) R_FindSymbol("WtChangeStatsDo", "ergm", NULL);
+fun(ntoggles,tails,heads,weights,nwp,m);
+}
+void WtChangeStatsUndo(unsigned int ntoggles, Vertex *tails, Vertex *heads, double *weights, WtNetwork *nwp, WtModel *m){
+static void (*fun)(unsigned int,Vertex *,Vertex *,double *,WtNetwork *,WtModel *) = NULL;
+if(fun==NULL) fun = (void (*)(unsigned int,Vertex *,Vertex *,double *,WtNetwork *,WtModel *)) R_FindSymbol("WtChangeStatsUndo", "ergm", NULL);
+fun(ntoggles,tails,heads,weights,nwp,m);
 }
 void WtChangeStats(unsigned int ntoggles, Vertex *tails, Vertex *heads, double *weights, WtNetwork *nwp, WtModel *m){
 static void (*fun)(unsigned int,Vertex *,Vertex *,double *,WtNetwork *,WtModel *) = NULL;

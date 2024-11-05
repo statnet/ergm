@@ -57,9 +57,9 @@ typedef struct MHProposalstruct {
   SEXP R;
   void (*i_func)(struct MHProposalstruct*, Network*);
   void (*p_func)(struct MHProposalstruct*, Network*);
-  void (*u_func)(Vertex tail, Vertex head, struct MHProposalstruct*, Network*, Rboolean);
+  void (*u_func)(Vertex, Vertex, struct MHProposalstruct*, Network*, Rboolean);
   void (*f_func)(struct MHProposalstruct*, Network*);
-  void (*x_func)(unsigned int type, void *data, struct MHProposalstruct*, Network*);
+  void (*x_func)(unsigned int, void *, struct MHProposalstruct*, Network*);
   Edge ntoggles;
   Vertex *toggletail;
   Vertex *togglehead;

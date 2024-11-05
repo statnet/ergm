@@ -57,9 +57,9 @@ typedef struct WtMHProposalstruct {
   SEXP R;
   void (*i_func)(struct WtMHProposalstruct*, WtNetwork*);
   void (*p_func)(struct WtMHProposalstruct*, WtNetwork*);
-  void (*u_func)(Vertex tail, Vertex head, double weight, struct WtMHProposalstruct*, WtNetwork*);
+  void (*u_func)(Vertex, Vertex, double, struct WtMHProposalstruct*, WtNetwork*, double);
   void (*f_func)(struct WtMHProposalstruct*, WtNetwork*);
-  void (*x_func)(unsigned int type, void *data, struct WtMHProposalstruct*, WtNetwork*);
+  void (*x_func)(unsigned int, void *, struct WtMHProposalstruct*, WtNetwork*);
   Edge ntoggles;
   Vertex *toggletail;
   Vertex *togglehead;
@@ -88,7 +88,7 @@ void WtMHProposalDestroy(WtMHProposal *MH, WtNetwork *nwp);
 #define Mweight (MHp->toggleweight)
 
 #define WtMH_I_FN(a) void (a) (WtMHProposal *MHp, WtNetwork *nwp)
-#define WtMH_U_FN(a) void (a) (Vertex tail, Vertex head, double weight, WtMHProposal *MHp, WtNetwork *nwp)
+#define WtMH_U_FN(a) void (a) (Vertex tail, Vertex head, double weight, WtMHProposal *MHp, WtNetwork *nwp, double edgestate)
 #define WtMH_P_FN(a) void (a) (WtMHProposal *MHp, WtNetwork *nwp)
 #define WtMH_F_FN(a) void (a) (WtMHProposal *MHp, WtNetwork *nwp)
 #define WtMH_X_FN(a) void (a) (unsigned int type, void *data, WtMHProposal* MHp, WtNetwork* nwp)

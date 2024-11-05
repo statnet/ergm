@@ -11,6 +11,10 @@
 #include "ergm_changestat.h"
 #include "ergm_Rutil.h"
 
+void OnNetworkEdgeChangeMUWrap(Vertex tail, Vertex head, void *MHp, Network *nwp, Rboolean edgestate){
+  ((MHProposal *) MHp)->u_func(tail, head, MHp, nwp, edgestate);
+}
+
 /*********************
  void MHProposalInitialize
 
@@ -51,11 +55,11 @@ MHProposal *MHProposalInitialize(SEXP pR, Network *nwp, void **aux_storage){
   fn[1] = 'i';
   MHp->i_func=(void (*)(MHProposal*, Network*)) R_FindSymbol(fn,sn,NULL);
   fn[1] = 'u';
-  MHp->u_func=(void (*)(Vertex tail, Vertex head, MHProposal*, Network*, Rboolean)) R_FindSymbol(fn,sn,NULL);
+  MHp->u_func=(void (*)(Vertex, Vertex, MHProposal*, Network*, Rboolean)) R_FindSymbol(fn,sn,NULL);
   fn[1] = 'f';
   MHp->f_func=(void (*)(MHProposal*, Network*)) R_FindSymbol(fn,sn,NULL);
   fn[1] = 'x';
-  MHp->x_func=(void (*)(unsigned int type, void *data, MHProposal*, Network*)) R_FindSymbol(fn,sn,NULL);
+  MHp->x_func=(void (*)(unsigned int, void *, MHProposal*, Network*)) R_FindSymbol(fn,sn,NULL);
 
   SEXP tmp = getListElement(pR, "inputs");
   MHp->inputs=length(tmp) ? REAL(tmp) : NULL;
@@ -91,7 +95,7 @@ MHProposal *MHProposalInitialize(SEXP pR, Network *nwp, void **aux_storage){
   MHp->togglehead = (Vertex *)R_Calloc(MHp->ntoggles, Vertex);
 
   if(MHp->u_func){
-    AddOnNetworkEdgeChange(nwp, (OnNetworkEdgeChange) MHp->u_func, MHp, 0); // Need to insert at the start.
+    AddOnNetworkEdgeChange(nwp, OnNetworkEdgeChangeMUWrap, MHp, 0); // Need to insert at the start.
   }
 
   return MHp;
@@ -104,7 +108,7 @@ MHProposal *MHProposalInitialize(SEXP pR, Network *nwp, void **aux_storage){
 *********************/
 void MHProposalDestroy(MHProposal *MHp, Network *nwp){
   if(!MHp) return;
-  if(MHp->u_func) DeleteOnNetworkEdgeChange(nwp, (OnNetworkEdgeChange) MHp->u_func, MHp);
+  if(MHp->u_func) DeleteOnNetworkEdgeChange(nwp, OnNetworkEdgeChangeMUWrap, MHp);
   if(MHp->f_func) (*(MHp->f_func))(MHp, nwp);
   if(MHp->storage){
     R_Free(MHp->storage);

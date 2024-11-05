@@ -12,6 +12,10 @@
 #include "ergm_omp.h"
 #include "ergm_util.h"
 
+void OnWtNetworkEdgeChangeUWrap(Vertex tail, Vertex head, double weight, void *mtp, WtNetwork *nwp, double edgestate){
+  ((WtModelTerm *) mtp)->u_func(tail, head, weight, mtp, nwp, edgestate);
+}
+
 /*
   WtInitStats
   A helper's helper function to initialize storage for functions that use it.
@@ -56,7 +60,7 @@ static inline void WtInitStats(WtNetwork *nwp, WtModel *m){
       }
       // Now, bind the term to the network through the callback API.
       if(mtp->u_func && (!m->noinit_s || !mtp->s_func)) // Skip if noinit_s is set and s_func is present.
-        AddOnWtNetworkEdgeChange(nwp, (OnWtNetworkEdgeChange) mtp->u_func, mtp, on_edge_change_pos);
+        AddOnWtNetworkEdgeChange(nwp, OnWtNetworkEdgeChangeUWrap, mtp, on_edge_change_pos);
     });
 }
 
@@ -69,7 +73,7 @@ static inline void WtDestroyStats(WtNetwork *nwp, WtModel *m){
   WtEXEC_THROUGH_TERMS(m, {
       if(!m->noinit_s || !mtp->s_func){ // Skip if noinit_s is set and s_func is present.
         if(mtp->u_func)
-          DeleteOnWtNetworkEdgeChange(nwp, (OnWtNetworkEdgeChange) mtp->u_func, mtp);
+          DeleteOnWtNetworkEdgeChange(nwp, OnWtNetworkEdgeChangeUWrap, mtp);
         if(mtp->f_func)
           (*(mtp->f_func))(mtp, nwp);  /* Call f_??? function */
       }
@@ -315,13 +319,8 @@ WtModel* WtModelInitialize (SEXP mR, SEXP ext_state, WtNetwork *nwp, Rboolean no
   return m;
 }
 
-/*
-  WtChangeStats
-  A helper's helper function to compute change statistics.
-  The vector of changes is written to m->workspace.
-*/
-void WtChangeStats(unsigned int ntoggles, Vertex *tails, Vertex *heads, double *weights,
-				 WtNetwork *nwp, WtModel *m){
+void WtChangeStatsDo(unsigned int ntoggles, Vertex *tails, Vertex *heads, double *weights,
+                   WtNetwork *nwp, WtModel *m){
   memset(m->workspace, 0, m->n_stats*sizeof(double)); /* Zero all change stats. */ 
 
   /* Make a pass through terms with d_functions. */
@@ -365,12 +364,28 @@ void WtChangeStats(unsigned int ntoggles, Vertex *tails, Vertex *heads, double *
       SETWT_WITH_BACKUP();
     }
   }
-  /* Undo previous storage updates and toggles */
+}
+
+
+void WtChangeStatsUndo(unsigned int ntoggles, Vertex *tails, Vertex *heads, double *weights,
+                       WtNetwork *nwp, WtModel *m){
   UNDO_PREVIOUS{
     GETOLDTOGGLEINFO();
     SETWT(TAIL,HEAD,weights[TOGGLEIND]);
     weights[TOGGLEIND]=OLDWT;
   }
+}
+
+
+/*
+  WtChangeStats
+  A helper's helper function to compute change statistics.
+  The vector of changes is written to m->workspace.
+*/
+void WtChangeStats(unsigned int ntoggles, Vertex *tails, Vertex *heads, double *weights,
+				 WtNetwork *nwp, WtModel *m){
+  WtChangeStatsDo(ntoggles, tails, heads, weights, nwp, m);
+  WtChangeStatsUndo(ntoggles, tails, heads, weights, nwp, m);
 }
 
 /*

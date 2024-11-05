@@ -10,6 +10,10 @@
 #include "ergm_wtMHproposal.h"
 #include "ergm_Rutil.h"
 
+void OnWtNetworkEdgeChangeMUWrap(Vertex tail, Vertex head, double weight, void *MHp, WtNetwork *nwp, double edgestate){
+  ((WtMHProposal *) MHp)->u_func(tail, head, weight, MHp, nwp, edgestate);
+}
+
 /*********************
  void WtMHProposalInitialize
 
@@ -50,11 +54,11 @@ WtMHProposal *WtMHProposalInitialize(SEXP pR, WtNetwork *nwp, void **aux_storage
   fn[1] = 'i';
   MHp->i_func=(void (*)(WtMHProposal*, WtNetwork*)) R_FindSymbol(fn,sn,NULL);
   fn[1] = 'u';
-  MHp->u_func=(void (*)(Vertex tail, Vertex head, double weight, WtMHProposal*, WtNetwork*)) R_FindSymbol(fn,sn,NULL);
+  MHp->u_func=(void (*)(Vertex, Vertex, double, WtMHProposal*, WtNetwork*, double)) R_FindSymbol(fn,sn,NULL);
   fn[1] = 'f';
   MHp->f_func=(void (*)(WtMHProposal*, WtNetwork*)) R_FindSymbol(fn,sn,NULL);
   fn[1] = 'x';
-  MHp->x_func=(void (*)(unsigned int type, void *data, WtMHProposal*, WtNetwork*)) R_FindSymbol(fn,sn,NULL);
+  MHp->x_func=(void (*)(unsigned int, void *, WtMHProposal*, WtNetwork*)) R_FindSymbol(fn,sn,NULL);
 
   SEXP tmp = getListElement(pR, "inputs");
   MHp->inputs=length(tmp) ? REAL(tmp) : NULL;
@@ -92,7 +96,7 @@ WtMHProposal *WtMHProposalInitialize(SEXP pR, WtNetwork *nwp, void **aux_storage
   MHp->toggleweight = (double *)R_Calloc(MHp->ntoggles, double);
 
   if(MHp->u_func){
-    AddOnWtNetworkEdgeChange(nwp, (OnWtNetworkEdgeChange) MHp->u_func, MHp, 0); // Need to insert at the start.
+    AddOnWtNetworkEdgeChange(nwp, OnWtNetworkEdgeChangeMUWrap, MHp, 0); // Need to insert at the start.
   }
 
   return MHp;
@@ -105,7 +109,7 @@ WtMHProposal *WtMHProposalInitialize(SEXP pR, WtNetwork *nwp, void **aux_storage
 *********************/
 void WtMHProposalDestroy(WtMHProposal *MHp, WtNetwork *nwp){
   if(!MHp) return;
-  if(MHp->u_func) DeleteOnWtNetworkEdgeChange(nwp, (OnWtNetworkEdgeChange) MHp->u_func, MHp);
+  if(MHp->u_func) DeleteOnWtNetworkEdgeChange(nwp, OnWtNetworkEdgeChangeMUWrap, MHp);
   if(MHp->f_func) (*(MHp->f_func))(MHp, nwp);
   if(MHp->storage){
     R_Free(MHp->storage);

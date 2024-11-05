@@ -15,17 +15,12 @@
 KHASH_INIT(DVecMapUInt, double*, unsigned int, true, kh_DVec_hash_func, kh_DVec_hash_equal, size_t l;)
 typedef khash_t(DVecMapUInt) StoreDVecMapUInt;
 
-static double **allstats_workspace = NULL;
+static kvec_t(double*) allstats_workspace = kv_blank;
 static StoreDVecMapUInt *allstats_freq = NULL;
-static khint_t allstats_nalloc = 0;
-static khint_t allstats_nalloc_max = 0;
 
 // TODO: Consider preallocating space for these vectors parcelling them out.
 static inline double *allstats_workspace_push(double *ptr){
-  if(allstats_nalloc == allstats_nalloc_max)
-    allstats_workspace = R_Realloc(allstats_workspace, (allstats_nalloc_max = MAX(allstats_nalloc_max, 1u) * 2u), double*);
-
-  allstats_workspace[allstats_nalloc++] = ptr;
+  kv_push(double*, allstats_workspace, ptr);
   return ptr;
 }
 
@@ -35,11 +30,10 @@ SEXP allstats_workspace_free(void){
     allstats_freq = NULL;
   }
 
-  if(allstats_workspace){
-    for(unsigned int i = 0; i < allstats_nalloc; i++) R_Free(allstats_workspace[i]);
-    R_Free(allstats_workspace);
-    allstats_nalloc_max = allstats_nalloc = 0;
-  }
+  if(kv_size(allstats_workspace))
+    for(unsigned int i = 0; i < kv_size(allstats_workspace); i++)
+      R_Free(kv_A(allstats_workspace, i));
+  kv_destroy(allstats_workspace);
 
   return R_NilValue;
 }

@@ -68,8 +68,8 @@ int main() {
 
 */
 
-#ifndef _AC_KVEC_H_
-#define _AC_KVEC_H_
+#ifndef _ERGM_KVEC_H_
+#define _ERGM_KVEC_H_
 
 #include <R.h>
 
@@ -78,7 +78,7 @@ int main() {
 #define kvec_t(type) struct { size_t n, m; type *a; }
 #define kv_init(v) ((v).n = (v).m = 0, (v).a = NULL) // Not necessary if the data structure is calloc()ed.
 #define kv_blank {.n = 0, .m = 0, .a = NULL}
-#define kv_destroy(v) R_Free((v).a)
+#define kv_destroy(v) {R_Free((v).a); (v).n = (v).m = 0;}
 #define kv_A(v, i) ((v).a[(i)])
 #define kv_pop(v) ((v).a[--(v).n])
 #define kv_size(v) ((v).n)

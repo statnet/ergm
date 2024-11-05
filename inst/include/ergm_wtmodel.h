@@ -98,6 +98,8 @@ void WtModelDestroy(WtNetwork *nwp, WtModel *m);
    total numbers of terms, parameters, and statistics along with a pointer
    to an array of WtModelTerm structures.  */
 
+void WtChangeStatsDo(unsigned int ntoggles, Vertex *tails, Vertex *heads, double *weights, WtNetwork *nwp, WtModel *m);
+void WtChangeStatsUndo(unsigned int ntoggles, Vertex *tails, Vertex *heads, double *weights, WtNetwork *nwp, WtModel *m);
 void WtChangeStats(unsigned int ntoggles, Vertex *tails, Vertex *heads, double *weights, WtNetwork *nwp, WtModel *m);
 void WtChangeStats1(Vertex tail, Vertex head, double weight, WtNetwork *nwp, WtModel *m, double edgestate);
 void WtZStats(WtNetwork *nwp, WtModel *m, Rboolean skip_s);

@@ -103,6 +103,8 @@ int GetIndexForAttrValue(int value);
 
 /* *** don't forget tail-> head, so this function accepts toggletail first, not togglehead  */
 
+void ChangeStatsDo(unsigned int ntoggles, Vertex *tails, Vertex *heads, Network *nwp, Model *m);
+void ChangeStatsUndo(unsigned int ntoggles, Vertex *tails, Vertex *heads, Network *nwp, Model *m);
 void ChangeStats(unsigned int ntoggles, Vertex *tails, Vertex *heads, Network *nwp, Model *m);
 void ChangeStats1(Vertex tail, Vertex head, Network *nwp, Model *m, Rboolean edgestate);
 void ZStats(Network *nwp, Model *m, Rboolean skip_s);

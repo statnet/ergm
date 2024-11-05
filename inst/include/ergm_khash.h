@@ -123,8 +123,8 @@ int main() {
 */
 
 
-#ifndef __AC_KHASH_H
-#define __AC_KHASH_H
+#ifndef _ERGM_KHASH_H_
+#define _ERGM_KHASH_H_
 
 /*!
   @header
@@ -771,4 +771,4 @@ typedef const char *kh_cstr_t;
     }								\
   }
 
-#endif /* __AC_KHASH_H */
+#endif /* _ERGM_KHASH_H_ */

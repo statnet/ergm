@@ -105,13 +105,12 @@ ergm.geodistn <- function(edgelist, n=max(edgelist), directed=FALSE) {
 # convention, we want nodelist[1]=0 and in general, nodelist[i]=2*r(i)-2,
 # where r(i) is the first row in edgelist containing from node i.  (If
 # there are no edges from node i, just set nodelist[i]=0.)
-  nodelist<-match(1:n,edgelist[,1],nomatch=1)-1
+  nodelist<-match(1:n,edgelist[,1],nomatch=1L)-1L
   
 # Now everything is ready.  Call the C code.
-  ans<-.C("full_geodesic_distribution", as.integer(t(edgelist)),
-    as.integer(n), as.integer(nodelist), as.integer(dim(edgelist)[1]),
-    colors=integer(n), distances=integer(n), queue=integer(n),
-    distribution=integer(n), PACKAGE='ergm') $ distribution
+  ans<-.Call("full_geodesic_distribution", as.integer(t(edgelist)),
+             as.integer(n), as.integer(nodelist), as.integer(dim(edgelist)[1]),
+             PACKAGE='ergm')
   names(ans)<-c(1:(n-1),"Inf") # length n really means no path exists
   ans
 }

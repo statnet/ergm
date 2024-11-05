@@ -229,7 +229,7 @@ MCMCStatus DISPATCH_MetropolisHastings (DISPATCH_ErgmState *s,
 
     /* Calculate change statistics,
        remembering that tail -> head */
-    PROP_CHANGESTATS;
+    PROP_CHANGESTATS_DO;
 
     if(verbose>=5) print_vector("stat diff", m->workspace, m->n_stats);
 
@@ -251,8 +251,8 @@ MCMCStatus DISPATCH_MetropolisHastings (DISPATCH_ErgmState *s,
 	Rprintf("Accepted.\n");
       }
 
-      /* Make proposed toggles (updating timestamps--i.e., for real this time) */
-      for(unsigned int i=0; i < MHp->ntoggles; i++) PROP_COMMIT;
+      /* Make the last (or sole) toggle. */
+      PROP_FINISH;
       /* record network statistics for posterity */
       addonto(networkstatistics, m->workspace, m->n_stats);
       taken++;
@@ -260,6 +260,8 @@ MCMCStatus DISPATCH_MetropolisHastings (DISPATCH_ErgmState *s,
       if(verbose>=5){
 	Rprintf("Rejected.\n");
       }
+
+      PROP_CHANGESTATS_UNDO;
     }
   }
 

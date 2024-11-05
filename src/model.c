@@ -12,6 +12,10 @@
 #include "ergm_omp.h"
 #include "ergm_util.h"
 
+void OnNetworkEdgeChangeUWrap(Vertex tail, Vertex head, void *mtp, Network *nwp, Rboolean edgestate){
+  ((ModelTerm *) mtp)->u_func(tail, head, mtp, nwp, edgestate);
+}
+
 /*
   InitStats
   A helper's helper function to initialize storage for functions that use it.
@@ -56,7 +60,7 @@ static inline void InitStats(Network *nwp, Model *m){
       }
       // Now, bind the term to the network through the callback API.
       if(mtp->u_func && (!m->noinit_s || !mtp->s_func)) // Skip if noinit_s is set and s_func is present.
-        AddOnNetworkEdgeChange(nwp, (OnNetworkEdgeChange) mtp->u_func, mtp, on_edge_change_pos);
+        AddOnNetworkEdgeChange(nwp, OnNetworkEdgeChangeUWrap, mtp, on_edge_change_pos);
     });
 }
 
@@ -69,7 +73,7 @@ static inline void DestroyStats(Network *nwp, Model *m){
   EXEC_THROUGH_TERMS(m, {
       if(!m->noinit_s || !mtp->s_func){ // Skip if noinit_s is set and s_func is present.
         if(mtp->u_func)
-          DeleteOnNetworkEdgeChange(nwp, (OnNetworkEdgeChange) mtp->u_func, mtp);
+          DeleteOnNetworkEdgeChange(nwp, OnNetworkEdgeChangeUWrap, mtp);
         if(mtp->f_func)
           (*(mtp->f_func))(mtp, nwp);  /* Call f_??? function */
       }
@@ -313,13 +317,8 @@ Model* ModelInitialize(SEXP mR, SEXP ext_state, Network *nwp, Rboolean noinit_s)
   return m;
 }
 
-/*
-  ChangeStats
-  A helper's helper function to compute change statistics.
-  The vector of changes is written to m->workspace.
-*/
-void ChangeStats(unsigned int ntoggles, Vertex *tails, Vertex *heads,
-				 Network *nwp, Model *m){
+void ChangeStatsDo(unsigned int ntoggles, Vertex *tails, Vertex *heads,
+                   Network *nwp, Model *m){
   memset(m->workspace, 0, m->n_stats*sizeof(double)); /* Zero all change stats. */ 
 
   /* Make a pass through terms with d_functions. */
@@ -364,15 +363,30 @@ void ChangeStats(unsigned int ntoggles, Vertex *tails, Vertex *heads,
       TOGGLE_KNOWN(tails[toggle],heads[toggle], edgestate);
     }
   }
-  /* Undo previous storage updates and toggles */
+}
+
+void ChangeStatsUndo(unsigned int ntoggles, Vertex *tails, Vertex *heads,
+                     Network *nwp, Model *m){
+  int toggle = ntoggles;
   UNDO_PREVIOUS(toggle){
     TOGGLE(tails[toggle],heads[toggle]);
   }
 }
 
 /*
+  ChangeStats
+  A helper's helper function to compute change statistics.
+  The vector of changes is written to m->workspace.
+*/
+void ChangeStats(unsigned int ntoggles, Vertex *tails, Vertex *heads,
+                 Network *nwp, Model *m){
+  ChangeStatsDo(ntoggles, tails, heads, nwp, m);
+  ChangeStatsUndo(ntoggles, tails, heads, nwp, m);
+}
+
+/*
   ChangeStats1
-  A simplified version of WtChangeStats for exactly one change.
+  A simplified version of ChangeStats for exactly one change.
 */
 void ChangeStats1(Vertex tail, Vertex head,
                   Network *nwp, Model *m, Rboolean edgestate){

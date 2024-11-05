@@ -36,3 +36,7 @@ The callback API provides a way for a `Network` structure to signal precisely wh
 `void AddOnNetworkEdgeChange(Network *nwp, OnNetworkEdgeChange u_func, void *payload, unsigned int pos)` and `void AddOnWtNetworkEdgeChange(WtNetwork *nwp, OnWtNetworkEdgeChange u_func, void *payload, unsigned int pos)`: Set a callback `u_func` to be called with argument `payload` whenever an edge in `nwp` is changed. Its position in the list (i.e., the order in which it is called) is set to be `pos` (with large `pos` truncated to indicate the last position).
 
 `void DeleteOnNetworkEdgeChange(Network *nwp, OnNetworkEdgeChange u_func, void *payload)` and `void DeleteOnWtNetworkEdgeChange(WtNetwork *nwp, OnWTNetworkEdgeChange u_func, void *payload)`: Search the list of `nwp`'s callbacks for `u_func` and `payload` and delete the callback when it is found. (If it is not found, an immediate error is raised.)
+
+## NB: Undefined Behaviour Sanitisers
+
+Whereas before, it was possible to define a `u_func` with a specific payload type, e.g., `void u_myterm(Vertex tail, Vertex head, ModelTerm *mtp, Network *nwp)`, this will now trigger a warning by `clang-asan`, since the function signature expected will be different (i.e., `ModelTerm *` vs. `void *`). Terms and proposals therefore wrap their `u` functions, so this should be transparent to the developer, but anyone else using the API should be aware of this.
