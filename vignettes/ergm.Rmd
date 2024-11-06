@@ -371,7 +371,7 @@ $-2.59 + 0.01*(146+146) = 0.33$
 $-2.59 + 0.01*(146+3) = -1.1$
 * The corresponding probabilities are 0.07, 0.58, and 0.25.
 
-This model specification does not include a term for homophily by wealth, i.e., a term accounting for similarity in wealth of the two end nodes of a potential tie.  It just specifies a relation between wealth and mean degree.  To specify homophily on wealth, you could use the `ergm` term `absdiff`. [See section 3 below for more information on avaiable model terms.](model-terms-available-for-ergm-estimation-and-simulation)
+This model specification does not include a term for homophily by wealth, i.e., a term accounting for similarity in wealth of the two end nodes of a potential tie.  It just specifies a relation between wealth and mean degree.  To specify homophily on wealth, you could use the `ergm` term `absdiff`.
 
 #### Nodal covariates:  Homophily
 
