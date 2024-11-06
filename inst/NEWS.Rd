@@ -66,7 +66,7 @@
 
 
 
-\section{Changes in version 4.7.3}{
+\section{Changes in version 4.7.4}{
 
   \subsection{NEW FEATURES}{
     \itemize{
