@@ -103,12 +103,10 @@ where $p$ is the number of terms in the model.  From this one can more easily ob
 The statistics $g(y)$ can be thought of as the "covariates" in the model.  In the network modeling context, these represent network features like density, homophily, triads, etc.  In one sense, they are like covariates you might use in other statistical models.  But they are different in one important respect:  these $g(y)$ statistics are functions of the network itself -- each is defined by the frequency of a specific configuration of dyads observed in the network -- so they are not measured by a question you include in a survey (e.g., the income of a node), but instead need to be computed on the specific network you have, after you have collected the data.
 
 As a result, every term in an ERGM must have an associated algorithm for computing its value for your network.  The `ergm` package in `statnet` includes about 150 term-computing algorithms.  We will explore some of these terms in this 
-tutorial, and links to more information are provided in 
-[section 3](#model-terms-available-for-ergm-estimation-and-simulation).
-
+tutorial.
 You can get the list of all available terms, and the syntax for using them, by typing:
 ```{r, eval=FALSE}
-ergmTerm
+? ergmTerm
 ```
 and you can look up help for a specific term, say, `edges`, by typing:
 ```{r, eval=FALSE}
@@ -132,6 +130,23 @@ One key distinction in model terms is worth keeping in mind:  terms are either _
 * Dyad _dependent_ terms (like degree terms, or triad terms), by contrast, imply dependence between dyads.  Such terms have very different effects, and much of what is different about network models comes from these terms.  They introduce complex cascading effects that can often lead to counter-intuitive and highly non-linear outcomes.  In addition, a model with dyad dependent terms requires a different estimation algorithm, so when we use them below you will see some different components in the output.
 
 An overview and discussion of many of these terms can be found in @MoHa08s.
+
+#### Coding new `ergm` terms
+
+There is a `statnet` package --- `ergm.userterms` ---
+that facilitates the writing of new
+`ergm` terms. The package is available [on GitHub](https://github.com/statnet/ergm.userterms), and installing it will
+include the tutorial (ergmuserterms.pdf).  The tutorial can
+also be found in @HuGo13e,
+and some introductory slides and installation instructions from the workshop
+we teach on coding `ergm` terms can be found
+[here](https://statnet.org/workshops/). For the most recent API available for implementing terms, see the Terms API vignette.
+
+Note that writing up new `ergm` terms requires some knowledge of
+C and the ability
+to build R from source.  While the latter is covered in the tutorial,
+the many environments for building R and the rapid changes in
+these environments make these instructions obsolete quickly.
 
 #### ERGM probabilities: at the tie-level
 
@@ -475,43 +490,6 @@ It's a small difference in this case (and a small network, with little missing d
 
 MORAL:  If you have missing data on ties, be sure to identify them by assigning the "NA" code.  This is particularly important if you're reading in data as an edgelist, as all dyads without edges are implicitly set to "0" in this case.
 
-
-## 3. Model terms available for *ergm* estimation and simulation
-
-Model terms are the expressions (e.g. "triangle")
-used to represent predictors on the right-hand size of equations used
-in:
-
-* calls to `summary` (to obtain measurements of network statistics
-on a dataset)
-* calls to `ergm` (to estimate an ergm model)
-* calls to `simulate` (to simulate networks from an ergm model
-fit)
-
-Because these terms are not exogeneous measures, but functions of
-the dyad states in the network, they must be calculated for
-the network that is being modeled.
-Many ERGM terms are simple counts of configurations (e.g., edges, nodal degrees, stars, triangles), but others are more complex functions of these configurations (e.g., geometrically weighted degrees and shared partners).  In theory, any configuration (or function of configurations) can be a term in an ERGM.  In practice, however, these terms have to be constructed before they can be used---that is, one has to explicitly write an algorithm that defines and calculates the network statistic of interest.  This is another key way that ERGMs differ from traditional linear and general linear models.
-
-The terms that can be used in a model also depend on the type of network being analyzed:  directed or undirected, one-mode or two-mode ("bipartite"), binary or valued edges.
-
-
-### Coding new `ergm` terms
-
-There is a `statnet` package --- `ergm.userterms` ---
-that facilitates the writing of new
-`ergm` terms. The package is available [on GitHub](https://github.com/statnet/ergm.userterms), and installing it will
-include the tutorial (ergmuserterms.pdf).  The tutorial can 
-also be found in @HuGo13e, 
-and some introductory slides and installation instructions from the workshop 
-we teach on coding `ergm` terms can be found
-[here](https://statnet.org/workshops/). For the most recent API available for implementing terms, see the Terms API vignette.
-
-Note that writing up new `ergm` terms requires some knowledge of 
-C and the ability
-to build R from source.  While the latter is covered in the tutorial, 
-the many environments for building R and the rapid changes in 
-these environments make these instructions obsolete quickly. 
  
 ## 4. Assessing convergence for dyad dependent models: MCMC Diagnostics
 
@@ -630,7 +608,7 @@ never produce an interesting network with this density -- this
 is what we call "model degneracy."
 
 For more detailed discussion of model degeneracy in the ERGM context,
-see the papers by Mark Handcock referenced [below.](References)
+see @Ha03a, @SnPa06n, and @Sc11i.
 
 In that worst case scenario, we end up not being able to obtain coefficent estimates, so we can't use the GOF function to identify how the model simulations deviate from the observed data.  We can, however, still use the MCMC diagnostics to observe what is happening with the simulation algorithm, and this (plus some experience and intuition about the behavior of `ergm` terms) can help us improve the model specification.
 
