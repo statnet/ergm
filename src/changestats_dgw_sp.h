@@ -24,11 +24,11 @@
 
 
 #define call_subroutine_path(count, subroutine_path)    \
-  {int L = (count);                                     \
+  {int L2 = (L2 ## count);                              \
     {subroutine_path}}
 
 #define call_subroutine_focus(count, subroutine_focus)  \
-  {int L = (count);                                     \
+  {int L2 = (L2 ## count);                              \
     {subroutine_focus}}
 
 
@@ -47,7 +47,7 @@
   This function will only work properly with undirected graphs, and should only be called in that case.
 */
 
-#define dspUTP_change(L, subroutine_path, subroutine_focus)     \
+#define dspUTP_change(subroutine_path, subroutine_focus)        \
   /* step through edges of head */                              \
   EXEC_THROUGH_EDGES(head,e,u, {                                \
       if (u!=tail){                                             \
@@ -60,7 +60,7 @@
               if(IS_UNDIRECTED_EDGE(v,tail)!= 0) L2tu++;        \
             });                                                 \
         }                                                       \
-        call_subroutine_path(L2tu, subroutine_path);            \
+        call_subroutine_path(tu, subroutine_path);              \
       }                                                         \
     });                                                         \
   EXEC_THROUGH_EDGES(tail,e,u, {                                \
@@ -74,7 +74,7 @@
               if(IS_UNDIRECTED_EDGE(v,head)!= 0) L2uh++;        \
             });                                                 \
         }                                                       \
-        call_subroutine_path(L2uh, subroutine_path);            \
+        call_subroutine_path(uh, subroutine_path);              \
       }                                                         \
     });
 
@@ -85,12 +85,12 @@
   This function should only be used in the directed case
 */
 
-#define dspOTP_change(L, subroutine_path, subroutine_focus)             \
+#define dspOTP_change(subroutine_path, subroutine_focus)                \
   /* step through outedges of head (i.e., k: t->k)*/                    \
   EXEC_THROUGH_OUTEDGES(head, e, k, {                                   \
       if(k!=tail){ /*Only use contingent cases*/                        \
         int L2tk;                                                       \
-        if(spcache) L2tk = GETDDMUI(tail,k,spcache);                     \
+        if(spcache) L2tk = GETDDMUI(tail,k,spcache);                    \
 	else{                                                           \
 	  L2tk=0;                                                       \
 	  /* step through inedges of k, incl. (head,k) itself */        \
@@ -98,14 +98,14 @@
 	      L2tk+=IS_OUTEDGE(tail,u); /*Increment if there is a trans edge*/ \
 	    });                                                         \
 	}                                                               \
-        call_subroutine_path(L2tk, subroutine_path);                    \
+        call_subroutine_path(tk, subroutine_path);                      \
       }                                                                 \
     });                                                                 \
   /* step through inedges of tail (i.e., k: k->t)*/                     \
   EXEC_THROUGH_INEDGES(tail, e, k, {                                    \
       if (k!=head){ /*Only use contingent cases*/                       \
         int L2kh;                                                       \
-	if(spcache) L2kh = GETDDMUI(k,head,spcache);                     \
+	if(spcache) L2kh = GETDDMUI(k,head,spcache);                    \
 	else{                                                           \
 	  L2kh=0;                                                       \
 	  /* step through outedges of k , incl. (k,tail) itself */      \
@@ -113,7 +113,7 @@
 	      L2kh+=IS_OUTEDGE(u,head); /*Increment if there is a trans edge*/ \
 	    });                                                         \
 	}                                                               \
-        call_subroutine_path(L2kh, subroutine_path);                    \
+        call_subroutine_path(kh, subroutine_path);                      \
       }                                                                 \
     });
 
@@ -129,7 +129,7 @@
 
   We assume that this is only called for directed graphs - otherwise, use the baseline espUTP function.
 */
-#define dspITP_change(L, subroutine_path, subroutine_focus)             \
+#define dspITP_change(subroutine_path, subroutine_focus)                \
   /* step through outedges of head (i.e., k: h->k)*/                    \
   EXEC_THROUGH_OUTEDGES(head, e, k, {                                   \
       if((k!=tail)){ /*Only use contingent cases*/                      \
@@ -143,14 +143,14 @@
               L2kt+=IS_OUTEDGE(tail,u); /*Increment if there is a cyclic edge*/ \
             });                                                         \
         }                                                               \
-        call_subroutine_path(L2kt, subroutine_path);                    \
+        call_subroutine_path(kt, subroutine_path);                      \
       }                                                                 \
     });                                                                 \
   /* step through inedges of tail (i.e., k: k->t)*/                     \
   EXEC_THROUGH_INEDGES(tail, e, k, {                                    \
       if((k!=head)){ /*Only use contingent cases*/                      \
         int L2hk;                                                       \
-        if(spcache) L2hk = GETDDMUI(k,head,spcache);                     \
+        if(spcache) L2hk = GETDDMUI(k,head,spcache);                    \
         else{                                                           \
           L2hk=0;                                                       \
           /*Now, count # u such that t->u->k (so that we know k's ESP value)*/ \
@@ -158,7 +158,7 @@
               L2hk+=IS_OUTEDGE(u,head); /*Increment if there is a cyclic edge*/ \
             });                                                         \
         }                                                               \
-        call_subroutine_path(L2hk, subroutine_path);                    \
+        call_subroutine_path(hk, subroutine_path);                      \
       }                                                                 \
     });
 
@@ -173,7 +173,7 @@
 
   We assume that this is only called for directed graphs - otherwise, use the baseline espUTP function.
 */
-#define dspOSP_change(L, subroutine_path, subroutine_focus)             \
+#define dspOSP_change(subroutine_path, subroutine_focus)                \
   /* step through outedges of tail (i.e., k: t->k, k->h, k!=h)*/        \
   EXEC_THROUGH_INEDGES(head, e, k, {                                    \
       if(k!=tail){                                                      \
@@ -189,7 +189,7 @@
                 L2tk+=(IS_OUTEDGE(tail,u));                             \
             });                                                         \
         }                                                               \
-        call_subroutine_path(L2tk, subroutine_path);                    \
+        call_subroutine_path(tk, subroutine_path);                      \
       }                                                                 \
     });
 
@@ -204,7 +204,7 @@
 
   We assume that this is only called for directed graphs - otherwise, use the baseline espUTP function.
 */
-#define dspISP_change(L, subroutine_path, subroutine_focus)             \
+#define dspISP_change(subroutine_path, subroutine_focus)                \
   /* step through inedges of head (i.e., k: k->h, t->k, k!=t)*/         \
   EXEC_THROUGH_OUTEDGES(tail, e, k, {                                   \
       int L2kh;                                                         \
@@ -218,7 +218,7 @@
                 L2kh+=IS_OUTEDGE(u,head);  /*Increment if there is an ISP*/ \
             });                                                         \
         }                                                               \
-        call_subroutine_path(L2kh, subroutine_path);                    \
+        call_subroutine_path(kh, subroutine_path);                      \
       }                                                                 \
     });
 
@@ -234,7 +234,7 @@
 
   We assume that this is only called for directed graphs - otherwise, use the baseline espUTP function.
 */
-#define dspRTP_change(L, subroutine_path, subroutine_focus)             \
+#define dspRTP_change(subroutine_path, subroutine_focus)                \
   int htedge=IS_OUTEDGE(head,tail);  /*Is there an h->t (reciprocating) edge?*/ \
   if(htedge){ /* Otherwise, t->h doesn't make a difference. */          \
     /* step through reciprocated outedges of tail (t->k: k!=h,k<-t)*/   \
@@ -250,7 +250,7 @@
                   L2kh+=(IS_OUTEDGE(u,head)&&IS_OUTEDGE(head,u));  /*k<->u<->h?*/ \
               });                                                       \
           }                                                             \
-          call_subroutine_path(L2kh, subroutine_path);                  \
+          call_subroutine_path(kh, subroutine_path);                    \
         }                                                               \
       });                                                               \
     /* step through reciprocated outedges of tail (t->k: k!=h,k<-t)*/   \
@@ -266,7 +266,7 @@
                   L2kt+=(IS_OUTEDGE(u,tail)&&IS_OUTEDGE(tail,u));  /*k<->u<->t?*/ \
               });                                                       \
           }                                                             \
-          call_subroutine_path(L2kt, subroutine_path);                  \
+          call_subroutine_path(kt, subroutine_path);                    \
         }                                                               \
       });                                                               \
   }
@@ -287,9 +287,9 @@
 
   This function will only work properly with undirected graphs, and should only be called in that case.
 */
-#define espUTP_change(L, subroutine_path, subroutine_focus)     \
+#define espUTP_change(subroutine_path, subroutine_focus)        \
   int L2th;                                                     \
-  if(spcache) L2th = GETDDMUI(tail,head,spcache); else L2th=0;   \
+  if(spcache) L2th = GETDDMUI(tail,head,spcache); else L2th=0;  \
   /* step through outedges of head */                           \
   EXEC_THROUGH_EDGES(head,e,u, {                                \
       if (IS_UNDIRECTED_EDGE(u,tail) != 0){                     \
@@ -308,11 +308,11 @@
 	      if(IS_UNDIRECTED_EDGE(v,tail)!= 0) L2tu++;        \
 	    });                                                 \
 	}                                                       \
-        call_subroutine_path(L2tu, subroutine_path);            \
-        call_subroutine_path(L2uh, subroutine_path);            \
+        call_subroutine_path(tu, subroutine_path);              \
+        call_subroutine_path(uh, subroutine_path);              \
       }                                                         \
     });                                                         \
-  call_subroutine_focus(L2th, subroutine_focus);
+  call_subroutine_focus(th, subroutine_focus);
 
 
 /*
@@ -325,9 +325,9 @@
 
   This function should only be used in the directed case, with espUTP being used in the undirected case.
 */
-#define espOTP_change(L, subroutine_path, subroutine_focus)             \
+#define espOTP_change(subroutine_path, subroutine_focus)                \
   int L2th;                                                             \
-  if(spcache) L2th = GETDDMUI(tail,head,spcache); else L2th=0;           \
+  if(spcache) L2th = GETDDMUI(tail,head,spcache); else L2th=0;          \
   /* step through outedges of tail (i.e., k: t->k)*/                    \
   EXEC_THROUGH_OUTEDGES(tail,e,k, {                                     \
       if(!spcache&&(k!=head)&&(IS_OUTEDGE(k,head))){                    \
@@ -336,7 +336,7 @@
       }                                                                 \
       int L2tk;                                                         \
       if((k!=head)&&(IS_OUTEDGE(head,k))){ /*Only use contingent cases*/ \
-        if(spcache) L2tk = GETDDMUI(tail,k,spcache);                     \
+        if(spcache) L2tk = GETDDMUI(tail,k,spcache);                    \
 	else{                                                           \
 	  L2tk=0;                                                       \
 	  /*Now, count # u such that t->u->k (to find t->k's ESP value)*/ \
@@ -345,14 +345,14 @@
 		L2tk+=IS_OUTEDGE(tail,u); /*Increment if there is a trans edge*/ \
 	    });                                                         \
 	}                                                               \
-        call_subroutine_path(L2tk, subroutine_path);                    \
+        call_subroutine_path(tk, subroutine_path);                      \
       }                                                                 \
     });                                                                 \
   /* step through inedges of head (i.e., k: k->h)*/                     \
   EXEC_THROUGH_INEDGES(head,e,k, {                                      \
       int L2kh;                                                         \
       if((k!=tail)&&(IS_OUTEDGE(k,tail))){ /*Only use contingent cases*/ \
-        if(spcache) L2kh = GETDDMUI(k,head,spcache);                     \
+        if(spcache) L2kh = GETDDMUI(k,head,spcache);                    \
 	else{                                                           \
 	  L2kh=0;                                                       \
 	  /*Now, count # u such that k->u->j (to find k->h's ESP value)*/ \
@@ -361,10 +361,10 @@
 		L2kh+=IS_OUTEDGE(u,head); /*Increment if there is a trans edge*/ \
 	    });                                                         \
 	}                                                               \
-        call_subroutine_path(L2kh, subroutine_path);                    \
+        call_subroutine_path(kh, subroutine_path);                      \
       }                                                                 \
     });                                                                 \
-  call_subroutine_focus(L2th, subroutine_focus);
+  call_subroutine_focus(th, subroutine_focus);
 
 
 /*
@@ -377,14 +377,14 @@
 
   We assume that this is only called for directed graphs - otherwise, use the baseline espUTP function.
 */
-#define espITP_change(L, subroutine_path, subroutine_focus)             \
+#define espITP_change(subroutine_path, subroutine_focus)                \
   int L2th;                                                             \
-  if(spcache) L2th = GETDDMUI(head,tail,spcache); else L2th=0;           \
+  if(spcache) L2th = GETDDMUI(head,tail,spcache); else L2th=0;          \
   /* step through outedges of head (i.e., k: h->k)*/                    \
   EXEC_THROUGH_OUTEDGES(head,e,k, {                                     \
       int L2hk;                                                         \
       if((k!=tail)&&(IS_OUTEDGE(k,tail))){ /*Only use contingent cases*/ \
-        if(spcache) L2hk = GETDDMUI(k,head,spcache);                     \
+        if(spcache) L2hk = GETDDMUI(k,head,spcache);                    \
 	else{                                                           \
 	  /*We have a h->k->t two-path, so add it to our count.*/       \
 	  L2th++;                                                       \
@@ -395,14 +395,14 @@
 		L2hk+=IS_OUTEDGE(u,head); /*Increment if there is a cyclic edge*/ \
 	    });                                                         \
 	}                                                               \
-        call_subroutine_path(L2hk, subroutine_path);                    \
+        call_subroutine_path(hk, subroutine_path);                      \
       }                                                                 \
     });                                                                 \
   /* step through inedges of tail (i.e., k: k->t)*/                     \
   EXEC_THROUGH_INEDGES(tail,e,k, {                                      \
       int L2kt;                                                         \
       if((k!=head)&&(IS_OUTEDGE(head,k))){ /*Only use contingent cases*/ \
-        if(spcache) L2kt = GETDDMUI(tail,k,spcache);                     \
+        if(spcache) L2kt = GETDDMUI(tail,k,spcache);                    \
 	else{                                                           \
 	  L2kt=0;                                                       \
 	  /*Now, count # u such that t->u->k (so that we know k's ESP value)*/ \
@@ -411,10 +411,10 @@
 		L2kt+=IS_OUTEDGE(tail,u); /*Increment if there is a cyclic edge*/ \
 	    });                                                         \
 	}                                                               \
-        call_subroutine_path(L2kt, subroutine_path);                    \
+        call_subroutine_path(kt, subroutine_path);                      \
       }                                                                 \
     });                                                                 \
-  call_subroutine_focus(L2th, subroutine_focus);
+  call_subroutine_focus(th, subroutine_focus);
 
 
 /*
@@ -427,9 +427,9 @@
 
   We assume that this is only called for directed graphs - otherwise, use the baseline espUTP function.
 */
-#define espOSP_change(L, subroutine_path, subroutine_focus)             \
+#define espOSP_change(subroutine_path, subroutine_focus)                \
   int L2th;                                                             \
-  if(spcache) L2th = GETUDMUI(tail,head,spcache); else L2th=0;           \
+  if(spcache) L2th = GETUDMUI(tail,head,spcache); else L2th=0;          \
   /* step through outedges of tail (i.e., k: t->k, k->h, k!=h)*/        \
   EXEC_THROUGH_OUTEDGES(tail,e,k, {                                     \
       if(k!=head){                                                      \
@@ -448,7 +448,7 @@
 		  L2tk+=IS_OUTEDGE(tail,u);  /*Increment if there is an OSP*/ \
 	      });                                                       \
 	  }                                                             \
-          call_subroutine_path(L2tk, subroutine_path);                  \
+          call_subroutine_path(tk, subroutine_path);                    \
         }                                                               \
       }                                                                 \
     });                                                                 \
@@ -465,10 +465,10 @@
 		L2kt+=IS_OUTEDGE(tail,u);  /*Increment if there is an OSP*/ \
 	    });                                                         \
 	}                                                               \
-        call_subroutine_path(L2kt, subroutine_path);                    \
+        call_subroutine_path(kt, subroutine_path);                      \
       }                                                                 \
     });                                                                 \
-  call_subroutine_focus(L2th, subroutine_focus);
+  call_subroutine_focus(th, subroutine_focus);
 
 
 /*
@@ -481,9 +481,9 @@
 
   We assume that this is only called for directed graphs - otherwise, use the baseline espUTP function.
 */
-#define espISP_change(L, subroutine_path, subroutine_focus)             \
+#define espISP_change(subroutine_path, subroutine_focus)                \
   int L2th;                                                             \
-  if(spcache) L2th = GETUDMUI(tail,head,spcache); else L2th=0;           \
+  if(spcache) L2th = GETUDMUI(tail,head,spcache); else L2th=0;          \
   /* step through inedges of head (i.e., k: k->h, t->k, k!=t)*/         \
   EXEC_THROUGH_INEDGES(head,e,k, {                                      \
       if(k!=tail){                                                      \
@@ -502,7 +502,7 @@
 		  L2kh+=IS_OUTEDGE(u,head);  /*Increment if there is an ISP*/ \
 	      });                                                       \
 	  }                                                             \
-          call_subroutine_path(L2kh, subroutine_path);                  \
+          call_subroutine_path(kh, subroutine_path);                    \
         }                                                               \
       }                                                                 \
     });                                                                 \
@@ -519,10 +519,10 @@
 		L2hk+=IS_OUTEDGE(u,head);  /*Increment if there is an ISP*/ \
 	    });                                                         \
 	}                                                               \
-        call_subroutine_path(L2hk, subroutine_path);                    \
+        call_subroutine_path(hk, subroutine_path);                      \
       }                                                                 \
     });                                                                 \
-  call_subroutine_focus(L2th, subroutine_focus);
+  call_subroutine_focus(th, subroutine_focus);
 
 
 /*
@@ -537,9 +537,9 @@
 
   We assume that this is only called for directed graphs - otherwise, use the baseline espUTP function.
 */
-#define espRTP_change(L, subroutine_path, subroutine_focus)             \
+#define espRTP_change(subroutine_path, subroutine_focus)                \
   int L2th; /*Two-path counts for various edges*/                       \
-  if(spcache) L2th = GETDDMUI(tail,head,spcache); else L2th=0;           \
+  if(spcache) L2th = GETDDMUI(tail,head,spcache); else L2th=0;          \
   int htedge=IS_OUTEDGE(head,tail);  /*Is there an h->t (reciprocating) edge?*/ \
   /* step through inedges of tail (k->t: k!=h,h->t,k<->h)*/             \
   EXEC_THROUGH_INEDGES(tail,e,k, {                                      \
@@ -558,7 +558,7 @@
                   L2kt+=(IS_OUTEDGE(u,tail)&&IS_OUTEDGE(tail,u));  /*k<->u<->t?*/ \
               });                                                       \
           }                                                             \
-          call_subroutine_path(L2kt, subroutine_path);                  \
+          call_subroutine_path(kt, subroutine_path);                    \
         }                                                               \
       }                                                                 \
     });                                                                 \
@@ -576,7 +576,7 @@
                   L2tk+=(IS_OUTEDGE(u,tail)&&IS_OUTEDGE(tail,u));  /*k<->u<->t?*/ \
               });                                                       \
           }                                                             \
-          call_subroutine_path(L2tk, subroutine_path);                  \
+          call_subroutine_path(tk, subroutine_path);                    \
         }                                                               \
       }                                                                 \
     });                                                                 \
@@ -594,7 +594,7 @@
                   L2kh+=(IS_OUTEDGE(u,head)&&IS_OUTEDGE(head,u));  /*k<->u<->h?*/ \
               });                                                       \
           }                                                             \
-          call_subroutine_path(L2kh, subroutine_path);                  \
+          call_subroutine_path(kh, subroutine_path);                    \
         }                                                               \
       }                                                                 \
     });                                                                 \
@@ -612,10 +612,10 @@
                   L2hk+=(IS_OUTEDGE(u,head)&&IS_OUTEDGE(head,u));  /*k<->u<->h?*/ \
               });                                                       \
           }                                                             \
-          call_subroutine_path(L2hk, subroutine_path);                  \
+          call_subroutine_path(hk, subroutine_path);                    \
         }                                                               \
       }                                                                 \
     });                                                                 \
-  call_subroutine_focus(L2th, subroutine_focus);
+  call_subroutine_focus(th, subroutine_focus);
 
 #endif // _CHANGESTATS_DGW_SP_H_

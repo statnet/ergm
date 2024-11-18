@@ -130,14 +130,14 @@ MH_P_FN(Mp_SPDyad){
   int echange = edgeflag ? -1 : +1;
   Vertex tail = *Mtail, head = *Mhead;
 
-#define sp_nonzero newtd += (L + echange != 0) - (L != 0);
+#define sp_nonzero newtd += (L2 + echange != 0) - (L2 != 0);
 
   switch(MH_IINPUTS[0]){
-  case ESPUTP: dspUTP_change(L, sp_nonzero, ); break;
-  case ESPOTP: dspOTP_change(L, sp_nonzero, ); break;
-  case ESPITP: dspITP_change(L, sp_nonzero, ); break;
-  case ESPOSP: dspOSP_change(L, sp_nonzero, ); break;
-  case ESPISP: dspISP_change(L, sp_nonzero, ); break;
+  case ESPUTP: dspUTP_change(sp_nonzero, ); break;
+  case ESPOTP: dspOTP_change(sp_nonzero, ); break;
+  case ESPITP: dspITP_change(sp_nonzero, ); break;
+  case ESPOSP: dspOSP_change(sp_nonzero, ); break;
+  case ESPISP: dspISP_change(sp_nonzero, ); break;
   }
 
 #undef sp_nonzero
