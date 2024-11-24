@@ -88,29 +88,27 @@
   }
 
 
-#define gwsp_args tail,head,mtp,nwp,edgestate,spcache,alpha,oneexpa
+#define gwsp_args tail,head,mtp,nwp,edgestate,spcache,alpha,loneexpa
 
 #define gw_calc(term)                                                   \
-  static inline double term ## _gw_calc(Vertex tail, Vertex head, ModelTerm *mtp, Network *nwp, Rboolean edgestate, StoreStrictDyadMapUInt *spcache, double alpha, double oneexpa) { \
+  static inline double term ## _gw_calc(Vertex tail, Vertex head, ModelTerm *mtp, Network *nwp, Rboolean edgestate, StoreStrictDyadMapUInt *spcache, double alpha, double loneexpa) { \
     double cumchange = 0;                                               \
     term ## _change({                                                   \
-        cumchange += pow(oneexpa, L2-edgestate);                        \
+        cumchange += alpha ? exp(loneexpa*(L2-edgestate)) : L2-edgestate == 0; \
       },{                                                               \
-        if(alpha < 100.0) cumchange += exp(alpha)*(1-pow(oneexpa, L2)); \
-        else cumchange += L2;                                           \
+        cumchange += alpha ? exp(alpha + log1mexp(-loneexpa*L2)) : L2 != 0; \
       });                                                               \
     return cumchange;                                                   \
   }
 
 
 #define gw_calc2(term)                                                  \
-  static inline double term ## _gw_calc(Vertex tail, Vertex head, ModelTerm *mtp, Network *nwp, Rboolean edgestate, StoreStrictDyadMapUInt *spcache, double alpha, double oneexpa) { \
+  static inline double term ## _gw_calc(Vertex tail, Vertex head, ModelTerm *mtp, Network *nwp, Rboolean edgestate, StoreStrictDyadMapUInt *spcache, double alpha, double loneexpa) { \
     double cumchange = 0;                                               \
     term ## _change({                                                   \
-        cumchange += pow(oneexpa, L2-edgestate)*2;                      \
+        cumchange += (alpha ? exp(loneexpa*(L2-edgestate)) : L2-edgestate == 0) * 2; \
       },{                                                               \
-        if(alpha < 100.0) cumchange += exp(alpha)*(1-pow(oneexpa, L2)); \
-        else cumchange += L2;                                           \
+        cumchange += alpha ? exp(alpha + log1mexp(-loneexpa*L2)) : L2 != 0;    \
       });                                                               \
     return cumchange;                                                   \
   }
@@ -198,7 +196,7 @@ C_CHANGESTAT_FN(c_dgwdsp) {
   /*Set things up*/
   StoreStrictDyadMapUInt *spcache = N_AUX ? AUX_STORAGE : NULL;
   double alpha = INPUT_PARAM[0];       /*Get alpha*/
-  double oneexpa = 1.0-exp(-alpha);    /*Precompute (1-exp(-alpha))*/
+  double loneexpa = log1mexp(alpha);    /*Precompute log(1-exp(-alpha))*/
   int type = IINPUT_PARAM[0];     /*Get the ESP type code to be used*/
   double cumchange = 0;
 
@@ -299,7 +297,7 @@ C_CHANGESTAT_FN(c_dgwesp) {
   /*Set things up*/
   StoreStrictDyadMapUInt *spcache = N_AUX ? AUX_STORAGE : NULL;
   double alpha = INPUT_PARAM[0];       /*Get alpha*/
-  double oneexpa = 1.0-exp(-alpha);    /*Precompute (1-exp(-alpha))*/
+  double loneexpa = log1mexp(alpha);    /*Precompute (1-exp(-alpha))*/
   int type = IINPUT_PARAM[0];     /*Get the ESP type code to be used*/
   double cumchange = 0;
 
@@ -441,7 +439,7 @@ C_CHANGESTAT_FN(c_dgwnsp) {
   /*Set things up*/
   StoreStrictDyadMapUInt *spcache = N_AUX ? AUX_STORAGE : NULL;
   double alpha = INPUT_PARAM[0];       /*Get alpha*/
-  double oneexpa = 1.0-exp(-alpha);    /*Precompute (1-exp(-alpha))*/
+  double loneexpa = log1mexp(alpha);    /*Precompute (1-exp(-alpha))*/
   int type = IINPUT_PARAM[0];     /*Get the ESP type code to be used*/
   double cumchange = 0;
 

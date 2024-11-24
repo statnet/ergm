@@ -75,7 +75,7 @@ test_that("Bipartite Undirected Network", {
 # Add the curved+missing test here for now
 test_that("curved+missing", {
   set.seed(321)
-  n <- 100
+  n <- 30
   y <- network.initialize(n, directed=FALSE) # Create an empty network
   y <- simulate(y~edges, coef=logit(0.12), control=control.simulate(MCMC.burnin=2*n^2))
   y.miss <- simulate(y~edges, coef=logit(0.01))

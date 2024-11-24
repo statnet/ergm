@@ -624,7 +624,7 @@ D_CHANGESTAT_FN(d_geospartner) {
 *****************/
 D_CHANGESTAT_FN(d_gwb1) {
   int i, echange=0;
-  double alpha, oneexpa, change;
+  double alpha, loneexpa, change;
   Vertex tail, head, taild=0, *od;
   /* int nb1 , nb2 
 
@@ -635,14 +635,14 @@ D_CHANGESTAT_FN(d_gwb1) {
   od=OUT_DEG;
   change = 0.0;
   alpha = INPUT_PARAM[1];
-  oneexpa = 1.0-exp(-alpha);
+  loneexpa = log1mexp(alpha);
   
   CHANGE_STAT[0] = 0.0;
   FOR_EACH_TOGGLE(i) {
     echange = IS_OUTEDGE(tail=TAIL(i), head=HEAD(i)) ? -1 : 1;
     taild = od[tail] + (echange - 1)/2;
     if(taild!=0){
-      change += echange*(1.0-pow(oneexpa,(double)taild));
+      change += echange*exp(log1mexp(-loneexpa*taild));
     }
     TOGGLE_IF_MORE_TO_COME(i);
   }
@@ -679,13 +679,13 @@ D_CHANGESTAT_FN(d_gwd) {
 D_CHANGESTAT_FN(d_gwdegree706)  {
   /* Slight modification to the parameterization in d_gwdegree */
   int i, echange=0;
-  double decay, oneexpd, change;
+  double decay, loneexpd, change;
   Vertex tail, head, taild, headd=0, *id, *od;
   
   id=IN_DEG;
   od=OUT_DEG;
   decay = INPUT_PARAM[0];
-  oneexpd = 1.0-exp(-decay);
+  loneexpd = log1mexp(decay);
   
   change = 0.0;
   FOR_EACH_TOGGLE(i) {
@@ -694,10 +694,10 @@ D_CHANGESTAT_FN(d_gwdegree706)  {
     taild = od[tail] + id[tail] + (echange - 1)/2;
     headd = od[head] + id[head] + (echange - 1)/2;
     if(taild!=0){
-      change -= echange*(1.0-pow(oneexpd,(double)taild));
+      change -= echange*exp(log1mexp(-loneexpd*taild));
     }
     if(headd!=0){
-      change -= echange*(1.0-pow(oneexpd,(double)headd));
+      change -= echange*exp(log1mexp(-loneexpd*headd));
     }
     TOGGLE_IF_MORE_TO_COME(i);
   }
@@ -710,24 +710,24 @@ D_CHANGESTAT_FN(d_gwdegree706)  {
 *****************/
 D_CHANGESTAT_FN(d_gwdegreealpha)  {
   int i, echange=0;
-  double alpha, oneexpa, change;
+  double alpha, loneexpa, change;
   Vertex tail, head, taild, headd=0, *id, *od;
   
   id=IN_DEG;
   od=OUT_DEG;
   change = 0.0;
   alpha = INPUT_PARAM[0];
-  oneexpa = 1.0-exp(-alpha);
+  loneexpa = log1mexp(alpha);
   
   FOR_EACH_TOGGLE(i) {
     echange = IS_OUTEDGE(tail=TAIL(i), head=HEAD(i)) ? -1 : 1;
     taild = od[tail] + id[tail] + (echange - 1)/2;
     headd = od[head] + id[head] + (echange - 1)/2;
     if(taild!=0){
-      change += echange*(1.0-pow(oneexpa,(double)taild));
+      change += echange*exp(log1mexp(-loneexpa*taild));
     }
     if(headd!=0){
-      change += echange*(1.0-pow(oneexpa,(double)headd));
+      change += echange*exp(log1mexp(-loneexpa*headd));
     }
     TOGGLE_IF_MORE_TO_COME(i);
   }
@@ -772,7 +772,7 @@ D_CHANGESTAT_FN(d_gwdegreelambda)  {
 *****************/
 D_CHANGESTAT_FN(d_gwb2){
   int i, echange=0;
-  double alpha, oneexpa, change;
+  double alpha, loneexpa, change;
   Vertex tail, head, headd=0, *id;
   /* int nb1, nb2;
 
@@ -783,17 +783,17 @@ D_CHANGESTAT_FN(d_gwb2){
   //od=OUT_DEG;
   change = 0.0;
   alpha = INPUT_PARAM[1];
-  oneexpa = 1.0-exp(-alpha);
+  loneexpa = log1mexp(alpha);
   
   FOR_EACH_TOGGLE(i) {
     echange = IS_OUTEDGE(tail=TAIL(i), head=HEAD(i)) ? -1 : 1;
     // taild = od[tail] + id[head] + (echange - 1)/2;
     headd = id[head] + (echange - 1)/2;
     // if(taild!=0){
-      // change += echange*(1.0-pow(oneexpa,(double)taild));
+      // change += echange*exp(log1mexp(-loneexpa*taild));
     // }
     if(headd!=0){
-      change += echange*(1.0-pow(oneexpa,(double)headd));
+      change += echange*exp(log1mexp(-loneexpa*headd));
     }
     //Rprintf("tail %d head %d headd %d echange %d change %f\n", tail, head, headd, echange,change);
     // Rprintf(" tail %d head %d taild %d echange %d change %f\n", tail, head, taild, echange,change);
@@ -1824,11 +1824,11 @@ D_CHANGESTAT_FN(d_gwb2share) {
   int i, echange, ochange;
   int L2uh;
   Vertex tail, head, u, v;
-  double alpha, oneexpa, cumchange;
+  double alpha, loneexpa, cumchange;
   
   CHANGE_STAT[0] = 0.0;
   alpha = INPUT_PARAM[0];
-  oneexpa = 1.0-exp(-alpha);
+  loneexpa = log1mexp(alpha);
   
   FOR_EACH_TOGGLE(i) {
     cumchange=0.0;
@@ -1840,7 +1840,7 @@ D_CHANGESTAT_FN(d_gwb2share) {
         STEP_THROUGH_INEDGES(u, v, f) {
           if(IS_OUTEDGE(MIN(v,head),MAX(v,head))) L2uh++;
         }
-        cumchange += pow(oneexpa,(double)L2uh);
+        cumchange += exp(loneexpa*L2uh);
       }
     }
     cumchange  = echange*cumchange;
@@ -1858,11 +1858,11 @@ D_CHANGESTAT_FN(d_gwb1share) {
   int i, echange, ochange;
   int L2tu;
   Vertex tail, head, u, v;
-  double alpha, oneexpa, cumchange;
+  double alpha, loneexpa, cumchange;
   
   CHANGE_STAT[0] = 0.0;
   alpha = INPUT_PARAM[0];
-  oneexpa = 1.0-exp(-alpha);
+  loneexpa = log1mexp(alpha);
   
   FOR_EACH_TOGGLE(i) {
     cumchange=0.0;
@@ -1874,7 +1874,7 @@ D_CHANGESTAT_FN(d_gwb1share) {
         STEP_THROUGH_OUTEDGES(u, v, f) {
           if(IS_OUTEDGE(MIN(v,tail),MAX(v,tail))) L2tu++;
         }
-        cumchange += pow(oneexpa,(double)L2tu);
+        cumchange += exp(loneexpa*L2tu);
       }
     }
     cumchange  = echange*cumchange;
