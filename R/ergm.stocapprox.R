@@ -79,7 +79,7 @@ ergm.stocapprox <- function(init, s, s.obs,
   if(verbose){message("Using Newton-Raphson Step ...")}
 
   v <- ergm.estimate(init=theta, model=model,
-                     statsmatrices=mcmc.list(as.mcmc(z$stats)),
+                     statsmatrices=mcmc.list(as.mcmc.list(z$stats)),
                      statsmatrices.obs=NULL,
                      epsilon=control$epsilon,
                      nr.maxit=control$MCMLE.NR.maxit,
