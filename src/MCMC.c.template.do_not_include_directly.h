@@ -234,7 +234,7 @@ MCMCStatus ETYPE(MetropolisHastings) (ETYPE(ErgmState) *s,
     if(verbose>=5) print_vector("stat diff", m->workspace, m->n_stats);
 
     /* Calculate inner (dot) product */
-    double ip = dotprod(eta, m->workspace, m->n_stats);
+    double ip = dotprod_nan0(eta, m->workspace, m->n_stats);
 
     /* The logic is to set cutoff = ip+logratio ,
        then let the MH probability equal min{exp(cutoff), 1.0}.
@@ -262,6 +262,21 @@ MCMCStatus ETYPE(MetropolisHastings) (ETYPE(ErgmState) *s,
       }
 
       PROP_CHANGESTATS_UNDO;
+    }
+
+
+    Rboolean skip = FALSE;
+    for(unsigned int i = 0; i < m->n_stats; i++)
+      if(isnan(eta[i]) && networkstatistics[i] != 0){
+        skip = TRUE;
+        break;
+      }
+
+    if(skip){
+      nsteps++;
+      if(verbose>=5){
+        Rprintf("Skipping.\n");
+      }
     }
   }
 
