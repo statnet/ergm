@@ -34,12 +34,12 @@ test_that("test search ergm term", {
   myNet<-network.initialize(5,bipartite=3,directed=FALSE)
   expect_equal(length(search.ergmTerms(net=myNet)), 31)
 
-  expect_equal(length(search.ergmTerms(keywords = 'bipartite', packages='ergm')), 31)
+  expect_equal(length(search.ergmTerms(keywords = 'bipartite', packages='ergm')), 32)
 
   expect_gt(length(search.ergmTerms(name = 'b2factor', packages='ergm')), 0)
   expect_equal(length(search.ergmTerms(name = 'b3factor', packages='ergm')), 0)
 
-  expect_equal(length(search.ergmTerms(keywords = 'bipartite', packages='ergm')), 31)
+  expect_equal(length(search.ergmTerms(keywords = 'bipartite', packages='ergm')), 32)
 
   ## expect_gt(length(search.ergmTerms(keywords = 'valued')), 44)
   expect_equal(length(search.ergmTerms(keywords = 'valued', packages='ergm')), 44)

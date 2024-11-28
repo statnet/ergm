@@ -84,6 +84,7 @@ Collate:
     'InitErgmTerm.indices.R'
     'InitErgmTerm.interaction.R'
     'InitErgmTerm.operator.R'
+    'InitErgmTerm.projection.R'
     'InitErgmTerm.spcache.R'
     'InitErgmTerm.test.R'
     'InitErgmTerm.transitiveties.R'
