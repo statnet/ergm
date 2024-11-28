@@ -288,11 +288,12 @@ ergmTermCache <- local({
   terms <- ergmTermCache(term_type)
 
   terms <- .filterTerms(terms, ...)
+  termconcepts <- lapply(terms,`[[`,'concepts')
 
   # if list of display.keywords not supplied, generate it
   # otherwise, use the display.keywords (and column order) provided
   if (is.null(display.keywords)) {
-    display.keywords <- unique(unlist(sapply(terms,'[[','concepts')))
+    display.keywords <- unique(unlist(termconcepts))
   }
 
   if(length(display.keywords)==0) return(NULL)
@@ -302,13 +303,18 @@ ergmTermCache <- local({
   # figure out which terms are members of each cat
   membership <- lapply(display.keywords, function(cat) {
     # return true for terms that match cat
-    sapply(terms, function(term) cat %in% term$concepts)
+    sapply(termconcepts, `%in%`, x = cat)
   })
 
   df <- data.frame(membership)
 
   concepts <- ergm_keyword()
-  display.keywords <- concepts[match(display.keywords, concepts$name), 'short']
+  notfound <- setdiff(display.keywords, concepts$name)
+  annotation <- if(length(notfound)){
+    problematic <- lapply(termconcepts, `%in%`, x = notfound) %>% sapply(any)
+    message(paste0("Unregistered keyword(s)/concept(s), ", paste.and(sQuote(notfound)), " found in term(s) ", paste.and(sQuote(names(which(problematic)))), ". This is probably a typo in the term documentation."))
+  }
+  display.keywords <- na.omit(concepts[match(display.keywords, concepts$name), 'short'])
   colnames(df) <- display.keywords
   rownames(df) <- NULL
   df$Link <- sapply(terms,'[[','link')
