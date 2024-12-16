@@ -80,6 +80,7 @@ Collate:
     'InitErgmTerm.blockop.R'
     'InitErgmTerm.coincidence.R'
     'InitErgmTerm.dgw_sp.R'
+    'InitErgmTerm.diversity.R'
     'InitErgmTerm.extra.R'
     'InitErgmTerm.indices.R'
     'InitErgmTerm.interaction.R'
