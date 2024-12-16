@@ -79,6 +79,7 @@ Collate:
     'InitErgmTerm.bipartite.degree.R'
     'InitErgmTerm.blockop.R'
     'InitErgmTerm.coincidence.R'
+    'InitErgmTerm.degfactorial.R'
     'InitErgmTerm.dgw_sp.R'
     'InitErgmTerm.diversity.R'
     'InitErgmTerm.extra.R'
