@@ -103,6 +103,7 @@ Collate:
     'check.ErgmTerm.R'
     'control.ergm.R'
     'control.ergm.bridge.R'
+    'control.ergm3.R'
     'control.gof.R'
     'control.logLik.ergm.R'
     'control.san.R'
