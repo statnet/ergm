@@ -8,7 +8,7 @@
 # fixallbut(free.dyads)
 }
 \arguments{
-\item{free.dyads}{edgelist or network. Networks will be converted to the corresponding edgelist.}
+\item{free.dyads}{a two-column edge list, a \code{\link[network:network]{network}}, or an \code{\link{rlebdm}}. Networks will be converted to the corresponding edgelist.}
 }
 \description{
 Preserve the dyad status in all but \code{free.dyads}.
