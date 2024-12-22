@@ -8,7 +8,7 @@
 #  Copyright 2003-2025 Statnet Commons
 ################################################################################
 #' Auxiliary function for fine-tuning ERGM fitting.
-#' 
+#'
 #' This function is only used within a call to the [ergm()] function.
 #' See the Usage section in [ergm()] for details. Also see the
 #' Details section about some of the interactions between its
@@ -65,17 +65,17 @@
 #' more conveniently specified using [ergm()] argument
 #' \code{offset.coef}. If both \code{offset.coef} and \code{init} arguments are
 #' given, values in \code{offset.coef} will take precedence.
-#' 
+#'
 #' \item Elements that do not correspond to offset terms and are not \code{NA}
 #' are used as starting values in the estimation.
-#' 
+#'
 #' \item Initial values for the elements that are \code{NA} are fit using the
 #' method specified by \code{\link[=control.ergm]{control$init.method}}.
-#' 
+#'
 #' } Passing \code{control.ergm(init=coef(prev.fit))} can be used to
 #' ``resume'' an uncoverged [ergm()] run, though `checkpoint` and
 #' `resume` would be better under most circumstances.
-#' 
+#'
 #' @param init.method A chatacter vector or \code{NULL}. The default
 #'   method depends on the reference measure used. For the binary
 #'   (\code{"Bernoulli"}) ERGMs, with dyad-independent constraints,
@@ -84,7 +84,7 @@
 #'   appropriate length and \code{"CD"} for contrastive divergence. If
 #'   passed explicitly, this setting overrides the reference's
 #'   limitations.
-#' 
+#'
 #' Valid initial methods for a given reference are set by the
 #' `InitErgmReference.*` function.
 #' @param main.method One of "MCMLE" (default) or
@@ -189,7 +189,7 @@
 #' precision in the estimates by reducing MCMC error, at the expense of time.
 #' Set it higher for larger networks, or when using parallel functionality.
 #' @template control_MCMC_effectiveSize
-#' 
+#'
 #' @param
 #'   MCMLE.effectiveSize,MCMLE.effectiveSize.interval_drop,MCMLE.burnin,MCMLE.interval,MCMLE.samplesize,MCMLE.samplesize.per_theta,MCMLE.samplesize.min
 #'   Sets the corresponding `MCMC.*` parameters when
@@ -224,40 +224,40 @@
 #' @param SAN Control arguments to [san()].  See
 #' [control.san()] for details.
 #' @param MCMLE.termination The criterion used for terminating MCMLE
-#' estimation:  
+#' estimation:
 #' * `"Hummel"` Terminate when the Hummel step length is
 #' 1 for two consecutive iterations. For the last iteration, the sample size is
 #' boosted by a factor of \code{MCMLE.last.boost}. See Hummel et. al. (2012).
-#' 
+#'
 #' Note that this criterion is incompatible with \code{MCMLE.steplength}
 #' \eqn{\ne} 1 or \code{MCMLE.steplength.margin} \eqn{=} \code{NULL}.
-#' 
+#'
 #' * `"Hotelling"` After every MCMC sample, an autocorrelation-adjusted
 #' Hotelling's T^2 test for equality of MCMC-simulated network statistics to
 #' observed is conducted, and if its P-value exceeds
 #' \code{MCMLE.conv.min.pval}, the estimation is considered to have converged
 #' and finishes. This was the default option in \code{ergm} version 3.1.
-#' 
+#'
 #' * `"precision"` Terminate when the estimated loss in estimating precision
 #' due to using MCMC standard errors is below the precision bound specified by
 #' \code{MCMLE.MCMC.precision}, and the Hummel step length is 1 for two
 #' consecutive iterations. See \code{MCMLE.MCMC.precision} for details. This
 #' feature is in experimental status until we verify the coverage of the
 #' standard errors.
-#' 
+#'
 #' Note that this criterion is incompatible with
 #' \eqn{\code{MCMLE.steplength}\ne 1} or
 #' \eqn{\code{MCMLE.steplength.margin}=\code{NULL}}.
-#' 
+#'
 #' * `"confidence"`: Performs an equivalence test to prove with level
 #' of confidence \code{MCMLE.confidence} that the true value of the
 #' deviation of the simulated mean value parameter from the observed
 #' is within an ellipsoid defined by the inverse-variance-covariance
 #' of the sufficient statistics multiplied by a scaling factor
 #' `control$MCMLE.MCMC.precision` (which has a different default).
-#' 
+#'
 #' * `"none"` Stop after
-#' \code{MCMLE.maxit} iterations.  
+#' \code{MCMLE.maxit} iterations.
 #' @param MCMLE.maxit Maximum number of times the parameter for the MCMC should
 #' be updated by maximizing the MCMC likelihood. At each step the parameter is
 #' changed to the values that maximizes the MCMC likelihood based on the
@@ -312,14 +312,14 @@
 #'   also be specified as a function that returns this
 #'   value. `obs.MCMC.impute.default_density` similarly controls the
 #'   imputation density when number of non-missing dyads is too low.
-#' 
+#'
 #' @param MCMLE.MCMC.precision,MCMLE.MCMC.max.ESS.frac
 #' \code{MCMLE.MCMC.precision} is a vector of upper bounds on the standard
 #' errors induced by the MCMC algorithm, expressed as a percentage of the total
 #' standard error. The MCMLE algorithm will terminate when the MCMC standard
 #' errors are below the precision bound, and the Hummel step length is 1 for
 #' two consecutive iterations. This is an experimental feature.
-#' 
+#'
 #' If effective sample size is used (see \code{MCMC.effectiveSize}), then ergm
 #' may increase the target ESS to reduce the MCMC standard error.
 #' @param MCMLE.metric Method to calculate the loglikelihood approximation.
@@ -456,13 +456,13 @@
 #'   while as \code{CD.nsteps}\eqn{\rightarrow\infty}, the CD estimate
 #'   approaches the MLE, this is not the case for
 #'   \code{CD.multiplicity}.
-#' 
+#'
 #'   In practice, MPLE, when available, usually outperforms CD for
 #'   even a very high \code{CD.nsteps} (which is, in turn, not very
 #'   stable), so CD is useful primarily when MPLE is not
 #'   available. This feature is to be considered experimental and in
 #'   flux.
-#' 
+#'
 #'   The default values have been set experimentally, providing a
 #'   reasonably stable, if not great, starting values.
 #'
@@ -471,15 +471,15 @@
 #' value, as the network passed is not necessarily a good start for CD.
 #' Therefore, these settings are in effect if there are missing dyads in the
 #' observed network, using a higher default number of steps.
-#' 
+#'
 #' @param CD.samplesize.per_theta,obs.CD.samplesize.per_theta,CD.maxit,CD.conv.min.pval,CD.NR.maxit,CD.NR.reltol,CD.metric,CD.method,CD.dampening,CD.dampening.min.ess,CD.dampening.level,CD.steplength.margin,CD.steplength,CD.steplength.parallel,CD.adaptive.epsilon,CD.steplength.esteq,CD.steplength.miss.sample,CD.steplength.min,CD.steplength.solver
 #'   Miscellaneous tuning parameters of the CD sampler and
 #'   optimizer. These have the same meaning as their `MCMLE.*` and
 #'   `MCMC.*` counterparts.
-#' 
+#'
 #'   Note that only the Hotelling's stopping criterion is implemented
 #'   for CD.
-#' 
+#'
 #' @param loglik See [control.ergm.bridge()]
 #' @template term_options
 #' @template control_MCMC_parallel
@@ -495,8 +495,8 @@
 #'
 #' * Firth (1993), Bias Reduction in Maximum Likelihood Estimates.
 #' Biometrika, 80: 27-38.
-#' 
-#' 
+#'
+#'
 #' * Kristoffer Sahlin. Estimating convergence of Markov chain Monte Carlo
 #' simulations. Master's Thesis. Stockholm University, 2011.
 #' \url{https://www2.math.su.se/matstat/reports/master/2011/rep2/report.pdf}
@@ -507,7 +507,7 @@ control.ergm<-function(drop=TRUE,
 
                        init=NULL,
                        init.method=NULL,
-                       
+
                        main.method=c("MCMLE", "Stochastic-Approximation"),
                        force.main=FALSE,
                        main.hessian=TRUE,
@@ -559,7 +559,7 @@ control.ergm<-function(drop=TRUE,
                          SAN.prop=MCMC.prop,
                          SAN.prop.weights=MCMC.prop.weights,
                          SAN.prop.args=MCMC.prop.args,
-                         
+
                          SAN.nsteps=EVL(MCMC.burnin,16384)*SAN.nsteps.times,
                          SAN.samplesize=EVL(MCMC.samplesize,1024),
                          SAN.packagenames=MCMC.packagenames,
@@ -567,7 +567,7 @@ control.ergm<-function(drop=TRUE,
                          parallel=parallel,
                          parallel.type=parallel.type,
                          parallel.version.check=parallel.version.check),
-                       
+
                        MCMLE.termination=c("confidence", "Hummel", "Hotelling", "precision", "none"),
                        MCMLE.maxit=60,
                        MCMLE.conv.min.pval=0.5,
@@ -620,9 +620,9 @@ control.ergm<-function(drop=TRUE,
                        obs.MCMLE.interval=round(MCMLE.interval*obs.MCMC.interval.mul),
                        obs.MCMLE.burnin=round(MCMLE.burnin*obs.MCMC.burnin.mul),
                        MCMLE.steplength.solver=c("glpk","lpsolve"),
-                       
+
                        MCMLE.last.boost=4,
-                       MCMLE.steplength.esteq=TRUE, 
+                       MCMLE.steplength.esteq=TRUE,
                        MCMLE.steplength.miss.sample=function(x1) c(max(ncol(rbind(x1))*2, 30), 10),
                        MCMLE.steplength.min=0.0001,
                        MCMLE.effectiveSize.interval_drop=2,
@@ -661,12 +661,12 @@ control.ergm<-function(drop=TRUE,
                        CD.steplength.margin=0.5,
                        CD.steplength=1,
                        CD.adaptive.epsilon=0.01,
-                       CD.steplength.esteq=TRUE, 
+                       CD.steplength.esteq=TRUE,
                        CD.steplength.miss.sample=function(x1) ceiling(sqrt(ncol(rbind(x1)))),
                        CD.steplength.min=0.0001,
                        CD.steplength.parallel=c("observational","always","never"),
                        CD.steplength.solver=c("glpk","lpsolve"),
-                       
+
                        loglik=control.logLik.ergm(),
 
                        term.options=NULL,
@@ -676,7 +676,7 @@ control.ergm<-function(drop=TRUE,
                        parallel.type=NULL,
                        parallel.version.check=TRUE,
                        parallel.inherit.MT=FALSE,
-                       
+
                        ...
                        ){
   old.controls <- list(SAN.control="SAN",
