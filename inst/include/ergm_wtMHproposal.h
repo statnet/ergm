@@ -66,8 +66,10 @@ typedef struct WtMHProposalstruct {
   double *toggleweight;
   double logratio;
   int status;
-  double *inputs; /* may be used if needed, ignored if not. */
-  int *iinputs; /* may be used if needed, ignored if not. */
+  int ninputs;
+  double *inputs;
+  int niinputs;
+  int *iinputs;
   void *storage;
   void **aux_storage;
   unsigned int n_aux;
@@ -79,8 +81,11 @@ WtMHProposal *WtMHProposalInitialize(SEXP pR, WtNetwork *nwp, void **aux_storage
 void WtMHProposalDestroy(WtMHProposal *MH, WtNetwork *nwp);
 
 /* Helper macros */
+#define MH_N_DINPUTS MHp->ninputs
 #define MH_DINPUTS MHp->inputs
+#define MH_N_INPUTS MH_N_DINPUTS
 #define MH_INPUTS MH_DINPUTS
+#define MH_N_IINPUTS MHp->niinputs
 #define MH_IINPUTS MHp->iinputs
 
 #define Mtail (MHp->toggletail)
