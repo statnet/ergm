@@ -8,6 +8,7 @@
 \alias{as.rlebdm.network}
 \alias{as.matrix.rlebdm}
 \alias{dim.rlebdm}
+\alias{as.rle.rlebdm}
 \alias{print.rlebdm}
 \alias{Ops.rlebdm}
 \alias{Math.rlebdm}
@@ -28,6 +29,8 @@ as.rlebdm(x, ...)
 \method{as.matrix}{rlebdm}(x, ...)
 
 \method{dim}{rlebdm}(x)
+
+\method{as.rle}{rlebdm}(x)
 
 \method{print}{rlebdm}(x, compact = TRUE, ...)
 
@@ -65,6 +68,8 @@ run-length encoded in a column-major order.
 }
 \section{Methods (by generic)}{
 \itemize{
+\item \code{as.rle(rlebdm)}: Strip \code{rlebdm}-specific attributes and class, returning a plain \code{\link{rle}} object.
+
 \item \code{compress(rlebdm)}: Compress the \code{rle} data structure in the
 \code{rlebdm} by merging successive runs with identical values.
 
@@ -103,6 +108,7 @@ rlebdm(1, 3)
 # Large matrix (overflowing .Machine$integer.max)
 big <- rlebdm(1, 50000)
 unclass(big) # Represented as two runs
+big # Only summary is printed
 stopifnot(length(big)==50000^2)
 
 }

@@ -25,6 +25,7 @@
 #' # Large matrix (overflowing .Machine$integer.max)
 #' big <- rlebdm(1, 50000)
 #' unclass(big) # Represented as two runs
+#' big # Only summary is printed
 #' stopifnot(length(big)==50000^2)
 #'
 #' @seealso [as.rlebdm.ergm_conlist()]
@@ -160,12 +161,26 @@ dim.rlebdm <- function(x){
   rep(attr(x, "n"),2)
 }
 
+#' @describeIn rlebdm
+#'
+#' Strip `rlebdm`-specific attributes and class, returning a plain [`rle`] object.
+#'
+#' @export
+as.rle.rlebdm <- function(x) structure(x, class = "rle", n = NULL)
+
 #' @rdname rlebdm
 #'
 #' @param compact whether to print the matrix compactly (dots and stars) or to print it as a logical matrix.
 #' 
 #' @export
 print.rlebdm <- function(x, compact=TRUE, ...){
+  if(length(x) > getOption("max.print")){
+    cat(sprintf(
+      "Large Run-Length-Encoded Binary Dyad Matrix:\n  dimension: %0.0f*%0.0f\n  number of 1s: %0.0f/%0.0f\n  density: %f\n",
+      nrow(x), ncol(x), sum(x), length(x), sum(x)/length(x)
+    ))
+    return(invisible(x))
+  }
   x <- as.matrix(x)
   if(compact){
     x <- ifelse(x, "*", ".")
