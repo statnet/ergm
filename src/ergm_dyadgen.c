@@ -11,6 +11,14 @@
 #include "ergm_Rutil.h"
 #include "ergm_changestat.h"
 #include "ergm_wtchangestat.h"
+#include "ergm_kvec.h"
+
+typedef struct {
+  OnDyadGenInit callback;
+  void *payload;
+} OnDyadGenInitInfo;
+
+static kvec_t(OnDyadGenInitInfo) dyadgen_init_callbacks = kv_blank;
 
 void DyadGenSetUpIntersect(DyadGen *gen, void *track_nwp, Rboolean force){
     switch(gen->type){
@@ -78,6 +86,7 @@ DyadGen *DyadGenInitialize(DyadGenType type, void *dyads, void *track_nwp){
   gen->type = type;
   gen->intertype = NoELDyadGen;
   gen->sleeping = FALSE;
+  gen->careless = TRUE;
   gen->inter.uel = NULL;
 
   switch(gen->type){
@@ -107,6 +116,9 @@ DyadGen *DyadGenInitialize(DyadGenType type, void *dyads, void *track_nwp){
   }
 
   if(track_nwp) DyadGenSetUpIntersect(gen, track_nwp, FALSE);
+
+  for(unsigned int i = 0; i < kv_size(dyadgen_init_callbacks); i++)
+    kv_A(dyadgen_init_callbacks, i).callback(gen, kv_A(dyadgen_init_callbacks, i).payload);
 
   return gen;
 }
@@ -179,7 +191,7 @@ void DyadGenUpdate(Vertex tail, Vertex head, void *payload, Network *nwp, Rboole
 
   switch(gen->intertype){
   case UnsrtELDyadGen:
-    if(DyadGenSearch(tail, head, gen)){
+    if(gen->careless || DyadGenSearch(tail, head, gen)){
       if(edgestate) UnsrtELDelete(tail, head, gen->inter.uel); // Deleting
       else UnsrtELInsert(tail, head, gen->inter.uel); // Inserting
       if(gen->inter.uel->linsearch >= DYADGEN_MISSES_BEFORE_UPGRADE) DyadGenUpgradeIntersect(gen);
@@ -204,7 +216,7 @@ void WtDyadGenUpdate(Vertex tail, Vertex head, double weight, void *payload, WtN
 
   switch(gen->intertype){
   case UnsrtELDyadGen:
-    if(DyadGenSearch(tail, head, gen)){
+    if(gen->careless || DyadGenSearch(tail, head, gen)){
       if(edgestate!=0 && weight==0) UnsrtELDelete(tail, head, gen->inter.uel); // Deleting
       else if(edgestate==0 && weight!=0) UnsrtELInsert(tail, head, gen->inter.uel); // Inserting
       if(gen->inter.uel->linsearch >= DYADGEN_MISSES_BEFORE_UPGRADE) DyadGenUpgradeIntersect(gen);
@@ -212,7 +224,7 @@ void WtDyadGenUpdate(Vertex tail, Vertex head, double weight, void *payload, WtN
     break;
 
   case HashELDyadGen:
-    if(DyadGenSearch(tail, head, gen)){
+    if(gen->careless || DyadGenSearch(tail, head, gen)){
       if(edgestate!=0 && weight==0) HashELDelete(tail, head, gen->inter.hel); // Deleting
       else if(edgestate==0 && weight!=0) HashELInsert(tail, head, gen->inter.hel); // Inserting
     }
@@ -220,4 +232,18 @@ void WtDyadGenUpdate(Vertex tail, Vertex head, double weight, void *payload, WtN
 
   case NoELDyadGen: break;
   }
+}
+
+void AddOnDyadGenInit(OnDyadGenInit callback, void *payload){
+  kv_push(OnDyadGenInitInfo, dyadgen_init_callbacks, ((OnDyadGenInitInfo) {.callback = callback, .payload = payload}));
+}
+void DeleteOnDyadGenInit(OnDyadGenInit callback, void *payload){
+  unsigned int i = 0;
+  while(i < kv_size(dyadgen_init_callbacks) &&
+        (kv_A(dyadgen_init_callbacks, i).callback != callback ||
+         kv_A(dyadgen_init_callbacks, i).payload != payload)) i++;
+
+  if(i == kv_size(dyadgen_init_callbacks)) error("Attempting to delete a nonexistent DyadGen initialization callback.");
+
+  kv_del_plug(dyadgen_init_callbacks, i);
 }
