@@ -40,6 +40,7 @@ typedef struct {
     HashEL *hel;
   } inter;
   Rboolean sleeping;
+  Rboolean careless;
 } DyadGen;
 
 void DyadGenSetUpIntersect(DyadGen *gen, void *track_nwp, Rboolean force);
@@ -49,6 +50,11 @@ void DyadGenDestroy(DyadGen *gen);
 
 void DyadGenUpdate(Vertex tail, Vertex head, void *gen, Network *nwp, Rboolean edgestate);
 void WtDyadGenUpdate(Vertex tail, Vertex head, double weight, void *gen, WtNetwork *nwp, double edgestate);
+
+/* Callback management */
+typedef void (*OnDyadGenInit)(DyadGen *, void *);
+void AddOnDyadGenInit(OnDyadGenInit callback, void *payload);
+void DeleteOnDyadGenInit(OnDyadGenInit callback, void *payload);
 
 static inline void DyadGenRandDyad(Vertex *tail, Vertex *head, DyadGen *gen){
   switch(gen->type){
@@ -260,6 +266,11 @@ static inline void DyadGenSleep(DyadGen *gen){
 
 static inline void DyadGenWake(DyadGen *gen){
   gen->sleeping = FALSE;
+}
+
+
+static inline void DyadGenCareful(DyadGen *gen, Rboolean value){
+  gen->careless = !value;
 }
 
 #endif
