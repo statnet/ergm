@@ -11,17 +11,17 @@ ergm.auxstorage <- function(model, nw,..., extra.aux=list(), term.options=list()
 
   aux_list_list <- function(terms, extra=NULL) {
     # As formulas
-    aux.forms <- c(lapply(terms, "[[", "auxiliaries"), extra)
+    aux.reqs <- c(lapply(terms, "[[", "auxiliaries"), extra)
     
     # A nested list: outer list are the model terms requesting
     # auxiliaries and the inner list is the outputs from InitErgmTerm
     # calls of the auxiliaries.
-    lapply(aux.forms, function(aux.form){
-      if(is.null(aux.form)) list()
+    lapply(aux.reqs, function(aux.req){
+      if(is.null(aux.req)) list()
       else{
-        formula.env <- environment(aux.form)
-        lapply(list_rhs.formula(aux.form), function(aux.term){
-          call.ErgmTerm(aux.term, formula.env, nw, term.options=term.options, ...)
+        if(is(aux.req, "formula")) aux.req <- list_rhs.formula(aux.req)
+        lapply(seq_along(aux.req), function(i){
+          call.ErgmTerm(aux.req[[i]], attr(aux.req, "env")[[i]], nw, term.options=term.options, ...)
         })
       }
     })
