@@ -217,7 +217,7 @@ ergm_proposal.character <- function(object, arguments, nw, ..., reference=ergm_r
   prop.call <-
     if((argnames <- names(formals(eval(f))))[1]=="nw"){
       if(! "..."%in%argnames) stop("New-type InitErgmProposal ", sQuote(format(f)), " must have a ... argument.")
-      termCall(f, arguments, nw, term.options, ...)
+      termCall(f, arguments, nw, term.options, reference=reference, ...)
     }else as.call(list(f, arguments, nw))
 
   proposal <- eval(prop.call)
@@ -281,7 +281,9 @@ ergm_conlist.formula <- function(object, nw, ..., term.options=list())
 
 #' @noRd
 ergm_conlist.term_list <- function(object, nw, ..., term.options=list()){
-  object<-c(object, list(call(".attributes")))
+  object <-
+    if(is(object, "AsIs")) structure(object, class = class(object)[class(object) != "AsIs"])
+    else c(object, list(call(".attributes")))
   consigns <- attr(object, "sign")
   conenvs <- attr(object, "env")
 
@@ -473,7 +475,7 @@ ergm_proposal.ergm_conlist <- function(object, arguments, nw, weights="default",
     name <- proposal$Proposal
     arguments$constraints <- object
     ## Hand it off to the class character method.
-    proposal <- ergm_proposal(name, arguments, nw, reference = reference, ..., term.options = term.options)
+    proposal <- ergm_proposal(name, arguments, nw, reference = reference, weights = weights, class = class, ..., term.options = term.options)
 
     ## Keep trying until some proposal function accepts.
     if(!is.null(proposal) && !is.character(proposal)) break
