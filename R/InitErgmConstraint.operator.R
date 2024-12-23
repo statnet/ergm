@@ -68,7 +68,7 @@ InitErgmConstraint..attributes <- function(nw, arglist, ...){
               lens[2L*i] <- i
             }
             lens[2L*n-1L] <- 1L
-          }          
+          }
           structure(list(lengths=lens,values=vals), class="rle")
         }
       rlebdm(d, n)
@@ -239,7 +239,7 @@ InitErgmConstraint.odegreedist<-function(nw, arglist, ...){
 
 #' @templateVar name bd
 #' @title Constrain maximum and minimum vertex degree
-#' @description Condition on the number of inedge or outedges posessed by a node. 
+#' @description Condition on the number of inedge or outedges posessed by a node.
 #' See Placing Bounds on Degrees section for more information. ([`?ergmConstraint`][ergmConstraint])
 #'
 #' @usage
@@ -516,7 +516,7 @@ InitErgmConstraint.fixallbut<-function(nw, arglist,...){
 #'   probability of erroneously observing a tie where the true network
 #'   had a non-tie and `p10` giving the dyadwise probability of
 #'   erroneously observing a nontie where the true network had a tie.
-#'   
+#'
 #' @usage
 #' # dyadnoise(p01, p10)
 #' @param p01,p10 can both be scalars or both be adjacency matrices of the same dimension as that of the
@@ -581,7 +581,7 @@ InitErgmConstraint.egocentric <- function(nw, arglist, ...){
       # Remember: column-major order.
 
       rlea <- rle(a)
-      
+
       fd <- rlebdm(switch(direction,
                           `out` = rep(rlea, n),
                           `in` = rep(rlea, rep(n, length(rlea$lengths)), scale="run"),
