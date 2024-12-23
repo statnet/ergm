@@ -69,6 +69,7 @@ Collate:
     'InitErgmConstraint.R'
     'InitErgmConstraint.blockdiag.R'
     'InitErgmConstraint.hints.R'
+    'InitErgmConstraint.operator.R'
     'InitErgmProposal.R'
     'InitErgmProposal.dyadnoise.R'
     'InitErgmReference.R'
