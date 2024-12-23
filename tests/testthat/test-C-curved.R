@@ -52,9 +52,9 @@ ergm.etagradmult.R <- function(theta, v, etamap) {
 }
 
 data(faux.mesa.high)
-flom <- ergm_model(~edges+gwesp()+gwdegree()+absdiffcat("Grade")+Offset(~nodefactor("Grade"),c(+1,-1), c(2,3))+gwesp()+NodematchFilter(~gwesp()+nodefactor("Grade"), "Grade"), faux.mesa.high)
-(neta <- nparam(flom, canonical=TRUE))
-(ntheta <- nparam(flom, canonical=FALSE))
+flom <- ergm_model(~edges+gwesp()+gwdegree()+absdiffcat("Grade")+Offset(~edges+edges,c(+1,-1))+Offset(~nodefactor("Grade"),c(+1,-1), c(2,3))+gwesp()+NodematchFilter(~gwesp()+nodefactor("Grade"), "Grade"), faux.mesa.high)
+neta <- nparam(flom, canonical=TRUE)
+ntheta <- nparam(flom, canonical=FALSE)
 
 test_that("C implementation of ergm.eta gives the same answer as R implementation.", {
   expect_equal(ergm.eta(1:ntheta, flom$etamap), ergm.eta.R(1:ntheta, flom$etamap))

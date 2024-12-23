@@ -10,21 +10,24 @@
 #include "ergm_etamap.h"
 #include <Rversion.h>
 
-#define SETUP_CALL(fun)                         \
-  SEXP cm = VECTOR_ELT(curved, i);              \
-  SEXP toR = getListElement(cm, "to");          \
-  unsigned int to = INTEGER(toR)[0];            \
-  unsigned int nto = length(toR);               \
-  SEXP fromR = getListElement(cm, "from");      \
-  unsigned int from = INTEGER(fromR)[0];        \
-  unsigned int nfrom = length(fromR);           \
-  SEXP cov = getListElement(cm, "cov");         \
-  SEXP fun = getListElement(cm, #fun);          \
-                                                \
+/* UINT_MAX's are there to segfault as soon as possible if empty from
+   and to vectors are actually used rather than return misleading
+   results. */
+#define SETUP_CALL(fun)                                                 \
+  SEXP cm = VECTOR_ELT(curved, i);                                      \
+  SEXP toR = getListElement(cm, "to");                                  \
+  unsigned int nto = length(toR);                                       \
+  unsigned int to = nto ? INTEGER(toR)[0] : UINT_MAX;                   \
+  SEXP fromR = getListElement(cm, "from");                              \
+  unsigned int nfrom = length(fromR);                                   \
+  unsigned int from = nfrom ? INTEGER(fromR)[0] : UINT_MAX;             \
+  SEXP cov = getListElement(cm, "cov");                                 \
+  SEXP fun = getListElement(cm, #fun);                                  \
+                                                                        \
   SEXP pos = call, arg;                                                 \
   SETCAR(pos, fun); pos = CDR(pos);                                     \
   SETCAR(pos, (arg = allocVector(REALSXP, nfrom))); pos = CDR(pos); /* Don't need to PROTECT the vector this way. */ \
-  memcpy(REAL(arg), theta1+from, nfrom*sizeof(double));                 \
+  if(nfrom) memcpy(REAL(arg), theta1+from, nfrom*sizeof(double));       \
   SETCAR(pos, ScalarInteger(nto)); pos = CDR(pos);                      \
   SETCAR(pos, cov);
 
