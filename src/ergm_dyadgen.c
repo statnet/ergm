@@ -179,14 +179,18 @@ void DyadGenUpdate(Vertex tail, Vertex head, void *payload, Network *nwp, Rboole
 
   switch(gen->intertype){
   case UnsrtELDyadGen:
-    if(edgestate) UnsrtELDelete(tail, head, gen->inter.uel); // Deleting
-    else UnsrtELInsert(tail, head, gen->inter.uel); // Inserting
-    if(gen->inter.uel->linsearch >= DYADGEN_MISSES_BEFORE_UPGRADE) DyadGenUpgradeIntersect(gen);
+    if(DyadGenSearch(tail, head, gen)){
+      if(edgestate) UnsrtELDelete(tail, head, gen->inter.uel); // Deleting
+      else UnsrtELInsert(tail, head, gen->inter.uel); // Inserting
+      if(gen->inter.uel->linsearch >= DYADGEN_MISSES_BEFORE_UPGRADE) DyadGenUpgradeIntersect(gen);
+    }
     break;
 
   case HashELDyadGen:
-    if(edgestate) HashELDelete(tail, head, gen->inter.hel); // Deleting
-    else HashELInsert(tail, head, gen->inter.hel); // Inserting
+    if(DyadGenSearch(tail, head, gen)){
+      if(edgestate) HashELDelete(tail, head, gen->inter.hel); // Deleting
+      else HashELInsert(tail, head, gen->inter.hel); // Inserting
+    }
     break;
 
   case NoELDyadGen: break;
@@ -200,14 +204,18 @@ void WtDyadGenUpdate(Vertex tail, Vertex head, double weight, void *payload, WtN
 
   switch(gen->intertype){
   case UnsrtELDyadGen:
-    if(edgestate!=0 && weight==0) UnsrtELDelete(tail, head, gen->inter.uel); // Deleting
-    else if(edgestate==0 && weight!=0) UnsrtELInsert(tail, head, gen->inter.uel); // Inserting
-    if(gen->inter.uel->linsearch >= DYADGEN_MISSES_BEFORE_UPGRADE) DyadGenUpgradeIntersect(gen);
+    if(DyadGenSearch(tail, head, gen)){
+      if(edgestate!=0 && weight==0) UnsrtELDelete(tail, head, gen->inter.uel); // Deleting
+      else if(edgestate==0 && weight!=0) UnsrtELInsert(tail, head, gen->inter.uel); // Inserting
+      if(gen->inter.uel->linsearch >= DYADGEN_MISSES_BEFORE_UPGRADE) DyadGenUpgradeIntersect(gen);
+    }
     break;
 
   case HashELDyadGen:
-    if(edgestate!=0 && weight==0) HashELDelete(tail, head, gen->inter.hel); // Deleting
-    else if(edgestate==0 && weight!=0) HashELInsert(tail, head, gen->inter.hel); // Inserting
+    if(DyadGenSearch(tail, head, gen)){
+      if(edgestate!=0 && weight==0) HashELDelete(tail, head, gen->inter.hel); // Deleting
+      else if(edgestate==0 && weight!=0) HashELInsert(tail, head, gen->inter.hel); // Inserting
+    }
     break;
 
   case NoELDyadGen: break;
