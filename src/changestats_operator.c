@@ -177,18 +177,7 @@ F_CHANGESTAT_FN(f__submodel_and_summary_term){
 // Sum: Take a weighted sum of the models' statistics.
 
 I_CHANGESTAT_FN(i_Sum){
-  /*
-    inputs expected:
-    1: number of models (nms)
-    1: total length of all weight matrices (tml)
-    tml: a list of mapping matrices in row-major order
-  */
-  
-  double *inputs = INPUT_PARAM; 
-  unsigned int nms = *(inputs++);
-  unsigned int tml = *(inputs++);
-  inputs+=tml; // Jump to start of model specifications.
-  
+  unsigned int nms = *IINPUT_PARAM;
   ALLOC_STORAGE(nms, Model*, ms);
 
   SEXP submodels = getListElement(mtp->R, "submodels");
@@ -200,11 +189,9 @@ I_CHANGESTAT_FN(i_Sum){
 }
 
 C_CHANGESTAT_FN(c_Sum){
-  double *inputs = INPUT_PARAM; 
   GET_STORAGE(Model*, ms);
-  unsigned int nms = *(inputs++);
-  inputs++; //  Skip total length of weight matrices.
-  double *wts = inputs;
+  unsigned int nms = *IINPUT_PARAM;
+  double *wts = INPUT_PARAM;
 
   for(unsigned int i=0; i<nms; i++){
     Model *m = ms[i];
@@ -216,11 +203,9 @@ C_CHANGESTAT_FN(c_Sum){
 }
 
 Z_CHANGESTAT_FN(z_Sum){
-  double *inputs = INPUT_PARAM;
   GET_STORAGE(Model*, ms);
-  unsigned int nms = *(inputs++);
-  inputs++; //  Skip total length of weight matrices.
-  double *wts = inputs;
+  unsigned int nms = *IINPUT_PARAM;
+  double *wts = INPUT_PARAM;
 
   for(unsigned int i=0; i<nms; i++){
     Model *m = ms[i];
@@ -232,11 +217,9 @@ Z_CHANGESTAT_FN(z_Sum){
 }
 
 X_CHANGESTAT_FN(x_Sum){
-  double *inputs = INPUT_PARAM;
   GET_STORAGE(Model*, ms);
-  unsigned int nms = *(inputs++);
-  inputs++; //  Skip total length of weight matrices.
-  double *wts = inputs;
+  unsigned int nms = *IINPUT_PARAM;
+  double *wts = INPUT_PARAM;
 
   for(unsigned int i=0; i<nms; i++){
     Model *m = ms[i];
@@ -248,9 +231,8 @@ X_CHANGESTAT_FN(x_Sum){
 }
 
 F_CHANGESTAT_FN(f_Sum){
-  double *inputs = INPUT_PARAM; 
   GET_STORAGE(Model*, ms);
-  unsigned int nms = *(inputs++);
+  unsigned int nms = *IINPUT_PARAM;
 
   for(unsigned int i=0; i<nms; i++){
     ModelDestroy(nwp, ms[i]);

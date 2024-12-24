@@ -62,9 +62,11 @@ MHProposal *MHProposalInitialize(SEXP pR, Network *nwp, void **aux_storage){
   MHp->x_func=(void (*)(unsigned int, void *, MHProposal*, Network*)) R_FindSymbol(fn,sn,NULL);
 
   SEXP tmp = getListElement(pR, "inputs");
-  MHp->inputs=length(tmp) ? REAL(tmp) : NULL;
+  MHp->ninputs = length(tmp);
+  MHp->inputs = MHp->ninputs ? REAL(tmp) : NULL;
   tmp = getListElement(pR, "iinputs");
-  MHp->iinputs=length(tmp) ? INTEGER(tmp) : NULL;
+  MHp->niinputs = length(tmp);
+  MHp->iinputs = MHp->niinputs ? INTEGER(tmp) : NULL;
   
   /*Clean up by freeing sn and fn*/
   R_Free(fn);

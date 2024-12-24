@@ -715,8 +715,6 @@ InitErgmTerm.Sum <- function(nw, arglist,...){
   nparam <- nparams[1]
 
   inputs <- unlist(wl%>%map(t))
-  inputs <- c(nf, length(inputs), inputs)
-
 
   if(is.function(a$label)){
     cns <- lapply(ms, param_names, canonical=TRUE)
@@ -770,7 +768,7 @@ InitErgmTerm.Sum <- function(nw, arglist,...){
     }
   }else offset <- FALSE
   
-  c(list(name="Sum", coef.names = coef.names, inputs=inputs, submodels=ms, emptynwstats=gs,
+  c(list(name="Sum", coef.names = coef.names, inputs=inputs, iinputs=nf, submodels=ms, emptynwstats=gs,
          dependence=dependence, offset=offset,
          ext.encode = if(ms %>% map("terms") %>% unlist(FALSE) %>% map("ext.encode") %>% compact %>% length)
                         function(el, nw0)

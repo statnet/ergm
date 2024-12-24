@@ -74,18 +74,25 @@ test_that("fixedas with network input", {
   expect_true(all(!sapply(s1,function(x)as.data.frame(t(as.edgelist(absent))) %in% as.data.frame(t(as.edgelist(x))))))
 })
 
-test_that("fixallbut with network input", {
-  net1 <- network(10,directed=FALSE,density=0.5)
-  free.dyads <- matrix(sample(2:9,8,replace=FALSE),4,2)
+net1 <- network(10,directed=FALSE,density=0.5)
+fdel <- matrix(sample(2:9,8,replace=FALSE),4,2)
 
-  t1 <- ergm(net1~edges, constraint = ~fixallbut(free.dyads = free.dyads))
-  s1 <- simulate(t1, 100)
+for(free.dyads in list(
+                    fdel,
+                    fdnw <- as.network(structure(fdel, n = 10), directed = FALSE),
+                    fd <- as.rlebdm(fdnw)
+                  )){
+  test_that(sprintf("fixallbut with %s input", class(free.dyads)[1]), {
+    t1 <- ergm(net1~edges, constraint = ~fixallbut(free.dyads = free.dyads))
+    s1 <- simulate(t1, 100)
 
-  fixed.dyads <- as.edgelist(!update(net1,free.dyads,matrix.type="edgelist"))
-  fixed.dyads.state <- net1[fixed.dyads]
+    fixed.dyads <- as.edgelist(!update(net1,fdel,matrix.type="edgelist"))
+    fixed.dyads.state <- net1[fixed.dyads]
 
-  expect_true(all(sapply(s1,function(x) all.equal(x[fixed.dyads],fixed.dyads.state))))
-})
+    expect_true(all(sapply(s1,function(x) all.equal(x[fixed.dyads],fixed.dyads.state))))
+  })
+}
+
 
 test_that("constraint conflict is detected", {
   data(florentine)

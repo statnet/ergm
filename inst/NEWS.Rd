@@ -11,6 +11,15 @@
 \title{NEWS file for the \code{\link[=ergm-package]{ergm}} package}
 \encoding{UTF-8}
 
+
+%% Note: This needs to be kept in sync with man/macros/ergmTerm.Rd
+\newcommand{\ergmTerm}{\code{\link[#1:#2-ergmTerm]{#2#3}}}
+\newcommand{\ergmConstraint}{\code{\link[#1:#2-ergmConstraint]{#2#3}}}
+\newcommand{\ergmReference}{\code{\link[#1:#2-ergmReference]{#2#3}}}
+\newcommand{\ergmHint}{\code{\link[#1:#2-ergmHint]{#2#3}}}
+\newcommand{\ergmProposal}{\code{\link[#1:#2-ergmProposal]{#2#3}}}
+
+
 % When a release is forked, copy the sections to a new release and
 % delete unused sections.
 
@@ -65,6 +74,83 @@
 %% }
 
 
+\section{Changes in version 4.8.0}{
+
+  \subsection{NEW FEATURES}{
+    \itemize{
+      \item{
+        A new bipartite term operator \ergmTerm{ergm}{Project}{()}, with aliases \ergmTerm{ergm}{Proj1}{()} and \ergmTerm{ergm}{Proj2}{()}, evaluating the statistics on an undirected valued network of counts constructed by projecting the bipartite network onto one of its modes.
+      }
+      \item{
+        A new family of terms, \ergmTerm{ergm}{nodecovrange}{()}, \ergmTerm{ergm}{nodeocovrange}{()}, \ergmTerm{ergm}{nodeicovrange}{()}, \ergmTerm{ergm}{b1covrange}{()}, and \ergmTerm{ergm}{b2covrange}{()}, to evaluate the sum over the nodes of the range of the specified quantitative attribute value among the node's neighbors. (Thanks to Marion Hoffman for the idea!)
+      }
+      \item{
+        A new family of terms, \ergmTerm{ergm}{nodefactordistinct}{()}, \ergmTerm{ergm}{nodeofactordistinct}{()}, \ergmTerm{ergm}{nodeifactordistinct}{()}, \ergmTerm{ergm}{b1factordistinct}{()}, and \ergmTerm{ergm}{b2factordistinct}{()}, to evaluate the sum over the nodes of the number of distinct values of a categorical factor among the node's neighbors. (Thanks to Marion Hoffman for the idea!)
+      }
+      \item{
+        The \ergmConstraint{ergm}{fixallbut}{()} now supports an \code{\link{rlebdm}} (in addition to an edge list matrix and a \code{\link[network]{network}}) for its argument.
+      }
+    }
+  }
+
+
+  \subsection{BUG FIXES}{
+    \itemize{
+      \item{
+        Fix in stochastic approximation code for compatibility with most recent \CRANpkg{coda}.
+      }
+      \item{
+        In \code{\link[ergm]{ergm()}}, a bug in initialization of MH proposals for constrained sampling requesting auxiliaries has been fixed.
+      }
+    }
+  }
+
+
+  \subsection{OTHER USER-VISIBLE CHANGES}{
+    \itemize{
+      \item{
+        Precision of geometrically weighted statistics (degrees and shared partners) has been improved, particularly for large decay parameters.
+      }
+      \item{
+        Dynamic term documentation is now more robust to extension developer error.
+      }
+      \item{
+        A new \code{\link[=as.rle.rlebdm]{as.rle()}} method for \code{\link{rlebdm}} objects to cast it back to an \code{\link{rle}}.
+      }
+    }
+  }
+
+  \subsection{C-LEVEL FACILITIES}{
+    \itemize{
+      \item{
+        Degree-conditioned proposals are now exported in \file{inst/include/}.
+      }
+      \item{
+        The M-H proposal API now makes lengths of input vectors available to the proposals, paralleling the change statistics API.
+      }
+    }
+  }
+
+  %% \subsection{UTILITIES}{
+  %%   \itemize{
+  %%     \item Likewise, "UTILITIES" is probably unnecessary.
+  %%   }
+  %% }
+
+  %% \subsection{INSTALLATION}{
+  %%   \itemize{
+  %%     \item ... as is "INSTALLATION".
+  %%   }
+  %% }
+
+  %% \subsection{PACKAGE INSTALLATION}{
+  %%   \itemize{
+  %%     \item ditto.
+  %%   }
+  %% }
+
+}
+
 
 \section{Changes in version 4.7.5}{
 
@@ -105,7 +191,7 @@
         \code{\link[=blockdiag-ergmConstraint]{blockdiag}} constraint initialization now detects when blocks are non-contiguous and stops with an error. (Previously, it would behave in undefined ways.)
       }
       \item{
-        \code{\link[=Sum-ergmTerm]{Sum}} operator now handles \code{\link{I}()} label specifications correctly; this also fixes an error in the \code{\link[=Prod-ergmTerm]{Prod}} term.
+        \ergmTerm{ergm}{Sum}{} operator now handles \code{\link{I}()} label specifications correctly; this also fixes an error in the \ergmTerm{ergm}{Prod}{} term.
       }
       \item{
         Detection of dyadic dependence now ignores dyadic dependence of hints (since they do not affect the sample space) and auxiliaries (since they do not, in and of themselves, add dyad-dependent statistics).
@@ -123,7 +209,7 @@
         In proposal help, listing of proposal table entries works again.
       }
       \item{
-        \code{\link[=nodemix-ergmTerm]{nodemix}()} now uses correct parameter names.
+        \ergmTerm{ergm}{nodemix}{()} now uses correct parameter names.
       }
       \item{
         Godambe information for the MPLE now works if the model has an offset. (Thanks, Cornelius Fritz for reporting and Michał Bojanowski for fixing.)
@@ -132,7 +218,7 @@
         When constructing the starting networks for missing data MCMC, imputation of dyads is skipped if the constraints are dyad-dependent, since inserting edges may break the constraint.
       }
       \item{
-        \code{\link[=edgecov-ergmTerm]{edgecov}()} and \code{\link[=dyadcov-ergmTerm]{dyadcov}()} now handle \code{\link[network]{network}}-format input correctly.
+        \ergmTerm{ergm}{edgecov}{()} and \ergmTerm{ergm}{dyadcov}{()} now handle \code{\link[network]{network}}-format input correctly.
       }
       \item{
         Missing data MLE code can now handle the scenarios in which the statistics in the constrained sample are constant and/or the statistics in the unconstrained sample are highly correlated.
@@ -144,10 +230,10 @@
         Likelihood calculation is now robust to dropped parameters and parameters fixed at infinity.
       }
       \item{
-        \code{\link[Label-ergmTerm]{Label}()} operator now documents its behavior when the model is curved more clearly.
+        \ergmTerm{ergm}{Label}{()} operator now documents its behavior when the model is curved more clearly.
       }
       \item{
-        Invalid \code{levels2} specification for \code{\link[=mm-ergmTerm]{mm()}} no longer causes memory errors.
+        Invalid \code{levels2} specification for \ergmTerm{ergm}{mm}{()} no longer causes memory errors.
       }
       \item{
         Valued proposal updater function was not being passed the current edge state.
@@ -167,7 +253,7 @@
         \code{\link{LARGEST}}, \code{\link{SMALLEST}}, and \code{\link{COLLAPSE_SMALLEST}} now break ties lexicographically with a warning.
       }
       \item{
-        \code{\link[=absdiffcat-ergmTerm]{absdiffcat}} is now more memory-efficient during initialization.
+        \ergmTerm{ergm}{absdiffcat}{} is now more memory-efficient during initialization.
       }
       \item{
         MCMLE estimation code for missing data MLE with high missingness fraction is more robust.
@@ -191,7 +277,7 @@
         \code{\link{ergm_Init_stop}()}, \code{\link{ergm_Init_warning}()}, and \code{\link{ergm_Init_message}()} that behave more like their \pkg{base} counterparts have been added to the API. \code{\link{ergm_Init_abort}()}, \code{\link{ergm_Init_warn}()}, and \code{\link{ergm_Init_info}()} will eventually change to use their \CRANpkg{rlang} semantics.
       }
       \item{
-        \code{\link[=edgecov-ergmTerm]{edgecov}()} and \code{\link[=dyadcov-ergmTerm]{dyadcov}()} now check that their covariate matrix has the correct dimension.
+        \ergmTerm{ergm}{edgecov}{()} and \ergmTerm{ergm}{dyadcov}{()} now check that their covariate matrix has the correct dimension.
       }
       \item{
         Constraints \code{\link[fixedas-ergmConstraint]{fixedas}()} and \code{\link[fixedas-ergmConstraint]{fixallbut}()} now warn when given a network whose size does not match the LHS network's.
@@ -493,7 +579,7 @@
         New functions \code{\link{search.ergmHints}()} and \code{\link{search.ergmReferences}()} can now be used to search available \code{\link{ergmHints}} and \code{\link{ergmReferences}}, respectively.
       }
       \item{
-        A new \code{\link[=For-ergmTerm]{For}()} term operator to construct a list of terms with some varying parameter.
+        A new \ergmTerm{ergm}{For}{()} term operator to construct a list of terms with some varying parameter.
       }
       \item{
         Term API vignette is now more complete, and includes all API elements, not just the post-4.0 ones.
@@ -594,7 +680,7 @@
   \subsection{NEW FEATURES}{
     \itemize{
       \item{
-        In terms \code{\link[=edgecov-ergmTerm]{edgecov}()} and \code{\link[=dyadcov-ergmTerm]{dyadcov}()}, the argument can now be a network.
+        In terms \ergmTerm{ergm}{edgecov}{()} and \ergmTerm{ergm}{dyadcov}{()}, the argument can now be a network.
       }
     }
   }
@@ -704,7 +790,7 @@
       }
 
       \item{
-        Term \code{\link[=nodemix-ergmTerm]{nodemix}} can now be passed a \code{levels2} argument that is a \code{\link{factor}} or \code{\link{character}} and optionally a matrix, allowing multiple cells to be mapped to the same statistic. (Joyce Cheng)
+        Term \ergmTerm{ergm}{nodemix}{} can now be passed a \code{levels2} argument that is a \code{\link{factor}} or \code{\link{character}} and optionally a matrix, allowing multiple cells to be mapped to the same statistic. (Joyce Cheng)
       }
 
       \item{
@@ -733,7 +819,7 @@
       }
 
       \item{
-        \code{\link[=edgecov-ergmTerm]{edgecov}} and \code{\link[=dyadcov-ergmTerm]{dyadcov}} now detect and stop with an error when the specified network attribute is not found.
+        \ergmTerm{ergm}{edgecov}{} and \ergmTerm{ergm}{dyadcov}{} now detect and stop with an error when the specified network attribute is not found.
       }
 
       \item{
@@ -813,7 +899,7 @@
       }
 
       \item{
-        \code{\link{check.ErgmTerm}()} helper function can now also capture the expressions resulting in term arguments. This incidentally fixes a regression in statistic naming of \code{\link{edgecov-ergmTerm}} and \code{\link{dyadcov-ergmTerm}} effects.
+        \code{\link{check.ErgmTerm}()} helper function can now also capture the expressions resulting in term arguments. This incidentally fixes a regression in statistic naming of \ergmTerm{ergm}{edgecov}{()} and \ergmTerm{ergm}{dyadcov}{()} effects.
       }
 
       \item{

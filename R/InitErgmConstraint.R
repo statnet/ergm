@@ -415,7 +415,7 @@ InitErgmConstraint.observed <- function(nw, arglist, ...){
 }
 
 warn_netsize <- function(.n, ...){
-  mismatch <- vapply(list(...), function(x) is.network(x) && network.size(x) != .n, logical(1))
+  mismatch <- map_lgl(list(...), function(x) (is.network(x) && network.size(x) != .n) || (is(x, "rlebdm") && nrow(x) != .n))
   if(any(mismatch))
     ergm_Init_warning("Network size of argument(s) ", paste.and(sQuote(...names()[mismatch])), " differs from that of the response network.")
 }
@@ -477,7 +477,7 @@ InitErgmConstraint.fixedas<-function(nw, arglist,...){
 #'
 #' @usage
 #' # fixallbut(free.dyads)
-#' @param free.dyads edgelist or network. Networks will be converted to the corresponding edgelist.
+#' @param free.dyads a two-column edge list, a [`network`], or an [`rlebdm`]. Networks will be converted to the corresponding edgelist.
 #'
 #' @template ergmConstraint-general
 #'
@@ -487,7 +487,7 @@ InitErgmConstraint.fixedas<-function(nw, arglist,...){
 InitErgmConstraint.fixallbut<-function(nw, arglist,...){
   a <- check.ErgmTerm(nw, arglist,
                       varnames = c("free.dyads"),
-                      vartypes = c("network,matrix"),
+                      vartypes = c("network,matrix,rlebdm"),
                       defaultvalues = list(NULL),
                       required = c(TRUE))
   free.dyads <- a$free.dyads
@@ -495,15 +495,16 @@ InitErgmConstraint.fixallbut<-function(nw, arglist,...){
   warn_netsize(network.size(nw), free.dyads = free.dyads)
 
   list(
-    free_dyads = function(){
-      if(is.network(free.dyads)) free.dyads <- as.edgelist(free.dyads)
-      else free.dyads <- as.edgelist(free.dyads,
-                                     n=nw%n%"n",
-                                     directed=nw%n%"directed",
-                                     bipartite=nw%n%"bipartite",
-                                     loops=nw%n%"loops")
-      as.rlebdm(free.dyads)
-    },
+    free_dyads =
+      if(is(free.dyads, "rlebdm")) free.dyads
+      else function()
+        as.rlebdm(if(is.network(free.dyads)) as.edgelist(free.dyads)
+                  else as.edgelist(free.dyads,
+                                   n=nw%n%"n",
+                                   directed=nw%n%"directed",
+                                   bipartite=nw%n%"bipartite",
+                                   loops=nw%n%"loops")
+                  ),
     dependence = FALSE)
 }
 

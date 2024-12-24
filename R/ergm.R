@@ -491,7 +491,7 @@ ergm <- function(formula, response=NULL,
   model.obs <- NULL
   if(identical(proposal$auxiliaries, proposal.obs$auxiliaries)){
     ## Reuse auxiliaries from the unconstrained proposal if identical.
-    proposal.obs$slots.extra.aux <- model$slots.extra.aux$proposal
+    proposal.obs$aux.slots <- model$slots.extra.aux$proposal
   }else if(!is.null(proposal.obs$auxiliaries)){
     if (verbose) message("Constrained proposal requires different auxiliaries: reinitializing model...")
     model.obs <- ergm_model(formula, nw, extra.aux = NVL3(proposal.obs$auxiliaries,list(proposal=.)), term.options=control$term.options)
