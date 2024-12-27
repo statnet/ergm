@@ -48,25 +48,25 @@ test_that("b1cov, bipartite, undirected", {
 })
 
 test_that("b1degrange, bipartite, undirected", {
-  s.d <- summary(bipnw~b1degrange(from=c(1,2),to=c(Inf,Inf)))
+  s.d <- summary(bipnw~b1degrange(from=c(0,1,2),to=c(3,3,Inf)))
   e.d <- ergm(bipnw~b1degrange(from=c(1,2),to=c(Inf,Inf)), estimate="MPLE")
-  s.anh <- summary(bipnw~b1degrange(from=c(1,2),to=c(Inf,Inf),by="Letter",homophily=FALSE))
+  s.anh <- summary(bipnw~b1degrange(from=c(0,1,2),to=c(3,3,Inf),by="Letter",homophily=FALSE))
   e.anh <- ergm(bipnw~b1degrange(from=c(1,2),to=c(Inf,Inf),by=function(x) x %v% "Letter",homophily=FALSE), estimate="MPLE")
-  s.dh <- summary(bipnw~b1degrange(from=c(1,2),to=c(Inf,Inf),by="Letter",homophily=TRUE))
+  s.dh <- summary(bipnw~b1degrange(from=c(0,1,2),to=c(3,3,Inf),by="Letter",homophily=TRUE))
   e.dh <- ergm(bipnw~b1degrange(from=c(1,2),to=c(Inf,Inf),by=function(x) x %v% "Letter",homophily=TRUE), estimate="MPLE")
-  expect_summary(s.d, e.d, c(42,12), c(-4.027, -3.961))
-  expect_summary(s.anh, e.anh, c(13,4,13,5,16,3), c(-4.215, -4.143, -4.284, -3.620, -3.636, -4.105))
-  expect_summary(s.dh, e.dh, c(19,3), c(-3.891, -3.143))
+  expect_summary(s.d, e.d, c(96,38,12), c(-4.027, -3.961))
+  expect_summary(s.anh, e.anh, c(32,11,4,31,11,5,33,16,3), c(-4.215, -4.143, -4.284, -3.620, -3.636, -4.105))
+  expect_summary(s.dh, e.dh, c(100,19,3), c(-3.891, -3.143))
 })
 
 test_that("b1degree, bipartite, undirected", {
-  s.d <- summary(bipnw~b1degree(1:3))
+  s.d <- summary(bipnw~b1degree(0:3))
   e.d <- ergm(bipnw~b1degree(1:3), estimate="MPLE")
-  s.db <- summary(bipnw~b1degree(2:4, by="Letter"))
+  s.db <- summary(bipnw~b1degree(c(0,2:4), by="Letter"))
   e.db <- ergm(bipnw~b1degree(2, by=~Letter), estimate="MPLE")
 
-  expect_summary(s.d, e.d, c(30,8,2), -c(2.991, 5.442, 6.484))
-  expect_summary(s.db, e.db, c(2,1,1,3,1,1,3,0,0), -c(1.481, .959, 1.431))
+  expect_summary(s.d, e.d, c(58,30,8,2), -c(2.991, 5.442, 6.484))
+  expect_summary(s.db, e.db, c(21,2,1,1,20,3,1,1,17,3,0,0), -c(1.481, .959, 1.431))
 })
 
 test_that("b1dsp, bipartite", {
@@ -158,25 +158,25 @@ test_that("b2cov, bipartite, undirected", {
 })
 
 test_that("b2degrange, bipartite, undirected", {
-  s.d <- summary(bipnw~b2degrange(from=c(1,2),to=c(Inf,Inf)))
+  s.d <- summary(bipnw~b2degrange(from=c(0,1,2),to=c(3,3,Inf)))
   e.d <- ergm(bipnw~b2degrange(from=c(1,2),to=c(Inf,Inf)), estimate="MPLE")
-  s.anh <- summary(bipnw~b2degrange(from=c(1,2),to=c(Inf,Inf),by=function(x) x %v% "Letter",homophily=FALSE))
+  s.anh <- summary(bipnw~b2degrange(from=c(0,1,2),to=c(3,3,Inf),by=function(x) x %v% "Letter",homophily=FALSE))
   (e.anh <- ergm(bipnw~b2degrange(from=c(1,2),to=c(Inf,Inf),by=~Letter,homophily=FALSE), estimate="MPLE")) |>
     expect_warning("The MPLE does not exist!")
-  s.dh <- summary(bipnw~b2degrange(from=c(1,2),to=c(Inf,Inf),by=function(x) x %v% "Letter",homophily=TRUE))
+  s.dh <- summary(bipnw~b2degrange(from=c(0,1,2),to=c(3,3,Inf),by=function(x) x %v% "Letter",homophily=TRUE))
   e.dh <- ergm(bipnw~b2degrange(from=c(1,2),to=c(Inf,Inf),by=~Letter,homophily=TRUE), estimate="MPLE")
-  expect_summary(s.d, e.d, c(26,20), -c(3.912,3.497))
-  expect_summary(s.anh, e.anh, c(9,8,10,6,7,6), -c(-13.566, 2.803, -14.365, 4.190, 5.704, 2.803))
-  expect_summary(s.dh, e.dh, c(19,3), -c(3.03, 4.46))
+  expect_summary(s.d, e.d, c(18,15,20), -c(3.912,3.497))
+  expect_summary(s.anh, e.anh, c(4,4,8,7,7,6,7,4,6), -c(-13.566, 2.803, -14.365, 4.190, 5.704, 2.803))
+  expect_summary(s.dh, e.dh, c(29,19,3), -c(3.03, 4.46))
 })
 
 test_that("b2degree, bipartite, undirected", {
-  s.d <- summary(bipnw~b2degree(1:3))
+  s.d <- summary(bipnw~b2degree(0:3))
   e.d <- ergm(bipnw~b2degree(1:3), estimate="MPLE")
-  s.db <- summary(bipnw~b2degree(2:4, by="Letter"))
+  s.db <- summary(bipnw~b2degree(0:3, by="Letter"))
   e.db <- ergm(bipnw~b2degree(2, by=~Letter), estimate="MPLE")
-  expect_summary(s.d, e.d, c(6,9,8), c(1.7203, 1.4941, .6768))
-  expect_summary(s.db, e.db, c(3,2,3,3,3,0,3,3,0), c(1.0498, -.3001, 1.0217))
+  expect_summary(s.d, e.d, c(3,6,9,8), c(1.7203, 1.4941, .6768))
+  expect_summary(s.db, e.db, c(0,1,3,2,0,4,3,3,3,1,3,3), c(1.0498, -.3001, 1.0217))
 })
 
 test_that("b2dsp, bipartite", {

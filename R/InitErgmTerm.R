@@ -223,7 +223,7 @@ decay_vs_fixed <- function(a, name, no_curved_attrarg=TRUE){
   } else {
     if (any(from==0)) {
       emptynwstats <- rep(0, length(from))
-      emptynwstats[from==0] <- network.size(nw)
+      emptynwstats[from==0] <- switch(deg, b1 = nw %n% "bipartite", b2 = network.size(nw) - nw %n% "bipartite", network.size(nw))
     }
   }
   if(is.null(byarg)) {
@@ -293,7 +293,7 @@ decay_vs_fixed <- function(a, name, no_curved_attrarg=TRUE){
   } else {
     if (any(d==0)) {
       emptynwstats <- rep(0, length(d))
-      emptynwstats[d==0] <- network.size(nw)
+      emptynwstats[d==0] <- switch(deg, b1 = nw %n% "bipartite", b2 = network.size(nw) - nw %n% "bipartite", network.size(nw))
     }
   }
   if(is.null(byarg)) {
@@ -311,7 +311,7 @@ decay_vs_fixed <- function(a, name, no_curved_attrarg=TRUE){
     if(ncol(du)==0) {return(NULL)}
     #  No covariates here, so "ParamsBeforeCov" unnecessary
     # See comment in d_degree_by_attr function
-    coef.names <- paste0(deg, "deg", du[1,], ".", attrname,u[du[2,]])
+    coef.names <- paste0(deg, "deg", du[1,], ".", attrname, ".", u[du[2,]])
     name <- paste0(degname, "degree_by_attr")
     inputs <- c(as.vector(du), nodecov)
   }
@@ -368,7 +368,7 @@ decay_vs_fixed <- function(a, name, no_curved_attrarg=TRUE){
      #  No covariates here, so "ParamsBeforeCov" unnecessary
      # See comment in c_*degree_by_attr functions
       name <- sprintf("gw%sdegree_by_attr", degname)
-      coef.names <- sprintf("gw%sdeg%s.%s%s", deg, decay, attrname, u)
+      coef.names <- sprintf("gw%sdeg%s.%s.%s", deg, decay, attrname, u)
       inputs <- c(decay, nodecov)
     }else{
       name <- sprintf("gw%sdegree", degname)
