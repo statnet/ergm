@@ -201,9 +201,8 @@ nobs.ergm <- function(object, ...){
     warning("The number of observed dyads in this network is ill-defined due to complex constraints on the sample space. Disable this warning with ",sQuote("options(ergm.loglik.warn_dyads=FALSE)"),".")
   }
 
-  NVL3(NVL(object$mple.null.lik, object$mple.lik, object$null.lik, object$mle.lik),
-       attr(.,"nobs"),
-       object$info$n_info_dyads)
+  object$info$n_info_dyads %||%
+    attr(NVL(object$mple.null.lik, object$mple.lik, object$null.lik, object$mle.lik), "obs")
 }
 
 NO_NULL_IMPLICATION <- "This means that all likelihood-based inference (LRT, Analysis of Deviance, AIC, BIC, etc.) is only valid between models with the same reference distribution and constraints."
