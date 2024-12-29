@@ -2036,31 +2036,6 @@ C_CHANGESTAT_FN(c_hamming) {
 
 }
 
-/*****************
- changestat: d_hammingmix
-*****************/
-C_CHANGESTAT_FN(c_hammingmix) { 
-  
-  Edge nhedge =  INPUT_PARAM[0];
-/*  Rprintf("nstats %d nhedge %d i0 %f i1 %f i2 %f i3 %f\n",nstats, nhedge, INPUT_PARAM[0],
-                                 INPUT_PARAM[1],
-                                 INPUT_PARAM[2],
-                                 INPUT_PARAM[3]
-		  ); */
-
-
-  /* *** don't forget tail -> head */    
-      int matchvaltail = INPUT_PARAM[tail+2*N_CHANGE_STATS+2*nhedge];
-    int matchvalhead = INPUT_PARAM[head+2*N_CHANGE_STATS+2*nhedge];
-    unsigned int discord = XOR(dEdgeListSearch(tail, head, INPUT_PARAM), edgestate);
-    for (unsigned int j=0; j<N_CHANGE_STATS; j++){
-      if(matchvaltail==INPUT_PARAM[2*nhedge+1+j] &&
-        matchvalhead==INPUT_PARAM[2*nhedge+1+N_CHANGE_STATS+j]){
-          CHANGE_STAT[j] += (discord ? -1.0 : 1.0);
-      }
-    }
-}
-
 /********************  changestats:  I    ***********/
 
 // A macro indicating whether x is in [from,to)

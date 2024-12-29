@@ -283,13 +283,3 @@ enformulate.curved.formula <- function(object, theta, ...){
 
   model.transform.formula(object, theta, recipes, ...)
 }
-
-#' @describeIn ergm-deprecated \code{offset.info.formula} returns the offset
-#'   vectors associated with a formula.
-#' @export offset.info.formula
-offset.info.formula <- function(object, ...){
-  .Deprecated()
-  nw <- ergm.getnetwork(object)
-  m<-ergm_model(object, nw, ...)
-  with(m$etamap, list(term=offset, theta=offsettheta,eta=offsetmap))
-}
