@@ -17,12 +17,6 @@ such statistic equals the number of dyads in the first bipartition with exactly
 \code{d[i]} shared partners. (Those shared partners, of course, must be members
 of the second bipartition.) This term can only be used with bipartite networks.
 }
-\note{
-This term takes an additional term option (see
-\code{\link[=ergm-options]{options?ergm}}), \code{cache.sp}, controlling whether
-the implementation will cache the number of shared partners for
-each dyad in the network; this is usually enabled by default.
-}
 \seealso{
 \code{\link{ergmTerm}} for index of model terms currently visible to the package.
 

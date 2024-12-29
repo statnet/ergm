@@ -52,7 +52,7 @@ SPTYPE_CODE <- c(UTP = 0L, OTP = 1L, ITP = 2L, RTP = 3L, OSP = 4L, ISP = 5L)
   type
 }
 
-.d_sp_impl <- function(sp, nw, arglist, cache.sp, emptynwstats = function(...)NULL, ...){
+.d_sp_impl <- function(sp, nw, arglist, emptynwstats = function(...)NULL, ...){
   if(sp %in% c("b1","b2")){
     bip <- sp
     sp <- "d"
@@ -74,10 +74,10 @@ SPTYPE_CODE <- c(UTP = 0L, OTP = 1L, ITP = 2L, RTP = 3L, OSP = 4L, ISP = 5L)
 
   list(name=if(nchar(bip)) "ddspbwrap" else paste0("d",utermname), coef.names=paste(conam,d,sep=""), iinputs=c(SPTYPE_CODE[type],d),
        minval=0, emptynwstats=emptynwstats(nw=nw, a=a, d=d, type=type),
-       auxiliaries=if(cache.sp) .spcache.aux(type) else NULL)
+       auxiliaries=.spcache.aux(type))
 }
 
-.dgw_sp_impl <- function(sp, nw, arglist, cache.sp, gw.cutoff, ...){
+.dgw_sp_impl <- function(sp, nw, arglist, gw.cutoff, ...){
   if(sp %in% c("b1","b2")){
     bip <- sp
     sp <- "d"
@@ -111,10 +111,10 @@ SPTYPE_CODE <- c(UTP = 0L, OTP = 1L, ITP = 2L, RTP = 3L, OSP = 4L, ISP = 5L)
     c(list(name=if(nchar(bip)) "ddspdistbwrap" else paste0("d",sp,"spdist"),
            coef.names=if(type=="UTP" || nchar(bip)) paste0(bip,sp,"sp#",d) else paste0(bip,sp,"sp.",type,"#",d),
            cutoff.message = ergm_cutoff_message(maxsp, termname, sprintf("number of %ss on some %s", SPTYPE_DESC[type], c(e="edge", d="dyad", n="nonedge")[sp]), "cutoff", "gw.cutoff"),
-           iinputs=SPTYPE_CODE[type], params=params, auxiliaries=if(cache.sp) .spcache.aux(type) else NULL), GWDECAY)
+           iinputs=SPTYPE_CODE[type], params=params, auxiliaries=.spcache.aux(type)), GWDECAY)
   }else{
     coef.names <- paste(statname,"fixed",decay,sep=".")
-    list(name=if(nchar(bip)) "dgwdspbwrap" else termname, coef.names=coef.names, inputs=decay, iinputs=SPTYPE_CODE[type], auxiliaries=if(cache.sp) .spcache.aux(type) else NULL)
+    list(name=if(nchar(bip)) "dgwdspbwrap" else termname, coef.names=coef.names, inputs=decay, iinputs=SPTYPE_CODE[type], auxiliaries=.spcache.aux(type))
   }
 }
 
@@ -159,7 +159,6 @@ SPTYPE_CODE <- c(UTP = 0L, OTP = 1L, ITP = 2L, RTP = 3L, OSP = 4L, ISP = 5L)
 #' @param d a vector of distinct integers
 #' @template ergmTerm-sp-type
 #'
-#' @template ergmTerm-cache-sp
 #' @template ergmTerm-general
 #'
 #' @template ergmTerm-directed
@@ -168,8 +167,8 @@ SPTYPE_CODE <- c(UTP = 0L, OTP = 1L, ITP = 2L, RTP = 3L, OSP = 4L, ISP = 5L)
 #'
 #' @concept directed
 #' @aliases desp-ergmTerm
-InitErgmTerm.desp<-function(nw, arglist, cache.sp=TRUE, ...) {
-  .d_sp_impl("e", nw, arglist, cache.sp, ...)
+InitErgmTerm.desp<-function(nw, arglist, ...) {
+  .d_sp_impl("e", nw, arglist, ...)
 }
 
 
@@ -204,7 +203,6 @@ InitErgmTerm.desp<-function(nw, arglist, cache.sp=TRUE, ...) {
 #' @template ergmTerm-gw-cutoff
 #' @template ergmTerm-sp-type
 #'
-#' @template ergmTerm-cache-sp
 #' @template ergmTerm-general
 #'
 #' @template ergmTerm-sp-types
@@ -213,8 +211,8 @@ InitErgmTerm.desp<-function(nw, arglist, cache.sp=TRUE, ...) {
 #'
 #' @concept directed
 #' @aliases dgwesp-ergmTerm
-InitErgmTerm.dgwesp<-function(nw, arglist, cache.sp=TRUE, gw.cutoff=30, ...) {
-  .dgw_sp_impl("e", nw, arglist, cache.sp, gw.cutoff, ...)
+InitErgmTerm.dgwesp<-function(nw, arglist, gw.cutoff=30, ...) {
+  .dgw_sp_impl("e", nw, arglist, gw.cutoff, ...)
 }
 
 
@@ -243,7 +241,6 @@ InitErgmTerm.dgwesp<-function(nw, arglist, cache.sp=TRUE, gw.cutoff=30, ...) {
 #' @param d a vector of distinct integers
 #' @template ergmTerm-sp-type
 #'
-#' @template ergmTerm-cache-sp
 #' @template ergmTerm-general
 #'
 #' @template ergmTerm-directed
@@ -252,8 +249,8 @@ InitErgmTerm.dgwesp<-function(nw, arglist, cache.sp=TRUE, gw.cutoff=30, ...) {
 #'
 #' @concept directed
 #' @aliases ddsp-ergmTerm
-InitErgmTerm.ddsp<-function(nw, arglist, cache.sp=TRUE, ...) {
-  .d_sp_impl("d", nw, arglist, cache.sp, emptynwstats=.dsp_emptynwstats, ...)
+InitErgmTerm.ddsp<-function(nw, arglist, ...) {
+  .d_sp_impl("d", nw, arglist, emptynwstats=.dsp_emptynwstats, ...)
 }
 
 
@@ -273,7 +270,6 @@ InitErgmTerm.ddsp<-function(nw, arglist, cache.sp=TRUE, ...) {
 #' @template ergmTerm-gw-cutoff
 #' @template ergmTerm-sp-type
 #'
-#' @template ergmTerm-cache-sp
 #' @template ergmTerm-general
 #'
 #' @template ergmTerm-sp-types
@@ -284,8 +280,8 @@ InitErgmTerm.ddsp<-function(nw, arglist, cache.sp=TRUE, ...) {
 #'
 #' @concept directed
 #' @aliases dgwdsp-ergmTerm
-InitErgmTerm.dgwdsp<-function(nw, arglist, cache.sp=TRUE, gw.cutoff=30, ...) {
-  .dgw_sp_impl("d", nw, arglist, cache.sp, gw.cutoff, ...)
+InitErgmTerm.dgwdsp<-function(nw, arglist, gw.cutoff=30, ...) {
+  .dgw_sp_impl("d", nw, arglist, gw.cutoff, ...)
 }
 
 
@@ -317,7 +313,6 @@ InitErgmTerm.dgwdsp<-function(nw, arglist, cache.sp=TRUE, gw.cutoff=30, ...) {
 #' @param d a vector of distinct integers
 #' @template ergmTerm-sp-type
 #'
-#' @template ergmTerm-cache-sp
 #' @template ergmTerm-general
 #'
 #' @template ergmTerm-directed
@@ -326,8 +321,8 @@ InitErgmTerm.dgwdsp<-function(nw, arglist, cache.sp=TRUE, gw.cutoff=30, ...) {
 #'
 #' @concept directed
 #' @aliases dnsp-ergmTerm
-InitErgmTerm.dnsp<-function(nw, arglist, cache.sp=TRUE, ...) {
-  .d_sp_impl("n", nw, arglist, cache.sp, emptynwstats=.dsp_emptynwstats, ...)
+InitErgmTerm.dnsp<-function(nw, arglist, ...) {
+  .d_sp_impl("n", nw, arglist, emptynwstats=.dsp_emptynwstats, ...)
 }
 
 
@@ -347,15 +342,14 @@ InitErgmTerm.dnsp<-function(nw, arglist, cache.sp=TRUE, ...) {
 #' @template ergmTerm-sp-type
 #'
 #' @template ergmTerm-sp-types
-#' @template ergmTerm-cache-sp
 #' @template ergmTerm-general
 #'
 #' @template ergmTerm-gw-alpha-to-decay
 #'
 #' @concept directed
 #' @aliases dgwnsp-ergmTerm
-InitErgmTerm.dgwnsp<-function(nw, arglist, cache.sp=TRUE, gw.cutoff=30, ...) {
-  .dgw_sp_impl("n", nw, arglist, cache.sp, gw.cutoff, ...)
+InitErgmTerm.dgwnsp<-function(nw, arglist, gw.cutoff=30, ...) {
+  .dgw_sp_impl("n", nw, arglist, gw.cutoff, ...)
 }
 
 ################################################################################

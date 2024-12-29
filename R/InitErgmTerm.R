@@ -934,13 +934,12 @@ InitErgmTerm.b1degree <- function(nw, arglist, ..., version=packageVersion("ergm
 #'
 #' @param d a vector of distinct integers. 
 #'
-#' @template ergmTerm-cache-sp
 #' @template ergmTerm-general
 #'
 #' @concept bipartite
 #' @concept undirected
-InitErgmTerm.b1dsp <- function(nw, arglist, cache.sp=TRUE, ...){
-  .d_sp_impl("b1", nw, arglist, cache.sp,
+InitErgmTerm.b1dsp <- function(nw, arglist, ...){
+  .d_sp_impl("b1", nw, arglist,
              function(d, nw, ...) replace(numeric(length(d)), d==0, (nw%n%"bipartite")*(nw%n%"bipartite"-1)/2),
              ...)
 }
@@ -1522,13 +1521,12 @@ InitErgmTerm.b2degree <- function(nw, arglist, ..., version=packageVersion("ergm
 #'
 #' @param d a vector of distinct integers
 #'
-#' @template ergmTerm-cache-sp
 #' @template ergmTerm-general
 #'
 #' @concept bipartite
 #' @concept undirected
-InitErgmTerm.b2dsp <- function(nw, arglist, cache.sp=TRUE, ...){
-  .d_sp_impl("b2", nw, arglist, cache.sp,
+InitErgmTerm.b2dsp <- function(nw, arglist, ...){
+  .d_sp_impl("b2", nw, arglist,
              function(d, nw, ...) replace(numeric(length(d)), d==0, (network.size(nw)-nw%n%"bipartite")*(network.size(nw)-nw%n%"bipartite"-1)/2),
              ...)
 }
@@ -2605,14 +2603,13 @@ InitErgmTerm.gwb1degree<-function(nw, arglist, gw.cutoff=30, ..., version=packag
 #' @templateVar underlying b1dsp
 #' @template ergmTerm-gw-cutoff
 #'
-#' @template ergmTerm-cache-sp
 #' @template ergmTerm-general
 #'
 #' @concept bipartite
 #' @concept undirected
 #' @concept curved
-InitErgmTerm.gwb1dsp<-function(nw, arglist, cache.sp=TRUE, gw.cutoff=30, ...) {
-  .dgw_sp_impl("b1", nw, arglist, cache.sp, gw.cutoff=gw.cutoff, ...)
+InitErgmTerm.gwb1dsp<-function(nw, arglist, gw.cutoff=30, ...) {
+  .dgw_sp_impl("b1", nw, arglist, gw.cutoff=gw.cutoff, ...)
 }
 
 ################################################################################
@@ -2661,14 +2658,13 @@ InitErgmTerm.gwb2degree<-function(nw, arglist, gw.cutoff=30, ..., version=packag
 #' @templateVar underlying b2dsp
 #' @template ergmTerm-gw-cutoff
 #'
-#' @template ergmTerm-cache-sp
 #' @template ergmTerm-general
 #'
 #' @concept bipartite
 #' @concept undirected
 #' @concept curved
-InitErgmTerm.gwb2dsp<-function(nw, arglist, cache.sp=TRUE, gw.cutoff=30, ...) {
-  .dgw_sp_impl("b2", nw, arglist, cache.sp, gw.cutoff=gw.cutoff, ...)
+InitErgmTerm.gwb2dsp<-function(nw, arglist, gw.cutoff=30, ...) {
+  .dgw_sp_impl("b2", nw, arglist, gw.cutoff=gw.cutoff, ...)
 }
 
 ################################################################################

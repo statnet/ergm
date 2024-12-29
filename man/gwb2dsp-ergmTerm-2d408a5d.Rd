@@ -26,12 +26,6 @@ This term adds one network statistic to the model equal to the geometrically
 weighted dyadwise shared partner distribution for dyads in the second bipartition with decay parameter
 \code{decay} parameter, which should be non-negative. This term can only be used with bipartite networks.
 }
-\note{
-This term takes an additional term option (see
-\code{\link[=ergm-options]{options?ergm}}), \code{cache.sp}, controlling whether
-the implementation will cache the number of shared partners for
-each dyad in the network; this is usually enabled by default.
-}
 \seealso{
 \code{\link{ergmTerm}} for index of model terms currently visible to the package.
 

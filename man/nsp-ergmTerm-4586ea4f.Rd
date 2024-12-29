@@ -20,11 +20,6 @@
 This term adds one network statistic to the model for each element in \code{d} where the \eqn{i} th such statistic equals the number of non-edges in the network with exactly \code{d[i]} shared partners.
 }
 \note{
-This term takes an additional term option (see
-\code{\link[=ergm-options]{options?ergm}}), \code{cache.sp}, controlling whether
-the implementation will cache the number of shared partners for
-each dyad in the network; this is usually enabled by default.
-
 This term can only be used with directed networks.
 }
 \section{Shared partner types}{
