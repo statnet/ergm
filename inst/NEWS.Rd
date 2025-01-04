@@ -102,6 +102,18 @@
       \item{
         In \code{\link[ergm]{ergm()}}, a bug in initialization of MH proposals for constrained sampling requesting auxiliaries has been fixed.
       }
+      \item{
+        A memory error in the \code{\link{ergm.eta()}} family of functions triggered when the length of the curved parameter is 0 has been fixed.
+      }
+      \item{
+        Fixed calculation of \ergmTerm{ergm}{b1degree}{()}, \ergmTerm{ergm}{b2degree}{()}, \ergmTerm{ergm}{b1degrange}{()} and \ergmTerm{ergm}{b2degrange}{()} when degrees of interest include 0.
+      }
+      \item{
+        Calculation of the effective number of observations, i.e., \code{\link{nobs.ergm()}}, is no longer affected by the estimation method.
+      }
+      \item{
+        The \ergmTerm{ergm}{B}{()} operator with \code{form="nonzero"} was miscalculating change statistics when given multiple toggles in a sequence.
+      }
     }
   }
 
@@ -116,6 +128,9 @@
       }
       \item{
         A new \code{\link[=as.rle.rlebdm]{as.rle()}} method for \code{\link{rlebdm}} objects to cast it back to an \code{\link{rle}}.
+      }
+      \item{
+        \code{*degreepopularity} and \code{hammingmix()} terms and \code{offset.info.formula()} function have been removed from the package.
       }
     }
   }
