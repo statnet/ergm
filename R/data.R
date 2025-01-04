@@ -578,7 +578,7 @@ NULL
 #' experimental and case study of relationships,} Unpublished Ph.D.
 #' dissertation, Department of Sociology, Cornell University.
 #' 
-#' \url{http://vlado.fmf.uni-lj.si/pub/networks/data/esna/sampson.htm}
+#' \url{https://github.com/bavla/Nets/raw/refs/heads/master/data/Pajek/esna/Sampson.zip}
 #' @keywords datasets
 NULL
 
@@ -675,7 +675,7 @@ NULL
 #' experimental and case study of relationships,} Unpublished Ph.D.
 #' dissertation, Department of Sociology, Cornell University.
 #' 
-#' \url{http://vlado.fmf.uni-lj.si/pub/networks/data/esna/sampson.htm}
+#' \url{https://github.com/bavla/Nets/raw/refs/heads/master/data/Pajek/esna/Sampson.zip}
 #' @keywords datasets
 NULL
 
