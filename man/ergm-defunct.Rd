@@ -38,6 +38,9 @@
 \alias{idegreepopularity-ergmTerm}
 \alias{hammingmix-ergmTerm}
 \alias{offset.info.formula}
+\alias{InitErgmTerm.degreepopularity}
+\alias{InitErgmTerm.idegreepopularity}
+\alias{InitErgmTerm.odegreepopularity}
 \title{Functions that have been removed from this package}
 \usage{
 robust.inverse(...)

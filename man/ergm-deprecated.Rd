@@ -14,9 +14,9 @@
 control.ergm.godfather(term.options = NULL)
 }
 \arguments{
-\item{name}{See \link{Extract}.}
+\item{..., object, x}{Arguments to deprecated functions.}
 
-\item{nw, arglist, ..., formula, object, x}{Arguments to deprecated functions.}
+\item{name}{See \link{Extract}.}
 }
 \description{
 Functions that have been superceed, were never documented, or will be removed from the package for other reasons
