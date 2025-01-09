@@ -94,7 +94,7 @@ jobs:
         run: |
           if [[ "${{ env.IAM }}" == 'public' ]] # Public: full set.
           then
-            config='${{ env.PUBLIC_CONFIG }}'
+            config='${{ env.RELEASE_CONFIG }}'
           elif [[ "${{ env.FOUND_PUBLIC }}" != '0' ]] # Private with no public analogue: reduced set.
           then
             config='${{ env.PRIVATE_CONFIG }}'

@@ -1,5 +1,5 @@
 Package: ergm
-Version: 4.8.0-7554
+Version: 4.8.0
 Date: 2025-01-11
 Title: Fit, Simulate and Diagnose Exponential-Family Models for Networks
 Authors@R: c(
@@ -188,5 +188,3 @@ Collate:
     'vcov.ergm.R'
     'wtd.median.R'
     'zzz.R'
-Remotes: github::statnet/statnet.common@master,
-    github::statnet/ergm.count@master
