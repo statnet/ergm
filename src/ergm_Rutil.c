@@ -35,10 +35,10 @@ void warn_API_version(const char *sn){
 
   kv_push(khint_t, build_version_warned, snhash);
 
-  unsigned int (*bv)() = (unsigned int (*)()) R_FindSymbol("GetBuiltErgmAPIMajor",sn,NULL);
+  unsigned int (*bv)(void) = (unsigned int (*)(void)) R_FindSymbol("GetBuiltErgmAPIMajor",sn,NULL);
   unsigned int bv_major = bv ? bv() : 0;
   if(bv_major){
-    unsigned int bv_minor = ((unsigned int (*)())R_FindSymbol("GetBuiltErgmAPIMinor",sn,NULL))();
+    unsigned int bv_minor = ((unsigned int (*)(void))R_FindSymbol("GetBuiltErgmAPIMinor",sn,NULL))();
     if(bv_major != ERGM_API_MAJOR || bv_minor != ERGM_API_MINOR)
       warningcall_immediate(R_NilValue, "Package '%s' was compiled against 'ergm' with C API version\n    %d.%d, but it is being loaded by 'ergm' with C API version %d.%d. Inconsistent\n    versions may result in malfunctions ranging from incorrect results to R\n    crashing. Please rebuild the package against the current 'ergm' version.",
               sn, bv_major, bv_minor, ERGM_API_MAJOR, ERGM_API_MINOR);
