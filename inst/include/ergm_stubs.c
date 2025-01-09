@@ -10,8 +10,13 @@
 
 #include "ergm_constants.h"
 
-unsigned int built_ERGM_API_MAJOR = ERGM_API_MAJOR;
-unsigned int built_ERGM_API_MINOR = ERGM_API_MINOR;
+unsigned int GetBuiltErgmAPIMajor(void){
+  return ERGM_API_MAJOR;
+}
+
+unsigned int GetBuiltErgmAPIMinor(void){
+  return ERGM_API_MINOR;
+}
 
 #define STUBFILE
 #include <stddef.h>
