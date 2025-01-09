@@ -8,6 +8,11 @@
  *  Copyright 2003-2024 Statnet Commons
  */
 
+#include "ergm_constants.h"
+
+unsigned int built_ERGM_API_MAJOR = ERGM_API_MAJOR;
+unsigned int built_ERGM_API_MINOR = ERGM_API_MINOR;
+
 #define STUBFILE
 #include <stddef.h>
 #include <R_ext/Rdynload.h>
@@ -76,6 +81,16 @@ void WtDyadGenUpdate(Vertex tail, Vertex head, double weight, void *gen, WtNetwo
 static void (*fun)(Vertex,Vertex,double,void *,WtNetwork *,double) = NULL;
 if(fun==NULL) fun = (void (*)(Vertex,Vertex,double,void *,WtNetwork *,double)) R_FindSymbol("WtDyadGenUpdate", "ergm", NULL);
 fun(tail,head,weight,gen,nwp,edgestate);
+}
+void AddOnDyadGenInit(OnDyadGenInit callback, void *payload){
+static void (*fun)(OnDyadGenInit,void *) = NULL;
+if(fun==NULL) fun = (void (*)(OnDyadGenInit,void *)) R_FindSymbol("AddOnDyadGenInit", "ergm", NULL);
+fun(callback,payload);
+}
+void DeleteOnDyadGenInit(OnDyadGenInit callback, void *payload){
+static void (*fun)(OnDyadGenInit,void *) = NULL;
+if(fun==NULL) fun = (void (*)(OnDyadGenInit,void *)) R_FindSymbol("DeleteOnDyadGenInit", "ergm", NULL);
+fun(callback,payload);
 }
 
 #define STUBFILE

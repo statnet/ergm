@@ -162,6 +162,10 @@ WtModel* WtModelInitialize (SEXP mR, SEXP ext_state, WtNetwork *nwp, Rboolean no
       the respective functions.*/
       const char *fname = FIRSTCHAR(getListElement(thisterm->R, "name")),
         *sn = FIRSTCHAR(getListElement(thisterm->R, "pkgname"));
+
+      /* Check if the package is compiled against a different version of 'ergm'. */
+      warn_API_version(sn);
+
       /* Extract the required string information from the relevant sources */
       char *fn = R_Calloc(strlen(fname)+3, char);
       fn[1]='_';

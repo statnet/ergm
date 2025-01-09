@@ -71,4 +71,6 @@ static inline void *R_calloc_helper(size_t n, size_t size){
 
 #define R_CheckUserInterruptEvery(freq, iter) if((iter)%(freq) == 0) R_CheckUserInterrupt();
 
+void warn_API_version(const char *sn);
+
 #endif 
