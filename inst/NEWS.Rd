@@ -114,6 +114,9 @@
       \item{
         The \ergmTerm{ergm}{B}{()} operator with \code{form="nonzero"} was miscalculating change statistics when given multiple toggles in a sequence.
       }
+      \item{
+        Some dataset links that were broken have been fixed.
+      }
     }
   }
 
@@ -132,6 +135,12 @@
       \item{
         \code{*degreepopularity} and \code{hammingmix()} terms and \code{offset.info.formula()} function have been removed from the package.
       }
+      \item{
+        In the terms API, the auxiliaries specification can now be a \code{\link[statnet.common]{term_list}} rather than a formula.
+      }
+      \item{
+        \code{\link[=ergm.pl]{ergm.pl()}} no longer takes the defunct \code{dummy} argument.
+      }
     }
   }
 
@@ -142,6 +151,15 @@
       }
       \item{
         The M-H proposal API now makes lengths of input vectors available to the proposals, paralleling the change statistics API.
+      }
+      \item{
+        The \code{DyadGen} API now has a \dQuote{careful} mode, in which it ignores updates that do not concern it, at a nontrivial cost in speed. It also has a callback API that calls a specified function every time a \code{DyadGen} is initialized. This can be used to set up groups of non-overlapping \code{DyadGens}.
+      }
+      \item{
+        \file{ergm_khash.h} API now provides a \code{kh_put_code} enumeration type for \code{kh_put()}'s optional return status value.
+      }
+      \item{
+        Packages \code{LinkingTo} \pkg{ergm} now have the \pkg{ergm} C API version stored at compile time. If their terms or proposals are then used against a version of \pkg{ergm} with a different C API version (which can cause mysterious errors and R crashes), a warning to rebuild the package is issued.
       }
     }
   }
