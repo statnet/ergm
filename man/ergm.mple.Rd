@@ -18,7 +18,6 @@ ergm.mple(
 ergm.pl(
   state,
   state.obs,
-  dummy,
   theta.offset = NULL,
   control,
   ignore.offset = FALSE,
@@ -49,9 +48,6 @@ down processing.}
 ignored}
 
 \item{state, state.obs}{\code{\link{ergm_state}} objects.}
-
-\item{dummy}{A dummy parameter for backwards compatibility. It will
-be removed in a future version.}
 
 \item{theta.offset}{a numeric vector of length equal to the number
 of statistics of the model, specifying (positionally) the
