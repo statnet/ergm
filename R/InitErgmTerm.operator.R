@@ -5,7 +5,7 @@
 #  open source, and has the attribution requirements (GPL Section 7) at
 #  https://statnet.org/attribution .
 #
-#  Copyright 2003-2024 Statnet Commons
+#  Copyright 2003-2025 Statnet Commons
 ################################################################################
 #' Wrap a submodel's curved, empty network statistics, and extended
 #' state (read-only) specification (if present) for output from an

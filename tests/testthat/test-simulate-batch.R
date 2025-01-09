@@ -5,7 +5,7 @@
 #  open source, and has the attribution requirements (GPL Section 7) at
 #  https://statnet.org/attribution .
 #
-#  Copyright 2003-2024 Statnet Commons
+#  Copyright 2003-2025 Statnet Commons
 ################################################################################
 test_that("simulate.formula() returns the same number of networks and stats regardless of batch size and they are (on average) similar", {
   nw0 <- network.initialize(10)

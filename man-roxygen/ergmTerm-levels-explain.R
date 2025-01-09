@@ -5,7 +5,7 @@
 #  open source, and has the attribution requirements (GPL Section 7) at
 #  https://statnet.org/attribution .
 #
-#  Copyright 2003-2024 Statnet Commons
+#  Copyright 2003-2025 Statnet Commons
 ################################################################################
 #' @param levels this optional argument controls which levels of the attribute
 #'   should be included and which should be excluded. (See Specifying Vertex

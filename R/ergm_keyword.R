@@ -5,7 +5,7 @@
 #  open source, and has the attribution requirements (GPL Section 7) at
 #  https://statnet.org/attribution .
 #
-#  Copyright 2003-2024 Statnet Commons
+#  Copyright 2003-2025 Statnet Commons
 ################################################################################
 
 DISPLAY_TEXT_KW_INDEX_MAX_WIDTHS <- list('name'=20, 'short'=8, 'description'=30, 'popular'=8, 'package'=8)

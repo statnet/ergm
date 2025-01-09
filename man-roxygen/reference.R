@@ -5,7 +5,7 @@
 #  open source, and has the attribution requirements (GPL Section 7) at
 #  https://statnet.org/attribution .
 #
-#  Copyright 2003-2024 Statnet Commons
+#  Copyright 2003-2025 Statnet Commons
 ################################################################################
 #' @param reference A one-sided formula specifying
 #' the reference measure (\eqn{h(y)}) to be used.
