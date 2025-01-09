@@ -243,7 +243,7 @@ static const double __ac_HASH_UPPER = 0.77;
 	extern khint_t kh_get_##name(const kh_##name##_t *h, khkey_t key); 	\
 	extern khval_t kh_getval_##name(const kh_##name##_t *h, khkey_t key, khval_t defval); \
 	extern int kh_resize_##name(kh_##name##_t *h, khint_t new_n_buckets); \
-	extern khint_t kh_put_##name(kh_##name##_t *h, khkey_t key, int *ret); \
+	extern khint_t kh_put_##name(kh_##name##_t *h, khkey_t key, kh_put_code *ret); \
 	extern void kh_del_##name(kh_##name##_t *h, khint_t x);
 
 #define __KHASH_IMPL(name, SCOPE, khkey_t, khval_t, kh_is_map, __hash_func, __hash_equal) \
@@ -362,7 +362,7 @@ static const double __ac_HASH_UPPER = 0.77;
 		}																\
 		return 0;														\
 	}																	\
-	SCOPE khint_t kh_put_##name(kh_##name##_t *h, khkey_t key, int *ret) \
+	SCOPE khint_t kh_put_##name(kh_##name##_t *h, khkey_t key, kh_put_code *ret) \
 	{																	\
 		khint_t x;														\
 		khint32_t *xi=NULL, xb=kh_none;	\
@@ -558,8 +558,8 @@ static kh_inline khint_t __ac_Wang_hash(khint_t key)
   @param  r     Extra return code: kh_put_failed (-1) if the operation failed;
                 kh_put_present (0) if the key is present in the hash table;
                 kh_put_empty (1) if the bucket is empty (never used);
-                kh_put_deleted (2) if the element in the bucket has been deleted [int*]
-		r may be NULL, in which case it is not set.
+                kh_put_deleted (2) if the element in the bucket has been deleted
+                r may be NULL, in which case it is not set. [kh_put_code*]
   @return       Iterator to the inserted element [khint_t]
  */
 #define kh_put(name, h, k, r) kh_put_##name(h, k, r)
