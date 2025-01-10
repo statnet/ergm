@@ -124,6 +124,7 @@ void ergm_etagrad(double *theta, SEXP etamap, double *etagrad){
 
     for(unsigned int i = 0; i < ncurved; i++){
       SETUP_CALL(gradient);
+      if(nfrom == 0) continue;
       double *g = REAL(eval(call, R_EmptyEnv));
       double *dest = etagrad1+from+to*ntheta;
       for(unsigned int j=0; j<nto; j++, dest+=ntheta, g+=nfrom)
@@ -181,6 +182,7 @@ void ergm_etagradmult(double *theta, double *v, unsigned int nv, SEXP etamap, do
 
     for(unsigned int i = 0; i < ncurved; i++){
       SETUP_CALL(gradient);
+      if(nfrom == 0) continue;
       double *g = REAL(eval(call, R_EmptyEnv));
       double *g1 = g - 1 - nfrom;
       for(unsigned int j=1; j<=nfrom; j++){
