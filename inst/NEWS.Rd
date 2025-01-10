@@ -115,6 +115,9 @@
         The \ergmTerm{ergm}{B}{()} operator with \code{form="nonzero"} was miscalculating change statistics when given multiple toggles in a sequence.
       }
       \item{
+        Some instances of memory leaks, warnings, and undefined behavior have been fixed.
+      }
+      \item{
         Some dataset links that were broken have been fixed.
       }
     }
