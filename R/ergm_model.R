@@ -155,7 +155,8 @@ ergm_model.ergm_model <- function(object, nw, ..., env=globalenv(), extra.aux=li
 
   # I.e., construct a vector of package names associated with the model terms.
   # Note that soname is not the same, since it's not guaranteed to be a loadable package.
-  ergm.MCMC.packagenames(unlist(sapply(model$terms, "[[", "pkgname")))
+  ergm.MCMC.packagenames(pkgnames <- unlist(sapply(model$terms, "[[", "pkgname")))
+  sapply(pkgnames, check_ABI)
 
   model
 }

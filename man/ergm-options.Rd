@@ -21,6 +21,20 @@ Options set via the built-in \code{\link[=options]{options()}} functions that af
 
 \item{\code{ergm.term = list()}}{The default term options below.}
 
+\item{\code{ergm.ABI.action = "stop"}}{What to do when \pkg{ergm} detects that one of its extension packages had been compiled with a different version of \pkg{ergm} from the current one that makes changes at the C level that can cause problems. Other choices include \describe{
+
+\item{\code{"stop"}, \code{"abort"}}{stop with an error}
+
+\item{\code{"warning"}}{warn and proceed}
+
+\item{\code{"message"}, \code{"inform"}}{print a message and proceed}
+
+\item{\code{"silent"}}{return the value without side-effects}
+
+\item{\code{"disable"}}{skip the check, always returning \code{TRUE}}
+}
+Partial matching is supported. }
+
 }
 }
 

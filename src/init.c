@@ -32,6 +32,7 @@ extern SEXP ErgmStateArrayClear(void);
 extern SEXP ErgmWtStateArrayClear(void);
 extern SEXP full_geodesic_distribution(SEXP, SEXP, SEXP, SEXP);
 extern SEXP get_ergm_omp_terms(void);
+extern SEXP GetBuiltABIVersion_wrapper(SEXP, SEXP);
 extern SEXP Godfather_wrapper(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
 extern SEXP MCMC_wrapper(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
 extern SEXP MCMCPhase12(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
@@ -58,6 +59,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"ErgmWtStateArrayClear",      (DL_FUNC) &ErgmWtStateArrayClear,       0},
     {"full_geodesic_distribution", (DL_FUNC) &full_geodesic_distribution,  4},
     {"get_ergm_omp_terms",         (DL_FUNC) &get_ergm_omp_terms,          0},
+    {"GetBuiltABIVersion_wrapper", (DL_FUNC) &GetBuiltABIVersion_wrapper,  2},
     {"Godfather_wrapper",          (DL_FUNC) &Godfather_wrapper,           6},
     {"MCMC_wrapper",               (DL_FUNC) &MCMC_wrapper,                7},
     {"MCMCPhase12",                (DL_FUNC) &MCMCPhase12,                11},

@@ -10,9 +10,21 @@
 #ifndef _ERGM_CONSTANTS_H_
 #define _ERGM_CONSTANTS_H_
 
-// Macros indicating the version of the C API.
+/* Macros indicating the version of the C API. This is used primarily
+   if the client package wants to conditionally compile based on
+   'ergm' version. They should be updated with every minor version
+   update. */
 #define ERGM_API_MAJOR 4
 #define ERGM_API_MINOR 8
+
+/* ABI version: this should be updated only when the ABI changes, even
+   if the change is 100% source-compatible. This includes, for
+   example, adding an element to one of the structs.
+
+   Then, it should be set to a signed int with value major*1e6 +
+   minor. Make sure to remove any leading zeros!
+*/
+#define ERGM_ABI_VERSION 4000008
 
 typedef enum MCMCStatus_enum {
   MCMC_OK = 0,

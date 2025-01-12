@@ -235,7 +235,8 @@ ergm_proposal.character <- function(object, arguments, nw, ..., reference=ergm_r
 
   # Add the package to the list of those to be loaded.
   ergm.MCMC.packagenames(proposal$pkgname)
-  
+  check_ABI(proposal$pkgname)
+
   class(proposal)<-"ergm_proposal"
   proposal$uid <- .GUID()
   proposal

@@ -31,9 +31,6 @@ WtMHProposal *WtMHProposalInitialize(SEXP pR, WtNetwork *nwp, void **aux_storage
   const char *fname = FIRSTCHAR(getListElement(pR, "name")),
     *sn = FIRSTCHAR(getListElement(pR, "pkgname"));
 
-  /* Check if the package is compiled against a different version of 'ergm'. */
-  warn_API_version(sn);
-
   char *fn = R_Calloc(strlen(fname)+4, char);
   fn[0]='M';
   fn[1]='H';

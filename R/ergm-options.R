@@ -22,6 +22,20 @@
 #' \item{`ergm.cluster.retries = 5`}{\CRANpkg{ergm}'s parallel routines implement rudimentary fault-tolerance. This option controls the number of retries for a cluster call before giving up.}
 #' 
 #' \item{`ergm.term = list()`}{The default term options below.}
+#'
+#' \item{`ergm.ABI.action = "stop"`}{What to do when \pkg{ergm} detects that one of its extension packages had been compiled with a different version of \pkg{ergm} from the current one that makes changes at the C level that can cause problems. Other choices include \describe{
+#'
+#' \item{`"stop"`, `"abort"`}{stop with an error}
+#'
+#' \item{`"warning"`}{warn and proceed}
+#'
+#' \item{`"message"`, `"inform"`}{print a message and proceed}
+#'
+#' \item{`"silent"`}{return the value without side-effects}
+#'
+#' \item{`"disable"`}{skip the check, always returning `TRUE`}
+#' }
+#' Partial matching is supported. }
 #' 
 #' }
 #' 

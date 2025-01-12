@@ -275,3 +275,75 @@ is.const.sample <- function(x){
   if(is.mcmc.list(x)) x <- as.matrix(x)
   isTRUE(all.equal(apply(x,2,stats::sd), rep(0,ncol(x)), check.names=FALSE))
 }
+
+#' Obtain the ABI version of a library package (e.g., \pkg{ergm}) against which a client package was compiled.
+#'
+#' @param client name of the \R package that is `LinkingTo` the library package; defaults to \pkg{ergm} itself.
+#' @param lib name of the \R package that is being linked to; defaults to \pkg{ergm} itself.
+#'
+#' @note This function is [memoise()]d.
+#'
+#' @return an integer containing the ABI version, typically `major*1e6 + minor`, or `NA` if none was stored.
+#'
+#' @noRd
+packageBuiltABI <- memoise(function(client = "ergm", lib = "ergm"){
+  NVL(.Call("GetBuiltABIVersion_wrapper", as.character(client), as.character(lib)),
+      NA_integer_)
+})
+
+#' ABI version checking
+#'
+#' Check if package `client` was built under the same ABI version of
+#' `lib` as the currently loaded version of `lib` and perform the
+#' specified action if not.
+#'
+#' @param action What to do in case of a mismatch: \describe{
+#'
+#' \item{`"stop"`, `"abort"`}{stop with an error}
+#'
+#' \item{`"warning"`}{warn and proceed}
+#'
+#' \item{`"message"`, `"inform"`}{print a message and proceed}
+#'
+#' \item{`"silent"`}{return the value without side-effects}
+#'
+#' \item{`"disable"`}{skip the check, always returning `TRUE`}
+#' }
+#' Partial matching is supported.
+#'
+#' @return `TRUE` if the ABI matches or is not exported by `lib`,
+#'   `FALSE` if exported by `lib` but not `client` or does not match.
+#'
+#' @noRd
+check_ABI <- once(function(client = "ergm", lib  = "ergm", action = getOption("ergm.ABI.action")){
+  action <- match.arg(action, c("stop", "abort", "warning", "message", "inform", "silent", "disable"))
+  if(action == "disable") return(TRUE)
+
+  if(client == lib) return(TRUE)
+
+  if(NVL3(packageDescription(client)$LinkingTo, grepl(paste0("([^a-zA-Z0-9.]|^)", lib, "([^a-zA-Z0-9.]|$)"), .), FALSE)){
+
+    asVer <- function(x) if(is.na(x)) NA_integer_ else package_version(paste(c(x %/% 1e6, x %% 1e6), collapse = "."))
+    clientABI <- asVer(packageBuiltABI(client, lib))
+    libABI <- asVer(packageBuiltABI(lib, lib))
+
+    if(is.na(libABI)) return(TRUE)
+
+    msg <- if(is.na(clientABI)) sprintf("Package %s was compiled with an older version of %s that did not save its C application binary interface (ABI) version information at the time. Inconsistent ABI versions may cause malfunctions ranging from incorrect results to R crashing. Please rebuild the package against the current %s version. If you believe message to be spurious, you can override by changing %s (See %s for possible values.) and proceed at your own risk.",
+                                     sQuote(client), sQuote(lib), sQuote(lib), sQuote("options(ergm.ABI.action = ...)"), sQuote("options?ergm"))
+                                     else if(clientABI != libABI) sprintf("Package %s was compiled with %s that had one C application binary interface (ABI), but it is being loaded with %s that has a different C ABI version. (Respectively, %s and %s; note that the ABI version is not the same as the package version and may lag behind it.) Inconsistent versions may result in malfunctions ranging from incorrect results to R crashing. Please rebuild the package with the current %s version. If you believe message to be spurious, you can override by changing %s (See %s for possible values.) and proceed at your own risk.",
+                                                sQuote(client), sQuote(lib), sQuote(lib), clientABI, libABI, sQuote(lib), sQuote("options(ergm.ABI.action = ...)"), sQuote("options?ergm"))
+
+    msg <- NVL3(msg, paste(c("", strwrap(., indent = 2, exdent = 2)), collapse = "\n"))
+
+    if(!is.null(msg)){
+      switch(action,
+             abort =,
+             stop = stop(msg, call. = FALSE),
+             warning = warning(msg, call. = FALSE, immediate. = TRUE),
+             inform =,
+             message = message(msg))
+      FALSE
+    }else TRUE
+  }else TRUE
+})
