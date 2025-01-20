@@ -8,6 +8,7 @@
 #  Copyright 2003-2025 Statnet Commons
 ################################################################################
 
+unloadNamespace("ergm.count")
 load("testnet3d.RData")
 
 ## StdNormal-reference
@@ -122,3 +123,5 @@ test_that("Continuous-uniform-reference ERGM with minimum of -1 and maxium of 5"
     expect_gte(test$p.value, 0.001)
   }
 })
+
+library(ergm.count)

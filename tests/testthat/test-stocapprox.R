@@ -10,6 +10,8 @@
 
 options(ergm.eval.loglik=FALSE)
 
+unloadNamespace("ergm.count")
+
 data(florentine)
 
 test_that("Stochastic Approximation produces similar results to MCMLE (linear ERGM)",{
@@ -44,3 +46,5 @@ test_that("Stochastic Approximation produces similar results to MCMLE (valued ER
 
   expect_equal(coef(mod.sa), coef(mod.mcmle), tolerance = 0.1, ignore_attr=TRUE)
 })
+
+library(ergm.count)

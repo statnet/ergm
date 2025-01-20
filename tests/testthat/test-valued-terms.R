@@ -8,6 +8,8 @@
 #  Copyright 2003-2025 Statnet Commons
 ################################################################################
 
+unloadNamespace("ergm.count")
+
 # Correct values. Note that for undirected networks, this needs to be
 # divied by 2.
 transitiveweights <- function(m,ties.f=pmin,combine.f=max,compare.f=min) sum(unlist(sapply(1:nrow(m),function(i) sapply(1:nrow(m),function(j) if(j==i) 0 else compare.f(m[i,j],combine.f(ties.f(m[i,-c(j,i)], m[-c(i,j),j])))))))
@@ -93,3 +95,5 @@ test_that("valued triadic effects in directed networks", {
 
   expect_equal(s_results,as.matrix(d_results), ignore_attr=TRUE)
 })
+
+library(ergm.count)
