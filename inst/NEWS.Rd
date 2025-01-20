@@ -74,7 +74,7 @@
 %% }
 
 
-\section{Changes in version 4.8.0}{
+\section{Changes in version 4.8.1}{
 
   \subsection{NEW FEATURES}{
     \itemize{
@@ -162,7 +162,7 @@
         \file{ergm_khash.h} API now provides a \code{kh_put_code} enumeration type for \code{kh_put()}'s optional return status value.
       }
       \item{
-        Packages \code{LinkingTo} \pkg{ergm} now have the \pkg{ergm} C API version stored at compile time. If their terms or proposals are then used against a version of \pkg{ergm} with a different C API version (which can cause mysterious errors and R crashes), a warning to rebuild the package is issued.
+        Packages \code{LinkingTo} \pkg{ergm} now have the \pkg{ergm} C application binary interface (ABI) version stored at compile time. If their terms or proposals are then used against a version of \pkg{ergm} with a different C ABI version (which can cause mysterious errors and R crashes), an error is raised. This behavior can be controlled by setting \code{options(ergm.ABI.action=)}; see \code{options?ergm} for details.
       }
     }
   }
