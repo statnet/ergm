@@ -310,7 +310,10 @@ decay_vs_fixed <- function(a, name, no_curved_attrarg=TRUE){
     if(ncol(du)==0) {return(NULL)}
     #  No covariates here, so "ParamsBeforeCov" unnecessary
     # See comment in d_degree_by_attr function
-    coef.names <- paste0(deg, "deg", du[1,], ".", attrname, ".", u[du[2,]])
+    coef.names <- if(EVL(version <= as.package_version("4.7.5"), FALSE))
+                    paste0(deg, "deg", du[1,], ".", attrname, u[du[2,]])
+                  else
+                    paste0(deg, "deg", du[1,], ".", attrname, ".", u[du[2,]])
     name <- paste0(degname, "degree_by_attr")
     inputs <- c(as.vector(du), nodecov)
   }
@@ -367,7 +370,10 @@ decay_vs_fixed <- function(a, name, no_curved_attrarg=TRUE){
      #  No covariates here, so "ParamsBeforeCov" unnecessary
      # See comment in c_*degree_by_attr functions
       name <- sprintf("gw%sdegree_by_attr", degname)
-      coef.names <- sprintf("gw%sdeg%s.%s.%s", deg, decay, attrname, u)
+      coef.names <- if(EVL(version <= as.package_version("4.7.5"), FALSE))
+                      sprintf("gw%sdeg%s.%s%s", deg, decay, attrname, u)
+                    else
+                      sprintf("gw%sdeg%s.%s.%s", deg, decay, attrname, u)
       inputs <- c(decay, nodecov)
     }else{
       name <- sprintf("gw%sdegree", degname)
