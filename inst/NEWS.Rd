@@ -106,7 +106,7 @@
         A memory error in the \code{\link{ergm.eta()}} family of functions triggered when the length of the curved parameter is 0 has been fixed.
       }
       \item{
-        Fixed calculation of \ergmTerm{ergm}{b1degree}{()}, \ergmTerm{ergm}{b2degree}{()}, \ergmTerm{ergm}{b1degrange}{()} and \ergmTerm{ergm}{b2degrange}{()} when degrees of interest include 0.
+        Fixed calculation of \ergmTerm{ergm}{b1degree}{()}, \ergmTerm{ergm}{b2degree}{()}, \ergmTerm{ergm}{b1degrange}{()} and \ergmTerm{ergm}{b2degrange}{()} when degrees of interest include 0. Their coefficient names have been changed to be more consistent with other terms.
       }
       \item{
         Calculation of the effective number of observations, i.e., \code{\link{nobs.ergm()}}, is no longer affected by the estimation method.
