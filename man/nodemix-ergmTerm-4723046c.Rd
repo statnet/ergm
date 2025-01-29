@@ -20,7 +20,13 @@
 
 \item{levels2}{similar to the other levels arguments above and applies to all networks. Optionally allows a factor or character matrix to be specified to group certain levels. Level combinations corresponding to \code{NA} are excluded. Combinations specified by the same character or level will be grouped together and summarised by the same statistic. If an empty string is specified, the level combinations will be ungrouped. Only the upper triangle needs to be specified for undirected networks. For example, \code{levels2=matrix(c('A', '', NA, 'A'), 2, 2, byrow=TRUE)} on an undirected matrix will group homophilous ties while leaving ties between 1 and 2 ungrouped.}
 
-\item{form}{character how to aggregate tie values in a valued ERGM}
+\item{form}{how to aggregate tie values in a valued ERGM: \code{"sum"}
+(the default) for a statistic of the form \eqn{\sum_{i,j} x_{i,j}
+  y_{i,j}}{sum[i,j] x[i,j]*y[i,j]}, where \eqn{y_{i,j}}{y[i,j]} is
+the value of dyad \eqn{(i,j)} and \eqn{x_{i,j}}{x[i,j]} is the
+term's covariate associated with it; and \code{"nonzero"} with the
+edge considered to be present if its value is not 0. See
+\code{\link{ergmTerm}} for more information.}
 }
 \description{
 By default, this term adds one network statistic to

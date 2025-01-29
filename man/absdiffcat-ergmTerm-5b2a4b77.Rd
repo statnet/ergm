@@ -23,7 +23,13 @@
 \item{levels}{specifies which nonzero difference to include in or exclude from the model. (See Specifying Vertex
 attributes and Levels (\code{\link[=nodal_attributes]{?nodal_attributes}}) for details.)}
 
-\item{form}{character how to aggregate tie values in a valued ERGM}
+\item{form}{how to aggregate tie values in a valued ERGM: \code{"sum"}
+(the default) for a statistic of the form \eqn{\sum_{i,j} x_{i,j}
+  y_{i,j}}{sum[i,j] x[i,j]*y[i,j]}, where \eqn{y_{i,j}}{y[i,j]} is
+the value of dyad \eqn{(i,j)} and \eqn{x_{i,j}}{x[i,j]} is the
+term's covariate associated with it; and \code{"nonzero"} with the
+edge considered to be present if its value is not 0. See
+\code{\link{ergmTerm}} for more information.}
 }
 \description{
 This term adds one statistic for every possible nonzero distinct
