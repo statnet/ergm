@@ -20,7 +20,7 @@
 /* Brief API description:
 
    The struct StoreAuxnet comprises the following information:
-   
+
    * A pointer to the output network ownp.
 
    * A pointer to the input network inwp.

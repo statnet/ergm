@@ -16,7 +16,7 @@
 I_CHANGESTAT_FN(i__discord_net_Network){
   I_AUXNET(NetworkCopy(nwp));
   int *ref_el = IINPUT_PARAM;
-  
+
   Edge nedges = *ref_el;
   for(Edge i=0; i<nedges; i++){
     Vertex tail=ref_el[1+i], head=ref_el[1+nedges+i];
@@ -40,7 +40,7 @@ F_CHANGESTAT_FN(f__discord_net_Network){
 I_CHANGESTAT_FN(i__intersect_net_Network){
   I_AUXNET(NetworkInitialize(NULL, NULL, 0, N_NODES, DIRECTED, BIPARTITE, 0, 0, NULL));
   int *ref_el = IINPUT_PARAM;
-  
+
   Edge nedges = *ref_el;
   for(Edge i=0; i<nedges; i++){
     Vertex tail=ref_el[1+i], head=ref_el[1+nedges+i];
@@ -67,7 +67,7 @@ I_CHANGESTAT_FN(i__intersect_net_toggles_in_list_Network){
   //Rprintf("allocating intersect_net_tog\n");
   I_AUXNET(NetworkInitialize(NULL, NULL, 0, N_NODES, DIRECTED, BIPARTITE, 0, 0, NULL));
   int *ref_el = IINPUT_PARAM;
-  
+
   Edge nedges = *ref_el;
   for(Edge i=0; i<nedges; i++){
     Vertex tail=ref_el[1+i], head=ref_el[1+nedges+i];
@@ -93,7 +93,7 @@ F_CHANGESTAT_FN(f__intersect_net_toggles_in_list_Network){
 I_CHANGESTAT_FN(i__union_net_Network){
   I_AUXNET(NetworkCopy(nwp));
   int *ref_el = IINPUT_PARAM;
-  
+
   Edge nedges = *ref_el;
   for(Edge i=0; i<nedges; i++){
     Vertex tail=ref_el[1+i], head=ref_el[1+nedges+i];
@@ -149,7 +149,7 @@ F_CHANGESTAT_FN(f__blockdiag_net){
   NetworkDestroy(auxnet->onwp);
 }
 
-/* _undir_net 
+/* _undir_net
 
    Maintain an undirected binary network symmetrized from LHS according to the specified rule:
 
@@ -183,7 +183,7 @@ F_CHANGESTAT_FN(f__undir_net){
   NetworkDestroy(auxnet->onwp);
 }
 
-/* _filter_formula_net 
+/* _filter_formula_net
 
    Maintain a binary network that has an edge wherever the
    contribution of the a given term (edges, nodematch, etc.) whose

@@ -17,7 +17,7 @@ InitErgmTerm..sociomatrix<-function(nw, arglist, ...) {
   mode <- match.arg(a$mode, c("integer"))
   name <- switch(mode,
                  integer = "_isociomatrix")
-  
+
   list(name=name,
        coef.names=c(), dependence=FALSE)
 }
@@ -48,7 +48,7 @@ InitErgmTerm..discord.net<-function(nw, arglist, ...) {
                       required = c(TRUE, FALSE))
 
   impl <- match.arg(a$implementation, c("Network","DyadSet"))
-  
+
   list(name=paste0("_discord_net_",impl),
        coef.names=c(),
        iinputs=to_ergm_Cdouble(a$x, prototype=nw),
@@ -61,7 +61,7 @@ InitErgmTerm..intersect.net<-function(nw, arglist, ...) {
                       vartypes = c("network,matrix", "logical", "character"),
                       defaultvalues = list(NULL, FALSE, "DyadSet"),
                       required = c(TRUE, FALSE, FALSE))
-  
+
   impl <- match.arg(a$implementation, c("Network","DyadSet"))
 
   list(name=paste0(if(a$assume_all_toggles_in_list) "_intersect_net_toggles_in_list_" else "_intersect_net_", impl),
@@ -78,7 +78,7 @@ InitErgmTerm..union.net<-function(nw, arglist, ...) {
                       required = c(TRUE, FALSE))
 
   impl <- match.arg(a$implementation, c("Network","DyadSet"))
-  
+
   list(name=paste0("_union_net_",impl),
        coef.names=c(),
        iinputs=to_ergm_Cdouble(a$x, prototype=nw),
