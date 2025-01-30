@@ -92,6 +92,7 @@ Collate:
     'InitErgmTerm.transitiveties.R'
     'InitWtErgmProposal.R'
     'InitWtErgmTerm.R'
+    'InitWtErgmTerm.auxnet.R'
     'InitWtErgmTerm.operator.R'
     'InitWtErgmTerm.test.R'
     'anova.ergm.R'

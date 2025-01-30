@@ -596,23 +596,23 @@ ergm_symmetrize.network <- function(x, rule=c("weak","strong","upper","lower"), 
 #' @description Evaluates the terms in `formula` on an undirected network
 #'   constructed by symmetrizing the LHS network using one of four rules:
 #'   
-#'   1. "weak" A tie \eqn{(i,j)} is present in the constructed
+#'   1. `"weak"`/`"max"` A tie \eqn{(i,j)} is present in the constructed
 #'   network if the LHS network has either tie \eqn{(i,j)} or
-#'   \eqn{(j,i)} (or both).
-#'   2. "strong" A tie \eqn{(i,j)} is present in the constructed
+#'   \eqn{(j,i)} (or both). For a valued network, the maximum is used.
+#'   2. `"strong"`/`"min"` A tie \eqn{(i,j)} is present in the constructed
 #'   network if the LHS network has both tie \eqn{(i,j)} and tie
-#'   \eqn{(j,i)} .
+#'   \eqn{(j,i)}. For a valued network, the minimum is used.
 #'   3. "upper" A tie \eqn{(i,j)} is present in the constructed
-#'   network if the LHS network has tie \eqn{(\min(i,j),\max(i,j))} :
+#'   network if the LHS network has tie \eqn{(\min(i,j),\max(i,j))}{(min(i,j), max(i,j))} :
 #'   the upper triangle of the LHS network.
 #'   4. "lower" A tie \eqn{(i,j)} is present in the constructed
-#'   network if the LHS network has tie \eqn{(\max(i,j),\min(i,j))} :
+#'   network if the LHS network has tie \eqn{(\max(i,j),\min(i,j))}{(max(i,j), min(i,j))} :
 #'   the lower triangle of the LHS network.
 #'
 #' @usage
 #' # binary: Symmetrize(formula, rule="weak")
 #' @template ergmTerm-formula
-#' @param rule one of `"weak"`, `"strong"`, `"upper"`, `"lower"`
+#' @param rule one of `"weak"`, `"strong"`, `"upper"`, `"lower"`, `"max"`, or `"min"`
 #'
 #' @template ergmTerm-general
 #'
@@ -624,8 +624,9 @@ InitErgmTerm.Symmetrize <- function(nw, arglist, ...){
                       vartypes = c("formula", "character"),
                       defaultvalues = list(NULL, "weak"),
                       required = c(TRUE, FALSE))
-  RULES <- c("weak","strong","upper","lower")
-  rule <- match.arg(a$rule, RULES)
+  RULES <- c("weak","strong","upper","lower","max","min")
+  rule <- match.arg(a$rule, RULES) %>%
+    switch(., max = "weak", min = "strong", .)
 
   if(is.directed(nw)) nw <- ergm_symmetrize(nw, rule)
   m <- ergm_model(a$formula, nw, ..., offset.decorate=FALSE)

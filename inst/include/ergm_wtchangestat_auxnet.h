@@ -7,14 +7,14 @@
  *
  *  Copyright 2003-2025 Statnet Commons
  */
-#ifndef _ERGM_CHANGESTAT_AUXNET_H_
-#define _ERGM_CHANGESTAT_AUXNET_H_
+#ifndef _ERGM_WTCHANGESTAT_AUXNET_H_
+#define _ERGM_WTCHANGESTAT_AUXNET_H_
 
-#include "ergm_edgetree.h"
-#include "ergm_changestat.h"
+#include "ergm_wtedgetree.h"
+#include "ergm_wtchangestat.h"
 #include "ergm_storage.h"
-#include "ergm_model.h"
-#include "ergm_changestat_operator.h"
+#include "ergm_wtmodel.h"
+#include "ergm_wtchangestat_operator.h"
 #include "ergm_edgelist.h"
 
 /* Brief API description:
@@ -30,7 +30,7 @@
    In an auxiliary, in addition to its usual i_, u_, and f_ functions,
    should provide:
 
-   * a static inline function constructed by MAP_TOGGLE_FN() whose
+   * a static inline function constructed by MAP_WtTOGGLE_FN() whose
      name is map_toggle_NAME() that computes the consequences of a
      toggle: return the number of induced toggles for the (tail,head)
      toggles (and 0 if none occurred), and put the tails and heads of
@@ -40,70 +40,71 @@
      number of toggles produced by one input toggle.
 */
 
-#define MAP_TOGGLE_FN(a) static inline unsigned int (a) (Vertex tail, Vertex head, Rboolean edgestate, struct StoreAuxnet_s *auxnet, Vertex *tails, Vertex *heads)
+#define MAP_WtTOGGLE_FN(a) static inline unsigned int (a) (Vertex tail, Vertex head, double weight, double edgestate, struct StoreWtAuxnet_s *auxnet, Vertex *tails, Vertex *heads, double *weights)
 
-typedef struct StoreAuxnet_s{Network *inwp, *onwp;
-  ModelTerm *mtp;
-} StoreAuxnet;
+typedef struct StoreWtAuxnet_s{WtNetwork *inwp, *onwp;
+  WtModelTerm *mtp;
+} StoreWtAuxnet;
 
-#define MAP_TOGGLE(name, tail, head, edgestate, auxnet, tails, heads) map_toggle_ ## name(tail, head, edgestate, auxnet, tails, heads)
+#define MAP_WtTOGGLE(name, tail, head, weight, edgestate, auxnet, tails, heads, weights) map_toggle_ ## name(tail, head, weight, edgestate, auxnet, tails, heads, weights)
 
-#define MAP_TOGGLE_THEN(name, tail, head, edgestate, auxnet, tails, heads) if(MAP_TOGGLE(name, tail, head, edgestate, auxnet, tails, heads))
+#define MAP_WtTOGGLE_THEN(name, tail, head, weight, edgestate, auxnet, tails, heads, weights) if(MAP_WtTOGGLE(name, tail, head, weight, edgestate, auxnet, tails, heads, weights))
 
-#define I_AUXNET(init_onwp)                                     \
-  ALLOC_AUX_STORAGE(1, StoreAuxnet, auxnet);			\
+#define I_WtAUXNET(init_onwp)                                   \
+  ALLOC_AUX_STORAGE(1, StoreWtAuxnet, auxnet);			\
   auxnet->onwp = init_onwp;					\
   auxnet->inwp = nwp;						\
   auxnet->mtp = mtp;
 
-#define MAP_TOGGLE_PROPAGATE *tails = tail; *heads = head; return 1;
-#define MAP_TOGGLE_PROPAGATE_IF(cond) if(cond){*tails = tail; *heads = head; return 1;}else{return 0;}
+#define MAP_WtTOGGLE_PROPAGATE *tails = tail; *heads = head; *weights = weight; return 1;
+#define MAP_WtTOGGLE_PROPAGATE_IF(cond) if(cond){*tails = tail; *heads = head; *weights = weight; return 1;}else{return 0;}
 
-#define ON_AUXNET(name)                                                 \
-  I_CHANGESTAT_FN(i_on ## name){                                        \
-    GET_AUX_STORAGE(StoreAuxnet, auxnet);                               \
-    Model *m = STORAGE = ModelInitialize(getListElement(mtp->R, "submodel"),  NULL, auxnet->onwp, FALSE); \
-    DELETE_IF_UNUSED_IN_SUBMODEL(u_func, m);                            \
-    DELETE_IF_UNUSED_IN_SUBMODEL(z_func, m);                            \
+#define ON_WtAUXNET(name)                                               \
+  WtI_CHANGESTAT_FN(i_on ## name){                                      \
+    GET_AUX_STORAGE(StoreWtAuxnet, auxnet);                             \
+    WtModel *m = STORAGE = WtModelInitialize(getListElement(mtp->R, "submodel"),  NULL, auxnet->onwp, FALSE); \
+    WtDELETE_IF_UNUSED_IN_SUBMODEL(u_func, m);                          \
+    WtDELETE_IF_UNUSED_IN_SUBMODEL(z_func, m);                          \
     /* SELECT_C_OR_D_BASED_ON_SUBMODEL(m); */                           \
   }                                                                     \
                                                                         \
-  C_CHANGESTAT_FN(c_on ## name){                                        \
-    GET_STORAGE(Model, m);                                              \
-    GET_AUX_STORAGE(StoreAuxnet, auxnet);                               \
+  WtC_CHANGESTAT_FN(c_on ## name){                                      \
+    GET_STORAGE(WtModel, m);                                            \
+    GET_AUX_STORAGE(StoreWtAuxnet, auxnet);                             \
                                                                         \
     Vertex tails[map_toggle_maxtoggles_ ## name], heads[map_toggle_maxtoggles_ ## name]; \
+    double weights[map_toggle_maxtoggles_ ## name];                     \
     if(map_toggle_maxtoggles_ ## name == 1){ /* One of these should get optimized away by the compiler. */ \
-      MAP_TOGGLE_THEN(name, tail, head, edgestate, auxnet, tails, heads){ \
+      MAP_WtTOGGLE_THEN(name, tail, head, weight, edgestate, auxnet, tails, heads, weights){ \
         double *tmp = m->workspace;                                     \
         m->workspace = CHANGE_STAT;                                     \
-        ChangeStats1(*tails, *heads, auxnet->onwp, m, IS_OUTEDGE(*tails, *heads, auxnet->onwp)); \
+        WtChangeStats1(*tails, *heads, *weights, auxnet->onwp, m, WtGETWT(*tails, *heads, auxnet->onwp)); \
         m->workspace = tmp;                                             \
       }                                                                 \
     }else{                                                              \
-      unsigned int ntoggles = MAP_TOGGLE(name, tail, head, edgestate, auxnet, tails, heads); \
+      unsigned int ntoggles = MAP_WtTOGGLE(name, tail, head, weight, edgestate, auxnet, tails, heads, weights); \
       if(ntoggles){                                                     \
         double *tmp = m->workspace;                                     \
         m->workspace = CHANGE_STAT;                                     \
-        ChangeStats(ntoggles, tails, heads, auxnet->onwp, m);           \
+        WtChangeStats(ntoggles, tails, heads, weights, auxnet->onwp, m); \
         m->workspace = tmp;                                             \
       }                                                                 \
     }                                                                   \
   }                                                                     \
                                                                         \
-  Z_CHANGESTAT_FN(z_on ## name){                                        \
-    GET_STORAGE(Model, m);                                              \
+  WtZ_CHANGESTAT_FN(z_on ## name){                                      \
+    GET_STORAGE(WtModel, m);                                            \
                                                                         \
     double *tmp = m->workspace;                                         \
     m->workspace = CHANGE_STAT;                                         \
-    ZStats(nwp, m, skip_s);                                             \
+    WtZStats(nwp, m, skip_s);                                           \
     m->workspace = tmp;                                                 \
   }                                                                     \
                                                                         \
-  F_CHANGESTAT_FN(f_on ## name){                                        \
-    GET_STORAGE(Model, m);                                              \
-    GET_AUX_STORAGE(StoreAuxnet, auxnet);                               \
-    ModelDestroy(auxnet->onwp, m);                                      \
+  WtF_CHANGESTAT_FN(f_on ## name){                                      \
+    GET_STORAGE(WtModel, m);                                            \
+    GET_AUX_STORAGE(StoreWtAuxnet, auxnet);                             \
+    WtModelDestroy(auxnet->onwp, m);                                    \
     STORAGE = NULL;                                                     \
   }
 

@@ -458,3 +458,14 @@ WtZ_CHANGESTAT_FN(z_wtExp){
     else CHANGE_STAT[i] = exp(CHANGE_STAT[i]+modstats->m->workspace[i]) - exp(CHANGE_STAT[i]);
   }
 }
+
+
+#include "ergm_wtchangestats_auxnet.h"
+
+/* ON_WtAUXNET(_discord_net_Network) */
+/* ON_WtAUXNET(_intersect_net_Network) */
+/* ON_WtAUXNET(_union_net_Network) */
+/* ON_WtAUXNET(_blockdiag_net) */
+ON_WtAUXNET(_wtundir_net)
+/* ON_WtAUXNET(_filter_formula_net) */
+ON_WtAUXNET(_wtsubgraph_net)

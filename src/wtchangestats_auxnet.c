@@ -7,225 +7,225 @@
  *
  *  Copyright 2003-2025 Statnet Commons
  */
-#include "ergm_changestat_auxnet.h"
-#include "ergm_changestats_auxnet.h"
-#include "ergm_dyad_hashmap.h"
-#include "ergm_dyad_hashmap_utils.h"
+#include "ergm_wtchangestat_auxnet.h"
+#include "ergm_wtchangestats_auxnet.h"
+/* #include "ergm_dyad_hashmap.h" */
+/* #include "ergm_dyad_hashmap_utils.h" */
 
-// sets aux network to y0 XOR y1
-I_CHANGESTAT_FN(i__discord_net_Network){
-  I_AUXNET(NetworkCopy(nwp));
-  int *ref_el = IINPUT_PARAM;
+/* // sets aux network to y0 XOR y1 */
+/* WtI_CHANGESTAT_FN(i__wtdiscord_net_Network){ */
+/*   I_WtAUXNET(NetworkCopy(nwp)); */
+/*   int *ref_el = IINPUT_PARAM; */
 
-  Edge nedges = *ref_el;
-  for(Edge i=0; i<nedges; i++){
-    Vertex tail=ref_el[1+i], head=ref_el[1+nedges+i];
-    ToggleEdge(tail,head, auxnet->onwp);
-  }
-}
+/*   Edge nedges = *ref_el; */
+/*   for(Edge i=0; i<nedges; i++){ */
+/*     Vertex tail=ref_el[1+i], head=ref_el[1+nedges+i]; */
+/*     ToggleEdge(tail,head, auxnet->onwp); */
+/*   } */
+/* } */
 
-U_CHANGESTAT_FN(u__discord_net_Network){
-  GET_AUX_STORAGE(StoreAuxnet, auxnet);
-  ToggleEdge(tail, head, auxnet->onwp);
-}
+/* WtU_CHANGESTAT_FN(u__wtdiscord_net_Network){ */
+/*   GET_AUX_STORAGE(StoreAuxnet, auxnet); */
+/*   ToggleEdge(tail, head, auxnet->onwp); */
+/* } */
 
-F_CHANGESTAT_FN(f__discord_net_Network){
-  GET_AUX_STORAGE(StoreAuxnet, auxnet);
-  NetworkDestroy(auxnet->onwp);
-}
+/* F_CHANGESTAT_FN(f__wtdiscord_net_Network){ */
+/*   GET_AUX_STORAGE(StoreAuxnet, auxnet); */
+/*   NetworkDestroy(auxnet->onwp); */
+/* } */
 
-// Initialize empty aux network. Then loop through the edges of y0 (ref_el).
-// If the edge also exists in y1, then toggle it off in auxnet->onwp.
-// The storage auxnet->onwp should be initialized as y0&y1 at the end.
-I_CHANGESTAT_FN(i__intersect_net_Network){
-  I_AUXNET(NetworkInitialize(NULL, NULL, 0, N_NODES, DIRECTED, BIPARTITE, 0, 0, NULL));
-  int *ref_el = IINPUT_PARAM;
+/* // Initialize empty aux network. Then loop through the edges of y0 (ref_el). */
+/* // If the edge also exists in y1, then toggle it off in auxnet->onwp. */
+/* // The storage auxnet->onwp should be initialized as y0&y1 at the end. */
+/* WtI_CHANGESTAT_FN(i__wtintersect_net_Network){ */
+/*   I_WtAUXNET(NetworkInitialize(NULL, NULL, 0, N_NODES, DIRECTED, BIPARTITE, 0, 0, NULL)); */
+/*   int *ref_el = IINPUT_PARAM; */
 
-  Edge nedges = *ref_el;
-  for(Edge i=0; i<nedges; i++){
-    Vertex tail=ref_el[1+i], head=ref_el[1+nedges+i];
-    if(IS_OUTEDGE(tail, head)) {
-      ToggleKnownEdge(tail,head, auxnet->onwp, FALSE);
-    }
-  }
-}
+/*   Edge nedges = *ref_el; */
+/*   for(Edge i=0; i<nedges; i++){ */
+/*     Vertex tail=ref_el[1+i], head=ref_el[1+nedges+i]; */
+/*     if(IS_OUTEDGE(tail, head)) { */
+/*       ToggleKnownEdge(tail,head, auxnet->onwp, FALSE); */
+/*     } */
+/*   } */
+/* } */
 
-U_CHANGESTAT_FN(u__intersect_net_Network){
-  GET_AUX_STORAGE(StoreAuxnet, auxnet);
-  int *ref_el = IINPUT_PARAM;
-  // only toggle if the edge is in y0. otherwise changing y1 won't matter.
-  if(iEdgeListSearch(tail, head, ref_el))
-    ToggleEdge(tail, head, auxnet->onwp);
-}
+/* WtU_CHANGESTAT_FN(u__wtintersect_net_Network){ */
+/*   GET_AUX_STORAGE(StoreAuxnet, auxnet); */
+/*   int *ref_el = IINPUT_PARAM; */
+/*   // only toggle if the edge is in y0. otherwise changing y1 won't matter. */
+/*   if(iEdgeListSearch(tail, head, ref_el)) */
+/*     ToggleEdge(tail, head, auxnet->onwp); */
+/* } */
 
-F_CHANGESTAT_FN(f__intersect_net_Network){
-  GET_AUX_STORAGE(StoreAuxnet, auxnet);
-  NetworkDestroy(auxnet->onwp);
-}
+/* WtF_CHANGESTAT_FN(f__wtintersect_net_Network){ */
+/*   GET_AUX_STORAGE(StoreAuxnet, auxnet); */
+/*   NetworkDestroy(auxnet->onwp); */
+/* } */
 
-I_CHANGESTAT_FN(i__intersect_net_toggles_in_list_Network){
-  //Rprintf("allocating intersect_net_tog\n");
-  I_AUXNET(NetworkInitialize(NULL, NULL, 0, N_NODES, DIRECTED, BIPARTITE, 0, 0, NULL));
-  int *ref_el = IINPUT_PARAM;
+/* WtI_CHANGESTAT_FN(i__wtintersect_net_toggles_in_list_Network){ */
+/*   //Rprintf("allocating intersect_net_tog\n"); */
+/*   I_WtAUXNET(NetworkInitialize(NULL, NULL, 0, N_NODES, DIRECTED, BIPARTITE, 0, 0, NULL)); */
+/*   int *ref_el = IINPUT_PARAM; */
 
-  Edge nedges = *ref_el;
-  for(Edge i=0; i<nedges; i++){
-    Vertex tail=ref_el[1+i], head=ref_el[1+nedges+i];
-    if(IS_OUTEDGE(tail, head)) {
-      ToggleEdge(tail,head, auxnet->onwp);
-    }
-  }
-}
+/*   Edge nedges = *ref_el; */
+/*   for(Edge i=0; i<nedges; i++){ */
+/*     Vertex tail=ref_el[1+i], head=ref_el[1+nedges+i]; */
+/*     if(IS_OUTEDGE(tail, head)) { */
+/*       ToggleEdge(tail,head, auxnet->onwp); */
+/*     } */
+/*   } */
+/* } */
 
-U_CHANGESTAT_FN(u__intersect_net_toggles_in_list_Network){
-  GET_AUX_STORAGE(StoreAuxnet, auxnet);
-  ToggleEdge(tail, head, auxnet->onwp);
-}
+/* WtU_CHANGESTAT_FN(u__wtintersect_net_toggles_in_list_Network){ */
+/*   GET_AUX_STORAGE(StoreAuxnet, auxnet); */
+/*   ToggleEdge(tail, head, auxnet->onwp); */
+/* } */
 
-F_CHANGESTAT_FN(f__intersect_net_toggles_in_list_Network){
-  GET_AUX_STORAGE(StoreAuxnet, auxnet);
-  NetworkDestroy(auxnet->onwp);
-}
+/* WtF_CHANGESTAT_FN(f__wtintersect_net_toggles_in_list_Network){ */
+/*   GET_AUX_STORAGE(StoreAuxnet, auxnet); */
+/*   NetworkDestroy(auxnet->onwp); */
+/* } */
 
-// Initialize aux network to y1. Then loop through the edges of y0 (ref_el).
-// If the edge does not exists in y1, then toggle it on in aux network.
-// The storage auxnet->onwp should be initialized as y0|y1 at the end.
-I_CHANGESTAT_FN(i__union_net_Network){
-  I_AUXNET(NetworkCopy(nwp));
-  int *ref_el = IINPUT_PARAM;
+/* // Initialize aux network to y1. Then loop through the edges of y0 (ref_el). */
+/* // If the edge does not exists in y1, then toggle it on in aux network. */
+/* // The storage auxnet->onwp should be initialized as y0|y1 at the end. */
+/* WtI_CHANGESTAT_FN(i__wtunion_net_Network){ */
+/*   I_WtAUXNET(NetworkCopy(nwp)); */
+/*   int *ref_el = IINPUT_PARAM; */
 
-  Edge nedges = *ref_el;
-  for(Edge i=0; i<nedges; i++){
-    Vertex tail=ref_el[1+i], head=ref_el[1+nedges+i];
-    if(IS_OUTEDGE(tail, head)==0) {
-      ToggleKnownEdge(tail,head, auxnet->onwp, FALSE);
-    }
-  }
-}
+/*   Edge nedges = *ref_el; */
+/*   for(Edge i=0; i<nedges; i++){ */
+/*     Vertex tail=ref_el[1+i], head=ref_el[1+nedges+i]; */
+/*     if(IS_OUTEDGE(tail, head)==0) { */
+/*       ToggleKnownEdge(tail,head, auxnet->onwp, FALSE); */
+/*     } */
+/*   } */
+/* } */
 
-U_CHANGESTAT_FN(u__union_net_Network){
-  GET_AUX_STORAGE(StoreAuxnet, auxnet);
-  int *ref_el = IINPUT_PARAM;
-  // If the edge is in y0, changing y1 won't matter.
-  if(iEdgeListSearch(tail, head, ref_el)==0)
-    ToggleEdge(tail, head, auxnet->onwp);
-}
+/* WtU_CHANGESTAT_FN(u__wtunion_net_Network){ */
+/*   GET_AUX_STORAGE(StoreAuxnet, auxnet); */
+/*   int *ref_el = IINPUT_PARAM; */
+/*   // If the edge is in y0, changing y1 won't matter. */
+/*   if(iEdgeListSearch(tail, head, ref_el)==0) */
+/*     ToggleEdge(tail, head, auxnet->onwp); */
+/* } */
 
-F_CHANGESTAT_FN(f__union_net_Network){
-  GET_AUX_STORAGE(StoreAuxnet, auxnet);
-  NetworkDestroy(auxnet->onwp);
-}
+/* WtF_CHANGESTAT_FN(f__wtunion_net_Network){ */
+/*   GET_AUX_STORAGE(StoreAuxnet, auxnet); */
+/*   NetworkDestroy(auxnet->onwp); */
+/* } */
 
-/* blockdiag_net:
-   maintains a network that mirrors the main network but excludes ties
-   not within specified blocks; also exports a numeric vector of block
-   memberships
-*/
+/* /\* blockdiag_net: */
+/*    maintains a network that mirrors the main network but excludes ties */
+/*    not within specified blocks; also exports a numeric vector of block */
+/*    memberships */
+/* *\/ */
 
-I_CHANGESTAT_FN(i__blockdiag_net){
-  I_AUXNET(NetworkInitialize(NULL, NULL, 0, N_NODES, DIRECTED, BIPARTITE, 0, 0, NULL));
-  int *b = IINPUT_PARAM-1; // tail and head are indexed from 1.
+/* WtI_CHANGESTAT_FN(i__wtblockdiag_net){ */
+/*   I_WtAUXNET(NetworkInitialize(NULL, NULL, 0, N_NODES, DIRECTED, BIPARTITE, 0, 0, NULL)); */
+/*   int *b = IINPUT_PARAM-1; // tail and head are indexed from 1. */
 
-  for(Vertex tail=1; tail <= N_TAILS; tail++){
-    Vertex head;
-    Edge e;
-    STEP_THROUGH_OUTEDGES(tail, e, head) {
-      if(b[tail]==b[head])
-	ToggleKnownEdge(tail, head, auxnet->onwp, FALSE);
-    }
-  }
-}
+/*   for(Vertex tail=1; tail <= N_TAILS; tail++){ */
+/*     Vertex head; */
+/*     Edge e; */
+/*     STEP_THROUGH_OUTEDGES(tail, e, head) { */
+/*       if(b[tail]==b[head]) */
+/* 	ToggleKnownEdge(tail, head, auxnet->onwp, FALSE); */
+/*     } */
+/*   } */
+/* } */
 
-U_CHANGESTAT_FN(u__blockdiag_net){
-  GET_AUX_STORAGE(StoreAuxnet, auxnet);
-  int *b = IINPUT_PARAM-1; // tail and head are indexed from 1.
+/* WtU_CHANGESTAT_FN(u__wtblockdiag_net){ */
+/*   GET_AUX_STORAGE(StoreAuxnet, auxnet); */
+/*   int *b = IINPUT_PARAM-1; // tail and head are indexed from 1. */
 
-  if(b[tail]==b[head])
-    ToggleKnownEdge(tail, head, auxnet->onwp, edgestate);
-}
+/*   if(b[tail]==b[head]) */
+/*     ToggleKnownEdge(tail, head, auxnet->onwp, edgestate); */
+/* } */
 
-F_CHANGESTAT_FN(f__blockdiag_net){
-  GET_AUX_STORAGE(StoreAuxnet, auxnet);
-  NetworkDestroy(auxnet->onwp);
-}
+/* WtF_CHANGESTAT_FN(f__wtblockdiag_net){ */
+/*   GET_AUX_STORAGE(StoreAuxnet, auxnet); */
+/*   NetworkDestroy(auxnet->onwp); */
+/* } */
 
 /* _undir_net
 
    Maintain an undirected binary network symmetrized from LHS according to the specified rule:
 
-   1: weak
-   2: strong
+   1: weak (max)
+   2: strong (min)
    3: upper (tail < head)
    4: lower (tail > head)
 
 */
 
-I_CHANGESTAT_FN(i__undir_net){
-  I_AUXNET(NetworkInitialize(NULL, NULL, 0, N_NODES, FALSE, BIPARTITE, FALSE, 0, NULL));
+WtI_CHANGESTAT_FN(i__wtundir_net){
+  I_WtAUXNET(WtNetworkInitialize(NULL, NULL, NULL, 0, N_NODES, FALSE, BIPARTITE, FALSE, 0, NULL));
 
   unsigned int rule = IINPUT_PARAM[0];
-  EXEC_THROUGH_NET_EDGES_PRE(tail, head, e, {
-      __undir_net_totoggle;
-      if(totoggle && !IS_UNDIRECTED_EDGE(tail,head,auxnet->onwp)) ToggleKnownEdge(tail, head, auxnet->onwp, FALSE);
+  WtEXEC_THROUGH_NET_EDGES_PRE(tail, head, e, weight, {
+      __wtundir_net_totoggle;
+      if(totoggle) WtSetEdge(tail, head, w, auxnet->onwp);
     });
 }
 
-U_CHANGESTAT_FN(u__undir_net){
-  GET_AUX_STORAGE(StoreAuxnet, auxnet);
+WtU_CHANGESTAT_FN(u__wtundir_net){
+  GET_AUX_STORAGE(StoreWtAuxnet, auxnet);
   unsigned int rule = IINPUT_PARAM[0];
 
-  __undir_net_totoggle;
-  if(totoggle) ToggleEdge(MIN(tail,head),MAX(tail,head),auxnet->onwp);
+  __wtundir_net_totoggle;
+  if(totoggle) WtSetEdge(MIN(tail,head), MAX(tail,head),w, auxnet->onwp);
 }
 
-F_CHANGESTAT_FN(f__undir_net){
-  GET_AUX_STORAGE(StoreAuxnet, auxnet);
-  NetworkDestroy(auxnet->onwp);
+WtF_CHANGESTAT_FN(f__wtundir_net){
+  GET_AUX_STORAGE(StoreWtAuxnet, auxnet);
+  WtNetworkDestroy(auxnet->onwp);
 }
 
-/* _filter_formula_net
+/* /\* _filter_formula_net  */
 
-   Maintain a binary network that has an edge wherever the
-   contribution of the a given term (edges, nodematch, etc.) whose
-   dyadwise value is either 0 or 1 is 1.
+/*    Maintain a binary network that has an edge wherever the */
+/*    contribution of the a given term (edges, nodematch, etc.) whose */
+/*    dyadwise value is either 0 or 1 is 1. */
 
-*/
+/* *\/ */
 
-I_CHANGESTAT_FN(i__filter_formula_net){
-  I_AUXNET(NetworkInitialize(NULL, NULL, 0, N_NODES, DIRECTED, BIPARTITE, FALSE, 0, NULL));
-  GET_STORAGE(Model, m);
-  unsigned int op = IINPUT_PARAM[0];
+/* WtI_CHANGESTAT_FN(i__wtfilter_formula_net){ */
+/*   I_WtAUXNET(WtNetworkInitialize(NULL, NULL, NULL, 0, N_NODES, DIRECTED, BIPARTITE, FALSE, 0, NULL)); */
+/*   GET_STORAGE(WtModel, m); */
+/*   unsigned int op = IINPUT_PARAM[0]; */
 
-  STORAGE = m = ModelInitialize(getListElement(mtp->R, "submodel"), NULL, nwp, FALSE);
+/*   STORAGE = m = WtModelInitialize(getListElement(mtp->R, "submodel"), NULL, nwp, FALSE); */
 
-  EXEC_THROUGH_NET_EDGES_PRE(t, h, e, {
-      Rboolean edgestate = TRUE; // We know the edge is present in nwp.
-      __filter_formula_net_totoggle(t, h, nwp, m);
-      if(totoggle) AddEdgeToTrees(t, h, auxnet->onwp);
-    });
-}
+/*   WtEXEC_THROUGH_NET_EDGES_PRE(t, h, w, e, { */
+/*       Rboolean edgestate = TRUE; // We know the edge is present in nwp. */
+/*       __wtfilter_formula_net_totoggle(t, h, w, nwp, m); */
+/*       if(totoggle) WtAddEdgeToTrees(t, h, w, auxnet->onwp); */
+/*     }); */
+/* } */
 
-U_CHANGESTAT_FN(u__filter_formula_net){
-  GET_AUX_STORAGE(StoreAuxnet, auxnet);
-  GET_STORAGE(Model, m);
-  unsigned int op = IINPUT_PARAM[0];
+/* WtU_CHANGESTAT_FN(u__wtfilter_formula_net){ */
+/*   GET_AUX_STORAGE(StoreAuxnet, auxnet); */
+/*   GET_STORAGE(Model, m); */
+/*   unsigned int op = IINPUT_PARAM[0]; */
 
-  __filter_formula_net_totoggle(tail, head, nwp, m);
-  if(totoggle){
-    if(edgestate) DeleteEdgeFromTrees(tail,head,auxnet->onwp);
-    else AddEdgeToTrees(tail,head,auxnet->onwp);
-  }
-}
+/*   __wtfilter_formula_net_totoggle(tail, head, nwp, m); */
+/*   if(totoggle){ */
+/*     if(edgestate) WtDeleteEdgeFromTrees(tail,head,auxnet->onwp); */
+/*     else WtAddEdgeToTrees(tail,head,weight,auxnet->onwp); */
+/*   } */
+/* } */
 
-F_CHANGESTAT_FN(f__filter_formula_net){
-  GET_AUX_STORAGE(StoreAuxnet, auxnet);
-  Model *m = STORAGE;
+/* WtF_CHANGESTAT_FN(f__wtfilter_formula_net){ */
+/*   GET_AUX_STORAGE(StoreAuxnet, auxnet); */
+/*   Model *m = STORAGE; */
 
-  ModelDestroy(nwp, m);
-  STORAGE = NULL;
-  NetworkDestroy(auxnet->onwp);
-  // DestroyStats() will deallocate the rest.
-}
+/*   ModelDestroy(nwp, m); */
+/*   STORAGE = NULL; */
+/*   NetworkDestroy(auxnet->onwp); */
+/*   // DestroyStats() will deallocate the rest. */
+/* } */
 
 /* _subgraph_*_net
 
@@ -234,7 +234,7 @@ F_CHANGESTAT_FN(f__filter_formula_net){
 
 */
 
-I_CHANGESTAT_FN(i__subgraph_net){
+WtI_CHANGESTAT_FN(i__wtsubgraph_net){
   ALLOC_STORAGE(2, int*, thmap);
   int *inputs = IINPUT_PARAM;
   unsigned int type = *(inputs++);
@@ -262,25 +262,25 @@ I_CHANGESTAT_FN(i__subgraph_net){
     thmap[1] = inputs + nwp->nnodes - 1;
     break;
   default:
-    error("Error in i__subgraph_net(): unrecognised output network type.");
+    error("Error in i__wtsubgraph_net(): unrecognised output network type.");
     break;
   }
 
-  I_AUXNET(NetworkInitialize(NULL, NULL, 0, n, dir, bip, FALSE, 0, NULL));
+  I_WtAUXNET(WtNetworkInitialize(NULL, NULL, NULL, 0, n, dir, bip, FALSE, 0, NULL));
 
-  EXEC_THROUGH_NET_EDGES_PRE(tail, head, e, {
+  WtEXEC_THROUGH_NET_EDGES_PRE(tail, head, e, weight, {
       Vertex st = thmap[0][tail];
       Vertex sh = thmap[1][head];
       if(!DIRECTED & (st==0 || sh==0)){
         st = thmap[0][head];
         sh = thmap[1][tail];
       }
-      if(st!=0 && sh!=0) AddEdgeToTrees(st, sh, auxnet->onwp);
+      if(st!=0 && sh!=0) WtAddEdgeToTrees(st, sh, weight, auxnet->onwp);
     });
 }
 
-U_CHANGESTAT_FN(u__subgraph_net){
-  GET_AUX_STORAGE(StoreAuxnet, auxnet);
+WtU_CHANGESTAT_FN(u__wtsubgraph_net){
+  GET_AUX_STORAGE(StoreWtAuxnet, auxnet);
   GET_STORAGE(int*, thmap);
   Vertex st = thmap[0][tail];
   Vertex sh = thmap[1][head];
@@ -288,11 +288,11 @@ U_CHANGESTAT_FN(u__subgraph_net){
     st = thmap[0][head];
     sh = thmap[1][tail];
   }
-  if(st!=0 && sh!=0) ToggleKnownEdge(st, sh, auxnet->onwp, edgestate);
+  if(st!=0 && sh!=0) WtSetEdge(st, sh, weight, auxnet->onwp);
 }
 
-F_CHANGESTAT_FN(f__subgraph_net){
-  GET_AUX_STORAGE(StoreAuxnet, auxnet);
-  NetworkDestroy(auxnet->onwp);
+WtF_CHANGESTAT_FN(f__wtsubgraph_net){
+  GET_AUX_STORAGE(StoreWtAuxnet, auxnet);
+  WtNetworkDestroy(auxnet->onwp);
   // DestroyStats() will deallocate the rest.
 }

@@ -130,6 +130,20 @@ InitWtErgmTerm..binary.formula.net <- function(nw, arglist, ...){
 }
 
 # Arguments and outputs are identical to the binary version, except for the C routine names.
+
+#' @templateVar name Symmetrize
+#' @template ergmTerm-rdname
+#' @usage
+#' # valued: Symmetrize(formula, rule="weak")
+InitWtErgmTerm.Symmetrize <- function(...){
+  # Rename the function to avoid the extra nesting level in the
+  # diagnostic messages.
+  f <- InitErgmTerm.Symmetrize
+  term <- f(...)
+  term$name <- "on_wtundir_net"
+  term
+}
+
 #' @templateVar name Sum
 #' @template ergmTerm-rdname
 #' @usage
@@ -140,6 +154,19 @@ InitWtErgmTerm.Sum <- function(...){
   f <- InitErgmTerm.Sum
   term <- f(...)
   term$name <- "wtSum"
+  term
+}
+
+#' @templateVar name S
+#' @template ergmTerm-rdname
+#' @usage
+#' # valued: S(formula, attrs)
+InitWtErgmTerm.S <- function(...){
+  # Rename the function to avoid the extra nesting level in the
+  # diagnostic messages.
+  f <- InitErgmTerm.S
+  term <- f(...)
+  term$name <- "on_wtsubgraph_net"
   term
 }
 
@@ -208,3 +235,9 @@ InitWtErgmTerm.Log <- function(nw, arglist, ...){
 #' @usage
 #' # valued: Prod(formulas, label)
 InitWtErgmTerm.Prod <- InitErgmTerm.Prod
+
+#' @templateVar name For
+#' @template ergmTerm-rdname
+#' @usage
+#' # valued: For(...)
+InitWtErgmTerm.For <- InitErgmTerm.For

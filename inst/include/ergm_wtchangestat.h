@@ -56,7 +56,7 @@ typedef struct WtModelTermstruct {
 #define WTIS_INEDGE(...) _GET_OVERRIDE3(__VA_ARGS__, _WtIS_INEDGE3, _WtIS_INEDGE2,)(__VA_ARGS__)
 
 #define _WtIS_UNDIRECTED_EDGE2(a,b) _WtIS_UNDIRECTED_EDGE3(a,b,nwp)
-#define _WtIS_UNDIRECTED_EDGE3(a,b,nwp) (EdgetreeSearch(MIN((a),(b)),MAX((a),(b)),nwp->outedges)!=0?1:0)
+#define _WtIS_UNDIRECTED_EDGE3(a,b,nwp) (WtEdgetreeSearch(MIN((a),(b)),MAX((a),(b)),nwp->outedges)!=0?1:0)
 #define WtIS_UNDIRECTED_EDGE(...) _GET_OVERRIDE3(__VA_ARGS__, _WtIS_UNDIRECTED_EDGE3, _WtIS_UNDIRECTED_EDGE2,)(__VA_ARGS__)
 
 /* Return the Edge number of the smallest-labelled neighbor of the node 
