@@ -1,5 +1,5 @@
 Package: ergm
-Version: 4.8.1-7564
+Version: 4.8.1-7571
 Date: 2025-01-30
 Title: Fit, Simulate and Diagnose Exponential-Family Models for Networks
 Authors@R: c(
@@ -7,13 +7,13 @@ Authors@R: c(
              person(c("David", "R."), "Hunter", role=c("aut"), email="dhunter@stat.psu.edu"),
              person(c("Carter", "T."), "Butts", role=c("aut"), email="buttsc@uci.edu"),
              person(c("Steven", "M."), "Goodreau", role=c("aut"), email="goodreau@u.washington.edu"),
-             person(c("Pavel", "N."), "Krivitsky", role=c("aut","cre"), email="pavel@statnet.org", comment=c(ORCID="0000-0002-9101-3362")),
+             person(c("Pavel", "N."), "Krivitsky", role=c("aut", "cre"), email="pavel@statnet.org", comment=c(ORCID="0000-0002-9101-3362")),
              person("Martina", "Morris", role=c("aut"), email="morrism@u.washington.edu"),
-             person("Li","Wang",role=c("ctb"),email="lxwang@gmail.com"),
-             person("Kirk","Li",role=c("ctb"),email="kirkli@u.washington.edu"),
+             person("Li", "Wang", role=c("ctb"), email="lxwang@gmail.com"),
+             person("Kirk", "Li", role=c("ctb"), email="kirkli@u.washington.edu"),
              person("Skye", "Bender-deMoll", role=c("ctb"), email="skyebend@u.washington.edu"),
              person("Chad", "Klumb", role=c("ctb"), email="cklumb@gmail.com"),
-             person("Michał", " Bojanowski", role=c("ctb"), email="michal2992@gmail.com", comment=c(ORCID="0000-0001-7503-852X")),
+             person("Michał", "Bojanowski", role=c("ctb"), email="michal2992@gmail.com", comment=c(ORCID="0000-0001-7503-852X")),
              person("Ben", "Bolker", role=c("ctb"), email="bbolker+lme4@gmail.com"),
              person("Christian", "Schmid", role=c("ctb"), email="songhyo86@gmail.com"),
              person("Joyce", "Cheng", role=c("ctb"), email="joyce.cheng@student.unsw.edu.au"),
@@ -65,7 +65,7 @@ Config/testthat/parallel: true
 Config/testthat/edition: 3
 Config/build/clean-inst-doc: FALSE
 Encoding: UTF-8
-Collate: 
+Collate:
     'InitErgmConstraint.R'
     'InitErgmConstraint.blockdiag.R'
     'InitErgmConstraint.hints.R'
