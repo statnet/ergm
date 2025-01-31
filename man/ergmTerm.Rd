@@ -97,6 +97,15 @@ binary terms to valued models, and is more flexible, at the cost of being
 somewhat slower.
 }
 
+\subsection{Transformations of dyad values}{
+
+A expression of the form \code{... + (EXPR ~ TERMS) + ...} will evaluate
+\code{TERMS} on a network constructed by applying the transformation
+specified by \code{EXPR} to edge values. At this time, \code{"sqrt"} is the
+only transformation supported (e.g., \code{("sqrt" ~ sum)} is equivalent
+to \code{sum(pow = 1/2)}).
+}
+
 }
 
 \subsection{Nodal attribute levels and indices}{

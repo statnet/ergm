@@ -241,3 +241,37 @@ InitWtErgmTerm.Prod <- InitErgmTerm.Prod
 #' @usage
 #' # valued: For(...)
 InitWtErgmTerm.For <- InitErgmTerm.For
+
+net_transform_encode <- function(expr, env){
+  if(identical(expr, "sqrt")) 1L
+  else ergm_Init_stop("Network transformation expression ", sQuote(deparse1(expr)), " is not supported at this time.")
+}
+
+`InitWtErgmTerm.~` <- function(nw, arglist, ..., env){
+  al <- substitute(arglist)
+  a <- check.ErgmTerm(nw, arglist[-2],
+                      varnames = "expr",
+                      vartypes = "character",
+                      defaultvalues = list(NULL),
+                      required = TRUE)
+
+  rhs <- as.formula(call("~", al[[3]]), env)
+
+  op <- net_transform_encode(a$expr, env)
+  m <- ergm_model(rhs, nw, ..., terms.only = TRUE)
+
+  c(list(name = "on_wttransformed_net", iinput = op, submodel = m, auxiliaries = ~.transformed.net(a$expr)),
+    wrap.ergm_model(m, nw, ergm_mk_std_op_namewrap(a$expr)))
+}
+
+InitWtErgmTerm..transformed.net <- function(nw, arglist, ..., env){
+  a <- check.ErgmTerm(nw, arglist,
+                      varnames = "expr",
+                      vartypes = "character",
+                      defaultvalues = list(NULL),
+                      required = TRUE)
+
+  op <- net_transform_encode(a$expr, env)
+
+  c(list(name = "_wttransformed_net", coef.names = c(), iinputs = op, dependence = FALSE))
+}

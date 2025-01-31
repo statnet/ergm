@@ -296,3 +296,34 @@ WtF_CHANGESTAT_FN(f__wtsubgraph_net){
   WtNetworkDestroy(auxnet->onwp);
   // DestroyStats() will deallocate the rest.
 }
+
+/* _transformed_net
+
+   Maintain a valued network subject to the specified transformation
+
+   1: square root
+
+*/
+
+WtI_CHANGESTAT_FN(i__wttransformed_net){
+  I_WtAUXNET(WtNetworkInitialize(NULL, NULL, NULL, 0, N_NODES, FALSE, BIPARTITE, FALSE, 0, NULL));
+
+  unsigned int op = IINPUT_PARAM[0];
+  WtEXEC_THROUGH_NET_EDGES_PRE(tail, head, e, weight, {
+      __wttransformed_net_totoggle;
+      if(totoggle) WtSetEdge(tail, head, w, auxnet->onwp);
+    });
+}
+
+WtU_CHANGESTAT_FN(u__wttransformed_net){
+  GET_AUX_STORAGE(StoreWtAuxnet, auxnet);
+  unsigned int op = IINPUT_PARAM[0];
+
+  __wttransformed_net_totoggle;
+  if(totoggle) WtSetEdge(tail, head, w, auxnet->onwp);
+}
+
+WtF_CHANGESTAT_FN(f__wttransformed_net){
+  GET_AUX_STORAGE(StoreWtAuxnet, auxnet);
+  WtNetworkDestroy(auxnet->onwp);
+}

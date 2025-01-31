@@ -189,6 +189,7 @@
 #' (a[i]+a[j])*(b[i]+b[j])*y[i,j].}
 #' 
 #' ## Binary and valued ERGM terms
+#'
 #' [`ergm`][ergm-package] functions such as [`ergm`] and
 #' [`simulate`][simulate.formula] (for ERGMs) may operate in two
 #' modes: binary and weighted/valued, with the latter activated by passing a
@@ -196,6 +197,7 @@
 #' name to be modeled/simulated.
 #' 
 #' ### Generalizations of binary terms
+#'
 #' Binary ERGM statistics cannot be
 #' used directly in valued mode and vice versa. However, a substantial number
 #' of binary ERGM statistics --- particularly the ones with dyadic independence
@@ -215,8 +217,17 @@
 #' The \ergmTerm{ergm}{B}{()} operator term documented below can be used to pass other
 #' binary terms to valued models, and is more flexible, at the cost of being
 #' somewhat slower.
+#'
+#' ### Transformations of dyad values
+#'
+#' A expression of the form `... + (EXPR ~ TERMS) + ...` will evaluate
+#' `TERMS` on a network constructed by applying the transformation
+#' specified by `EXPR` to edge values. At this time, `"sqrt"` is the
+#' only transformation supported (e.g., `("sqrt" ~ sum)` is equivalent
+#' to `sum(pow = 1/2)`).
 #' 
 #' ## Nodal attribute levels and indices
+#'
 #' Terms taking a categorical nodal covariate also take the `levels`
 #' argument.  (There are analogous `b1levels` and `b2levels`
 #' arguments for some terms that apply to bipartite networks, and the

@@ -469,3 +469,4 @@ WtZ_CHANGESTAT_FN(z_wtExp){
 ON_WtAUXNET(_wtundir_net)
 /* ON_WtAUXNET(_filter_formula_net) */
 ON_WtAUXNET(_wtsubgraph_net)
+ON_WtAUXNET(_wttransformed_net)

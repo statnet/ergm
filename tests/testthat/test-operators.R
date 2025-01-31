@@ -280,3 +280,9 @@ test_that("Interaction terms handling of interact.dependent", {
   expect_warning(summary(flomarriage~triangles:absdiff("wealth"), interact.dependent = "warning"), ".*poorly defined.*")
   expect_message(summary(flomarriage~triangles:absdiff("wealth"), interact.dependent = "message"), ".*poorly defined.*")
 })
+
+test_that("Square root transformation", {
+  expect_equal(summary(zach ~ ("sqrt"~sum), response = "contexts"),
+               summary(zach ~ sum(pow = 1/2), response = "contexts"),
+               ignore_attr = TRUE)
+})

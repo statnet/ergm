@@ -132,4 +132,33 @@ MAP_WtTOGGLE_FN(map_toggle__wtsubgraph_net){
   }
 }
 
+#define __wttransformed_net_totoggle                    \
+  Rboolean totoggle;					\
+  double ostate = WtGETWT(head,tail, auxnet->onwp);     \
+  double w;                                             \
+  switch(op){						\
+  case 1: /* sqrt */					\
+    w = sqrt(weight);                                   \
+    totoggle = w != ostate;                             \
+    break;						\
+  default: /* never reached, but avoids a warning */	\
+    w = 0;                                              \
+    totoggle = FALSE;					\
+  }
+
+#define map_toggle_maxtoggles__wttransformed_net 1
+MAP_WtTOGGLE_FN(map_toggle__wttransformed_net){
+  WtModelTerm *mtp = auxnet->mtp;
+  unsigned int op = IINPUT_PARAM[0];
+  __wttransformed_net_totoggle;
+  if(totoggle){
+    *tails = tail;
+    *heads = head;
+    *weights = w;
+    return 1;
+  }else{
+    return 0;
+  }
+}
+
 #endif
