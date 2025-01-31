@@ -104,7 +104,7 @@ format_traceback <- function(x){
 }
 
 traceback.Initializers <- function(){
-  pat <- '^((?<pkg>[^:]+):::?)?Init(?<valued>Wt)?Ergm(?<type>Term|Proposal|Reference|Constraint)\\.(?<name>.*)$'
+  pat <- '^((?<pkg>[^:]+):::?)?`?Init(?<valued>Wt)?Ergm(?<type>Term|Proposal|Reference|Constraint)\\.(?<name>[^`]*)`?$'
   traceback.search(pat, perl=TRUE) %>% map(regexpr_list, pat) %>% do.call(rbind,.)
 }
 
@@ -115,8 +115,7 @@ traceback.search <- function(pattern, ...) {
   sys.calls() %>%
     as.list() %>%
     map(~.[[1]]) %>%
-    map(deparse) %>%
-    map_chr(paste, collapse="\n") %>%
+    map_chr(deparse1) %>%
     grep(pattern, ., value=TRUE, ...)
 }
 
