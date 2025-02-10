@@ -8,7 +8,7 @@ vignette: >
   %\VignetteIndexEntry{API for ergm Terms}
 ---
 
-```{r, cache=FALSE}
+```{r, echo=FALSE, cache=FALSE}
 options(rmarkdown.html_vignette.check_title = FALSE)
 ```
 
