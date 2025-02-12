@@ -16,17 +16,17 @@ options(rmarkdown.html_vignette.check_title = FALSE)
 
 This document seeks to be the most up-to-date API documentation for `ergm` terms. Note that it is not intended to be a tutorial as much as a description of what inputs and outputs different parts of the system expect.
 
+Several annotated examples are provided in the off-CRAN template package `ergm.useters`, currently hosted on GitHub at https://github.com/statnet/ergm.userterms .
+
 # Overview
 
 ## Types of storage and types of term
 
-The storage API defines two types of storage: *private storage*, which is attached the `ModelTerm` structure and is specific to each `ergm` term, and *public storage*, which is attached to the `Model` and can be accessed by all terms.
+The storage API defines two types of storage: *private storage*, which is attached to the `ModelTerm` structure and is specific to each `ergm` term, and *public storage*, which is attached to the `Model` and can be accessed by all terms.
 
 A *statistic* is a familiar `ergm` term like "`edges`" or "`nodefactor`": it adds at least one sufficient statistic to the model. Every statistic can have private storage, and it can read from public storage, but it cannot write to public storage.
 
-An *auxiliary* in an `ergm` term but not an ERGM term in the mathematical sense: it adds no statistics to the model and exists only to initialize and maintain public storage to be used by statistics. It may not be specified on an `ergm` formula by the end-user, but only requested by a statistic.
-
-An auxiliary can rely on another auxiliary's public storage. Note that circular dependencies are not checked.
+An *auxiliary* in an `ergm` term, but it is not an ERGM term in the mathematical sense: it adds no statistics to the model and exists only to initialize and maintain public storage to be used by statistics and other auxiliaries. It may not be specified on an `ergm` formula by the end-user but only requested by a statistic or another auxiliary. Note that in the latter case, circular dependencies are *not* checked.
 
 ## Code path
 
@@ -47,7 +47,7 @@ For the purposes of this overview, the following information is relevant, and is
 		1. It iterates through the `auxiliaries` elements of auxiliary terms and initialises those, etc..
         1. It constructs a list of unique initialized auxilariy terms (that is, when two or more terms had requested an identical auxiliary).
         1. It inserts the initialized unique auxiliary terms in `model$terms` and the index (in the unique list) of the auxiliary requested by each statistic in the `aux.slots` of the requesting statistic.
-        1. For auxiliary itself, the first element of `aux.slots` is set to the position of the auxiliary itself.
+        1. For an auxiliary itself, the first element of `aux.slots` is set to the position of the auxiliary itself, i.e., the public storage element for which it is responsible.
 1. The `ergm_state` is constructed from an edgelist (`state$el`), an empty network (`state$nw0`), a model (`state$model`), and (optionally) a proposal (`state$proposal`) and a statistics vector (`state$stats`).
 1. `update.ergm_state()` is called.
     1. It iterates through the formula terms, calling `term$ext.encode()` (if defined) to construct a vector `state$ext.state`. `state$ext.flag` is set to reconciled.
@@ -71,15 +71,15 @@ For the purposes of this overview, the following information is relevant, and is
 		    1. It makes the toggle provisionally (if more to come).
 	    1. It undoes the provisional toggles.
     1. If the proposal is accepted, `u_` function is called, and network is updated for each toggle.
+1. `ErgmStateRSave()` is called:
+    1. `Network2Redgelist()` is called, returning a `SEXP` with the state.
+    1. For each term, a writer (`w_` function) is called if defined, returning a `SEXP` with the extended state.
+    1. These are stored in a vector `state$ext.state`. Element `state$ext.flag` is set to signal that a change was made on the `C` side.
 1. `ModelDestroy()` is called:
     1. `DestroyStats()` is called, iterating through the terms.
         1. Finalizer (`f_`) function is called, if defined.
 	    1. If `mtp->storage` is not `NULL`, it is freed.
     1. Other parts of the model are freed; in particular those of `mtp->aux_storage` if not `NULL`.
-1. `ErgmStateRSave()` is called:
-    1. `Network2Redgelist()` is called, returning a `SEXP` with the state.
-    1. For each term, a writer (`w_` function) is called if defined, returning a `SEXP` with the extended state.
-    1. These are stored in a vector `state$ext.state`. Element `state$ext.flag` is set to signal that a change was made on the `C` side.
 1. `NetworkDestroy()` is called.
 1. States and other outputs are passed back to `R`.
 1. `update.ergm_state()` is called.
@@ -101,7 +101,7 @@ The following are the minimal arguments of these functions:
 
 ##### Expects
 
-`nw`: a `network` object taken from the LHS of the model formula or the `basis=` argument (if given); valued networks are instrumented with `%ergmlhs% "response"` information.
+`nw`: a `network` (or `networkLite`) object taken from the LHS of the model formula or the `basis=` argument (if given); valued networks are instrumented with `%ergmlhs% "response"` information.
 
 `arglist`: a `list` of arguments passed to the term call on the formula. If arguments are passed with names, the list is named. Typically, helper function `check.ErgmTerm()` is used to preprocess this list with the equivalent of R's `match.call()`. Notably, thanks to R's lazy evaluation, it is possible to obtain the argument expressions without evaluating them by calling `substitute(arglist)`. See `InitErgmTerm.:` and `InitErgmTerm.*` in `R/InitErgmTerm.interaction.R` for examples.
 
@@ -123,9 +123,9 @@ In the following, let $p = \dim(\eta) = \dim(g(y))$, the dimension of the statis
 
 `coef.names`: a character vector of length $p$ of names for the elements of the canonical statistic of the model (and canonical parameters); can be absent or zero-length for auxiliaries.
 
-`inputs`: a vector of (double-precision) numeric inputs that will be made available to the `C`-side implementation as a `double` vector; optionally,`inputs` may have an attribute named `"ParamsBeforeCov"`, which is used primarily for backwards compatibility, but can also be used to more conveniently separate, e.g., metadata elements from vertex attribute elements.
+`inputs`: a vector of (double-precision) numeric inputs that will be made available to the `C`-side implementation as a `double` vector; optionally, `inputs` may have an attribute named `"ParamsBeforeCov"`, which is used primarily for backwards compatibility, but can also be used to more conveniently separate, e.g., metadata elements from vertex attribute elements.
 
-`iinputs`: a vector of integer inputs that will be made available to the `C`-side implementation as an `int` vector; optionally,`iinputs` may have an attribute named `"ParamsBeforeCov"`, which is used primarily for backwards compatibility, but can also be used to more conveniently separate, e.g., metadata elements from vertex attribute elements.
+`iinputs`: a vector of integer inputs that will be made available to the `C`-side implementation as an `int` vector; optionally, `iinputs` may have an attribute named `"ParamsBeforeCov"`, which is used primarily for backwards compatibility, but can also be used to more conveniently separate, e.g., metadata elements from vertex attribute elements.
 
 `pkgname`: a string containing the name of the `R` package containing the `C` implementation; if not specified, the package in which the `Init*ErgmTerm.*` function was found is assumed.
 
@@ -280,9 +280,7 @@ Network populated with initial ties and initialized model.
 
 **Public storage**
 
-The first element of `mtp->aux_slots` is the index of the element of `mtp->aux_storage` to be managed by this auxiliary. That is `mtp->aux_storage[mtp->aux_slots[0]]` is a `void *` to point to the data to be public.
-
-The other data passed from the `InitErgmTerm.` are shifted over to make room for it.
+For an auxiliary, the first element of `mtp->aux_slots` is the index of the element of `mtp->aux_storage` that it is to manage. That is `mtp->aux_storage[mtp->aux_slots[0]]` is a `void *` to point to the data to be public.
 
 ##### Side-effects
 
@@ -292,7 +290,7 @@ Allocates memory for the information to be stored and overwrites `mtp->storage` 
 
 **Public storage**
 
-Allocates memory for the information to be stored and overwrites `mtp->aux_storage[mtp->aux_slots[0]]` with a pointer to it, then updates the stored information to be consistent with `*nwp`.
+An auxiliary allocates memory for the information to be stored and overwrites `mtp->aux_storage[mtp->aux_slots[0]]` with a pointer to it, then updates the stored information to be consistent with `*nwp`.
 
 An auxiliary can also use its private storage as needed.
 
@@ -310,7 +308,7 @@ Initialized network. If no `i_` function was provided, to be called with a $(0,0
 
 If called with an a toggle `(0,0)` and uninitialized storage, initialize. This will never be done if an `i_` function is defined for the term.
 
-Update the state of its storage (`mtp->storage` and/or `mtp->aux_storage[mtp->aux_slots[0]]`) to match what the state of `*nwp` would be after the given dyad had been toggled.
+Update the state of its storage (`mtp->storage` and/or `mtp->aux_storage[mtp->aux_slots[0]]` for an auxiliary) to match what the state of `*nwp` would be after the given dyad had been toggled.
 
 #### `f_` functions: Finalizer/Destructor
 
@@ -349,14 +347,6 @@ Binary: `void x_<NAME>(unsigned int type, void *data, Model *mtp, Network *nwp)`
 
 Valued: `void x_<NAME>(unsigned int type, void *data, Model *mtp, Network *nwp)`
 
-## `w_` functions: save extended state
-
-This interface is intended to be used by packages extending `ergm` to send information back other than the edge list back to `R`. For example, for dynamic simulation of temporal ERGMs, it is used to send back information about the last toggle time of each extant edge. It will typically encode the information in its private or public storage and return an `R` object that will be used by `term$ext.decode()` to update the template network `nw0` and edge list `el` of the `ergm_state`.
-
-Binary: `SEXP w_<NAME>(Model *mtp, Network *nwp)`
-
-Valued: `SEXP w_<NAME>(WtModel *mtp, WtNetwork *nwp)`
-
 ##### Expects
 
 **Parameters**
@@ -368,6 +358,14 @@ Valued: `SEXP w_<NAME>(WtModel *mtp, WtNetwork *nwp)`
 ##### Side-effects
 
 There are no restrictions on side-effects. It is up to the extension writer to ensure that everything works.
+
+## `w_` functions: save extended state
+
+This interface is intended to be used by packages extending `ergm` to send information back other than the edge list back to `R`. For example, for dynamic simulation of temporal ERGMs, it is used to send back information about the last toggle time of each extant edge. It will typically encode the information in its private or public storage and return an `R` object that will be used by `term$ext.decode()` to update the template network `nw0` and edge list `el` of the `ergm_state`.
+
+Binary: `SEXP w_<NAME>(Model *mtp, Network *nwp)`
+
+Valued: `SEXP w_<NAME>(WtModel *mtp, WtNetwork *nwp)`
 
 # Macros
 
