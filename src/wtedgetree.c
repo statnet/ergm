@@ -28,9 +28,8 @@ Note: passing nedges > 0 and tails == heads == NULL is OK: it creates an empty n
 *******************/
 /* *** don't forget, tail -> head */
 
-WtNetwork *WtNetworkInitialize(Vertex *tails, Vertex *heads, double *weights,
-			       Edge nedges, Vertex nnodes, int directed_flag, Vertex bipartite,
-			       int lasttoggle_flag, int time, int *lasttoggle) {
+WtNetwork *WtNetworkInitialize_noLT(Vertex *tails, Vertex *heads, double *weights,
+			       Edge nedges, Vertex nnodes, int directed_flag, Vertex bipartite) {
   WtNetwork *nwp = R_Calloc(1, WtNetwork);
 
   nwp->eattrname = NULL;
@@ -43,8 +42,6 @@ WtNetwork *WtNetworkInitialize(Vertex *tails, Vertex *heads, double *weights,
   nwp->maxedges = MAX(nedges,1)+nnodes+2; /* Maybe larger than needed? */
   nwp->inedges = (WtTreeNode *) R_Calloc(nwp->maxedges, WtTreeNode);
   nwp->outedges = (WtTreeNode *) R_Calloc(nwp->maxedges, WtTreeNode);
-
-  if(lasttoggle_flag) error("The lasttoggle API has been removed from ergm.");
 
   /*Configure a Network*/
   nwp->nnodes = nnodes;

@@ -46,9 +46,22 @@ typedef struct WtNetworkstruct {
 typedef void (*OnWtNetworkEdgeChange)(Vertex, Vertex, double, void*, WtNetwork*, double);
 
 /* Initialization and destruction. */
-WtNetwork *WtNetworkInitialize(Vertex *tails, Vertex *heads, double *weights, Edge nedges,
-			       Vertex nnodes, int directed_flag, Vertex bipartite,
-			       int lasttoggle_flag, int time, int *lasttoggle);
+
+/*
+  Workaround to enable WtNetworkInitialize() to be called with either
+  7 or 10 arguments.
+
+  TODO: Remove the workaround and rename WtNetworkInitialize_noLT() to
+    WtNetworkInitialize() after no CRAN packages use it.
+*/
+
+#define WtNetworkInitialize(...) _GET_OVERRIDE10(__VA_ARGS__, WtNetworkInitialize_LT, , , WtNetworkInitialize_noLT, , , , , , , , )(__VA_ARGS__)
+
+#define WtNetworkInitialize_LT(tails, heads, weights, nedges, nnodes, directed_flag, bipartite, lasttoggle_flag, time, lasttoggle) \
+  WtNetworkInitialize_noLT((tails), (heads), (weights), (nedges), (nnodes), (directed_flag), (bipartite))
+
+WtNetwork *WtNetworkInitialize_noLT(Vertex *tails, Vertex *heads, double *weights, Edge nedges,
+			       Vertex nnodes, int directed_flag, Vertex bipartite);
 void WtNetworkDestroy(WtNetwork *nwp);
 
 WtNetwork *WtNetworkCopy(WtNetwork *src);

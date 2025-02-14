@@ -28,9 +28,8 @@ Note: passing nedges > 0 and tails == heads == weights == NULL is OK: it creates
 *******************/
 /* *** don't forget, tail -> head */
 
-Network *NetworkInitialize(Vertex *tails, Vertex *heads, Edge nedges, 
-			   Vertex nnodes, int directed_flag, Vertex bipartite,
-			   int lasttoggle_flag, int time, int *lasttoggle) {
+Network *NetworkInitialize_noLT(Vertex *tails, Vertex *heads, Edge nedges,
+			   Vertex nnodes, int directed_flag, Vertex bipartite) {
   
   Network *nwp = R_Calloc(1, Network);
 
@@ -42,8 +41,6 @@ Network *NetworkInitialize(Vertex *tails, Vertex *heads, Edge nedges,
   nwp->maxedges = MAX(nedges,1)+nnodes+2; /* Maybe larger than needed? */
   nwp->inedges = (TreeNode *) R_Calloc(nwp->maxedges, TreeNode);
   nwp->outedges = (TreeNode *) R_Calloc(nwp->maxedges, TreeNode);
-
-  if(lasttoggle_flag) error("The lasttoggle API has been removed from ergm.");
 
   /*Configure a Network*/
   nwp->nnodes = nnodes;

@@ -69,9 +69,21 @@ typedef void (*OnNetworkEdgeChange)(Vertex, Vertex, void*, Network*, Rboolean);
    heads & tails, now list tails before heads */
 
 /* Initialization and destruction. */
-Network *NetworkInitialize(Vertex *tails, Vertex *heads, Edge nedges,
-			   Vertex nnodes, int directed_flag, Vertex bipartite,
-			   int lasttoggle_flag, int time, int *lasttoggle);
+
+/*
+  Workaround to enable NetworkInitialize() to be called with either 6
+  or 9 arguments.
+
+  TODO: Remove the workaround and rename NetworkInitialize_noLT() to
+    NetworkInitialize() after no CRAN packages use it.
+*/
+#define NetworkInitialize(...) _GET_OVERRIDE9(__VA_ARGS__, NetworkInitialize_LT, , , NetworkInitialize_noLT, , , , , , , , )(__VA_ARGS__)
+
+#define NetworkInitialize_LT(tails, heads, nedges, nnodes, directed_flag, bipartite, lasttoggle_flag, time, lasttoggle) \
+  NetworkInitialize_noLT((tails), (heads), (nedges), (nnodes), (directed_flag), (bipartite))
+
+Network *NetworkInitialize_noLT(Vertex *tails, Vertex *heads, Edge nedges,
+			   Vertex nnodes, int directed_flag, Vertex bipartite);
 void NetworkDestroy(Network *nwp);
 
 Network *NetworkCopy(Network *src);
