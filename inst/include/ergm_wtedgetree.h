@@ -50,9 +50,6 @@ WtNetwork *WtNetworkInitialize(Vertex *tails, Vertex *heads, double *weights, Ed
 			       Vertex nnodes, int directed_flag, Vertex bipartite,
 			       int lasttoggle_flag, int time, int *lasttoggle);
 void WtNetworkDestroy(WtNetwork *nwp);
-WtNetwork *WtNetworkInitializeD(double *tails, double *heads, double *weights, Edge nedges,
-				Vertex nnodes, int directed_flag, Vertex bipartite,
-				int lasttoggle_flag, int time, int *lasttoggle);
 
 WtNetwork *WtNetworkCopy(WtNetwork *src);
 

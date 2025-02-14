@@ -148,11 +148,6 @@ static void (*fun)(Network *) = NULL;
 if(fun==NULL) fun = (void (*)(Network *)) R_FindSymbol("NetworkDestroy", "ergm", NULL);
 fun(nwp);
 }
-Network * NetworkInitializeD(double *tails, double *heads, Edge nedges,Vertex nnodes, int directed_flag, Vertex bipartite,int lasttoggle_flag, int time, int *lasttoggle){
-static Network * (*fun)(double *,double *,Edge,Vertex,int,Vertex,int,int,int *) = NULL;
-if(fun==NULL) fun = (Network * (*)(double *,double *,Edge,Vertex,int,Vertex,int,int,int *)) R_FindSymbol("NetworkInitializeD", "ergm", NULL);
-return fun(tails,heads,nedges,nnodes,directed_flag,bipartite,lasttoggle_flag,time,lasttoggle);
-}
 Network * NetworkCopy(Network *src){
 static Network * (*fun)(Network *) = NULL;
 if(fun==NULL) fun = (Network * (*)(Network *)) R_FindSymbol("NetworkCopy", "ergm", NULL);
@@ -482,11 +477,6 @@ void WtNetworkDestroy(WtNetwork *nwp){
 static void (*fun)(WtNetwork *) = NULL;
 if(fun==NULL) fun = (void (*)(WtNetwork *)) R_FindSymbol("WtNetworkDestroy", "ergm", NULL);
 fun(nwp);
-}
-WtNetwork * WtNetworkInitializeD(double *tails, double *heads, double *weights, Edge nedges,Vertex nnodes, int directed_flag, Vertex bipartite,int lasttoggle_flag, int time, int *lasttoggle){
-static WtNetwork * (*fun)(double *,double *,double *,Edge,Vertex,int,Vertex,int,int,int *) = NULL;
-if(fun==NULL) fun = (WtNetwork * (*)(double *,double *,double *,Edge,Vertex,int,Vertex,int,int,int *)) R_FindSymbol("WtNetworkInitializeD", "ergm", NULL);
-return fun(tails,heads,weights,nedges,nnodes,directed_flag,bipartite,lasttoggle_flag,time,lasttoggle);
 }
 WtNetwork * WtNetworkCopy(WtNetwork *src){
 static WtNetwork * (*fun)(WtNetwork *) = NULL;

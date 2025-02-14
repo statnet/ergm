@@ -68,33 +68,6 @@ Network *NetworkInitialize(Vertex *tails, Vertex *heads, Edge nedges,
   return nwp;
 }
 
-
-/* *** don't forget, edges are now given by tails -> heads, and as
-       such, the function definitions now require tails to be passed
-       in before heads */
-
-/*Takes vectors of doubles for edges; used only when constructing from inputparams. */
-Network *NetworkInitializeD(double *tails, double *heads, Edge nedges,
-			  Vertex nnodes, int directed_flag, Vertex bipartite,
-			  int lasttoggle_flag, int time, int *lasttoggle) {
-
-  /* *** don't forget, tail -> head */
-
-  Vertex *itails=(Vertex*)R_Calloc(nedges, Vertex);
-  Vertex *iheads=(Vertex*)R_Calloc(nedges, Vertex);
-  
-  for(Edge i=0; i<nedges; i++){
-    itails[i]=tails[i];
-    iheads[i]=heads[i];
-  }
-
-  Network *nwp=NetworkInitialize(itails,iheads,nedges,nnodes,directed_flag,bipartite,lasttoggle_flag, time, lasttoggle);
-
-  R_Free(itails);
-  R_Free(iheads);
-  return nwp;
-}
-
 /*******************
  void NetworkDestroy
 *******************/
