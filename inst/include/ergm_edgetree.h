@@ -43,7 +43,6 @@ typedef struct TreeNodestruct {
    outdegree[] and indegree[] are continually updated to give
      the appropriate degree values for each vertex.  These should
      point to Vertex-vectors of length nnodes+1.  
-   value:  optional value(s) associated with this network 
 */
 typedef struct Networkstruct {
   TreeNode *inedges;
@@ -56,7 +55,6 @@ typedef struct Networkstruct {
   Edge last_outedge;
   Vertex *indegree;
   Vertex *outdegree;
-  double *value;  
   Edge maxedges;
 
   unsigned int n_on_edge_change;
