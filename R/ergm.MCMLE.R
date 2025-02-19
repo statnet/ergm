@@ -630,7 +630,7 @@ ergm.MCMLE <- function(init, s, s.obs,
   y <- c(y)
   if(xTAx_seigen(y,U,tol=tol)>=1) stop("Point is not in the interior of the ellipsoid.")
   I <- diag(length(y))
-  WUi <- t(qr.solve(qr(U, tol=tol), W))
+  WUi <- t(qrssolve(U, W, tol=tol))
   x <- function(l) c(solve(I+l*WUi, y)) # Singluar for negative reciprocals of eigenvalues of WiU.
   zerofn <- function(l) ERRVL(try({x <- x(l); xTAx_seigen(x,U,tol=tol)-1}, silent=TRUE), +Inf)
 
