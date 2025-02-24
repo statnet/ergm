@@ -127,7 +127,7 @@
 #' Strauss, D., and Ikeda, M.(1990). Pseudolikelihood estimation for social
 #' networks. \emph{Journal of the American Statistical Association}, 85,
 #' 204-212.
-#' @keywords models internal
+#' @keywords models
 "_PACKAGE"
 
 
