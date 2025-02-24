@@ -11,10 +11,6 @@
 #define SAN_H
 
 #include "MCMC.h"
-
-#define EDGETYPE_SANMetropolisHastings SANMetropolisHastings
-#define EDGETYPE_SANSample SANSample
-#define EDGETYPE_SAN_wrapper SAN_wrapper
-
 #include "SAN.h.template.do_not_include_directly.h"
+
 #endif

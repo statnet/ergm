@@ -11,10 +11,6 @@
 #define WTSAN_H
 
 #include "wtMCMC.h"
-
-#define EDGETYPE_SANMetropolisHastings WtSANMetropolisHastings
-#define EDGETYPE_SANSample WtSANSample
-#define EDGETYPE_SAN_wrapper WtSAN_wrapper
-
 #include "SAN.h.template.do_not_include_directly.h"
+
 #endif

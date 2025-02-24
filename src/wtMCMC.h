@@ -17,12 +17,6 @@
 #include "ergm_wtstate.h"
 
 #include "ergm_wttype_defs_common.h"
-
-#define EDGETYPE_MCMC_wrapper WtMCMC_wrapper
-#define EDGETYPE_MCMCSample WtMCMCSample
-#define EDGETYPE_MetropolisHastings WtMetropolisHastings
-#define EDGETYPE_MCMCPhase12 WtMCMCPhase12
-#define EDGETYPE_MCMCSamplePhase12 WtMCMCSamplePhase12
-
 #include "MCMC.h.template.do_not_include_directly.h"
+
 #endif

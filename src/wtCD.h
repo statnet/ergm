@@ -37,10 +37,6 @@
      to make a fencepost error here. */                         \
   WtSetEdge(t, h, w, nwp);
 
-#define EDGETYPE_CD_wrapper WtCD_wrapper
-#define EDGETYPE_CDSample WtCDSample
-#define EDGETYPE_CDStep WtCDStep
-
 #include "CD.h.template.do_not_include_directly.h"
 
 #endif

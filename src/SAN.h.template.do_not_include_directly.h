@@ -8,7 +8,7 @@
  *  Copyright 2003-2025 Statnet Commons
  */
 
-MCMCStatus EDGETYPE_SANSample(EDGETYPE_ErgmState *s,
+MCMCStatus EDGETYPE(SANSample)(EDGETYPE(ErgmState) *s,
                        double *invcov, double *tau, double *networkstatistics, double *prop_networkstatistics,
                        int samplesize, int nsteps,
                        int nstats,
@@ -17,7 +17,7 @@ MCMCStatus EDGETYPE_SANSample(EDGETYPE_ErgmState *s,
                        int *offsetindices,
                        double *offsets,
                        int verbose);
-MCMCStatus EDGETYPE_SANMetropolisHastings(EDGETYPE_ErgmState *s,
+MCMCStatus EDGETYPE(SANMetropolisHastings)(EDGETYPE(ErgmState) *s,
                                    double *invcov, double *tau, double *statistics, double *prop_statistics,
                                    int nsteps, int *staken,
                                    int nstats,

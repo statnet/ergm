@@ -18,13 +18,6 @@
 #include "ergm_state.h"
 
 #include "ergm_type_defs_common.h"
-
-#define EDGETYPE_MCMC_wrapper MCMC_wrapper
-#define EDGETYPE_MCMCSample MCMCSample
-#define EDGETYPE_MetropolisHastings MetropolisHastings
-#define EDGETYPE_MCMCPhase12 MCMCPhase12
-#define EDGETYPE_MCMCSamplePhase12 MCMCSamplePhase12
-
 #include "MCMC.h.template.do_not_include_directly.h"
 
 #endif

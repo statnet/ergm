@@ -7,16 +7,12 @@
  *
  *  Copyright 2003-2025 Statnet Commons
  */
+
+#define EDGETYPE(FUN) FUN
+
 #define PROP_PRINT Rprintf("  (%d, %d)  ", MHp->toggletail[i], MHp->togglehead[i])
 #define PROP_CHANGESTATS ChangeStats(MHp->ntoggles, MHp->toggletail, MHp->togglehead, nwp, m)
 #define PROP_CHANGESTATS_DO ChangeStatsDo(MHp->ntoggles, MHp->toggletail, MHp->togglehead, nwp, m)
 #define PROP_CHANGESTATS_UNDO ChangeStatsUndo(MHp->ntoggles, MHp->toggletail, MHp->togglehead, nwp, m)
 #define PROP_COMMIT ToggleEdge(MHp->toggletail[i], MHp->togglehead[i], nwp)
 #define PROP_FINISH ToggleEdge(MHp->toggletail[MHp->ntoggles-1], MHp->togglehead[MHp->ntoggles-1], nwp)
-#define EDGETYPE_ErgmState ErgmState
-#define EDGETYPE_ErgmStateInit ErgmStateInit
-#define EDGETYPE_Model Model
-#define EDGETYPE_MHProposal MHProposal
-#define EDGETYPE_ErgmStateRSave ErgmStateRSave
-#define EDGETYPE_ErgmStateDestroy ErgmStateDestroy
-#define EDGETYPE_Network Network
