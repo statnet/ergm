@@ -15,8 +15,8 @@
 /*****************
  Edge WtEdgetreeSearch
 
- Check to see if there's a WtTreeNode with value b 
- in the tree rooted at edges[a].  Return i such that 
+ Check to see if there's a WtTreeNode with value b
+ in the tree rooted at edges[a].  Return i such that
  edges[i] is that WtTreeNode, or 0 if none.
 *****************/
 static inline Edge WtEdgetreeSearch (Vertex a, Vertex b, WtTreeNode *edges) {
@@ -78,12 +78,12 @@ static inline Edge WtEdgetreeSuccessor (WtTreeNode *edges, Edge x) {
   WtTreeNode *ptr;
   Edge y;
 
-  if ((y=(ptr=edges+x)->right) != 0) 
+  if ((y=(ptr=edges+x)->right) != 0)
     return WtEdgetreeMinimum (edges, y);
-  while ((y=ptr->parent)!=0 && x==(ptr=edges+y)->right) 
+  while ((y=ptr->parent)!=0 && x==(ptr=edges+y)->right)
     x=y;
-  return y; 
-}   
+  return y;
+}
 
 /*****************
  Edge WtEdgetreePre(order)Successor
@@ -95,10 +95,10 @@ static inline Edge WtEdgetreePreSuccessor (WtTreeNode *edges, Edge x) {
   Edge y, z;
 
   // If we can go left, go left.
-  if ((y=(ptr=edges+x)->left) != 0) 
+  if ((y=(ptr=edges+x)->left) != 0)
     return y;
   // If we can go right, go right.
-  if ((y=ptr->right) != 0) 
+  if ((y=ptr->right) != 0)
     return y;
   // Otherwise, keep going up until we can go right unless we just
   // went up from the right node.
@@ -106,7 +106,7 @@ static inline Edge WtEdgetreePreSuccessor (WtTreeNode *edges, Edge x) {
     if((z=(ptr=(edges+y))->right)!=0 && z!=x) return z;
     x=y;
   }
-  return y; 
+  return y;
 }
 
 /*****************
@@ -121,19 +121,19 @@ static inline Edge WtEdgetreePredecessor (WtTreeNode *edges, Edge x) {
   WtTreeNode *ptr;
   Edge y;
 
-  if ((y=(ptr=edges+x)->left) != 0) 
+  if ((y=(ptr=edges+x)->left) != 0)
     return WtEdgetreeMaximum (edges, y);
-  while ((y=ptr->parent)!=0 && x==(ptr=edges+y)->left) 
+  while ((y=ptr->parent)!=0 && x==(ptr=edges+y)->left)
     x=y;
-  return y; 
-}   
+  return y;
+}
 
 /*****************
  int WtGetEdge
 
 Get weighted edge value. Return 0 if edge does not exist.
 *****************/
-static inline double WtGetEdge (Vertex tail, Vertex head, WtNetwork *nwp) 
+static inline double WtGetEdge (Vertex tail, Vertex head, WtNetwork *nwp)
 {
   ENSURE_TH_ORDER;
 
@@ -141,4 +141,3 @@ static inline double WtGetEdge (Vertex tail, Vertex head, WtNetwork *nwp)
   if(oe) return nwp->outedges[oe].weight;
   else return 0;
 }
-
