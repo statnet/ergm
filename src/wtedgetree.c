@@ -288,24 +288,6 @@ void WtInOrderTreeWalk(WtTreeNode *edges, Edge x) {
 }
 
 /*****************
- Edge DesignMissing (see EdgetreeSearch)
-*****************/
-Edge WtDesignMissing (Vertex a, Vertex b, WtNetwork *mnwp) {
-  int miss;
-  miss = WtEdgetreeSearch(a,b,mnwp->outedges);
-  if(mnwp->directed_flag){
-    miss += WtEdgetreeSearch(a,b,mnwp->inedges);
-  }
-  return(miss);
-}
-
-
-/* *** don't forget, edges are now given by tails -> heads, and as
-       such, the function definitions now require tails to be passed
-       in before heads */
-
-
-/*****************
   int WtFindithEdge
 
   Find the ith edge in the WtNetwork *nwp and update the values of

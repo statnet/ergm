@@ -133,7 +133,6 @@ void DetShuffleEdges(Vertex *tails, Vertex *heads, Edge nedges);
 void DetUnShuffleEdges(Vertex *tails, Vertex *heads, Edge nedges);
 
 /* Others... */
-Edge DesignMissing (Vertex a, Vertex b, Network *mnwp);
 Edge EdgeTree2EdgeList(Vertex *tails, Vertex *heads, Network *nwp, Edge nmax);
 
 #endif

@@ -317,24 +317,6 @@ void InOrderTreeWalk(TreeNode *edges, Edge x) {
 }
 
 /*****************
- Edge DesignMissing (see EdgetreeSearch)
-*****************/
-Edge DesignMissing (Vertex a, Vertex b, Network *mnwp) {
-  int miss;
-  miss = EdgetreeSearch(a,b,mnwp->outedges);
-  if(mnwp->directed_flag){
-    miss += EdgetreeSearch(a,b,mnwp->inedges);
-  }
-  return(miss);
-}
-
-
-/* *** don't forget, edges are now given by tails -> heads, and as
-       such, the function definitions now require tails to be passed
-       in before heads */
-
-
-/*****************
   int FindithEdge
 
   Find the ith edge in the Network *nwp and

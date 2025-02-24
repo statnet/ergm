@@ -248,11 +248,6 @@ static void (*fun)(Vertex *,Vertex *,Edge) = NULL;
 if(fun==NULL) fun = (void (*)(Vertex *,Vertex *,Edge)) R_FindSymbol("DetUnShuffleEdges", "ergm", NULL);
 fun(tails,heads,nedges);
 }
-Edge DesignMissing(Vertex a, Vertex b, Network *mnwp){
-static Edge (*fun)(Vertex,Vertex,Network *) = NULL;
-if(fun==NULL) fun = (Edge (*)(Vertex,Vertex,Network *)) R_FindSymbol("DesignMissing", "ergm", NULL);
-return fun(a,b,mnwp);
-}
 Edge EdgeTree2EdgeList(Vertex *tails, Vertex *heads, Network *nwp, Edge nmax){
 static Edge (*fun)(Vertex *,Vertex *,Network *,Edge) = NULL;
 if(fun==NULL) fun = (Edge (*)(Vertex *,Vertex *,Network *,Edge)) R_FindSymbol("EdgeTree2EdgeList", "ergm", NULL);
@@ -572,11 +567,6 @@ void WtDetUnShuffleEdges(Vertex *tails, Vertex *heads, double *weights, Edge ned
 static void (*fun)(Vertex *,Vertex *,double *,Edge) = NULL;
 if(fun==NULL) fun = (void (*)(Vertex *,Vertex *,double *,Edge)) R_FindSymbol("WtDetUnShuffleEdges", "ergm", NULL);
 fun(tails,heads,weights,nedges);
-}
-Edge WtDesignMissing(Vertex a, Vertex b, WtNetwork *mnwp){
-static Edge (*fun)(Vertex,Vertex,WtNetwork *) = NULL;
-if(fun==NULL) fun = (Edge (*)(Vertex,Vertex,WtNetwork *)) R_FindSymbol("WtDesignMissing", "ergm", NULL);
-return fun(a,b,mnwp);
 }
 Edge WtEdgeTree2EdgeList(Vertex *tails, Vertex *heads, double *weights, WtNetwork *nwp, Edge nmax){
 static Edge (*fun)(Vertex *,Vertex *,double *,WtNetwork *,Edge) = NULL;

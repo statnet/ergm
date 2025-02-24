@@ -111,7 +111,6 @@ void WtDetShuffleEdges(Vertex *tails, Vertex *heads, double *weights, Edge nedge
 void WtDetUnShuffleEdges(Vertex *tails, Vertex *heads, double *weights, Edge nedges);
 
 /* Others... */
-Edge WtDesignMissing (Vertex a, Vertex b, WtNetwork *mnwp);
 Edge WtEdgeTree2EdgeList(Vertex *tails, Vertex *heads, double *weights, WtNetwork *nwp, Edge nmax);
 
 #endif
