@@ -13,14 +13,14 @@
        in before heads */
 
 /*****************
- Edge WtEdgetreeSearch
+ Edge EDGETYPE(EdgetreeSearch)
 
- Check to see if there's a WtTreeNode with value b
+ Check to see if there's a EDGETYPE(TreeNode) with value b
  in the tree rooted at edges[a].  Return i such that
- edges[i] is that WtTreeNode, or 0 if none.
+ edges[i] is that EDGETYPE(TreeNode), or 0 if none.
 *****************/
-static inline Edge WtEdgetreeSearch (Vertex a, Vertex b, WtTreeNode *edges) {
-  WtTreeNode *es;
+static inline Edge EDGETYPE(EdgetreeSearch) (Vertex a, Vertex b, EDGETYPE(TreeNode) *edges) {
+  EDGETYPE(TreeNode) *es;
   Edge e = a;
   Vertex v;
 
@@ -35,12 +35,12 @@ static inline Edge WtEdgetreeSearch (Vertex a, Vertex b, WtTreeNode *edges) {
 }
 
 /*****************
- Edge WtEdgetreeMinimum
+ Edge EDGETYPE(EdgetreeMinimum)
 
- Return the index of the WtTreeNode with the
+ Return the index of the EDGETYPE(TreeNode) with the
  smallest value in the subtree rooted at x
 *****************/
-static inline Edge WtEdgetreeMinimum (WtTreeNode *edges, Edge x) {
+static inline Edge EDGETYPE(EdgetreeMinimum) (EDGETYPE(TreeNode) *edges, Edge x) {
   Edge y;
 
   while ((y=(edges+x)->left) != 0)
@@ -49,12 +49,12 @@ static inline Edge WtEdgetreeMinimum (WtTreeNode *edges, Edge x) {
 }
 
 /*****************
- Edge WtEdgetreeMaximum
+ Edge EDGETYPE(EdgetreeMaximum)
 
- Return the index of the WtTreeNode with the
+ Return the index of the EDGETYPE(TreeNode) with the
  greatest value in the subtree rooted at x
 *****************/
-static inline Edge WtEdgetreeMaximum (WtTreeNode *edges, Edge x) {
+static inline Edge EDGETYPE(EdgetreeMaximum) (EDGETYPE(TreeNode) *edges, Edge x) {
   Edge y;
 
   while ((y=(edges+x)->right) != 0)
@@ -69,29 +69,29 @@ static inline Edge WtEdgetreeMaximum (WtTreeNode *edges, Edge x) {
 /*****************
  Edge EdgetreeSuccessor
 
- Return the index of the WtTreeNode with the smallest value
+ Return the index of the EDGETYPE(TreeNode) with the smallest value
  greater than edges[x].value in the same edge tree, or 0
  if none.  This is used by (for instance)
  the DeleteHalfedgeFromTree function.
 *****************/
-static inline Edge WtEdgetreeSuccessor (WtTreeNode *edges, Edge x) {
-  WtTreeNode *ptr;
+static inline Edge EDGETYPE(EdgetreeSuccessor) (EDGETYPE(TreeNode) *edges, Edge x) {
+  EDGETYPE(TreeNode) *ptr;
   Edge y;
 
   if ((y=(ptr=edges+x)->right) != 0)
-    return WtEdgetreeMinimum (edges, y);
+    return EDGETYPE(EdgetreeMinimum) (edges, y);
   while ((y=ptr->parent)!=0 && x==(ptr=edges+y)->right)
     x=y;
   return y;
 }
 
 /*****************
- Edge WtEdgetreePre(order)Successor
+ Edge EDGETYPE(EdgetreePre)(order)Successor
 
- Return the index of the next WtTreeNode in a preorder traversal.
+ Return the index of the next EDGETYPE(TreeNode) in a preorder traversal.
 *****************/
-static inline Edge WtEdgetreePreSuccessor (WtTreeNode *edges, Edge x) {
-  WtTreeNode *ptr;
+static inline Edge EDGETYPE(EdgetreePreSuccessor) (EDGETYPE(TreeNode) *edges, Edge x) {
+  EDGETYPE(TreeNode) *ptr;
   Edge y, z;
 
   // If we can go left, go left.
@@ -110,34 +110,20 @@ static inline Edge WtEdgetreePreSuccessor (WtTreeNode *edges, Edge x) {
 }
 
 /*****************
- Edge WtEdgetreePredecessor
+ Edge EDGETYPE(EdgetreePredecessor)
 
- Return the index of the WtTreeNode with the smallest value
+ Return the index of the EDGETYPE(TreeNode) with the smallest value
  greater than edges[x].value in the same edge tree, or 0
  if none.  This is used by (for instance)
- the WtDeleteHalfedgeFromTree function.
+ the EDGETYPE(DeleteHalfedgeFromTree) function.
 *****************/
-static inline Edge WtEdgetreePredecessor (WtTreeNode *edges, Edge x) {
-  WtTreeNode *ptr;
+static inline Edge EDGETYPE(EdgetreePredecessor) (EDGETYPE(TreeNode) *edges, Edge x) {
+  EDGETYPE(TreeNode) *ptr;
   Edge y;
 
   if ((y=(ptr=edges+x)->left) != 0)
-    return WtEdgetreeMaximum (edges, y);
+    return EDGETYPE(EdgetreeMaximum) (edges, y);
   while ((y=ptr->parent)!=0 && x==(ptr=edges+y)->left)
     x=y;
   return y;
-}
-
-/*****************
- int WtGetEdge
-
-Get weighted edge value. Return 0 if edge does not exist.
-*****************/
-static inline double WtGetEdge (Vertex tail, Vertex head, WtNetwork *nwp)
-{
-  ENSURE_TH_ORDER;
-
-  Edge oe=WtEdgetreeSearch(tail,head,nwp->outedges);
-  if(oe) return nwp->outedges[oe].weight;
-  else return 0;
 }
