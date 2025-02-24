@@ -13,10 +13,10 @@
 #define PROP_CHANGESTATS_UNDO WtChangeStatsUndo(MHp->ntoggles, MHp->toggletail, MHp->togglehead, MHp->toggleweight, nwp, m)
 #define PROP_COMMIT WtSetEdge(MHp->toggletail[i], MHp->togglehead[i], MHp->toggleweight[i], nwp)
 #define PROP_FINISH WtSetEdge(MHp->toggletail[MHp->ntoggles-1], MHp->togglehead[MHp->ntoggles-1], MHp->toggleweight[MHp->ntoggles-1], nwp)
-#define DISPATCH_ErgmState WtErgmState
-#define DISPATCH_ErgmStateInit WtErgmStateInit
-#define DISPATCH_Model WtModel
-#define DISPATCH_MHProposal WtMHProposal
-#define DISPATCH_ErgmStateRSave WtErgmStateRSave
-#define DISPATCH_ErgmStateDestroy WtErgmStateDestroy
-#define DISPATCH_Network WtNetwork
+#define EDGETYPE_ErgmState WtErgmState
+#define EDGETYPE_ErgmStateInit WtErgmStateInit
+#define EDGETYPE_Model WtModel
+#define EDGETYPE_MHProposal WtMHProposal
+#define EDGETYPE_ErgmStateRSave WtErgmStateRSave
+#define EDGETYPE_ErgmStateDestroy WtErgmStateDestroy
+#define EDGETYPE_Network WtNetwork

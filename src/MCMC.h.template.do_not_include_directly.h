@@ -10,16 +10,16 @@
 
 #include "ergm_constants.h"
 
-MCMCStatus DISPATCH_MCMCSample(DISPATCH_ErgmState *s,
+MCMCStatus EDGETYPE_MCMCSample(EDGETYPE_ErgmState *s,
 			   double *eta, double *networkstatistics, 
 			   int samplesize, int burnin, 
 			   int interval, int nmax, int verbose);
-MCMCStatus DISPATCH_MetropolisHastings(DISPATCH_ErgmState *s,
+MCMCStatus EDGETYPE_MetropolisHastings(EDGETYPE_ErgmState *s,
 				   double *eta, double *statistics, 
 				   int nsteps, int *staken,
 				   int verbose);
 
-MCMCStatus DISPATCH_MCMCSamplePhase12(DISPATCH_ErgmState *s,
+MCMCStatus EDGETYPE_MCMCSamplePhase12(EDGETYPE_ErgmState *s,
                                double *eta, unsigned int n_param, double gain,
                                int nphase1, int nsubphases,
                                int min_iterations, int max_iterations,

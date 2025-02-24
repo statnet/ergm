@@ -7,12 +7,12 @@
  *
  *  Copyright 2003-2025 Statnet Commons
  */
-MCMCStatus DISPATCH_CDSample(DISPATCH_ErgmState *s,
+MCMCStatus EDGETYPE_CDSample(EDGETYPE_ErgmState *s,
                         double *eta, double *networkstatistics, 
 			int samplesize, int *CDparams,
                         CD_UNDOS_RECEIVE, double *extraworkspace,
                         int verbose);
-MCMCStatus DISPATCH_CDStep(DISPATCH_ErgmState *s,
+MCMCStatus EDGETYPE_CDStep(EDGETYPE_ErgmState *s,
                       double *eta, double *networkstatistics,
                       int *CDparams, int *staken,
                       CD_UNDOS_RECEIVE, double *extraworkspace,

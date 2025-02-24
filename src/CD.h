@@ -33,9 +33,9 @@
      to make a fencepost error here. */                         \
   ToggleEdge(t, h, nwp);
 
-#define DISPATCH_CD_wrapper CD_wrapper
-#define DISPATCH_CDSample CDSample
-#define DISPATCH_CDStep CDStep
+#define EDGETYPE_CD_wrapper CD_wrapper
+#define EDGETYPE_CDSample CDSample
+#define EDGETYPE_CDStep CDStep
 
 #include "CD.h.template.do_not_include_directly.h"
 

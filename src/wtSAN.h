@@ -12,9 +12,9 @@
 
 #include "wtMCMC.h"
 
-#define DISPATCH_SANMetropolisHastings WtSANMetropolisHastings
-#define DISPATCH_SANSample WtSANSample
-#define DISPATCH_SAN_wrapper WtSAN_wrapper
+#define EDGETYPE_SANMetropolisHastings WtSANMetropolisHastings
+#define EDGETYPE_SANSample WtSANSample
+#define EDGETYPE_SAN_wrapper WtSAN_wrapper
 
 #include "SAN.h.template.do_not_include_directly.h"
 #endif

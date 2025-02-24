@@ -18,11 +18,11 @@
 
 #include "ergm_wttype_defs_common.h"
 
-#define DISPATCH_MCMC_wrapper WtMCMC_wrapper
-#define DISPATCH_MCMCSample WtMCMCSample
-#define DISPATCH_MetropolisHastings WtMetropolisHastings
-#define DISPATCH_MCMCPhase12 WtMCMCPhase12
-#define DISPATCH_MCMCSamplePhase12 WtMCMCSamplePhase12
+#define EDGETYPE_MCMC_wrapper WtMCMC_wrapper
+#define EDGETYPE_MCMCSample WtMCMCSample
+#define EDGETYPE_MetropolisHastings WtMetropolisHastings
+#define EDGETYPE_MCMCPhase12 WtMCMCPhase12
+#define EDGETYPE_MCMCSamplePhase12 WtMCMCSamplePhase12
 
 #include "MCMC.h.template.do_not_include_directly.h"
 #endif

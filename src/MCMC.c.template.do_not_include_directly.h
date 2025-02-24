@@ -16,32 +16,32 @@
 *****************/
 
 /*****************
- void DISPATCH_MCMC_wrapper
+ void EDGETYPE_MCMC_wrapper
 
  Wrapper for a call from R.
 
  and don't forget that tail -> head
 *****************/
-SEXP DISPATCH_MCMC_wrapper(SEXP stateR,
+SEXP EDGETYPE_MCMC_wrapper(SEXP stateR,
                     // MCMC settings
                     SEXP eta, SEXP samplesize,SEXP burnin, SEXP interval,SEXP maxedges,SEXP verbose){
   GetRNGstate();  /* R function enabling uniform RNG */
   unsigned int protected = 0;
 
-  DISPATCH_ErgmState *s = DISPATCH_ErgmStateInit(stateR, 0);
+  EDGETYPE_ErgmState *s = EDGETYPE_ErgmStateInit(stateR, 0);
   if(asInteger(maxedges) < 0){
     s->save = PROTECT(allocVector(VECSXP, asInteger(samplesize))); protected++;
   }else s->save = NULL;
 
-  DISPATCH_Model *m = s->m;
-  DISPATCH_MHProposal *MHp = s->MHp;
+  EDGETYPE_Model *m = s->m;
+  EDGETYPE_MHProposal *MHp = s->MHp;
 
   SEXP sample = PROTECT(allocVector(REALSXP, asInteger(samplesize)*m->n_stats)); protected++;
   memset(REAL(sample), 0, asInteger(samplesize)*m->n_stats*sizeof(double));
   memcpy(REAL(sample), s->stats, m->n_stats*sizeof(double));
 
   SEXP status;
-  if(MHp) status = PROTECT(ScalarInteger(DISPATCH_MCMCSample(s,
+  if(MHp) status = PROTECT(ScalarInteger(EDGETYPE_MCMCSample(s,
                                                              REAL(eta), REAL(sample), asInteger(samplesize),
                                                              asInteger(burnin), asInteger(interval), abs(asInteger(maxedges)),
                                                              asInteger(verbose))));
@@ -56,12 +56,12 @@ SEXP DISPATCH_MCMC_wrapper(SEXP stateR,
   /* record new generated network to pass back to R */
   if(asInteger(status) == MCMC_OK && asInteger(maxedges) != 0){
     s->stats = REAL(sample) + (asInteger(samplesize)-1)*m->n_stats;
-    SET_VECTOR_ELT(outl, 2, DISPATCH_ErgmStateRSave(s));
+    SET_VECTOR_ELT(outl, 2, EDGETYPE_ErgmStateRSave(s));
   }
 
   if(s->save) SET_VECTOR_ELT(outl, 3, s->save);
 
-  DISPATCH_ErgmStateDestroy(s);
+  EDGETYPE_ErgmStateDestroy(s);
   PutRNGstate();  /* Disable RNG before returning */
   UNPROTECT(protected); protected = 0;
   return outl;
@@ -69,7 +69,7 @@ SEXP DISPATCH_MCMC_wrapper(SEXP stateR,
 
 
 /*********************
- void DISPATCH_MCMCSample
+ void EDGETYPE_MCMCSample
 
  Using the parameters contained in the array eta, obtain the
  network statistics for a sample of size samplesize.  burnin is the
@@ -78,12 +78,12 @@ SEXP DISPATCH_MCMC_wrapper(SEXP stateR,
  networks in the sample.  Put all the sampled statistics into
  the networkstatistics array.
 *********************/
-MCMCStatus DISPATCH_MCMCSample(DISPATCH_ErgmState *s,
+MCMCStatus EDGETYPE_MCMCSample(EDGETYPE_ErgmState *s,
 			  double *eta, double *networkstatistics,
 			  int samplesize, int burnin,
 			  int interval, int nmax, int verbose) {
-  DISPATCH_Network *nwp = s->nwp;
-  DISPATCH_Model *m = s->m;
+  EDGETYPE_Network *nwp = s->nwp;
+  EDGETYPE_Model *m = s->m;
 
   int staken, tottaken;
 
@@ -106,7 +106,7 @@ MCMCStatus DISPATCH_MCMCSample(DISPATCH_ErgmState *s,
    Burn in step.
    *********************/
 /*  Catch more edges than we can return */
-  if(DISPATCH_MetropolisHastings(s, eta, networkstatistics, burnin, &staken,verbose)!=MCMC_OK)
+  if(EDGETYPE_MetropolisHastings(s, eta, networkstatistics, burnin, &staken,verbose)!=MCMC_OK)
     return MCMC_MH_FAILED;
   if(nmax!=0 && EDGECOUNT(nwp) >= nmax-1){
     return MCMC_TOO_MANY_EDGES;
@@ -114,7 +114,7 @@ MCMCStatus DISPATCH_MCMCSample(DISPATCH_ErgmState *s,
 
   if(s->save){
     s->stats = networkstatistics;
-    SET_VECTOR_ELT(s->save, 0, DISPATCH_ErgmStateRSave(s));
+    SET_VECTOR_ELT(s->save, 0, EDGETYPE_ErgmStateRSave(s));
   }
 
 /*   if (verbose){
@@ -133,7 +133,7 @@ MCMCStatus DISPATCH_MCMCSample(DISPATCH_ErgmState *s,
       /* This then adds the change statistics to these values */
 
       /* Catch massive number of edges caused by degeneracy */
-      if(DISPATCH_MetropolisHastings(s, eta, networkstatistics, interval, &staken,
+      if(EDGETYPE_MetropolisHastings(s, eta, networkstatistics, interval, &staken,
 			    verbose)!=MCMC_OK)
 	return MCMC_MH_FAILED;
       if(nmax!=0 && EDGECOUNT(nwp) >= nmax-1){
@@ -142,7 +142,7 @@ MCMCStatus DISPATCH_MCMCSample(DISPATCH_ErgmState *s,
 
       if(s->save){
         s->stats = networkstatistics;
-        SET_VECTOR_ELT(s->save, i, DISPATCH_ErgmStateRSave(s));
+        SET_VECTOR_ELT(s->save, i, EDGETYPE_ErgmStateRSave(s));
       }
 
       tottaken += staken;
@@ -176,7 +176,7 @@ MCMCStatus DISPATCH_MCMCSample(DISPATCH_ErgmState *s,
 /*********************
  void MetropolisHastings
 
- In this function, eta is a m->n_stats-vector just as in DISPATCH_MCMCSample,
+ In this function, eta is a m->n_stats-vector just as in EDGETYPE_MCMCSample,
  but now networkstatistics is merely another m->n_stats-vector because
  this function merely iterates nsteps times through the Markov
  chain, keeping track of the cumulative change statistics along
@@ -184,14 +184,14 @@ MCMCStatus DISPATCH_MCMCSample(DISPATCH_ErgmState *s,
  the networkstatistics vector.  In other words, this function
  essentially generates a sample of size one
 *********************/
-MCMCStatus DISPATCH_MetropolisHastings (DISPATCH_ErgmState *s,
+MCMCStatus EDGETYPE_MetropolisHastings (EDGETYPE_ErgmState *s,
 				 double *eta, double *networkstatistics,
 				 int nsteps, int *staken,
 				 int verbose) {
 
-  DISPATCH_Network *nwp = s->nwp;
-  DISPATCH_Model *m = s->m;
-  DISPATCH_MHProposal *MHp = s->MHp;
+  EDGETYPE_Network *nwp = s->nwp;
+  EDGETYPE_Model *m = s->m;
+  EDGETYPE_MHProposal *MHp = s->MHp;
 
   unsigned int taken=0, unsuccessful=0;
 /*  if (verbose)
@@ -271,7 +271,7 @@ MCMCStatus DISPATCH_MetropolisHastings (DISPATCH_ErgmState *s,
 
 /* *** don't forget tail -> head */
 
-SEXP DISPATCH_MCMCPhase12 (SEXP stateR,
+SEXP EDGETYPE_MCMCPhase12 (SEXP stateR,
                            // Phase12 settings
                            SEXP theta0,
                            SEXP burnin, SEXP interval,
@@ -280,10 +280,10 @@ SEXP DISPATCH_MCMCPhase12 (SEXP stateR,
                            SEXP maxedges,
                            SEXP verbose){
   GetRNGstate();  /* R function enabling uniform RNG */
-  DISPATCH_ErgmState *s = DISPATCH_ErgmStateInit(stateR, 0);
+  EDGETYPE_ErgmState *s = EDGETYPE_ErgmStateInit(stateR, 0);
 
-  DISPATCH_Model *m = s->m;
-  DISPATCH_MHProposal *MHp = s->MHp;
+  EDGETYPE_Model *m = s->m;
+  EDGETYPE_MHProposal *MHp = s->MHp;
 
   SEXP stats = PROTECT(allocVector(REALSXP, m->n_stats));
   memcpy(REAL(stats), s->stats, m->n_stats*sizeof(double));
@@ -294,7 +294,7 @@ SEXP DISPATCH_MCMCPhase12 (SEXP stateR,
   memcpy(REAL(theta), REAL(theta0), n_param*sizeof(double));
 
   SEXP status;
-  if(MHp) status = PROTECT(ScalarInteger(DISPATCH_MCMCSamplePhase12(s,
+  if(MHp) status = PROTECT(ScalarInteger(EDGETYPE_MCMCSamplePhase12(s,
                                                            REAL(theta), n_param, asReal(gain), asInteger(phase1), asInteger(nsub),
                                                            asInteger(min_iterations), asInteger(max_iterations),
                                                            asInteger(burnin), asInteger(interval),
@@ -308,10 +308,10 @@ SEXP DISPATCH_MCMCPhase12 (SEXP stateR,
 
   /* record new generated network to pass back to R */
   if(asInteger(status) == MCMC_OK && asInteger(maxedges)>0){
-    SET_VECTOR_ELT(outl, 2, DISPATCH_ErgmStateRSave(s));
+    SET_VECTOR_ELT(outl, 2, EDGETYPE_ErgmStateRSave(s));
   }
 
-  DISPATCH_ErgmStateDestroy(s);
+  EDGETYPE_ErgmStateDestroy(s);
   PutRNGstate();  /* Disable RNG before returning */
   UNPROTECT(4);
   return outl;
@@ -320,12 +320,12 @@ SEXP DISPATCH_MCMCPhase12 (SEXP stateR,
 /*********************
  void MCMCSamplePhase12
 *********************/
-MCMCStatus DISPATCH_MCMCSamplePhase12(DISPATCH_ErgmState *s,
+MCMCStatus EDGETYPE_MCMCSamplePhase12(EDGETYPE_ErgmState *s,
                                double *theta, unsigned int n_param, double gain, int nphase1, int nsubphases,
                                int min_iterations, int max_iterations,
                                int burnin,
                                int interval, int verbose){
-  DISPATCH_Model *m = s->m;
+  EDGETYPE_Model *m = s->m;
   SEXP etamap = getListElement(m->R, "etamap");
   const int *theta_offset = LOGICAL(getListElement(etamap, "offsettheta"));
   const double *theta_min = REAL(getListElement(etamap, "mintheta"));
@@ -354,14 +354,14 @@ MCMCStatus DISPATCH_MCMCSamplePhase12(DISPATCH_ErgmState *s,
 
   staken = 0;
   Rprintf("Starting burnin of %d steps\n", burnin);
-  MCMCStatus status = DISPATCH_MetropolisHastings(s, eta,
+  MCMCStatus status = EDGETYPE_MetropolisHastings(s, eta,
                                            s->stats, burnin, &staken,
                                            verbose);
   if(status!=MCMC_OK) return status;
   Rprintf("Phase 1: %d steps (interval = %d)\n", nphase1,interval);
   /* Now sample networks */
   for (unsigned int i=0; i <= nphase1; i++){
-    MCMCStatus status = DISPATCH_MetropolisHastings(s, eta,
+    MCMCStatus status = EDGETYPE_MetropolisHastings(s, eta,
                                                     s->stats, interval, &staken,
                                                     verbose);
     if(status!=MCMC_OK) return status;
@@ -408,7 +408,7 @@ MCMCStatus DISPATCH_MCMCSamplePhase12(DISPATCH_ErgmState *s,
     memset(esteq_prod_cum, 0, n_param*sizeof(double));
 
     for(unsigned int i=1; ; i++){
-      MCMCStatus status = DISPATCH_MetropolisHastings(s, eta, s->stats, interval, &staken,verbose); /*Take a sample network*/
+      MCMCStatus status = EDGETYPE_MetropolisHastings(s, eta, s->stats, interval, &staken,verbose); /*Take a sample network*/
       if(status!=MCMC_OK) return status;
 
       memcpy(esteq_old, esteq, n_param*sizeof(double));

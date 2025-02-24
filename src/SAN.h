@@ -12,9 +12,9 @@
 
 #include "MCMC.h"
 
-#define DISPATCH_SANMetropolisHastings SANMetropolisHastings
-#define DISPATCH_SANSample SANSample
-#define DISPATCH_SAN_wrapper SAN_wrapper
+#define EDGETYPE_SANMetropolisHastings SANMetropolisHastings
+#define EDGETYPE_SANSample SANSample
+#define EDGETYPE_SAN_wrapper SAN_wrapper
 
 #include "SAN.h.template.do_not_include_directly.h"
 #endif
