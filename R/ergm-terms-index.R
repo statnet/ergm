@@ -8,7 +8,7 @@
 #  Copyright 2003-2025 Statnet Commons
 ################################################################################
 
-SUPPORTED_TERM_TYPES <- c('ergmTerm', 'ergmConstraint', 'ergmReference', 'ergmHint', 'ergmProposal')
+SUPPORTED_TERM_TYPES <- c('ergmTerm', 'ergmAuxiliary', 'ergmConstraint', 'ergmReference', 'ergmHint', 'ergmProposal')
 SUPPORTED_TERM_TYPE_REGEX <- sprintf('-(%s)(-[0-9a-f]{8})?(.Rd)?', paste(SUPPORTED_TERM_TYPES, collapse='|'))
 
 DISPLAY_TEXT_INDEX_MAX_WIDTHS <- list('Term'=25, 'Pkg'=5, 'Description'=33, 'Concepts'=12)
@@ -772,6 +772,19 @@ search.ergmTermType <-function(term.type, search, net, keywords, name, packages)
 search.ergmTerms <- function(search, net, keywords, name, packages) {
   search.ergmTermType("ergmTerm", search, net, keywords, name, packages)
 }
+
+## NOTE: This is not meant to be seen by the end-user, so it's documented elsewhere.
+#' @rdname ergmAuxiliary
+#' @inheritParams search.ergmTerms
+#' @examples
+#' \donttest{
+#' # find all of the auxiliaries
+#' search.ergmAuxiliaries()
+#' }
+#' @export search.ergmAuxiliaries
+search.ergmAuxiliaries <- function(search, keywords, name, packages)
+  search.ergmTermType("ergmAuxiliary", search=search, keywords=keywords, name=name, packages=packages)
+
 #' @rdname search.ergmTerms
 #' @examples
 #' \donttest{

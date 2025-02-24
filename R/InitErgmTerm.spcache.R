@@ -13,6 +13,49 @@
   trim_env(as.formula(as.call(list(as.name('~'), as.call(list(as.name('.spcache.net'),type=if(type=='ITP')'OTP' else type))))))
 }
 
+#' @templateVar name .spcache.net
+#' @title Shared Partner Cache
+#' @description This auxiliary maintains a hash table mapping dyads to
+#'   shared partner counts.
+#'
+#' @usage
+#' # binary: .spcache(type)
+#'
+#' @template ergmTerm-sp-type
+#'
+#' @details This auxiliary maintains a single \code{StrictDyadMapUInt}
+#'   defined in \file{"ergm_dyad_hashmap.h"}. It is, internally, a
+#'   \code{khash} table mapping a pair of \code{Vertex}es (in a
+#'   \code{TailHead} structure) onto an \code{unsigned int}.
+#'
+#' To make use of it in your change statistic:
+#'
+#' 1. Add `auxiliaries = ~spcache.net(type)` to the `InitErgmTerm`
+#'    output list. You may request it multiple times and/or alongside
+#'    other auxiliaries.
+#'
+#' 2. Add `#include "ergm_dyad_hashmap.h"` to the top of your change
+#'    statistic implementation file.
+#'
+#' 3. In the function (e.g., `c_` function) implementing the change
+#'    statistic, use \code{GET_AUX_STORAGE(StoreStrictDyadMapUInt,
+#'    spcache);} to obtain it if this is your first or only auxiliary,
+#'    or \code{GET_AUX_STORAGE_NUM(StoreStrictDyadMapUInt, spcache,
+#'    ind);} if it is not.
+#'
+#' 4. Use one of the following macros to access the shared partner count: \describe{
+#' \item{\code{GETUDMUI(\var{TAIL}, \var{HEAD}, spcache)}}{if undirected;}
+#' \item{\code{GETDDMUI(\var{HEAD}, \var{TAIL}, spcache)}}{if `type = "ITP"` (since ITP is OTP with direction reversed);}
+#' \item{\code{GETDDMUI(\var{TAIL}, \var{HEAD}, spcache)}}{in all other cases.}
+#' }
+#'
+#' @template ergmTerm-sp-types
+#'
+#' @template ergmAuxiliary-general
+#'
+#' @concept directed
+#' @concept undirected
+#' @concept triad-related
 InitErgmTerm..spcache.net<-function(nw, arglist, ...){
   a <- check.ErgmTerm(nw, arglist,
                       varnames = c("type"),

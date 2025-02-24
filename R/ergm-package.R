@@ -268,12 +268,18 @@
 #' ## Custom `ergm` terms
 #' Users and other packages may build custom terms, and package
 #' \pkg{ergm.userterms} (\url{https://github.com/statnet/ergm.userterms}) provides
-#' tools for implementing them.
+#' tools for implementing them, and the [Terms-API vignette](https://cran.r-project.org/web/packages/ergm/vignettes/Terms-API.html).
+#'
+#' There is also a number of *auxiliaries* available---terms that do
+#' not have statistics of their own but provide data structures useful
+#' to other terms. For auxiliaries currently visible to
+#' \CRANpkg{ergm}, see [`ergmAuxiliary`].
 #' 
 #' The current recommendation for any package implementing additional terms is
 #' to document the term with Roxygen comments and a name in the form
 #' `termName-ergmTerm`. This ensures that \code{help("ergmTerm")} will list ERGM
 #' terms available from all loaded packages.
+#'
 #'
 #' @section Terms included in the [`ergm`][ergm-package] package:
 #' As noted above, a cross-referenced HTML version of the term documentation is
@@ -378,6 +384,38 @@
 #' }
 NULL
 #TODO: Write a valued example.
+
+#' Auxiliaries to Facilitate Terms in Exponential Family Random Graph Models
+#'
+#' @name ergmAuxiliary
+#'
+#' @description This page is intended for term developers and provides information about auxiliaries---terms that do not produce statistics of their own but provide useful data structures for other terms to use. It also provides an indexed list of the possible auxiliaries currently visible to the \CRANpkg{ergm} API. Terms can also be searched via [`search.ergmAuxiliaries`], and help for an individual auxiliaries can be obtained with `ergmAuxiliary?<term>` or `help("<term>-ergmAuxiliary")`.
+#'
+#' By convention, their names are prefixed with a dot.
+#'
+#' @section Auxiliary index:
+#'
+#' \ergmCSS
+#'
+#' \if{latex}{\Sexpr[results=rd,stage=render]{ergm:::.formatIndexLatex(ergm:::.buildTermsDataframe("ergmAuxiliary"))}}
+#' \if{text}{\Sexpr[results=rd,stage=render]{ergm:::.formatIndexText(ergm:::.buildTermsDataframe("ergmAuxiliary"))}}
+#' \if{html}{\Sexpr[results=rd,stage=render]{ergm:::.formatIndexHtml(ergm:::.buildTermsDataframe("ergmAuxiliary"))}}
+#'
+#' ## All terms
+#' \if{latex}{\Sexpr[results=rd,stage=render]{ergm:::.formatMatrixLatex(ergm:::.termMatrix("ergmAuxiliary"))}}
+#' \if{text}{\Sexpr[results=rd,stage=render]{ergm:::.formatMatrixText(ergm:::.termMatrix("ergmAuxiliary"))}}
+#' \if{html}{\Sexpr[results=rd,stage=render]{ergm:::.formatMatrixHtml(ergm:::.termMatrix("ergmAuxiliary"))}}
+#' 
+#' ## Terms by keywords
+#' \if{latex}{\Sexpr[results=rd,stage=render]{ergm:::.formatTocLatex(ergm:::.termToc("ergmAuxiliary"))}}
+#' \if{text}{\Sexpr[results=rd,stage=render]{ergm:::.formatTocText(ergm:::.termToc("ergmAuxiliary"))}}
+#' \if{html}{\Sexpr[results=rd,stage=render]{ergm:::.formatTocHtml(ergm:::.termToc("ergmAuxiliary"))}}
+#'
+#' @seealso [`ergm`][ergm-package] package, [`ergm`], [`network`], [`%v%`], [`%n%`]
+#'
+#' @keywords internal
+#' @keywords models
+NULL
 
 
 #' Sample Space Constraints for Exponential-Family Random Graph Models

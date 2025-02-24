@@ -155,7 +155,12 @@ desired.
 
 Users and other packages may build custom terms, and package
 \pkg{ergm.userterms} (\url{https://github.com/statnet/ergm.userterms}) provides
-tools for implementing them.
+tools for implementing them, and the \href{https://cran.r-project.org/web/packages/ergm/vignettes/Terms-API.html}{Terms-API vignette}.
+
+There is also a number of \emph{auxiliaries} available---terms that do
+not have statistics of their own but provide data structures useful
+to other terms. For auxiliaries currently visible to
+\CRANpkg{ergm}, see \code{\link{ergmAuxiliary}}.
 
 The current recommendation for any package implementing additional terms is
 to document the term with Roxygen comments and a name in the form
