@@ -768,7 +768,6 @@ search.ergmTermType <-function(term.type, search, net, keywords, name, packages)
 #' # request the bipartite keyword in the ergm package
 #' search.ergmTerms(keywords='bipartite', packages='ergm')
 #' }
-#' @importFrom utils capture.output
 #' @export search.ergmTerms
 search.ergmTerms <- function(search, net, keywords, name, packages) {
   search.ergmTermType("ergmTerm", search, net, keywords, name, packages)
@@ -779,9 +778,6 @@ search.ergmTerms <- function(search, net, keywords, name, packages) {
 #' # find all of the constraint that mention degrees
 #' search.ergmConstraints('degree')
 #'
-#' # search for hints only
-#' search.ergmConstraints(keywords='hint')
-#'
 #' # search on multiple keywords
 #' search.ergmConstraints(keywords=c('directed','dyad-independent'))
 #'
@@ -791,7 +787,6 @@ search.ergmTerms <- function(search, net, keywords, name, packages) {
 #' # request the bipartite keyword in the ergm package
 #' search.ergmConstraints(keywords='directed', packages='ergm')
 #' }
-#' @importFrom utils capture.output
 #' @export search.ergmConstraints
 search.ergmConstraints <- function(search, keywords, name, packages)
   search.ergmTermType("ergmConstraint", search=search, keywords=keywords, name=name, packages=packages)
@@ -810,7 +805,7 @@ search.ergmReferences <- function(search, keywords, name, packages)
 #' @examples
 #' \donttest{
 #' # find all of the hints
-#' search.ergmHints('degree')
+#' search.ergmHints()
 #' }
 #' @export search.ergmHints
 search.ergmHints <- function(search, keywords, name, packages)
@@ -820,21 +815,20 @@ search.ergmHints <- function(search, keywords, name, packages)
 #' @examples
 #' \donttest{
 #' # find all of the proposals that mention triangles
-#' search.ergmProposals('MH algorithm')
+#' search.ergmProposals('triangle')
 #'
 #' # print out the content for a specific proposals
 #' search.ergmProposals(name='randomtoggle')
 #'
-#' # find all proposals with required or optional constraints
+#' # find all proposals with a given required or optional constraint
 #' search.ergmProposals(constraints='.dyads')
 #'
-#' # find all proposals with references
+#' # find all proposals a given reference
 #' search.ergmProposals(reference='Bernoulli')
 #'
 #' # request proposals that mention triangle in the ergm package
-#' search.ergmProposals('MH algorithm', packages='ergm')
+#' search.ergmProposals('triangle', packages='ergm')
 #' }
-#' @importFrom utils capture.output
 #' @export search.ergmProposals
 search.ergmProposals <- function(search, name, reference, constraints, packages) {
   proposals <- .buildProposalsList()

@@ -7,10 +7,11 @@
 proposal}
 \description{
 The specified proportion of the time, the proposal
-proceeds along the lines of \insertCite{WaAt13a;textual}{ergm}, albeit
-with different weighting. A dyad is selected uniformly at random
-from among those dyads with at least one shared partnership or
-transitivity of the specified type.
+proceeds along the lines of \insertCite{WaAt13a;textual}{ergm},
+albeit with different weighting. A dyad is selected uniformly at
+random from among those dyads with at least one shared
+partnership or transitivity of the specified type. This is likely
+to be more efficient for a model with excess triangles.
 }
 \details{
 \if{html}{\Sexpr[results=rd,stage=render]{ergm:::.formatProposalsHtml(ergm:::.buildProposalsList(proposal="SPDyad"))}}
