@@ -330,7 +330,7 @@ ergm <- function(formula, response=NULL,
                  control=control.ergm(),
                  verbose=FALSE,
                  ...,
-                 basis=ergm.getnetwork(formula),
+                 basis=ergm.getnetworkLite(formula),
                  newnetwork=c("one", "all", "none")) {
   check_dots_used(error = unused_dots_warning)
   check.control.class("ergm", "ergm")
@@ -463,7 +463,7 @@ ergm <- function(formula, response=NULL,
     # intelligently.
     target.stats <- .embed.target.stats(model, target.stats)
 
-    nw <- TARGET_STATS <- as.network(TARGET_STATS)
+    nw <- TARGET_STATS <- as.networkLite(TARGET_STATS)
     #' @importFrom statnet.common nonsimp_update.formula
     formula<-nonsimp_update.formula(formula,TARGET_STATS~., from.new="TARGET_STATS")
   } else {

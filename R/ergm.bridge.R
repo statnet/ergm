@@ -74,7 +74,7 @@
 #' @references \insertAllCited{}
 #' @keywords model
 #' @export
-ergm.bridge.llr<-function(object, response=NULL, reference=~Bernoulli, constraints=~., from, to, obs.constraints=~.-observed, target.stats=NULL, basis=ergm.getnetwork(object), verbose=FALSE, ..., llronly=FALSE, control=control.ergm.bridge()){
+ergm.bridge.llr<-function(object, response=NULL, reference=~Bernoulli, constraints=~., from, to, obs.constraints=~.-observed, target.stats=NULL, basis=ergm.getnetworkLite(object), verbose=FALSE, ..., llronly=FALSE, control=control.ergm.bridge()){
   check.control.class("ergm.bridge", "ergm.bridge.llr")
   handle.control.toplevel("ergm.bridge", ...)
 
@@ -241,7 +241,7 @@ ergm.bridge.llr<-function(object, response=NULL, reference=~Bernoulli, constrain
 #' 
 #' 
 #' @export
-ergm.bridge.0.llk<-function(object, response=NULL, reference=~Bernoulli, coef, ..., llkonly=TRUE, control=control.ergm.bridge(), basis=ergm.getnetwork(object)){
+ergm.bridge.0.llk<-function(object, response=NULL, reference=~Bernoulli, coef, ..., llkonly=TRUE, control=control.ergm.bridge(), basis=ergm.getnetworkLite(object)){
   check.control.class("ergm.bridge", "ergm.bridge.0.llk")
   handle.control.toplevel("ergm.bridge", ...)
   ergm_preprocess_response(basis, response)
@@ -274,7 +274,7 @@ ergm.bridge.0.llk<-function(object, response=NULL, reference=~Bernoulli, coef, .
 #'   dyad-independent model.
 #' 
 #' @export
-ergm.bridge.dindstart.llk<-function(object, response=NULL, constraints=~., coef, obs.constraints=~.-observed, target.stats=NULL, dind=NULL, coef.dind=NULL,  basis=ergm.getnetwork(object), ..., llkonly=TRUE, control=control.ergm.bridge(), verbose=FALSE){
+ergm.bridge.dindstart.llk<-function(object, response=NULL, constraints=~., coef, obs.constraints=~.-observed, target.stats=NULL, dind=NULL, coef.dind=NULL,  basis=ergm.getnetworkLite(object), ..., llkonly=TRUE, control=control.ergm.bridge(), verbose=FALSE){
   check.control.class("ergm.bridge", "ergm.bridge.dindstart.llk")
   handle.control.toplevel("ergm.bridge", ...)
 

@@ -138,6 +138,20 @@ as.matrix.ergm_state <- function(x,matrix.type=NULL,...){
 #' @rdname ergm_state
 #' @export
 as.network.ergm_state_full <- function(x, ..., populate=TRUE){
+  nL <- getOption("ergm.output.networkLite")
+  if(is.na(nL)) nL <- !(NVL(x$nw0 %ergmlhs% "was_network", FALSE))
+  if(!nL){
+    x$nw0 <- to_network_networkLite(x$nw0)
+    x$nw0 %ergmlhs% "was_network" <- NULL
+  }
+
+  if(!populate) x$nw0
+  else update(x$nw0,x$el)
+}
+
+#' @rdname ergm_state
+#' @export
+as.networkLite.ergm_state_full <- function(x, ..., populate=TRUE){
   if(!populate) x$nw0
   else update(x$nw0,x$el)
 }

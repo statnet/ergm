@@ -2,10 +2,13 @@
 % Please edit documentation in R/ergm.getnetwork.R
 \name{ergm.getnetwork}
 \alias{ergm.getnetwork}
+\alias{ergm.getnetworkLite}
 \title{Acquire and verify the network from the LHS of an \code{ergm} formula
 and verify that it is a valid network.}
 \usage{
-ergm.getnetwork(formula, loopswarning = getOption("ergm.warn_loops"))
+ergm.getnetwork(formula, loopswarning = getOption("ergm.warn_loops"), ...)
+
+ergm.getnetworkLite(formula, loopswarning = TRUE, ...)
 }
 \arguments{
 \item{formula}{a two-sided formula whose LHS is a \code{\link[network:network]{network}}, an object
@@ -15,6 +18,8 @@ to one.}
 \item{loopswarning}{whether warnings about loops should be printed
 (\code{TRUE} or \code{FALSE}); defaults to value of option \code{ergm.warn_loops}
 or \code{TRUE}.}
+
+\item{...}{additional arguments passed to \code{\link[network:network]{as.network()}} or \code{\link[networkLite:as_networkLite]{as.networkLite()}}.}
 }
 \value{
 A \code{\link[network:network]{network}} object constructed by evaluating the LHS of
@@ -24,4 +29,6 @@ the model formula in the formula's environment.
 The function function ensures that the network in a given formula
 is valid; if so, the network is returned; if not, execution is
 halted with warnings.
+
+\code{ergm.getnetworkLite} converts to a \code{\link[networkLite:constructors]{networkLite}} instead.
 }

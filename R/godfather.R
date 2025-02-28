@@ -79,7 +79,7 @@ ergm.godfather.formula <- function(object, changes=NULL, response=NULL,
                                    stats.start=FALSE,
                                    changes.only=FALSE,
                                    verbose=FALSE,
-                                   basis = ergm.getnetwork(object)){
+                                   basis = ergm.getnetworkLite(object)){
   ergm_preprocess_response(basis,response)
 
   ergm_model(object, basis, ...) |>

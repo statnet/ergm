@@ -50,7 +50,7 @@ is.curved.formula<-function(object,response=NULL,basis=NULL,...){
   # If basis is not null, replace network in formula by basis.
   # In either case, let nw be network object from formula.
   if(is.null(nw <- basis)) {
-    nw <- ergm.getnetwork(object)
+    nw <- ergm.getnetworkLite(object)
   }
   
   nw <- ensure_network(nw)

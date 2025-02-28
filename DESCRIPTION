@@ -21,6 +21,7 @@ Authors@R: c(
              person("Adrien", "Le Guillou", role=c("ctb"), email="git@aleguillou.org", comment=c(ORCID="0000-0002-4791-418X")))
 Depends:
     R (>= 4.2),
+    networkLite (>= 1.1.0),
     network (>= 1.19.0)
 Imports:
     robustbase (>= 0.99-6),
@@ -51,7 +52,6 @@ Suggests:
     covr (>= 3.6.5),
     Rglpk (>= 0.6-5.1),
     slam (>= 0.1-55),
-    networkLite (>= 1.1.0),
     lattice
 RdMacros: Rdpack
 BugReports: https://github.com/statnet/ergm/issues

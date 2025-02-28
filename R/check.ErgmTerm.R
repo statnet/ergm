@@ -68,7 +68,7 @@ ergm_Init_warn_once <- once(ergm_Init_warn)
 #'   default is `NULL`, then `NULL` is assumed to be an acceptable
 #'   argument type as well.
 #'
-#' @import network
+#' @import network networkLite
 #' @export check.ErgmTerm
 check.ErgmTerm <- function(nw, arglist, directed=NULL, bipartite=NULL, nonnegative=FALSE,
                            varnames=NULL, vartypes=NULL,

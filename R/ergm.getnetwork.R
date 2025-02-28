@@ -36,13 +36,14 @@
 #' @param loopswarning whether warnings about loops should be printed
 #'   (`TRUE` or `FALSE`); defaults to value of option `ergm.warn_loops`
 #'   or `TRUE`.
+#' @param ... additional arguments passed to [as.network()] or [as.networkLite()].
 #' 
 #' @return A [`network`] object constructed by evaluating the LHS of
 #'   the model formula in the formula's environment.
 #' @export ergm.getnetwork
-ergm.getnetwork <- function (formula, loopswarning=getOption("ergm.warn_loops")){
+ergm.getnetwork <- function (formula, loopswarning = getOption("ergm.warn_loops"), ...){
   nw <- eval_lhs.formula(formula)
-  nw <- ensure_network(nw)
+  nw <- ensure_network(nw, ...)
 
   if (loopswarning) {
     e <- as.edgelist(nw)
@@ -55,12 +56,42 @@ ergm.getnetwork <- function (formula, loopswarning=getOption("ergm.warn_loops"))
   nw
 }
 
-ensure_network <- function(nw){
+#' @rdname ergm.getnetwork
+#' @description `ergm.getnetworkLite` converts to a [`networkLite`] instead.
+#' @export ergm.getnetworkLite
+ergm.getnetworkLite <- function (formula, loopswarning=TRUE, ...){
+  nw <- eval_lhs.formula(formula)
+  nw <- ensure_networkLite(nw, ...)
+
+  if (loopswarning) {
+    e <- as.edgelist(nw)
+    if(any(e[,1]==e[,2])) {
+      print("Warning:  This network contains loops")
+    } else if (has.loops(nw)) {
+      print("Warning:  This network is allowed to contain loops")
+    }
+  }
+  nw
+}
+
+ensure_network <- function(nw, ...){
   if(!is.network(nw) && !is.ergm_state(nw)){
     nw <- ERRVL2(
-      as.network(nw),
-      abort("A network object on the LHS of the formula or as a basis argument must be given")
+      as.network(nw, ...),
+      abort("A network or networkLite object on the LHS of the formula or as a basis argument must be given")
     )
+  }
+  nw
+}
+
+ensure_networkLite <- function(nw, ...){
+  if(!is.networkLite(nw) && !is.ergm_state(nw)){
+    was_network <- is.network(nw) && !is.networkLite(nw)
+    nw <- ERRVL(
+      try(as.networkLite(nw, ...)),
+      abort("A network or networkLite object on the LHS of the formula or as a basis argument must be given")
+    )
+    nw %ergmlhs% "was_network" <- TRUE
   }
   nw
 }

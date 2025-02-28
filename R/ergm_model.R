@@ -55,8 +55,7 @@ ergm_model.formula <- function(object, nw=NULL, ...){
 #' @export
 ergm_model.term_list <- function(object, nw=NULL, silent=FALSE, ..., term.options=list(), env=globalenv(), extra.aux=list(), offset.decorate=TRUE, terms.only=FALSE){
   v <- object
-  nw <- ensure_network(nw)
-  nw <- as.network(nw, populate=FALSE) # In case it's an ergm_state.
+  nw <- ensure_networkLite(nw, populate=FALSE) # In case it's an ergm_state.
 
   model <- structure(list(terms = list()),
                      class = "ergm_model")

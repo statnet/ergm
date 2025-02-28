@@ -57,10 +57,10 @@ is.dyad.independent.formula<-function(object,response=NULL,basis=NULL,...){
   # If basis is not null, replace network in formula by basis.
   # In either case, let nw be network object from formula.
   if(is.null(nw <- basis)) {
-    nw <- ergm.getnetwork(object)
+    nw <- ergm.getnetworkLite(object)
   }
   
-  nw <- as.network(nw)
+  nw <- ensure_networkLite(nw, populate = FALSE)
   if(!is.network(nw)){
       stop("A network object on the LHS of the formula or via",
            " the 'basis' argument must be given")

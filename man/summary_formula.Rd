@@ -20,13 +20,28 @@ summary_formula(object, ..., basis = NULL)
 
 \method{summary_formula}{network.list.list}(object, response = NULL, ..., basis = eval_lhs.formula(object))
 
-\method{summary_formula}{network}(object, response = NULL, ..., basis = ergm.getnetwork(object))
+\method{summary_formula}{network}(
+  object,
+  response = NULL,
+  ...,
+  basis = ergm.getnetworkLite(object)
+)
 
 \method{summary_formula}{ergm_state}(object, ..., basis = NULL)
 
-\method{summary_formula}{matrix}(object, response = NULL, ..., basis = ergm.getnetwork(object))
+\method{summary_formula}{matrix}(
+  object,
+  response = NULL,
+  ...,
+  basis = ergm.getnetworkLite(object)
+)
 
-\method{summary_formula}{default}(object, response = NULL, ..., basis = ergm.getnetwork(object))
+\method{summary_formula}{default}(
+  object,
+  response = NULL,
+  ...,
+  basis = ergm.getnetworkLite(object)
+)
 }
 \arguments{
 \item{object}{A two-sided formula.}
