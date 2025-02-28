@@ -65,7 +65,7 @@ model.transform.formula <- function(object, theta, recipes, ...){
   ## a simple special case of toarg, if it were given a function that
   ## returned a constant value.
 
-  m <- ergm_model(object, ergm.getnetwork(object), ...)
+  m <- ergm_model(object, ergm.getnetworkLite(object), ...)
   theta.inds<-cumsum(c(1,nparam(m, byterm=TRUE)))
   terms<-list_rhs.formula(object)
   form<-object

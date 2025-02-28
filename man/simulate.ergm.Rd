@@ -35,7 +35,7 @@ simulate_formula(object, ..., basis = eval_lhs.formula(object))
   control = control.simulate.formula(),
   verbose = FALSE,
   ...,
-  basis = ergm.getnetwork(object),
+  basis = ergm.getnetworkLite(object),
   do.sim = NULL,
   return.args = NULL
 )
@@ -58,7 +58,7 @@ simulate_formula(object, ..., basis = eval_lhs.formula(object))
   control = control.simulate.formula(),
   verbose = FALSE,
   ...,
-  basis = ergm.getnetwork(object),
+  basis = ergm.getnetworkLite(object),
   do.sim = NULL,
   return.args = NULL
 )

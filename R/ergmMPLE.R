@@ -129,7 +129,7 @@
 #' mplearray$weights[1:5,1:5]
 #' @export ergmMPLE
 ergmMPLE <- function(formula, constraints=~., obs.constraints=~-observed, output=c("matrix", "array", "dyadlist", "fit"), expand.bipartite=FALSE, control=control.ergm(),
-                     verbose=FALSE, ..., basis=ergm.getnetwork(formula)){
+                     verbose=FALSE, ..., basis=ergm.getnetworkLite(formula)){
   check_dots_used(error = unused_dots_warning)
   check.control.class("ergm", "ergmMPLE")
   handle.control.toplevel("ergm", ...)

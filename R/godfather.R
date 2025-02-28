@@ -76,7 +76,7 @@ ergm.godfather <- function(object, changes=NULL,
                            formula = NULL){
   ## TODO: Remove the following after October 2025 and ergm 4.8.
   if(!is.null(formula)){
-    .Deprecate_once(msg = paste0("Argument ", sQuote("formula="), " to ", sQuote("ergm.godfather()"), "has been replaced with ", sQuote("formula="), "."))
+    .Deprecate_once(msg = paste0("Argument ", sQuote("formula="), " to ", sQuote("ergm.godfather()"), "has been replaced with ", sQuote("object="), "."))
     object <- formula
   }
 
@@ -92,7 +92,7 @@ ergm.godfather.formula <- function(object, changes=NULL, response=NULL,
                                    changes.only=FALSE,
                                    verbose=FALSE,
                                    control=NULL,
-                                   basis = ergm.getnetwork(object)){
+                                   basis = ergm.getnetworkLite(object)){
   ergm_preprocess_response(basis,response)
   ## TODO: Remove the following after October 2025 and ergm 4.8.
   m <- if("term.options" %in% ...names()) ergm_model(object, basis, ...)

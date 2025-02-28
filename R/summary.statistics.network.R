@@ -142,7 +142,7 @@ summary_formula.network.list.list <- function(object, response = NULL, ...,
 #' @describeIn summary_formula a method for a [`network`] on the LHS of the formula.
 #' @seealso [summary.ergm_model()]
 #' @export
-summary_formula.network <- function(object, response=NULL,...,basis=ergm.getnetwork(object)){
+summary_formula.network <- function(object, response=NULL,...,basis=ergm.getnetworkLite(object)){
   ergm_preprocess_response(basis,response)
   m <- ergm_model(object, basis, ...)
   summary(m, basis)

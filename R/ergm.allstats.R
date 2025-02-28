@@ -75,7 +75,7 @@ ergm.allstats <- function(formula, constraints=~., zeroobs = TRUE, force = FALSE
   on.exit(allstats_workspace_clear(), add=TRUE)
 
   # Initialization stuff
-  nw <- ergm.getnetwork(formula)
+  nw <- ergm.getnetworkLite(formula)
   tmp <- .handle.auto.constraints(nw, constraints)
   nw <- tmp$nw; conterms <- tmp$conterms
   conlist <- ergm_conlist(conterms, nw)

@@ -283,7 +283,7 @@ simulate_formula <- function(object, ..., basis=eval_lhs.formula(object)) {
                              simplify=TRUE,
                              sequential=TRUE,
                                control=control.simulate.formula(),
-                             verbose=FALSE, ..., basis=ergm.getnetwork(object), do.sim=NULL,
+                             verbose=FALSE, ..., basis=ergm.getnetworkLite(object), do.sim=NULL,
                              return.args = NULL){
   if(!missing(do.sim) && !is.null(do.sim)){
     .Deprecate_once(msg=paste0("Use of ",sQuote("do.sim=")," argument has been deprecated. Use ",sQuote("return.args=")," instead."))
@@ -303,7 +303,7 @@ simulate_formula <- function(object, ..., basis=eval_lhs.formula(object)) {
   }
 
   nw <- basis
-  nw <- as.network(nw, populate=FALSE)
+  nw <- ensure_networkLite(nw, populate=FALSE)
   ergm_preprocess_response(nw, response)
 
   mon.m <- if(!is.null(monitor)) as.ergm_model(monitor, nw, term.options=control$term.options)
@@ -407,7 +407,7 @@ simulate.ergm_model <- function(object, nsim=1, seed=NULL,
   
   # define nw as either the basis argument or (if NULL) the LHS of the formula
   nw <- basis
-  nw0 <- as.network(nw, populate=FALSE)
+  nw0 <- ensure_networkLite(nw, populate=FALSE)
 
   m <- c(object, monitor)
   

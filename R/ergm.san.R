@@ -200,13 +200,13 @@ san.formula <- function(object, response=NULL, reference=~Bernoulli, constraints
   if(!is.null(basis)) {
     nw <- basis
   } else {
-    nw <- ergm.getnetwork(formula)
+    nw <- ergm.getnetworkLite(formula)
   }
 
   if(is.null(target.stats))
     stop("missing ", sQuote("target.stats"))
 
-  nw <- as.network(ensure_network(nw), populate=FALSE)
+  nw <- ensure_networkLite(nw, populate=FALSE)
   # nw is now a network/ergm_state hybrid class. As long
   # as its edges are only accessed through methods that
   # ergm_state methods overload, it should be fine.
@@ -261,7 +261,7 @@ san.ergm_model <- function(object, reference=~Bernoulli, constraints=~., target.
 
   if(!is.null(control$seed)) set.seed(as.integer(control$seed))
   nw <- basis
-  nw <- as.network(ensure_network(nw), populate=FALSE)
+  nw <- ensure_networkLite(nw, populate=FALSE)
   # nw is now a network/ergm_state hybrid class. As long
   # as its edges are only accessed through methods that
   # ergm_state methods overload, it should be fine.

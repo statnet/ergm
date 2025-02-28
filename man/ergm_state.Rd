@@ -10,6 +10,7 @@
 \alias{as.edgelist.ergm_state}
 \alias{as.matrix.ergm_state}
 \alias{as.network.ergm_state_full}
+\alias{as.networkLite.ergm_state_full}
 \alias{network.edgecount.ergm_state}
 \alias{network.dyadcount.ergm_state_full}
 \alias{network.size.ergm_state_full}
@@ -75,6 +76,8 @@ is.ergm_state(x)
 \method{as.matrix}{ergm_state}(x, matrix.type = NULL, ...)
 
 \method{as.network}{ergm_state_full}(x, ..., populate = TRUE)
+
+\method{as.networkLite}{ergm_state_full}(x, ..., populate = TRUE)
 
 \method{network.edgecount}{ergm_state}(x, na.omit = TRUE, ...)
 

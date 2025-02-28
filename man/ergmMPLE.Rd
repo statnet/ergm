@@ -13,7 +13,7 @@ ergmMPLE(
   control = control.ergm(),
   verbose = FALSE,
   ...,
-  basis = ergm.getnetwork(formula)
+  basis = ergm.getnetworkLite(formula)
 )
 }
 \arguments{

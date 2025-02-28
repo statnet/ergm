@@ -15,7 +15,7 @@ ergm.bridge.llr(
   to,
   obs.constraints = ~. - observed,
   target.stats = NULL,
-  basis = ergm.getnetwork(object),
+  basis = ergm.getnetworkLite(object),
   verbose = FALSE,
   ...,
   llronly = FALSE,
@@ -30,7 +30,7 @@ ergm.bridge.0.llk(
   ...,
   llkonly = TRUE,
   control = control.ergm.bridge(),
-  basis = ergm.getnetwork(object)
+  basis = ergm.getnetworkLite(object)
 )
 
 ergm.bridge.dindstart.llk(
@@ -42,7 +42,7 @@ ergm.bridge.dindstart.llk(
   target.stats = NULL,
   dind = NULL,
   coef.dind = NULL,
-  basis = ergm.getnetwork(object),
+  basis = ergm.getnetworkLite(object),
   ...,
   llkonly = TRUE,
   control = control.ergm.bridge(),

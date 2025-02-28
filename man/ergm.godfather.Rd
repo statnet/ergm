@@ -29,7 +29,7 @@ ergm.godfather(
   changes.only = FALSE,
   verbose = FALSE,
   control = NULL,
-  basis = ergm.getnetwork(object)
+  basis = ergm.getnetworkLite(object)
 )
 
 \method{ergm.godfather}{ergm_model}(
