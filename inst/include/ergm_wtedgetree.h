@@ -27,7 +27,7 @@ typedef struct WtTreeNodestruct {
 typedef struct WtNetworkstruct {
   WtTreeNode *inedges;
   WtTreeNode *outedges;
-  int directed_flag;
+  Rboolean directed_flag;
   Vertex bipartite;  
   Vertex nnodes;
   Edge nedges;
@@ -61,7 +61,7 @@ typedef void (*OnWtNetworkEdgeChange)(Vertex, Vertex, double, void*, WtNetwork*,
   WtNetworkInitialize_noLT((tails), (heads), (weights), (nedges), (nnodes), (directed_flag), (bipartite))
 
 WtNetwork *WtNetworkInitialize_noLT(Vertex *tails, Vertex *heads, double *weights, Edge nedges,
-			       Vertex nnodes, int directed_flag, Vertex bipartite);
+			       Vertex nnodes, Rboolean directed_flag, Vertex bipartite);
 void WtNetworkDestroy(WtNetwork *nwp);
 
 WtNetwork *WtNetworkCopy(WtNetwork *src);

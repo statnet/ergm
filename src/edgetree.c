@@ -29,7 +29,7 @@ Note: passing nedges > 0 and tails == heads == weights == NULL is OK: it creates
 /* *** don't forget, tail -> head */
 
 Network *NetworkInitialize_noLT(Vertex *tails, Vertex *heads, Edge nedges,
-			   Vertex nnodes, int directed_flag, Vertex bipartite) {
+			   Vertex nnodes, Rboolean directed_flag, Vertex bipartite) {
   
   Network *nwp = R_Calloc(1, Network);
 

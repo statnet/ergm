@@ -47,7 +47,7 @@ typedef struct TreeNodestruct {
 typedef struct Networkstruct {
   TreeNode *inedges;
   TreeNode *outedges;
-  int directed_flag;
+  Rboolean directed_flag;
   Vertex bipartite;  
   Vertex nnodes;
   Edge nedges;
@@ -83,7 +83,7 @@ typedef void (*OnNetworkEdgeChange)(Vertex, Vertex, void*, Network*, Rboolean);
   NetworkInitialize_noLT((tails), (heads), (nedges), (nnodes), (directed_flag), (bipartite))
 
 Network *NetworkInitialize_noLT(Vertex *tails, Vertex *heads, Edge nedges,
-			   Vertex nnodes, int directed_flag, Vertex bipartite);
+			   Vertex nnodes, Rboolean directed_flag, Vertex bipartite);
 void NetworkDestroy(Network *nwp);
 
 Network *NetworkCopy(Network *src);

@@ -29,7 +29,7 @@ Note: passing nedges > 0 and tails == heads == NULL is OK: it creates an empty n
 /* *** don't forget, tail -> head */
 
 WtNetwork *WtNetworkInitialize_noLT(Vertex *tails, Vertex *heads, double *weights,
-			       Edge nedges, Vertex nnodes, int directed_flag, Vertex bipartite) {
+			       Edge nedges, Vertex nnodes, Rboolean directed_flag, Vertex bipartite) {
   WtNetwork *nwp = R_Calloc(1, WtNetwork);
 
   nwp->eattrname = NULL;

@@ -138,9 +138,9 @@ return fun(nwp);
 #include <stddef.h>
 #include <R_ext/Rdynload.h>
 #include "ergm_edgetree.h"
-Network * NetworkInitialize_noLT(Vertex *tails, Vertex *heads, Edge nedges,Vertex nnodes, int directed_flag, Vertex bipartite){
-static Network * (*fun)(Vertex *,Vertex *,Edge,Vertex,int,Vertex) = NULL;
-if(fun==NULL) fun = (Network * (*)(Vertex *,Vertex *,Edge,Vertex,int,Vertex)) R_FindSymbol("NetworkInitialize_noLT", "ergm", NULL);
+Network * NetworkInitialize_noLT(Vertex *tails, Vertex *heads, Edge nedges,Vertex nnodes, Rboolean directed_flag, Vertex bipartite){
+static Network * (*fun)(Vertex *,Vertex *,Edge,Vertex,Rboolean,Vertex) = NULL;
+if(fun==NULL) fun = (Network * (*)(Vertex *,Vertex *,Edge,Vertex,Rboolean,Vertex)) R_FindSymbol("NetworkInitialize_noLT", "ergm", NULL);
 return fun(tails,heads,nedges,nnodes,directed_flag,bipartite);
 }
 void NetworkDestroy(Network *nwp){
@@ -463,9 +463,9 @@ return fun();
 #include <stddef.h>
 #include <R_ext/Rdynload.h>
 #include "ergm_wtedgetree.h"
-WtNetwork * WtNetworkInitialize_noLT(Vertex *tails, Vertex *heads, double *weights, Edge nedges,Vertex nnodes, int directed_flag, Vertex bipartite){
-static WtNetwork * (*fun)(Vertex *,Vertex *,double *,Edge,Vertex,int,Vertex) = NULL;
-if(fun==NULL) fun = (WtNetwork * (*)(Vertex *,Vertex *,double *,Edge,Vertex,int,Vertex)) R_FindSymbol("WtNetworkInitialize_noLT", "ergm", NULL);
+WtNetwork * WtNetworkInitialize_noLT(Vertex *tails, Vertex *heads, double *weights, Edge nedges,Vertex nnodes, Rboolean directed_flag, Vertex bipartite){
+static WtNetwork * (*fun)(Vertex *,Vertex *,double *,Edge,Vertex,Rboolean,Vertex) = NULL;
+if(fun==NULL) fun = (WtNetwork * (*)(Vertex *,Vertex *,double *,Edge,Vertex,Rboolean,Vertex)) R_FindSymbol("WtNetworkInitialize_noLT", "ergm", NULL);
 return fun(tails,heads,weights,nedges,nnodes,directed_flag,bipartite);
 }
 void WtNetworkDestroy(WtNetwork *nwp){
