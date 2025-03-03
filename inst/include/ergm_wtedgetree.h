@@ -103,7 +103,6 @@ int WtFindithEdge (Vertex *tail, Vertex *head, double *weight, Edge i, WtNetwork
 int WtGetRandEdge(Vertex *tail, Vertex *head, double *weight, WtNetwork *nwp);
 int WtFindithNonedge (Vertex *tail, Vertex *head, Dyad i, WtNetwork *nwp);
 int WtGetRandNonedge(Vertex *tail, Vertex *head, WtNetwork *nwp);
-void Wtprintedge(Edge e, WtTreeNode *edges);
 void WtInOrderTreeWalk(WtTreeNode *edges, Edge x);
 void WtNetworkEdgeList(WtNetwork *nwp);
 void WtShuffleEdges(Vertex *tails, Vertex *heads, double *weights, Edge nedges);

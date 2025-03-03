@@ -125,7 +125,6 @@ int FindithEdge(Vertex *tail, Vertex *head, Edge i, Network *nwp);
 int GetRandEdge(Vertex *tail, Vertex *head, Network *nwp);
 int FindithNondge(Vertex *tail, Vertex *head, Dyad i, Network *nwp);
 int GetRandNonedge(Vertex *tail, Vertex *head, Network *nwp);
-void printedge(Edge e, TreeNode *edges);
 void InOrderTreeWalk(TreeNode *edges, Edge x);
 void NetworkEdgeList(Network *nwp);
 void ShuffleEdges(Vertex *tails, Vertex *heads, Edge nedges);

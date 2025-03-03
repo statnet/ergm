@@ -272,21 +272,6 @@ void DeleteOnNetworkEdgeChange(Network *nwp, OnNetworkEdgeChange callback, void 
   nwp->n_on_edge_change--;
 }
 
-
-/*****************
- void printedge
-
- Diagnostic routine that prints out the contents
- of the specified TreeNode (used for debugging).  
-*****************/
-void printedge(Edge e, TreeNode *edges){
-  Rprintf("Edge structure [%d]:\n",e);
-  Rprintf("\t.value=%d\n",edges[e].value);
-  Rprintf("\t.parent=%d\n",edges[e].parent);
-  Rprintf("\t.left=%d\n",edges[e].left);
-  Rprintf("\t.right=%d\n",edges[e].right);
-}
-
 /*****************
  void NetworkEdgeList
 

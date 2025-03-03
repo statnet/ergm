@@ -242,22 +242,6 @@ void DeleteOnWtNetworkEdgeChange(WtNetwork *nwp, OnWtNetworkEdgeChange callback,
   nwp->n_on_edge_change--;
 }
 
-
-/*****************
- void Wtprintedge
-
- Diagnostic routine that prints out the contents
- of the specified WtTreeNode (used for debugging).  
-*****************/
-void Wtprintedge(Edge e, WtTreeNode *edges){
-  Rprintf("Edge structure [%d]:\n",e);
-  Rprintf("\t.value=%d\n",edges[e].value);
-  Rprintf("\t.parent=%d\n",edges[e].parent);
-  Rprintf("\t.left=%d\n",edges[e].left);
-  Rprintf("\t.right=%d\n",edges[e].right);
-  Rprintf("\t.weight=%f\n",edges[e].weight);
-}
-
 /*****************
  void WtNetworkEdgeList
 

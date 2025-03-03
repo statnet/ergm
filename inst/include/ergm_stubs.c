@@ -218,11 +218,6 @@ static int (*fun)(Vertex *,Vertex *,Network *) = NULL;
 if(fun==NULL) fun = (int (*)(Vertex *,Vertex *,Network *)) R_FindSymbol("GetRandNonedge", "ergm", NULL);
 return fun(tail,head,nwp);
 }
-void printedge(Edge e, TreeNode *edges){
-static void (*fun)(Edge,TreeNode *) = NULL;
-if(fun==NULL) fun = (void (*)(Edge,TreeNode *)) R_FindSymbol("printedge", "ergm", NULL);
-fun(e,edges);
-}
 void InOrderTreeWalk(TreeNode *edges, Edge x){
 static void (*fun)(TreeNode *,Edge) = NULL;
 if(fun==NULL) fun = (void (*)(TreeNode *,Edge)) R_FindSymbol("InOrderTreeWalk", "ergm", NULL);
@@ -537,11 +532,6 @@ int WtGetRandNonedge(Vertex *tail, Vertex *head, WtNetwork *nwp){
 static int (*fun)(Vertex *,Vertex *,WtNetwork *) = NULL;
 if(fun==NULL) fun = (int (*)(Vertex *,Vertex *,WtNetwork *)) R_FindSymbol("WtGetRandNonedge", "ergm", NULL);
 return fun(tail,head,nwp);
-}
-void Wtprintedge(Edge e, WtTreeNode *edges){
-static void (*fun)(Edge,WtTreeNode *) = NULL;
-if(fun==NULL) fun = (void (*)(Edge,WtTreeNode *)) R_FindSymbol("Wtprintedge", "ergm", NULL);
-fun(e,edges);
 }
 void WtInOrderTreeWalk(WtTreeNode *edges, Edge x){
 static void (*fun)(WtTreeNode *,Edge) = NULL;
