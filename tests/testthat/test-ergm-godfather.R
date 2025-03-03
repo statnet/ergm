@@ -20,9 +20,9 @@ nwd[,,names.eval="w",add.edges=TRUE] <-
 nwu <- network.initialize(4, dir=FALSE)
 nwu[,,names.eval="w",add.edges=TRUE] <-
   matrix(c(0,1,2,0,
-           1,0,1,3,
-           2,1,0,0,
-           0,3,0,0),
+           0,0,1,3,
+           0,0,0,0,
+           0,0,0,0),
          4,4,
          byrow=TRUE)
 
