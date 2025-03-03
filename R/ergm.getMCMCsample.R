@@ -194,7 +194,7 @@ ergm_MCMC_sample <- function(state, control, theta=NULL,
     #################################
     ######### Adaptive MCMC #########
     #################################
-    if(verbose) message("Beginning adaptive MCMC...")
+    if(verbose) message("Starting adaptive MCMC with target ESS ", format(control.parallel$MCMC.effectiveSize), "...")
 
     howmuchmore <- function(target.ess, current.ss, current.ess, current.burnin){
       (target.ess-current.ess)*(current.ss-current.burnin)/current.ess
@@ -263,10 +263,10 @@ ergm_MCMC_sample <- function(state, control, theta=NULL,
       }
 
       if(is.matrix(control$MCMC.effectiveSize)){
-        ## Target effective size determined by covariance matrix.
+        ## Target ESS determined by covariance matrix.
         postburnin.var <- var.mcmc.list(postburnin.mcmc)
         control.parallel$MCMC.effectiveSize <- mean(diag(control$MCMC.effectiveSize%*%postburnin.var))
-        if(verbose>1) message("Variance-based adaptive MCMC set target effective size to ", format(control.parallel$MCMC.effectiveSize), ".")
+        if(verbose) message("Variance-based adaptive MCMC set target ESS to ", format(control.parallel$MCMC.effectiveSize), ".")
       }
       
       eS <- niter(postburnin.mcmc)*nchain(postburnin.mcmc)/attr(spectrum0.mvar(postburnin.mcmc, order.max=control$MCMC.effectiveSize.order.max),"infl")
@@ -284,7 +284,7 @@ ergm_MCMC_sample <- function(state, control, theta=NULL,
     }
 
     if(control.parallel$MCMC.effectiveSize > 1 && eS < control.parallel$MCMC.effectiveSize)
-      warning("Unable to reach target effective size in iterations alotted.")
+      warning("Unable to reach target ESS in iterations alotted.")
 
     for(i in seq_along(outl)){
       if(best.burnin$burnin) sms[[i]] <- sms[[i]][-seq_len(best.burnin$burnin),,drop=FALSE]
