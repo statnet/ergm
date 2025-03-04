@@ -30,7 +30,7 @@
 #'
 #' To make use of it in your change statistic:
 #'
-#' 1. Add `auxiliaries = ~spcache.net(type)` to the `InitErgmTerm`
+#' 1. Add `auxiliaries = ~.spcache.net(type)` to the `InitErgmTerm`
 #'    output list. You may request it multiple times and/or alongside
 #'    other auxiliaries.
 #'
