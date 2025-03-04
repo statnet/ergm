@@ -22,7 +22,7 @@ defined in \file{"ergm_dyad_hashmap.h"}. It is, internally, a
 
 To make use of it in your change statistic:
 \enumerate{
-\item Add \code{auxiliaries = ~spcache.net(type)} to the \code{InitErgmTerm}
+\item Add \code{auxiliaries = ~.spcache.net(type)} to the \code{InitErgmTerm}
 output list. You may request it multiple times and/or alongside
 other auxiliaries.
 \item Add \verb{#include "ergm_dyad_hashmap.h"} to the top of your change
