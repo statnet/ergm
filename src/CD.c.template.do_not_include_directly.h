@@ -15,22 +15,22 @@
 *****************/
 
 /*****************
- void EDGETYPE(CD_wrapper)
+ void ETYPE(CD_wrapper)
 
  Wrapper for a call from R.
 
  and don't forget that tail -> head
 *****************/
-SEXP EDGETYPE(CD_wrapper)(SEXP stateR,
+SEXP ETYPE(CD_wrapper)(SEXP stateR,
                   // MCMC settings
                   SEXP eta, SEXP samplesize, 
                   SEXP CDparams,
                   SEXP verbose){
   GetRNGstate();  /* R function enabling uniform RNG */
-  EDGETYPE(ErgmState) *s = EDGETYPE(ErgmStateInit)(stateR, 0);
+  ETYPE(ErgmState) *s = ETYPE(ErgmStateInit)(stateR, 0);
 
-  EDGETYPE(Model) *m = s->m;
-  EDGETYPE(MHProposal) *MHp = s->MHp;
+  ETYPE(Model) *m = s->m;
+  ETYPE(MHProposal) *MHp = s->MHp;
 
   CD_UNDOS_ALLOC;
   double *extraworkspace = R_calloc(m->n_stats, double);
@@ -39,7 +39,7 @@ SEXP EDGETYPE(CD_wrapper)(SEXP stateR,
   memset(REAL(sample), 0, asInteger(samplesize)*m->n_stats*sizeof(double));
 
   SEXP status;
-  if(MHp) status = PROTECT(ScalarInteger(EDGETYPE(CDSample)(s,
+  if(MHp) status = PROTECT(ScalarInteger(ETYPE(CDSample)(s,
                                                     REAL(eta), REAL(sample), asInteger(samplesize), INTEGER(CDparams), CD_UNDOS_PASS, extraworkspace,
                                                     asInteger(verbose))));
   else status = PROTECT(ScalarInteger(MCMC_MH_FAILED));
@@ -49,7 +49,7 @@ SEXP EDGETYPE(CD_wrapper)(SEXP stateR,
   SET_VECTOR_ELT(outl, 0, status);
   SET_VECTOR_ELT(outl, 1, sample);
 
-  EDGETYPE(ErgmStateDestroy)(s);
+  ETYPE(ErgmStateDestroy)(s);
   PutRNGstate();  /* Disable RNG before returning */
   UNPROTECT(3);
   return outl;
@@ -57,7 +57,7 @@ SEXP EDGETYPE(CD_wrapper)(SEXP stateR,
 
 
 /*********************
- void EDGETYPE(CDSample)
+ void ETYPE(CDSample)
 
  Using the parameters contained in the array eta, obtain the
  network statistics for a sample of size samplesize.  burnin is the
@@ -66,12 +66,12 @@ SEXP EDGETYPE(CD_wrapper)(SEXP stateR,
  networks in the sample.  Put all the sampled statistics into
  the networkstatistics array. 
 *********************/
-MCMCStatus EDGETYPE(CDSample)(EDGETYPE(ErgmState) *s,
+MCMCStatus ETYPE(CDSample)(ETYPE(ErgmState) *s,
                         double *eta, double *networkstatistics, 
 			int samplesize, int *CDparams,
                       CD_UNDOS_RECEIVE, double *extraworkspace,
                         int verbose){
-  EDGETYPE(Model) *m = s->m;
+  ETYPE(Model) *m = s->m;
 
   int staken=0;
     
@@ -94,7 +94,7 @@ MCMCStatus EDGETYPE(CDSample)(EDGETYPE(ErgmState) *s,
   unsigned int i=0, sattempted=0;
   while(i<samplesize){
     
-    if(EDGETYPE(CDStep)(s, eta, networkstatistics, CDparams, &staken, CD_UNDOS_PASS, extraworkspace,
+    if(ETYPE(CDStep)(s, eta, networkstatistics, CDparams, &staken, CD_UNDOS_PASS, extraworkspace,
 		verbose)!=MCMC_OK)
       return MCMC_MH_FAILED;
 
@@ -123,7 +123,7 @@ MCMCStatus EDGETYPE(CDSample)(EDGETYPE(ErgmState) *s,
 /*********************
  void MetropolisHastings
 
- In this function, eta is a m->n_stats-vector just as in EDGETYPE(CDSample),
+ In this function, eta is a m->n_stats-vector just as in ETYPE(CDSample),
  but now networkstatistics is merely another m->n_stats-vector because
  this function merely iterates nsteps=CDparams[0] times through the Markov
  chain, keeping track of the cumulative change statistics along
@@ -131,15 +131,15 @@ MCMCStatus EDGETYPE(CDSample)(EDGETYPE(ErgmState) *s,
  the networkstatistics vector.  In other words, this function 
  essentially generates a sample of size one
 *********************/
-MCMCStatus EDGETYPE(CDStep)(EDGETYPE(ErgmState) *s,
+MCMCStatus ETYPE(CDStep)(ETYPE(ErgmState) *s,
                       double *eta, double *networkstatistics,
                       int *CDparams, int *staken,
                       CD_UNDOS_RECEIVE, double *extraworkspace,
                       int verbose){
 
-  EDGETYPE(Network) *nwp = s->nwp;
-  EDGETYPE(Model) *m = s->m;
-  EDGETYPE(MHProposal) *MHp = s->MHp;
+  ETYPE(Network) *nwp = s->nwp;
+  ETYPE(Model) *m = s->m;
+  ETYPE(MHProposal) *MHp = s->MHp;
   
   unsigned int unsuccessful=0, ntoggled=0;
 

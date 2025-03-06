@@ -8,32 +8,32 @@
  *  Copyright 2003-2025 Statnet Commons
  */
 
-static inline void EDGETYPE(RelocateHalfedge)(Edge from, Edge to, EDGETYPE(TreeNode) *edges){
+static inline void ETYPE(RelocateHalfedge)(Edge from, Edge to, ETYPE(TreeNode) *edges){
   if(from==to) return;
-  EDGETYPE(TreeNode) *toptr=edges+to, *fromptr=edges+from;
+  ETYPE(TreeNode) *toptr=edges+to, *fromptr=edges+from;
 
   if(fromptr->left) edges[fromptr->left].parent = to;
   if(fromptr->right) edges[fromptr->right].parent = to;
   if(fromptr->parent){
-    EDGETYPE(TreeNode) *parentptr = edges+fromptr->parent;
+    ETYPE(TreeNode) *parentptr = edges+fromptr->parent;
     if(parentptr->left==from) parentptr->left = to;
     else parentptr->right =  to;
   }
-  memcpy(toptr,fromptr,sizeof(EDGETYPE(TreeNode)));
+  memcpy(toptr,fromptr,sizeof(ETYPE(TreeNode)));
   fromptr->value = 0;
 }
 
 /*****************
- void EDGETYPE(DeleteHalfedgeFromTree)
+ void ETYPE(DeleteHalfedgeFromTree)
 
- Delete the EDGETYPE(TreeNode) with value b from the tree rooted at edges[a].
- Return 0 if no such EDGETYPE(TreeNode) exists, 1 otherwise.  Also update the
+ Delete the ETYPE(TreeNode) with value b from the tree rooted at edges[a].
+ Return 0 if no such ETYPE(TreeNode) exists, 1 otherwise.  Also update the
  value of *last_edge appropriately.
 *****************/
-static inline void EDGETYPE(DeleteHalfedgeFromTreeAt)(Vertex a, Vertex b, EDGETYPE(TreeNode) *edges,
+static inline void ETYPE(DeleteHalfedgeFromTreeAt)(Vertex a, Vertex b, ETYPE(TreeNode) *edges,
                                               Edge *last_edge, Edge z){
   Edge x, root=(Edge)a;
-  EDGETYPE(TreeNode) *xptr, *zptr, *ptr;
+  ETYPE(TreeNode) *xptr, *zptr, *ptr;
 
   /* First, determine which node to splice out; this is z.  If the current
      z has two children, then we'll actually splice out its successor. */
@@ -43,11 +43,11 @@ static inline void EDGETYPE(DeleteHalfedgeFromTreeAt)(Vertex a, Vertex b, EDGETY
        tree is effectively random, *unless* it's a root node. Using
        the left child ensures that it is not a root node. */
     if(zptr->left&1u)
-      z=EDGETYPE(EdgetreeSuccessor)(edges, z);
+      z=ETYPE(EdgetreeSuccessor)(edges, z);
     else
-      z=EDGETYPE(EdgetreePredecessor)(edges, z);
+      z=ETYPE(EdgetreePredecessor)(edges, z);
     zptr->value = (ptr=edges+z)->value;
-    IFEDGEWT(zptr->weight = ptr->weight;)
+    IFEWT(zptr->weight = ptr->weight;)
     zptr=ptr;
   }
   /* Set x to the child of z (there is at most one). */
@@ -56,7 +56,7 @@ static inline void EDGETYPE(DeleteHalfedgeFromTreeAt)(Vertex a, Vertex b, EDGETY
   /* Splice out node z */
   if (z == root) {
     zptr->value = (xptr=edges+x)->value;
-    IFEDGEWT(zptr->weight = xptr->weight;)
+    IFEWT(zptr->weight = xptr->weight;)
     if (x != 0) {
       if ((zptr->left=xptr->left) != 0)
 	(edges+zptr->left)->parent = z;
@@ -76,7 +76,7 @@ static inline void EDGETYPE(DeleteHalfedgeFromTreeAt)(Vertex a, Vertex b, EDGETY
   /* Clear z node, update *last_edge if necessary. */
   zptr->value=0;
   if(z!=root){
-    EDGETYPE(RelocateHalfedge)(*last_edge,z,edges);
+    ETYPE(RelocateHalfedge)(*last_edge,z,edges);
     (*last_edge)--;
   }
   return;
@@ -84,40 +84,40 @@ static inline void EDGETYPE(DeleteHalfedgeFromTreeAt)(Vertex a, Vertex b, EDGETY
 
 
 /*****************
-void EDGETYPE(CheckEdgetreeFull)
+void ETYPE(CheckEdgetreeFull)
 *****************/
-static inline void EDGETYPE(CheckEdgetreeFull) (EDGETYPE(Network) *nwp) {
+static inline void ETYPE(CheckEdgetreeFull) (ETYPE(Network) *nwp) {
   const unsigned int mult=2;
 
   // Note that maximum index in the nwp->*edges is nwp->maxedges-1, and we need to keep one element open for the next insertion.
   if(nwp->last_outedge==nwp->maxedges-2 || nwp->last_inedge==nwp->maxedges-2){
     // Only enlarge the non-root part of the array.
     Edge newmax = nwp->nnodes + 1 + (nwp->maxedges - nwp->nnodes - 1)*mult;
-    nwp->inedges = (EDGETYPE(TreeNode) *) R_Realloc(nwp->inedges, newmax, EDGETYPE(TreeNode));
+    nwp->inedges = (ETYPE(TreeNode) *) R_Realloc(nwp->inedges, newmax, ETYPE(TreeNode));
     memset(nwp->inedges+nwp->maxedges, 0,
-	   sizeof(EDGETYPE(TreeNode)) * (newmax-nwp->maxedges));
-    nwp->outedges = (EDGETYPE(TreeNode) *) R_Realloc(nwp->outedges, newmax, EDGETYPE(TreeNode));
+	   sizeof(ETYPE(TreeNode)) * (newmax-nwp->maxedges));
+    nwp->outedges = (ETYPE(TreeNode) *) R_Realloc(nwp->outedges, newmax, ETYPE(TreeNode));
     memset(nwp->outedges+nwp->maxedges, 0,
-	   sizeof(EDGETYPE(TreeNode)) * (newmax-nwp->maxedges));
+	   sizeof(ETYPE(TreeNode)) * (newmax-nwp->maxedges));
     nwp->maxedges = newmax;
   }
 }
 
 /*****************
- void EDGETYPE(AddHalfedgeToTree):  Only called by EDGETYPE(AddEdgeToTrees)
+ void ETYPE(AddHalfedgeToTree):  Only called by ETYPE(AddEdgeToTrees)
 *****************/
-static inline void EDGETYPE(AddHalfedgeToTree) (Vertex a, Vertex b, IFEDGEWT(EDGEWTTYPE weight,) EDGETYPE(TreeNode) *edges, Edge *last_edge){
-  EDGETYPE(TreeNode) *eptr = edges+a, *newnode;
+static inline void ETYPE(AddHalfedgeToTree) (Vertex a, Vertex b, IFEWT(EWTTYPE weight,) ETYPE(TreeNode) *edges, Edge *last_edge){
+  ETYPE(TreeNode) *eptr = edges+a, *newnode;
   Edge e;
 
   if (eptr->value==0) { /* This is the first edge for vertex a. */
     eptr->value=b;
-    IFEDGEWT(eptr->weight = weight;)  /*  Add weight too */
+    IFEWT(eptr->weight = weight;)  /*  Add weight too */
     return;
   }
   (newnode = edges + (++*last_edge))->value=b;
   newnode->left = newnode->right = 0;
-  IFEDGEWT(newnode->weight=weight;)  /*  Add weight too */
+  IFEWT(newnode->weight=weight;)  /*  Add weight too */
   /* Now find the parent of this new edge */
   for (e=a; e!=0; e=(b < (eptr=edges+e)->value) ? eptr->left : eptr->right);
   newnode->parent=eptr-edges;  /* Point from the new edge to the parent... */

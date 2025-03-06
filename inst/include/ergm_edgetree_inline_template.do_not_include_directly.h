@@ -13,14 +13,14 @@
        in before heads */
 
 /*****************
- Edge EDGETYPE(EdgetreeSearch)
+ Edge ETYPE(EdgetreeSearch)
 
- Check to see if there's a EDGETYPE(TreeNode) with value b
+ Check to see if there's a ETYPE(TreeNode) with value b
  in the tree rooted at edges[a].  Return i such that
- edges[i] is that EDGETYPE(TreeNode), or 0 if none.
+ edges[i] is that ETYPE(TreeNode), or 0 if none.
 *****************/
-static inline Edge EDGETYPE(EdgetreeSearch) (Vertex a, Vertex b, EDGETYPE(TreeNode) *edges) {
-  EDGETYPE(TreeNode) *es;
+static inline Edge ETYPE(EdgetreeSearch) (Vertex a, Vertex b, ETYPE(TreeNode) *edges) {
+  ETYPE(TreeNode) *es;
   Edge e = a;
   Vertex v;
 
@@ -35,12 +35,12 @@ static inline Edge EDGETYPE(EdgetreeSearch) (Vertex a, Vertex b, EDGETYPE(TreeNo
 }
 
 /*****************
- Edge EDGETYPE(EdgetreeMinimum)
+ Edge ETYPE(EdgetreeMinimum)
 
- Return the index of the EDGETYPE(TreeNode) with the
+ Return the index of the ETYPE(TreeNode) with the
  smallest value in the subtree rooted at x
 *****************/
-static inline Edge EDGETYPE(EdgetreeMinimum) (EDGETYPE(TreeNode) *edges, Edge x) {
+static inline Edge ETYPE(EdgetreeMinimum) (ETYPE(TreeNode) *edges, Edge x) {
   Edge y;
 
   while ((y=(edges+x)->left) != 0)
@@ -49,12 +49,12 @@ static inline Edge EDGETYPE(EdgetreeMinimum) (EDGETYPE(TreeNode) *edges, Edge x)
 }
 
 /*****************
- Edge EDGETYPE(EdgetreeMaximum)
+ Edge ETYPE(EdgetreeMaximum)
 
- Return the index of the EDGETYPE(TreeNode) with the
+ Return the index of the ETYPE(TreeNode) with the
  greatest value in the subtree rooted at x
 *****************/
-static inline Edge EDGETYPE(EdgetreeMaximum) (EDGETYPE(TreeNode) *edges, Edge x) {
+static inline Edge ETYPE(EdgetreeMaximum) (ETYPE(TreeNode) *edges, Edge x) {
   Edge y;
 
   while ((y=(edges+x)->right) != 0)
@@ -69,29 +69,29 @@ static inline Edge EDGETYPE(EdgetreeMaximum) (EDGETYPE(TreeNode) *edges, Edge x)
 /*****************
  Edge EdgetreeSuccessor
 
- Return the index of the EDGETYPE(TreeNode) with the smallest value
+ Return the index of the ETYPE(TreeNode) with the smallest value
  greater than edges[x].value in the same edge tree, or 0
  if none.  This is used by (for instance)
  the DeleteHalfedgeFromTree function.
 *****************/
-static inline Edge EDGETYPE(EdgetreeSuccessor) (EDGETYPE(TreeNode) *edges, Edge x) {
-  EDGETYPE(TreeNode) *ptr;
+static inline Edge ETYPE(EdgetreeSuccessor) (ETYPE(TreeNode) *edges, Edge x) {
+  ETYPE(TreeNode) *ptr;
   Edge y;
 
   if ((y=(ptr=edges+x)->right) != 0)
-    return EDGETYPE(EdgetreeMinimum) (edges, y);
+    return ETYPE(EdgetreeMinimum) (edges, y);
   while ((y=ptr->parent)!=0 && x==(ptr=edges+y)->right)
     x=y;
   return y;
 }
 
 /*****************
- Edge EDGETYPE(EdgetreePre)(order)Successor
+ Edge ETYPE(EdgetreePre)(order)Successor
 
- Return the index of the next EDGETYPE(TreeNode) in a preorder traversal.
+ Return the index of the next ETYPE(TreeNode) in a preorder traversal.
 *****************/
-static inline Edge EDGETYPE(EdgetreePreSuccessor) (EDGETYPE(TreeNode) *edges, Edge x) {
-  EDGETYPE(TreeNode) *ptr;
+static inline Edge ETYPE(EdgetreePreSuccessor) (ETYPE(TreeNode) *edges, Edge x) {
+  ETYPE(TreeNode) *ptr;
   Edge y, z;
 
   // If we can go left, go left.
@@ -110,19 +110,19 @@ static inline Edge EDGETYPE(EdgetreePreSuccessor) (EDGETYPE(TreeNode) *edges, Ed
 }
 
 /*****************
- Edge EDGETYPE(EdgetreePredecessor)
+ Edge ETYPE(EdgetreePredecessor)
 
- Return the index of the EDGETYPE(TreeNode) with the smallest value
+ Return the index of the ETYPE(TreeNode) with the smallest value
  greater than edges[x].value in the same edge tree, or 0
  if none.  This is used by (for instance)
- the EDGETYPE(DeleteHalfedgeFromTree) function.
+ the ETYPE(DeleteHalfedgeFromTree) function.
 *****************/
-static inline Edge EDGETYPE(EdgetreePredecessor) (EDGETYPE(TreeNode) *edges, Edge x) {
-  EDGETYPE(TreeNode) *ptr;
+static inline Edge ETYPE(EdgetreePredecessor) (ETYPE(TreeNode) *edges, Edge x) {
+  ETYPE(TreeNode) *ptr;
   Edge y;
 
   if ((y=(ptr=edges+x)->left) != 0)
-    return EDGETYPE(EdgetreeMaximum) (edges, y);
+    return ETYPE(EdgetreeMaximum) (edges, y);
   while ((y=ptr->parent)!=0 && x==(ptr=edges+y)->left)
     x=y;
   return y;
@@ -130,15 +130,15 @@ static inline Edge EDGETYPE(EdgetreePredecessor) (EDGETYPE(TreeNode) *edges, Edg
 
 
 /*****************
- int EDGETYPE(GetEdge)
+ int ETYPE(GetEdge)
 
 Get weighted edge value. Return 0 if edge does not exist.
 *****************/
-static inline EDGEWTTYPE EDGETYPE(GetEdge) (Vertex tail, Vertex head, EDGETYPE(Network) *nwp)
+static inline EWTTYPE ETYPE(GetEdge) (Vertex tail, Vertex head, ETYPE(Network) *nwp)
 {
   ENSURE_TH_ORDER;
 
-  Edge oe=EDGETYPE(EdgetreeSearch)(tail,head,nwp->outedges);
-  return IFELSEEDGEWT(oe ? nwp->outedges[oe].weight : 0,
+  Edge oe=ETYPE(EdgetreeSearch)(tail,head,nwp->outedges);
+  return IFELSEEWT(oe ? nwp->outedges[oe].weight : 0,
                       oe != 0);
 }

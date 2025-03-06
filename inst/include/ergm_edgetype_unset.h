@@ -1,5 +1,5 @@
-#undef EDGETYPE
-#undef IFEDGEWT
-#undef IFELSEEDGEWT
-#undef EDGEWTTYPE
-#undef EDGEWTRTYPE
+#undef ETYPE
+#undef IFEWT
+#undef IFELSEEWT
+#undef EWTTYPE
+#undef EWTRTYPE

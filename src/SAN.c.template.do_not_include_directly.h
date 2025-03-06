@@ -15,12 +15,12 @@
 *****************/
 
 /*****************
- void EDGETYPE(SAN_wrapper)
+ void ETYPE(SAN_wrapper)
 
  Wrapper for a call from R.
 *****************/
 
-SEXP EDGETYPE(SAN_wrapper)(SEXP stateR,
+SEXP ETYPE(SAN_wrapper)(SEXP stateR,
                    // MCMC settings
                    SEXP tau,
                    SEXP samplesize, SEXP nsteps,
@@ -32,8 +32,8 @@ SEXP EDGETYPE(SAN_wrapper)(SEXP stateR,
   GetRNGstate();  /* R function enabling uniform RNG */
   unsigned int nstats = length(statindices), noffsets = length(offsetindices);
   
-  EDGETYPE(ErgmState) *s = EDGETYPE(ErgmStateInit)(stateR, 0);
-  EDGETYPE(MHProposal) *MHp = s->MHp;
+  ETYPE(ErgmState) *s = ETYPE(ErgmStateInit)(stateR, 0);
+  ETYPE(MHProposal) *MHp = s->MHp;
 
   SEXP sample = PROTECT(allocVector(REALSXP, asInteger(samplesize)*nstats));
   memset(REAL(sample), 0, asInteger(samplesize)*nstats*sizeof(double));
@@ -42,7 +42,7 @@ SEXP EDGETYPE(SAN_wrapper)(SEXP stateR,
   memset(REAL(prop_sample), 0, asInteger(samplesize)*nstats*sizeof(double));
 
   SEXP status;
-  if(MHp) status = PROTECT(ScalarInteger(EDGETYPE(SANSample)(s,
+  if(MHp) status = PROTECT(ScalarInteger(ETYPE(SANSample)(s,
                                                      REAL(invcov), REAL(tau), REAL(sample), REAL(prop_sample), asInteger(samplesize),
                                                      asInteger(nsteps),
                                                      nstats, INTEGER(statindices), noffsets, INTEGER(offsetindices), REAL(offsets),
@@ -58,10 +58,10 @@ SEXP EDGETYPE(SAN_wrapper)(SEXP stateR,
   /* record new generated network to pass back to R */
   if(asInteger(status) == MCMC_OK){
     s->stats = REAL(sample) + (asInteger(samplesize)-1)*nstats;
-    SET_VECTOR_ELT(outl, 3, EDGETYPE(ErgmStateRSave)(s));
+    SET_VECTOR_ELT(outl, 3, ETYPE(ErgmStateRSave)(s));
   }
 
-  EDGETYPE(ErgmStateDestroy)(s);
+  ETYPE(ErgmStateDestroy)(s);
   PutRNGstate();  /* Disable RNG before returning */
   UNPROTECT(4);
   return outl;
@@ -69,7 +69,7 @@ SEXP EDGETYPE(SAN_wrapper)(SEXP stateR,
 
 
 /*********************
- void EDGETYPE(SANSample)
+ void ETYPE(SANSample)
 
  Using the parameters contained in the array theta, obtain the
  network statistics for a sample of size samplesize.  nsteps is the
@@ -78,7 +78,7 @@ SEXP EDGETYPE(SAN_wrapper)(SEXP stateR,
  networks in the sample.  Put all the sampled statistics into
  the networkstatistics array. 
 *********************/
-MCMCStatus EDGETYPE(SANSample)(EDGETYPE(ErgmState) *s,
+MCMCStatus ETYPE(SANSample)(ETYPE(ErgmState) *s,
                        double *invcov, double *tau, double *networkstatistics, double *prop_networkstatistics,
                        int samplesize, int nsteps,
                        int nstats,
@@ -93,7 +93,7 @@ MCMCStatus EDGETYPE(SANSample)(EDGETYPE(ErgmState) *s,
   unsigned int interval = nsteps / samplesize; // Integer division: rounds down.
   unsigned int burnin = nsteps - (samplesize-1)*interval;
 
-  if(EDGETYPE(SANMetropolisHastings)(s, invcov, tau, networkstatistics, prop_networkstatistics, burnin, &staken,
+  if(ETYPE(SANMetropolisHastings)(s, invcov, tau, networkstatistics, prop_networkstatistics, burnin, &staken,
                                     nstats, statindices, noffsets, offsetindices, offsets, deltainvsig,
                              verbose)!=MCMC_OK)
     return MCMC_MH_FAILED;
@@ -119,7 +119,7 @@ MCMCStatus EDGETYPE(SANSample)(EDGETYPE(ErgmState) *s,
       prop_networkstatistics += nstats;
       /* This then adds the change statistics to these values */
       
-      if(EDGETYPE(SANMetropolisHastings)(s, invcov, tau, networkstatistics, prop_networkstatistics,
+      if(ETYPE(SANMetropolisHastings)(s, invcov, tau, networkstatistics, prop_networkstatistics,
                                  interval, &staken, nstats, statindices, noffsets, offsetindices, offsets,
                                         deltainvsig, verbose)!=MCMC_OK)
 	return MCMC_MH_FAILED;
@@ -161,7 +161,7 @@ MCMCStatus EDGETYPE(SANSample)(EDGETYPE(ErgmState) *s,
 }
 
 /*********************
-MCMCStatus EDGETYPE(SANMetropolisHastings)
+MCMCStatus ETYPE(SANMetropolisHastings)
 
  In this function, theta is a m->n_stats-vector just as in SANSample,
  but now networkstatistics is merely another m->n_stats-vector because
@@ -171,7 +171,7 @@ MCMCStatus EDGETYPE(SANMetropolisHastings)
  the networkstatistics vector.  In other words, this function 
  essentially generates a sample of size one
 *********************/
-MCMCStatus EDGETYPE(SANMetropolisHastings)(EDGETYPE(ErgmState) *s,
+MCMCStatus ETYPE(SANMetropolisHastings)(ETYPE(ErgmState) *s,
                                    double *invcov,
                                    double *tau, double *networkstatistics, double *prop_networkstatistics,
                                    int nsteps, int *staken,
@@ -182,14 +182,14 @@ MCMCStatus EDGETYPE(SANMetropolisHastings)(EDGETYPE(ErgmState) *s,
                                    double *offsets,
                                           double *deltainvsig,
                                    int verbose){
-  EDGETYPE(Network) *nwp = s->nwp;
-  EDGETYPE(Model) *m = s->m;
-  EDGETYPE(MHProposal) *MHp = s->MHp;
+  ETYPE(Network) *nwp = s->nwp;
+  ETYPE(Model) *m = s->m;
+  ETYPE(MHProposal) *MHp = s->MHp;
 
   unsigned int taken=0, unsuccessful=0;
   
 /*  if (verbose)
-    Rprintf("Now proposing %d EDGETYPE(MH) steps... ", nsteps); */
+    Rprintf("Now proposing %d ETYPE(MH) steps... ", nsteps); */
   for(unsigned int step=0; step < nsteps; step++) {
     MHp->logratio = 0;
     (*(MHp->p_func))(MHp, nwp); /* Call MH function to propose toggles */

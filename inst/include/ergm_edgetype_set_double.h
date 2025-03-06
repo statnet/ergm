@@ -1,5 +1,5 @@
-#define EDGETYPE(FUN) Wt ## FUN
-#define IFEDGEWT(...) __VA_ARGS__
-#define IFELSEEDGEWT(yes, no) yes
-#define EDGEWTTYPE double
-#define EDGEWTRTYPE REAL
+#define ETYPE(FUN) Wt ## FUN
+#define IFEWT(...) __VA_ARGS__
+#define IFELSEEWT(yes, no) yes
+#define EWTTYPE double
+#define EWTRTYPE REAL

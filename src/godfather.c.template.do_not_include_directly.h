@@ -10,9 +10,9 @@
 
 #include "ergm_util.h"
 
-MCMCStatus EDGETYPE(Godfather)(EDGETYPE(ErgmState) *s, Edge n_changes, Vertex *tails, Vertex *heads, EDGEWTTYPE *weights, double *stats){
-  EDGETYPE(Network) *nwp = s->nwp;
-  EDGETYPE(Model) *m = s->m;
+MCMCStatus ETYPE(Godfather)(ETYPE(ErgmState) *s, Edge n_changes, Vertex *tails, Vertex *heads, EWTTYPE *weights, double *stats){
+  ETYPE(Network) *nwp = s->nwp;
+  ETYPE(Model) *m = s->m;
 
   /* Doing this one change at a time saves a lot of changes... */
   for(Edge e=0; e<n_changes; e++){
@@ -24,26 +24,26 @@ MCMCStatus EDGETYPE(Godfather)(EDGETYPE(ErgmState) *s, Edge n_changes, Vertex *t
       continue;
     }
 
-    EDGEWTTYPE w, edgestate = GETWT(t,h);
+    EWTTYPE w, edgestate = GETWT(t,h);
     if(weights){
       w = weights[e];
       if(edgestate==w) continue;
     }
 
-    EDGETYPE(EXEC_THROUGH_TERMS_INTO)(m, stats, {
+    ETYPE(EXEC_THROUGH_TERMS_INTO)(m, stats, {
 	if(mtp->c_func){
 	  ZERO_ALL_CHANGESTATS();
-	  (*(mtp->c_func))(t, h, IFEDGEWT(w,)
+	  (*(mtp->c_func))(t, h, IFEWT(w,)
 			   mtp, nwp, edgestate);  /* Call c_??? function */
 	}else if(mtp->d_func){
-	  (*(mtp->d_func))(1, &t, &h, IFEDGEWT(&w,)
+	  (*(mtp->d_func))(1, &t, &h, IFEWT(&w,)
 			   mtp, nwp);  /* Call d_??? function */
 	}
         addonto(dstats, mtp->dstats, N_CHANGE_STATS);
       });
 
     /* Update network */
-    IFELSEEDGEWT(EDGETYPE(SetEdge)(t, h, w, nwp),               \
+    IFELSEEWT(ETYPE(SetEdge)(t, h, w, nwp),               \
                  ToggleKnownEdge(t, h, nwp, edgestate));
   }
 
@@ -62,14 +62,14 @@ MCMCStatus EDGETYPE(Godfather)(EDGETYPE(ErgmState) *s, Edge n_changes, Vertex *t
  find the changestats that result from starting from an empty network
  and then adding all of the edges to make up an observed network of interest.
 *****************/
-SEXP EDGETYPE(Godfather_wrapper)(SEXP stateR,
+SEXP ETYPE(Godfather_wrapper)(SEXP stateR,
                          // Godfather settings
                          SEXP changetails, SEXP changeheads, SEXP changeweights,
                          SEXP end_network,
                          SEXP verbose){
   GetRNGstate();  /* R function enabling uniform RNG */
-  EDGETYPE(ErgmState) *s = EDGETYPE(ErgmStateInit)(stateR, ERGM_STATE_NO_INIT_PROP);
-  EDGETYPE(Model) *m = s->m;
+  ETYPE(ErgmState) *s = ETYPE(ErgmStateInit)(stateR, ERGM_STATE_NO_INIT_PROP);
+  ETYPE(Model) *m = s->m;
 
   /* (# 0-sentinels) + 1 is the number of output rows. */
   unsigned int nstatrows = 1;
@@ -78,7 +78,7 @@ SEXP EDGETYPE(Godfather_wrapper)(SEXP stateR,
   SEXP stats = PROTECT(allocVector(REALSXP, m->n_stats*nstatrows));
   memcpy(REAL(stats), s->stats, m->n_stats*sizeof(double));
 
-  SEXP status = PROTECT(ScalarInteger(EDGETYPE(Godfather)(s, length(changetails), (Vertex*)INTEGER(changetails), (Vertex*)INTEGER(changeheads), length(changeweights)==0? NULL : (EDGEWTTYPE *) EDGEWTRTYPE(changeweights), REAL(stats))));
+  SEXP status = PROTECT(ScalarInteger(ETYPE(Godfather)(s, length(changetails), (Vertex*)INTEGER(changetails), (Vertex*)INTEGER(changeheads), length(changeweights)==0? NULL : (EWTTYPE *) EWTRTYPE(changeweights), REAL(stats))));
 
   const char *outn[] = {"status", "s", "state", ""};
   SEXP outl = PROTECT(mkNamed(VECSXP, outn));
@@ -88,10 +88,10 @@ SEXP EDGETYPE(Godfather_wrapper)(SEXP stateR,
   /* record new generated network to pass back to R */
   if(asInteger(status) == MCMC_OK && asInteger(end_network)){
     s->stats = REAL(stats) + (nstatrows-1)*m->n_stats;
-    SET_VECTOR_ELT(outl, 2, EDGETYPE(ErgmStateRSave)(s));
+    SET_VECTOR_ELT(outl, 2, ETYPE(ErgmStateRSave)(s));
   }
 
-  EDGETYPE(ErgmStateDestroy)(s);
+  ETYPE(ErgmStateDestroy)(s);
   PutRNGstate();  /* Disable RNG before returning */
   UNPROTECT(3);
   return outl;

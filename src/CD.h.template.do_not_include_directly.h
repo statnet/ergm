@@ -7,12 +7,12 @@
  *
  *  Copyright 2003-2025 Statnet Commons
  */
-MCMCStatus EDGETYPE(CDSample)(EDGETYPE(ErgmState) *s,
+MCMCStatus ETYPE(CDSample)(ETYPE(ErgmState) *s,
                         double *eta, double *networkstatistics, 
 			int samplesize, int *CDparams,
                         CD_UNDOS_RECEIVE, double *extraworkspace,
                         int verbose);
-MCMCStatus EDGETYPE(CDStep)(EDGETYPE(ErgmState) *s,
+MCMCStatus ETYPE(CDStep)(ETYPE(ErgmState) *s,
                       double *eta, double *networkstatistics,
                       int *CDparams, int *staken,
                       CD_UNDOS_RECEIVE, double *extraworkspace,
