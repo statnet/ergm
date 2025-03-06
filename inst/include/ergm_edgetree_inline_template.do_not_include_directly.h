@@ -127,3 +127,18 @@ static inline Edge EDGETYPE(EdgetreePredecessor) (EDGETYPE(TreeNode) *edges, Edg
     x=y;
   return y;
 }
+
+
+/*****************
+ int EDGETYPE(GetEdge)
+
+Get weighted edge value. Return 0 if edge does not exist.
+*****************/
+static inline EDGEWTTYPE EDGETYPE(GetEdge) (Vertex tail, Vertex head, EDGETYPE(Network) *nwp)
+{
+  ENSURE_TH_ORDER;
+
+  Edge oe=EDGETYPE(EdgetreeSearch)(tail,head,nwp->outedges);
+  return IFELSEEDGEWT(oe ? nwp->outedges[oe].weight : 0,
+                      oe != 0);
+}

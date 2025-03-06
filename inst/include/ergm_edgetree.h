@@ -118,7 +118,11 @@ int DeleteEdgeFromTrees(Vertex tail, Vertex head, Network *nwp);
 void AddOnNetworkEdgeChange(Network *nwp, OnNetworkEdgeChange callback, void *payload, unsigned int pos);
 void DeleteOnNetworkEdgeChange(Network *nwp, OnNetworkEdgeChange callback, void *payload);
 
-#include "ergm_edgetree_inline.do_not_include_directly.h"
+#include "ergm_edgetype_set_binary.h"
+
+#include "ergm_edgetree_inline_template.do_not_include_directly.h"
+
+#include "ergm_edgetype_unset.h"
 
 /* Utility functions. */
 int FindithEdge(Vertex *tail, Vertex *head, Edge i, Network *nwp);

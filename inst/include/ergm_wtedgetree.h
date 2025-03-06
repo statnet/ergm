@@ -96,7 +96,11 @@ int WtDeleteEdgeFromTrees(Vertex tail, Vertex head, WtNetwork *nwp);
 void AddOnWtNetworkEdgeChange(WtNetwork *nwp, OnWtNetworkEdgeChange callback, void *payload, unsigned int pos);
 void DeleteOnWtNetworkEdgeChange(WtNetwork *nwp, OnWtNetworkEdgeChange callback, void *payload);
 
-#include "ergm_wtedgetree_inline.do_not_include_directly.h"
+#include "ergm_edgetype_set_double.h"
+
+#include "ergm_edgetree_inline_template.do_not_include_directly.h"
+
+#include "ergm_edgetype_unset.h"
 
 /* Utility functions. */
 int WtFindithEdge (Vertex *tail, Vertex *head, double *weight, Edge i, WtNetwork *nwp);
