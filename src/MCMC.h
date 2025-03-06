@@ -17,7 +17,7 @@
 #include "ergm_model.h"
 #include "ergm_state.h"
 
-#include "ergm_type_defs_common.h"
+#include "ergm_edgetype_set_binary.h"
 #include "MCMC.h.template.do_not_include_directly.h"
 
 #endif

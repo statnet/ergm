@@ -26,3 +26,12 @@ MCMCStatus EDGETYPE(MCMCSamplePhase12)(EDGETYPE(ErgmState) *s,
                                int burnin,
                                int interval, int verbose);
 
+#define PROP_PRINT IFELSEEDGEWT(Rprintf("  (%d, %d) -> %f  ", MHp->toggletail[i], MHp->togglehead[i], MHp->toggleweight[i]), \
+                                Rprintf("  (%d, %d)  ", MHp->toggletail[i], MHp->togglehead[i]))
+#define PROP_CHANGESTATS EDGETYPE(ChangeStats)(MHp->ntoggles, MHp->toggletail, MHp->togglehead, IFEDGEWT(MHp->toggleweight,) nwp, m)
+#define PROP_CHANGESTATS_DO EDGETYPE(ChangeStatsDo)(MHp->ntoggles, MHp->toggletail, MHp->togglehead, IFEDGEWT(MHp->toggleweight,) nwp, m)
+#define PROP_CHANGESTATS_UNDO EDGETYPE(ChangeStatsUndo)(MHp->ntoggles, MHp->toggletail, MHp->togglehead, IFEDGEWT(MHp->toggleweight,) nwp, m)
+#define PROP_COMMIT IFELSEEDGEWT(EDGETYPE(SetEdge)(MHp->toggletail[i], MHp->togglehead[i], MHp->toggleweight[i], nwp), \
+                                 ToggleEdge(MHp->toggletail[i], MHp->togglehead[i], nwp))
+#define PROP_FINISH IFELSEEDGEWT(EDGETYPE(SetEdge)(MHp->toggletail[MHp->ntoggles-1], MHp->togglehead[MHp->ntoggles-1], MHp->toggleweight[MHp->ntoggles-1], nwp), \
+                                 ToggleEdge(MHp->toggletail[MHp->ntoggles-1], MHp->togglehead[MHp->ntoggles-1], nwp))

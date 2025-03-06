@@ -16,7 +16,7 @@
 #include "ergm_wtmodel.h"
 #include "ergm_wtstate.h"
 
-#include "ergm_wttype_defs_common.h"
+#include "ergm_edgetype_set_double.h"
 #include "MCMC.h.template.do_not_include_directly.h"
 
 #endif
