@@ -27,7 +27,7 @@ MCMCStatus WtGodfather(WtErgmState *s, Edge n_changes, Vertex *tails, Vertex *he
       stats+=m->n_stats;
       continue;
     }
-    
+
     if((edgestate=GETWT(t,h))==w)
       continue;
 
@@ -58,7 +58,7 @@ MCMCStatus WtGodfather(WtErgmState *s, Edge n_changes, Vertex *tails, Vertex *he
  This function takes a list of changes, each with a time stamp,
  then produces a matrix of changestats (with one row for each unique
  time stamp value) that result from performing all the changes at
- each time step.  For instance, one might use this function to 
+ each time step.  For instance, one might use this function to
  find the changestats that result from starting from an empty network
  and then adding all of the edges to make up an observed network of interest.
 *****************/
@@ -90,7 +90,7 @@ SEXP WtGodfather_wrapper(SEXP stateR,
     s->stats = REAL(stats) + (nstatrows-1)*m->n_stats;
     SET_VECTOR_ELT(outl, 2, WtErgmStateRSave(s));
   }
-  
+
   WtErgmStateDestroy(s);
   PutRNGstate();  /* Disable RNG before returning */
   UNPROTECT(3);
