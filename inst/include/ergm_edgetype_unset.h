@@ -1,0 +1,4 @@
+#undef EDGETYPE
+#undef IFEDGEWT
+#undef IFELSEEDGEWT
+#undef EDGEWTTYPE
