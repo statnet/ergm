@@ -179,7 +179,7 @@ ergm.godfather.ergm_state <- function(object, changes=NULL,
             # Godfather settings
             as.integer(changem[,1]),
             as.integer(changem[,2]),
-            if(ncol(changem)==3) as.integer(changem[,3]) else integer(0),
+            if(ncol(changem)==3) as.logical(changem[,3]) else integer(0),
             as.logical(end.network),
             as.integer(verbose),
             PACKAGE="ergm")
