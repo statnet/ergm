@@ -10,7 +10,9 @@
 #include "ergm_edgetree.h"
 #include "ergm_Rutil.h"
 
-#include "edgetree_inline.do_not_include_directly.h"
+#include "ergm_edgetype_set_binary.h"
+#include "edgetree_inline_template.do_not_include_directly.h"
+#include "ergm_edgetype_unset.h"
 
 /* *** don't forget, edges are now given by tails -> heads, and as
        such, the function definitions now require tails to be passed
