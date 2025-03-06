@@ -2,3 +2,4 @@
 #undef IFEDGEWT
 #undef IFELSEEDGEWT
 #undef EDGEWTTYPE
+#undef EDGEWTRTYPE
