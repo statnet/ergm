@@ -13,40 +13,6 @@
 #include "ergm_edgelist.h"
 
 /********************  changestats:  A    ***********/
-/*****************
- changestat: c_absdiff
-*****************/
-C_CHANGESTAT_FN(c_absdiff) {
-  double change, p;
-
-  /* *** don't forget tail -> head */
-  p = INPUT_ATTRIB[0];
-  if(p==1.0){
-    change = fabs(INPUT_ATTRIB[tail] - INPUT_ATTRIB[head]);
-  } else {
-    change = pow(fabs(INPUT_ATTRIB[tail] - INPUT_ATTRIB[head]), p);
-  }
-  CHANGE_STAT[0] = edgestate ? -change : change;
-}
-
-/*****************
- changestat: d_absdiffcat
-*****************/
-C_CHANGESTAT_FN(c_absdiffcat) {
-  double change, absdiff, tailval, headval;
-  int j;
-
-  /* *** don't forget tail -> head */
-    change = edgestate ? -1.0 : 1.0;
-    tailval = INPUT_ATTRIB[tail-1];
-    headval = INPUT_ATTRIB[head-1];
-    absdiff = fabs(tailval - headval);
-    if (absdiff>0) {
-      for (j=0; j<N_CHANGE_STATS; j++) {
-        CHANGE_STAT[j] += (absdiff==INPUT_PARAM[j]) ? change : 0.0;
-      }
-    }
-}
 
 /*****************
  changestat: d_adegcor
@@ -137,41 +103,6 @@ C_CHANGESTAT_FN(c_asymmetric) {
         }
       }
     }
-}
-
-/*****************
- changestat: attrcov
-*****************/
-
-typedef struct {
-  int *nodecov;
-  double **mat;
-} attrcov_storage;
-
-I_CHANGESTAT_FN(i_attrcov) {
-  ALLOC_STORAGE(1, attrcov_storage, sto);
-  sto->nodecov = INTEGER(getListElement(mtp->R, "nodecov"));
-
-  int nr = asInteger(getListElement(mtp->R, "nr"));
-  int nc = asInteger(getListElement(mtp->R, "nc"));
-
-  // rows vary faster than columns because we did not transpose a$mat in the InitErgmTerm function
-  sto->mat = R_Calloc(nc, double *);
-  sto->mat[0] = REAL(getListElement(mtp->R, "mat"));
-  for(int i = 1; i < nc; i++) {
-    sto->mat[i] = sto->mat[i - 1] + nr;
-  }
-}
-
-C_CHANGESTAT_FN(c_attrcov) {
-  GET_STORAGE(attrcov_storage, sto);
-  // head comes before tail here because we did not transpose a$mat in the InitErgmTerm function
-  CHANGE_STAT[0] += edgestate ? -sto->mat[sto->nodecov[head]][sto->nodecov[tail]] : sto->mat[sto->nodecov[head]][sto->nodecov[tail]];
-}
-
-F_CHANGESTAT_FN(f_attrcov) {
-  GET_STORAGE(attrcov_storage, sto);
-  R_Free(sto->mat);
 }
 
 
@@ -489,32 +420,6 @@ C_CHANGESTAT_FN(c_b2concurrent_by_attr) {
         CHANGE_STAT[j] += (b2deg + echange > 1) - (b2deg > 1);
       }
     }
-}
-
-/*****************
- changestat: d_b2cov
-*****************/
-C_CHANGESTAT_FN(c_b2cov) {
-  unsigned int oshift = N_INPUT_PARAMS / N_CHANGE_STATS;
-
-  /* *** don't forget tail -> head */
-  Vertex nb1 = BIPARTITE;
-      for(unsigned int j=0, o=0; j<N_CHANGE_STATS; j++, o+=oshift){
-	double sum = INPUT_ATTRIB[head-nb1+o-1];
-	CHANGE_STAT[j] += edgestate ? -sum : sum;
-    }
-}
-
-/*****************
- changestat: d_b2factor
-*****************/
-C_CHANGESTAT_FN(c_b2factor) {
-  double s;
-
-  /* *** don't forget tail -> head */
-    s = edgestate ? -1.0 : 1.0;
-    int headpos = INPUT_ATTRIB[head-1-BIPARTITE];
-    if (headpos!=-1) CHANGE_STAT[headpos] += s;
 }
 
 /*****************
@@ -1695,52 +1600,6 @@ C_CHANGESTAT_FN(c_degree_w_homophily) {
 }
 
 /*****************
- changestat: d_density
-*****************/
-C_CHANGESTAT_FN(c_density) {
-  Dyad ndyads = N_DYADS;
-
-  /* *** don't forget tail -> head */
-    CHANGE_STAT[0] += edgestate ? - 1 : 1;
-  CHANGE_STAT[0] = CHANGE_STAT[0] / ndyads;
-}
-
-/*****************
- changestat: d_diff
-*****************/
-C_CHANGESTAT_FN(c_diff) {
-  double p = INPUT_PARAM[0], *x = INPUT_PARAM+2;
-  int mul = INPUT_PARAM[1], sign_code = INPUT_PARAM[2];
-
-  /* *** don't forget tail -> head */
-    double change = (x[tail] - x[head])*mul;
-    switch(sign_code){
-    case 1: // identity
-      break;
-    case 2: // abs
-      change = fabs(change);
-      break;
-    case 3: // positive only
-      change = change<0 ? 0 : change;
-      break;
-    case 4: // negative only
-      change = change>0 ? 0 : change;
-      break;
-    default:
-      error("Invalid sign action code passed to d_diff.");
-      break;
-    }
-
-    if(p==0.0){ // Special case: take the sign of the difference instead.
-      change = sign(change);
-    }else if(p!=1.0){
-      change = pow(change, p);
-    }
-
-    CHANGE_STAT[0] += edgestate ? -change : change;
-}
-
-/*****************
  changestat: d_dyadcov
 *****************/
 C_CHANGESTAT_FN(c_dyadcov) {
@@ -1829,44 +1688,6 @@ C_CHANGESTAT_FN(c_dyadcov) {
   }
 }
 
-
-/********************  changestats:  E    ***********/
-/*****************
- changestat: d_edgecov
-*****************/
-C_CHANGESTAT_FN(c_edgecov) {
-  double val;
-  int nrow, noffset;
-
-  noffset = BIPARTITE;
-  if(noffset > 0){
-    /*   nrow = (N_NODES)-(long int)(INPUT_PARAM[0]); */
-    nrow = noffset;
-  }else{
-    nrow = (long int)(INPUT_PARAM[0]);
-  }
-
-  /* *** don't forget tail -> head */
-    /*Get the initial edge state*/
-    /*Get the covariate value*/
-    val = INPUT_ATTRIB[(head-1-noffset)*nrow+(tail-1)];
-    /*  Rprintf("tail %d head %d nrow %d val %f\n", tail, head, nrow, val); */
-    /*Update the change statistic, based on the toggle type*/
-    CHANGE_STAT[0] += edgestate ? -val : val;
-}
-
-/*****************
- changestat: c_edges
-*****************/
-C_CHANGESTAT_FN(c_edges) {
-  CHANGE_STAT[0] = edgestate ? - 1 : 1;
-}
-
-S_CHANGESTAT_FN(s_edges) {
-  CHANGE_STAT[0] = N_EDGES;
-}
-
-/********************  changestats:  F    ***********/
 
 /********************  changestats:  G    ***********/
 
@@ -2568,37 +2389,6 @@ C_CHANGESTAT_FN(c_m2star) {
 }
 
 /*****************
- changestat: d_meandeg
-*****************/
-C_CHANGESTAT_FN(c_meandeg) {
-  // Effectively, change is 2/n if undirected and 1/n if directed.
-  if(DIRECTED) CHANGE_STAT[0] = (edgestate ? -1.0 : 1.0)/N_NODES;
-  else CHANGE_STAT[0] = (edgestate ? -2.0 : 2.0)/N_NODES;
-}
-
-/*****************
- changestat: d_mixmat
- General mixing matrix (mm) implementation.
-*****************/
-C_CHANGESTAT_FN(c_mixmat){
-  unsigned int symm = IINPUT_PARAM[0] & 1;
-  unsigned int marg = IINPUT_PARAM[0] & 2;
-  int *tx = IINPUT_PARAM;
-  int *hx = BIPARTITE? IINPUT_PARAM : IINPUT_PARAM + N_NODES;
-  int *cells = BIPARTITE? IINPUT_PARAM + N_NODES + 1: IINPUT_PARAM + N_NODES*2 + 1;
-
-  unsigned int diag = tx[tail]==tx[head] && hx[tail]==hx[head];
-  for(unsigned int j=0; j<N_CHANGE_STATS; j++){
-    unsigned int thmatch = tx[tail]==cells[j*2] && hx[head]==cells[j*2+1];
-    unsigned int htmatch = tx[head]==cells[j*2] && hx[tail]==cells[j*2+1];
-
-    int w = DIRECTED || BIPARTITE? thmatch :
-      (symm ? thmatch||htmatch : thmatch+htmatch)*(symm && marg && diag?2:1);
-    if(w) CHANGE_STAT[j] += edgestate ? -w : w;
-  }
-}
-
-/*****************
  changestat: d_mutual
 
  (1,1) -> anything = -1
@@ -2686,156 +2476,6 @@ C_CHANGESTAT_FN(c_nearsimmelian) {
     }
    }
 
-}
-
-/*****************
- changestat: d_nodecov
-*****************/
-C_CHANGESTAT_FN(c_nodecov) {
-  unsigned int oshift = N_INPUT_PARAMS / N_CHANGE_STATS;
-
-  /* *** don't forget tail -> head */
-      for(unsigned int j=0, o=0; j<N_CHANGE_STATS; j++, o+=oshift){
-	double sum = INPUT_ATTRIB[tail+o-1] + INPUT_ATTRIB[head+o-1];
-	CHANGE_STAT[j] += edgestate ? -sum : sum;
-    }
-}
-
-/*****************
- changestat: d_nodefactor
-*****************/
-C_CHANGESTAT_FN(c_nodefactor) {
-  double s = edgestate ? -1.0 : 1.0;
-  int tailpos = IINPUT_ATTRIB[tail-1];
-  int headpos = IINPUT_ATTRIB[head-1];
-  if (tailpos!=-1) CHANGE_STAT[tailpos] += s;
-  if (headpos!=-1) CHANGE_STAT[headpos] += s;
-}
-
-/*****************
- changestat: d_nodeicov
-*****************/
-C_CHANGESTAT_FN(c_nodeicov) {
-  unsigned int oshift = N_INPUT_PARAMS / N_CHANGE_STATS;
-
-  /* *** don't forget tail -> head */
-      for(unsigned int j=0, o=0; j<N_CHANGE_STATS; j++, o+=oshift){
-	double sum = INPUT_ATTRIB[head+o-1];
-	CHANGE_STAT[j] += edgestate ? -sum : sum;
-      }
-}
-
-/*****************
- changestat: d_nodeifactor
-*****************/
-C_CHANGESTAT_FN(c_nodeifactor) {
-  double s = edgestate ? -1.0 : 1.0;
-  int headpos = INPUT_ATTRIB[head-1];
-  if (headpos!=-1) CHANGE_STAT[headpos] += s;
-}
-
-/*****************
- changestat: d_nodematch
-*****************/
-C_CHANGESTAT_FN(c_nodematch) {
-  double matchval;
-  Vertex ninputs;
-  int j;
-
-  ninputs = N_INPUT_PARAMS - N_NODES;
-
-  /* *** don't forget tail -> head */
-    matchval = INPUT_PARAM[tail+ninputs-1];
-    if (matchval == INPUT_PARAM[head+ninputs-1]) { /* We have a match! */
-      if (ninputs==0) {/* diff=F in network statistic specification */
-        CHANGE_STAT[0] += edgestate ? -1.0 : 1.0;
-      } else { /* diff=T */
-        for (j=0; j<ninputs; j++) {
-          if (matchval == INPUT_PARAM[j])
-            CHANGE_STAT[j] += edgestate ? -1.0 : 1.0;
-        }
-      }
-    }
-}
-
-/*****************
- changestat: nodemix
-*****************/
-
-typedef struct {
-  int *nodecov;
-  int **indmat;
-} nodemix_storage;
-
-I_CHANGESTAT_FN(i_nodemix) {
-  ALLOC_STORAGE(1, nodemix_storage, sto);
-  sto->nodecov = INTEGER(getListElement(mtp->R, "nodecov"));
-
-  int nr = asInteger(getListElement(mtp->R, "nr"));
-  int nc = asInteger(getListElement(mtp->R, "nc"));
-
-  sto->indmat = R_Calloc(nr, int *);
-  sto->indmat[0] = INTEGER(getListElement(mtp->R, "indmat"));
-  for(int i = 1; i < nr; i++) {
-    sto->indmat[i] = sto->indmat[i - 1] + nc;
-  }
-}
-
-C_CHANGESTAT_FN(c_nodemix) {
-  GET_STORAGE(nodemix_storage, sto);
-  int index = sto->indmat[sto->nodecov[tail]][sto->nodecov[head]];
-  if(index >= 0) {
-    CHANGE_STAT[index] += edgestate ? -1 : +1;
-  }
-}
-
-F_CHANGESTAT_FN(f_nodemix) {
-  GET_STORAGE(nodemix_storage, sto);
-  R_Free(sto->indmat);
-}
-
-S_CHANGESTAT_FN(s_nodemix) {
-  int *nodecov = INTEGER(getListElement(mtp->R, "nodecov"));
-
-  int nr = asInteger(getListElement(mtp->R, "nr"));
-  int nc = asInteger(getListElement(mtp->R, "nc"));
-
-  int **indmat = R_Calloc(nr, int *);
-  indmat[0] = INTEGER(getListElement(mtp->R, "indmat"));
-  for(int i = 1; i < nr; i++) {
-    indmat[i] = indmat[i - 1] + nc;
-  }
-
-  EXEC_THROUGH_NET_EDGES_PRE(tail, head, edge_var, {
-    int index = indmat[nodecov[tail]][nodecov[head]];
-    if(index >= 0) {
-      CHANGE_STAT[index]++;
-    }
-  });
-
-  R_Free(indmat);
-}
-
-/*****************
- changestat: d_nodeocov
-*****************/
-C_CHANGESTAT_FN(c_nodeocov) {
-  unsigned int oshift = N_INPUT_PARAMS / N_CHANGE_STATS;
-
-  /* *** don't forget tail -> head */
-      for(unsigned int j=0, o=0; j<N_CHANGE_STATS; j++, o+=oshift){
-	double sum = INPUT_ATTRIB[tail+o-1];
-	CHANGE_STAT[j] += edgestate ? -sum : sum;
-      }
-}
-
-/*****************
- changestat: d_nodeofactor
-*****************/
-C_CHANGESTAT_FN(c_nodeofactor) {
-  double s = edgestate ? -1.0 : 1.0;
-  int tailpos = INPUT_ATTRIB[tail-1];
-  if (tailpos!=-1) CHANGE_STAT[tailpos] += s;
 }
 
 /********************  changestats:  O    ***********/
@@ -3199,43 +2839,6 @@ for(Vertex tail=1; tail <= N_NODES; tail++) {
 }
 
 /*****************
- changestat: d_receiver
-*****************/
-C_CHANGESTAT_FN(c_receiver) {
-  int j, echange;
-  Vertex deg;
-
-  /* *** don't forget tail -> head */
-    echange = edgestate ? -1 : 1;
-    j=0;
-    deg = (Vertex)INPUT_PARAM[j];
-    while((deg != head) && (j < (N_CHANGE_STATS-1))){
-      j++;
-      deg = (Vertex)INPUT_PARAM[j];
-    }
-    if(deg==head){CHANGE_STAT[j] += echange;}
-}
-
-/********************  changestats:  S    ***********/
-/*****************
- changestat: d_sender
-*****************/
-C_CHANGESTAT_FN(c_sender) {
-  int j, echange;
-  Vertex deg;
-
-  /* *** don't forget tail -> head */
-    echange = edgestate ? -1 : 1;
-    j=0;
-    deg = (Vertex)INPUT_PARAM[j];
-    while((deg != tail) && (j < (N_CHANGE_STATS-1))){
-      j++;
-      deg = (Vertex)INPUT_PARAM[j];
-    }
-    if(deg==tail){CHANGE_STAT[j] += echange;}
-}
-
-/*****************
  changestat: d_simmelian
 *****************/
 C_CHANGESTAT_FN(c_simmelian) {
@@ -3301,73 +2904,6 @@ C_CHANGESTAT_FN(c_simmelianties) {
                            be counted without its opposite */
      CHANGE_STAT[0] += edgestate ? -(double)change : (double)change;
    }
-}
-
-/*****************
- changestat: d_smalldiff
-*****************/
-C_CHANGESTAT_FN(c_smalldiff) {
-
-  /* *** don't forget tail -> head */
-    CHANGE_STAT[0] += (fabs(INPUT_ATTRIB[tail-1] - INPUT_ATTRIB[head-1])
-    > INPUT_PARAM[0]) ? 0.0 :
-    ((edgestate) ? -1.0 : 1.0);
-}
-
-/*****************
- changestat: d_sociality
-*****************/
-C_CHANGESTAT_FN(c_sociality) {
-  int j, echange;
-  Vertex deg;
-  int ninputs, nstats;
-  double tailattr;
-
-  ninputs = (int)N_INPUT_PARAMS;
-  nstats  = (int)N_CHANGE_STATS;
-
-  /* *** don't forget tail -> head */
-  if(ninputs>nstats+1){
-    /* match on attributes */
-      echange = edgestate ? -1 : 1;
-      tailattr = INPUT_ATTRIB[tail-1+nstats+1]; // +1 for the "guard" value between vertex IDs and attribute vector
-      if(tailattr == INPUT_ATTRIB[head-1+nstats+1]){
-	j=0;
-	deg = (Vertex)INPUT_PARAM[j];
-	while(deg != tail && j < nstats){
-	  j++;
-	  deg = (Vertex)INPUT_PARAM[j];
-	}
-	if(j < nstats){CHANGE_STAT[j] += echange;}
-	j=0;
-	deg = (Vertex)INPUT_PARAM[j];
-	while(deg != head && j < nstats){
-	  j++;
-	  deg = (Vertex)INPUT_PARAM[j];
-	}
-	if(j < nstats){CHANGE_STAT[j] += echange;}
-      }
-
-}else{
-    /* *** don't forget tail -> head */
-      echange = edgestate ? -1 : 1;
-      j=0;
-      deg = (Vertex)INPUT_PARAM[j];
-      while(deg != tail && j < nstats){
-	j++;
-	deg = (Vertex)INPUT_PARAM[j];
-      }
-      if(j < nstats){CHANGE_STAT[j] += echange;}
-      j=0;
-      deg = (Vertex)INPUT_PARAM[j];
-      while(deg != head && j < nstats){
-	j++;
-	deg = (Vertex)INPUT_PARAM[j];
-      }
-      if(j < nstats){CHANGE_STAT[j] += echange;}
-
-}
-
 }
 
 /********************  changestats:  T    ***********/
