@@ -13,10 +13,10 @@
 #include "ergm_edgelist.h"
 
 /********************  changestats:  A    ***********/
-/*****************                       
+/*****************
  changestat: c_absdiff
 *****************/
-C_CHANGESTAT_FN(c_absdiff) { 
+C_CHANGESTAT_FN(c_absdiff) {
   double change, p;
 
   /* *** don't forget tail -> head */
@@ -32,7 +32,7 @@ C_CHANGESTAT_FN(c_absdiff) {
 /*****************
  changestat: d_absdiffcat
 *****************/
-C_CHANGESTAT_FN(c_absdiffcat) { 
+C_CHANGESTAT_FN(c_absdiffcat) {
   double change, absdiff, tailval, headval;
   int j;
 
@@ -51,7 +51,7 @@ C_CHANGESTAT_FN(c_absdiffcat) {
 /*****************
  changestat: d_adegcor
 *****************/
-D_CHANGESTAT_FN(d_adegcor) { 
+D_CHANGESTAT_FN(d_adegcor) {
   int i;
   double current;
 
@@ -65,7 +65,7 @@ D_CHANGESTAT_FN(d_adegcor) {
 //   Rprintf(" p-c %f\n",mtp->dstats[0]);
 FOR_EACH_TOGGLE(i) { TOGGLE(TAIL(i), HEAD(i)); }
 }
-S_CHANGESTAT_FN(s_adegcor) { 
+S_CHANGESTAT_FN(s_adegcor) {
   Vertex tail, head, taildeg, headdeg;
   Edge e;
   double mu, mu2, sigma2, cross;
@@ -90,10 +90,10 @@ S_CHANGESTAT_FN(s_adegcor) {
 /*****************
  changestat: d_altkstar
 *****************/
-C_CHANGESTAT_FN(c_altkstar) { 
+C_CHANGESTAT_FN(c_altkstar) {
   double lambda, oneexpl, change;
   Vertex taild, headd=0;
-  
+
   change = 0.0;
   lambda = INPUT_PARAM[0];
   oneexpl = 1.0-1.0/lambda;
@@ -107,13 +107,13 @@ C_CHANGESTAT_FN(c_altkstar) {
     if(headd!=0){
       change += (edgestate?-1:+1)*(1.0-pow(oneexpl,(double)headd));
     }
-  CHANGE_STAT[0] = change*lambda;  
+  CHANGE_STAT[0] = change*lambda;
 }
 
 /*****************
  changestat: d_asymmetric
 *****************/
-C_CHANGESTAT_FN(c_asymmetric) { 
+C_CHANGESTAT_FN(c_asymmetric) {
   double matchval, change;
   int j, ninputs, noattr;
 
@@ -131,7 +131,7 @@ C_CHANGESTAT_FN(c_asymmetric) {
           CHANGE_STAT[0] += change;
         } else { /* diff=T */
           for (j=0; j<ninputs; j++) {
-            if (matchval == INPUT_PARAM[j]) 
+            if (matchval == INPUT_PARAM[j])
               CHANGE_STAT[j] += change;
           }
         }
@@ -151,10 +151,10 @@ typedef struct {
 I_CHANGESTAT_FN(i_attrcov) {
   ALLOC_STORAGE(1, attrcov_storage, sto);
   sto->nodecov = INTEGER(getListElement(mtp->R, "nodecov"));
-  
+
   int nr = asInteger(getListElement(mtp->R, "nr"));
   int nc = asInteger(getListElement(mtp->R, "nc"));
-  
+
   // rows vary faster than columns because we did not transpose a$mat in the InitErgmTerm function
   sto->mat = R_Calloc(nc, double *);
   sto->mat[0] = REAL(getListElement(mtp->R, "mat"));
@@ -164,7 +164,7 @@ I_CHANGESTAT_FN(i_attrcov) {
 }
 
 C_CHANGESTAT_FN(c_attrcov) {
-  GET_STORAGE(attrcov_storage, sto);  
+  GET_STORAGE(attrcov_storage, sto);
   // head comes before tail here because we did not transpose a$mat in the InitErgmTerm function
   CHANGE_STAT[0] += edgestate ? -sto->mat[sto->nodecov[head]][sto->nodecov[tail]] : sto->mat[sto->nodecov[head]][sto->nodecov[tail]];
 }
@@ -186,11 +186,11 @@ F_CHANGESTAT_FN(f_attrcov) {
 /*****************
  changestat: d_b1concurrent
 *****************/
-C_CHANGESTAT_FN(c_b1concurrent) { 
+C_CHANGESTAT_FN(c_b1concurrent) {
   int echange;
   Vertex b1, b1deg;
 
-  /* *** don't forget tail -> head */  
+  /* *** don't forget tail -> head */
     b1 = tail;
     echange = IS_OUTEDGE(b1,head) ? -1 : 1;
     b1deg = OUT_DEG[b1];
@@ -200,7 +200,7 @@ C_CHANGESTAT_FN(c_b1concurrent) {
 /*****************
  changestat: d_b1concurrent_by_attr
 *****************/
-C_CHANGESTAT_FN(c_b1concurrent_by_attr) { 
+C_CHANGESTAT_FN(c_b1concurrent_by_attr) {
   /*The inputparams are assumed to be set up as follows:
     The first 2*nstats values are in pairs:  (degree, attrvalue)
     The values following the first 2*nstats values are the nodal attributes. */
@@ -211,7 +211,7 @@ C_CHANGESTAT_FN(c_b1concurrent_by_attr) {
     b1 = tail;
     echange = IS_OUTEDGE(b1,head) ? -1 : 1;
     b1deg = OUT_DEG[b1];
-    b1attr = INPUT_PARAM[N_CHANGE_STATS + b1 - 1]; 
+    b1attr = INPUT_PARAM[N_CHANGE_STATS + b1 - 1];
     for(j = 0; j < N_CHANGE_STATS; j++) {
       if (b1attr == INPUT_PARAM[j]) { /* we have attr match */
         CHANGE_STAT[j] += (b1deg + echange > 1) - (b1deg > 1);
@@ -223,75 +223,75 @@ C_CHANGESTAT_FN(c_b1concurrent_by_attr) {
  changestat: d_b1nodematch
 *****************/
 C_CHANGESTAT_FN(c_b1nodematch) {
-  
+
   Vertex node3, node4, ninputs;
   int count, exponenttype, matchval, b2attrsize, attrval1, attrval2, diffstatus;
   /* int j, numofstats; */
   Edge e, e2;
-  double beta, alpha, change=0.0, exponent; 
+  double beta, alpha, change=0.0, exponent;
   const int BetaType=1, AlphaType=2;
-  
-  b2attrsize = INPUT_PARAM[0];          
 
-  if(b2attrsize > 0){                   
-    ninputs = N_INPUT_PARAMS - N_NODES - b2attrsize;/*have 2 sets of node attributes and b2attrvals */  
-  }                                      
-  else{                                  
-    ninputs = N_INPUT_PARAMS - BIPARTITE; 
-  }                                      
+  b2attrsize = INPUT_PARAM[0];
+
+  if(b2attrsize > 0){
+    ninputs = N_INPUT_PARAMS - N_NODES - b2attrsize;/*have 2 sets of node attributes and b2attrvals */
+  }
+  else{
+    ninputs = N_INPUT_PARAMS - BIPARTITE;
+  }
 
   diffstatus = !(ninputs == 3); /* 1 if Diff = T and 0 if Diff = F */
   /* numofstats = diffstatus ? (b2attrsize == 0 ? (ninputs - 3): (ninputs - 3) * b2attrsize) : (b2attrsize == 0 ? 1 : b2attrsize); */
-  
-  exponent = beta = INPUT_PARAM[1]; /* exponent on nodematch count */  
+
+  exponent = beta = INPUT_PARAM[1]; /* exponent on nodematch count */
   exponenttype = BetaType;
-  alpha = INPUT_PARAM[2];               
-  
-  if (beta >= 1.0 && alpha < 1.0) {  
+  alpha = INPUT_PARAM[2];
+
+  if (beta >= 1.0 && alpha < 1.0) {
     exponent = alpha;
     exponenttype = AlphaType;
   }
   //  Rprintf("N_INPUT_PARAMS = %d, N_NODES=%d\n", N_INPUT_PARAMS, N_NODES);
   //  Rprintf("ninputs = %d, beta=%f, alpha=%f, exponenttype=%d, exponent=%f\n",
   //  ninputs, beta, alpha, exponenttype, exponent);
-  
-    matchval = INPUT_PARAM[tail + ninputs - 1]; 
-    
+
+    matchval = INPUT_PARAM[tail + ninputs - 1];
+
     /* Now count the neighbors of head whose attribute value equals matchval */
     /* All neighbors of head are inedges because this is a bipartite network */
     count = 0;
     change = 0.0;
 
-    if(b2attrsize == 0){ 
-    
+    if(b2attrsize == 0){
+
       STEP_THROUGH_INEDGES(head, e, node3) {
-	    if (INPUT_PARAM[node3 + ninputs - 1] == matchval && tail != node3) { /* match! */ 
+	    if (INPUT_PARAM[node3 + ninputs - 1] == matchval && tail != node3) { /* match! */
 	        ++count;
 
 	  // Rprintf("Matching twostar found! %d and %d connect to %d\n==================\n", tail, node3, head);
 	        if (exponenttype == AlphaType) {
-	    
+
 	    /* calculate alpha change stat instead of beta change stat. */
 	    /* Look for number of two-paths connecting tail and node3, not via head */
 	        count = 0;
-	    
+
 	        STEP_THROUGH_OUTEDGES(tail, e2, node4) {
 	      // Rprintf("node3=%d, node4=%d, alpha=%f\n", node3,node4,alpha);
 		        if (node4 != head) {              /* RPB */
 		            count += IS_OUTEDGE(node3, node4); /* add 1 if node4 connects node3 with tail */
 		        }
 	        }
-	    
+
 	        /* if count==0, then the statistic is always (plus or minus) 1 */
 	        // Rprintf("count is %d\n", count);
 	        change += (count==0 ? 1 : pow(count+1, exponent) - pow(count, exponent));
 	        }
 	      }
-        } 
-    
+        }
+
       /* If count==0 then the statistic cannot change; it is the same with or */
       /* without the proposed toggle */
-    
+
       if (exponenttype == BetaType && count>0) {
 	    /* Now raise count and count+1 to beta, find the difference */
 	    change = 0.5*(count+1)*pow(count, exponent);
@@ -299,80 +299,80 @@ C_CHANGESTAT_FN(c_b1nodematch) {
       }
 
       if (diffstatus) { /* diff=T */
-  	    if(ninputs==4) /* keep != NULL*/
+	    if(ninputs==4) /* keep != NULL*/
 	    CHANGE_STAT[0] += edgestate ? -change : change;
-  	    else
+	    else
 	    CHANGE_STAT[matchval-1] += edgestate ? -change : change;
 
       } else { /* diff=F */
 	    CHANGE_STAT[0] += edgestate ? -change : change;
       }
 
-    } else {  
-      
-      attrval1 = INPUT_PARAM[head + ninputs + b2attrsize - 1];  
- 
+    } else {
+
+      attrval1 = INPUT_PARAM[head + ninputs + b2attrsize - 1];
+
       STEP_THROUGH_INEDGES(head, e, node3) {
-	
-	if (INPUT_PARAM[node3 + ninputs - 1] == matchval && tail != node3) { /* match! */ 
-	 
-	  ++count;   
+
+	if (INPUT_PARAM[node3 + ninputs - 1] == matchval && tail != node3) { /* match! */
+
+	  ++count;
 
 	  // Rprintf("Matching twostar found! %d and %d connect to %d\n==================\n", tail, node3, head);
 	  if (exponenttype == AlphaType) {
 	    /* calculate alpha change stat instead of beta change stat. */
 	    /* Look for number of two-paths connecting tail and node3, not via head */
-	    
-	    count = 0;      
-	
+
+	    count = 0;
+
 	    STEP_THROUGH_OUTEDGES(tail, e2, node4) {
 	      // Rprintf("node3=%d, node4=%d, alpha=%f\n", node3,node4,alpha);
-	      if (node4 != head) { 
-		    attrval2 = INPUT_PARAM[node4 + ninputs + b2attrsize - 1];  
-		    if(attrval2 == attrval1) count += IS_OUTEDGE(node3, node4); 
+	      if (node4 != head) {
+		    attrval2 = INPUT_PARAM[node4 + ninputs + b2attrsize - 1];
+		    if(attrval2 == attrval1) count += IS_OUTEDGE(node3, node4);
 	      }
 	    }
 	    /* if count==0, then the statistic is always (plus or minus) 1 */
 	    // Rprintf("count is %d\n", count);
 	    /* setting the change stat for each parameter */
-   	      change += (count== 0 ? 1 : pow(count+1, exponent) - pow(count, exponent)); 	    
+	      change += (count== 0 ? 1 : pow(count+1, exponent) - pow(count, exponent));
         }
 	  }
-    } 
+    }
     /* If count==0 then the statistic cannot change; it is the same with or */
     /* without the proposed toggle */
-      if (exponenttype == BetaType && count > 0) {       
+      if (exponenttype == BetaType && count > 0) {
 
       /* Now raise count and count+1 to beta, find the difference */
 	   change  = 0.5*(count+1)*pow(count, beta);
-	   change -= 0.5*count*(beta==0.0? (count==1? 0.0 : 1.0) : pow((count-1), beta));	
-      }       
-     
-      if(diffstatus){  	 
+	   change -= 0.5*count*(beta==0.0? (count==1? 0.0 : 1.0) : pow((count-1), beta));
+      }
+
+      if(diffstatus){
 	      CHANGE_STAT[b2attrsize*(matchval-1) + attrval1 - 1] += edgestate ? -change : change;
-      } else{        
+      } else{
           CHANGE_STAT[attrval1 - 1] += edgestate ? -change : change;
       }
 
-    } 
+    }
 }
 
 /*****************
  changestat: d_b1starmix
 *****************/
-C_CHANGESTAT_FN(c_b1starmix) { 
+C_CHANGESTAT_FN(c_b1starmix) {
   double change;
   int j, kmo;
   Edge e;
   Vertex node3, nnodes, taild;
   int nstats;
   double tailattr, headattr;
-  
+
   nstats  = (int)N_CHANGE_STATS;
   nnodes = N_NODES;
   kmo = (int)INPUT_PARAM[0] - 1;
 
-  /* *** don't forget tail -> head */    
+  /* *** don't forget tail -> head */
     /* edgestate is 1 if edge exists and will disappear
     edgestate is 0 if edge DNE and will appear */
     tailattr = INPUT_ATTRIB[tail-1];
@@ -383,9 +383,9 @@ C_CHANGESTAT_FN(c_b1starmix) {
       if(headattr == INPUT_ATTRIB[node3-1]){++taild;}
     }
     for(j=0; j < N_CHANGE_STATS; j++) {
-      if (INPUT_ATTRIB[nnodes+j] == tailattr && 
+      if (INPUT_ATTRIB[nnodes+j] == tailattr &&
       INPUT_ATTRIB[nnodes+nstats+j] == headattr) {
-        change = CHOOSE(taild, kmo); 
+        change = CHOOSE(taild, kmo);
         CHANGE_STAT[j] += (edgestate ? - change : change);
       }
     }
@@ -394,18 +394,18 @@ C_CHANGESTAT_FN(c_b1starmix) {
 /*****************
  changestat: d_b1starmixhomophily
 *****************/
-C_CHANGESTAT_FN(c_b1starmixhomophily) { 
+C_CHANGESTAT_FN(c_b1starmixhomophily) {
   double change;
   int j, kmo;
   Edge e;
   Vertex node3, nnodes, taild;
   double tailattr, headattr;
-  
+
   nnodes = N_NODES;
   kmo = (int)INPUT_PARAM[0] - 1;
-  
 
-  /* *** don't forget tail -> head */    
+
+  /* *** don't forget tail -> head */
     /* edgestate is 1 if edge exists and will disappear
     edgestate is 0 if edge DNE and will appear */
     tailattr = INPUT_ATTRIB[tail-1];
@@ -417,7 +417,7 @@ C_CHANGESTAT_FN(c_b1starmixhomophily) {
     }
     for(j=0; j < N_CHANGE_STATS; j++) {
       if (INPUT_ATTRIB[nnodes+j] == tailattr) {
-        change = CHOOSE(taild, kmo); 
+        change = CHOOSE(taild, kmo);
         CHANGE_STAT[j] += (edgestate ? - change : change);
       }
     }
@@ -426,18 +426,18 @@ C_CHANGESTAT_FN(c_b1starmixhomophily) {
 /*****************
  changestat: d_b1twostar
 *****************/
-C_CHANGESTAT_FN(c_b1twostar) { 
+C_CHANGESTAT_FN(c_b1twostar) {
   double change;
   int j;
   Edge e;
   Vertex node3, nnodes;
   int nstats;
   double tailattr, headattr, n3attr;
-  
+
   nstats  = (int)N_CHANGE_STATS;
   nnodes = N_NODES;
-  
-  /* *** don't forget tail -> head */    
+
+  /* *** don't forget tail -> head */
     change = IS_OUTEDGE(tail = tail, head)? -1.0 : 1.0 ;
     tailattr = INPUT_PARAM[tail-1];
     headattr = INPUT_PARAM[head-1];
@@ -445,7 +445,7 @@ C_CHANGESTAT_FN(c_b1twostar) {
     STEP_THROUGH_OUTEDGES(tail, e, node3) { /* step through outedges of tail */
       n3attr = INPUT_PARAM[node3-1];
       for(j=0; j < N_CHANGE_STATS; j++) {
-        if (node3 != head && INPUT_PARAM[nnodes + j] == tailattr && 
+        if (node3 != head && INPUT_PARAM[nnodes + j] == tailattr &&
             INPUT_PARAM[nnodes + nstats + j] == MIN(headattr, n3attr) &&
             INPUT_PARAM[nnodes + 2*nstats + j] == MAX(headattr, n3attr)) {
           CHANGE_STAT[j] += change;
@@ -457,11 +457,11 @@ C_CHANGESTAT_FN(c_b1twostar) {
 /*****************
  changestat: d_b2concurrent
 *****************/
-C_CHANGESTAT_FN(c_b2concurrent) { 
+C_CHANGESTAT_FN(c_b2concurrent) {
   int echange;
   Vertex b2, b2deg;
 
-  /* *** don't forget tail -> head */    
+  /* *** don't forget tail -> head */
     b2 = head;
     echange = IS_OUTEDGE(tail, b2) ? -1 : 1;
     b2deg = IN_DEG[b2];
@@ -471,15 +471,15 @@ C_CHANGESTAT_FN(c_b2concurrent) {
 /*****************
  changestat: d_b2concurrent_by_attr
 *****************/
-C_CHANGESTAT_FN(c_b2concurrent_by_attr) { 
+C_CHANGESTAT_FN(c_b2concurrent_by_attr) {
   /*The inputparams are assumed to be set up as follows:
     The first 2*nstats values are in pairs:  (degree, attrvalue)
     The values following the first 2*nstats values are the nodal attributes.*/
   int j, echange, b2attr;
   Vertex b2, b2deg;
-  
 
-  /* *** don't forget tail -> head */    
+
+  /* *** don't forget tail -> head */
     b2 = head;
     echange = IS_OUTEDGE(tail, b2) ? -1 : 1;
     b2deg = IN_DEG[b2];
@@ -494,10 +494,10 @@ C_CHANGESTAT_FN(c_b2concurrent_by_attr) {
 /*****************
  changestat: d_b2cov
 *****************/
-C_CHANGESTAT_FN(c_b2cov) { 
+C_CHANGESTAT_FN(c_b2cov) {
   unsigned int oshift = N_INPUT_PARAMS / N_CHANGE_STATS;
 
-  /* *** don't forget tail -> head */    
+  /* *** don't forget tail -> head */
   Vertex nb1 = BIPARTITE;
       for(unsigned int j=0, o=0; j<N_CHANGE_STATS; j++, o+=oshift){
 	double sum = INPUT_ATTRIB[head-nb1+o-1];
@@ -508,10 +508,10 @@ C_CHANGESTAT_FN(c_b2cov) {
 /*****************
  changestat: d_b2factor
 *****************/
-C_CHANGESTAT_FN(c_b2factor) { 
+C_CHANGESTAT_FN(c_b2factor) {
   double s;
-  
-  /* *** don't forget tail -> head */    
+
+  /* *** don't forget tail -> head */
     s = edgestate ? -1.0 : 1.0;
     int headpos = INPUT_ATTRIB[head-1-BIPARTITE];
     if (headpos!=-1) CHANGE_STAT[headpos] += s;
@@ -521,7 +521,7 @@ C_CHANGESTAT_FN(c_b2factor) {
  changestat: d_b2nodematch
 *****************/
 C_CHANGESTAT_FN(c_b2nodematch) {
- 
+
   Vertex node3, node4, ninputs;
   int count, exponenttype, matchval, b1attrsize, attrval1, attrval2, diffstatus;
   /* int j, ind, numofstats; */
@@ -529,13 +529,13 @@ C_CHANGESTAT_FN(c_b2nodematch) {
   double beta, alpha, change=0.0, exponent;
   const int BetaType=1, AlphaType=2;
 
-  b1attrsize = INPUT_PARAM[0];             
+  b1attrsize = INPUT_PARAM[0];
 
-  if(b1attrsize > 0){                   
-    ninputs = N_INPUT_PARAMS - N_NODES - b1attrsize;/*have 2 sets of node attributes and b2attrvals */  
-  }                                      
-  else{                                  
-    ninputs = N_INPUT_PARAMS - N_NODES + BIPARTITE;  
+  if(b1attrsize > 0){
+    ninputs = N_INPUT_PARAMS - N_NODES - b1attrsize;/*have 2 sets of node attributes and b2attrvals */
+  }
+  else{
+    ninputs = N_INPUT_PARAMS - N_NODES + BIPARTITE;
   }
 
   diffstatus = !(ninputs == 3); /* 1 if Diff = T and o if Diff = F - RPB */
@@ -544,36 +544,36 @@ C_CHANGESTAT_FN(c_b2nodematch) {
   exponent = beta = INPUT_PARAM[1]; /* exponent on nodematch count */
   exponenttype = BetaType;
   alpha = INPUT_PARAM[2];
-  if (beta >= 1.0 && alpha < 1.0) {  
+  if (beta >= 1.0 && alpha < 1.0) {
     exponent = alpha;
     exponenttype = AlphaType;
   }
   //  Rprintf("N_INPUT_PARAMS = %d, N_NODES=%d\n", N_INPUT_PARAMS, N_NODES);
   //  Rprintf("ninputs = %d, beta=%f, alpha=%f, exponenttype=%d, exponent=%f\n",
   //  ninputs, beta, alpha, exponenttype, exponent);
-  
+
     matchval = INPUT_PARAM[head + ninputs - BIPARTITE - 1];
     /* Now count the neighbors of tail whose attribute value equals matchval */
     /* All neighbors of tail are outedges because this is a bipartite network */
     count=0;
     change = 0.0;
-       
+
     /* RPB */
     /*  double CHANGE[b1attrsize]; */
 
-      
+
   if(b1attrsize == 0){
 
     STEP_THROUGH_OUTEDGES(tail, e, node3) {
       if (INPUT_PARAM[node3 + ninputs - BIPARTITE - 1] == matchval && head != node3) { /* match! */
         ++count;
-        
+
 	// Rprintf("Matching twostar found! %d and %d connect to %d\n==================\n", tail, node3, head);
         if (exponenttype == AlphaType) {
           /* calculate alpha change stat instead of beta change stat. */
           /* Look for number of two-paths connecting head and node3 */
           count = 0;
-         
+
       STEP_THROUGH_INEDGES(head, e2, node4) {
             // Rprintf("node3=%d, node4=%d, alpha=%f\n", node3,node4,alpha);
             if (node4 != tail) {
@@ -588,13 +588,13 @@ C_CHANGESTAT_FN(c_b2nodematch) {
     }
     /* If count==0 then the statistic cannot change; it is the same with or */
     /* without the proposed toggle */
-    
+
     if (exponenttype == BetaType && count>0) {
       /* Now raise count and count+1 to beta, find the difference */
       change = 0.5*(count+1)*pow(count, beta);
       change -= 0.5*count*(beta==0.0? (count==1? 0.0 : 1.0) : pow((count-1), beta));
     }
-    
+
 
     if (diffstatus) { /* diff=T */
 	    if(ninputs==4) /* keep != NULL*/
@@ -607,47 +607,47 @@ C_CHANGESTAT_FN(c_b2nodematch) {
     }
   } else {
 
- attrval1 = INPUT_PARAM[tail + ninputs + N_NODES + b1attrsize - BIPARTITE - 1];  
- 
+ attrval1 = INPUT_PARAM[tail + ninputs + N_NODES + b1attrsize - BIPARTITE - 1];
+
       STEP_THROUGH_OUTEDGES(tail, e, node3) {
-	
-	if (INPUT_PARAM[node3 + ninputs - BIPARTITE - 1] == matchval && head != node3) { /* match! */ 
-	 
-	  ++count;   
+
+	if (INPUT_PARAM[node3 + ninputs - BIPARTITE - 1] == matchval && head != node3) { /* match! */
+
+	  ++count;
 
 	  // Rprintf("Matching twostar found! %d and %d connect to %d\n==================\n", tail, node3, head);
 	  if (exponenttype == AlphaType) {
 	    /* calculate alpha change stat instead of beta change stat. */
 	    /* Look for number of two-paths connecting tail and node3, not via head */
-	    
-	    count = 0;      
-	
+
+	    count = 0;
+
 	    STEP_THROUGH_INEDGES(head, e2, node4) {
 	      // Rprintf("node3=%d, node4=%d, alpha=%f\n", node3,node4,alpha);
-	      if (node4 != tail) { 
-		    attrval2 = INPUT_PARAM[node4 + ninputs + N_NODES + b1attrsize - BIPARTITE - 1];  
-		    if(attrval2 == attrval1) count += IS_OUTEDGE(node4, node3); 
+	      if (node4 != tail) {
+		    attrval2 = INPUT_PARAM[node4 + ninputs + N_NODES + b1attrsize - BIPARTITE - 1];
+		    if(attrval2 == attrval1) count += IS_OUTEDGE(node4, node3);
 	      }
 	    }
 	    /* if count==0, then the statistic is always (plus or minus) 1 */
 	    // Rprintf("count is %d\n", count);
 	    /* setting the change stat for each parameter */
-   	      change += (count== 0 ? 1 : pow(count+1, exponent) - pow(count, exponent)); 	    
+	      change += (count== 0 ? 1 : pow(count+1, exponent) - pow(count, exponent));
         }
 	  }
-    } 
+    }
     /* If count==0 then the statistic cannot change; it is the same with or */
     /* without the proposed toggle */
-      if (exponenttype == BetaType && count > 0) {     
+      if (exponenttype == BetaType && count > 0) {
 
       /* Now raise count and count+1 to beta, find the difference */
 	   change  = 0.5*(count+1)*pow(count, beta);
-	   change -= 0.5*count*(beta==0.0? (count==1? 0.0 : 1.0) : pow((count-1), beta));	
-      }      
-     
-      if(diffstatus){  	 
+	   change -= 0.5*count*(beta==0.0? (count==1? 0.0 : 1.0) : pow((count-1), beta));
+      }
+
+      if(diffstatus){
 	      CHANGE_STAT[b1attrsize*(matchval-1) + attrval1 - 1] += edgestate ? -change : change;
-      } else{        
+      } else{
           CHANGE_STAT[attrval1 - 1] += edgestate ? -change : change;
       }
 
@@ -657,20 +657,20 @@ C_CHANGESTAT_FN(c_b2nodematch) {
 /*****************
  changestat: d_b2starmix
 *****************/
-C_CHANGESTAT_FN(c_b2starmix) { 
+C_CHANGESTAT_FN(c_b2starmix) {
   double change;
   int j, kmo;
   Edge e;
   Vertex node3, nnodes, headd;
   int nstats;
   double tailattr, headattr;
-  
+
   nstats  = (int)N_CHANGE_STATS;
   nnodes = N_NODES;
   kmo = (int)INPUT_PARAM[0] - 1;
-  
 
-  /* *** don't forget tail -> head */    
+
+  /* *** don't forget tail -> head */
     /* edgestate is 1 if edge exists and will disappear
     edgestate is 0 if edge DNE and will appear */
     tailattr = INPUT_ATTRIB[tail-1];
@@ -681,9 +681,9 @@ C_CHANGESTAT_FN(c_b2starmix) {
       if(tailattr == INPUT_ATTRIB[node3-1]){++headd;}
     }
     for(j=0; j < N_CHANGE_STATS; j++) {
-      if (INPUT_ATTRIB[nnodes+j] == tailattr && 
+      if (INPUT_ATTRIB[nnodes+j] == tailattr &&
       INPUT_ATTRIB[nnodes+nstats+j] == headattr) {
-        change = CHOOSE(headd, kmo); 
+        change = CHOOSE(headd, kmo);
         CHANGE_STAT[j] += (edgestate ? - change : change);
       }
     }
@@ -692,18 +692,18 @@ C_CHANGESTAT_FN(c_b2starmix) {
 /*****************
  changestat: d_b2starmixhomophily
 *****************/
-C_CHANGESTAT_FN(c_b2starmixhomophily) { 
+C_CHANGESTAT_FN(c_b2starmixhomophily) {
   double change;
   int j, kmo;
   Edge e;
   Vertex node3, nnodes, headd;
   double tailattr, headattr;
-  
+
   nnodes = N_NODES;
   kmo = (int)INPUT_PARAM[0] - 1;
-  
 
-  /* *** don't forget tail -> head */    
+
+  /* *** don't forget tail -> head */
     /* edgestate is 1 if edge exists and will disappear
     edgestate is 0 if edge DNE and will appear */
     tailattr = INPUT_ATTRIB[tail-1];
@@ -715,7 +715,7 @@ C_CHANGESTAT_FN(c_b2starmixhomophily) {
     }
     for(j=0; j < N_CHANGE_STATS; j++) {
       if (INPUT_ATTRIB[nnodes+j] == headattr) {
-        change = CHOOSE(headd, kmo); 
+        change = CHOOSE(headd, kmo);
         CHANGE_STAT[j] += (edgestate ? - change : change);
       }
     }
@@ -724,19 +724,19 @@ C_CHANGESTAT_FN(c_b2starmixhomophily) {
 /*****************
  changestat: d_b2twostar
 *****************/
-C_CHANGESTAT_FN(c_b2twostar) { 
+C_CHANGESTAT_FN(c_b2twostar) {
   double change;
   int j;
   Edge e;
   Vertex node3, nnodes;
   int nstats;
   double tailattr, headattr, n3attr;
-  
+
   nstats  = (int)N_CHANGE_STATS;
   nnodes = N_NODES;
-  
 
-  /* *** don't forget tail -> head */    
+
+  /* *** don't forget tail -> head */
     change = edgestate? -1.0 : 1.0 ;
     tailattr = INPUT_PARAM[tail-1];
     headattr = INPUT_PARAM[head-1];
@@ -744,7 +744,7 @@ C_CHANGESTAT_FN(c_b2twostar) {
     STEP_THROUGH_INEDGES(head, e, node3) { /* step through inedges of head */
       n3attr = INPUT_PARAM[node3-1];
       for(j=0; j < N_CHANGE_STATS; j++) {
-        if (node3 != tail && INPUT_PARAM[nnodes + j] == headattr && 
+        if (node3 != tail && INPUT_PARAM[nnodes + j] == headattr &&
             INPUT_PARAM[nnodes + nstats + j] == MIN(tailattr, n3attr) &&
             INPUT_PARAM[nnodes + 2*nstats + j] == MAX(tailattr, n3attr)) {
           CHANGE_STAT[j] += change;
@@ -756,14 +756,14 @@ C_CHANGESTAT_FN(c_b2twostar) {
 /*****************
  changestat: d_balance
 *****************/
-C_CHANGESTAT_FN(c_balance) { 
-  int a, b, c, d, e, edgecount, t300, 
-  t210, t120C, t120U, t120D, t201, t030C, t030T, t111U, 
+C_CHANGESTAT_FN(c_balance) {
+  int a, b, c, d, e, edgecount, t300,
+  t210, t120C, t120U, t120D, t201, t030C, t030T, t111U,
   t111D, t021C, t021U, t021D, t102, t012; /* , t003; */
   Vertex node3;
 
 
-  /* *** don't forget tail -> head */    
+  /* *** don't forget tail -> head */
   if (DIRECTED) { /* directed version */
       t300 = 0;
       t210 = 0;
@@ -772,23 +772,23 @@ C_CHANGESTAT_FN(c_balance) {
       t021C = 0;  t021U = 0;   t021D = 0;  t102 = 0;
       t012 = 0;
 
-      if (MIN_OUTEDGE(head)!=0 || MIN_INEDGE(head)!=0 || 
+      if (MIN_OUTEDGE(head)!=0 || MIN_INEDGE(head)!=0 ||
       MIN_OUTEDGE(tail)!=0 || MIN_INEDGE(tail)!=0) {
 
         /* ****** loop through node3 ****** */
-          for (node3=1; node3 <= N_NODES; node3++) { 
-            if (node3 != tail && node3 != head) {  
+          for (node3=1; node3 <= N_NODES; node3++) {
+            if (node3 != tail && node3 != head) {
               a = IS_OUTEDGE(head, tail);
               b = IS_OUTEDGE(head, node3);
               c = IS_OUTEDGE(node3, head);
               d = IS_OUTEDGE(node3, tail);
               e = IS_OUTEDGE(tail, node3);
               edgecount = (a + b + c + d + e);
-              
-              switch(edgecount) {  
+
+              switch(edgecount) {
                 case 0:   /* 012 */
                 ++t012;
-                
+
                 case 1: {  /* 021C, 021U, 021D, 102 */
                   if ((b == 1) || (d == 1))
                     ++t021C;
@@ -802,7 +802,7 @@ C_CHANGESTAT_FN(c_balance) {
                 break;
 
                 case 2:  { /* 030C, 030T, 111U, 111D */
-                  if ((b + d) == 2)       
+                  if ((b + d) == 2)
                     ++t030C;
                   if (((b + e) == 2) || ((c + d) == 2) || ((c + e) == 2))
                     ++t030T;
@@ -812,7 +812,7 @@ C_CHANGESTAT_FN(c_balance) {
                     ++t111D;
                 }
                 break;
-            
+
                 case 3: {   /* 120C, 120U, 120D, 201 */
                   if (a == 1) {
                     if (((b + d) == 2) || ((c + e) == 2))
@@ -823,7 +823,7 @@ C_CHANGESTAT_FN(c_balance) {
                       ++t120D;
                     if (((b + c) == 2) || ((d + e) == 2))
                       ++t201;
-                  } else { 
+                  } else {
                     if (b == 1) {
                       if (((c + d) == 2) || ((d + e) == 2))
                         ++t120C;
@@ -832,27 +832,27 @@ C_CHANGESTAT_FN(c_balance) {
                     } else {
                       ++t120U;
                     }
-                  } 
+                  }
                 }
                 break;
-             
+
                 case 4:   /* 210 */
                 ++t210;
                 break;
-             
-                case 5:   /* 300 */            
+
+                case 5:   /* 300 */
                 ++t300;
                 break;
               }
 
-              switch(edgecount) {  
+              switch(edgecount) {
                 case 1:   /* 102, 021D, 021U, 021C */
                 --t012;
                 break;
-                
-                case 2: {   /* 030C, 030T, 111U, 111D */ 
-                  if (((a + c) == 2) || ((a + e) == 2) || ((b + d) == 2) || 
-                    ((c + e) == 2)) 
+
+                case 2: {   /* 030C, 030T, 111U, 111D */
+                  if (((a + c) == 2) || ((a + e) == 2) || ((b + d) == 2) ||
+                    ((c + e) == 2))
                   --t021C;
                   if (((a + d) == 2) || ((b + e) == 2))
                     --t021U;
@@ -860,12 +860,12 @@ C_CHANGESTAT_FN(c_balance) {
                     --t021D;
                   if (((b + c) == 2) || ((d + e) == 2))
                     --t102;
-                } 
+                }
                 break;
 
                 case 3: {  /* 201, 120D, 120U, 120C */
                   if (a == 1) {
-                    if ((c + e) == 2)       
+                    if ((c + e) == 2)
                       --t030C;
                     if (((c + d) == 2) || ((b + e) == 2) || ((b + d) == 2))
                       --t030T;
@@ -885,7 +885,7 @@ C_CHANGESTAT_FN(c_balance) {
                   }
                 }
                 break;
-          
+
                 case 4: {   /* 210 */
                   if (a == 1) {
                     if (((b + c + e) == 3) || ((c + d + e) == 3))
@@ -897,52 +897,52 @@ C_CHANGESTAT_FN(c_balance) {
                   } else {
                     if ((b + c + d + e) == 4)
                       --t201;
-                  } 
+                  }
                 }
                 break;
-                
-                case 5:   /* 300 */            
+
+                case 5:   /* 300 */
                 --t210;
                 break;
               }
             }
           }    /* ******  move to next node3 ******** */
       }
-      else 
-        t012 = t012 + (N_NODES - 2);  
-      
-      /*        t003 = (t300+t210+t120C+t120U+t120D+t201+t030C+t030T); 
+      else
+        t012 = t012 + (N_NODES - 2);
+
+      /*        t003 = (t300+t210+t120C+t120U+t120D+t201+t030C+t030T);
       t003 = t003+(t111U+t111D+t021C+t021U+t021D+t102+t012); */
-      b = t102 + t300; 
+      b = t102 + t300;
       CHANGE_STAT[0] += edgestate ? -(double)b : (double)b;
 
-  /* *** don't forget tail -> head */    
+  /* *** don't forget tail -> head */
   }else{ /*  undirected */
       t300 = 0; t201 = 0; t102 = 0; t012 = 0;
-      
+
       if (MIN_OUTEDGE(head)!=0 || MIN_INEDGE(head)!=0 ||
       MIN_OUTEDGE(tail)!=0 || MIN_INEDGE(tail)!=0) {
-        
+
         /* ****** loop through node3 ****** */
-        for (node3=1; node3 <= N_NODES; node3++) { 
+        for (node3=1; node3 <= N_NODES; node3++) {
           if (node3 != tail && node3 != head) {
             a = IS_UNDIRECTED_EDGE(node3, head);
             b = IS_UNDIRECTED_EDGE(node3, tail);
             edgecount = (a + b);
-            
-            switch(edgecount){  
+
+            switch(edgecount){
               case 0: {  /* 012 */
                 ++t102;
                 --t012;
               }
               break;
-              
+
               case 1: {  /* 021C, 021U, 021D, 102 */
                 ++t201;
                 --t102;
               }
               break;
-              
+
               case 2: {  /* 030C, 030T, 111U, 111D */
                 ++t300;
                 --t201;
@@ -950,27 +950,27 @@ C_CHANGESTAT_FN(c_balance) {
               break;
             }
           }
-          
+
         }    /* ******  move to next node3 ******** */
-      } else 
-      t102 = t102 + (N_NODES - 2);  
-      
+      } else
+      t102 = t102 + (N_NODES - 2);
+
       /* t003 = (t102+t201+t300); */
-      b = t102 + t300; 
+      b = t102 + t300;
       CHANGE_STAT[0] += edgestate ? -(double)b : (double)b;
   }
 }
-  
+
 /*****************
  changestat: d_boundeddegree
 *****************/
-C_CHANGESTAT_FN(c_boundeddegree) { 
+C_CHANGESTAT_FN(c_boundeddegree) {
   int j, echange;
   Vertex taild, headd=0, deg;
   int nstats = (int)N_CHANGE_STATS;
   Vertex bound = (Vertex)INPUT_PARAM[nstats-1];
-  
-  /* *** don't forget tail -> head */    
+
+  /* *** don't forget tail -> head */
     echange = edgestate ? -1 : 1;
     taild = OUT_DEG[tail] + IN_DEG[tail];
     headd = OUT_DEG[head] + IN_DEG[head];
@@ -980,19 +980,19 @@ C_CHANGESTAT_FN(c_boundeddegree) {
       CHANGE_STAT[j] += (headd + echange == deg) - (headd == deg);
     }
     CHANGE_STAT[nstats-1] += (taild + echange >= bound) - (taild >= bound);
-    CHANGE_STAT[nstats-1] += (headd + echange >= bound) - (headd >= bound);    
+    CHANGE_STAT[nstats-1] += (headd + echange >= bound) - (headd >= bound);
 }
 
 /*****************
  changestat: d_boundedidegree
 *****************/
-C_CHANGESTAT_FN(c_boundedidegree) { 
+C_CHANGESTAT_FN(c_boundedidegree) {
   int j, echange;
   Vertex taild=0, deg;
   int nstats = (int)N_CHANGE_STATS;
   Vertex bound = (Vertex)INPUT_PARAM[nstats-1];
-  
-  /* *** don't forget tail -> head */    
+
+  /* *** don't forget tail -> head */
     echange = edgestate ? -1 : 1;
     taild = IN_DEG[tail];
     for(j = 0; j < N_CHANGE_STATS; j++) {
@@ -1005,13 +1005,13 @@ C_CHANGESTAT_FN(c_boundedidegree) {
 /*****************
  changestat: d_boundedistar
 *****************/
-C_CHANGESTAT_FN(c_boundedistar) { 
+C_CHANGESTAT_FN(c_boundedistar) {
   double change, headod;
   double newheadod;
   int j, k, bound;
   int p = N_CHANGE_STATS;
-  
-  /* *** don't forget tail -> head */    
+
+  /* *** don't forget tail -> head */
     /* is there an edge for this toggle */
     headod = IN_DEG[head];
     newheadod = headod + (edgestate ? -1 : 1);
@@ -1026,13 +1026,13 @@ C_CHANGESTAT_FN(c_boundedistar) {
 /*****************
  changestat: d_boundedkstar
 *****************/
-C_CHANGESTAT_FN(c_boundedkstar) { 
+C_CHANGESTAT_FN(c_boundedkstar) {
   double change, tailod, headod;
   double newtailod, newheadod;
   int j, k, bound;
   int p = N_CHANGE_STATS;
-  
-  /* *** don't forget tail -> head */    
+
+  /* *** don't forget tail -> head */
     /* is there an edge for this toggle */
     tailod = OUT_DEG[tail] + IN_DEG[tail];
     newtailod = tailod + (edgestate ? -1 : 1);
@@ -1043,7 +1043,7 @@ C_CHANGESTAT_FN(c_boundedkstar) {
       bound = (int)INPUT_PARAM[j+p];
       change = (MIN(bound,CHOOSE(newtailod, k))-MIN(bound,CHOOSE(tailod, k))) +
       (MIN(bound,CHOOSE(newheadod, k))-MIN(bound,CHOOSE(headod, k)));
-      
+
       CHANGE_STAT[j] += change; /* (edgestate ? - change : change); */
     }
 }
@@ -1051,13 +1051,13 @@ C_CHANGESTAT_FN(c_boundedkstar) {
 /*****************
  changestat: d_boundedodegree
 *****************/
-C_CHANGESTAT_FN(c_boundedodegree) { 
+C_CHANGESTAT_FN(c_boundedodegree) {
   int j, echange;
   Vertex taild=0, deg;
   int nstats = (int)N_CHANGE_STATS;
   Vertex bound = (Vertex)INPUT_PARAM[nstats-1];
-  
-  /* *** don't forget tail -> head */    
+
+  /* *** don't forget tail -> head */
     echange = edgestate ? -1 : 1;
     taild = OUT_DEG[tail];
     for(j = 0; j < N_CHANGE_STATS; j++)  {
@@ -1070,13 +1070,13 @@ C_CHANGESTAT_FN(c_boundedodegree) {
 /*****************
  changestat: d_boundedostar
 *****************/
-C_CHANGESTAT_FN(c_boundedostar) { 
+C_CHANGESTAT_FN(c_boundedostar) {
   double change, tailod;
   double newtailod;
   int j, k, bound;
   int p = N_CHANGE_STATS;
-  
-  /* *** don't forget tail -> head */    
+
+  /* *** don't forget tail -> head */
     /* is there an edge for this toggle */
     tailod = OUT_DEG[tail];
     newtailod = tailod + (edgestate ? -1 : 1);
@@ -1091,14 +1091,14 @@ C_CHANGESTAT_FN(c_boundedostar) {
 /*****************
  changestat: d_boundedtriangle
 *****************/
-C_CHANGESTAT_FN(c_boundedtriangle) { 
+C_CHANGESTAT_FN(c_boundedtriangle) {
   Edge e;
   Vertex node3;
   double boundedchange, htcount;
   Vertex tailtri, headtri;
   int bound = (int)INPUT_PARAM[0];
 
-  /* *** don't forget tail -> head */    
+  /* *** don't forget tail -> head */
     tailtri=0;
     headtri=0;
     STEP_THROUGH_OUTEDGES(tail, e, node3) {
@@ -1124,13 +1124,13 @@ C_CHANGESTAT_FN(c_boundedtriangle) {
 /*****************
  CountTriangles: called by d_boundedtriangle
 *****************/
-Vertex CountTriangles (Vertex tail, Vertex head, int outcount, int incount, 
+Vertex CountTriangles (Vertex tail, Vertex head, int outcount, int incount,
 		       Network *nwp) {
   Edge e;
   Vertex change;
   Vertex k;
-  
-  /* *** don't forget tail -> head */    
+
+  /* *** don't forget tail -> head */
   change=0;
   if(outcount){
     STEP_THROUGH_OUTEDGES(head, e, k) /* step through outedges of head */
@@ -1139,7 +1139,7 @@ Vertex CountTriangles (Vertex tail, Vertex head, int outcount, int incount,
 	  ++change;
       }
   }
-  
+
   if(incount){
     STEP_THROUGH_INEDGES(head, e, k) /* step through inedges of head */
       {
@@ -1156,11 +1156,11 @@ Vertex CountTriangles (Vertex tail, Vertex head, int outcount, int incount,
 /*****************
  changestat: d_concurrent
 *****************/
-C_CHANGESTAT_FN(c_concurrent) { 
+C_CHANGESTAT_FN(c_concurrent) {
   int echange;
   Vertex taildeg, headdeg;
 
-  /* *** don't forget tail -> head */    
+  /* *** don't forget tail -> head */
     echange = edgestate ? -1 : 1;
     taildeg = OUT_DEG[tail];
     headdeg = IN_DEG[head];
@@ -1175,7 +1175,7 @@ C_CHANGESTAT_FN(c_concurrent) {
 /*****************
  changestat: d_concurrent_by_attr
 *****************/
-C_CHANGESTAT_FN(c_concurrent_by_attr) { 
+C_CHANGESTAT_FN(c_concurrent_by_attr) {
   /*The inputparams are assumed to be set up as follows:
     The first 2*nstats values are in pairs:  (degree, attrvalue)
     The values following the first 2*nstats values are the nodal attributes.
@@ -1183,7 +1183,7 @@ C_CHANGESTAT_FN(c_concurrent_by_attr) {
   int j, echange, tailattr, headattr;
   Vertex taildeg, headdeg;
 
-  /* *** don't forget tail -> head */    
+  /* *** don't forget tail -> head */
     echange = edgestate ? -1 : 1;
     taildeg = OUT_DEG[tail];
     headdeg = IN_DEG[head];
@@ -1191,7 +1191,7 @@ C_CHANGESTAT_FN(c_concurrent_by_attr) {
       taildeg += IN_DEG[tail];
       headdeg += OUT_DEG[head];
     }
-    tailattr = INPUT_PARAM[N_CHANGE_STATS + tail - 1]; 
+    tailattr = INPUT_PARAM[N_CHANGE_STATS + tail - 1];
     headattr = INPUT_PARAM[N_CHANGE_STATS + head - 1];
     for(j = 0; j < N_CHANGE_STATS; j++) {
       if (tailattr == INPUT_PARAM[j]) { /* we have attr match */
@@ -1206,13 +1206,13 @@ C_CHANGESTAT_FN(c_concurrent_by_attr) {
 /*****************
  changestat: d_ctriple
 *****************/
-C_CHANGESTAT_FN(c_ctriple) { 
+C_CHANGESTAT_FN(c_ctriple) {
   Edge e;
   Vertex change, node3;
   int j;
   double tailattr, edgemult;
-  
-  /* *** don't forget tail -> head */    
+
+  /* *** don't forget tail -> head */
     edgemult = edgestate ? -1.0 : 1.0;
     change = 0;
     if(N_INPUT_PARAMS > 0){ /* match on attributes */
@@ -1228,7 +1228,7 @@ C_CHANGESTAT_FN(c_ctriple) {
               CHANGE_STAT[j] += edgemult * change;
           }
         } else { /* diff = FALSE; all matches equivalent */
-          CHANGE_STAT[0] += edgemult * change;          
+          CHANGE_STAT[0] += edgemult * change;
         }
       }
     }else{ /* no attribute matching */
@@ -1252,12 +1252,12 @@ C_CHANGESTAT_FN(c_cycle) {
   int j,k,semi;
   long int maxlen;
   double emult;
-  
+
   /*Perform initial setup*/
   semi=(int)(INPUT_PARAM[0]);             /*Are we using semicycles?*/
   maxlen=(long int)(INPUT_PARAM[1]);      /*Get max cycle length*/
 
-  /* *** don't forget tail -> head */    
+  /* *** don't forget tail -> head */
     for(j=0;j<maxlen-1;j++)  /*Clear out the count vector*/
       countv[j]=0.0;
     /*In semi-cycle case, this toggle can't matter if there is a*/
@@ -1281,13 +1281,13 @@ C_CHANGESTAT_FN(c_cycle) {
 /*****************
  edgewise_path_recurse:  Called by d_cycle
 *****************/
-void edgewise_path_recurse(Network *nwp, Vertex dest, Vertex curnode, 
+void edgewise_path_recurse(Network *nwp, Vertex dest, Vertex curnode,
      Vertex *visited, long int curlen, double *countv, long int maxlen, int semi) {
   Vertex i,v;
   Edge e;
   int rflag;
-  
-  /*If we've found a path to the destination, increment the census vector*/ 
+
+  /*If we've found a path to the destination, increment the census vector*/
   if(DIRECTED){  /*Use outedges, or both if counting semi-paths*/
     if(!semi)
       countv[curlen] += IS_OUTEDGE(curnode, dest);
@@ -1299,7 +1299,7 @@ void edgewise_path_recurse(Network *nwp, Vertex dest, Vertex curnode,
     else
       countv[curlen] += IS_INEDGE(curnode, dest);
   }
-  
+
   /*If possible, keep searching for novel paths*/
   if(curlen<maxlen-2){
     visited[curlen+1]=curnode; /*Add current node to visited list*/
@@ -1327,9 +1327,9 @@ void edgewise_path_recurse(Network *nwp, Vertex dest, Vertex curnode,
 /*****************
  edgewise_cycle_census:  Called by d_cycle
 *****************/
-void edgewise_cycle_census(Network *nwp, Vertex tail, Vertex head, 
+void edgewise_cycle_census(Network *nwp, Vertex tail, Vertex head,
                            double *countv, long int maxlen, int semi) {
-  /* *** don't forget tail -> head */    
+  /* *** don't forget tail -> head */
   long int n;
   Vertex *visited,v;
   Edge e;
@@ -1342,12 +1342,12 @@ void edgewise_cycle_census(Network *nwp, Vertex tail, Vertex head,
     countv[0]++;
   if(n==2)
     return;                 /*Failsafe for graphs of order 2*/
-  
+
   /*Perform the recursive path count*/
   visited=R_Calloc(maxlen,Vertex); /*Initialize the list of visited nodes*/
   visited[0]=tail;
   visited[1]=head;
-  
+
   /*Recurse on each neighbor of head*/
   STEP_THROUGH_OUTEDGES(head,e,v){
     if(v!=tail)
@@ -1366,7 +1366,7 @@ void edgewise_cycle_census(Network *nwp, Vertex tail, Vertex head,
 /*****************
  changestat: d_degcor
 *****************/
-C_CHANGESTAT_FN(c_degcor) { 
+C_CHANGESTAT_FN(c_degcor) {
   int  echange;
   Vertex taildeg, headdeg, node3;
   Edge e;
@@ -1408,7 +1408,7 @@ C_CHANGESTAT_FN(c_degcor) {
     }
   CHANGE_STAT[0] *= (2.0/sigma2);
 }
-S_CHANGESTAT_FN(s_degcor) { 
+S_CHANGESTAT_FN(s_degcor) {
   Vertex taildeg, headdeg;
   Edge e;
   double mu, mu2, sigma2, cross;
@@ -1436,7 +1436,7 @@ S_CHANGESTAT_FN(s_degcor) {
 /*****************
  changestat: d_degcrossprod
 *****************/
-C_CHANGESTAT_FN(c_degcrossprod) { 
+C_CHANGESTAT_FN(c_degcrossprod) {
   int  echange;
   Vertex taildeg, headdeg, node3;
   Edge e;
@@ -1486,14 +1486,14 @@ C_CHANGESTAT_FN(c_degcrossprod) {
 /*****************
  changestat: d_degrange
 *****************/
-C_CHANGESTAT_FN(c_degrange) { 
+C_CHANGESTAT_FN(c_degrange) {
   int j, echange;
   Vertex *id, *od;
 
   id=IN_DEG;
   od=OUT_DEG;
 
-  /* *** don't forget tail -> head */    
+  /* *** don't forget tail -> head */
       echange=edgestate ? -1:+1;
     Vertex taildeg = od[tail] + id[tail], headdeg = od[head] + id[head];
     for(j = 0; j < N_CHANGE_STATS; j++) {
@@ -1502,29 +1502,29 @@ C_CHANGESTAT_FN(c_degrange) {
       CHANGE_STAT[j] += FROM_TO(headdeg + echange, from, to) - FROM_TO(headdeg, from, to);
     }
 }
- 
+
 /*****************
  changestat: d_degrange_by_attr
 *****************/
-C_CHANGESTAT_FN(c_degrange_by_attr) { 
+C_CHANGESTAT_FN(c_degrange_by_attr) {
   /* The inputparams are assumed to be set up as follows:
   The first 3*nstats values are in triples:  (from, to, attrvalue)
   The values following the first 3*nstats values are the nodal attributes.
   */
   int j;
   Vertex *id, *od;
-  
+
   id=IN_DEG;
   od=OUT_DEG;
 
-  /* *** don't forget tail -> head */    
+  /* *** don't forget tail -> head */
       int echange = edgestate ? -1:1;
     Vertex taildeg = od[tail] + id[tail], headdeg = od[head] + id[head];
     int tailattr = INPUT_PARAM[3*N_CHANGE_STATS + tail - 1],
-      headattr = INPUT_PARAM[3*N_CHANGE_STATS + head - 1]; 
+      headattr = INPUT_PARAM[3*N_CHANGE_STATS + head - 1];
     for(j = 0; j < N_CHANGE_STATS; j++) {
       Vertex from = INPUT_PARAM[3*j], to = INPUT_PARAM[3*j + 1];
-      int testattr = INPUT_PARAM[3*j + 2]; 
+      int testattr = INPUT_PARAM[3*j + 2];
       if (tailattr == testattr)  /* we have tail attr match */
         CHANGE_STAT[j] += FROM_TO(taildeg + echange, from, to) - FROM_TO(taildeg, from, to);
       if (headattr == testattr)  /* we have head attr match */
@@ -1535,7 +1535,7 @@ C_CHANGESTAT_FN(c_degrange_by_attr) {
 /*****************
  changestat: d_degrange_w_homophily
 *****************/
-C_CHANGESTAT_FN(c_degrange_w_homophily) { 
+C_CHANGESTAT_FN(c_degrange_w_homophily) {
   /*  The inputparams are assumed to be set up as follows:
   The first 2*nstats values are the values of degrange
   The values following the first 2*nstats values are the nodal attributes.
@@ -1545,9 +1545,9 @@ C_CHANGESTAT_FN(c_degrange_w_homophily) {
   double *nodeattr;
   Edge e;
 
-  nodeattr = mtp->inputparams + N_CHANGE_STATS*2 - 1;  
+  nodeattr = mtp->inputparams + N_CHANGE_STATS*2 - 1;
 
-  /* *** don't forget tail -> head */    
+  /* *** don't forget tail -> head */
       int tailattr = nodeattr[tail], headattr = nodeattr[head];
     if (tailattr == headattr) { /* They match; otherwise don't bother */
       int echange = edgestate ? -1:1;
@@ -1563,21 +1563,21 @@ C_CHANGESTAT_FN(c_degrange_w_homophily) {
         CHANGE_STAT[j] += FROM_TO(headdeg + echange, from, to) - FROM_TO(headdeg, from, to);
       }
     }
-}                                        
+}
 
 #undef FROM_TO
 
 /*****************
  changestat: d_degree
 *****************/
-C_CHANGESTAT_FN(c_degree) { 
+C_CHANGESTAT_FN(c_degree) {
   int j, echange;
   Vertex taildeg, headdeg, deg, *id, *od;
 
   id=IN_DEG;
   od=OUT_DEG;
 
-  /* *** don't forget tail -> head */    
+  /* *** don't forget tail -> head */
     echange=edgestate ? -1:+1;
     taildeg = od[tail] + id[tail];
     headdeg = od[head] + id[head];
@@ -1609,10 +1609,10 @@ C_CHANGESTAT_FN(c_degdist) {
 /*****************
  changestat: d_degreepopularity
 *****************/
-C_CHANGESTAT_FN(c_degreepopularity) { 
+C_CHANGESTAT_FN(c_degreepopularity) {
   double change;
-  
-  /* *** don't forget tail -> head */    
+
+  /* *** don't forget tail -> head */
   change = 0.0;
     Vertex tdeg = OUT_DEG[tail] + IN_DEG[tail];
     Vertex hdeg = OUT_DEG[head] + IN_DEG[head];
@@ -1627,32 +1627,32 @@ C_CHANGESTAT_FN(c_degreepopularity) {
       change += sqrt(hdeg+1.0);
       change += hdeg*(sqrt(hdeg+1.0)-sqrt(hdeg));
     }
-  CHANGE_STAT[0]=change; 
+  CHANGE_STAT[0]=change;
 }
 
 /*****************
  changestat: d_degree_by_attr
 *****************/
-C_CHANGESTAT_FN(c_degree_by_attr) { 
+C_CHANGESTAT_FN(c_degree_by_attr) {
   /* The inputparams are assumed to be set up as follows:
   The first 2*nstats values are in pairs:  (degree, attrvalue)
   The values following the first 2*nstats values are the nodal attributes.
   */
   int j, echange, tailattr, headattr, testattr;
   Vertex taildeg, headdeg, d, *id, *od;
-  
+
   id=IN_DEG;
   od=OUT_DEG;
 
-  /* *** don't forget tail -> head */    
+  /* *** don't forget tail -> head */
     echange = edgestate ? -1:1;
     taildeg = od[tail] + id[tail];
     headdeg = od[head] + id[head];
-    tailattr = INPUT_PARAM[2*N_CHANGE_STATS + tail - 1]; 
-    headattr = INPUT_PARAM[2*N_CHANGE_STATS + head - 1]; 
+    tailattr = INPUT_PARAM[2*N_CHANGE_STATS + tail - 1];
+    headattr = INPUT_PARAM[2*N_CHANGE_STATS + head - 1];
     for(j = 0; j < N_CHANGE_STATS; j++) {
       d = (Vertex)INPUT_PARAM[2*j];
-      testattr = INPUT_PARAM[2*j + 1]; 
+      testattr = INPUT_PARAM[2*j + 1];
       if (tailattr == testattr)  /* we have tail attr match */
         CHANGE_STAT[j] += (taildeg + echange == d) - (taildeg == d);
       if (headattr == testattr)  /* we have head attr match */
@@ -1663,7 +1663,7 @@ C_CHANGESTAT_FN(c_degree_by_attr) {
 /*****************
  changestat: d_degree_w_homophily
 *****************/
-C_CHANGESTAT_FN(c_degree_w_homophily) { 
+C_CHANGESTAT_FN(c_degree_w_homophily) {
   /*  The inputparams are assumed to be set up as follows:
   The first nstats values are the values of degree
   The values following the first nstats values are the nodal attributes.
@@ -1673,11 +1673,11 @@ C_CHANGESTAT_FN(c_degree_w_homophily) {
   double *nodeattr;
   Edge e;
 
-  nodeattr = mtp->inputparams + N_CHANGE_STATS - 1;  
+  nodeattr = mtp->inputparams + N_CHANGE_STATS - 1;
 
-  /* *** don't forget tail -> head */    
+  /* *** don't forget tail -> head */
     tailattr = (int)nodeattr[tail];
-    headattr = (int)nodeattr[head];    
+    headattr = (int)nodeattr[head];
     if (tailattr == headattr) { /* They match; otherwise don't bother */
       echange = edgestate ? -1:1;
       taildeg=headdeg=-1; /* since tailattr==headattr, subtract the automatic match */
@@ -1692,23 +1692,23 @@ C_CHANGESTAT_FN(c_degree_w_homophily) {
         CHANGE_STAT[j] += (headdeg + echange == deg) - (headdeg == deg);
       }
     }
-}                                        
+}
 
 /*****************
  changestat: d_density
 *****************/
 C_CHANGESTAT_FN(c_density) {
   Dyad ndyads = N_DYADS;
-  
-  /* *** don't forget tail -> head */    
+
+  /* *** don't forget tail -> head */
     CHANGE_STAT[0] += edgestate ? - 1 : 1;
   CHANGE_STAT[0] = CHANGE_STAT[0] / ndyads;
 }
 
-/*****************                       
+/*****************
  changestat: d_diff
 *****************/
-C_CHANGESTAT_FN(c_diff) { 
+C_CHANGESTAT_FN(c_diff) {
   double p = INPUT_PARAM[0], *x = INPUT_PARAM+2;
   int mul = INPUT_PARAM[1], sign_code = INPUT_PARAM[2];
 
@@ -1736,25 +1736,25 @@ C_CHANGESTAT_FN(c_diff) {
     }else if(p!=1.0){
       change = pow(change, p);
     }
-    
+
     CHANGE_STAT[0] += edgestate ? -change : change;
 }
 
 /*****************
  changestat: d_dyadcov
 *****************/
-C_CHANGESTAT_FN(c_dyadcov) { 
+C_CHANGESTAT_FN(c_dyadcov) {
   double val;
   int refedgestate;
   long int nrow, noffset, index;
-  
+
   noffset = BIPARTITE;
   if(noffset > 0){
    nrow = (N_NODES)-(long int)(INPUT_PARAM[0]);
   }else{
    nrow = (long int)(INPUT_PARAM[0]);
   }
-  
+
 /*  Rprintf("nrow %d noffset %d\n",nrow, noffset);
   Rprintf("attrib: ");
   for(i=0;i<1000;i++)
@@ -1766,16 +1766,16 @@ C_CHANGESTAT_FN(c_dyadcov) {
     /* directed version */
       /*Get the initial state of the edge and its reflection*/
       refedgestate = (IS_OUTEDGE(head, tail));
-    
-    /* *** don't forget tail -> head */    
-      
+
+    /* *** don't forget tail -> head */
+
       /*Get the dyadic covariate*/
       /*    val = INPUT_ATTRIB[(head-1-nrow)+(tail-1)*ncols]; */
       index = (head-1-noffset)*nrow+(tail-1);
       if(index >= 0 && index <= nrow*nrow){
         val = INPUT_ATTRIB[(head-1-noffset)*nrow+(tail-1)];
         /*  Rprintf("tail %d head %d nrow %d ncols %d val %f\n",tail, head, nrow, ncols, val); */
-        
+
         /*Update the change statistics, as appropriate*/
         if(refedgestate){      /* Reflected edge is present */
           if(edgestate){         /* Toggled edge _was_ present */
@@ -1810,11 +1810,11 @@ C_CHANGESTAT_FN(c_dyadcov) {
             }
           }
         }
-      }      
+      }
 }else{
     /* undirected case (including bipartite) */
-    
-    /* *** don't forget tail -> head */    
+
+    /* *** don't forget tail -> head */
         /*Get the initial edge state*/
       /*Get the covariate value*/
       /*    val = INPUT_ATTRIB[(head-1-nrow)+(tail-1)*ncols]; */
@@ -1837,7 +1837,7 @@ C_CHANGESTAT_FN(c_dyadcov) {
 C_CHANGESTAT_FN(c_edgecov) {
   double val;
   int nrow, noffset;
-  
+
   noffset = BIPARTITE;
   if(noffset > 0){
     /*   nrow = (N_NODES)-(long int)(INPUT_PARAM[0]); */
@@ -1845,11 +1845,11 @@ C_CHANGESTAT_FN(c_edgecov) {
   }else{
     nrow = (long int)(INPUT_PARAM[0]);
   }
-  
-  /* *** don't forget tail -> head */    
+
+  /* *** don't forget tail -> head */
     /*Get the initial edge state*/
     /*Get the covariate value*/
-    val = INPUT_ATTRIB[(head-1-noffset)*nrow+(tail-1)];  
+    val = INPUT_ATTRIB[(head-1-noffset)*nrow+(tail-1)];
     /*  Rprintf("tail %d head %d nrow %d val %f\n", tail, head, nrow, val); */
     /*Update the change statistic, based on the toggle type*/
     CHANGE_STAT[0] += edgestate ? -val : val;
@@ -1876,31 +1876,31 @@ S_CHANGESTAT_FN(s_edges) {
 
 #define GWD0(d0) ((decay) ? exp(loneexpd*(d0)) : (d0)==0)
 
-C_CHANGESTAT_FN(c_gwdegree) { 
+C_CHANGESTAT_FN(c_gwdegree) {
   int  echange=0;
   double decay, loneexpd, change;
   Vertex taild, headd=0, *id, *od;
-  
+
   id=IN_DEG;
   od=OUT_DEG;
   decay = INPUT_PARAM[0];
   loneexpd = log1mexp(decay);
-  
-  /* *** don't forget tail -> head */    
+
+  /* *** don't forget tail -> head */
   change = 0.0;
-  echange = edgestate ? -1:+1;
+    echange = edgestate ? -1:+1;
   taild = od[tail] + id[tail] - edgestate;
   headd = od[head] + id[head] - edgestate;
   change += echange*(GWD0(taild) + GWD0(headd));
-      
+
   CHANGE_STAT[0] = change;
-  
+
 }
 
 /*****************
  changestat: d_gwdegree_by_attr
 *****************/
-C_CHANGESTAT_FN(c_gwdegree_by_attr) { 
+C_CHANGESTAT_FN(c_gwdegree_by_attr) {
   /*The inputparams are assumed to be set up as follows:
     The first value is the decay parameter (as in Hunter et al, JASA 200?)
     The next sequence of values is the nodal attributes, coded as integers
@@ -1909,45 +1909,45 @@ C_CHANGESTAT_FN(c_gwdegree_by_attr) {
   int  tailattr, headattr, echange=0;
   double decay, loneexpd;
   Vertex taild, headd=0, *id, *od;
-  
+
   id=IN_DEG;
   od=OUT_DEG;
   decay = INPUT_PARAM[0];
   loneexpd = log1mexp(decay);
-  
-  /* *** don't forget tail -> head */    
+
+  /* *** don't forget tail -> head */
     echange = edgestate ? -1:+1;
     taild = od[tail] + id[tail] - edgestate;
-    tailattr = INPUT_PARAM[tail]; 
+    tailattr = INPUT_PARAM[tail];
     CHANGE_STAT[tailattr-1] += echange*GWD0(taild);
-    
+
     headd = od[head] + id[head] - edgestate;
-    headattr = INPUT_PARAM[head]; 
+    headattr = INPUT_PARAM[head];
     CHANGE_STAT[headattr-1] += echange*GWD0(headd);
-      
+
 }
 
 /*****************
  changestat: d_gwidegree
 *****************/
-C_CHANGESTAT_FN(c_gwidegree) { 
+C_CHANGESTAT_FN(c_gwidegree) {
   double decay, loneexpd, change;
   Vertex headd=0;
-  
+
   decay = INPUT_PARAM[0];
   loneexpd = log1mexp(decay);
   change = 0.0;
 
-  /* *** don't forget tail -> head */    
+  /* *** don't forget tail -> head */
     headd = IN_DEG[head] - edgestate;
     change += (edgestate? -1.0 : 1.0) * GWD0(headd);
-  CHANGE_STAT[0]=change; 
+  CHANGE_STAT[0]=change;
 }
 
 /*****************
  changestat: d_gwidegree_by_attr
 *****************/
-C_CHANGESTAT_FN(c_gwidegree_by_attr) { 
+C_CHANGESTAT_FN(c_gwidegree_by_attr) {
   /*The inputparams are assumed to be set up as follows:
     The first value is the decay parameter (as in Hunter et al, JASA 2008)
     The next sequence of values is the nodal attributes, coded as integers
@@ -1956,11 +1956,11 @@ C_CHANGESTAT_FN(c_gwidegree_by_attr) {
   int  headattr, echange;
   double decay, loneexpd;
   Vertex headd;
-  
+
   decay = INPUT_PARAM[0];
   loneexpd = log1mexp(decay);
 
-  /* *** don't forget tail -> head */    
+  /* *** don't forget tail -> head */
     echange = edgestate ? -1 : 1;
     headd = IN_DEG[head] - edgestate;
     headattr = INPUT_PARAM[head - BIPARTITE]; /* BIPARTITE to make the b2 version a special case. */
@@ -1970,15 +1970,15 @@ C_CHANGESTAT_FN(c_gwidegree_by_attr) {
 /*****************
  changestat: d_gwodegree
 *****************/
-C_CHANGESTAT_FN(c_gwodegree) { 
+C_CHANGESTAT_FN(c_gwodegree) {
   double decay, loneexpd, change;
   Vertex taild;
-  
+
   decay = INPUT_PARAM[0];
   loneexpd = log1mexp(decay);
   change = 0.0;
 
-  /* *** don't forget tail -> head */    
+  /* *** don't forget tail -> head */
     taild = OUT_DEG[tail] - edgestate;
     change += (edgestate? -1 : 1) * GWD0(taild);
   CHANGE_STAT[0] = change;
@@ -1987,7 +1987,7 @@ C_CHANGESTAT_FN(c_gwodegree) {
 /*****************
  changestat: d_gwodegree_by_attr
 *****************/
-C_CHANGESTAT_FN(c_gwodegree_by_attr) { 
+C_CHANGESTAT_FN(c_gwodegree_by_attr) {
   /*The inputparams are assumed to be set up as follows:
     The first value is the decay parameter (as in Hunter et al, JASA 2008)
     The next sequence of values is the nodal attributes, coded as integers
@@ -1996,14 +1996,14 @@ C_CHANGESTAT_FN(c_gwodegree_by_attr) {
   int  tailattr, echange;
   double decay, loneexpd;
   Vertex taild;
-  
+
   decay = INPUT_PARAM[0];
   loneexpd = log1mexp(decay);
 
-  /* *** don't forget tail -> head */    
+  /* *** don't forget tail -> head */
     echange = edgestate ? -1 : 1;
     taild = OUT_DEG[tail] - edgestate;
-    tailattr = INPUT_PARAM[tail]; 
+    tailattr = INPUT_PARAM[tail];
     CHANGE_STAT[tailattr-1] += echange*GWD0(taild);
 }
 
@@ -2018,15 +2018,15 @@ C_CHANGESTAT_FN(c_gwodegree_by_attr) {
    will have the value given by defaultval; thus, the "unweighted" hamming
    distance is obtained when the default is 1.0 and the second network is
    empty. */
-C_CHANGESTAT_FN(c_hamming) { 
+C_CHANGESTAT_FN(c_hamming) {
   int  discord;
-  
+
   Edge wt_net_start= INPUT_PARAM[0]*2+2;
   double defaultval = INPUT_PARAM[wt_net_start-1]; /* Hamming wt for non-edges in cov nwp */
   double *wt_net = INPUT_PARAM+wt_net_start;
 
-  /* *** don't forget tail -> head */    
-      
+  /* *** don't forget tail -> head */
+
     discord = XOR(dEdgeListSearch(tail, head, INPUT_PARAM), edgestate);
 
     /* Second, search second network to see if the weight is different from
@@ -2047,10 +2047,10 @@ C_CHANGESTAT_FN(c_hamming) {
 /*****************
  changestat: d_idegrange
 *****************/
-C_CHANGESTAT_FN(c_idegrange) { 
+C_CHANGESTAT_FN(c_idegrange) {
   int j, echange;
 
-  /* *** don't forget tail -> head */    
+  /* *** don't forget tail -> head */
       echange=edgestate ? -1:+1;
     Vertex headideg = IN_DEG[head];
     for(j = 0; j < N_CHANGE_STATS; j++) {
@@ -2058,27 +2058,27 @@ C_CHANGESTAT_FN(c_idegrange) {
       CHANGE_STAT[j] += FROM_TO(headideg + echange, from, to) - FROM_TO(headideg, from, to);
     }
 }
- 
+
 /*****************
  changestat: d_idegrange_by_attr
 *****************/
-C_CHANGESTAT_FN(c_idegrange_by_attr) { 
+C_CHANGESTAT_FN(c_idegrange_by_attr) {
   /* The inputparams are assumed to be set up as follows:
   The first 3*nstats values are in triples:  (from, to, attrvalue)
   The values following the first 2*nstats values are the nodal attributes.
   */
   int j;
   Vertex *id;
-  
+
   id=IN_DEG;
 
-  /* *** don't forget tail -> head */    
+  /* *** don't forget tail -> head */
       int echange = edgestate ? -1:1;
     Vertex headideg = id[head];
     int headattr = INPUT_PARAM[3*N_CHANGE_STATS + head - 1 - BIPARTITE];  /* BIPARTITE to make the b2 version a special case. */
     for(j = 0; j < N_CHANGE_STATS; j++){
       Vertex from = INPUT_PARAM[3*j], to = INPUT_PARAM[3*j + 1];
-      int testattr = INPUT_PARAM[3*j + 2]; 
+      int testattr = INPUT_PARAM[3*j + 2];
       if (headattr == testattr)  /* we have tail attr match */
         CHANGE_STAT[j] += FROM_TO(headideg + echange, from, to) - FROM_TO(headideg, from, to);
     }
@@ -2087,7 +2087,7 @@ C_CHANGESTAT_FN(c_idegrange_by_attr) {
 /*****************
  changestat: d_idegrange_w_homophily
 *****************/
-C_CHANGESTAT_FN(c_idegrange_w_homophily) { 
+C_CHANGESTAT_FN(c_idegrange_w_homophily) {
   /*  The inputparams are assumed to be set up as follows:
   The first 2*nstats values are the values of idegrange
   The values following the first 2*nstats values are the nodal attributes.
@@ -2096,9 +2096,9 @@ C_CHANGESTAT_FN(c_idegrange_w_homophily) {
   double *nodeattr;
   Edge e;
 
-  nodeattr = mtp->inputparams + N_CHANGE_STATS*2 - 1;  
+  nodeattr = mtp->inputparams + N_CHANGE_STATS*2 - 1;
 
-  /* *** don't forget tail -> head */    
+  /* *** don't forget tail -> head */
       int tailattr = nodeattr[tail], headattr = nodeattr[head];
     if (headattr == tailattr) { /* They match; otherwise don't bother */
       int echange = edgestate ? -1:1;
@@ -2109,20 +2109,20 @@ C_CHANGESTAT_FN(c_idegrange_w_homophily) {
         CHANGE_STAT[j] += FROM_TO(headideg + echange, from, to) - FROM_TO(headideg, from, to);
       }
     }
-}                                        
+}
 
 #undef FROM_TO
 
 /*****************
  changestat: d_idegree
 *****************/
-C_CHANGESTAT_FN(c_idegree) { 
+C_CHANGESTAT_FN(c_idegree) {
   int j;
-  
-  /* *** don't forget tail -> head */    
+
+  /* *** don't forget tail -> head */
     int echange = edgestate ? -1 : +1;
     Vertex headd = IN_DEG[head];
-    
+
     for(j=0; j < N_CHANGE_STATS; j++){
       Vertex deg = INPUT_PARAM[j];
       CHANGE_STAT[j] += (headd + echange == deg) - (headd == deg);
@@ -2148,23 +2148,23 @@ C_CHANGESTAT_FN(c_idegdist) {
 /*****************
  changestat: d_idegree_by_attr
 *****************/
-C_CHANGESTAT_FN(c_idegree_by_attr) { 
+C_CHANGESTAT_FN(c_idegree_by_attr) {
   /* The inputparams are assumed to be set up as follows:
   The first 2*nstats values are in pairs:  (degree, attrvalue)
   The values following the first 2*nstats values are the nodal attributes.
   */
   int j, echange, headattr, testattr;
   Vertex headdeg, d, *id;
-  
+
   id=IN_DEG;
 
-  /* *** don't forget tail -> head */    
+  /* *** don't forget tail -> head */
     echange=edgestate ? -1 : +1;
     headdeg = id[head];
     headattr = INPUT_PARAM[2*N_CHANGE_STATS + head - 1- BIPARTITE];  /* BIPARTITE to make the b2 version a special case. */
     for(j = 0; j < N_CHANGE_STATS; j++) {
       d = (Vertex)INPUT_PARAM[2*j];
-      testattr = INPUT_PARAM[2*j + 1]; 
+      testattr = INPUT_PARAM[2*j + 1];
       if (headattr == testattr)  /* we have head attr match */
         CHANGE_STAT[j] += (headdeg + echange == d) - (headdeg == d);
     }
@@ -2173,7 +2173,7 @@ C_CHANGESTAT_FN(c_idegree_by_attr) {
 /*****************
  changestat: d_idegree_w_homophily
 *****************/
-C_CHANGESTAT_FN(c_idegree_w_homophily) { 
+C_CHANGESTAT_FN(c_idegree_w_homophily) {
   /*  The inputparams are assumed to be set up as follows:
   The first nstats values are the values of degree
   The values following the first nstats values are the nodal attributes.
@@ -2183,11 +2183,11 @@ C_CHANGESTAT_FN(c_idegree_w_homophily) {
   double *nodeattr;
   Edge e;
 
-  nodeattr = mtp->inputparams + N_CHANGE_STATS - 1;  
+  nodeattr = mtp->inputparams + N_CHANGE_STATS - 1;
 
-  /* *** don't forget tail -> head */    
+  /* *** don't forget tail -> head */
     tailattr = (int)nodeattr[tail];
-    headattr = (int)nodeattr[head];    
+    headattr = (int)nodeattr[head];
     if (tailattr == headattr) { /* They match; otherwise don't bother */
       echange=edgestate ? -1 : +1;
       headdeg=0;
@@ -2204,11 +2204,11 @@ C_CHANGESTAT_FN(c_idegree_w_homophily) {
 /*****************
  changestat: d_idegreepopularity
 *****************/
-C_CHANGESTAT_FN(c_idegreepopularity) { 
+C_CHANGESTAT_FN(c_idegreepopularity) {
   double change;
   Vertex  deg=0;
-  
-  /* *** don't forget tail -> head */    
+
+  /* *** don't forget tail -> head */
   change = 0.0;
     deg = (double)(IN_DEG[head]);
     if(edgestate){
@@ -2218,18 +2218,18 @@ C_CHANGESTAT_FN(c_idegreepopularity) {
       change += sqrt(deg+1.0);
       change += deg*(sqrt(deg+1.0)-sqrt(deg));
   }
-  CHANGE_STAT[0]=change; 
+  CHANGE_STAT[0]=change;
 }
 
 /*****************
  changestat: d_intransitive
 *****************/
-C_CHANGESTAT_FN(c_intransitive) { 
+C_CHANGESTAT_FN(c_intransitive) {
   Edge e;
   Vertex node2;
   double change;
-  
-  /* *** don't forget tail -> head */    
+
+  /* *** don't forget tail -> head */
     change = 0.0;
     STEP_THROUGH_OUTEDGES(head, e, node2) {
       if (node2 != tail){
@@ -2251,7 +2251,7 @@ C_CHANGESTAT_FN(c_intransitive) {
           change = change + 1.0;
         }
       }
-    }    
+    }
     CHANGE_STAT[0] += edgestate ? -change : change;
 /*  Rprintf("tail %d head %d edgestate %d change %f\n",tail,head, change); */
 }
@@ -2259,34 +2259,34 @@ C_CHANGESTAT_FN(c_intransitive) {
 /*****************
 changestat: d_isolatededges
 *****************/
-D_CHANGESTAT_FN(d_isolatededges) { 
+D_CHANGESTAT_FN(d_isolatededges) {
   int i, edgestate;
   Vertex tail, head, neighbor, taild, headd, *id, *od;
   Edge e;
-  
+
   id=IN_DEG;
   od=OUT_DEG;
 
-  /* *** don't forget tail -> head */    
+  /* *** don't forget tail -> head */
   ZERO_ALL_CHANGESTATS(i);
   FOR_EACH_TOGGLE(i) {
     // is there an edge tail -> head?
     edgestate = IS_OUTEDGE(tail=TAIL(i), head=HEAD(i));
-    
+
     taild = od[tail] + id[tail];
     headd = od[head] + id[head];
-    
+
     if(edgestate) { // we are removing an edge
-        
+
       // if head and tail both have degree one, then
-      // we are removing an isolated edge        
+      // we are removing an isolated edge
       if(taild == 1 && headd == 1)
         CHANGE_STAT[0] -= 1;
-          
+
       // if tail has degree 2 and has a degree one node other than head as a neighbor,
       // then we are making a non-isolated edge into an isolated edge by removing
       // the edge tail -> head
-      if(taild == 2) { 
+      if(taild == 2) {
         STEP_THROUGH_OUTEDGES(tail, e, neighbor) {
           if(od[neighbor] + id[neighbor] == 1 && neighbor != head)
             CHANGE_STAT[0] += 1;
@@ -2294,11 +2294,11 @@ D_CHANGESTAT_FN(d_isolatededges) {
         STEP_THROUGH_INEDGES(tail, e, neighbor) {
           if(od[neighbor] + id[neighbor] == 1 && neighbor != head)
             CHANGE_STAT[0] += 1;
-        }          
+        }
       }
-        
+
       // ditto head
-      if(headd == 2) { 
+      if(headd == 2) {
         STEP_THROUGH_OUTEDGES(head, e, neighbor) {
           if(od[neighbor] + id[neighbor] == 1 && neighbor != tail)
             CHANGE_STAT[0] += 1;
@@ -2306,21 +2306,21 @@ D_CHANGESTAT_FN(d_isolatededges) {
         STEP_THROUGH_INEDGES(head, e, neighbor) {
           if(od[neighbor] + id[neighbor] == 1 && neighbor != tail)
             CHANGE_STAT[0] += 1;
-        }        
+        }
       }
     } else { // we are adding an edge
-    
+
       // if head and tail both have degree zero, then
       // we are adding an isolated edge
       if(taild == 0 && headd == 0)
         CHANGE_STAT[0] += 1;
-      
-      // if tail has degree 1 and so does its neighbor, then we 
+
+      // if tail has degree 1 and so does its neighbor, then we
       // are making an isolated edge into a non-isolated edge;
       // note that for undirected graphs, this neighbor cannot
       // be head, as the current toggle is to turn on the edge
       // tail -> head
-      if(taild == 1) { 
+      if(taild == 1) {
         STEP_THROUGH_OUTEDGES(tail, e, neighbor) {
           if(od[neighbor] + id[neighbor] == 1)
             CHANGE_STAT[0] -= 1;
@@ -2330,9 +2330,9 @@ D_CHANGESTAT_FN(d_isolatededges) {
             CHANGE_STAT[0] -= 1;
         }
       }
-      
+
       // ditto head
-      if(headd == 1) { 
+      if(headd == 1) {
         STEP_THROUGH_OUTEDGES(head, e, neighbor) {
           if(od[neighbor] + id[neighbor] == 1)
             CHANGE_STAT[0] -= 1;
@@ -2343,7 +2343,7 @@ D_CHANGESTAT_FN(d_isolatededges) {
         }
       }
     }
-    
+
     TOGGLE_IF_MORE_TO_COME(i);
   }
 
@@ -2353,31 +2353,31 @@ D_CHANGESTAT_FN(d_isolatededges) {
 /*****************
  changestat: d_isolates
 *****************/
-C_CHANGESTAT_FN(c_isolates) { 
+C_CHANGESTAT_FN(c_isolates) {
   int  echange;
   Vertex taild, headd=0, *id, *od;
 
   id=IN_DEG;
   od=OUT_DEG;
-  
-  /* *** don't forget tail -> head */    
+
+  /* *** don't forget tail -> head */
       echange = edgestate ? -1:+1;
       taild = od[tail] + id[tail];
       headd = od[head] + id[head];
       CHANGE_STAT[0] += (taild + echange == 0) - (taild == 0);
       CHANGE_STAT[0] += (headd + echange == 0) - (headd == 0);
-      
+
 }
 
-S_CHANGESTAT_FN(s_isolates) { 
+S_CHANGESTAT_FN(s_isolates) {
   /* int  echange;
      Vertex taild, headd=0, *id, *od; */
   Vertex *id, *od;
 
   id=IN_DEG;
   od=OUT_DEG;
-  
-  /* *** don't forget tail -> head */    
+
+  /* *** don't forget tail -> head */
   CHANGE_STAT[0] = 0.0;
   for(Vertex tail=1; tail <= N_NODES; tail++){
     if(od[tail] + id[tail] == 0)
@@ -2388,18 +2388,18 @@ S_CHANGESTAT_FN(s_isolates) {
 /*****************
  changestat: d_istar
 *****************/
-C_CHANGESTAT_FN(c_istar) { 
+C_CHANGESTAT_FN(c_istar) {
   double change, headd=0.0;
   int j, kmo;
   Edge e;
   Vertex node3;
   int ninputs, nstats;
   double tailattr;
-  
+
   ninputs = (int)N_INPUT_PARAMS;
   nstats  = (int)N_CHANGE_STATS;
-  
-  /* *** don't forget tail -> head */    
+
+  /* *** don't forget tail -> head */
   if(ninputs>nstats){
     /* match on attributes */
       /* edgestate is 1 if edge exists and will disappear
@@ -2409,10 +2409,10 @@ C_CHANGESTAT_FN(c_istar) {
         headd = -(int)edgestate;
         STEP_THROUGH_INEDGES(head, e, node3) {/* step through inedges of head */
           if(tailattr == INPUT_ATTRIB[node3-1]){++headd;}
-        }	  
+        }
         for(j=0; j < N_CHANGE_STATS; j++) {
           kmo = ((int)INPUT_PARAM[j]) - 1;
-          change = CHOOSE(headd, kmo); 
+          change = CHOOSE(headd, kmo);
           CHANGE_STAT[j] += (edgestate ? - change : change);
         }
       }
@@ -2422,7 +2422,7 @@ C_CHANGESTAT_FN(c_istar) {
       headd = IN_DEG[head] - edgestate;
       for(j=0; j < N_CHANGE_STATS; j++) {
         kmo = ((int)INPUT_PARAM[j]) - 1;
-        change = CHOOSE(headd, kmo); 
+        change = CHOOSE(headd, kmo);
         CHANGE_STAT[j] += (edgestate ? - change : change);
       }
   }
@@ -2432,18 +2432,18 @@ C_CHANGESTAT_FN(c_istar) {
 /*****************
  changestat: d_kstar
 *****************/
-C_CHANGESTAT_FN(c_kstar) { 
+C_CHANGESTAT_FN(c_kstar) {
   double change, taild, headd=0.0;
   int j, kmo;
   Edge e;
   Vertex node3;
   int ninputs, nstats;
   double tailattr;
-    
+
   ninputs = (int)N_INPUT_PARAMS;
   nstats  = (int)N_CHANGE_STATS;
-  
-  /* *** don't forget tail -> head */    
+
+  /* *** don't forget tail -> head */
   if(ninputs>nstats){
     /* match on attributes */
       /* edgestate is 1 if edge exists and will disappear
@@ -2464,32 +2464,32 @@ C_CHANGESTAT_FN(c_kstar) {
         STEP_THROUGH_INEDGES(head, e, node3) {
           if(tailattr == INPUT_ATTRIB[node3-1]){++headd;}
         }
-        
+
         for(j=0; j < N_CHANGE_STATS; j++) {
           kmo = ((int)INPUT_PARAM[j]) - 1;
 /*          if (kmo==0) {
             change=1;
           } else { */
-            change = CHOOSE(taild, kmo) + CHOOSE(headd, kmo); 
-/*          } uncomment these few lines to define 1-stars as equivalent to 
+            change = CHOOSE(taild, kmo) + CHOOSE(headd, kmo);
+/*          } uncomment these few lines to define 1-stars as equivalent to
               edges (currently, each edge is counted as two 1-stars) */
           CHANGE_STAT[j] += (edgestate ? - change : change);
         }
       }
   }else{
-    /* *** don't forget tail -> head */    
+    /* *** don't forget tail -> head */
       /* edgestate is 1 if edge exists and will disappear
       edgestate is 0 if edge DNE and will appear */
       taild = OUT_DEG[tail] + IN_DEG[tail] - edgestate;
       headd = OUT_DEG[head] + IN_DEG[head] - edgestate;
-      for(j=0; j < N_CHANGE_STATS; j++) 
+      for(j=0; j < N_CHANGE_STATS; j++)
       {
         kmo = ((int)INPUT_PARAM[j]) - 1;
 /*        if (kmo==0) {
           change=1;
         } else { */
-          change = CHOOSE(taild, kmo) + CHOOSE(headd, kmo); 
-/*      } uncomment these few lines to define 1-stars as equivalent to 
+          change = CHOOSE(taild, kmo) + CHOOSE(headd, kmo);
+/*      } uncomment these few lines to define 1-stars as equivalent to
           edges (currently, each edge is counted as two 1-stars) */
         CHANGE_STAT[j] += (edgestate ? - change : change);
       }
@@ -2502,19 +2502,19 @@ C_CHANGESTAT_FN(c_kstar) {
 /*****************
  changestat: d_localtriangle
 *****************/
-C_CHANGESTAT_FN(c_localtriangle) { 
+C_CHANGESTAT_FN(c_localtriangle) {
   Edge e;
   Vertex node3, nmat;
   double change;
-  
+
   nmat = (Vertex)(INPUT_PARAM[0]);
-  
-  /* *** don't forget tail -> head */    
+
+  /* *** don't forget tail -> head */
       change = 0.0;
-      
+
       if(INPUT_PARAM[1+(head-1)+(tail-1)*nmat] == 1.0){
         STEP_THROUGH_OUTEDGES(head, e, node3) { /* step through outedges of head */
-	    if(INPUT_PARAM[1+(node3-1)+(tail-1)*nmat] == 1.0 && 
+	    if(INPUT_PARAM[1+(node3-1)+(tail-1)*nmat] == 1.0 &&
 	       INPUT_PARAM[1+(node3-1)+(head-1)*nmat] == 1.0 ){
 	      if (DIRECTED){
 		if (IS_INEDGE(node3,tail) ) ++change;
@@ -2524,9 +2524,9 @@ C_CHANGESTAT_FN(c_localtriangle) {
 	      }
 	    }
 	  }
-	
+
         STEP_THROUGH_INEDGES(head, e, node3) { /* step through inedges of head */
-	    if(INPUT_PARAM[1+(node3-1)+(tail-1)*nmat] == 1.0 && 
+	    if(INPUT_PARAM[1+(node3-1)+(tail-1)*nmat] == 1.0 &&
 	       INPUT_PARAM[1+(node3-1)+(head-1)*nmat] == 1.0 ){
 	      if (DIRECTED)
 		{
@@ -2539,9 +2539,9 @@ C_CHANGESTAT_FN(c_localtriangle) {
 		}
 	    }
 	  }
-	
+
 	CHANGE_STAT[0] += edgestate ? - change : change;
-      
+
       }
 }
 
@@ -2552,15 +2552,15 @@ C_CHANGESTAT_FN(c_localtriangle) {
 C_CHANGESTAT_FN(c_m2star) {
   int tailid, headod, change;
   int backedgestate;
-    
 
-  /* *** don't forget tail -> head */    
+
+  /* *** don't forget tail -> head */
       /*  edgestate is 1 if the edge from tail to head  */
       /*   exists and will disappear */
       /*  edgestate is 0 if the edge does not exist */
       backedgestate = (IS_OUTEDGE(head, tail));
 
-      tailid = IN_DEG[tail]; 
+      tailid = IN_DEG[tail];
       headod = OUT_DEG[head];
       change = tailid + headod - 2*backedgestate;
       CHANGE_STAT[0] += (edgestate ? -change : change);
@@ -2586,12 +2586,12 @@ C_CHANGESTAT_FN(c_mixmat){
   int *tx = IINPUT_PARAM;
   int *hx = BIPARTITE? IINPUT_PARAM : IINPUT_PARAM + N_NODES;
   int *cells = BIPARTITE? IINPUT_PARAM + N_NODES + 1: IINPUT_PARAM + N_NODES*2 + 1;
-  
+
   unsigned int diag = tx[tail]==tx[head] && hx[tail]==hx[head];
   for(unsigned int j=0; j<N_CHANGE_STATS; j++){
     unsigned int thmatch = tx[tail]==cells[j*2] && hx[head]==cells[j*2+1];
     unsigned int htmatch = tx[head]==cells[j*2] && hx[tail]==cells[j*2+1];
-    
+
     int w = DIRECTED || BIPARTITE? thmatch :
       (symm ? thmatch||htmatch : thmatch+htmatch)*(symm && marg && diag?2:1);
     if(w) CHANGE_STAT[j] += edgestate ? -w : w;
@@ -2604,14 +2604,14 @@ C_CHANGESTAT_FN(c_mixmat){
  (1,1) -> anything = -1
  anything -> (1,1) = +1
 *****************/
-C_CHANGESTAT_FN(c_mutual) { 
+C_CHANGESTAT_FN(c_mutual) {
   double matchval, change;
   int j, ninputs, noattr;
 
   ninputs = N_INPUT_PARAMS - N_NODES;
   noattr = (N_INPUT_PARAMS == 0);
 
-  /* *** don't forget tail -> head */    
+  /* *** don't forget tail -> head */
     if (IS_OUTEDGE(head,tail)) { /* otherwise, no change occurs */
       change = edgestate ? -1.0 : 1.0 ;
       if (noattr) { /* "plain vanilla" mutual, without node attributes */
@@ -2623,7 +2623,7 @@ C_CHANGESTAT_FN(c_mutual) {
             CHANGE_STAT[0] += change;
           } else { /* diff=T */
             for (j=0; j<ninputs; j++) {
-              if (matchval == INPUT_PARAM[j]) 
+              if (matchval == INPUT_PARAM[j])
                 CHANGE_STAT[j] += change;
             }
           }
@@ -2635,13 +2635,13 @@ C_CHANGESTAT_FN(c_mutual) {
 /*****************
  changestat: d_mutual_by_attr
 *****************/
-C_CHANGESTAT_FN(c_mutual_by_attr) { 
+C_CHANGESTAT_FN(c_mutual_by_attr) {
   double change;
   int j, ninputs;
 
   ninputs = N_INPUT_PARAMS - N_NODES;
 
-  /* *** don't forget tail -> head */    
+  /* *** don't forget tail -> head */
     if (IS_OUTEDGE(head,tail)) { /* otherwise, no change occurs */
       change = edgestate ? -1.0 : 1.0 ;
       for (j=0; j<ninputs; j++) {
@@ -2655,14 +2655,14 @@ C_CHANGESTAT_FN(c_mutual_by_attr) {
 /*****************
  changestat: d_nearsimmelian
 *****************/
-C_CHANGESTAT_FN(c_nearsimmelian) { 
+C_CHANGESTAT_FN(c_nearsimmelian) {
   Vertex node3;
   double change;
   int edgestateth, sc;
 
-  /* *** don't forget tail -> head */    
+  /* *** don't forget tail -> head */
   edgestateth = (!IS_OUTEDGE(head,tail));
-   
+
   for(node3=1;node3<=N_NODES;node3++){
     if((node3!=tail)&&(node3!=head)){
      sc = edgestateth + (!IS_OUTEDGE(node3,tail));
@@ -2685,16 +2685,16 @@ C_CHANGESTAT_FN(c_nearsimmelian) {
      }
     }
    }
-   
+
 }
 
 /*****************
  changestat: d_nodecov
 *****************/
-C_CHANGESTAT_FN(c_nodecov) { 
+C_CHANGESTAT_FN(c_nodecov) {
   unsigned int oshift = N_INPUT_PARAMS / N_CHANGE_STATS;
 
-  /* *** don't forget tail -> head */    
+  /* *** don't forget tail -> head */
       for(unsigned int j=0, o=0; j<N_CHANGE_STATS; j++, o+=oshift){
 	double sum = INPUT_ATTRIB[tail+o-1] + INPUT_ATTRIB[head+o-1];
 	CHANGE_STAT[j] += edgestate ? -sum : sum;
@@ -2704,7 +2704,7 @@ C_CHANGESTAT_FN(c_nodecov) {
 /*****************
  changestat: d_nodefactor
 *****************/
-C_CHANGESTAT_FN(c_nodefactor) { 
+C_CHANGESTAT_FN(c_nodefactor) {
   double s = edgestate ? -1.0 : 1.0;
   int tailpos = IINPUT_ATTRIB[tail-1];
   int headpos = IINPUT_ATTRIB[head-1];
@@ -2715,10 +2715,10 @@ C_CHANGESTAT_FN(c_nodefactor) {
 /*****************
  changestat: d_nodeicov
 *****************/
-C_CHANGESTAT_FN(c_nodeicov) { 
+C_CHANGESTAT_FN(c_nodeicov) {
   unsigned int oshift = N_INPUT_PARAMS / N_CHANGE_STATS;
 
-  /* *** don't forget tail -> head */    
+  /* *** don't forget tail -> head */
       for(unsigned int j=0, o=0; j<N_CHANGE_STATS; j++, o+=oshift){
 	double sum = INPUT_ATTRIB[head+o-1];
 	CHANGE_STAT[j] += edgestate ? -sum : sum;
@@ -2728,7 +2728,7 @@ C_CHANGESTAT_FN(c_nodeicov) {
 /*****************
  changestat: d_nodeifactor
 *****************/
-C_CHANGESTAT_FN(c_nodeifactor) { 
+C_CHANGESTAT_FN(c_nodeifactor) {
   double s = edgestate ? -1.0 : 1.0;
   int headpos = INPUT_ATTRIB[head-1];
   if (headpos!=-1) CHANGE_STAT[headpos] += s;
@@ -2737,21 +2737,21 @@ C_CHANGESTAT_FN(c_nodeifactor) {
 /*****************
  changestat: d_nodematch
 *****************/
-C_CHANGESTAT_FN(c_nodematch) { 
+C_CHANGESTAT_FN(c_nodematch) {
   double matchval;
   Vertex ninputs;
   int j;
-  
+
   ninputs = N_INPUT_PARAMS - N_NODES;
 
-  /* *** don't forget tail -> head */    
+  /* *** don't forget tail -> head */
     matchval = INPUT_PARAM[tail+ninputs-1];
     if (matchval == INPUT_PARAM[head+ninputs-1]) { /* We have a match! */
       if (ninputs==0) {/* diff=F in network statistic specification */
         CHANGE_STAT[0] += edgestate ? -1.0 : 1.0;
       } else { /* diff=T */
         for (j=0; j<ninputs; j++) {
-          if (matchval == INPUT_PARAM[j]) 
+          if (matchval == INPUT_PARAM[j])
             CHANGE_STAT[j] += edgestate ? -1.0 : 1.0;
         }
       }
@@ -2770,10 +2770,10 @@ typedef struct {
 I_CHANGESTAT_FN(i_nodemix) {
   ALLOC_STORAGE(1, nodemix_storage, sto);
   sto->nodecov = INTEGER(getListElement(mtp->R, "nodecov"));
-  
+
   int nr = asInteger(getListElement(mtp->R, "nr"));
   int nc = asInteger(getListElement(mtp->R, "nc"));
-  
+
   sto->indmat = R_Calloc(nr, int *);
   sto->indmat[0] = INTEGER(getListElement(mtp->R, "indmat"));
   for(int i = 1; i < nr; i++) {
@@ -2782,7 +2782,7 @@ I_CHANGESTAT_FN(i_nodemix) {
 }
 
 C_CHANGESTAT_FN(c_nodemix) {
-  GET_STORAGE(nodemix_storage, sto);  
+  GET_STORAGE(nodemix_storage, sto);
   int index = sto->indmat[sto->nodecov[tail]][sto->nodecov[head]];
   if(index >= 0) {
     CHANGE_STAT[index] += edgestate ? -1 : +1;
@@ -2796,33 +2796,33 @@ F_CHANGESTAT_FN(f_nodemix) {
 
 S_CHANGESTAT_FN(s_nodemix) {
   int *nodecov = INTEGER(getListElement(mtp->R, "nodecov"));
-  
+
   int nr = asInteger(getListElement(mtp->R, "nr"));
   int nc = asInteger(getListElement(mtp->R, "nc"));
-  
+
   int **indmat = R_Calloc(nr, int *);
   indmat[0] = INTEGER(getListElement(mtp->R, "indmat"));
   for(int i = 1; i < nr; i++) {
     indmat[i] = indmat[i - 1] + nc;
   }
-  
+
   EXEC_THROUGH_NET_EDGES_PRE(tail, head, edge_var, {
     int index = indmat[nodecov[tail]][nodecov[head]];
     if(index >= 0) {
       CHANGE_STAT[index]++;
     }
   });
-  
+
   R_Free(indmat);
 }
 
 /*****************
  changestat: d_nodeocov
 *****************/
-C_CHANGESTAT_FN(c_nodeocov) { 
+C_CHANGESTAT_FN(c_nodeocov) {
   unsigned int oshift = N_INPUT_PARAMS / N_CHANGE_STATS;
 
-  /* *** don't forget tail -> head */    
+  /* *** don't forget tail -> head */
       for(unsigned int j=0, o=0; j<N_CHANGE_STATS; j++, o+=oshift){
 	double sum = INPUT_ATTRIB[tail+o-1];
 	CHANGE_STAT[j] += edgestate ? -sum : sum;
@@ -2832,7 +2832,7 @@ C_CHANGESTAT_FN(c_nodeocov) {
 /*****************
  changestat: d_nodeofactor
 *****************/
-C_CHANGESTAT_FN(c_nodeofactor) { 
+C_CHANGESTAT_FN(c_nodeofactor) {
   double s = edgestate ? -1.0 : 1.0;
   int tailpos = INPUT_ATTRIB[tail-1];
   if (tailpos!=-1) CHANGE_STAT[tailpos] += s;
@@ -2846,10 +2846,10 @@ C_CHANGESTAT_FN(c_nodeofactor) {
 /*****************
  changestat: d_odegrange
 *****************/
-C_CHANGESTAT_FN(c_odegrange) { 
+C_CHANGESTAT_FN(c_odegrange) {
   int j, echange;
 
-  /* *** don't forget tail -> head */    
+  /* *** don't forget tail -> head */
       echange=edgestate ? -1:+1;
     Vertex tailodeg = OUT_DEG[tail];
     for(j = 0; j < N_CHANGE_STATS; j++) {
@@ -2857,27 +2857,27 @@ C_CHANGESTAT_FN(c_odegrange) {
       CHANGE_STAT[j] += FROM_TO(tailodeg + echange, from, to) - FROM_TO(tailodeg, from, to);
     }
 }
- 
+
 /*****************
  changestat: d_odegrange_by_attr
 *****************/
-C_CHANGESTAT_FN(c_odegrange_by_attr) { 
+C_CHANGESTAT_FN(c_odegrange_by_attr) {
   /* The inputparams are assumed to be set up as follows:
   The first 3*nstats values are in triples:  (from, to, attrvalue)
   The values following the first 2*nstats values are the nodal attributes.
   */
   int j;
   Vertex *od;
-  
+
   od=OUT_DEG;
 
-  /* *** don't forget tail -> head */    
+  /* *** don't forget tail -> head */
       int echange = edgestate ? -1:1;
     Vertex tailodeg = od[tail];
-    int tailattr = INPUT_PARAM[3*N_CHANGE_STATS + tail - 1]; 
+    int tailattr = INPUT_PARAM[3*N_CHANGE_STATS + tail - 1];
     for(j = 0; j < N_CHANGE_STATS; j++){
       Vertex from = INPUT_PARAM[3*j], to = INPUT_PARAM[3*j + 1];
-      int testattr = INPUT_PARAM[3*j + 2]; 
+      int testattr = INPUT_PARAM[3*j + 2];
       if (tailattr == testattr)  /* we have tail attr match */
         CHANGE_STAT[j] += FROM_TO(tailodeg + echange, from, to) - FROM_TO(tailodeg, from, to);
     }
@@ -2886,7 +2886,7 @@ C_CHANGESTAT_FN(c_odegrange_by_attr) {
 /*****************
  changestat: d_odegrange_w_homophily
 *****************/
-C_CHANGESTAT_FN(c_odegrange_w_homophily) { 
+C_CHANGESTAT_FN(c_odegrange_w_homophily) {
   /*  The inputparams are assumed to be set up as follows:
   The first 2*nstats values are the values of odegrange
   The values following the first 2*nstats values are the nodal attributes.
@@ -2895,9 +2895,9 @@ C_CHANGESTAT_FN(c_odegrange_w_homophily) {
   double *nodeattr;
   Edge e;
 
-  nodeattr = mtp->inputparams + N_CHANGE_STATS*2 - 1;  
+  nodeattr = mtp->inputparams + N_CHANGE_STATS*2 - 1;
 
-  /* *** don't forget tail -> head */    
+  /* *** don't forget tail -> head */
       int tailattr = nodeattr[tail], headattr = nodeattr[head];
     if (tailattr == headattr) { /* They match; otherwise don't bother */
       int echange = edgestate ? -1:1;
@@ -2908,20 +2908,20 @@ C_CHANGESTAT_FN(c_odegrange_w_homophily) {
         CHANGE_STAT[j] += FROM_TO(tailodeg + echange, from, to) - FROM_TO(tailodeg, from, to);
       }
     }
-}                                        
+}
 
 #undef FROM_TO
 
 /*****************
  changestat: d_odegree
 *****************/
-C_CHANGESTAT_FN(c_odegree) { 
+C_CHANGESTAT_FN(c_odegree) {
   int j;
-  
-  /* *** don't forget tail -> head */    
+
+  /* *** don't forget tail -> head */
       int echange = edgestate ? -1 : 1;
     Vertex taild = OUT_DEG[tail];
-    
+
     for(j=0; j < N_CHANGE_STATS; j++) {
       Vertex deg = INPUT_PARAM[j];
       CHANGE_STAT[j] = (taild + echange == deg) - (taild == deg);
@@ -2947,23 +2947,23 @@ C_CHANGESTAT_FN(c_odegdist) {
 /*****************
  changestat: d_odegree_by_attr
 *****************/
-C_CHANGESTAT_FN(c_odegree_by_attr) { 
+C_CHANGESTAT_FN(c_odegree_by_attr) {
   /* The inputparams are assumed to be set up as follows:
   The first 2*nstats values are in pairs:  (degree, attrvalue)
   The values following the first 2*nstats values are the nodal attributes.
   */
   int j, echange, tailattr, testattr;
   Vertex taildeg, d, *od;
-  
+
   od=OUT_DEG;
 
-  /* *** don't forget tail -> head */    
+  /* *** don't forget tail -> head */
     echange=edgestate ? -1 : +1;
     taildeg = od[tail];
-    tailattr = INPUT_PARAM[2*N_CHANGE_STATS + tail - 1]; 
+    tailattr = INPUT_PARAM[2*N_CHANGE_STATS + tail - 1];
     for(j = 0; j < N_CHANGE_STATS; j++) {
       d = (Vertex)INPUT_PARAM[2*j];
-      testattr = INPUT_PARAM[2*j + 1]; 
+      testattr = INPUT_PARAM[2*j + 1];
       if (tailattr == testattr) { /* we have tail attr match */
         CHANGE_STAT[j] += (taildeg + echange == d) - (taildeg == d);
       }
@@ -2973,7 +2973,7 @@ C_CHANGESTAT_FN(c_odegree_by_attr) {
 /*****************
  changestat: d_odegree_w_homophily
 *****************/
-C_CHANGESTAT_FN(c_odegree_w_homophily) { 
+C_CHANGESTAT_FN(c_odegree_w_homophily) {
   /*  The inputparams are assumed to be set up as follows:
   The first nstats values are the values of degree
   The values following the first nstats values are the nodal attributes.
@@ -2982,9 +2982,9 @@ C_CHANGESTAT_FN(c_odegree_w_homophily) {
   double *nodeattr;
   Edge e;
 
-  nodeattr = mtp->inputparams + N_CHANGE_STATS - 1;  
+  nodeattr = mtp->inputparams + N_CHANGE_STATS - 1;
 
-  /* *** don't forget tail -> head */    
+  /* *** don't forget tail -> head */
       int tailattr = nodeattr[tail], headattr = nodeattr[head];
     if (tailattr == headattr) { /* They match; otherwise don't bother */
       int echange=edgestate ? -1 : +1;
@@ -3002,9 +3002,9 @@ C_CHANGESTAT_FN(c_odegree_w_homophily) {
 /*****************
  changestat: d_opentriad
 *****************/
-C_CHANGESTAT_FN(c_opentriad) { 
-  
-  /* *** don't forget tail -> head */    
+C_CHANGESTAT_FN(c_opentriad) {
+
+  /* *** don't forget tail -> head */
     Vertex node3;
     Edge change = 0, e;
     /* edgestate is 1 if edge exists and will disappear
@@ -3019,13 +3019,13 @@ C_CHANGESTAT_FN(c_opentriad) {
       change += IS_UNDIRECTED_EDGE(node3,tail);
     }
     CHANGE_STAT[0] += change * (edgestate ? 3.0 : -3.0);
-    
+
 
     // +1 * 2-stars
-    
+
     Vertex taild = OUT_DEG[tail] + IN_DEG[tail] - edgestate;
     Vertex headd = OUT_DEG[head] + IN_DEG[head] - edgestate;
-    change = taild + headd; 
+    change = taild + headd;
     CHANGE_STAT[0] += (edgestate ?  -change : change);
 
 }
@@ -3033,18 +3033,18 @@ C_CHANGESTAT_FN(c_opentriad) {
 /*****************
  changestat: d_ostar
 *****************/
-C_CHANGESTAT_FN(c_ostar) { 
+C_CHANGESTAT_FN(c_ostar) {
   double change, headd=0.0;
   int j, kmo;
   Edge e;
   Vertex node3;
   int ninputs, nstats;
   double headattr;
-  
+
   ninputs = (int)N_INPUT_PARAMS;
   nstats  = (int)N_CHANGE_STATS;
-  
-  /* *** don't forget tail -> head */    
+
+  /* *** don't forget tail -> head */
   if(ninputs>nstats){
     /* match on attributes */
       /* edgestate is 1 if edge exists and will disappear
@@ -3057,7 +3057,7 @@ C_CHANGESTAT_FN(c_ostar) {
         }
         for(j=0; j < N_CHANGE_STATS; j++) {
           kmo = ((int)INPUT_PARAM[j]) - 1;
-          change = CHOOSE(headd, kmo); 
+          change = CHOOSE(headd, kmo);
           CHANGE_STAT[j] += (edgestate ? - change : change);
         }
       }
@@ -3067,7 +3067,7 @@ C_CHANGESTAT_FN(c_ostar) {
       headd = OUT_DEG[tail] - edgestate;
       for(j=0; j < N_CHANGE_STATS; j++) {
         kmo = ((int)INPUT_PARAM[j]) - 1;
-        change = CHOOSE(headd, kmo); 
+        change = CHOOSE(headd, kmo);
         CHANGE_STAT[j] += (edgestate ? - change : change);
       }
   }
@@ -3076,11 +3076,11 @@ C_CHANGESTAT_FN(c_ostar) {
 /*****************
  changestat: d_odegreepopularity
 *****************/
-C_CHANGESTAT_FN(c_odegreepopularity) { 
+C_CHANGESTAT_FN(c_odegreepopularity) {
   double change;
   Vertex  deg=0;
-  
-  /* *** don't forget tail -> head */    
+
+  /* *** don't forget tail -> head */
   change = 0.0;
     deg = (double)(OUT_DEG[tail]);
     if(edgestate){
@@ -3090,7 +3090,7 @@ C_CHANGESTAT_FN(c_odegreepopularity) {
       change += sqrt(deg+1.0);
       change += deg*(sqrt(deg+1.0)-sqrt(deg));
     }
-CHANGE_STAT[0]=change; 
+CHANGE_STAT[0]=change;
 }
 
 /********************  changestats:  P    ***********/
@@ -3108,7 +3108,7 @@ D_CHANGESTAT_FN(d_pdegcor) {
   mtp->dstats[0] -= current;
   FOR_EACH_TOGGLE(i) { TOGGLE(TAIL(i), HEAD(i)); }
 }
-S_CHANGESTAT_FN(s_pdegcor) { 
+S_CHANGESTAT_FN(s_pdegcor) {
   Vertex taildeg, headdeg;
   Edge e;
   double mu, mu2, mutail, mutail2, sigma2, sigmatail2, cross;
@@ -3155,7 +3155,7 @@ D_CHANGESTAT_FN(d_rdegcor) {
 //   Rprintf(" p-c %f\n",mtp->dstats[0]);
   FOR_EACH_TOGGLE(i) { TOGGLE(TAIL(i), HEAD(i)); }
 }
-S_CHANGESTAT_FN(s_rdegcor) { 
+S_CHANGESTAT_FN(s_rdegcor) {
   Vertex taildeg, headdeg;
   Edge e;
   double mu, mu2, sigma2, cross;
@@ -3201,11 +3201,11 @@ for(Vertex tail=1; tail <= N_NODES; tail++) {
 /*****************
  changestat: d_receiver
 *****************/
-C_CHANGESTAT_FN(c_receiver) { 
+C_CHANGESTAT_FN(c_receiver) {
   int j, echange;
   Vertex deg;
-  
-  /* *** don't forget tail -> head */    
+
+  /* *** don't forget tail -> head */
     echange = edgestate ? -1 : 1;
     j=0;
     deg = (Vertex)INPUT_PARAM[j];
@@ -3220,11 +3220,11 @@ C_CHANGESTAT_FN(c_receiver) {
 /*****************
  changestat: d_sender
 *****************/
-C_CHANGESTAT_FN(c_sender) { 
+C_CHANGESTAT_FN(c_sender) {
   int j, echange;
   Vertex deg;
-  
-  /* *** don't forget tail -> head */    
+
+  /* *** don't forget tail -> head */
     echange = edgestate ? -1 : 1;
     j=0;
     deg = (Vertex)INPUT_PARAM[j];
@@ -3238,37 +3238,37 @@ C_CHANGESTAT_FN(c_sender) {
 /*****************
  changestat: d_simmelian
 *****************/
-C_CHANGESTAT_FN(c_simmelian) { 
+C_CHANGESTAT_FN(c_simmelian) {
   Edge e;
   Vertex change, node3;
-  
-  /* *** don't forget tail -> head */    
-   
+
+  /* *** don't forget tail -> head */
+
   if(IS_OUTEDGE(head, tail)){
    change = 0;
-   
+
    STEP_THROUGH_OUTEDGES(head, e, node3) /* step through outedges of head */
    {
      if (node3 != tail
-      && IS_OUTEDGE(node3, tail) 
-      && IS_OUTEDGE(tail, node3) 
-      && IS_OUTEDGE(node3, head) 
+      && IS_OUTEDGE(node3, tail)
+      && IS_OUTEDGE(tail, node3)
+      && IS_OUTEDGE(node3, head)
         ){++change;}
    }
-      
+
    CHANGE_STAT[0] += edgestate ? -(double)change : (double)change;
    }
-   
+
 }
 
 /*****************
  changestat: d_simmelianties
 *****************/
-C_CHANGESTAT_FN(c_simmelianties) { 
+C_CHANGESTAT_FN(c_simmelianties) {
   Edge e, e2;
   Vertex change, node3, node4, first, htflag;
-  
-  /* *** don't forget tail -> head */    
+
+  /* *** don't forget tail -> head */
 
    if(IS_OUTEDGE(head, tail)){
      change = htflag = 0;
@@ -3279,7 +3279,7 @@ C_CHANGESTAT_FN(c_simmelianties) {
          first = 1;
          /* Find out whether (tail, node3) is in any other simmelian triple */
          STEP_THROUGH_OUTEDGES (tail, e2, node4) { /* step through outedges of tail */
-           if (node4 != head  && node4 != node3 && IS_OUTEDGE(node4, tail) 
+           if (node4 != head  && node4 != node3 && IS_OUTEDGE(node4, tail)
            && IS_OUTEDGE(node4, node3) && IS_OUTEDGE(node3, node4)){
              first = 0;
            }
@@ -3288,7 +3288,7 @@ C_CHANGESTAT_FN(c_simmelianties) {
          first = 1;
          /* Find out whether (head, node3) is in any other simmelian triple */
          STEP_THROUGH_OUTEDGES (head, e2, node4) { /* step through outedges of head */
-           if (node4 != tail  && node4 != node3 && IS_OUTEDGE(node4, head) 
+           if (node4 != tail  && node4 != node3 && IS_OUTEDGE(node4, head)
            && IS_OUTEDGE(node4, node3) && IS_OUTEDGE(node3, node4)) {
              first = 0;
            }
@@ -3306,9 +3306,9 @@ C_CHANGESTAT_FN(c_simmelianties) {
 /*****************
  changestat: d_smalldiff
 *****************/
-C_CHANGESTAT_FN(c_smalldiff) { 
-  
-  /* *** don't forget tail -> head */    
+C_CHANGESTAT_FN(c_smalldiff) {
+
+  /* *** don't forget tail -> head */
     CHANGE_STAT[0] += (fabs(INPUT_ATTRIB[tail-1] - INPUT_ATTRIB[head-1])
     > INPUT_PARAM[0]) ? 0.0 :
     ((edgestate) ? -1.0 : 1.0);
@@ -3317,16 +3317,16 @@ C_CHANGESTAT_FN(c_smalldiff) {
 /*****************
  changestat: d_sociality
 *****************/
-C_CHANGESTAT_FN(c_sociality) { 
+C_CHANGESTAT_FN(c_sociality) {
   int j, echange;
   Vertex deg;
   int ninputs, nstats;
   double tailattr;
-  
+
   ninputs = (int)N_INPUT_PARAMS;
   nstats  = (int)N_CHANGE_STATS;
 
-  /* *** don't forget tail -> head */    
+  /* *** don't forget tail -> head */
   if(ninputs>nstats+1){
     /* match on attributes */
       echange = edgestate ? -1 : 1;
@@ -3347,9 +3347,9 @@ C_CHANGESTAT_FN(c_sociality) {
 	}
 	if(j < nstats){CHANGE_STAT[j] += echange;}
       }
-      
+
 }else{
-    /* *** don't forget tail -> head */    
+    /* *** don't forget tail -> head */
       echange = edgestate ? -1 : 1;
       j=0;
       deg = (Vertex)INPUT_PARAM[j];
@@ -3365,9 +3365,9 @@ C_CHANGESTAT_FN(c_sociality) {
 	deg = (Vertex)INPUT_PARAM[j];
       }
       if(j < nstats){CHANGE_STAT[j] += echange;}
-      
+
 }
-  
+
 }
 
 /********************  changestats:  T    ***********/
@@ -3375,17 +3375,17 @@ C_CHANGESTAT_FN(c_sociality) {
 /*****************
  changestat: d_threetrail
 *****************/
-C_CHANGESTAT_FN(c_threetrail) { 
+C_CHANGESTAT_FN(c_threetrail) {
   int j, k, change, dchange[4];
   Edge e;
   Vertex node3;
   /* The four values of dchange represent the four different types of
-     directed threetrails oriented so that the middle step is always 
-     "right" (R).  In order:   RRR, RRL, LRR, LRL 
+     directed threetrails oriented so that the middle step is always
+     "right" (R).  In order:   RRR, RRL, LRR, LRL
                          i.e., >>>  >><  <>>  <><  */
 
 
-  /* *** don't forget tail -> head */    
+  /* *** don't forget tail -> head */
     /* Step A: Count threetrails in which tail->head is the middle edge */
     dchange[0] = IN_DEG[tail] * OUT_DEG[head]; /* R then R; may count head->tail->head->tail */
     dchange[1] = IN_DEG[tail] * (IN_DEG[head]-edgestate); /* R then L */
@@ -3416,7 +3416,7 @@ C_CHANGESTAT_FN(c_threetrail) {
     /* Finally, correct for overcounted head->tail->head->tail and tail->head->tail->head */
     if (DIRECTED) {
       dchange[0] -= IS_INEDGE(tail, head) * (1 + 2 * edgestate);
-      /* head->tail->head->tail is counted in A whenever IS_INEDGE(tail,head) but 
+      /* head->tail->head->tail is counted in A whenever IS_INEDGE(tail,head) but
          TT->head->tail->head is only counted in B and C when also edgestate */
       for (j = 0; j < N_INPUT_PARAMS; j++) {
         k = (int) INPUT_PARAM[j];
@@ -3432,15 +3432,15 @@ C_CHANGESTAT_FN(c_threetrail) {
 /*****************
  changestat: d_transitive
 *****************/
-C_CHANGESTAT_FN(c_transitive) { 
+C_CHANGESTAT_FN(c_transitive) {
   Edge e;
   Vertex node2;
   double change;
-  
-  /* *** don't forget tail -> head */    
+
+  /* *** don't forget tail -> head */
     change = 0.0; /* change should become the number of transitive triples
                      a->b, b->c, a->c in which tail->head is found  */
-    
+
     STEP_THROUGH_OUTEDGES(head, e, node2) { /* step through outedges of head */
       if (tail != node2 && IS_OUTEDGE(tail, node2)){
         change = change + 1.0; /* Here we have tail->head, head->node2, tail->node2 */
@@ -3463,14 +3463,14 @@ C_CHANGESTAT_FN(c_transitive) {
 //  Rprintf("tail %d head %d edgestate %d change %f C_S[0]=%f\n", tail, head, change,CHANGE_STAT[0]);
 }
 
-C_CHANGESTAT_FN(c_transitiveties) { 
+C_CHANGESTAT_FN(c_transitiveties) {
   int  echange, ochange;
   int L2th, L2tu, L2uh;
   double cumchange;
   double tailattr;
-  
-  
-  /* *** don't forget tail -> head */    
+
+
+  /* *** don't forget tail -> head */
     cumchange=0.0;
     L2th=0;
     ochange = GETWT(tail, head) ? -1 : 0;
@@ -3493,7 +3493,7 @@ C_CHANGESTAT_FN(c_transitiveties) {
          }
        });
        /* step through inedges of head */
-       
+
        EXEC_THROUGH_INEDGES(head,  e,  u, {
          if (GETWT(tail, u) && (tailattr == INPUT_ATTRIB[u-1])){
 	   L2th++;
@@ -3527,7 +3527,7 @@ C_CHANGESTAT_FN(c_transitiveties) {
       }
     });
     /* step through inedges of head */
-    
+
     EXEC_THROUGH_INEDGES(head,  e,  u, {
       if (GETWT(tail, u)){
 	L2th++;
@@ -3545,21 +3545,21 @@ C_CHANGESTAT_FN(c_transitiveties) {
       }
     });
     }
-    
+
     cumchange += (L2th>0) ;
 //  Rprintf("L2th %d echange %d cumchange %f tail %d head %d\n", L2th, echange, cumchange,tail,head);
     cumchange  = echange*cumchange;
     (CHANGE_STAT[0]) += cumchange;
 }
 
-C_CHANGESTAT_FN(c_cyclicalties) { 
+C_CHANGESTAT_FN(c_cyclicalties) {
   int  echange, ochange;
   int L2th, L2tu, L2uh;
   double cumchange;
   double tailattr;
-  
-  
-  /* *** don't forget tail -> head */    
+
+
+  /* *** don't forget tail -> head */
     cumchange=0.0;
     L2th=0;
     ochange = GETWT(tail, head) ? -1 : 0;
@@ -3582,7 +3582,7 @@ C_CHANGESTAT_FN(c_cyclicalties) {
          }
        });
        /* step through inedges of head */
-       
+
        EXEC_THROUGH_OUTEDGES(head,  e,  u, {
          if (GETWT(u, tail) && (tailattr == INPUT_ATTRIB[u-1])){
 	   L2th++;
@@ -3616,7 +3616,7 @@ C_CHANGESTAT_FN(c_cyclicalties) {
       }
     });
     /* step through outedges of head */
-    
+
     EXEC_THROUGH_OUTEDGES(head,  e,  u, {
       if (GETWT(u, tail)){
 	L2th++;
@@ -3634,7 +3634,7 @@ C_CHANGESTAT_FN(c_cyclicalties) {
       }
     });
     }
-    
+
     cumchange += (L2th>0) ;
 //  Rprintf("L2th %d echange %d cumchange %f tail %d head %d\n", L2th, echange, cumchange,tail,head);
     cumchange  = echange*cumchange;
@@ -3644,13 +3644,13 @@ C_CHANGESTAT_FN(c_cyclicalties) {
 /*****************
  changestat: d_triadcensus
 *****************/
-C_CHANGESTAT_FN(c_triadcensus) { 
-  int j, a, b, c, d, e, edgecount, t300, 
-    t210, t120C, t120U, t120D, t201, t030C, t030T, t111U, 
+C_CHANGESTAT_FN(c_triadcensus) {
+  int j, a, b, c, d, e, edgecount, t300,
+    t210, t120C, t120U, t120D, t201, t030C, t030T, t111U,
     t111D, t021C, t021U, t021D, t102, t012, t003;
   Vertex triadtype, node3;
-  
-  /* *** don't forget tail -> head */    
+
+  /* *** don't forget tail -> head */
   if (DIRECTED) {
     /* directed version */
     t300 = 0;
@@ -3659,22 +3659,22 @@ C_CHANGESTAT_FN(c_triadcensus) {
     t030C = 0;  t030T = 0;   t111U = 0;  t111D = 0;
     t021C = 0;  t021U = 0;   t021D = 0;  t102 = 0;
     t012 = 0;
-    
-    if ( (MIN_OUTEDGE(head) != 0) || 
-	 (MIN_INEDGE(head)  != 0) || 
+
+    if ( (MIN_OUTEDGE(head) != 0) ||
+	 (MIN_INEDGE(head)  != 0) ||
 	 (MIN_OUTEDGE(tail) != 0) ||
-	 (MIN_INEDGE(tail)  != 0) ) {      
-      
+	 (MIN_INEDGE(tail)  != 0) ) {
+
       /* ****** loop through node3 ****** */
-      for (node3=1; node3 <= N_NODES; node3++) { 
+      for (node3=1; node3 <= N_NODES; node3++) {
 	if (node3 != tail && node3 != head) {
-	  a = (IS_OUTEDGE(head, tail)); 
+	  a = (IS_OUTEDGE(head, tail));
 	  b = (IS_OUTEDGE(head, node3));
 	  c = (IS_OUTEDGE(node3, head));
 	  d = (IS_OUTEDGE(node3, tail));
 	  e = (IS_OUTEDGE(tail, node3));
 	  edgecount = (a + b + c + d + e);
-              
+
 	  switch(edgecount) {
 	  case 0:   /* 012 */
 	    ++t012;
@@ -3690,9 +3690,9 @@ C_CHANGESTAT_FN(c_triadcensus) {
 	      ++t102;
 	  }
 	    break;
-                
+
 	  case 2: {  /* 030C, 030T, 111U, 111D */
-	    if ((b + d) == 2)       
+	    if ((b + d) == 2)
 	      ++t030C;
 	    if (((b + e) == 2) || ((c + d) == 2) || ((c + e) == 2))
 	      ++t030T;
@@ -3702,7 +3702,7 @@ C_CHANGESTAT_FN(c_triadcensus) {
 	      ++t111D;
 	  }
 	    break;
-            
+
 	  case 3: {   /* 120C, 120U, 120D, 201 */
 	    if (a == 1) {
 	      if (((b + d) == 2) || ((c + e) == 2))
@@ -3722,27 +3722,27 @@ C_CHANGESTAT_FN(c_triadcensus) {
 	      } else  {
 		++t120U;
 	      }
-	    } 
+	    }
 	  }
 	    break;
-             
+
 	  case 4:   /* 210 */
 	    ++t210;
 	    break;
-             
-	  case 5:   /* 300 */            
+
+	  case 5:   /* 300 */
 	    ++t300;
 	    break;
 	  }
 
-	  switch(edgecount) {  
+	  switch(edgecount) {
 	  case 1:   /* 102, 021D, 021U, 021C */
 	    --t012;
 	    break;
 
-	  case 2: {  /* 030C, 030T, 111U, 111D */ 
-	    if (((a + c) == 2) || ((a + e) == 2) || ((b + d) == 2) || 
-		((c + e) == 2)) 
+	  case 2: {  /* 030C, 030T, 111U, 111D */
+	    if (((a + c) == 2) || ((a + e) == 2) || ((b + d) == 2) ||
+		((c + e) == 2))
 	      --t021C;
 	    if (((a + d) == 2) || ((b + e) == 2))
 	      --t021U;
@@ -3750,12 +3750,12 @@ C_CHANGESTAT_FN(c_triadcensus) {
 	      --t021D;
 	    if (((b + c) == 2) || ((d + e) == 2))
 	      --t102;
-	  } 
+	  }
 	    break;
 
 	  case 3: {  /* 201, 120D, 120U, 120C */
 	    if (a == 1) {
-	      if ((c + e) == 2)       
+	      if ((c + e) == 2)
 		--t030C;
 	      if (((c + d) == 2) || ((b + e) == 2) || ((b + d) == 2))
 		--t030T;
@@ -3788,25 +3788,25 @@ C_CHANGESTAT_FN(c_triadcensus) {
 	      } else {
 	      if ((b + c + d + e) == 4)
 		--t201;
-	    } 
+	    }
 	  }
 	    break;
 
-	  case 5:   /* 300 */            
+	  case 5:   /* 300 */
 	    --t210;
 	    break;
 	  }
 	}
       }    /* ******  move to next node3 ******** */
     }else{
-      t012 = t012 + (N_NODES - 2);  
+      t012 = t012 + (N_NODES - 2);
     }
 
-    for(j = 0; j < N_CHANGE_STATS; j++) { 
-      triadtype = (Vertex)INPUT_PARAM[j]; 
-          
+    for(j = 0; j < N_CHANGE_STATS; j++) {
+      triadtype = (Vertex)INPUT_PARAM[j];
+
       switch(triadtype) { /* SEARCH_ON_THIS_TO_TRACK_DOWN_TRIADCENSUS_CHANGE
-			     to undo triadcensus change, change - to plus in 
+			     to undo triadcensus change, change - to plus in
 			     next two lines: */
       case 1:   t003 = -(t300+t210+t120C+t120U+t120D+t201+t030C+t030T);
 	t003 = t003-(t111U+t111D+t021C+t021U+t021D+t102+t012);
@@ -3847,22 +3847,22 @@ C_CHANGESTAT_FN(c_triadcensus) {
   } else {
     /*  undirected */
 
-    /* *** don't forget tail -> head */    
+    /* *** don't forget tail -> head */
     t300 = 0; t201 = 0; t102 = 0; t012 = 0;
 
-    if ( (MIN_OUTEDGE(head) != 0) || 
-	 (MIN_INEDGE(head)  != 0) || 
+    if ( (MIN_OUTEDGE(head) != 0) ||
+	 (MIN_INEDGE(head)  != 0) ||
 	 (MIN_OUTEDGE(tail) != 0) ||
-	 (MIN_INEDGE(tail)  != 0) ) {      
+	 (MIN_INEDGE(tail)  != 0) ) {
 
       /* ****** loop through node3 ****** */
-      for (node3=1; node3 <= N_NODES; node3++) { 
+      for (node3=1; node3 <= N_NODES; node3++) {
 	if (node3 != tail && node3 != head) {
 	  a = (IS_UNDIRECTED_EDGE(node3, head));
 	  b = (IS_UNDIRECTED_EDGE(node3, tail));
 	  edgecount = (a + b);
-                
-	  switch(edgecount) {  
+
+	  switch(edgecount) {
 	  case 0: {   /* 012 */
 	    ++t102;
 	    --t012;
@@ -3874,26 +3874,26 @@ C_CHANGESTAT_FN(c_triadcensus) {
 	    --t102;
 	  }
 	    break;
-          
+
 	  case 2: {  /* 030C, 030T, 111U, 111D */
 	    ++t300;
 	    --t201;
 	  }
 	    break;
-            
+
 	  }
 	}
 
       }    /* ******  move to next node3 ******** */
-    } else { 
-      t102 = t102 + (N_NODES - 2);  
+    } else {
+      t102 = t102 + (N_NODES - 2);
     }
-          
+
     for(j = 0; j < N_CHANGE_STATS; j++) {
-      triadtype = (Vertex)INPUT_PARAM[j]; 
-            
+      triadtype = (Vertex)INPUT_PARAM[j];
+
       switch(triadtype) { /* SEARCH_ON_THIS_TO_TRACK_DOWN_TRIADCENSUS_CHANGE
-			     to undo triadcensus change, change - to plus in 
+			     to undo triadcensus change, change - to plus in
 			     next line: */
       case 1:  t003 = -(t102+t201+t300);
 	CHANGE_STAT[j] += edgestate ? -(double)t003 : (double)t003;
@@ -3906,19 +3906,19 @@ C_CHANGESTAT_FN(c_triadcensus) {
 	break;
       }
     }
-  } 
+  }
 }
 
 /*****************
  changestat: d_triangle
 *****************/
-C_CHANGESTAT_FN(c_triangle) { 
+C_CHANGESTAT_FN(c_triangle) {
   Edge e;
   Vertex change, node3;
   int j;
   double tailattr, edgemult;
 
-  /* *** don't forget tail -> head */    
+  /* *** don't forget tail -> head */
     edgemult = edgestate ? -1.0 : 1.0;
     change = 0;
     if(N_INPUT_PARAMS>0){ /* match on attributes */
@@ -3970,15 +3970,15 @@ C_CHANGESTAT_FN(c_tripercent) {
   int ninputs = N_INPUT_PARAMS - N_NODES;
   int MatchingOnAttribute = (ninputs>0);
   double *attr=INPUT_PARAM, ratiowith, ratiowithout;
-  
-  if (MatchingOnAttribute) 
+
+  if (MatchingOnAttribute)
     attr = INPUT_PARAM + (ninputs-1); /* ptr to vertex attributes */
- 
-  /* *** don't forget tail -> head */    
+
+  /* *** don't forget tail -> head */
   if (!edgestate) TOGGLE(tail, head); /* turn on the edge if it's missing */
   for (j=0; j < MAX(1, ninputs); j++) {
       /* Count triangles with and without proposed edge */
-      /* Simultaneously, find degree (use matching if necessary) with and without */ 
+      /* Simultaneously, find degree (use matching if necessary) with and without */
       triwith = triwithout = twostarwith = twostarwithout = 0;
       for (node1 = 1; node1 <= N_NODES; node1++) {
         degreewith = degreewithout = 0;
@@ -4014,12 +4014,12 @@ C_CHANGESTAT_FN(c_tripercent) {
         }
         /* Now calculate two-star counts (including triangles for now) */
         twostarwith += (degreewith * (degreewith-1))/2; /* same as d-choose-2*/
-        twostarwithout += (degreewithout * (degreewithout-1))/2; 
+        twostarwithout += (degreewithout * (degreewithout-1))/2;
       }
       /* Correct twostar counts for number of triangles */
       twostarwith -= 3*triwith;
       twostarwithout -= 3*triwithout;
-      ratiowith = triwith == 0 ? 0.0 : 
+      ratiowith = triwith == 0 ? 0.0 :
                             ((float)triwith)/(triwith + twostarwith);
       ratiowithout = triwith == 0 ? 0.0 :
                             ((float)triwithout)/(triwithout + twostarwithout);
@@ -4031,13 +4031,13 @@ C_CHANGESTAT_FN(c_tripercent) {
 /*****************
  changestat: d_ttriple
 *****************/
-C_CHANGESTAT_FN(c_ttriple) { 
+C_CHANGESTAT_FN(c_ttriple) {
   Edge e;
   Vertex change, node3;
   int j;
   double tailattr, edgemult;
-  
-  /* *** don't forget tail -> head */    
+
+  /* *** don't forget tail -> head */
     edgemult = edgestate ? -1.0 : 1.0;
     change = 0;
     if(N_INPUT_PARAMS > 0){ /* match on attributes */
@@ -4057,7 +4057,7 @@ C_CHANGESTAT_FN(c_ttriple) {
               CHANGE_STAT[j] += edgemult * change;
           }
         } else { /* diff = FALSE; all matches equivalent */
-              CHANGE_STAT[0] += edgemult * change;          
+              CHANGE_STAT[0] += edgemult * change;
         }
       }
     }else{ /* no attribute matching */
@@ -4070,5 +4070,3 @@ C_CHANGESTAT_FN(c_ttriple) {
       CHANGE_STAT[0] += edgemult * change;
     }
 }
-
-
