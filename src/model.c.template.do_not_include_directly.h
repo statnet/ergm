@@ -91,7 +91,7 @@ static inline void WtDestroyStats(WtNetwork *nwp, WtModel *m){
   void WtModelDestroy
 ******************/
 void WtModelDestroy(WtNetwork *nwp, WtModel *m)
-{  
+{
   WtDestroyStats(nwp, m);
 
   for(unsigned int i=0; i < m->n_aux; i++)
@@ -99,16 +99,16 @@ void WtModelDestroy(WtNetwork *nwp, WtModel *m)
       R_Free(m->termarray[0].aux_storage[i]);
       m->termarray[0].aux_storage[i] = NULL;
   }
-  
+
   if(m->n_terms && m->termarray[0].aux_storage!=NULL){
     R_Free(m->termarray[0].aux_storage);
   }
-  
+
   WtEXEC_THROUGH_TERMS(m, {
       if(mtp->aux_storage!=NULL)
 	mtp->aux_storage=NULL;
     });
-  
+
   R_Free(m->dstatarray);
   R_Free(m->termarray);
   R_Free(m->workspace_backup);
@@ -151,7 +151,7 @@ WtModel* WtModelInitialize (SEXP mR, SEXP ext_state, WtNetwork *nwp, Rboolean no
       thisterm->f_func = NULL;
       thisterm->w_func = NULL;
       thisterm->x_func = NULL;
-      
+
       /* First, obtain the term name and library: fnames points to a
       single character string, consisting of the names of the selected
       options concatenated together and separated by spaces.  This is
@@ -202,12 +202,12 @@ WtModel* WtModelInitialize (SEXP mR, SEXP ext_state, WtNetwork *nwp, Rboolean no
       thisterm->emptynwstats = isNULL(tmp) ? NULL : REAL(tmp);
 
       /*  Update the running total of statistics */
-      m->n_stats += thisterm->nstats; 
+      m->n_stats += thisterm->nstats;
       m->dstatarray[l] = (double *) R_Calloc(thisterm->nstats, double);
       thisterm->dstats = m->dstatarray[l];  /* This line is important for
                                                eventually freeing up allocated
 					       memory, since thisterm->dstats
-					       can be modified but 
+					       can be modified but
 					       m->dstatarray[l] cannot be.  */
       thisterm->statcache = (double *) R_Calloc(thisterm->nstats, double);
 
@@ -221,12 +221,12 @@ WtModel* WtModelInitialize (SEXP mR, SEXP ext_state, WtNetwork *nwp, Rboolean no
 	 thisterm->nstats>0. */
       if(thisterm->nstats){
 	/*  Most important part of the WtModelTerm:  A pointer to a
-	    function that will compute the change in the network statistic of 
+	    function that will compute the change in the network statistic of
 	    interest for a particular edge toggle.  This function is obtained by
 	    searching for symbols associated with the object file with prefix
-	    sn, having the name fn.  Assuming that one is found, we're golden.*/ 
+	    sn, having the name fn.  Assuming that one is found, we're golden.*/
 	fn[0]='c';
-	thisterm->c_func = 
+	thisterm->c_func =
 	  (void (*)(Vertex, Vertex, double, WtModelTerm*, WtNetwork*, double))
 	  R_FindSymbol(fn,sn,NULL);
 
@@ -234,16 +234,16 @@ WtModel* WtModelInitialize (SEXP mR, SEXP ext_state, WtNetwork *nwp, Rboolean no
         thisterm->d_func =
           (void (*)(Edge, Vertex*, Vertex*, double*, WtModelTerm*, WtNetwork*))
           R_FindSymbol(fn,sn,NULL);
-	
+
         if(thisterm->c_func==NULL && thisterm->d_func==NULL){
           error("Error in WtModelInitialize: term with functions %s::%s is declared to have statistics but does not appear to have a change or a difference function. Memory has not been deallocated, so restart R sometime soon.\n",sn,fn+2);
 	}
-	
+
 	/* Optional function to compute the statistic of interest for
 	   the network given. It can be more efficient than going one
 	   edge at a time. */
 	fn[0]='s';
-	thisterm->s_func = 
+	thisterm->s_func =
 	  (void (*)(WtModelTerm*, WtNetwork*)) R_FindSymbol(fn,sn,NULL);
 
 	/* Optional function to compute the statistic of interest for
@@ -253,23 +253,23 @@ WtModel* WtModelInitialize (SEXP mR, SEXP ext_state, WtNetwork *nwp, Rboolean no
 	thisterm->z_func =
 	  (void (*)(WtModelTerm*, WtNetwork*, Rboolean)) R_FindSymbol(fn,sn,NULL);
       }else m->n_aux++;
-      
+
       /* Optional functions to store persistent information about the
 	 network state between calls to d_ functions. */
       fn[0]='u';
-      if((thisterm->u_func = 
+      if((thisterm->u_func =
 	  (void (*)(Vertex, Vertex, double, WtModelTerm*, WtNetwork*, double)) R_FindSymbol(fn,sn,NULL))!=NULL) m->n_u++;
 
       /* Optional-optional functions to initialize and finalize the
 	 term's storage, and the "eXtension" function to allow an
 	 arbitrary "signal" to be sent to a statistic. */
-      
+
       fn[0]='i';
-      thisterm->i_func = 
+      thisterm->i_func =
 	(void (*)(WtModelTerm*, WtNetwork*)) R_FindSymbol(fn,sn,NULL);
 
       fn[0]='f';
-      thisterm->f_func = 
+      thisterm->f_func =
 	(void (*)(WtModelTerm*, WtNetwork*)) R_FindSymbol(fn,sn,NULL);
 
       /* If it's an auxiliary, then it needs an i_function or a
@@ -277,7 +277,7 @@ WtModel* WtModelInitialize (SEXP mR, SEXP ext_state, WtNetwork *nwp, Rboolean no
       if(thisterm->nstats==0 && (thisterm->i_func==NULL && thisterm->u_func==NULL)){
           error("Error in WtModelInitialize: term with functions %s::%s is declared to have no statistics but does not appear to have an updater function, so does not do anything. Memory has not been deallocated, so restart R sometime soon.\n",sn,fn+2);
       }
-  
+
       fn[0]='w';
       thisterm->w_func =
 	(SEXP (*)(WtModelTerm*, WtNetwork*)) R_FindSymbol(fn,sn,NULL);
@@ -291,7 +291,7 @@ WtModel* WtModelInitialize (SEXP mR, SEXP ext_state, WtNetwork *nwp, Rboolean no
       /*Clean up by freeing fn*/
       R_Free(fn);
   }
-  
+
   m->workspace_backup = m->workspace = (double *) R_Calloc(m->n_stats, double);
 
   unsigned int pos = 0;
@@ -299,7 +299,7 @@ WtModel* WtModelInitialize (SEXP mR, SEXP ext_state, WtNetwork *nwp, Rboolean no
     mtp->statspos = pos;
     pos += mtp->nstats;
   }
-  
+
   /* Allocate auxiliary storage and put a pointer to it on every model term. */
   if(m->n_aux){
     m->termarray[0].aux_storage = (void *) R_Calloc(m->n_aux, void *);
@@ -322,7 +322,7 @@ WtModel* WtModelInitialize (SEXP mR, SEXP ext_state, WtNetwork *nwp, Rboolean no
 
 void WtChangeStatsDo(unsigned int ntoggles, Vertex *tails, Vertex *heads, double *weights,
                    WtNetwork *nwp, WtModel *m){
-  memset(m->workspace, 0, m->n_stats*sizeof(double)); /* Zero all change stats. */ 
+  memset(m->workspace, 0, m->n_stats*sizeof(double)); /* Zero all change stats. */
 
   /* Make a pass through terms with d_functions. */
   WtEXEC_THROUGH_TERMS_INTO(m, m->workspace, {
@@ -333,7 +333,7 @@ void WtChangeStatsDo(unsigned int ntoggles, Vertex *tails, Vertex *heads, double
     });
   /* Notice that mtp->dstats now points to the appropriate location in
      m->workspace. */
-  
+
   /* Put the original destination dstats back unless there's only one
      toggle. */
   if(ntoggles!=1){
@@ -347,7 +347,7 @@ void WtChangeStatsDo(unsigned int ntoggles, Vertex *tails, Vertex *heads, double
   /* Make a pass through terms with c_functions. */
   FOR_EACH_TOGGLE{
     GETTOGGLEINFO();
-    
+
     ergm_PARALLEL_FOR_LIMIT(m->n_terms)
     WtEXEC_THROUGH_TERMS_INTO(m, m->workspace, {
 	if(mtp->c_func){
@@ -360,7 +360,7 @@ void WtChangeStatsDo(unsigned int ntoggles, Vertex *tails, Vertex *heads, double
 	}
       });
 
-    /* Update storage and network */    
+    /* Update storage and network */
     IF_MORE_TO_COME{
       SETWT_WITH_BACKUP();
     }
