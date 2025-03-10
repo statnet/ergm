@@ -63,9 +63,9 @@ C_CHANGESTAT_FN(c_discord_isociomatrix){
 }
 
 C_CHANGESTAT_FN(c_disc_inter_union_net_Network){
-  GET_AUX_STORAGE_NUM(StoreAuxnet, dauxnet, 0);
-  GET_AUX_STORAGE_NUM(StoreAuxnet, iauxnet, 1);
-  GET_AUX_STORAGE_NUM(StoreAuxnet, uauxnet, 2);
+  GET_AUX_STORAGE(0, StoreAuxnet, dauxnet);
+  GET_AUX_STORAGE(1, StoreAuxnet, iauxnet);
+  GET_AUX_STORAGE(2, StoreAuxnet, uauxnet);
 
   int refedge = dEdgeListSearch(tail, head, INPUT_PARAM)!=0;
   
@@ -81,9 +81,9 @@ C_CHANGESTAT_FN(c_disc_inter_union_net_Network){
 }
 
 C_CHANGESTAT_FN(c_disc_inter_union_net_DyadSet){
-  GET_AUX_STORAGE_NUM(StoreStrictDyadSetAndRefEL, dstorage, 0);
-  GET_AUX_STORAGE_NUM(StoreStrictDyadSetAndRefEL, istorage, 1);
-  GET_AUX_STORAGE_NUM(StoreStrictDyadSetAndRefEL, ustorage, 2);
+  GET_AUX_STORAGE(0, StoreStrictDyadSetAndRefEL, dstorage);
+  GET_AUX_STORAGE(1, StoreStrictDyadSetAndRefEL, istorage);
+  GET_AUX_STORAGE(2, StoreStrictDyadSetAndRefEL, ustorage);
 
   int refedge = dEdgeListSearch(tail, head, INPUT_PARAM)!=0;
   

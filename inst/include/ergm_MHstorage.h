@@ -18,9 +18,12 @@
 #define MH_GET_STORAGE(stored_type, store_into) stored_type *store_into = (stored_type *) MH_STORAGE;
 
 #define MH_AUX_STORAGE (/* (stored_type *) */ MHp->aux_storage)
-#define MH_GET_AUX_STORAGE(stored_type, store_into) stored_type *store_into = MH_AUX_STORAGE[MHp->aux_slots[0]];
+#define _MH_GET_AUX_STORAGE2(stored_type, store_into) stored_type *store_into = MH_AUX_STORAGE[MHp->aux_slots[0]];
 #define MH_AUX_STORAGE_NUM(ind) /* (stored_type *) */ MH_AUX_STORAGE[MHp->aux_slots[ind]]
-#define MH_GET_AUX_STORAGE_NUM(stored_type, store_into, ind) stored_type *store_into = MH_AUX_STORAGE_NUM(ind);
+#define _MH_GET_AUX_STORAGE3(ind, stored_type, store_into) stored_type *store_into = MH_AUX_STORAGE_NUM(ind);
+#define MH_GET_AUX_STORAGE_NUM(stored_type, store_into, ind) _MH_GET_AUX_STORAGE_NUM3(ind, stored_type, store_into)
+#define MH_GET_AUX_STORAGE(...) _GET_OVERRIDE3(__VA_ARGS__, _MH_GET_AUX_STORAGE3, _MH_GET_AUX_STORAGE2,,)(__VA_ARGS__)
+
 
 #ifdef STUBFILE
 #define STRICT_MH_HEADERS

@@ -384,7 +384,7 @@ These functions are defined in `ergm_storage.h` and exported.
 
 `GET_AUX_STORAGE(stored_type, store_into)`: Declare `stored_type *store_into` and assign the pointer to the auxiliary storage (either for a statistic or for the auxiliary). Can bn used by all functions.
 
-`GET_AUX_STORAGE_NUM(stored_type, store_into, ind)`: Declare `stored_type *store_into` and assign the pointer to the `ind`th auxiliary). Can be used by clients of auxiliaries.
+`GET_AUX_STORAGE(ind, stored_type, store_into)`: Declare `stored_type *store_into` and assign the pointer to the `ind`th auxiliary). Can be used by clients of auxiliaries.
 
 ## Miscellaneous helpers
 

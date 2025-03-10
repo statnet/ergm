@@ -31,7 +31,7 @@ F_CHANGESTAT_FN(f__isociomatrix){
 
 I_CHANGESTAT_FN(i__discord_isociomatrix){
   ALLOC_AUX_SOCIOMATRIX(int, sm);
-  GET_AUX_STORAGE_NUM(StoreAuxnet, storage, 1);
+  GET_AUX_STORAGE(1, StoreAuxnet, storage);
 
   nwp = storage->onwp; // So that we can use the macros.
   // Now, populate the sociomatrix.
