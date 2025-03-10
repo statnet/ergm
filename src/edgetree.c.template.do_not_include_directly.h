@@ -7,12 +7,9 @@
  *
  *  Copyright 2003-2025 Statnet Commons
  */
-#include "ergm_wtedgetree.h"
 #include "ergm_Rutil.h"
 
-#include "ergm_edgetype_set_double.h"
 #include "edgetree_inline_template.do_not_include_directly.h"
-#include "ergm_edgetype_unset.h"
 
 /* *** don't forget, edges are now given by tails -> heads, and as
        such, the function definitions now require tails to be passed
@@ -20,21 +17,21 @@
 
 
 /*******************
- WtNetwork WtNetworkInitialize
+ ETYPE(Network) ETYPE(NetworkInitialize)
 
  Initialize, construct binary tree version of network with weights.  Note
- that the 0th WtTreeNode in the array is unused and should
+ that the 0th ETYPE(TreeNode) in the array is unused and should
  have all its values set to zero
 
 Note: passing nedges > 0 and tails == heads == NULL is OK: it creates an empty network with at least nedges of space preallocated.
 *******************/
 /* *** don't forget, tail -> head */
 
-WtNetwork *WtNetworkInitialize_noLT(Vertex *tails, Vertex *heads, double *weights,
+ETYPE(Network) *ETYPE(NetworkInitialize_noLT)(Vertex *tails, Vertex *heads, IFEWT(EWTTYPE *weights,)
 			       Edge nedges, Vertex nnodes, Rboolean directed_flag, Vertex bipartite) {
-  WtNetwork *nwp = R_Calloc(1, WtNetwork);
+  ETYPE(Network) *nwp = R_Calloc(1, ETYPE(Network));
 
-  nwp->eattrname = NULL;
+  IFEWT(nwp->eattrname = NULL);
 
   nwp->last_inedge = nwp->last_outedge = (Edge)nnodes;
   /* R_Calloc will zero the allocated memory for us, probably a lot
@@ -42,8 +39,8 @@ WtNetwork *WtNetworkInitialize_noLT(Vertex *tails, Vertex *heads, double *weight
   nwp->outdegree = (Vertex *) R_Calloc((nnodes+1), Vertex);
   nwp->indegree  = (Vertex *) R_Calloc((nnodes+1), Vertex);
   nwp->maxedges = MAX(nedges,1)+nnodes+2; /* Maybe larger than needed? */
-  nwp->inedges = (WtTreeNode *) R_Calloc(nwp->maxedges, WtTreeNode);
-  nwp->outedges = (WtTreeNode *) R_Calloc(nwp->maxedges, WtTreeNode);
+  nwp->inedges = (ETYPE(TreeNode) *) R_Calloc(nwp->maxedges, ETYPE(TreeNode));
+  nwp->outedges = (ETYPE(TreeNode) *) R_Calloc(nwp->maxedges, ETYPE(TreeNode));
 
   /*Configure a Network*/
   nwp->nnodes = nnodes;
@@ -51,21 +48,21 @@ WtNetwork *WtNetworkInitialize_noLT(Vertex *tails, Vertex *heads, double *weight
   nwp->directed_flag=directed_flag;
   nwp->bipartite=bipartite;
 
-  if(tails==NULL && heads==NULL && weights==NULL) return nwp;
+  if(nedges == 0) return nwp;
 
-  WtDetShuffleEdges(tails,heads,weights,nedges); /* shuffle to avoid worst-case performance */
+  ETYPE(DetShuffleEdges)(tails,heads,IFEWT(weights,)nedges); /* shuffle to avoid worst-case performance */
 
   for(Edge i = 0; i < nedges; i++) {
     Vertex tail=tails[i], head=heads[i];
-    double w=weights[i];
-    if(w==0) continue;
+    IFEWT(EWTTYPE w=weights[i];
+          if(w==0) continue);
     if (!directed_flag && tail > head)
-      WtAddEdgeToTrees(head,tail,w,nwp); /* Undir edges always have tail < head */
+      ETYPE(AddEdgeToTrees)(head,tail,IFEWT(w,)nwp); /* Undir edges always have tail < head */
     else
-      WtAddEdgeToTrees(tail,head,w,nwp);
+      ETYPE(AddEdgeToTrees)(tail,head,IFEWT(w,)nwp);
   }
 
-  WtDetUnShuffleEdges(tails,heads,weights,nedges); /* Unshuffle edges */
+  ETYPE(DetUnShuffleEdges)(tails,heads,IFEWT(weights,)nedges); /* Unshuffle edges */
 
   return nwp;
 }
@@ -73,7 +70,7 @@ WtNetwork *WtNetworkInitialize_noLT(Vertex *tails, Vertex *heads, double *weight
 /*******************
  void NetworkDestroy
 *******************/
-void WtNetworkDestroy(WtNetwork *nwp) {
+void ETYPE(NetworkDestroy)(ETYPE(Network) *nwp) {
   R_Free(nwp->on_edge_change);
   R_Free(nwp->on_edge_change_payload);
   R_Free(nwp->indegree);
@@ -84,10 +81,10 @@ void WtNetworkDestroy(WtNetwork *nwp) {
 }
 
 /******************
- Network WtNetworkCopy
+ Network ETYPE(NetworkCopy)
 *****************/
-WtNetwork *WtNetworkCopy(WtNetwork *src){
-  WtNetwork *dest = R_Calloc(1, WtNetwork);
+ETYPE(Network) *ETYPE(NetworkCopy)(ETYPE(Network) *src){
+  ETYPE(Network) *dest = R_Calloc(1, ETYPE(Network));
 
   Vertex nnodes = dest->nnodes = src->nnodes;
   dest->last_inedge = src->last_inedge;
@@ -100,10 +97,10 @@ WtNetwork *WtNetworkCopy(WtNetwork *src){
 
   Vertex maxedges = dest->maxedges = src->maxedges;
 
-  dest->inedges = (WtTreeNode *) R_Calloc(maxedges, WtTreeNode);
-  memcpy(dest->inedges, src->inedges, maxedges*sizeof(WtTreeNode));
-  dest->outedges = (WtTreeNode *) R_Calloc(maxedges, WtTreeNode);
-  memcpy(dest->outedges, src->outedges, maxedges*sizeof(WtTreeNode));
+  dest->inedges = (ETYPE(TreeNode) *) R_Calloc(maxedges, ETYPE(TreeNode));
+  memcpy(dest->inedges, src->inedges, maxedges*sizeof(ETYPE(TreeNode)));
+  dest->outedges = (ETYPE(TreeNode) *) R_Calloc(maxedges, ETYPE(TreeNode));
+  memcpy(dest->outedges, src->outedges, maxedges*sizeof(ETYPE(TreeNode)));
 
   dest->directed_flag = src->directed_flag;
   dest->bipartite = src->bipartite;
@@ -120,7 +117,7 @@ WtNetwork *WtNetworkCopy(WtNetwork *src){
 
 
 /*****************
- int WtToggleEdge
+ int ETYPE(ToggleEdge)
 
  Toggle an edge:  Set it to the opposite of its current
  value.  Return 1 if edge added, 0 if deleted.
@@ -128,14 +125,14 @@ WtNetwork *WtNetworkCopy(WtNetwork *src){
 
 /* *** don't forget tail->head, so this function now accepts tail before head */
 
-int WtToggleEdge (Vertex tail, Vertex head, double weight, WtNetwork *nwp)
+int ETYPE(ToggleEdge) (Vertex tail, Vertex head, IFEWT(EWTTYPE weight,) ETYPE(Network) *nwp)
 {
   /* don't forget tails < heads now for undirected networks */
   ENSURE_TH_ORDER;
-  if(WtDeleteEdgeFromTrees(tail,head,nwp))
+  if(ETYPE(DeleteEdgeFromTrees)(tail,head,nwp))
     return 0;
   else{
-    WtAddEdgeToTrees(tail,head,weight,nwp);
+    ETYPE(AddEdgeToTrees)(tail,head,IFEWT(weight,)nwp);
     return 1;
   }
 }
@@ -145,10 +142,10 @@ int WtToggleEdge (Vertex tail, Vertex head, double weight, WtNetwork *nwp)
        in before heads */
 
 /*****************
- Edge AddEdgeToTrees
+ void AddEdgeToTrees
 
  Add an edge from tail to head; note that the function assumes that it
- is legal and therefore does not have a return value.  Since each
+ is legal and therefore does not have a return value. Since each
  "edge" should be added to both the list of outedges and the list of
  inedges, this actually involves two calls to AddHalfedgeToTree (hence
  "Trees" instead of "Tree" in the name of this function).
@@ -156,18 +153,20 @@ int WtToggleEdge (Vertex tail, Vertex head, double weight, WtNetwork *nwp)
 
 /* *** don't forget tail->head, so this function now accepts tail before head */
 
-void WtAddEdgeToTrees(Vertex tail, Vertex head, double weight, WtNetwork *nwp){
+void ETYPE(AddEdgeToTrees)(Vertex tail, Vertex head, IFEWT(EWTTYPE weight,) ETYPE(Network) *nwp){
 #ifdef DEBUG
-  if(WtEdgetreeSearch(tail, head, nwp->outedges)||WtEdgetreeSearch(head, tail, nwp->inedges)) error("WtAddEdgeToTrees() called for an extant edge. Note that this produces an error only if compiling with DEBUG macro set and silently produces undefined behavior otherwise.");
+  if(!nwp->directed_flag && tail>head)
+    error("ETYPE(AddEdgeToTrees)() called for an undirected network with tail>head. Note that this produces an error only if compiling with DEBUG macro set and silently produces undefined behavior otherwise.");
+  if(ETYPE(EdgetreeSearch)(tail, head, nwp->outedges)||ETYPE(EdgetreeSearch)(head, tail, nwp->inedges)) error("ETYPE(AddEdgeToTrees)() called for an extant edge. Note that this produces an error only if compiling with DEBUG macro set and silently produces undefined behavior otherwise.");
 #endif // DEBUG
-  for(unsigned int i = 0; i < nwp->n_on_edge_change; i++) nwp->on_edge_change[i](tail, head, weight, nwp->on_edge_change_payload[i], nwp, 0);
+  for(unsigned int i = 0; i < nwp->n_on_edge_change; i++) nwp->on_edge_change[i](tail, head, IFEWT(weight,) nwp->on_edge_change_payload[i], nwp, 0);
 
-  WtAddHalfedgeToTree(tail, head, weight, nwp->outedges, &(nwp->last_outedge));
-  WtAddHalfedgeToTree(head, tail, weight, nwp->inedges, &(nwp->last_inedge));
+  ETYPE(AddHalfedgeToTree)(tail, head, IFEWT(weight,) nwp->outedges, &(nwp->last_outedge));
+  ETYPE(AddHalfedgeToTree)(head, tail, IFEWT(weight,) nwp->inedges, &(nwp->last_inedge));
   ++nwp->outdegree[tail];
   ++nwp->indegree[head];
   ++EDGECOUNT(nwp);
-  WtCheckEdgetreeFull(nwp);
+  ETYPE(CheckEdgetreeFull)(nwp);
 }
 
 /* *** don't forget, edges are now given by tails -> heads, and as
@@ -175,7 +174,7 @@ void WtAddEdgeToTrees(Vertex tail, Vertex head, double weight, WtNetwork *nwp){
        in before heads */
 
 /*****************
- int WtDeleteEdgeFromTrees
+ int ETYPE(DeleteEdgeFromTrees)
 
  Find and delete the edge from tail to head.
  Return 1 if successful, 0 otherwise.  As with AddEdgeToTrees, this must
@@ -184,15 +183,15 @@ void WtAddEdgeToTrees(Vertex tail, Vertex head, double weight, WtNetwork *nwp){
 
 /* *** don't forget tail->head, so this function now accepts tail before head */
 
-int WtDeleteEdgeFromTrees(Vertex tail, Vertex head, WtNetwork *nwp){
+int ETYPE(DeleteEdgeFromTrees)(Vertex tail, Vertex head, ETYPE(Network) *nwp){
   Edge zth, zht;
-  if((zth=WtEdgetreeSearch(tail, head, nwp->outedges))&&(zht=WtEdgetreeSearch(head, tail, nwp->inedges))){
+  if((zth=ETYPE(EdgetreeSearch)(tail, head, nwp->outedges))&&(zht=ETYPE(EdgetreeSearch)(head, tail, nwp->inedges))){
     if(nwp->n_on_edge_change){
-      double w = nwp->outedges[zth].weight;
-      for(unsigned int i = 0; i < nwp->n_on_edge_change; i++) nwp->on_edge_change[i](tail, head, 0, nwp->on_edge_change_payload[i], nwp, w);
+      IFEWT(EWTTYPE w = nwp->outedges[zth].weight);
+      for(unsigned int i = 0; i < nwp->n_on_edge_change; i++) nwp->on_edge_change[i](tail, head, IFEWT(0,) nwp->on_edge_change_payload[i], nwp, IFELSEEWT(w,TRUE));
     }
-    WtDeleteHalfedgeFromTreeAt(tail, head, nwp->outedges,&(nwp->last_outedge), zth);
-    WtDeleteHalfedgeFromTreeAt(head, tail, nwp->inedges, &(nwp->last_inedge), zht);
+    ETYPE(DeleteHalfedgeFromTreeAt)(tail, head, nwp->outedges,&(nwp->last_outedge), zth);
+    ETYPE(DeleteHalfedgeFromTreeAt)(head, tail, nwp->inedges, &(nwp->last_inedge), zht);
     --nwp->outdegree[tail];
     --nwp->indegree[head];
     --EDGECOUNT(nwp);
@@ -202,20 +201,20 @@ int WtDeleteEdgeFromTrees(Vertex tail, Vertex head, WtNetwork *nwp){
 }
 
 /*****************
- void AddOnWtNetworkEdgeChange
+ void ETYPE(AddOn, NetworkEdgeChange)
 
  Insert a specified toggle callback at the specified position.
 *****************/
-void AddOnWtNetworkEdgeChange(WtNetwork *nwp, OnWtNetworkEdgeChange callback, void *payload, unsigned int pos){
+void ETYPE(AddOn, NetworkEdgeChange)(ETYPE(Network) *nwp, ETYPE(On, NetworkEdgeChange) callback, void *payload, unsigned int pos){
   if(nwp->n_on_edge_change+1 > nwp->max_on_edge_change){
     nwp->max_on_edge_change = MAX(nwp->max_on_edge_change,1)*2;
-    nwp->on_edge_change = R_Realloc(nwp->on_edge_change, nwp->max_on_edge_change, OnWtNetworkEdgeChange);
+    nwp->on_edge_change = R_Realloc(nwp->on_edge_change, nwp->max_on_edge_change, ETYPE(On, NetworkEdgeChange));
     nwp->on_edge_change_payload = R_Realloc(nwp->on_edge_change_payload, nwp->max_on_edge_change, void*);
   }
 
   pos = MIN(pos, nwp->n_on_edge_change); // Last position.
   // Move everything down the list.
-  memmove(nwp->on_edge_change+pos+1, nwp->on_edge_change+pos, (nwp->n_on_edge_change-pos)*sizeof(OnWtNetworkEdgeChange));
+  memmove(nwp->on_edge_change+pos+1, nwp->on_edge_change+pos, (nwp->n_on_edge_change-pos)*sizeof(ETYPE(On, NetworkEdgeChange)));
   memmove(nwp->on_edge_change_payload+pos+1, nwp->on_edge_change_payload+pos, (nwp->n_on_edge_change-pos)*sizeof(void*));
 
   nwp->on_edge_change[pos] = callback;
@@ -225,58 +224,59 @@ void AddOnWtNetworkEdgeChange(WtNetwork *nwp, OnWtNetworkEdgeChange callback, vo
 }
 
 /*****************
- void DeleteOnWtNetworkEdgeChange
+ void ETYPE(DeleteOn, NetworkEdgeChange)
 
  Delete a specified toggle callback from the list and move the other
  callbacks up the list. Note that both callback and payload pointers
  must match.
 *****************/
-void DeleteOnWtNetworkEdgeChange(WtNetwork *nwp, OnWtNetworkEdgeChange callback, void *payload){
+void ETYPE(DeleteOn, NetworkEdgeChange)(ETYPE(Network) *nwp, ETYPE(On, NetworkEdgeChange) callback, void *payload){
   unsigned int i;
   for(i = 0; i < nwp->n_on_edge_change; i++)
     if(nwp->on_edge_change[i]==callback && nwp->on_edge_change_payload[i]==payload) break;
 
   if(i==nwp->n_on_edge_change) error("Attempting to delete a nonexistent callback.");
 
-  memmove(nwp->on_edge_change+i, nwp->on_edge_change+i+1, (nwp->n_on_edge_change-i-1)*sizeof(OnWtNetworkEdgeChange));
+  memmove(nwp->on_edge_change+i, nwp->on_edge_change+i+1, (nwp->n_on_edge_change-i-1)*sizeof(ETYPE(On, NetworkEdgeChange)));
   memmove(nwp->on_edge_change_payload+i, nwp->on_edge_change_payload+i+1, (nwp->n_on_edge_change-i-1)*sizeof(void*));
 
   nwp->n_on_edge_change--;
 }
 
 /*****************
- void WtNetworkEdgeList
+ void ETYPE(NetworkEdgeList)
 
  Print an edgelist for a network
 *****************/
-void WtNetworkEdgeList(WtNetwork *nwp) {
+void ETYPE(NetworkEdgeList)(ETYPE(Network) *nwp) {
   Vertex i;
   for(i=1; i<=nwp->nnodes; i++) {
     Rprintf("Node %d:\n  ", i);
-    WtInOrderTreeWalk(nwp->outedges, i);
+    ETYPE(InOrderTreeWalk)(nwp->outedges, i);
     Rprintf("\n");
   }
 }
 
 /*****************
- void WtInOrderTreeWalk
+ void ETYPE(InOrderTreeWalk)
 
  Diagnostic routine that prints the nodes in the tree rooted
  at edges[x], in increasing order of their values.
 *****************/
-void WtInOrderTreeWalk(WtTreeNode *edges, Edge x) {
+void ETYPE(InOrderTreeWalk)(ETYPE(TreeNode) *edges, Edge x) {
   if (x != 0) {
-    WtInOrderTreeWalk(edges, (edges+x)->left);
+    ETYPE(InOrderTreeWalk)(edges, (edges+x)->left);
     /*    printedge(x, edges); */
-    Rprintf(" %d:%f ",(edges+x)->value, (edges+x)->weight);
-    WtInOrderTreeWalk(edges, (edges+x)->right);
+    IFELSEEWT(Rprintf(" %d:%f ",(edges+x)->value, (edges+x)->weight),
+              Rprintf(" %d ",(edges+x)->value));
+    ETYPE(InOrderTreeWalk)(edges, (edges+x)->right);
   }
 }
 
 /*****************
-  int WtFindithEdge
+  int ETYPE(FindithEdge)
 
-  Find the ith edge in the WtNetwork *nwp and update the values of
+  Find the ith edge in the ETYPE(Network) *nwp and update the values of
   tail, head, and weight appropriately. If the value passed to tail,
   head, or weight is NULL, it is not updated, so it is possible to
   only obtain what is needed. Return 1 if successful, 0 otherwise.
@@ -286,7 +286,7 @@ void WtInOrderTreeWalk(WtTreeNode *edges, Edge x) {
 
 /* *** don't forget tail->head, so this function now accepts tail before head */
 
-int WtFindithEdge (Vertex *tail, Vertex *head, double *weight, Edge i, WtNetwork *nwp) {
+int ETYPE(FindithEdge) (Vertex *tail, Vertex *head, IFEWT(EWTTYPE *weight,) Edge i, ETYPE(Network) *nwp) {
   Vertex taili=1;
   Edge e;
 
@@ -303,13 +303,13 @@ int WtFindithEdge (Vertex *tail, Vertex *head, double *weight, Edge i, WtNetwork
   /* TODO: This could be speeded up by a factor of 3 or more by starting
      the search from the tree maximum rather than minimum (left over) i > outdegree[taili]. */
 
-  e=WtEdgetreeMinimum(nwp->outedges,taili);
+  e=ETYPE(EdgetreeMinimum)(nwp->outedges,taili);
   while (i-- > 1) {
-    e=WtEdgetreeSuccessor(nwp->outedges, e);
+    e=ETYPE(EdgetreeSuccessor)(nwp->outedges, e);
   }
   if(tail) *tail = taili;
   if(head) *head = nwp->outedges[e].value;
-  if(weight) *weight = nwp->outedges[e].weight;
+  IFEWT(if(weight) *weight = nwp->outedges[e].weight);
   return 1;
 }
 
@@ -322,7 +322,7 @@ int WtFindithEdge (Vertex *tail, Vertex *head, double *weight, Edge i, WtNetwork
 
 /* *** don't forget tail->head, so this function now accepts tail before head */
 
-int WtGetRandEdge(Vertex *tail, Vertex *head, double *weight, WtNetwork *nwp) {
+int ETYPE(GetRandEdge)(Vertex *tail, Vertex *head, IFEWT(EWTTYPE *weight,) ETYPE(Network) *nwp) {
   if(EDGECOUNT(nwp)==0) return(0);
   // FIXME: The constant maxEattempts needs to be tuned.
   const unsigned int maxEattempts=10;
@@ -332,7 +332,7 @@ int WtGetRandEdge(Vertex *tail, Vertex *head, double *weight, WtNetwork *nwp) {
   if(Eattempts>maxEattempts){
     // If the outedges is too sparse, revert to the old algorithm.
     rane=1 + unif_rand() * EDGECOUNT(nwp);
-    WtFindithEdge(tail, head, weight, rane, nwp);
+    ETYPE(FindithEdge)(tail, head, IFEWT(weight,) rane, nwp);
   }else{
     // Otherwise, find a TreeNode which has a head.
     do{
@@ -344,8 +344,7 @@ int WtGetRandEdge(Vertex *tail, Vertex *head, double *weight, WtNetwork *nwp) {
     }while((*head=nwp->outedges[rane].value)==0); // Form the head, while we are at it.
 
     // Get the weight.
-    if(weight)
-      *weight=nwp->outedges[rane].weight;
+    IFEWT(if(weight) *weight=nwp->outedges[rane].weight);
 
     // Ascend the edgetree as long as we can.
     // Note that it will stop as soon as rane no longer has a parent,
@@ -358,9 +357,9 @@ int WtGetRandEdge(Vertex *tail, Vertex *head, double *weight, WtNetwork *nwp) {
 }
 
 /*****************
-  int WtFindithNonedge
+  int ETYPE(FindithNonedge)
 
-  Find the ith nonedge in the WtNetwork *nwp and
+  Find the ith nonedge in the ETYPE(Network) *nwp and
   update the values of tail and head appropriately.  Return
   1 if successful, 0 otherwise.
   Note that i is numbered from 1, not 0.  Thus, the maximum possible
@@ -371,7 +370,7 @@ int WtGetRandEdge(Vertex *tail, Vertex *head, double *weight, WtNetwork *nwp) {
    be needed. */
   /* *** but if it is needed, don't forget,  tail -> head */
 
-int WtFindithNonedge (Vertex *tail, Vertex *head, Dyad i, WtNetwork *nwp) {
+int ETYPE(FindithNonedge) (Vertex *tail, Vertex *head, Dyad i, ETYPE(Network) *nwp) {
   Vertex taili=1;
   Edge e;
   Dyad ndyads = DYADCOUNT(nwp);
@@ -395,13 +394,14 @@ int WtFindithNonedge (Vertex *tail, Vertex *head, Dyad i, WtNetwork *nwp) {
   /* TODO: This could be speeded up by a factor of 3 or more by starting
      the search from the tree maximum rather than minimum (left over) i > outdegree[taili]. */
 
- Vertex lhead = (
+  // If taili 1, then head cannot be 1. If undirected, the smallest it can be is taili+1. If bipartite, the smallest it can be is nwp->bipartite+1.
+  Vertex lhead = (
 		  nwp->bipartite ?
 		  nwp->bipartite :
 		  (nwp->directed_flag ?
 		   taili==1 : taili)
 		  );
-   e = WtEdgetreeMinimum(nwp->outedges,taili);
+   e = ETYPE(EdgetreeMinimum)(nwp->outedges,taili);
   Vertex rhead = nwp->outedges[e].value;
   // Note that rhead-lhead-1-(lhead<taili && taili<rhead) is the number of nonties between two successive ties.
   // the -(lhead<taili && taili<rhead) is because (taili,taili) is not a valid nontie and must be skipped.
@@ -409,7 +409,7 @@ int WtFindithNonedge (Vertex *tail, Vertex *head, Dyad i, WtNetwork *nwp) {
   while (rhead && i > rhead-lhead-1-(lhead<taili && taili<rhead)) {
     i -= rhead-lhead-1-(lhead<taili && taili<rhead);
     lhead = rhead;
-    e = WtEdgetreeSuccessor(nwp->outedges, e);
+    e = ETYPE(EdgetreeSuccessor)(nwp->outedges, e);
     // If rhead was the highest-indexed head, then e is now 0.
     if(e) rhead = nwp->outedges[e].value;
     else break; // Note that we don't actually need rhead in the final step.
@@ -424,15 +424,15 @@ int WtFindithNonedge (Vertex *tail, Vertex *head, Dyad i, WtNetwork *nwp) {
 }
 
 /*****************
-  int WtGetRandNonedge
+  int ETYPE(GetRandNonedge)
 
-  Select an non-edge in the WtNetwork *nwp at random and update the values
+  Select an non-edge in the ETYPE(Network) *nwp at random and update the values
   of tail and head appropriately. Return 1 if successful, 0 otherwise.
 ******************/
 
 /* *** don't forget tail->head, so this function now accepts tail before head */
 
-int WtGetRandNonedge(Vertex *tail, Vertex *head, WtNetwork *nwp) {
+int ETYPE(GetRandNonedge)(Vertex *tail, Vertex *head, ETYPE(Network) *nwp) {
   Dyad ndyads = DYADCOUNT(nwp);
   if(ndyads-EDGECOUNT(nwp)==0) return(0);
 
@@ -454,11 +454,11 @@ int WtGetRandNonedge(Vertex *tail, Vertex *head, WtNetwork *nwp) {
   if(Eattempts>maxEattempts){
     // If the network is too dense, use the deterministic-time method:
     Dyad rane=1 + unif_rand() * (ndyads-EDGECOUNT(nwp));
-    WtFindithNonedge(tail, head, rane, nwp);
+    ETYPE(FindithNonedge)(tail, head, rane, nwp);
   }else{
     do{
       GetRandDyad(tail, head, nwp);
-    }while(WtEdgetreeSearch(*tail, *head, nwp->outedges));
+    }while(ETYPE(EdgetreeSearch)(*tail, *head, nwp->outedges));
   }
   return 1;
 }
@@ -474,17 +474,17 @@ int WtGetRandNonedge(Vertex *tail, Vertex *head, WtNetwork *nwp) {
  Write the edgelist of a network into tail and head arrays.
  Returns the number of edges in the network.
 ****************/
-Edge WtEdgeTree2EdgeList(Vertex *tails, Vertex *heads, double *weights, WtNetwork *nwp, Edge nmax){
+Edge ETYPE(EdgeTree2EdgeList)(Vertex *tails, Vertex *heads, IFEWT(EWTTYPE *weights,) ETYPE(Network) *nwp, Edge nmax){
   Edge nextedge=0;
 
   /* *** don't forget,  tail -> head */
   for (Vertex v=1; v<=nwp->nnodes; v++){
-    for(Vertex e = WtEdgetreeMinimum(nwp->outedges, v);
+    for(Vertex e = ETYPE(EdgetreeMinimum)(nwp->outedges, v);
 	nwp->outedges[e].value != 0 && nextedge < nmax;
-	e = WtEdgetreeSuccessor(nwp->outedges, e)){
+	e = ETYPE(EdgetreeSuccessor)(nwp->outedges, e)){
       tails[nextedge] = v;
       heads[nextedge] = nwp->outedges[e].value;
-      if(weights) weights[nextedge] = nwp->outedges[e].weight;
+      IFEWT(if(weights) weights[nextedge] = nwp->outedges[e].weight);
       nextedge++;
     }
   }
@@ -498,65 +498,65 @@ Edge WtEdgeTree2EdgeList(Vertex *tails, Vertex *heads, double *weights, WtNetwor
 
 
 /****************
- Edge WtShuffleEdges
+ Edge ETYPE(ShuffleEdges)
 
  Randomly permute edges in an list.
 ****************/
-void WtShuffleEdges(Vertex *tails, Vertex *heads, double *weights, Edge nedges){
+void ETYPE(ShuffleEdges)(Vertex *tails, Vertex *heads, IFEWT(EWTTYPE *weights,) Edge nedges){
   /* *** don't forget,  tail -> head */
   for(Edge i = nedges; i > 0; i--) {
     Edge j = i * unif_rand();
     Vertex tail = tails[j];
     Vertex head = heads[j];
-    double w = weights[j];
+    IFEWT(EWTTYPE w = weights[j]);
     tails[j] = tails[i-1];
     heads[j] = heads[i-1];
-    weights[j] = weights[i-1];
+    IFEWT(weights[j] = weights[i-1]);
     tails[i-1] = tail;
     heads[i-1] = head;
-    weights[i-1] = w;
+    IFEWT(weights[i-1] = w);
   }
 }
 
 /****************
- Edge WtDetShuffleEdges
+ Edge ETYPE(DetShuffleEdges)
 
  Deterministically scramble edges in an list.
 ****************/
-void WtDetShuffleEdges(Vertex *tails, Vertex *heads, double *weights, Edge nedges){
+void ETYPE(DetShuffleEdges)(Vertex *tails, Vertex *heads, IFEWT(EWTTYPE *weights,) Edge nedges){
   /* *** don't forget,  tail -> head */
   for(Edge i = nedges; i > 0; i--) {
     Edge j = i/2;
     Vertex tail = tails[j];
     Vertex head = heads[j];
-    double w = weights[j];
+    IFEWT(EWTTYPE w = weights[j]);
     tails[j] = tails[i-1];
     heads[j] = heads[i-1];
-    weights[j] = weights[i-1];
+    IFEWT(weights[j] = weights[i-1]);
     tails[i-1] = tail;
     heads[i-1] = head;
-    weights[i-1] = w;
+    IFEWT(weights[i-1] = w);
   }
 }
 
 /****************
- Edge WtDetUnShuffleEdges
+ Edge ETYPE(DetUnShuffleEdges)
 
- Reverses WtDetShuffleEdges().
+ Reverses ETYPE(DetShuffleEdges)().
 ****************/
-void WtDetUnShuffleEdges(Vertex *tails, Vertex *heads, double *weights, Edge nedges){
+void ETYPE(DetUnShuffleEdges)(Vertex *tails, Vertex *heads, IFEWT(EWTTYPE *weights,) Edge nedges){
   /* *** don't forget,  tail -> head */
   for(Edge i = 1; i <= nedges; i++) {
     Edge j = i/2;
     Vertex tail = tails[j];
     Vertex head = heads[j];
-    double w = weights[j];
+    IFEWT(EWTTYPE w = weights[j]);
     tails[j] = tails[i-1];
     heads[j] = heads[i-1];
-    weights[j] = weights[i-1];
+    IFEWT(weights[j] = weights[i-1]);
     tails[i-1] = tail;
     heads[i-1] = head;
-    weights[i-1] = w;
+    IFEWT(weights[i-1] = w);
   }
 }
 
@@ -565,65 +565,63 @@ void WtDetUnShuffleEdges(Vertex *tails, Vertex *heads, double *weights, Edge ned
        in before heads */
 
 /*****************
- int WtSetEdge
+ int ETYPE(SetEdge)
 
  Set an weighted edge value: set it to its new weight. Create if it
 does not exist, destroy by setting to 0.
 *****************/
-void WtSetEdge (Vertex tail, Vertex head, double weight, WtNetwork *nwp)
+void ETYPE(SetEdge) (Vertex tail, Vertex head, EWTTYPE weight, ETYPE(Network) *nwp)
 {
   ENSURE_TH_ORDER;
 
   if(weight==0){
     // If the function is to set the edge value to 0, just delete it.
-    WtDeleteEdgeFromTrees(tail,head,nwp);
+    ETYPE(DeleteEdgeFromTrees)(tail,head,nwp);
   }else{
     // Find the out-edge
-    Edge oe=WtEdgetreeSearch(tail,head,nwp->outedges);
-    double w = nwp->outedges[oe].weight;
-    if(oe){
+    Edge oe=ETYPE(EdgetreeSearch)(tail,head,nwp->outedges);
+    IFEWT(EWTTYPE w = nwp->outedges[oe].weight);
+    if(oe == 0) ETYPE(AddEdgeToTrees)(tail,head,IFEWT(weight,)nwp);
+    IFEWT(else{
       // If it exists AND already has the target weight, do nothing.
       if(w==weight) return;
       else{
         for(unsigned int i = 0; i < nwp->n_on_edge_change; i++) nwp->on_edge_change[i](tail, head, weight, nwp->on_edge_change_payload[i], nwp, w);
 	// Find the corresponding in-edge.
-	Edge ie=WtEdgetreeSearch(head,tail,nwp->inedges);
+	Edge ie=ETYPE(EdgetreeSearch)(head,tail,nwp->inedges);
 	nwp->inedges[ie].weight=nwp->outedges[oe].weight=weight;
       }
-    }else{
-      // Otherwise, create a new edge with that weight.
-      WtAddEdgeToTrees(tail,head,weight,nwp);
-    }
+    })
   }
 }
 
-WtNetwork *Redgelist2WtNetwork(SEXP elR, Rboolean empty){
-  Vertex e = length(VECTOR_ELT(elR, 0));
+ETYPE(Network) *ETYPE(Redgelist2, Network)(SEXP elR, Rboolean empty){
+  Vertex e = empty ? 0 : length(VECTOR_ELT(elR, 0));
   Vertex *tails = empty ? NULL : (Vertex*) INTEGER(VECTOR_ELT(elR, 0));
   Vertex *heads = empty ? NULL : (Vertex*) INTEGER(VECTOR_ELT(elR, 1));
-  double *weights = empty ? NULL : REAL(VECTOR_ELT(elR, 2));
+  IFEWT(EWTTYPE *weights = empty ? NULL : REAL(VECTOR_ELT(elR, 2)));
   Vertex n = asInteger(getAttrib(elR, install("n")));
   Rboolean directed = asLogical(getAttrib(elR, install("directed")));
   Vertex bipartite = asInteger(getAttrib(elR, install("bipartite")));
-  WtNetwork *nwp = WtNetworkInitialize(tails, heads, weights, e, n, directed, bipartite, FALSE, 0, NULL);
-  nwp->eattrname = CHAR(STRING_ELT(getAttrib(elR, R_NamesSymbol),2));
+  ETYPE(Network) *nwp = ETYPE(NetworkInitialize)(tails, heads, IFEWT(weights,) e, n, directed, bipartite);
+  IFEWT(nwp->eattrname = CHAR(STRING_ELT(getAttrib(elR, R_NamesSymbol),2)));
   return nwp;
 }
 
 
-SEXP WtNetwork2Redgelist(WtNetwork *nwp){
-  SEXP outl = PROTECT(mkNamed(VECSXP, (const char *[]){".tail", ".head", nwp->eattrname, ""}));
+SEXP ETYPE(Network2Redgelist)(ETYPE(Network) *nwp){
+  SEXP outl = PROTECT(mkNamed(VECSXP, (const char *[]){".tail", ".head", IFEWT(nwp->eattrname,) ""}));
   SEXP newnetworktails = PROTECT(allocVector(INTSXP, EDGECOUNT(nwp)));
   SEXP newnetworkheads = PROTECT(allocVector(INTSXP, EDGECOUNT(nwp)));
-  SEXP newnetworkweights = PROTECT(allocVector(REALSXP, EDGECOUNT(nwp)));
-  WtEdgeTree2EdgeList((Vertex*)INTEGER(newnetworktails),
+  IFEWT(SEXP newnetworkweights = PROTECT(allocVector(REALSXP, EDGECOUNT(nwp))));
+  ETYPE(EdgeTree2EdgeList)((Vertex*)INTEGER(newnetworktails),
                       (Vertex*)INTEGER(newnetworkheads),
-                      (double*)REAL(newnetworkweights),
+                      IFEWT((EWTTYPE*)REAL(newnetworkweights),)
                     nwp,EDGECOUNT(nwp));
   SET_VECTOR_ELT(outl, 0, newnetworktails);
   SET_VECTOR_ELT(outl, 1, newnetworkheads);
-  SET_VECTOR_ELT(outl, 2, newnetworkweights);
-  UNPROTECT(3);
+  IFEWT(SET_VECTOR_ELT(outl, 2, newnetworkweights));
+  UNPROTECT(IFELSEEWT(3,2));
 
   SEXP rownames = PROTECT(allocVector(INTSXP, EDGECOUNT(nwp)));
   int *r = INTEGER(rownames);
@@ -634,8 +632,8 @@ SEXP WtNetwork2Redgelist(WtNetwork *nwp){
   setAttrib(outl, install("n"), PROTECT(ScalarInteger(nwp->nnodes)));
   setAttrib(outl, install("directed"), PROTECT(ScalarLogical(nwp->directed_flag)));
   setAttrib(outl, install("bipartite"), PROTECT(ScalarInteger(nwp->bipartite)));
-  setAttrib(outl, install("response"), PROTECT(mkChar(nwp->eattrname)));
-  UNPROTECT(4);
+  IFEWT(setAttrib(outl, install("response"), PROTECT(mkChar(nwp->eattrname))));
+  UNPROTECT(IFELSEEWT(4,3));
 
   SEXP class = PROTECT(mkRStrVec((const char*[]){"tibble_edgelist", "edgelist", "tbl_df", "tbl", "data.frame", NULL}));
   classgets(outl, class);
