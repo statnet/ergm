@@ -23,7 +23,7 @@
  WtNetwork WtNetworkInitialize
 
  Initialize, construct binary tree version of network with weights.  Note
- that the 0th WtTreeNode in the array is unused and should 
+ that the 0th WtTreeNode in the array is unused and should
  have all its values set to zero
 
 Note: passing nedges > 0 and tails == heads == NULL is OK: it creates an empty network with at least nedges of space preallocated.
@@ -59,9 +59,9 @@ WtNetwork *WtNetworkInitialize_noLT(Vertex *tails, Vertex *heads, double *weight
     Vertex tail=tails[i], head=heads[i];
     double w=weights[i];
     if(w==0) continue;
-    if (!directed_flag && tail > head) 
-      WtAddEdgeToTrees(head,tail,w,nwp); /* Undir edges always have tail < head */ 
-    else 
+    if (!directed_flag && tail > head)
+      WtAddEdgeToTrees(head,tail,w,nwp); /* Undir edges always have tail < head */
+    else
       WtAddEdgeToTrees(tail,head,w,nwp);
   }
 
@@ -128,7 +128,7 @@ WtNetwork *WtNetworkCopy(WtNetwork *src){
 
 /* *** don't forget tail->head, so this function now accepts tail before head */
 
-int WtToggleEdge (Vertex tail, Vertex head, double weight, WtNetwork *nwp) 
+int WtToggleEdge (Vertex tail, Vertex head, double weight, WtNetwork *nwp)
 {
   /* don't forget tails < heads now for undirected networks */
   ENSURE_TH_ORDER;
@@ -177,7 +177,7 @@ void WtAddEdgeToTrees(Vertex tail, Vertex head, double weight, WtNetwork *nwp){
 /*****************
  int WtDeleteEdgeFromTrees
 
- Find and delete the edge from tail to head.  
+ Find and delete the edge from tail to head.
  Return 1 if successful, 0 otherwise.  As with AddEdgeToTrees, this must
  be done once for outedges and once for inedges.
 *****************/
@@ -220,7 +220,7 @@ void AddOnWtNetworkEdgeChange(WtNetwork *nwp, OnWtNetworkEdgeChange callback, vo
 
   nwp->on_edge_change[pos] = callback;
   nwp->on_edge_change_payload[pos] = payload;
-  
+
   nwp->n_on_edge_change++;
 }
 
@@ -268,7 +268,7 @@ void WtInOrderTreeWalk(WtTreeNode *edges, Edge x) {
   if (x != 0) {
     WtInOrderTreeWalk(edges, (edges+x)->left);
     /*    printedge(x, edges); */
-    Rprintf(" %d:%f ",(edges+x)->value, (edges+x)->weight); 
+    Rprintf(" %d:%f ",(edges+x)->value, (edges+x)->weight);
     WtInOrderTreeWalk(edges, (edges+x)->right);
   }
 }
@@ -328,7 +328,7 @@ int WtGetRandEdge(Vertex *tail, Vertex *head, double *weight, WtNetwork *nwp) {
   const unsigned int maxEattempts=10;
   unsigned int Eattempts = nwp->last_outedge/EDGECOUNT(nwp);
   Edge rane;
-  
+
   if(Eattempts>maxEattempts){
     // If the outedges is too sparse, revert to the old algorithm.
     rane=1 + unif_rand() * EDGECOUNT(nwp);
@@ -346,7 +346,7 @@ int WtGetRandEdge(Vertex *tail, Vertex *head, double *weight, WtNetwork *nwp) {
     // Get the weight.
     if(weight)
       *weight=nwp->outedges[rane].weight;
-    
+
     // Ascend the edgetree as long as we can.
     // Note that it will stop as soon as rane no longer has a parent,
     // _before_ overwriting it.
@@ -362,20 +362,20 @@ int WtGetRandEdge(Vertex *tail, Vertex *head, double *weight, WtNetwork *nwp) {
 
   Find the ith nonedge in the WtNetwork *nwp and
   update the values of tail and head appropriately.  Return
-  1 if successful, 0 otherwise.  
+  1 if successful, 0 otherwise.
   Note that i is numbered from 1, not 0.  Thus, the maximum possible
   value of i is (ndyads - EDGECOUNT(nwp)).
 ******************/
 
 /* This function is not yet written.  It's not clear whether it'll
-   be needed. */      
+   be needed. */
   /* *** but if it is needed, don't forget,  tail -> head */
 
 int WtFindithNonedge (Vertex *tail, Vertex *head, Dyad i, WtNetwork *nwp) {
   Vertex taili=1;
   Edge e;
   Dyad ndyads = DYADCOUNT(nwp);
-  
+
   // If the index is too high or too low, exit immediately.
   if (i > ndyads - EDGECOUNT(nwp) || i<=0)
     return 0;
@@ -396,7 +396,7 @@ int WtFindithNonedge (Vertex *tail, Vertex *head, Dyad i, WtNetwork *nwp) {
      the search from the tree maximum rather than minimum (left over) i > outdegree[taili]. */
 
  Vertex lhead = (
-		  nwp->bipartite ? 
+		  nwp->bipartite ?
 		  nwp->bipartite :
 		  (nwp->directed_flag ?
 		   taili==1 : taili)
@@ -450,7 +450,7 @@ int WtGetRandNonedge(Vertex *tail, Vertex *head, WtNetwork *nwp) {
   // FIXME: The constant maxEattempts needs to be tuned.
   const unsigned int maxEattempts=10;
   unsigned int Eattempts = ndyads/(ndyads-EDGECOUNT(nwp));
-  
+
   if(Eattempts>maxEattempts){
     // If the network is too dense, use the deterministic-time method:
     Dyad rane=1 + unif_rand() * (ndyads-EDGECOUNT(nwp));
@@ -568,9 +568,9 @@ void WtDetUnShuffleEdges(Vertex *tails, Vertex *heads, double *weights, Edge ned
  int WtSetEdge
 
  Set an weighted edge value: set it to its new weight. Create if it
-does not exist, destroy by setting to 0. 
+does not exist, destroy by setting to 0.
 *****************/
-void WtSetEdge (Vertex tail, Vertex head, double weight, WtNetwork *nwp) 
+void WtSetEdge (Vertex tail, Vertex head, double weight, WtNetwork *nwp)
 {
   ENSURE_TH_ORDER;
 
@@ -627,7 +627,7 @@ SEXP WtNetwork2Redgelist(WtNetwork *nwp){
 
   SEXP rownames = PROTECT(allocVector(INTSXP, EDGECOUNT(nwp)));
   int *r = INTEGER(rownames);
-  for(unsigned int i=1; i<=EDGECOUNT(nwp); i++, r++) *r=i; 
+  for(unsigned int i=1; i<=EDGECOUNT(nwp); i++, r++) *r=i;
   setAttrib(outl, install("row.names"), rownames);
   UNPROTECT(1);
 
