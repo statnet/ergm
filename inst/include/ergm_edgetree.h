@@ -103,7 +103,7 @@ Network *Redgelist2Network(SEXP elR, Rboolean empty);
 /* *** don't forget,  tails -> heads, so all the functions below using
    heads & tails, now list tails before heads */
 
-void SetEdge (Vertex tail, Vertex head, unsigned int weight, Network *nwp);
+void SetEdge (Vertex tail, Vertex head, Rboolean weight, Network *nwp);
 int ToggleEdge (Vertex tail, Vertex head, Network *nwp);
 void ToggleKnownEdge (Vertex tail, Vertex head, Network *nwp, Rboolean edgestate);
 void AddEdgeToTrees(Vertex tail, Vertex head, Network *nwp);

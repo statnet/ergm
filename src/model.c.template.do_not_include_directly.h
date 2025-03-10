@@ -1,4 +1,4 @@
-/*  File src/wtmodel.c in package ergm, part of the
+/*  File src/model.c in package ergm, part of the
  *  Statnet suite of packages for network analysis, https://statnet.org .
  *
  *  This software is distributed under the GPL-3 license.  It is free,
@@ -8,19 +8,18 @@
  *  Copyright 2003-2025 Statnet Commons
  */
 #include <string.h>
-#include "ergm_wtmodel.h"
 #include "ergm_omp.h"
 #include "ergm_util.h"
 
-void OnWtNetworkEdgeChangeUWrap(Vertex tail, Vertex head, double weight, void *mtp, WtNetwork *nwp, double edgestate){
-  ((WtModelTerm *) mtp)->u_func(tail, head, weight, mtp, nwp, edgestate);
+void ETYPE(On, NetworkEdgeChangeUWrap)(Vertex tail, Vertex head, IFEWT(EWTTYPE weight,) void *mtp, ETYPE(Network) *nwp, EWTTYPE edgestate){
+  ((ETYPE(ModelTerm) *) mtp)->u_func(tail, head, IFEWT(weight,) mtp, nwp, edgestate);
 }
 
 /*
-  WtInitStats
+  ETYPE(InitStats)
   A helper's helper function to initialize storage for functions that use it.
 */
-static inline void WtInitStats(WtNetwork *nwp, WtModel *m){
+static inline void ETYPE(InitStats)(ETYPE(Network) *nwp, ETYPE(Model) *m){
 
   /* This function must do things in very specific order:
 
@@ -48,32 +47,32 @@ static inline void WtInitStats(WtNetwork *nwp, WtModel *m){
   unsigned int on_edge_change_pos = nwp->n_on_edge_change; // Save the current position.
 
   // Iterate in reverse, so that auxliary terms get initialized first.
-  WtEXEC_THROUGH_TERMS_INREVERSE(m, {
+  ETYPE(EXEC_THROUGH_TERMS_INREVERSE)(m, {
       if(!m->noinit_s || !mtp->s_func){ // Skip if noinit_s is set and s_func is present.
         double *dstats = mtp->dstats;
         mtp->dstats = NULL; // Trigger segfault if i_func tries to write to change statistics.
         if(mtp->i_func)
           (*(mtp->i_func))(mtp, nwp);  /* Call i_??? function */
         else if(mtp->u_func) /* No initializer but an updater -> uses a 1-function implementation. */
-          (*(mtp->u_func))(0, 0, 0, mtp, nwp, 0);  /* Call u_??? function */
+          (*(mtp->u_func))(0, 0, IFEWT(0,) mtp, nwp, 0);  /* Call u_??? function */
         mtp->dstats = dstats;
       }
       // Now, bind the term to the network through the callback API.
       if(mtp->u_func && (!m->noinit_s || !mtp->s_func)) // Skip if noinit_s is set and s_func is present.
-        AddOnWtNetworkEdgeChange(nwp, OnWtNetworkEdgeChangeUWrap, mtp, on_edge_change_pos);
+        ETYPE(AddOn, NetworkEdgeChange)(nwp, ETYPE(On, NetworkEdgeChangeUWrap), mtp, on_edge_change_pos);
     });
 }
 
 /*
-  WtDestroyStats
+  ETYPE(DestroyStats)
   A helper's helper function to finalize storage for functions that use it.
 */
-static inline void WtDestroyStats(WtNetwork *nwp, WtModel *m){
+static inline void ETYPE(DestroyStats)(ETYPE(Network) *nwp, ETYPE(Model) *m){
   unsigned int i=0;
-  WtEXEC_THROUGH_TERMS(m, {
+  ETYPE(EXEC_THROUGH_TERMS)(m, {
       if(!m->noinit_s || !mtp->s_func){ // Skip if noinit_s is set and s_func is present.
         if(mtp->u_func)
-          DeleteOnWtNetworkEdgeChange(nwp, OnWtNetworkEdgeChangeUWrap, mtp);
+          ETYPE(DeleteOn, NetworkEdgeChange)(nwp, ETYPE(On, NetworkEdgeChangeUWrap), mtp);
         if(mtp->f_func)
           (*(mtp->f_func))(mtp, nwp);  /* Call f_??? function */
       }
@@ -88,11 +87,11 @@ static inline void WtDestroyStats(WtNetwork *nwp, WtModel *m){
 }
 
 /*****************
-  void WtModelDestroy
+  void ETYPE(ModelDestroy)
 ******************/
-void WtModelDestroy(WtNetwork *nwp, WtModel *m)
+void ETYPE(ModelDestroy)(ETYPE(Network) *nwp, ETYPE(Model) *m)
 {
-  WtDestroyStats(nwp, m);
+  ETYPE(DestroyStats)(nwp, m);
 
   for(unsigned int i=0; i < m->n_aux; i++)
     if(m->termarray[0].aux_storage[i]!=NULL){
@@ -104,7 +103,7 @@ void WtModelDestroy(WtNetwork *nwp, WtModel *m)
     R_Free(m->termarray[0].aux_storage);
   }
 
-  WtEXEC_THROUGH_TERMS(m, {
+  ETYPE(EXEC_THROUGH_TERMS)(m, {
       if(mtp->aux_storage!=NULL)
 	mtp->aux_storage=NULL;
     });
@@ -116,18 +115,18 @@ void WtModelDestroy(WtNetwork *nwp, WtModel *m)
 }
 
 /*****************
- int WtModelInitialize
+ int ETYPE(ModelInitialize)
 
- Allocate and initialize the WtModelTerm structures, each of which contains
+ Allocate and initialize the ETYPE(ModelTerm) structures, each of which contains
  all necessary information about how to compute one term in the model.
 *****************/
-WtModel* WtModelInitialize (SEXP mR, SEXP ext_state, WtNetwork *nwp, Rboolean noinit_s) {
+ETYPE(Model)* ETYPE(ModelInitialize) (SEXP mR, SEXP ext_state, ETYPE(Network) *nwp, Rboolean noinit_s){
   SEXP terms = getListElement(mR, "terms");
   if(ext_state == R_NilValue) ext_state = NULL;
 
-  WtModel *m = (WtModel *) R_Calloc(1, WtModel);
+  ETYPE(Model) *m = (ETYPE(Model) *) R_Calloc(1, ETYPE(Model));
   unsigned int n_terms = m->n_terms = length(terms);
-  m->termarray = (WtModelTerm *) R_Calloc(n_terms, WtModelTerm);
+  m->termarray = (ETYPE(ModelTerm) *) R_Calloc(n_terms, ETYPE(ModelTerm));
   m->dstatarray = (double **) R_Calloc(n_terms, double *);
   m->n_stats = 0;
   m->n_aux = 0;
@@ -136,7 +135,7 @@ WtModel* WtModelInitialize (SEXP mR, SEXP ext_state, WtNetwork *nwp, Rboolean no
   m->R = mR;
   m->ext_state = ext_state;
   for (unsigned int l=0; l < m->n_terms; l++) {
-    WtModelTerm *thisterm = m->termarray + l;
+    ETYPE(ModelTerm) *thisterm = m->termarray + l;
     thisterm->R = VECTOR_ELT(terms, l);
 
       /* Initialize storage and term functions to NULL. */
@@ -220,23 +219,23 @@ WtModel* WtModelInitialize (SEXP mR, SEXP ext_state, WtNetwork *nwp, Rboolean no
 	 function. Therefore, the following code is only run when
 	 thisterm->nstats>0. */
       if(thisterm->nstats){
-	/*  Most important part of the WtModelTerm:  A pointer to a
+	/*  Most important part of the ETYPE(ModelTerm):  A pointer to a
 	    function that will compute the change in the network statistic of
 	    interest for a particular edge toggle.  This function is obtained by
 	    searching for symbols associated with the object file with prefix
 	    sn, having the name fn.  Assuming that one is found, we're golden.*/
 	fn[0]='c';
 	thisterm->c_func =
-	  (void (*)(Vertex, Vertex, double, WtModelTerm*, WtNetwork*, double))
+	  (void (*)(Vertex, Vertex, IFEWT(EWTTYPE,) ETYPE(ModelTerm)*, ETYPE(Network)*, EWTTYPE))
 	  R_FindSymbol(fn,sn,NULL);
 
         fn[0]='d';
         thisterm->d_func =
-          (void (*)(Edge, Vertex*, Vertex*, double*, WtModelTerm*, WtNetwork*))
+          (void (*)(Edge, Vertex*, Vertex*, IFEWT(EWTTYPE*,) ETYPE(ModelTerm)*, ETYPE(Network)*))
           R_FindSymbol(fn,sn,NULL);
 
         if(thisterm->c_func==NULL && thisterm->d_func==NULL){
-          error("Error in WtModelInitialize: term with functions %s::%s is declared to have statistics but does not appear to have a change or a difference function. Memory has not been deallocated, so restart R sometime soon.\n",sn,fn+2);
+          error("Error in C model initialization: term with functions %s::%s is declared to have statistics but does not appear to have a change or a difference function. Memory has not been deallocated, so restart R sometime soon.\n",sn,fn+2);
 	}
 
 	/* Optional function to compute the statistic of interest for
@@ -244,21 +243,21 @@ WtModel* WtModelInitialize (SEXP mR, SEXP ext_state, WtNetwork *nwp, Rboolean no
 	   edge at a time. */
 	fn[0]='s';
 	thisterm->s_func =
-	  (void (*)(WtModelTerm*, WtNetwork*)) R_FindSymbol(fn,sn,NULL);
+	  (void (*)(ETYPE(ModelTerm)*, ETYPE(Network)*)) R_FindSymbol(fn,sn,NULL);
 
 	/* Optional function to compute the statistic of interest for
 	   the empty network (over and above the constant value if
 	   given) and taking into account the extended state. */
 	fn[0]='z';
 	thisterm->z_func =
-	  (void (*)(WtModelTerm*, WtNetwork*, Rboolean)) R_FindSymbol(fn,sn,NULL);
+	  (void (*)(ETYPE(ModelTerm)*, ETYPE(Network)*, Rboolean)) R_FindSymbol(fn,sn,NULL);
       }else m->n_aux++;
 
       /* Optional functions to store persistent information about the
 	 network state between calls to d_ functions. */
       fn[0]='u';
       if((thisterm->u_func =
-	  (void (*)(Vertex, Vertex, double, WtModelTerm*, WtNetwork*, double)) R_FindSymbol(fn,sn,NULL))!=NULL) m->n_u++;
+	  (void (*)(Vertex, Vertex, IFEWT(EWTTYPE,) ETYPE(ModelTerm)*, ETYPE(Network)*, EWTTYPE)) R_FindSymbol(fn,sn,NULL))!=NULL) m->n_u++;
 
       /* Optional-optional functions to initialize and finalize the
 	 term's storage, and the "eXtension" function to allow an
@@ -266,25 +265,25 @@ WtModel* WtModelInitialize (SEXP mR, SEXP ext_state, WtNetwork *nwp, Rboolean no
 
       fn[0]='i';
       thisterm->i_func =
-	(void (*)(WtModelTerm*, WtNetwork*)) R_FindSymbol(fn,sn,NULL);
+	(void (*)(ETYPE(ModelTerm)*, ETYPE(Network)*)) R_FindSymbol(fn,sn,NULL);
 
       fn[0]='f';
       thisterm->f_func =
-	(void (*)(WtModelTerm*, WtNetwork*)) R_FindSymbol(fn,sn,NULL);
+	(void (*)(ETYPE(ModelTerm)*, ETYPE(Network)*)) R_FindSymbol(fn,sn,NULL);
 
       /* If it's an auxiliary, then it needs an i_function or a
 	 u_function, or it's not doing anything. */
       if(thisterm->nstats==0 && (thisterm->i_func==NULL && thisterm->u_func==NULL)){
-          error("Error in WtModelInitialize: term with functions %s::%s is declared to have no statistics but does not appear to have an updater function, so does not do anything. Memory has not been deallocated, so restart R sometime soon.\n",sn,fn+2);
+          error("Error in C model initialization: term with functions %s::%s is declared to have no statistics but does not appear to have an updater function, so does not do anything. Memory has not been deallocated, so restart R sometime soon.\n",sn,fn+2);
       }
 
       fn[0]='w';
       thisterm->w_func =
-	(SEXP (*)(WtModelTerm*, WtNetwork*)) R_FindSymbol(fn,sn,NULL);
+	(SEXP (*)(ETYPE(ModelTerm)*, ETYPE(Network)*)) R_FindSymbol(fn,sn,NULL);
 
       fn[0]='x';
       thisterm->x_func =
-	(void (*)(unsigned int type, void *data, WtModelTerm*, WtNetwork*)) R_FindSymbol(fn,sn,NULL);
+	(void (*)(unsigned int type, void *data, ETYPE(ModelTerm)*, ETYPE(Network)*)) R_FindSymbol(fn,sn,NULL);
 
       if(!ext_state && (thisterm->w_func)) error("Error in ModelInitialize: not provided with extended state, but model terms with functions %s::%s requires extended state. This should normally be caught sooner. This limitation may be removed in the future.  Memory has not been deallocated, so restart R sometime soon.\n",sn,fn+2);
 
@@ -295,7 +294,7 @@ WtModel* WtModelInitialize (SEXP mR, SEXP ext_state, WtNetwork *nwp, Rboolean no
   m->workspace_backup = m->workspace = (double *) R_Calloc(m->n_stats, double);
 
   unsigned int pos = 0;
-  WtFOR_EACH_TERM(m){
+  ETYPE(FOR_EACH_TERM)(m){
     mtp->statspos = pos;
     pos += mtp->nstats;
   }
@@ -308,27 +307,27 @@ WtModel* WtModelInitialize (SEXP mR, SEXP ext_state, WtNetwork *nwp, Rboolean no
   }
 
   /* Trigger initial storage update */
-  WtInitStats(nwp, m);
+  ETYPE(InitStats)(nwp, m);
 
   /* Now, check that no term exports both a d_ and a c_
      function. TODO: provide an informative "traceback" to which term
      caused the problem.*/
-  WtFOR_EACH_TERM(m){
+  ETYPE(FOR_EACH_TERM)(m){
     if(mtp->c_func && mtp->d_func) error("A term exports both a change and a difference function.  Memory has not been deallocated, so restart R sometime soon.\n");
   }
 
   return m;
 }
 
-void WtChangeStatsDo(unsigned int ntoggles, Vertex *tails, Vertex *heads, double *weights,
-                   WtNetwork *nwp, WtModel *m){
+void ETYPE(ChangeStatsDo)(unsigned int ntoggles, Vertex *tails, Vertex *heads, IFEWT(EWTTYPE *weights,)
+                   ETYPE(Network) *nwp, ETYPE(Model) *m){
   memset(m->workspace, 0, m->n_stats*sizeof(double)); /* Zero all change stats. */
 
   /* Make a pass through terms with d_functions. */
-  WtEXEC_THROUGH_TERMS_INTO(m, m->workspace, {
+  ETYPE(EXEC_THROUGH_TERMS_INTO)(m, m->workspace, {
       mtp->dstats = dstats; /* Stuck the change statistic here.*/
       if(mtp->c_func==NULL && mtp->d_func)
-	(*(mtp->d_func))(ntoggles, tails, heads, weights,
+	(*(mtp->d_func))(ntoggles, tails, heads, IFEWT(weights,)
 			 mtp, nwp);  /* Call d_??? function */
     });
   /* Notice that mtp->dstats now points to the appropriate location in
@@ -338,22 +337,26 @@ void WtChangeStatsDo(unsigned int ntoggles, Vertex *tails, Vertex *heads, double
      toggle. */
   if(ntoggles!=1){
     unsigned int i = 0;
-    WtEXEC_THROUGH_TERMS(m, {
+    ETYPE(EXEC_THROUGH_TERMS)(m, {
 	mtp->dstats = m->dstatarray[i];
 	i++;
       });
   }
 
   /* Make a pass through terms with c_functions. */
-  FOR_EACH_TOGGLE{
-    GETTOGGLEINFO();
+  IFELSEEWT(FOR_EACH_TOGGLE,
+            int toggle;
+            FOR_EACH_TOGGLE(toggle)){
+    IFELSEEWT(GETTOGGLEINFO(), Rboolean edgestate = IS_OUTEDGE(tails[toggle], heads[toggle]));
 
     ergm_PARALLEL_FOR_LIMIT(m->n_terms)
-    WtEXEC_THROUGH_TERMS_INTO(m, m->workspace, {
+    ETYPE(EXEC_THROUGH_TERMS_INTO)(m, m->workspace, {
 	if(mtp->c_func){
 	  if(ntoggles!=1) ZERO_ALL_CHANGESTATS();
-	  (*(mtp->c_func))(TAIL, HEAD, NEWWT,
-			   mtp, nwp, OLDWT);  /* Call d_??? function */
+	  (*(mtp->c_func))IFELSEEWT((TAIL, HEAD, NEWWT,
+                                     mtp, nwp, OLDWT),
+                                    (tails[toggle], heads[toggle],
+                                     mtp, nwp, edgestate));  /* Call d_??? function */
 	  if(ntoggles!=1){
             addonto(dstats, mtp->dstats, N_CHANGE_STATS);
 	  }
@@ -361,51 +364,57 @@ void WtChangeStatsDo(unsigned int ntoggles, Vertex *tails, Vertex *heads, double
       });
 
     /* Update storage and network */
-    IF_MORE_TO_COME{
-      SETWT_WITH_BACKUP();
-    }
+    IFELSEEWT(IF_MORE_TO_COME{SETWT_WITH_BACKUP();},
+             IF_MORE_TO_COME(toggle){TOGGLE_KNOWN(tails[toggle],heads[toggle], edgestate);})
+
   }
 }
 
 
-void WtChangeStatsUndo(unsigned int ntoggles, Vertex *tails, Vertex *heads, double *weights,
-                       WtNetwork *nwp, WtModel *m){
+void ETYPE(ChangeStatsUndo)(unsigned int ntoggles, Vertex *tails, Vertex *heads, IFEWT(EWTTYPE *weights,)
+                       ETYPE(Network) *nwp, ETYPE(Model) *m){
+  IFELSEEWT(
   UNDO_PREVIOUS{
     GETOLDTOGGLEINFO();
     SETWT(TAIL,HEAD,weights[TOGGLEIND]);
     weights[TOGGLEIND]=OLDWT;
-  }
+  },
+    int toggle = ntoggles;
+  UNDO_PREVIOUS(toggle){
+    TOGGLE(tails[toggle],heads[toggle]);
+  })
+
 }
 
 
 /*
-  WtChangeStats
+  ETYPE(ChangeStats)
   A helper's helper function to compute change statistics.
   The vector of changes is written to m->workspace.
 */
-void WtChangeStats(unsigned int ntoggles, Vertex *tails, Vertex *heads, double *weights,
-				 WtNetwork *nwp, WtModel *m){
-  WtChangeStatsDo(ntoggles, tails, heads, weights, nwp, m);
-  WtChangeStatsUndo(ntoggles, tails, heads, weights, nwp, m);
+void ETYPE(ChangeStats)(unsigned int ntoggles, Vertex *tails, Vertex *heads, IFEWT(EWTTYPE *weights,)
+				 ETYPE(Network) *nwp, ETYPE(Model) *m){
+  ETYPE(ChangeStatsDo)(ntoggles, tails, heads, IFEWT(weights,) nwp, m);
+  ETYPE(ChangeStatsUndo)(ntoggles, tails, heads, IFEWT(weights,) nwp, m);
 }
 
 /*
-  WtChangeStats1
-  A simplified version of WtChangeStats for exactly one change.
+  ETYPE(ChangeStats1)
+  A simplified version of ETYPE(ChangeStats) for exactly one change.
 */
-void WtChangeStats1(Vertex tail, Vertex head, double weight,
-                    WtNetwork *nwp, WtModel *m, double edgestate){
+void ETYPE(ChangeStats1)(Vertex tail, Vertex head, IFEWT(EWTTYPE weight,)
+                    ETYPE(Network) *nwp, ETYPE(Model) *m, EWTTYPE edgestate){
   memset(m->workspace, 0, m->n_stats*sizeof(double)); /* Zero all change stats. */
 
   /* Make a pass through terms with c_functions. */
   ergm_PARALLEL_FOR_LIMIT(m->n_terms)
-    WtEXEC_THROUGH_TERMS_INTO(m, m->workspace, {
+    ETYPE(EXEC_THROUGH_TERMS_INTO)(m, m->workspace, {
         mtp->dstats = dstats; /* Stuck the change statistic here.*/
         if(mtp->c_func){
-          (*(mtp->c_func))(tail, head, weight,
+          (*(mtp->c_func))(tail, head, IFEWT(weight,)
                            mtp, nwp, edgestate);  /* Call c_??? function */
         }else if(mtp->d_func){
-          (*(mtp->d_func))(1, &tail, &head, &weight,
+          (*(mtp->d_func))(1, &tail, &head, IFEWT(&weight,)
                            mtp, nwp);  /* Call d_??? function */
         }
       });
@@ -413,15 +422,15 @@ void WtChangeStats1(Vertex tail, Vertex head, double weight,
 
 
 /*
-  WtZStats
+  ETYPE(ZStats)
   Call baseline statistics calculation (for extended state).
 */
-void WtZStats(WtNetwork *nwp, WtModel *m, Rboolean skip_s){
+void ETYPE(ZStats)(ETYPE(Network) *nwp, ETYPE(Model) *m, Rboolean skip_s){
   memset(m->workspace, 0, m->n_stats*sizeof(double)); /* Zero all change stats. */
 
   /* Make a pass through terms with c_functions. */
   ergm_PARALLEL_FOR_LIMIT(m->n_terms)
-    WtEXEC_THROUGH_TERMS_INTO(m, m->workspace, {
+    ETYPE(EXEC_THROUGH_TERMS_INTO)(m, m->workspace, {
         mtp->dstats = dstats; /* Stuck the change statistic here.*/
         if(!skip_s || mtp->s_func==NULL)
           if(mtp->z_func)
@@ -430,13 +439,13 @@ void WtZStats(WtNetwork *nwp, WtModel *m, Rboolean skip_s){
 }
 
 /*
-  WtEmptyNetworkStats
+  ETYPE(EmptyNetworkStats)
   Extract constant empty network stats.
 */
-void WtEmptyNetworkStats(WtModel *m, Rboolean skip_s){
+void ETYPE(EmptyNetworkStats)(ETYPE(Model) *m, Rboolean skip_s){
   memset(m->workspace, 0, m->n_stats*sizeof(double)); /* Zero all change stats. */
 
-  WtEXEC_THROUGH_TERMS_INTO(m, m->workspace, {
+  ETYPE(EXEC_THROUGH_TERMS_INTO)(m, m->workspace, {
       if(!skip_s || mtp->s_func==NULL){
         if(mtp->emptynwstats)
           memcpy(dstats, mtp->emptynwstats, mtp->nstats*sizeof(double));
@@ -444,17 +453,17 @@ void WtEmptyNetworkStats(WtModel *m, Rboolean skip_s){
 }
 
 /****************
- void WtSummStats
+ void ETYPE(SummStats)
 
 Compute summary statistics. It has two modes:
 * nwp is empty and m is initialized consistently with nwp -> use edgelist
 * nwp is not empty n_edges=0, and m does not have to be initialized consistently with nwp -> use nwp (making temporary copies of nwp and reinitializing m)
 *****************/
-void WtSummStats(Edge n_edges, Vertex *tails, Vertex *heads, double *weights, WtNetwork *nwp, WtModel *m){
+void ETYPE(SummStats)(Edge n_edges, Vertex *tails, Vertex *heads, IFEWT(EWTTYPE *weights,) ETYPE(Network) *nwp, ETYPE(Model) *m){
   Rboolean mynet;
   double *stats;
   if(EDGECOUNT(nwp)){
-    if(n_edges) error("WtSummStats must be passed either an empty network and a list of edges or a non-empty network and no edges.");
+    if(n_edges) error("SummStats must be passed either an empty network and a list of edges or a non-empty network and no edges.");
     /* The following code is pretty inefficient, but it'll do for now. */
     /* Grab network state and output workspace. */
     n_edges = EDGECOUNT(nwp);
@@ -465,14 +474,14 @@ void WtSummStats(Edge n_edges, Vertex *tails, Vertex *heads, double *weights, Wt
     */
     tails = (Vertex *) INTEGER(PROTECT(allocVector(INTSXP, n_edges)));
     heads = (Vertex *) INTEGER(PROTECT(allocVector(INTSXP, n_edges)));
-    weights = REAL(PROTECT(allocVector(REALSXP, n_edges)));
+    IFEWT(weights = REAL(PROTECT(allocVector(REALSXP, n_edges))));
 
-    WtEdgeTree2EdgeList(tails, heads, weights, nwp, n_edges);
+    ETYPE(EdgeTree2EdgeList)(tails, heads, IFEWT(weights,) nwp, n_edges);
     stats = m->workspace;
 
     /* Replace the model and network with an empty one. */
-    nwp = WtNetworkInitialize(NULL, NULL, NULL, n_edges, N_NODES, DIRECTED, BIPARTITE, 0, 0, NULL);
-    m = WtModelInitialize(m->R, m->ext_state, nwp, TRUE);
+    nwp = ETYPE(NetworkInitialize)(NULL, NULL, IFEWT(NULL,) n_edges, N_NODES, DIRECTED, BIPARTITE, 0, 0, NULL);
+    m = ETYPE(ModelInitialize)(m->R, m->ext_state, nwp, TRUE);
     mynet = TRUE;
   }else{
     /* Use R's memory management to make the routine interruptible.
@@ -486,44 +495,47 @@ void WtSummStats(Edge n_edges, Vertex *tails, Vertex *heads, double *weights, Wt
 
   memset(stats, 0, m->n_stats*sizeof(double));
 
-  WtEmptyNetworkStats(m, TRUE);
+  ETYPE(EmptyNetworkStats)(m, TRUE);
   addonto(stats, m->workspace, m->n_stats);
-  WtZStats(nwp, m, TRUE);
+  ETYPE(ZStats)(nwp, m, TRUE);
   addonto(stats, m->workspace, m->n_stats);
 
-  WtDetShuffleEdges(tails,heads,weights,n_edges); /* Shuffle edgelist. */
+  ETYPE(DetShuffleEdges)(tails,heads,IFEWT(weights,)n_edges); /* Shuffle edgelist. */
 
   Edge ntoggles = n_edges; // So that we can use the macros
 
   /* Calculate statistics for terms that don't have c_functions or s_functions.  */
-  WtEXEC_THROUGH_TERMS_INTO(m, stats, {
+  ETYPE(EXEC_THROUGH_TERMS_INTO)(m, stats, {
       if(mtp->s_func==NULL && mtp->c_func==NULL && mtp->d_func){
-	(*(mtp->d_func))(ntoggles, tails, heads, weights,
+	(*(mtp->d_func))(ntoggles, tails, heads, IFEWT(weights,)
 			 mtp, nwp);  /* Call d_??? function */
-	addonto(dstats, mtp->dstats, N_CHANGE_STATS);
+        addonto(dstats, mtp->dstats, N_CHANGE_STATS);
       }
     });
 
   /* Calculate statistics for terms that have c_functions but not s_functions.  */
-  FOR_EACH_TOGGLE{
-    GETNEWTOGGLEINFO();
+  IFELSEEWT(FOR_EACH_TOGGLE, for(Edge e=0; e<n_edges; e++)){
+    IFELSEEWT(GETNEWTOGGLEINFO(), Vertex t=TAIL(e); Vertex h=HEAD(e));
 
     ergm_PARALLEL_FOR_LIMIT(m->n_terms)
-    WtEXEC_THROUGH_TERMS_INTO(m, stats, {
+    ETYPE(EXEC_THROUGH_TERMS_INTO)(m, stats, {
 	if(mtp->s_func==NULL && mtp->c_func){
 	  ZERO_ALL_CHANGESTATS();
-	  (*(mtp->c_func))(TAIL, HEAD, NEWWT,
-			   mtp, nwp, 0);  /* Call c_??? function */
-	    addonto(dstats, mtp->dstats, N_CHANGE_STATS);
+	  (*(mtp->c_func))IFELSEEWT((TAIL, HEAD, NEWWT,
+                                     mtp, nwp, 0),
+                                    (t, h,
+                                     mtp, nwp, FALSE));  /* Call c_??? function */
+          addonto(dstats, mtp->dstats, N_CHANGE_STATS);
 	}
       });
 
     /* Update storage and network */
-    SETWT(TAIL, HEAD, NEWWT);
+    IFELSEEWT(SETWT(TAIL, HEAD, NEWWT),
+              TOGGLE_KNOWN(t, h, FALSE));
   }
 
   /* Calculate statistics for terms have s_functions  */
-  WtEXEC_THROUGH_TERMS_INTO(m, stats, {
+  ETYPE(EXEC_THROUGH_TERMS_INTO)(m, stats, {
       if(mtp->s_func){
 	ZERO_ALL_CHANGESTATS();
 	(*(mtp->s_func))(mtp, nwp);  /* Call d_??? function */
@@ -534,11 +546,11 @@ void WtSummStats(Edge n_edges, Vertex *tails, Vertex *heads, double *weights, Wt
     });
 
   if(mynet){
-    WtModelDestroy(nwp,m);
-    WtNetworkDestroy(nwp);
-    UNPROTECT(3);
+    ETYPE(ModelDestroy)(nwp,m);
+    ETYPE(NetworkDestroy)(nwp);
+    UNPROTECT(IFELSEEWT(3,2));
   }else{
-    WtDetUnShuffleEdges(tails,heads,weights,n_edges); /* Unshuffle edgelist. */
+    ETYPE(DetUnShuffleEdges)(tails,heads,IFEWT(weights,)n_edges); /* Unshuffle edgelist. */
     memcpy(m->workspace, stats, m->n_stats*sizeof(double));
     UNPROTECT(1);
   }
