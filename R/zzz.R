@@ -21,9 +21,12 @@
   # . is used as a placeholder by stantet.common::NVL3().
   utils::globalVariables(".")
 
-  default_options(ergm.eval.loglik=TRUE,
-                  ergm.loglik.warn_dyads=TRUE,
-                  ergm.cluster.retries=5)
+  default_options(
+    ergm.eval.loglik=TRUE,
+    ergm.loglik.warn_dyads=TRUE,
+    ergm.loopswarning = TRUE,
+    ergm.cluster.retries=5
+  )
 
   eval(COLLATE_ALL_MY_CONTROLS_EXPR)
 
