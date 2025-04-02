@@ -44,9 +44,9 @@ ergm.getnetwork <- function (formula, loopswarning=getOption("ergm.loopswarning"
   if (loopswarning) {
     e <- as.edgelist(nw)
     if(any(e[,1]==e[,2])) {
-      print("Warning:  This network contains loops")
+      warning("This network contains loops")
     } else if (has.loops(as.network(nw,populate=FALSE))) {
-      print("Warning:  This network is allowed to contain loops")
+      warning("This network is allowed to contain loops")
     }
   }
   nw
