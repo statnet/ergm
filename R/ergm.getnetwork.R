@@ -30,9 +30,12 @@
 #' is valid; if so, the network is returned; if not, execution is
 #' halted with warnings.
 #'
-#' @param formula a two-sided formula whose LHS is a [`network`], an object that can be coerced to a [`network`], or an expression that evaluates to one.
+#' @param formula a two-sided formula whose LHS is a [`network`], an object
+#'   that can be coerced to a [`network`], or an expression that evaluates
+#'   to one.
 #' @param loopswarning whether warnings about loops should be printed
-#'   (`TRUE` or `FALSE`); defaults to `TRUE`.
+#'   (`TRUE` or `FALSE`); defaults to value of option `ergm.loopswarning`
+#'   or `TRUE`.
 #' 
 #' @return A [`network`] object constructed by evaluating the LHS of
 #'   the model formula in the formula's environment.
