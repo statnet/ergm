@@ -37,7 +37,7 @@
 #' @return A [`network`] object constructed by evaluating the LHS of
 #'   the model formula in the formula's environment.
 #' @export ergm.getnetwork
-ergm.getnetwork <- function (formula, loopswarning=TRUE){
+ergm.getnetwork <- function (formula, loopswarning=getOption("ergm.loopswarning")){
   nw <- eval_lhs.formula(formula)
   nw <- ensure_network(nw)
 
