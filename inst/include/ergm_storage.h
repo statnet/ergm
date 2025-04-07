@@ -51,8 +51,8 @@
 // 1. Declares a stored_type *store_into.
 // 2. Assigns pointer to its ind'th requested auxiliary to store_into.
 #define _GET_AUX_STORAGE3(ind, stored_type, store_into) stored_type *store_into = AUX_STORAGE_NUM(ind);
-// For backwards-compatibility.
-#define GET_AUX_STORAGE_NUM(stored_type, store_into, ind) _GET_AUX_STORAGE_NUM3(ind, stored_type, store_into)
+// For backwards-compatibility. TODO: Delete around 3.10 release.
+#define GET_AUX_STORAGE_NUM(stored_type, store_into, ind) _GET_AUX_STORAGE3(ind, stored_type, store_into)
 // This version takes 2 or 3 arguments; if 3 arguments, the first argument is the slot number.
 #define GET_AUX_STORAGE(...) _GET_OVERRIDE3(__VA_ARGS__, _GET_AUX_STORAGE3, _GET_AUX_STORAGE2,,)(__VA_ARGS__)
 
