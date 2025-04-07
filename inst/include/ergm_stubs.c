@@ -17,16 +17,7 @@ int GetBuiltABIVersion_ergm(void){
 #define STUBFILE
 #include <stddef.h>
 #include <R_ext/Rdynload.h>
-#include "ergm_BDNodeLists.h"
 
-#define STUBFILE
-#include <stddef.h>
-#include <R_ext/Rdynload.h>
-#include "ergm_BDStratBlocks.h"
-
-#define STUBFILE
-#include <stddef.h>
-#include <R_ext/Rdynload.h>
 #include "ergm_BDStrat_proposals.h"
 void Mi_BDStratTNT(MHProposal *MHp, Network *nwp){
 static void (*fun)(MHProposal *,Network *) = NULL;
@@ -39,9 +30,6 @@ if(fun==NULL) fun = (void (*)(MHProposal *,Network *)) R_FindSymbol("Mf_BDStratT
 fun(MHp,nwp);
 }
 
-#define STUBFILE
-#include <stddef.h>
-#include <R_ext/Rdynload.h>
 #include "ergm_changestat_common.do_not_include_directly.h"
 double my_choose(double n, int r){
 static double (*fun)(double,int) = NULL;
@@ -49,9 +37,6 @@ if(fun==NULL) fun = (double (*)(double,int)) R_FindSymbol("my_choose", "ergm", N
 return fun(n,r);
 }
 
-#define STUBFILE
-#include <stddef.h>
-#include <R_ext/Rdynload.h>
 #include "ergm_dyadgen.h"
 void DyadGenSetUpIntersect(DyadGen *gen, void *track_nwp, Rboolean force){
 static void (*fun)(DyadGen *,void *,Rboolean) = NULL;
@@ -94,9 +79,6 @@ if(fun==NULL) fun = (void (*)(OnDyadGenInit,void *)) R_FindSymbol("DeleteOnDyadG
 fun(callback,payload);
 }
 
-#define STUBFILE
-#include <stddef.h>
-#include <R_ext/Rdynload.h>
 #include "ergm_dyad_hashmap_utils.h"
 void PrintDyadMapUInt(StoreDyadMapUInt *h){
 static void (*fun)(StoreDyadMapUInt *) = NULL;
@@ -129,14 +111,6 @@ if(fun==NULL) fun = (StoreStrictDyadSet * (*)(Network *)) R_FindSymbol("NetworkT
 return fun(nwp);
 }
 
-#define STUBFILE
-#include <stddef.h>
-#include <R_ext/Rdynload.h>
-#include "ergm_edgelist.h"
-
-#define STUBFILE
-#include <stddef.h>
-#include <R_ext/Rdynload.h>
 #include "ergm_edgetree.h"
 Network * NetworkInitialize_noLT(Vertex *tails, Vertex *heads, Edge nedges,Vertex nnodes, Rboolean directed_flag, Vertex bipartite){
 static Network * (*fun)(Vertex *,Vertex *,Edge,Vertex,Rboolean,Vertex) = NULL;
@@ -249,14 +223,6 @@ if(fun==NULL) fun = (Edge (*)(Vertex *,Vertex *,Network *,Edge)) R_FindSymbol("E
 return fun(tails,heads,nwp,nmax);
 }
 
-#define STUBFILE
-#include <stddef.h>
-#include <R_ext/Rdynload.h>
-#include "ergm_edgetree_inline_template.do_not_include_directly.h"
-
-#define STUBFILE
-#include <stddef.h>
-#include <R_ext/Rdynload.h>
 #include "ergm_etamap.h"
 void ergm_eta(double *theta, SEXP etamap, double *eta){
 static void (*fun)(double *,SEXP,double *) = NULL;
@@ -274,14 +240,6 @@ if(fun==NULL) fun = (void (*)(double *,double *,unsigned int,SEXP,double *)) R_F
 fun(theta,v,nv,etamap,ans);
 }
 
-#define STUBFILE
-#include <stddef.h>
-#include <R_ext/Rdynload.h>
-#include "ergm_hash_edgelist.h"
-
-#define STUBFILE
-#include <stddef.h>
-#include <R_ext/Rdynload.h>
 #include "ergm_MHproposal_bd.h"
 DegreeBound* DegreeBoundInitializeR(SEXP MHpR, Network *nwp){
 static DegreeBound* (*fun)(SEXP,Network *) = NULL;
@@ -309,9 +267,6 @@ if(fun==NULL) fun = (int (*)(DegreeBound *,MHProposal *,Network *)) R_FindSymbol
 return fun(bd,MHp,nwp);
 }
 
-#define STUBFILE
-#include <stddef.h>
-#include <R_ext/Rdynload.h>
 #include "ergm_MHproposal.h"
 MHProposal * MHProposalInitialize(SEXP pR, Network *nwp, void **aux_storage){
 static MHProposal * (*fun)(SEXP,Network *,void **) = NULL;
@@ -324,9 +279,6 @@ if(fun==NULL) fun = (void (*)(MHProposal *,Network *)) R_FindSymbol("MHProposalD
 fun(MHp,nwp);
 }
 
-#define STUBFILE
-#include <stddef.h>
-#include <R_ext/Rdynload.h>
 #include "ergm_MHproposals_degree.h"
 void MH_CondDegreeTetrad(MHProposal *MHp, Network *nwp){
 static void (*fun)(MHProposal *,Network *) = NULL;
@@ -364,9 +316,6 @@ if(fun==NULL) fun = (void (*)(MHProposal *,Network *)) R_FindSymbol("MH_CondB2De
 fun(MHp,nwp);
 }
 
-#define STUBFILE
-#include <stddef.h>
-#include <R_ext/Rdynload.h>
 #include "ergm_model.h"
 Model* ModelInitialize(SEXP mR, SEXP ext_stateR, Network *nwp, Rboolean noinit_s){
 static Model* (*fun)(SEXP,SEXP,Network *,Rboolean) = NULL;
@@ -419,19 +368,6 @@ if(fun==NULL) fun = (void (*)(Edge,Vertex *,Vertex *,Network *,Model *)) R_FindS
 fun(n_edges,tails,heads,nwp,m);
 }
 
-#define STUBFILE
-#include <stddef.h>
-#include <R_ext/Rdynload.h>
-#include "ergm_rlebdm.h"
-
-#define STUBFILE
-#include <stddef.h>
-#include <R_ext/Rdynload.h>
-#include "ergm_Rutil.h"
-
-#define STUBFILE
-#include <stddef.h>
-#include <R_ext/Rdynload.h>
 #include "ergm_state.h"
 ErgmState * ErgmStateInit(SEXP stateR,unsigned int flags){
 static ErgmState * (*fun)(SEXP,unsigned int) = NULL;
@@ -454,14 +390,6 @@ if(fun==NULL) fun = (SEXP (*)(void)) R_FindSymbol("ErgmStateArrayClear", "ergm",
 return fun();
 }
 
-#define STUBFILE
-#include <stddef.h>
-#include <R_ext/Rdynload.h>
-#include "ergm_util.h"
-
-#define STUBFILE
-#include <stddef.h>
-#include <R_ext/Rdynload.h>
 #include "ergm_wtedgetree.h"
 WtNetwork * WtNetworkInitialize_noLT(Vertex *tails, Vertex *heads, double *weights, Edge nedges,Vertex nnodes, Rboolean directed_flag, Vertex bipartite){
 static WtNetwork * (*fun)(Vertex *,Vertex *,double *,Edge,Vertex,Rboolean,Vertex) = NULL;
@@ -569,9 +497,6 @@ if(fun==NULL) fun = (Edge (*)(Vertex *,Vertex *,double *,WtNetwork *,Edge)) R_Fi
 return fun(tails,heads,weights,nwp,nmax);
 }
 
-#define STUBFILE
-#include <stddef.h>
-#include <R_ext/Rdynload.h>
 #include "ergm_wtMHproposal.h"
 WtMHProposal * WtMHProposalInitialize(SEXP pR, WtNetwork *nwp, void **aux_storage){
 static WtMHProposal * (*fun)(SEXP,WtNetwork *,void **) = NULL;
@@ -584,9 +509,6 @@ if(fun==NULL) fun = (void (*)(WtMHProposal *,WtNetwork *)) R_FindSymbol("WtMHPro
 fun(MH,nwp);
 }
 
-#define STUBFILE
-#include <stddef.h>
-#include <R_ext/Rdynload.h>
 #include "ergm_wtmodel.h"
 WtModel* WtModelInitialize(SEXP mR, SEXP ext_stateR, WtNetwork *nwp, Rboolean noinit_s){
 static WtModel* (*fun)(SEXP,SEXP,WtNetwork *,Rboolean) = NULL;
@@ -634,9 +556,6 @@ if(fun==NULL) fun = (void (*)(Edge,Vertex *,Vertex *,double *,WtNetwork *,WtMode
 fun(n_edges,tails,heads,weights,nwp,m);
 }
 
-#define STUBFILE
-#include <stddef.h>
-#include <R_ext/Rdynload.h>
 #include "ergm_wtstate.h"
 WtErgmState * WtErgmStateInit(SEXP stateR,unsigned int flags){
 static WtErgmState * (*fun)(SEXP,unsigned int) = NULL;

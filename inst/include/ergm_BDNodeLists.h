@@ -11,6 +11,7 @@
 #define _ERGM_BDNODELISTS_H_
 
 #include "ergm_nodelist.h"
+#include "ergm_changestat.h"
 
 /*
    The BDNodeLists data structure stores NodeLists with a two-fold stratification

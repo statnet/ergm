@@ -10,9 +10,7 @@
 #ifndef _ERGM_NODELIST_H_
 #define _ERGM_NODELIST_H_
 
-#include "ergm_MHproposal.h"
 #include "ergm_edgetree_types.h"
-#include "ergm_changestat.h"
 
 /*
    This data structure stores a collection of nodes. The nodepos field allows
