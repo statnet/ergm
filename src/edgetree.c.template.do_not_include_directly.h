@@ -266,7 +266,6 @@ void ETYPE(NetworkEdgeList)(ETYPE(Network) *nwp) {
 void ETYPE(InOrderTreeWalk)(ETYPE(TreeNode) *edges, Edge x) {
   if (x != 0) {
     ETYPE(InOrderTreeWalk)(edges, (edges+x)->left);
-    /*    printedge(x, edges); */
     IFELSEEWT(Rprintf(" %d:%f ",(edges+x)->value, (edges+x)->weight),
               Rprintf(" %d ",(edges+x)->value));
     ETYPE(InOrderTreeWalk)(edges, (edges+x)->right);
