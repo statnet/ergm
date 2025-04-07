@@ -14,15 +14,6 @@
 #include "ergm_changestat.h"
 #include "ergm_Rutil.h"
 
-Vertex CountTriangles (Vertex tail, Vertex head, int outcount,
-                       int incount, Network *nwp);
-
-void edgewise_path_recurse(Network *nwp, Vertex dest, Vertex curnode, 
-     Vertex *visited, long int curlen, double *countv, long int maxlen, int semi);
-
-void edgewise_cycle_census(Network *nwp, Vertex tail, Vertex head, 
-                           double *countv, long int maxlen, int semi);
-
 static inline void cutoff_error(ModelTerm *mtp){
   error("%s", CHAR(STRING_ELT(getListElement(mtp->R, "cutoff.message"), 0)));
 }

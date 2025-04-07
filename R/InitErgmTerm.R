@@ -2141,7 +2141,7 @@ InitErgmTerm.cycle <- function(nw, arglist, ...) {
     basenam<-"cycle"
   list(name="cycle",                            #name: required
        coef.names = paste(basenam, a$k, sep=""),  #coef.names: required
-       inputs = c(a$semi, max(a$k), (2:max(a$k)) %in% a$k),
+       iinputs = c(a$semi, max(a$k), (2:max(a$k)) %in% a$k),
        minval = 0)
 }
 
