@@ -163,9 +163,9 @@ static Network * (*fun)(SEXP,Rboolean) = NULL;
 if(fun==NULL) fun = (Network * (*)(SEXP,Rboolean)) R_FindSymbol("Redgelist2Network", "ergm", NULL);
 return fun(elR,empty);
 }
-void SetEdge(Vertex tail, Vertex head, unsigned int weight, Network *nwp){
-static void (*fun)(Vertex,Vertex,unsigned int,Network *) = NULL;
-if(fun==NULL) fun = (void (*)(Vertex,Vertex,unsigned int,Network *)) R_FindSymbol("SetEdge", "ergm", NULL);
+void SetEdge(Vertex tail, Vertex head, Rboolean weight, Network *nwp){
+static void (*fun)(Vertex,Vertex,Rboolean,Network *) = NULL;
+if(fun==NULL) fun = (void (*)(Vertex,Vertex,Rboolean,Network *)) R_FindSymbol("SetEdge", "ergm", NULL);
 fun(tail,head,weight,nwp);
 }
 int ToggleEdge(Vertex tail, Vertex head, Network *nwp){
@@ -248,6 +248,11 @@ static Edge (*fun)(Vertex *,Vertex *,Network *,Edge) = NULL;
 if(fun==NULL) fun = (Edge (*)(Vertex *,Vertex *,Network *,Edge)) R_FindSymbol("EdgeTree2EdgeList", "ergm", NULL);
 return fun(tails,heads,nwp,nmax);
 }
+
+#define STUBFILE
+#include <stddef.h>
+#include <R_ext/Rdynload.h>
+#include "ergm_edgetree_inline_template.do_not_include_directly.h"
 
 #define STUBFILE
 #include <stddef.h>
