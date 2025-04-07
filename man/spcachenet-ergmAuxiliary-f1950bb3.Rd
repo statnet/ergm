@@ -30,8 +30,7 @@ statistic implementation file.
 \item In the function (e.g., \code{c_} function) implementing the change
 statistic, use \code{GET_AUX_STORAGE(StoreStrictDyadMapUInt,
    spcache);} to obtain it if this is your first or only auxiliary,
-or \code{GET_AUX_STORAGE_NUM(StoreStrictDyadMapUInt, spcache,
-   ind);} if it is not.
+or \code{GET_AUX_STORAGE(ind, StoreStrictDyadMapUInt, spcache);} if it is not.
 \item Use one of the following macros to access the shared partner count: \describe{
 \item{\code{GETUDMUI(\var{TAIL}, \var{HEAD}, spcache)}}{if undirected;}
 \item{\code{GETDDMUI(\var{HEAD}, \var{TAIL}, spcache)}}{if \code{type = "ITP"} (since ITP is OTP with direction reversed);}

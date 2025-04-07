@@ -2626,11 +2626,13 @@ InitErgmTerm.gwb1dsp<-function(nw, arglist, cache.sp=TRUE, gw.cutoff=30, ...) {
 #' @templateVar name gwb2degree
 #' @title Geometrically weighted degree distribution for the second mode in a bipartite network
 #' @description This term adds one network statistic to the model equal to the weighted
-#'   degree distribution with decay controlled by the which should be non-negative,
-#'   for nodes in the
-#'   second mode of a bipartite network. The second mode of a bipartite network
+#'   degree distribution with decay controlled by the `decay` parameter, which should be non-negative,
+#'   for nodes in the second mode of a bipartite network. The second mode of a bipartite network
 #'   object is sometimes known as the "event" mode.
-#'   
+#'
+#'   This term can only be used with undirected bipartite
+#'   networks.
+#'
 #' @usage
 #' # binary: gwb2degree(decay, fixed=FALSE, attr=NULL, cutoff=30, levels=NULL)
 #'
@@ -2738,7 +2740,7 @@ InitErgmTerm.gwidegree<-function(nw, arglist, gw.cutoff=30, ..., version=package
 #' @title Geometrically weighted out-degree distribution
 #' @description This term adds one network statistic to the model
 #'   equal to the weighted out-degree distribution with decay parameter
-#'   `decay` parameter, which should be non-negative. This
+#'   `decay` parameter, which should be positive. This
 #'   term can only be used with directed networks.
 #'   
 #' @usage

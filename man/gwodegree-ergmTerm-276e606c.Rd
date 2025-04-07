@@ -29,7 +29,7 @@ attributes and Levels (\code{\link[=nodal_attributes]{?nodal_attributes}}) for d
 \description{
 This term adds one network statistic to the model
 equal to the weighted out-degree distribution with decay parameter
-\code{decay} parameter, which should be non-negative. This
+\code{decay} parameter, which should be positive. This
 term can only be used with directed networks.
 }
 \seealso{

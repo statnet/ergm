@@ -28,10 +28,12 @@ attributes and Levels (\code{\link[=nodal_attributes]{?nodal_attributes}}) for d
 }
 \description{
 This term adds one network statistic to the model equal to the weighted
-degree distribution with decay controlled by the which should be non-negative,
-for nodes in the
-second mode of a bipartite network. The second mode of a bipartite network
+degree distribution with decay controlled by the \code{decay} parameter, which should be non-negative,
+for nodes in the second mode of a bipartite network. The second mode of a bipartite network
 object is sometimes known as the "event" mode.
+
+This term can only be used with undirected bipartite
+networks.
 }
 \seealso{
 \code{\link{ergmTerm}} for index of model terms currently visible to the package.

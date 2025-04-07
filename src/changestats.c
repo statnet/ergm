@@ -1873,6 +1873,9 @@ S_CHANGESTAT_FN(s_edges) {
 /*****************
  changestat: d_gwdegree
 *****************/
+
+#define GWD0(d0) ((decay) ? exp(loneexpd*(d0)) : (d0)==0)
+
 C_CHANGESTAT_FN(c_gwdegree) { 
   int  echange=0;
   double decay, loneexpd, change;
@@ -1885,10 +1888,10 @@ C_CHANGESTAT_FN(c_gwdegree) {
   
   /* *** don't forget tail -> head */    
   change = 0.0;
-    echange = edgestate ? -1:+1;
-    taild = od[tail] + id[tail] + (echange - 1)/2;
-    headd = od[head] + id[head] + (echange - 1)/2;
-    change += echange*(exp(loneexpd*taild)+exp(loneexpd*headd));
+  echange = edgestate ? -1:+1;
+  taild = od[tail] + id[tail] - edgestate;
+  headd = od[head] + id[head] - edgestate;
+  change += echange*(GWD0(taild) + GWD0(headd));
       
   CHANGE_STAT[0] = change;
   
@@ -1914,13 +1917,13 @@ C_CHANGESTAT_FN(c_gwdegree_by_attr) {
   
   /* *** don't forget tail -> head */    
     echange = edgestate ? -1:+1;
-    taild = od[tail] + id[tail] + (echange - 1)/2;
+    taild = od[tail] + id[tail] - edgestate;
     tailattr = INPUT_PARAM[tail]; 
-    CHANGE_STAT[tailattr-1] += echange*exp(loneexpd*taild);
+    CHANGE_STAT[tailattr-1] += echange*GWD0(taild);
     
-    headd = od[head] + id[head] + (echange - 1)/2;
+    headd = od[head] + id[head] - edgestate;
     headattr = INPUT_PARAM[head]; 
-    CHANGE_STAT[headattr-1] += echange*exp(loneexpd*headd);
+    CHANGE_STAT[headattr-1] += echange*GWD0(headd);
       
 }
 
@@ -1937,7 +1940,7 @@ C_CHANGESTAT_FN(c_gwidegree) {
 
   /* *** don't forget tail -> head */    
     headd = IN_DEG[head] - edgestate;
-    change += (edgestate? -1.0 : 1.0) * exp(loneexpd*headd);
+    change += (edgestate? -1.0 : 1.0) * GWD0(headd);
   CHANGE_STAT[0]=change; 
 }
 
@@ -1959,9 +1962,9 @@ C_CHANGESTAT_FN(c_gwidegree_by_attr) {
 
   /* *** don't forget tail -> head */    
     echange = edgestate ? -1 : 1;
-    headd = IN_DEG[head] + (echange - 1)/2;
+    headd = IN_DEG[head] - edgestate;
     headattr = INPUT_PARAM[head - BIPARTITE]; /* BIPARTITE to make the b2 version a special case. */
-    CHANGE_STAT[headattr-1] += echange*exp(loneexpd*headd);
+    CHANGE_STAT[headattr-1] += echange*GWD0(headd);
 }
 
 /*****************
@@ -1977,7 +1980,7 @@ C_CHANGESTAT_FN(c_gwodegree) {
 
   /* *** don't forget tail -> head */    
     taild = OUT_DEG[tail] - edgestate;
-    change += (edgestate? -1 : 1) * exp(loneexpd*taild);
+    change += (edgestate? -1 : 1) * GWD0(taild);
   CHANGE_STAT[0] = change;
 }
 
@@ -1999,9 +2002,9 @@ C_CHANGESTAT_FN(c_gwodegree_by_attr) {
 
   /* *** don't forget tail -> head */    
     echange = edgestate ? -1 : 1;
-    taild = OUT_DEG[tail] + (echange - 1)/2;
+    taild = OUT_DEG[tail] - edgestate;
     tailattr = INPUT_PARAM[tail]; 
-    CHANGE_STAT[tailattr-1] += echange*exp(loneexpd*taild);
+    CHANGE_STAT[tailattr-1] += echange*GWD0(taild);
 }
 
 /********************  changestats:  H    ***********/

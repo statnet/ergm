@@ -126,6 +126,9 @@ test_that("gwdegree, undirected", {
   expect_summary(s.dfa, e.dfa,
     c(53.58148, 25.53534, 30.83418, 17.79934, 19.31326, 10.80933),
     -c(23.94060, 23.30646, 23.51430, 23.31140, 25.11103, 26.88088))
+
+  # Also, check that gwdegree(0) is evaluates correctly.
+  expect_equal(summary(fmh ~ gwdegree(0, fixed=TRUE)), network.size(fmh) - summary(fmh ~ degree(0)), ignore_attr = TRUE)
 })
 
 test_that("kstar, undirected", {
