@@ -252,7 +252,7 @@ gof.formula <- function(object, ...,
     message("Calculating observed network statistics.")
 
   summ_form <- function(nw, term, range){
-    summary(as.formula(call('~',call(term, range))), basis=nw)
+    as.formula(call('~',call(term, range)))
   }
 
   if(is.bipartite(nw)){
@@ -272,18 +272,27 @@ gof.formula <- function(object, ...,
     namestriadcensus <- c("0","1","2", "3")
   }
 
-  GVMAP <- list(model=list('model', NULL, function(x) summary(object, basis=x, term.options=control$term.options)),
+  GVMAP <- list(model=list('model', NULL, object),
                 distance=list('dist', 1:n, function(x){o <- ergm.geodistdist(x); o[o==Inf]<-n; o}),
-                odegree=list('odeg', 0:(n-1), function(x) summ_form(x, 'odegree', 0:(n-1))),
-                idegree=list('ideg', 0:(n-1), function(x) summ_form(x, 'idegree', 0:(n-1))),
-                degree=list('deg', 0:(n-1), function(x) summ_form(x, 'degree', 0:(n-1))),
-                b1degree=list('b1deg', 0:nb2, function(x) summ_form(x, 'b1degree', 0:nb2)),
-                b2degree=list('b2deg', 0:nb1, function(x) summ_form(x, 'b2degree', 0:nb1)),
-                espartners=list('espart', 0:(n-2), function(x) summ_form(x, 'esp', 0:(n-2))),
-                dspartners=list('dspart', 0:(n-2), function(x) summ_form(x, 'dsp', 0:(n-2))),
-                triadcensus=list('triadcensus', namestriadcensus, function(x) summ_form(x, 'triadcensus', triadcensus)))
+                odegree=list('odeg', 0:(n-1), summ_form(x, 'odegree', 0:(n-1))),
+                idegree=list('ideg', 0:(n-1), summ_form(x, 'idegree', 0:(n-1))),
+                degree=list('deg', 0:(n-1), summ_form(x, 'degree', 0:(n-1))),
+                b1degree=list('b1deg', 0:nb2, summ_form(x, 'b1degree', 0:nb2)),
+                b2degree=list('b2deg', 0:nb1, summ_form(x, 'b2degree', 0:nb1)),
+                espartners=list('espart', 0:(n-2), summ_form(x, 'esp', 0:(n-2))),
+                dspartners=list('dspart', 0:(n-2), summ_form(x, 'dsp', 0:(n-2))),
+                triadcensus=list('triadcensus', namestriadcensus, summ_form(x, 'triadcensus', triadcensus)))
 
   GVMAP <- GVMAP[names(GVMAP)%in%all.gof.vars]
+
+  # If gv[[3]] is a formula, preinitialize the model and have the
+  # function execute it on the network.
+  for(i in seq_along(GVMAP))
+    if(is(GVMAP[[i]][[3]], "formula"))
+      GVMAP[[i]][[3]] <- local({
+        m <- ergm_model(GVMAP[[i]][[3]], nw, term.options = control$term.options)
+        function(x) summary(m, nw = x)
+      })
 
   calc_obs_stat <- function(gv, names, calc){
     simname <- paste("sim", gv, sep=".")
