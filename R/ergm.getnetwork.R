@@ -34,13 +34,13 @@
 #'   that can be coerced to a [`network`], or an expression that evaluates
 #'   to one.
 #' @param loopswarning whether warnings about loops should be printed
-#'   (`TRUE` or `FALSE`); defaults to value of option `ergm.loopswarning`
+#'   (`TRUE` or `FALSE`); defaults to value of option `ergm.warn_loops`
 #'   or `TRUE`.
 #' 
 #' @return A [`network`] object constructed by evaluating the LHS of
 #'   the model formula in the formula's environment.
 #' @export ergm.getnetwork
-ergm.getnetwork <- function (formula, loopswarning=getOption("ergm.loopswarning")){
+ergm.getnetwork <- function (formula, loopswarning=getOption("ergm.warn_loops")){
   nw <- eval_lhs.formula(formula)
   nw <- ensure_network(nw)
 

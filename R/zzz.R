@@ -24,7 +24,7 @@
   default_options(
     ergm.eval.loglik=TRUE,
     ergm.loglik.warn_dyads=TRUE,
-    ergm.loopswarning = TRUE,
+    ergm.warn_loops = TRUE,
     ergm.cluster.retries=5
   )
 

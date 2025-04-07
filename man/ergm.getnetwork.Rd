@@ -5,13 +5,16 @@
 \title{Acquire and verify the network from the LHS of an \code{ergm} formula
 and verify that it is a valid network.}
 \usage{
-ergm.getnetwork(formula, loopswarning = TRUE)
+ergm.getnetwork(formula, loopswarning = getOption("ergm.warn_loops"))
 }
 \arguments{
-\item{formula}{a two-sided formula whose LHS is a \code{\link[network:network]{network}}, an object that can be coerced to a \code{\link[network:network]{network}}, or an expression that evaluates to one.}
+\item{formula}{a two-sided formula whose LHS is a \code{\link[network:network]{network}}, an object
+that can be coerced to a \code{\link[network:network]{network}}, or an expression that evaluates
+to one.}
 
 \item{loopswarning}{whether warnings about loops should be printed
-(\code{TRUE} or \code{FALSE}); defaults to \code{TRUE}.}
+(\code{TRUE} or \code{FALSE}); defaults to value of option \code{ergm.warn_loops}
+or \code{TRUE}.}
 }
 \value{
 A \code{\link[network:network]{network}} object constructed by evaluating the LHS of
