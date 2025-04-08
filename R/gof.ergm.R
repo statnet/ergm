@@ -251,7 +251,7 @@ gof.formula <- function(object, ...,
   if(verbose)
     message("Calculating observed network statistics.")
 
-  summ_form <- function(nw, term, range){
+  summ_form <- function(term, range){
     as.formula(call('~',call(term, range)))
   }
 
@@ -274,14 +274,14 @@ gof.formula <- function(object, ...,
 
   GVMAP <- list(model=list('model', NULL, object),
                 distance=list('dist', 1:n, function(x){o <- ergm.geodistdist(x); o[o==Inf]<-n; o}),
-                odegree=list('odeg', 0:(n-1), summ_form(x, 'odegree', 0:(n-1))),
-                idegree=list('ideg', 0:(n-1), summ_form(x, 'idegree', 0:(n-1))),
-                degree=list('deg', 0:(n-1), summ_form(x, 'degree', 0:(n-1))),
-                b1degree=list('b1deg', 0:nb2, summ_form(x, 'b1degree', 0:nb2)),
-                b2degree=list('b2deg', 0:nb1, summ_form(x, 'b2degree', 0:nb1)),
-                espartners=list('espart', 0:(n-2), summ_form(x, 'esp', 0:(n-2))),
-                dspartners=list('dspart', 0:(n-2), summ_form(x, 'dsp', 0:(n-2))),
-                triadcensus=list('triadcensus', namestriadcensus, summ_form(x, 'triadcensus', triadcensus)))
+                odegree=list('odeg', 0:(n-1), summ_form('odegree', 0:(n-1))),
+                idegree=list('ideg', 0:(n-1), summ_form('idegree', 0:(n-1))),
+                degree=list('deg', 0:(n-1), summ_form('degree', 0:(n-1))),
+                b1degree=list('b1deg', 0:nb2, summ_form('b1degree', 0:nb2)),
+                b2degree=list('b2deg', 0:nb1, summ_form('b2degree', 0:nb1)),
+                espartners=list('espart', 0:(n-2), summ_form('esp', 0:(n-2))),
+                dspartners=list('dspart', 0:(n-2), summ_form('dsp', 0:(n-2))),
+                triadcensus=list('triadcensus', namestriadcensus, summ_form('triadcensus', triadcensus)))
 
   GVMAP <- GVMAP[names(GVMAP)%in%all.gof.vars]
 
