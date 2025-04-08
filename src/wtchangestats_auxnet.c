@@ -38,7 +38,7 @@
 /* // If the edge also exists in y1, then toggle it off in auxnet->onwp. */
 /* // The storage auxnet->onwp should be initialized as y0&y1 at the end. */
 /* WtI_CHANGESTAT_FN(i__wtintersect_net_Network){ */
-/*   I_WtAUXNET(NetworkInitialize(NULL, NULL, 0, N_NODES, DIRECTED, BIPARTITE, 0, 0, NULL)); */
+/*   I_WtAUXNET(NetworkInitialize(NULL, NULL, 0, N_NODES, DIRECTED, BIPARTITE)); */
 /*   int *ref_el = IINPUT_PARAM; */
 
 /*   Edge nedges = *ref_el; */
@@ -65,7 +65,7 @@
 
 /* WtI_CHANGESTAT_FN(i__wtintersect_net_toggles_in_list_Network){ */
 /*   //Rprintf("allocating intersect_net_tog\n"); */
-/*   I_WtAUXNET(NetworkInitialize(NULL, NULL, 0, N_NODES, DIRECTED, BIPARTITE, 0, 0, NULL)); */
+/*   I_WtAUXNET(NetworkInitialize(NULL, NULL, 0, N_NODES, DIRECTED, BIPARTITE)); */
 /*   int *ref_el = IINPUT_PARAM; */
 
 /*   Edge nedges = *ref_el; */
@@ -123,7 +123,7 @@
 /* *\/ */
 
 /* WtI_CHANGESTAT_FN(i__wtblockdiag_net){ */
-/*   I_WtAUXNET(NetworkInitialize(NULL, NULL, 0, N_NODES, DIRECTED, BIPARTITE, 0, 0, NULL)); */
+/*   I_WtAUXNET(NetworkInitialize(NULL, NULL, 0, N_NODES, DIRECTED, BIPARTITE)); */
 /*   int *b = IINPUT_PARAM-1; // tail and head are indexed from 1. */
 
 /*   for(Vertex tail=1; tail <= N_TAILS; tail++){ */
@@ -161,7 +161,7 @@
 */
 
 WtI_CHANGESTAT_FN(i__wtundir_net){
-  I_WtAUXNET(WtNetworkInitialize(NULL, NULL, NULL, 0, N_NODES, FALSE, BIPARTITE, FALSE, 0, NULL));
+  I_WtAUXNET(WtNetworkInitialize(NULL, NULL, NULL, 0, N_NODES, FALSE, BIPARTITE));
 
   unsigned int rule = IINPUT_PARAM[0];
   WtEXEC_THROUGH_NET_EDGES_PRE(tail, head, e, weight, {
@@ -192,7 +192,7 @@ WtF_CHANGESTAT_FN(f__wtundir_net){
 /* *\/ */
 
 /* WtI_CHANGESTAT_FN(i__wtfilter_formula_net){ */
-/*   I_WtAUXNET(WtNetworkInitialize(NULL, NULL, NULL, 0, N_NODES, DIRECTED, BIPARTITE, FALSE, 0, NULL)); */
+/*   I_WtAUXNET(WtNetworkInitialize(NULL, NULL, NULL, 0, N_NODES, DIRECTED, BIPARTITE)); */
 /*   GET_STORAGE(WtModel, m); */
 /*   unsigned int op = IINPUT_PARAM[0]; */
 
@@ -266,7 +266,7 @@ WtI_CHANGESTAT_FN(i__wtsubgraph_net){
     break;
   }
 
-  I_WtAUXNET(WtNetworkInitialize(NULL, NULL, NULL, 0, n, dir, bip, FALSE, 0, NULL));
+  I_WtAUXNET(WtNetworkInitialize(NULL, NULL, NULL, 0, n, dir, bip));
 
   WtEXEC_THROUGH_NET_EDGES_PRE(tail, head, e, weight, {
       Vertex st = thmap[0][tail];
@@ -306,7 +306,7 @@ WtF_CHANGESTAT_FN(f__wtsubgraph_net){
 */
 
 WtI_CHANGESTAT_FN(i__wttransformed_net){
-  I_WtAUXNET(WtNetworkInitialize(NULL, NULL, NULL, 0, N_NODES, FALSE, BIPARTITE, FALSE, 0, NULL));
+  I_WtAUXNET(WtNetworkInitialize(NULL, NULL, NULL, 0, N_NODES, FALSE, BIPARTITE));
 
   unsigned int op = IINPUT_PARAM[0];
   WtEXEC_THROUGH_NET_EDGES_PRE(tail, head, e, weight, {

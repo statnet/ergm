@@ -105,7 +105,7 @@ F_CHANGESTAT_FN(f_on_proj_net){
 I_CHANGESTAT_FN(i__proj_net){
   unsigned int mode = IINPUT_PARAM[0];
 
-  WtNetwork *pnwp = AUX_STORAGE = WtNetworkInitialize(NULL, NULL, NULL, 0, mode == 1 ? BIPARTITE : N_NODES - BIPARTITE, DIRECTED, FALSE, FALSE, 0, NULL);
+  WtNetwork *pnwp = AUX_STORAGE = WtNetworkInitialize(NULL, NULL, NULL, 0, mode == 1 ? BIPARTITE : N_NODES - BIPARTITE, DIRECTED, FALSE);
 
   switch(mode){
   case 1:
