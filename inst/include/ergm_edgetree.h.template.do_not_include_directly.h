@@ -7,113 +7,112 @@
  *
  *  Copyright 2003-2025 Statnet Commons
  */
-#ifndef _ERGM_WTEDGETREE_H_
-#define _ERGM_WTEDGETREE_H_
 
 #include "ergm_edgetree_common.do_not_include_directly.h"
 
-/* WtTreeNode is just like TreeNode but with an extra field for a
-   weight, or value, that might be associated with the node */
-typedef struct WtTreeNodestruct {
+/*  ETYPE(TreeNode) is a binary tree structure, which is how the edgelists
+    are stored.  The root of the tree for vertex i will be inedges[i]
+    or outedges[i].  inedges[0] and outedges[0] are unused, since the
+    index 0 will indicate no link.  Indices are long unsigned integers,
+    which means networks can contain 2^32-1= 4294967295 edges (enough to
+    hold all edges in a 92682-vertex undirected network or a 65536-vertex
+    directed network, assuming no multiple edges or loops).
+*/
+typedef struct ETYPE(TreeNodestruct) {
   Vertex value;      /*  the vertex at the other end of the edge  */
   Edge parent;   /*  parent of this node in the tree (0 for root) */
   Edge left;     /*  left child (0 if none)  */
   Edge right;    /*  right child (0 if none) */
-  double weight;
-} WtTreeNode;
+  IFEWT(EWTTYPE weight;)
+} ETYPE(TreeNode);
 
-/* WtNetwork is a structure just like Network except it is for a network with 
-   weighted (valued) edges.  */
-typedef struct WtNetworkstruct {
-  WtTreeNode *inedges;
-  WtTreeNode *outedges;
+/* ETYPE(Network) is a structure containing all essential elements
+   of a given network; it is a slightly rewritten version of the old Gptr,
+   with some changes of awkard things, deletion of unnecessary things, and
+   a new name more reflective of what it does!
+
+   Some of the fields in a ETYPE(Network) structure are:
+   inedges and outedges are arrays of TreeNode that are used to
+     store all of the incoming and outgoing edges, respectively.
+   directed_flag is 1 or 0, depending on whether or not the
+     network is directed.
+   last_inedge and last_outedge are continually updated to give
+     the highest index of an edge object being used.
+   outdegree[] and indegree[] are continually updated to give
+     the appropriate degree values for each vertex.  These should
+     point to Vertex-vectors of length nnodes+1.
+*/
+typedef struct ETYPE(Networkstruct) {
+  ETYPE(TreeNode) *inedges;
+  ETYPE(TreeNode) *outedges;
   Rboolean directed_flag;
-  Vertex bipartite;  
+  Vertex bipartite;
   Vertex nnodes;
   Edge nedges;
   Edge last_inedge;
   Edge last_outedge;
   Vertex *indegree;
   Vertex *outdegree;
-  const char *eattrname;
+  IFEWT(const char *eattrname;)
   Edge maxedges;
 
   unsigned int n_on_edge_change;
   unsigned int max_on_edge_change;
-  void (**on_edge_change)(Vertex, Vertex, double, void*, struct WtNetworkstruct*, double);
+  void (**on_edge_change)(Vertex, Vertex, IFEWT(EWTTYPE,) void*, struct ETYPE(Networkstruct)*, EWTTYPE);
   void **on_edge_change_payload;
-} WtNetwork;
-typedef void (*OnWtNetworkEdgeChange)(Vertex, Vertex, double, void*, WtNetwork*, double);
+} ETYPE(Network);
+typedef void (*ETYPE(On,NetworkEdgeChange))(Vertex, Vertex, IFEWT(EWTTYPE,) void*, ETYPE(Network)*, EWTTYPE);
 
 /* Initialization and destruction. */
 
-/*
-  Workaround to enable WtNetworkInitialize() to be called with either
-  7 or 10 arguments.
-
-  TODO: Remove the workaround and rename WtNetworkInitialize_noLT() to
-    WtNetworkInitialize() after no CRAN packages use it.
-*/
-
-#define WtNetworkInitialize(...) _GET_OVERRIDE10(__VA_ARGS__, WtNetworkInitialize_LT, , , WtNetworkInitialize_noLT, , , , , , , , )(__VA_ARGS__)
-
-#define WtNetworkInitialize_LT(tails, heads, weights, nedges, nnodes, directed_flag, bipartite, lasttoggle_flag, time, lasttoggle) \
-  WtNetworkInitialize_noLT((tails), (heads), (weights), (nedges), (nnodes), (directed_flag), (bipartite))
-
-WtNetwork *WtNetworkInitialize_noLT(Vertex *tails, Vertex *heads, double *weights, Edge nedges,
+ETYPE(Network) *ETYPE(NetworkInitialize_noLT)(Vertex *tails, Vertex *heads, IFEWT(EWTTYPE *weights,) Edge nedges,
 			       Vertex nnodes, Rboolean directed_flag, Vertex bipartite);
-void WtNetworkDestroy(WtNetwork *nwp);
+void ETYPE(NetworkDestroy)(ETYPE(Network) *nwp);
 
-WtNetwork *WtNetworkCopy(WtNetwork *src);
+ETYPE(Network) *ETYPE(NetworkCopy)(ETYPE(Network) *src);
 
-SEXP WtNetwork2Redgelist(WtNetwork *nwp);
-WtNetwork *Redgelist2WtNetwork(SEXP elR, Rboolean empty);
+SEXP ETYPE(Network2Redgelist)(ETYPE(Network) *nwp);
+ETYPE(Network) *ETYPE(Redgelist2,Network)(SEXP elR, Rboolean empty);
 
 /* /\* Accessors. *\/ */
-/* static inline Edge WtEdgetreeSearch (Vertex a, Vertex b, WtTreeNode *edges); */
-/* static inline double WtGetEdge (Vertex tail, Vertex head, WtNetwork *nwp); */
-/* static inline Edge WtEdgetreeSuccessor (WtTreeNode *edges, Edge x); */
-/* static inline Edge WtEdgetreePredecessor (WtTreeNode *edges, Edge x); */
-/* static inline Edge WtEdgetreeMinimum (WtTreeNode *edges, Edge x); */
-/* static inline Edge WtEdgetreeMaximum (WtTreeNode *edges, Edge x); */
+/* static inline Edge ETYPE(EdgetreeSearch) (Vertex a, Vertex b, ETYPE(TreeNode) *edges); */
+/* static inline EWTTYPE ETYPE(GetEdge) (Vertex tail, Vertex head, ETYPE(Network) *nwp); */
+/* static inline Edge ETYPE(EdgetreeSuccessor) (ETYPE(TreeNode) *edges, Edge x); */
+/* static inline Edge ETYPE(EdgetreePredecessor) (ETYPE(TreeNode) *edges, Edge x); */
+/* static inline Edge ETYPE(EdgetreeMinimum) (ETYPE(TreeNode) *edges, Edge x); */
+/* static inline Edge ETYPE(EdgetreeMaximum) (ETYPE(TreeNode) *edges, Edge x); */
 
 /* Modifiers. */
 
 /* *** don't forget,  tails -> heads, so all the functions below using
    heads & tails, now list tails before heads */
 
-void WtSetEdge (Vertex tail, Vertex head, double weight, WtNetwork *nwp);
-int WtToggleEdge (Vertex tail, Vertex head, double weight, WtNetwork *nwp);
-void WtAddEdgeToTrees(Vertex tail, Vertex head, double weight, WtNetwork *nwp);
-/* void WtAddHalfedgeToTree (Vertex a, Vertex b, double weight, WtTreeNode *edges, Edge *last_edge); */
-/* void WtCheckEdgetreeFull (WtNetwork *nwp); */
-int WtDeleteEdgeFromTrees(Vertex tail, Vertex head, WtNetwork *nwp);
-/* int WtDeleteHalfedgeFromTree(Vertex a, Vertex b, WtTreeNode *edges, */
+void ETYPE(SetEdge) (Vertex tail, Vertex head, EWTTYPE weight, ETYPE(Network) *nwp);
+int ETYPE(ToggleEdge) (Vertex tail, Vertex head, IFEWT(EWTTYPE weight,) ETYPE(Network) *nwp);
+void ETYPE(AddEdgeToTrees)(Vertex tail, Vertex head, IFEWT(EWTTYPE weight,) ETYPE(Network) *nwp);
+/* void ETYPE(AddHalfedgeToTree) (Vertex a, Vertex b, IFEWT(EWTTYPE weight,) ETYPE(TreeNode) *edges, Edge *last_edge); */
+/* void ETYPE(CheckEdgetreeFull) (ETYPE(Network) *nwp); */
+int ETYPE(DeleteEdgeFromTrees)(Vertex tail, Vertex head, ETYPE(Network) *nwp);
+/* int ETYPE(DeleteHalfedgeFromTree)(Vertex a, Vertex b, ETYPE(TreeNode) *edges, */
 /* 		     Edge *last_edge); */
-/* void WtRelocateHalfedge(Edge from, Edge to, WtTreeNode *edges); */
+/* void ETYPE(RelocateHalfedge)(Edge from, Edge to, ETYPE(TreeNode) *edges); */
 
 /* Callback management. */
-void AddOnWtNetworkEdgeChange(WtNetwork *nwp, OnWtNetworkEdgeChange callback, void *payload, unsigned int pos);
-void DeleteOnWtNetworkEdgeChange(WtNetwork *nwp, OnWtNetworkEdgeChange callback, void *payload);
-
-#include "ergm_edgetype_set_double.h"
+void ETYPE(AddOn,NetworkEdgeChange)(ETYPE(Network) *nwp, ETYPE(On,NetworkEdgeChange) callback, void *payload, unsigned int pos);
+void ETYPE(DeleteOn,NetworkEdgeChange)(ETYPE(Network) *nwp, ETYPE(On,NetworkEdgeChange) callback, void *payload);
 
 #include "ergm_edgetree_inline_template.do_not_include_directly.h"
 
-#include "ergm_edgetype_unset.h"
-
 /* Utility functions. */
-int WtFindithEdge (Vertex *tail, Vertex *head, double *weight, Edge i, WtNetwork *nwp);
-int WtGetRandEdge(Vertex *tail, Vertex *head, double *weight, WtNetwork *nwp);
-int WtFindithNonedge (Vertex *tail, Vertex *head, Dyad i, WtNetwork *nwp);
-int WtGetRandNonedge(Vertex *tail, Vertex *head, WtNetwork *nwp);
-void WtInOrderTreeWalk(WtTreeNode *edges, Edge x);
-void WtNetworkEdgeList(WtNetwork *nwp);
-void WtShuffleEdges(Vertex *tails, Vertex *heads, double *weights, Edge nedges);
-void WtDetShuffleEdges(Vertex *tails, Vertex *heads, double *weights, Edge nedges);
-void WtDetUnShuffleEdges(Vertex *tails, Vertex *heads, double *weights, Edge nedges);
+int ETYPE(FindithEdge) (Vertex *tail, Vertex *head, IFEWT(EWTTYPE *weight,) Edge i, ETYPE(Network) *nwp);
+int ETYPE(GetRandEdge)(Vertex *tail, Vertex *head, IFEWT(EWTTYPE *weight,) ETYPE(Network) *nwp);
+int ETYPE(FindithNonedge) (Vertex *tail, Vertex *head, Dyad i, ETYPE(Network) *nwp);
+int ETYPE(GetRandNonedge)(Vertex *tail, Vertex *head, ETYPE(Network) *nwp);
+void ETYPE(InOrderTreeWalk)(ETYPE(TreeNode) *edges, Edge x);
+void ETYPE(NetworkEdgeList)(ETYPE(Network) *nwp);
+void ETYPE(ShuffleEdges)(Vertex *tails, Vertex *heads, IFEWT(EWTTYPE *weights,) Edge nedges);
+void ETYPE(DetShuffleEdges)(Vertex *tails, Vertex *heads, IFEWT(EWTTYPE *weights,) Edge nedges);
+void ETYPE(DetUnShuffleEdges)(Vertex *tails, Vertex *heads, IFEWT(EWTTYPE *weights,) Edge nedges);
 
 /* Others... */
-Edge WtEdgeTree2EdgeList(Vertex *tails, Vertex *heads, double *weights, WtNetwork *nwp, Edge nmax);
-
-#endif
+Edge ETYPE(EdgeTree2EdgeList)(Vertex *tails, Vertex *heads, IFEWT(EWTTYPE *weights,) ETYPE(Network) *nwp, Edge nmax);
