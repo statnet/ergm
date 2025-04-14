@@ -22,13 +22,13 @@ typedef struct WtTreeNodestruct {
   double weight;
 } WtTreeNode;
 
-/* WtNetwork is a structure just like Network except it is for a network with 
+/* WtNetwork is a structure just like Network except it is for a network with
    weighted (valued) edges.  */
 typedef struct WtNetworkstruct {
   WtTreeNode *inedges;
   WtTreeNode *outedges;
   Rboolean directed_flag;
-  Vertex bipartite;  
+  Vertex bipartite;
   Vertex nnodes;
   Edge nedges;
   Edge last_inedge;
