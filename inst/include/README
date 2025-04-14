@@ -23,10 +23,15 @@ STABILITY
 Currently, the following exported APIs are considered stable, and
 should remain source-compatible (1) for the forseeable future:
 
-* Custom binary change statistics API used by ergm.userterms. This
-  includes, in particular, the functionality documented in the Journal
-  of the Statistical Sofware paper(s) and in workshops. The header
-  files involved are changestat.h, edgetree.h, and edgelist.h.
+* Custom binary and valued change statistics API used by
+  'ergm.userterms'. This includes, in particular, the functionality
+  documented in the Journal of the Statistical Sofware paper(s) and in
+  workshops. The header files involved are ergm_changestat.h,
+  ergm_edgetree.h, ergm_wtchangestat.h, and ergm_wtedgetree.h . (Their
+  names without the ergm_ prefix have been deprecated and will produce
+  a warning.)
+
+* Storage and auxiliary storage API (ergm_storage.h).
 
 ALL OTHER exported header files and APIs are provided as a
 courtesy. They are to be considered EXPERIMENTAL and subject to change
