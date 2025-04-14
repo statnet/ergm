@@ -7,5 +7,8 @@
  *
  *  Copyright 2003-2025 Statnet Commons
  */
+
+#ifndef STUBFILE
 #pragma message ("warning: The header file \"wtmodel.h\" has been deprecated in favor of \"ergm_wtmodel.h\" and may be removed in the future.")
+#endif
 #include "ergm_wtmodel.h"

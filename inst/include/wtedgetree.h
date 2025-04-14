@@ -7,5 +7,7 @@
  *
  *  Copyright 2003-2025 Statnet Commons
  */
+#ifndef STUBFILE
 #pragma message ("warning: The header file \"wtedgetree.h\" has been deprecated in favor of \"ergm_wtedgetree.h\" and may be removed in the future.")
+#endif
 #include "ergm_wtedgetree.h"

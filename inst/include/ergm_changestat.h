@@ -14,7 +14,7 @@
 
 #include "ergm_edgetype_set_binary.h"
 
-#include "ergm_changestat.h.template.do_not_include_directly.h"
+#include "inc/ergm_changestat.h.template.do_not_include_directly.h"
 
 #include "ergm_edgetype_unset.h"
 
