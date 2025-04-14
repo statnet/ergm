@@ -7,10 +7,7 @@
  *
  *  Copyright 2003-2025 Statnet Commons
  */
-#ifndef _ERGM_WTMHPROPOSAL_H_
-#define _ERGM_WTMHPROPOSAL_H_
 
-#include "ergm_wtedgetree.h"
 #include "R_ext/Rdynload.h"
 
 #define NO_EDGE       0x00 /*these four used in realocateWithReplacement */
@@ -38,10 +35,10 @@
 #define XOR(a,b) (((a)==0) != ((b)==0))
 #define XNOR(a,b) (((a)==0) == ((b)==0))
 
-/*  Notes on WtMHProposal type:
+/*  Notes on ETYPE(MHProposal) type:
    An Weighted MH proposal function must take two arguments:  a pointer to an
    Weighted MHProposal structure, which holds all the information regarding the
-   MH proposal; and a pointer to an array of WtNetwork structures, which
+   MH proposal; and a pointer to an array of ETYPE(Network) structures, which
    contain the network(s).
 
    Each Weighted MH proposal function should check to see whether ntoggles==0
@@ -53,17 +50,17 @@
 
 /* *** don't forget tail-> head */
 
-typedef struct WtMHProposalstruct {
+typedef struct ETYPE(MHProposalstruct) {
   SEXP R;
-  void (*i_func)(struct WtMHProposalstruct*, WtNetwork*);
-  void (*p_func)(struct WtMHProposalstruct*, WtNetwork*);
-  void (*u_func)(Vertex, Vertex, double, struct WtMHProposalstruct*, WtNetwork*, double);
-  void (*f_func)(struct WtMHProposalstruct*, WtNetwork*);
-  void (*x_func)(unsigned int, void *, struct WtMHProposalstruct*, WtNetwork*);
+  void (*i_func)(struct ETYPE(MHProposalstruct)*, ETYPE(Network)*);
+  void (*p_func)(struct ETYPE(MHProposalstruct)*, ETYPE(Network)*);
+  void (*u_func)(Vertex, Vertex, IFEWT(EWTTYPE,) struct ETYPE(MHProposalstruct)*, ETYPE(Network)*, EWTTYPE);
+  void (*f_func)(struct ETYPE(MHProposalstruct)*, ETYPE(Network)*);
+  void (*x_func)(unsigned int, void *, struct ETYPE(MHProposalstruct)*, ETYPE(Network)*);
   Edge ntoggles;
   Vertex *toggletail;
   Vertex *togglehead;
-  double *toggleweight;
+  IFEWT(EWTTYPE *toggleweight;)
   double logratio;
   int status;
   int ninputs;
@@ -74,11 +71,11 @@ typedef struct WtMHProposalstruct {
   void **aux_storage;
   unsigned int n_aux;
   unsigned int *aux_slots;
-} WtMHProposal;
+} ETYPE(MHProposal);
 
-WtMHProposal *WtMHProposalInitialize(SEXP pR, WtNetwork *nwp, void **aux_storage);
+ETYPE(MHProposal) *ETYPE(MHProposalInitialize)(SEXP pR, ETYPE(Network) *nwp, void **aux_storage);
 
-void WtMHProposalDestroy(WtMHProposal *MH, WtNetwork *nwp);
+void ETYPE(MHProposalDestroy)(ETYPE(MHProposal) *MH, ETYPE(Network) *nwp);
 
 /* Helper macros */
 #define MH_N_DINPUTS MHp->ninputs
@@ -91,11 +88,3 @@ void WtMHProposalDestroy(WtMHProposal *MH, WtNetwork *nwp);
 #define Mtail (MHp->toggletail)
 #define Mhead (MHp->togglehead)
 #define Mweight (MHp->toggleweight)
-
-#define WtMH_I_FN(a) void (a) (WtMHProposal *MHp, WtNetwork *nwp)
-#define WtMH_U_FN(a) void (a) (Vertex tail, Vertex head, double weight, WtMHProposal *MHp, WtNetwork *nwp, double edgestate)
-#define WtMH_P_FN(a) void (a) (WtMHProposal *MHp, WtNetwork *nwp)
-#define WtMH_F_FN(a) void (a) (WtMHProposal *MHp, WtNetwork *nwp)
-#define WtMH_X_FN(a) void (a) (unsigned int type, void *data, WtMHProposal* MHp, WtNetwork* nwp)
-
-#endif
