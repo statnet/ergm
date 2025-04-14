@@ -472,11 +472,11 @@ ergm.MCMLE <- function(init, s, s.obs,
             estcov <- estcov + hotel$covariance.y*sum(esteq.obs.w^2)*length(esteq.obs.w)
           }
           estdiff <- estdiff[!hotel$novar]
-          estcov <- estcov[!hotel$novar, !hotel$novar]
+          estcov <- estcov[!hotel$novar, !hotel$novar, drop = FALSE]
 
-          d2e <- xTAx_seigen(estdiff, Vm[!hotel$novar, !hotel$novar])
+          d2e <- xTAx_seigen(estdiff, Vm[!hotel$novar, !hotel$novar, drop = FALSE])
           if(d2e<1){ # Update ends within tolerance ellipsoid.
-            T2 <- try(.ellipsoid_mahalanobis(estdiff, estcov, Vm[!hotel$novar, !hotel$novar]), silent=TRUE) # Distance to the nearest point on the tolerance region boundary.
+            T2 <- try(.ellipsoid_mahalanobis(estdiff, estcov, Vm[!hotel$novar, !hotel$novar, drop = FALSE]), silent=TRUE) # Distance to the nearest point on the tolerance region boundary.
             if(inherits(T2, "try-error")){ # Within tolerance ellipsoid, but cannot be tested.
               message("Unable to test for convergence; increasing sample size.")
               .boost_samplesize(control$MCMLE.confidence.boost)
