@@ -67,3 +67,5 @@ double my_choose(double n, int r);
 #define DINPUT_ATTRIB (mtp->attrib)
 #define INPUT_ATTRIB DINPUT_ATTRIB
 #define IINPUT_ATTRIB (mtp->iattrib)
+
+#define SAMEDYAD(a1,b1,a2,b2) (DIRECTED? a1==a2 && b1==b2 : MIN(a1,b1)==MIN(a2,b2) && MAX(a1,b1)==MAX(a2,b2))

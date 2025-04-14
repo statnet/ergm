@@ -12,39 +12,14 @@
 
 #include "ergm_wtedgetree.h"
 
-typedef struct WtModelTermstruct {
-  void (*c_func)(Vertex, Vertex, double, struct WtModelTermstruct*, WtNetwork*, double);
-  void (*d_func)(Edge, Vertex*, Vertex*, double*, struct WtModelTermstruct*, WtNetwork*);
-  void (*i_func)(struct WtModelTermstruct*, WtNetwork*);
-  void (*u_func)(Vertex, Vertex, double, struct WtModelTermstruct*, WtNetwork*, double);
-  void (*f_func)(struct WtModelTermstruct*, WtNetwork*);
-  void (*s_func)(struct WtModelTermstruct*, WtNetwork*);
-  SEXP (*w_func)(struct WtModelTermstruct*, WtNetwork*);  
-  void (*x_func)(unsigned int, void *, struct WtModelTermstruct*, WtNetwork*);
-  void (*z_func)(struct WtModelTermstruct*, WtNetwork*, Rboolean);
-  double *attrib; /* Ptr to vector of covariates (if necessary; generally unused) */
-  int *iattrib; /* Ptr to vector of integer covariates (if necessary; generally unused) */
-  int nstats;   /* Number of change statistics to be returned */
-  unsigned int statspos; /* Position of this term's stats in the workspace vector. */ 
-  double *dstats; /* ptr to change statistics returned */
-  int ninputparams; /* Number of double input parameters passed to function */
-  double *inputparams; /* ptr to double input parameters passed */
-  int niinputparams; /* Number of integer input parameters passed to function */
-  int *iinputparams; /* ptr to integer input parameters passed */
-  double *statcache; /* vector of the same length as dstats */
-  double *emptynwstats; /* vector of the same length as dstats or NULL*/
-  void *storage; /* optional space for persistent storage */
-  void **aux_storage; /* optional space for persistent public (auxiliary) storage */
-  unsigned int n_aux;
-  unsigned int *aux_slots;
-  SEXP R; /* R term object. */
-  SEXP ext_state; /* A place from which to read extended state. */
-} WtModelTerm;
+#include "ergm_edgetype_set_double.h"
+
+#include "ergm_changestat.h.template.do_not_include_directly.h"
+
+#include "ergm_edgetype_unset.h"
 
 /****************************************************
  Macros to make life easier when writing C code for change statistics:  */
-
-#include "ergm_changestat_common.do_not_include_directly.h"
 
 /* tell whether a particular edge exists */
 #define _WtIS_OUTEDGE2(a,b) _WtIS_OUTEDGE3(a,b,nwp)

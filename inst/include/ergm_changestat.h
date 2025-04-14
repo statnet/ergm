@@ -12,39 +12,14 @@
 
 #include "ergm_edgetree.h"
 
-typedef struct ModelTermstruct {
-  void (*c_func)(Vertex, Vertex, struct ModelTermstruct*, Network*, Rboolean);
-  void (*d_func)(Edge, Vertex*, Vertex*, struct ModelTermstruct*, Network*);
-  void (*i_func)(struct ModelTermstruct*, Network*);
-  void (*u_func)(Vertex, Vertex, struct ModelTermstruct*, Network*, Rboolean);
-  void (*f_func)(struct ModelTermstruct*, Network*);
-  void (*s_func)(struct ModelTermstruct*, Network*);
-  SEXP (*w_func)(struct ModelTermstruct*, Network*);  
-  void (*x_func)(unsigned int, void *, struct ModelTermstruct*, Network*);
-  void (*z_func)(struct ModelTermstruct*, Network*, Rboolean);
-  double *attrib; /* Ptr to vector of covariates (if necessary; generally unused) */
-  int *iattrib; /* Ptr to vector of integer covariates (if necessary; generally unused) */
-  int nstats;   /* Number of change statistics to be returned */
-  unsigned int statspos; /* Position of this term's stats in the workspace vector. */ 
-  double *dstats; /* ptr to change statistics returned */
-  int ninputparams; /* Number of double input parameters passed to function */
-  double *inputparams; /* ptr to double input parameters passed */
-  int niinputparams; /* Number of integer input parameters passed to function */
-  int *iinputparams; /* ptr to integer input parameters passed */
-  double *statcache; /* vector of the same length as dstats */
-  double *emptynwstats; /* vector of the same length as dstats or NULL*/
-  void *storage; /* optional space for persistent storage */
-  void **aux_storage; /* optional space for persistent public (auxiliary) storage */
-  unsigned int n_aux;
-  unsigned int *aux_slots;
-  SEXP R; /* R term object. */
-  SEXP ext_state; /* A place from which to read extended state. */
-} ModelTerm;
+#include "ergm_edgetype_set_binary.h"
+
+#include "ergm_changestat.h.template.do_not_include_directly.h"
+
+#include "ergm_edgetype_unset.h"
 
 /****************************************************
  Macros to make life easier when writing C code for change statistics:  */
-
-#include "ergm_changestat_common.do_not_include_directly.h"
 
 /* return number of tail and head node in the directed node pair
    tail -> head of the selected toggle */
