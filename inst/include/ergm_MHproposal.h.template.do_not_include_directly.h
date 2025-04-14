@@ -14,9 +14,9 @@
 #include "R_ext/Rdynload.h"
 
 #define NO_EDGE       0x00 /*these four used in realocateWithReplacement */
-#define OLD_EDGE      0x01 
-#define NEW_EDGE      0x02 
-#define CAN_IGNORE    (OLD_EDGE | NEW_EDGE)  
+#define OLD_EDGE      0x01
+#define NEW_EDGE      0x02
+#define CAN_IGNORE    (OLD_EDGE | NEW_EDGE)
 
 /* Maximum tries (up to an MH-specific constant). */
 #define MAX_TRIES 5000
@@ -39,11 +39,11 @@
 #define XNOR(a,b) (((a)==0) == ((b)==0))
 
 /*  Notes on WtMHProposal type:
-   An Weighted MH proposal function must take two arguments:  a pointer to an 
+   An Weighted MH proposal function must take two arguments:  a pointer to an
    Weighted MHProposal structure, which holds all the information regarding the
-   MH proposal; and a pointer to an array of WtNetwork structures, which 
-   contain the network(s).  
-   
+   MH proposal; and a pointer to an array of WtNetwork structures, which
+   contain the network(s).
+
    Each Weighted MH proposal function should check to see whether ntoggles==0
    upon being called.  If so, the Weighted MH proposal function should change
    the value of ntoggles to be the largest possible number of toggles
@@ -98,7 +98,4 @@ void WtMHProposalDestroy(WtMHProposal *MH, WtNetwork *nwp);
 #define WtMH_F_FN(a) void (a) (WtMHProposal *MHp, WtNetwork *nwp)
 #define WtMH_X_FN(a) void (a) (unsigned int type, void *data, WtMHProposal* MHp, WtNetwork* nwp)
 
-#endif 
-
-
-
+#endif
