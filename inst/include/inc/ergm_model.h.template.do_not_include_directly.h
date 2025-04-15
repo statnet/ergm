@@ -30,10 +30,10 @@ typedef struct ETYPE(Modelstruct) {
   Rboolean noinit_s;
 } ETYPE(Model);
 
- /* If DEBUG is set, back up mtp->dstats and set it to NULL in order
-    to trigger a segfault if u_func tries to write to change
+ /* If NDEBUG is unset, back up mtp->dstats and set it to NULL in
+    order to trigger a segfault if u_func tries to write to change
     statistics; then restore it. Otherwise, don't bother. */
-#ifdef DEBUG
+#ifndef NDEBUG
 #define IFDEBUG_BACKUP_DSTATS double *dstats = mtp->dstats; mtp->dstats = NULL;
 #define IFDEBUG_RESTORE_DSTATS mtp->dstats = dstats;
 #else

@@ -154,11 +154,11 @@ int ETYPE(ToggleEdge) (Vertex tail, Vertex head, IFEWT(EWTTYPE weight,) ETYPE(Ne
 /* *** don't forget tail->head, so this function now accepts tail before head */
 
 void ETYPE(AddEdgeToTrees)(Vertex tail, Vertex head, IFEWT(EWTTYPE weight,) ETYPE(Network) *nwp){
-#ifdef DEBUG
+#ifndef NDEBUG
   if(!nwp->directed_flag && tail>head)
-    error("ETYPE(AddEdgeToTrees)() called for an undirected network with tail>head. Note that this produces an error only if compiling with DEBUG macro set and silently produces undefined behavior otherwise.");
-  if(ETYPE(EdgetreeSearch)(tail, head, nwp->outedges)||ETYPE(EdgetreeSearch)(head, tail, nwp->inedges)) error("ETYPE(AddEdgeToTrees)() called for an extant edge. Note that this produces an error only if compiling with DEBUG macro set and silently produces undefined behavior otherwise.");
-#endif // DEBUG
+    error("ETYPE(AddEdgeToTrees)() called for an undirected network with tail>head. Note that this produces an error only if compiling with NDEBUG macro unset and silently produces undefined behavior otherwise.");
+  if(ETYPE(EdgetreeSearch)(tail, head, nwp->outedges)||ETYPE(EdgetreeSearch)(head, tail, nwp->inedges)) error("ETYPE(AddEdgeToTrees)() called for an extant edge. Note that this produces an error only if compiling with NDEBUG macro unset and silently produces undefined behavior otherwise.");
+#endif // NDEBUG
   for(unsigned int i = 0; i < nwp->n_on_edge_change; i++) nwp->on_edge_change[i](tail, head, IFEWT(weight,) nwp->on_edge_change_payload[i], nwp, 0);
 
   ETYPE(AddHalfedgeToTree)(tail, head, IFEWT(weight,) nwp->outedges, &(nwp->last_outedge));

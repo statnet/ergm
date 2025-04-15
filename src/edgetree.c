@@ -22,10 +22,10 @@
 
 void ToggleKnownEdge (Vertex tail, Vertex head, Network *nwp, Rboolean edgestate)
 {
-#ifdef DEBUG
+#ifndef NDEBUG
   if((EdgetreeSearch(tail, head, nwp->outedges)!=0) != edgestate)
-    error("ToggleKnownEdge() called with an incorrect edgestate. Note that this produces an error only if compiling with DEBUG macro set and silently produces undefined behavior otherwise.");
-#endif // DEBUG
+    error("ToggleKnownEdge() called with an incorrect edgestate. Note that this produces an error only if compiling with NDEBUG macro unset and silently produces undefined behavior otherwise.");
+#endif // NDEBUG
   ENSURE_TH_ORDER;
   if (edgestate){
     DeleteEdgeFromTrees(tail,head,nwp);
