@@ -7,28 +7,20 @@
  *
  *  Copyright 2003-2025 Statnet Commons
  */
-#ifndef _ERGM_WTSTATE_H_
-#define _ERGM_WTSTATE_H_
 
-#include "ergm_constants.h"
-#include "ergm_wtedgetree.h"
-#include "ergm_wtchangestat.h"
-#include "ergm_wtMHproposal.h"
-#include "ergm_wtmodel.h"
+#include "../ergm_constants.h"
 
 typedef struct{
   SEXP R;
   double *stats;
-  WtNetwork *nwp;
-  WtModel *m;
-  WtMHProposal *MHp;
+  ETYPE(Network) *nwp;
+  ETYPE(Model) *m;
+  ETYPE(MHProposal) *MHp;
   SEXP save;
-} WtErgmState;
+} ETYPE(ErgmState);
 
-WtErgmState *WtErgmStateInit(SEXP stateR,
+ETYPE(ErgmState) *ETYPE(ErgmStateInit)(SEXP stateR,
                              unsigned int flags);
-SEXP WtErgmStateRSave(WtErgmState *s);
-void WtErgmStateDestroy(WtErgmState *s);
-SEXP WtErgmStateArrayClear(void);
-
-#endif
+SEXP ETYPE(ErgmStateRSave)(ETYPE(ErgmState) *s);
+void ETYPE(ErgmStateDestroy)(ETYPE(ErgmState) *s);
+SEXP ETYPE(ErgmStateArrayClear)(void);
