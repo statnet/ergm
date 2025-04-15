@@ -7,20 +7,19 @@
  *
  *  Copyright 2003-2025 Statnet Commons
  */
-#include "ergm_wtMHproposal.h"
 #include "ergm_Rutil.h"
 
-void OnWtNetworkEdgeChangeMUWrap(Vertex tail, Vertex head, double weight, void *MHp, WtNetwork *nwp, double edgestate){
-  ((WtMHProposal *) MHp)->u_func(tail, head, weight, MHp, nwp, edgestate);
+void ETYPE(On,NetworkEdgeChangeMUWrap)(Vertex tail, Vertex head, IFEWT(EWTTYPE weight,) void *MHp, ETYPE(Network) *nwp, EWTTYPE edgestate){
+  ((ETYPE(MHProposal) *) MHp)->u_func(tail, head, IFEWT(weight,) MHp, nwp, edgestate);
 }
 
 /*********************
- void WtMHProposalInitialize
+ void ETYPE(MHProposalInitialize)
 
  A helper function to process the MH_* related initialization.
 *********************/
-WtMHProposal *WtMHProposalInitialize(SEXP pR, WtNetwork *nwp, void **aux_storage){
-  WtMHProposal *MHp = R_Calloc(1, WtMHProposal);
+ETYPE(MHProposal) *ETYPE(MHProposalInitialize)(SEXP pR, ETYPE(Network) *nwp, void **aux_storage){
+  ETYPE(MHProposal) *MHp = R_Calloc(1, ETYPE(MHProposal));
   MHp->R = pR;
 
   MHp->i_func=MHp->p_func=MHp->f_func=NULL;
@@ -39,11 +38,11 @@ WtMHProposal *WtMHProposalInitialize(SEXP pR, WtNetwork *nwp, void **aux_storage
   
   /* Search for the MH proposal function pointer */
   // Old-style name:
-  MHp->p_func=(void (*)(WtMHProposal*, WtNetwork*)) R_FindSymbol(fn,sn,NULL);
+  MHp->p_func=(void (*)(ETYPE(MHProposal)*, ETYPE(Network)*)) R_FindSymbol(fn,sn,NULL);
   if(MHp->p_func==NULL){
     // New-style name:
     fn[1] = 'p';
-    MHp->p_func=(void (*)(WtMHProposal*, WtNetwork*)) R_FindSymbol(fn,sn,NULL);
+    MHp->p_func=(void (*)(ETYPE(MHProposal)*, ETYPE(Network)*)) R_FindSymbol(fn,sn,NULL);
     if(MHp->p_func==NULL){    
       error("Error in the proposal initialization: could not find function %s in "
 	  "namespace for package %s."
@@ -53,13 +52,13 @@ WtMHProposal *WtMHProposalInitialize(SEXP pR, WtNetwork *nwp, void **aux_storage
 
   // Optional functions
   fn[1] = 'i';
-  MHp->i_func=(void (*)(WtMHProposal*, WtNetwork*)) R_FindSymbol(fn,sn,NULL);
+  MHp->i_func=(void (*)(ETYPE(MHProposal)*, ETYPE(Network)*)) R_FindSymbol(fn,sn,NULL);
   fn[1] = 'u';
-  MHp->u_func=(void (*)(Vertex, Vertex, double, WtMHProposal*, WtNetwork*, double)) R_FindSymbol(fn,sn,NULL);
+  MHp->u_func=(void (*)(Vertex, Vertex, IFEWT(EWTTYPE,) ETYPE(MHProposal)*, ETYPE(Network)*, EWTTYPE)) R_FindSymbol(fn,sn,NULL);
   fn[1] = 'f';
-  MHp->f_func=(void (*)(WtMHProposal*, WtNetwork*)) R_FindSymbol(fn,sn,NULL);
+  MHp->f_func=(void (*)(ETYPE(MHProposal)*, ETYPE(Network)*)) R_FindSymbol(fn,sn,NULL);
   fn[1] = 'x';
-  MHp->x_func=(void (*)(unsigned int, void *, WtMHProposal*, WtNetwork*)) R_FindSymbol(fn,sn,NULL);
+  MHp->x_func=(void (*)(unsigned int, void *, ETYPE(MHProposal)*, ETYPE(Network)*)) R_FindSymbol(fn,sn,NULL);
 
   SEXP tmp = getListElement(pR, "inputs");
   MHp->ninputs = length(tmp);
@@ -89,30 +88,30 @@ WtMHProposal *WtMHProposalInitialize(SEXP pR, WtNetwork *nwp, void **aux_storage
   if(MHp->ntoggles==MH_FAILED){
     REprintf("MH proposal function's initial network configuration is one from which no toggle(s) can be proposed.\n");
     MHp->toggletail = MHp->togglehead = NULL; // To be safe.
-    MHp->toggleweight = NULL;
+    IFEWT(MHp->toggleweight = NULL);
     MHp->u_func = NULL; // Important, since the callback was never installed.
-    WtMHProposalDestroy(MHp, nwp);
+    ETYPE(MHProposalDestroy)(MHp, nwp);
     return NULL;
   }
   MHp->toggletail = (Vertex *)R_Calloc(MHp->ntoggles, Vertex);
   MHp->togglehead = (Vertex *)R_Calloc(MHp->ntoggles, Vertex);
-  MHp->toggleweight = (double *)R_Calloc(MHp->ntoggles, double);
+  IFEWT(MHp->toggleweight = (EWTTYPE *)R_Calloc(MHp->ntoggles, EWTTYPE));
 
   if(MHp->u_func){
-    AddOnWtNetworkEdgeChange(nwp, OnWtNetworkEdgeChangeMUWrap, MHp, 0); // Need to insert at the start.
+    ETYPE(AddOn,NetworkEdgeChange)(nwp, ETYPE(On,NetworkEdgeChangeMUWrap), MHp, 0); // Need to insert at the start.
   }
 
   return MHp;
 }
 
 /*********************
- void WtMHProposalDestroy
+ void ETYPE(MHProposalDestroy)
 
- A helper function to free memory allocated by WtMHProposalInitialize.
+ A helper function to free memory allocated by ETYPE(MHProposalInitialize).
 *********************/
-void WtMHProposalDestroy(WtMHProposal *MHp, WtNetwork *nwp){
+void ETYPE(MHProposalDestroy)(ETYPE(MHProposal) *MHp, ETYPE(Network) *nwp){
   if(!MHp) return;
-  if(MHp->u_func) DeleteOnWtNetworkEdgeChange(nwp, OnWtNetworkEdgeChangeMUWrap, MHp);
+  if(MHp->u_func) ETYPE(DeleteOn,NetworkEdgeChange)(nwp, ETYPE(On,NetworkEdgeChangeMUWrap), MHp);
   if(MHp->f_func) (*(MHp->f_func))(MHp, nwp);
   if(MHp->storage){
     R_Free(MHp->storage);
@@ -121,7 +120,7 @@ void WtMHProposalDestroy(WtMHProposal *MHp, WtNetwork *nwp){
   MHp->aux_storage=NULL;
   R_Free(MHp->toggletail);
   R_Free(MHp->togglehead);
-  R_Free(MHp->toggleweight);
+  IFEWT(R_Free(MHp->toggleweight));
 
   R_Free(MHp);
 }
