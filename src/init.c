@@ -38,15 +38,15 @@ extern SEXP MCMC_wrapper(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
 extern SEXP MCMCPhase12(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
 extern SEXP MPLE_workspace_free(void);
 extern SEXP MPLE_wrapper(SEXP, SEXP, SEXP);
-extern SEXP network_stats_wrapper(SEXP);
 extern SEXP SAN_wrapper(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
 extern SEXP set_ergm_omp_terms(SEXP);
-extern SEXP wt_network_stats_wrapper(SEXP);
+extern SEXP SummStats_wrapper(SEXP);
 extern SEXP WtCD_wrapper(SEXP, SEXP, SEXP, SEXP, SEXP);
 extern SEXP WtGodfather_wrapper(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
 extern SEXP WtMCMC_wrapper(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
 extern SEXP WtMCMCPhase12(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
 extern SEXP WtSAN_wrapper(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
+extern SEXP WtSummStats_wrapper(SEXP);
 
 static const R_CallMethodDef CallEntries[] = {
     {"AllStatistics",              (DL_FUNC) &AllStatistics,               2},
@@ -65,15 +65,15 @@ static const R_CallMethodDef CallEntries[] = {
     {"MCMCPhase12",                (DL_FUNC) &MCMCPhase12,                11},
     {"MPLE_workspace_free",        (DL_FUNC) &MPLE_workspace_free,         0},
     {"MPLE_wrapper",               (DL_FUNC) &MPLE_wrapper,                3},
-    {"network_stats_wrapper",      (DL_FUNC) &network_stats_wrapper,       1},
     {"SAN_wrapper",                (DL_FUNC) &SAN_wrapper,                 9},
     {"set_ergm_omp_terms",         (DL_FUNC) &set_ergm_omp_terms,          1},
-    {"wt_network_stats_wrapper",   (DL_FUNC) &wt_network_stats_wrapper,    1},
+    {"SummStats_wrapper",          (DL_FUNC) &SummStats_wrapper,           1},
     {"WtCD_wrapper",               (DL_FUNC) &WtCD_wrapper,                5},
     {"WtGodfather_wrapper",        (DL_FUNC) &WtGodfather_wrapper,         6},
     {"WtMCMC_wrapper",             (DL_FUNC) &WtMCMC_wrapper,              7},
     {"WtMCMCPhase12",              (DL_FUNC) &WtMCMCPhase12,              11},
     {"WtSAN_wrapper",              (DL_FUNC) &WtSAN_wrapper,               9},
+    {"WtSummStats_wrapper",        (DL_FUNC) &WtSummStats_wrapper,         1},
     {NULL, NULL, 0}
 };
 

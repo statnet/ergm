@@ -7,31 +7,31 @@
  *
  *  Copyright 2003-2025 Statnet Commons
  */
-#include "ergm_wtstate.h"
+
 /*****************
- void network_stats_wrapper
+ void NetStats_wrapper
 
  Wrapper for a call from R.  Return the statistics when of the observed graph.
 *****************/
 
-SEXP wt_network_stats_wrapper(SEXP stateR){
+SEXP ETYPE(SummStats_wrapper)(SEXP stateR){
   GetRNGstate();  /* R function enabling uniform RNG */
-  WtErgmState *s = WtErgmStateInit(stateR,
+  ETYPE(ErgmState) *s = ETYPE(ErgmStateInit)(stateR,
                                    ERGM_STATE_EMPTY_NET | ERGM_STATE_NO_INIT_S | ERGM_STATE_NO_INIT_PROP);
 
-  WtModel *m = s->m;
+  ETYPE(Model) *m = s->m;
 
   SEXP stats = PROTECT(allocVector(REALSXP, m->n_stats));
   m->workspace = REAL(stats);
 
   SEXP elR = getListElement(stateR, "el");
-  WtSummStats(length(VECTOR_ELT(elR, 0)),
+  ETYPE(SummStats)(length(VECTOR_ELT(elR, 0)),
               (Vertex*) INTEGER(VECTOR_ELT(elR, 0)),
               (Vertex*) INTEGER(VECTOR_ELT(elR, 1)),
-              REAL(VECTOR_ELT(elR, 2)),
+              IFEWT(EWTRTYPE(VECTOR_ELT(elR, 2)),)
               s->nwp, m);
 
-  WtErgmStateDestroy(s);
+  ETYPE(ErgmStateDestroy)(s);
   PutRNGstate();
   UNPROTECT(1);
   return stats;

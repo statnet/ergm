@@ -53,11 +53,11 @@ summary.ergm_state <- function(object, ...){
 
   gs <-
     if(!is.valued(state))
-      .Call("network_stats_wrapper",
+      .Call("SummStats_wrapper",
             state,
             PACKAGE="ergm")
     else
-      .Call("wt_network_stats_wrapper",
+      .Call("WtSummStats_wrapper",
             state,
             PACKAGE="ergm")
   
