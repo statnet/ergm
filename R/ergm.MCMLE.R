@@ -341,7 +341,7 @@ ergm.MCMLE <- function(init, s, s.obs,
       Vm <- pprec%*%(cov(esteq) - NVL3(esteq.obs, cov(.), 0))%*%pprec
       novar <- diag(Vm) <= 0
       Vm[,novar] <- Vm[novar,] <- 0
-      d2 <- xTAx_seigen(estdiff, Vm)
+      d2 <- tryCatch(xTAx_seigen(estdiff, Vm), error = function(e) Inf)
       if(d2<2) last.adequate <- TRUE
     }
 
@@ -429,7 +429,7 @@ ergm.MCMLE <- function(init, s, s.obs,
       }
     }else if(control$MCMLE.termination=='confidence'){
       if(!is.null(estdiff.prev)){
-        d2.prev <- xTAx_seigen(estdiff.prev, Vm)
+        d2.prev <- tryCatch(xTAx_seigen(estdiff.prev, Vm), error = function(e) Inf)
         if(verbose) message("Distance from origin on tolerance region scale: ", format(d2), " (previously ", format(d2.prev), ").")
         d2.not.improved <- d2.not.improved[-1] 
         if(d2 >= d2.prev){
