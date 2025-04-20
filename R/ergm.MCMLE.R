@@ -632,12 +632,12 @@ ergm.MCMLE <- function(init, s, s.obs,
   I <- diag(length(y))
   WUi <- t(qrssolve(U, W, tol=tol))
   x <- function(l) c(solve(I+l*WUi, y)) # Singluar for negative reciprocals of eigenvalues of WiU.
-  zerofn <- function(l) ERRVL(try({x <- x(l); xTAx_seigen(x,U,tol=tol)-1}, silent=TRUE), +Inf)
+  zerofn <- function(l) ERRVL(try(xTAx_seigen(x(l), U, tol=tol) - 1, silent=TRUE), +Inf)
 
   # For some reason, WU sometimes has 0i element in its eigenvalues.
   eig <- Re(eigen(WUi, only.values=TRUE)$values)
   lmin <- -1/max(eig)
-  l <- uniroot(zerofn, lower=lmin, upper=0, tol=sqrt(.Machine$double.xmin))$root
+  l <- suppressWarnings(uniroot(zerofn, lower=lmin, upper=0, tol=sqrt(.Machine$double.xmin))$root)
   x <- x(l)
 
   xTAx_seigen(y-x, W, tol=tol)
