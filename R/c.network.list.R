@@ -1,6 +1,6 @@
 #' @rdname network.list
 #' 
-#' @param check_attr logical; should the attributes of the combined network
+#' @param check_attr Logical: should the attributes of the combined network
 #'   lists be checked for consistency. If `TRUE` inconsistencies result in
 #'   errors.
 #' 
