@@ -21,7 +21,7 @@
 
 \item{keep}{deprecated}
 
-\item{levels}{this optional argument controls which levels of the attribute
+\item{levels}{this optional argument controls which levels of the attribute should be included and which should be excluded. (See Specifying Vertex
 attributes and Levels (\code{\link[=nodal_attributes]{?nodal_attributes}}) for details.)}
 
 \item{form}{how to aggregate tie values in a valued ERGM: \code{"sum"}

@@ -17,7 +17,7 @@ equal values of the vertex attribute specified by \code{attr} . If \code{attr} i
 then one statistic is added for each value of \code{attr} ,
 equal to the number of triangles where all three nodes have that value of the attribute.}
 
-\item{levels}{add one statistic for each value specified if \code{diff} is \code{TRUE}. (See Specifying Vertex
+\item{levels}{this optional argument controls which levels of the attribute should be included and which should be excluded. (See Specifying Vertex
 attributes and Levels (\code{\link[=nodal_attributes]{?nodal_attributes}}) for details.)}
 }
 \description{

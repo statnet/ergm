@@ -210,7 +210,7 @@ call.ErgmTerm <- function(term, env, nw, ..., term.options=list()){
 
   # Ensure input vectors are of the correct storage mode. (There is no
   # checking on C level at this time.) Note that as.double() and
-  # as.integer() will strip attributes such as ParamBeforeCov and so
+  # as.integer() will strip attributes such as ParamsBeforeCov and so
   # should not be used.
   storage.mode(out$inputs) <- "double"
   storage.mode(out$iinputs) <- "integer"

@@ -8,7 +8,7 @@
 # binary: triadcensus(levels)
 }
 \arguments{
-\item{levels}{For directed networks, specify a set of terms to add other than the default value of \code{1:15}.
+\item{levels}{For directed networks, specify a set of terms to add other than the default value of \code{1:15}. For undirected networks, specify which of the four types of ties to include. The default is \code{1:3} where 0 is dropped. (See Specifying Vertex
 attributes and Levels (\code{\link[=nodal_attributes]{?nodal_attributes}}) for details.)}
 }
 \description{

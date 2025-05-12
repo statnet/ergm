@@ -3450,36 +3450,28 @@ C_CHANGESTAT_FN(c_triadcensus) {
 *****************/
 C_CHANGESTAT_FN(c_triangle) {
   Edge e;
-  Vertex change, node3;
-  int j;
-  double tailattr, edgemult;
+  Vertex node3;
 
   /* *** don't forget tail -> head */
-    edgemult = edgestate ? -1.0 : 1.0;
-    change = 0;
-    if(N_INPUT_PARAMS>0){ /* match on attributes */
-      tailattr = INPUT_ATTRIB[tail-1];
-      if(tailattr == INPUT_ATTRIB[head-1]){
+  int change = 0;
+    if(N_IINPUT_PARAMS>0){ /* match on attributes */
+      Rboolean diff = IINPUT_PARAM[0];
+      unsigned int tailattr = IINPUT_PARAM[tail];
+      if(tailattr && tailattr == IINPUT_PARAM[head]){
         STEP_THROUGH_OUTEDGES(head, e, node3) { /* step through outedges of head */
-          if(tailattr == INPUT_ATTRIB[node3-1]){
+          if(tailattr == IINPUT_PARAM[node3]){
             if (DIRECTED) change += IS_OUTEDGE(node3, tail) + IS_INEDGE(node3, tail);
             else change += IS_UNDIRECTED_EDGE(node3,tail);
           }
         }
         STEP_THROUGH_INEDGES(head, e, node3) { /* step through inedges of head */
-          if(tailattr == INPUT_ATTRIB[node3-1]){
+          if(tailattr == IINPUT_PARAM[node3]){
             if (DIRECTED) change += IS_OUTEDGE(node3, tail) + IS_INEDGE(node3, tail);
             else change += IS_UNDIRECTED_EDGE(node3,tail);
           }
         }
-        if(N_CHANGE_STATS>1){ /* diff = TRUE */
-          for (j=0; j<N_CHANGE_STATS; j++){
-            if (tailattr == INPUT_PARAM[j])
-              CHANGE_STAT[j] += edgemult * change;
-          }
-        }else{ /* diff = FALSE */
-          CHANGE_STAT[0] += edgemult * change;
-        }
+
+        CHANGE_STAT[diff ? tailattr-1 : 0] += edgestate ? -change : change;
       }
     }else{ /* no attribute matching */
       STEP_THROUGH_OUTEDGES(head, e, node3) { /* step through outedges of head */
@@ -3490,7 +3482,7 @@ C_CHANGESTAT_FN(c_triangle) {
         if (DIRECTED) change += IS_OUTEDGE(node3, tail) + IS_INEDGE(node3, tail);
 	      else change += IS_UNDIRECTED_EDGE(node3,tail);
       }
-      CHANGE_STAT[0] += edgemult * change;
+      CHANGE_STAT[0] += edgestate ? -change : change;
     }
 }
 

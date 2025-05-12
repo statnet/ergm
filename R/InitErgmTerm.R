@@ -967,8 +967,7 @@ InitErgmTerm.b1dsp <- function(nw, arglist, cache.sp=TRUE, ...){
 #'
 #' @template ergmTerm-attr
 #' @param base deprecated
-#' @templateVar explain this optional argument controls which levels of the attribute
-#'   should be included and which should be excluded.
+#' @templateVar explain this optional argument controls which levels of the attribute should be included and which should be excluded.
 #' @template ergmTerm-levels-doco
 #'
 #' @template ergmTerm-levels-not-first
@@ -1554,8 +1553,7 @@ InitErgmTerm.b2dsp <- function(nw, arglist, cache.sp=TRUE, ...){
 #'
 #' @template ergmTerm-attr
 #' @param base deprecated
-#' @templateVar explain this optional argument controls which levels of the attribute
-#'   should be included and which should be excluded.
+#' @templateVar explain this optional argument controls which levels of the attribute should be included and which should be excluded.
 #' @template ergmTerm-levels-doco
 #'
 #' @template ergmTerm-levels-not-first
@@ -3704,8 +3702,7 @@ InitErgmTerm.nodemain<-InitErgmTerm.nodecov
 #'
 #' @template ergmTerm-attr
 #' @param base deprecated
-#' @templateVar explain this optional argument controls which levels of the attribute
-#'   should be included and which should be excluded.
+#' @templateVar explain this optional argument controls which levels of the attribute should be included and which should be excluded.
 #' @template ergmTerm-levels-doco
 #'
 #' @template ergmTerm-general
@@ -3832,8 +3829,7 @@ InitErgmTerm.nodeicov<-function (nw, arglist, ..., version=packageVersion("ergm"
 #'
 #' @template ergmTerm-attr
 #' @param base deprecated
-#' @templateVar explain this optional argument controls which levels of the attribute
-#'   should be included and which should be excluded.
+#' @templateVar explain this optional argument controls which levels of the attribute should be included and which should be excluded.
 #' @template ergmTerm-levels-doco
 #'
 #' @template ergmTerm-levels-not-first
@@ -3914,8 +3910,7 @@ InitErgmTerm.nodeifactor<-function (nw, arglist, ..., version=packageVersion("er
 #' @template ergmTerm-attr
 #' @param diff specify if the term has uniform or differential homophily
 #' @param keep deprecated
-#' @templateVar explain this optional argument controls which levels of the attribute
-#'   should be included and which should be excluded.
+#' @templateVar explain this optional argument controls which levels of the attribute should be included and which should be excluded.
 #' @template ergmTerm-levels-doco
 #'
 #' @template ergmTerm-keep-dep
@@ -4258,8 +4253,7 @@ InitErgmTerm.nodeocov<-function (nw, arglist, ..., version=packageVersion("ergm"
 #'
 #' @template ergmTerm-attr
 #' @param base deprecated
-#' @templateVar explain this optional argument controls which levels of the attribute
-#'   should be included and which should be excluded.
+#' @templateVar explain this optional argument controls which levels of the attribute should be included and which should be excluded.
 #' @template ergmTerm-levels-doco
 #'
 #' @template ergmTerm-base-dep
@@ -4953,8 +4947,7 @@ InitErgmTerm.transitive<-function (nw, arglist, ...) {
 #' @usage
 #' # binary: triadcensus(levels)
 #'
-#' @templateVar explain For directed networks, specify a set of terms to add other than the default value of `1:15`. 
-#'   For undirected networks, specify which of the four types of ties to include. The default is `1:3` where 0 is dropped.
+#' @templateVar explain For directed networks, specify a set of terms to add other than the default value of `1:15`. For undirected networks, specify which of the four types of ties to include. The default is `1:3` where 0 is dropped.
 #' @template ergmTerm-levels-doco
 #'
 #' @template ergmTerm-general
@@ -5049,7 +5042,7 @@ InitErgmTerm.triadcensus<-function (nw, arglist, ..., version=packageVersion("er
 #'   equal values of the vertex attribute specified by `attr` . If `attr` is specified and `diff` is `TRUE` ,
 #'   then one statistic is added for each value of `attr` ,
 #'   equal to the number of triangles where all three nodes have that value of the attribute.
-#' @templateVar explain add one statistic for each value specified if `diff` is `TRUE`.
+#' @templateVar explain this optional argument controls which levels of the attribute should be included and which should be excluded.
 #' @template ergmTerm-levels-doco
 #'
 #' @template ergmTerm-general
@@ -5083,21 +5076,18 @@ InitErgmTerm.triangle<-InitErgmTerm.triangles<-function (nw, arglist, ..., versi
     nodecov <- ergm_get_vattr(attrarg, nw)
     attrname <- attr(nodecov, "name")
     u <- ergm_attr_levels(levels, nodecov, nw, levels = sort(unique(nodecov)))
-    nodecov <- match(nodecov,u,nomatch=length(u)+1)
-    ui <- seq(along=u)
+    nodecov <- match(nodecov, u, nomatch = 0)
     if (!diff) {
       coef.names <- paste("triangle",attrname,sep=".")
-      inputs <- c(nodecov)
     } else {
       coef.names <- paste("triangle",attrname, u, sep=".")
-      inputs <- c(ui, nodecov)
-      attr(inputs, "ParamsBeforeCov") <- length(ui)
     }
+    inputs <- c(diff, nodecov)
   }else{
     coef.names <- "triangle"
     inputs <- NULL
   }
-  list(name="triangle", coef.names=coef.names, inputs=inputs, minval=0)
+  list(name="triangle", coef.names=coef.names, iinputs=inputs, minval=0)
 }
 
 
@@ -5124,8 +5114,7 @@ InitErgmTerm.triangle<-InitErgmTerm.triangles<-function (nw, arglist, ..., versi
 #'   equal values of the vertex attribute specified by `attr` . If `attr` is specified and `diff` is `TRUE` ,
 #'   then one statistic is added for each value of `attr` ,
 #'   equal to the number of triangles where all three nodes have that value of the attribute.
-#' @templateVar explain add one statistic for each value specified if `diff` is `TRUE`
-#'   should be included and which should be excluded.
+#' @templateVar explain add one statistic for each value specified if `diff` is `TRUE` should be included and which should be excluded.
 #' @template ergmTerm-levels-doco
 #'
 #' @template ergmTerm-general
