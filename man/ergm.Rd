@@ -117,9 +117,9 @@ argument to the relevant control function. In that case,
 arguments to the proposal should be specified through the
 \code{obs.prop.args} argument to the relevant control function.}
 
-\item{offset.coef}{{A vector of coefficients for the offset terms.}}
+\item{offset.coef}{A vector of coefficients for the offset terms. \matchnames{coefficient}}
 
-\item{target.stats}{{vector of "observed network statistics,"
+\item{target.stats}{vector of "observed network statistics,"
 if these statistics are for some reason different than the
 actual statistics of the network on the left-hand side of
 \code{formula}.
@@ -127,8 +127,7 @@ Equivalently, this vector is the mean-value parameter values for the
 model.  If this is given, the algorithm finds the natural
 parameter values corresponding to these mean-value parameters.
 If \code{NULL}, the mean-value parameters used are the observed
-statistics of the network in the formula.
-}}
+statistics of the network in the formula. \matchnames{statistic}}
 
 \item{eval.loglik}{{Logical:  For dyad-dependent models, if TRUE, use bridge
 sampling to evaluate the log-likelihoood associated with the

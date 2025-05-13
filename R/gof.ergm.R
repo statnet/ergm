@@ -34,7 +34,7 @@
 #' @param \dots Additional arguments, to be passed to lower-level functions.
 #' @param coef When given either a formula or an object of class ergm,
 #' \code{coef} are the parameters from which the sample is drawn. By default
-#' set to a vector of 0.
+#' set to a vector of 0. \matchnames{coefficient}
 #' @param GOF formula; an formula object, of the form \code{~ <model terms>}
 #' specifying the statistics to use to diagnosis the goodness-of-fit of the
 #' model.  They do not need to be in the model formula specified in

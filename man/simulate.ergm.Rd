@@ -145,7 +145,7 @@ algorithm.}
 \item{coef}{Vector of parameter values for the model from which the
 sample is to be drawn.  If \code{object} is of class \code{ergm},
 the default value is the vector of estimated coefficients. Can be
-set to \code{NULL} to bypass, but only if \code{return.args} below is used.}
+set to \code{NULL} to bypass, but only if \code{return.args} below is used. \matchnames{coefficient}}
 
 \item{response}{Either a character string, a formula, or \code{NULL} (the default), to specify the response attributes and whether the ERGM is binary or valued. Interpreted as follows: \describe{
 

@@ -54,7 +54,7 @@ See documentation for \code{\link[=ergm]{ergm()}}.}
 
 \item{coef}{When given either a formula or an object of class ergm,
 \code{coef} are the parameters from which the sample is drawn. By default
-set to a vector of 0.}
+set to a vector of 0. \matchnames{coefficient}}
 
 \item{GOF}{formula; an formula object, of the form \code{~ <model terms>}
 specifying the statistics to use to diagnosis the goodness-of-fit of the

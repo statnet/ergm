@@ -16,16 +16,16 @@ test_that("one covariate", {
   samplike.m <- as.matrix(samplike, matrix.type="adjacency")
 
   maxed.mple <- ergm(samplike~edgecov(samplike.m-1/2))
-  expect_equal(coef(maxed.mple), Inf)
+  expect_equal(coef(maxed.mple), Inf, ignore_attr = TRUE)
 
   maxed.mcmc <- ergm(samplike~edgecov(samplike.m-1/2),control=control.ergm(force.main=TRUE))
-  expect_equal(coef(maxed.mcmc), Inf)
+  expect_equal(coef(maxed.mcmc), Inf, ignore_attr = TRUE)
 
   mined.mple <- ergm(samplike~edgecov(-samplike.m))
-  expect_equal(coef(mined.mple), -Inf)
+  expect_equal(coef(mined.mple), -Inf, ignore_attr = TRUE)
 
   mined.mcmc <- ergm(samplike~edgecov(-samplike.m),control=control.ergm(force.main=TRUE))
-  expect_equal(coef(mined.mcmc), -Inf)
+  expect_equal(coef(mined.mcmc), -Inf, ignore_attr = TRUE)
 })
 
 # Now, blank out some of the 1s in the matrix so that you still have a

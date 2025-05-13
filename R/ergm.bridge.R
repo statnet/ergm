@@ -26,8 +26,8 @@
 #' @param reference {A one-sided formula specifying the reference
 #'   measure (\eqn{h(y)}) to be used.  (Defaults to
 #'   \code{~Bernoulli}.)}
-#' @param target.stats {A vector of sufficient statistics to be used
-#'   in place of those of the network in the formula.}
+#' @param target.stats A vector of sufficient statistics to be used
+#'   in place of those of the network in the formula. \matchnames{statistic}
 #' @param from,to The initial and final parameter vectors.
 #' @param basis An optional [`network`] object to
 #'   start the Markov chain.  If omitted, the default is the
@@ -43,7 +43,7 @@
 #' @template verbose
 #'
 #' @param coef A vector of coefficients for the configuration of
-#'   interest.
+#'   interest. \matchnames{coefficient}
 #' @param llkonly Whether only the estiamted log-likelihood should be
 #'   returned by the `ergm.bridge.0.llk` and
 #'   `ergm.bridge.dindstart.llk`.  (Defaults to TRUE.)
@@ -144,7 +144,9 @@ ergm.bridge.llr<-function(object, response=NULL, reference=~Bernoulli, constrain
   sim_settings <- simulate(object, coef=from, nsim=1, reference=reference, constraints=list(constraints, obs.constraints), observational=FALSE, output="ergm_state", verbose=max(verbose-1,0), basis = basis, control=gen_control(FALSE, "first"), ..., return.args = "ergm_state")
   if(verbose) message("Model and proposals initialized.")
   state <- list(sim_settings$object)
-
+  model <- as.ergm_model(state[[1]])
+  etamap <- model$etamap
+  
   if(obs){
     if(verbose) message("Initializing constrained model and proposals...")
     sim_settings.obs <- simulate(object, coef=from, nsim=1, reference=reference, constraints=list(constraints, obs.constraints), observational=TRUE, output="ergm_state", verbose=max(verbose-1,0), basis = basis, control=gen_control(TRUE, "first"), ..., return.args = "ergm_state")
@@ -153,22 +155,20 @@ ergm.bridge.llr<-function(object, response=NULL, reference=~Bernoulli, constrain
   }
 
   ## Miscellaneous settings
-  Dtheta.Du <- ifelse(mapply(identical, to, from), 0, to - from)[!state[[1]]$model$etamap$offsettheta]
+  Dtheta.Du <- ifelse(mapply(identical, to, from), 0, to - from)[!etamap$offsettheta]
 
   ## Handle target statistics, if passed.
   if(!is.null(target.stats)){
-    if(nparam(as.ergm_model(state[[1]]), canonical=TRUE, offset=FALSE)!=length(target.stats)){
-      stop("Incorrect length of the target.stats vector: should be ", nparam(as.ergm_model(state[[1]]), canonical=TRUE, offset=FALSE), " but is ",length(target.stats),". Note that offset() terms should *not* get target statistics.")
-    }
-    target.stats <- .align.target.stats.offset(as.ergm_model(state[[1]]), target.stats)
-    if(any(as.ergm_model(state[[1]])$etamap$offsetmap)) warning("Using target.stats for a model with offset terms may produce an inaccurate estimate of the log-likelihood and derived quantities (deviance, AIC, BIC, etc.), because some of the target stats must be imputed.")
+    target.stats <- match_names(target.stats, param_names(model, canonical=TRUE, offset=FALSE))
+    target.stats <- .embed.target.stats(model, target.stats)
+    if(any(etamap$offsetmap)) warning("Using target.stats for a model with offset terms may produce an inaccurate estimate of the log-likelihood and derived quantities (deviance, AIC, BIC, etc.), because some of the target stats must be imputed.")
   }else target.stats <- summary(state[[1]])
 
 
   ## Helper function to calculate Dtheta.Du %*% Deta.Dtheta %*% g(y)
   llrsamp <- function(samp, theta){
-    if(is.mcmc.list(samp)) lapply.mcmc.list(ergm.estfun(samp, theta, state[[1]]$model$etamap), `%*%`, Dtheta.Du)
-    else sum(ergm.estfun(samp, theta, state[[1]]$model$etamap) * Dtheta.Du)
+    if(is.mcmc.list(samp)) lapply.mcmc.list(ergm.estfun(samp, theta, etamap), `%*%`, Dtheta.Du)
+    else sum(ergm.estfun(samp, theta, etamap) * Dtheta.Du)
   }
 
 
@@ -264,7 +264,7 @@ ergm.bridge.0.llk<-function(object, response=NULL, reference=~Bernoulli, coef, .
 #' \code{object} with an overal density term (\code{edges}) added if not
 #' redundant.
 #' @param coef.dind Parameter configuration for the dyad-independent starting
-#' point. Defaults to the MLE of \code{dind}.
+#' point. Defaults to the MLE of \code{dind}. \matchnames{coefficient}
 #'
 #' @return \code{ergm.bridge.dindstart.llk} result list also includes
 #'   an `llk` element, with the log-likelihood itself and an
@@ -289,11 +289,9 @@ ergm.bridge.dindstart.llk<-function(object, response=NULL, constraints=~., coef,
   m.edges <- ergm_model(~edges, nw, term.options = control$term.options)
 
   if(!is.null(target.stats)){
-    if(nparam(m, canonical=TRUE, offset=FALSE)!=length(target.stats)){
-      stop("Incorrect length of the target.stats vector: should be ", nparam(m, canonical=TRUE, offset=FALSE), " but is ",length(target.stats),". Note that offset() terms should *not* get target statistics.")
-    }
-    target.stats <- .align.target.stats.offset(m, target.stats)
-    target.stats[is.na(target.stats) & m$etamap$offsetmap] <- summary(m, nw)[is.na(target.stats) & m$etamap$offsetmap]
+    target.stats <- .embed.target.stats(m, match_names(target.stats, param_names(m, canonical=TRUE, offset=FALSE)))
+    if(anyNA(target.stats))
+      target.stats[is.na(target.stats) & m$etamap$offsetmap] <- summary(m, nw)[is.na(target.stats) & m$etamap$offsetmap]
   }
 
   q.pos.full <- c(0,cumsum(nparam(m, canonical=FALSE, byterm=TRUE, offset=TRUE)))
@@ -348,6 +346,7 @@ ergm.bridge.dindstart.llk<-function(object, response=NULL, constraints=~., coef,
     llk.dind <- ergm.dind$mple.lik
   }else{
     mple.dind <- suppressMessages(suppressWarnings(ergmMPLE(dind, output="matrix", constraints=constraints,obs.constraints=obs.constraints, control=control.ergm(drop=control$drop, term.options=control$term.options, MPLE.max.dyad.types=control$MPLE.max.dyad.types))))
+    coef.dind <- match_names(coef.dind, names(coef(mple.dind)))
     etamap.dind <- attr(ergm.dind, "etamap")
     stats.dind <- summary(dind, basis=nw)
 

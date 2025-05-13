@@ -73,13 +73,9 @@
 
 has.obs.constraints <- function(...) length(.handle.auto.constraints(...)$conterms.obs) > 0
 
-.align.target.stats.offset <- function(model, target.stats){
-  om <- model$etamap$offsetmap
-  cno <- param_names(model, canonical=TRUE)
-  cn <- param_names(model, canonical=TRUE)[!om]
-  target.stats <- na.omit(vector.namesmatch(target.stats, cn))
-  tmp <- rep(NA, length(om))
-  tmp[!om] <- target.stats
-  names(tmp) <- cno
-  tmp
+#' @importFrom rlang rep_named
+.embed.target.stats <- function(model, target.stats){
+  replace(rep_named(param_names(model, canonical=TRUE), NA_real_),
+          !model$etamap$offsetmap,
+          target.stats)
 }

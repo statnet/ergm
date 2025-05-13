@@ -187,7 +187,7 @@ test_that("Binary Label() summary", {
   )
 })
 
-test_that("Binary Label() estimation, offsets, and curved terms", {
+test_that("Binary Label() estimation, offsets, and curved terms; also test name matching", {
   expect_equal(
     coef(ergm(flomarriage ~ Label(~edges+offset(absdiff("wealth")), "abc"), offset.coef=-.5)),
     coef(ergm(flomarriage ~ edges+offset(absdiff("wealth")), offset.coef=-.5)), ignore_attr=TRUE
@@ -195,7 +195,7 @@ test_that("Binary Label() estimation, offsets, and curved terms", {
 
   expect_equal(
     coef(ergm(flomarriage ~ Label(~edges+offset(gwesp), "abc"), offset.coef=c(-.5,1), estimate="MPLE")),
-    coef(ergm(flomarriage ~ edges+offset(gwesp), offset.coef=c(-.5,1), estimate="MPLE")), ignore_attr=TRUE
+    coef(ergm(flomarriage ~ edges+offset(gwesp), offset.coef=c(`offset(gwesp.decay)`=1,`offset(gwesp)`=-.5), estimate="MPLE")), ignore_attr=TRUE
   )
 
   ## list label

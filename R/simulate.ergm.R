@@ -53,7 +53,7 @@
 #' @param coef Vector of parameter values for the model from which the
 #'   sample is to be drawn.  If \code{object} is of class \code{ergm},
 #'   the default value is the vector of estimated coefficients. Can be
-#'   set to `NULL` to bypass, but only if `return.args` below is used.
+#'   set to `NULL` to bypass, but only if `return.args` below is used. \matchnames{coefficient}
 #' 
 #' @template response
 #' @template reference
@@ -411,10 +411,9 @@ simulate.ergm_model <- function(object, nsim=1, seed=NULL,
     warning("No parameter values given, using Bernouli network.")
   }
 
-  if(!is.null(coef)){
-    coef <- c(coef, rep(0, nparam(monitor)))
-    if(nparam(m)!=length(coef)) stop("coef has ", length(coef) - nparam(monitor), " elements, while the model requires ",nparam(m) - nparam(monitor)," parameters.")
-  }
+  if(!is.null(coef))
+    coef <- c(match_names(coef, param_names(object, canonical=FALSE)),
+              rep(0, nparam(monitor)))
 
   if(is(constraints, "ergm_proposal")) proposal <- constraints
   else{

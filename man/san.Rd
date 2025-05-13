@@ -94,7 +94,7 @@ measures are supported. However, for relatively simple constraints
 dyads from changing), arbitrary combinations should be possible.}
 
 \item{target.stats}{A vector of the same length as the number of non-offset statistics
-implied by the formula.}
+implied by the formula. \matchnames{statistic}}
 
 \item{nsim}{Number of networks to generate. Deprecated: just use \code{\link[=replicate]{replicate()}}.}
 

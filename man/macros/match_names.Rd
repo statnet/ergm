@@ -1,0 +1,1 @@
+\newcommand{\matchnames}{If the vector is named, its names will be matched to the corresponding #1 names, and if the named vector has a single coefficient without a name, it will be used for the unmatched #1s. In particular, \code{\link{setNames}(x,"")} will be treated as a vector of \code{x}s.}

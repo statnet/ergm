@@ -343,7 +343,7 @@ are used as starting values in the estimation.
 \item Initial values for the elements that are \code{NA} are fit using the
 method specified by \code{\link[=control.ergm]{control$init.method}}.
 
-} Passing \code{control.ergm(init=coef(prev.fit))} can be used to
+} \matchnames{coefficient} Passing \code{control.ergm(init=coef(prev.fit))} can be used to
 ``resume'' an uncoverged \code{\link[=ergm]{ergm()}} run, though \code{checkpoint} and
 `resume` would be better under most circumstances.}
 

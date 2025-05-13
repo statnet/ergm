@@ -113,7 +113,7 @@ san <- function(object, ...){
 #' object.  If a different \code{formula} object is wanted, specify it here.
 #' @template constraints
 #' @param target.stats A vector of the same length as the number of non-offset statistics
-#' implied by the formula.
+#' implied by the formula. \matchnames{statistic}
 #' @param nsim Number of networks to generate. Deprecated: just use [replicate()].
 #' @param basis If not NULL, a \code{network} object used to start the Markov
 #' chain.  If NULL, this is taken to be the network named in the formula.
@@ -205,10 +205,8 @@ san.formula <- function(object, response=NULL, reference=~Bernoulli, constraints
   if(inherits(nw,"network.list")){
     nw <- nw$networks[[1]]
   }
-  if(is.null(target.stats)){
-    stop("You need to specify target statistic via",
-         " the 'target.stats' argument")
-  }
+  if(is.null(target.stats))
+    stop("missing ", sQuote("target.stats"))
 
   nw <- as.network(ensure_network(nw), populate=FALSE)
   # nw is now a network/ergm_state hybrid class. As long
@@ -228,11 +226,8 @@ san.formula <- function(object, response=NULL, reference=~Bernoulli, constraints
   proposal$aux.slots <- model$slots.extra.aux$proposal
   if (verbose) message("Model initialized.")
 
-  
-  if(length(offset.coef) != sum(model$etamap$offsettheta)) {
-    stop("Length of ", sQuote("offset.coef"), " in SAN is ", length(offset.coef), ", while the number of offset coefficients in the model is ", sum(model$etamap$offsettheta), ".")  
-  }
-  
+  offset.coef <- match_names(offset.coef, param_names(model, canonical=FALSE, offset=TRUE))
+
   if(any(is.na(offset.coef))) {
     stop("Missing offset coefficients passed to SAN.")
   }
@@ -287,7 +282,7 @@ san.ergm_model <- function(object, reference=~Bernoulli, constraints=~., target.
 
   if(is.null(target.stats)){
     stop("You need to specify target statistic via",
-         " the 'target.stats' argument")
+         " the ", sQuote("target.stats"), " argument")
   }
 
   if(inherits(constraints, "ergm_proposal")) proposal <- constraints
@@ -327,7 +322,7 @@ san.ergm_model <- function(object, reference=~Bernoulli, constraints=~., target.
         " steps", ifelse(control$SAN.maxit>1, " each", ""), ".", sep=""))
   }
   netsumm<-summary(model,nw)[!offset.indicators]
-  target.stats <- vector.namesmatch(target.stats, names(netsumm))
+  target.stats <- match_names(target.stats, names(netsumm))
   stats <- netsumm-target.stats
   invcov.dim <- nparam(model, canonical=TRUE) - noffset
   NVL(control$SAN.invcov) <- diag(1/invcov.dim, invcov.dim)

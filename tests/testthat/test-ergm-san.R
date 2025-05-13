@@ -60,8 +60,8 @@ test_that("weighted SAN matches target stats while respecting infinite offsets",
 
 test_that("SAN errors when passed the wrong number of offsets", {
     x <- network(n, directed=FALSE,density=0)
-    expect_error(san(x ~ edges + offset(concurrent), target.stats=c(6*n)), paste0("Length of ", sQuote("offset.coef"), " in SAN is 0, while the number of offset coefficients in the model is 1."))
-    expect_error(san(x ~ edges + offset(concurrent), target.stats=c(6*n), offset.coef=c(1,2)), paste0("Length of ", sQuote("offset.coef"), " in SAN is 2, while the number of offset coefficients in the model is 1."))
+    expect_error(san(x ~ edges + offset(concurrent), target.stats=c(6*n)), "'offset.coef' is 'NULL' but should have 1 element\\(s\\):\n  'offset\\(concurrent\\)'")
+    expect_error(san(x ~ edges + offset(concurrent), target.stats=c(6*n), offset.coef=c(1,2)), "Length of 'offset.coef' is 2 but should be 1:\n  'offset\\(concurrent\\)'")
 })
 
 test_that("SAN works with curved terms", {

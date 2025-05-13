@@ -74,8 +74,8 @@ respectively. See the documentation for similar arguments for
 
 \item{from, to}{The initial and final parameter vectors.}
 
-\item{target.stats}{{A vector of sufficient statistics to be used
-in place of those of the network in the formula.}}
+\item{target.stats}{A vector of sufficient statistics to be used
+in place of those of the network in the formula. \matchnames{statistic}}
 
 \item{basis}{An optional \code{\link[network:network]{network}} object to
 start the Markov chain.  If omitted, the default is the
@@ -101,7 +101,7 @@ also provides argument completion for the available control
 functions and limited argument name checking.}
 
 \item{coef}{A vector of coefficients for the configuration of
-interest.}
+interest. \matchnames{coefficient}}
 
 \item{llkonly}{Whether only the estiamted log-likelihood should be
 returned by the \code{ergm.bridge.0.llk} and
@@ -113,7 +113,7 @@ starting point. Defaults to the dyad-independent terms found in the formula
 redundant.}
 
 \item{coef.dind}{Parameter configuration for the dyad-independent starting
-point. Defaults to the MLE of \code{dind}.}
+point. Defaults to the MLE of \code{dind}. \matchnames{coefficient}}
 }
 \value{
 If \code{llronly=TRUE} or \code{llkonly=TRUE}, these functions return
