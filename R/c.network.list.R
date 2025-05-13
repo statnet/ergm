@@ -10,12 +10,6 @@
 c.network.list <- function(..., check_attr = TRUE) {
   dots <- list(...)
 
-  # Check a list elements using all.equal or identical
-  check_list <- function(lst, fun = all.equal) {
-    r <- vapply(lst[-1], function(x) isTRUE(fun(x, lst[[1]])), logical(1))
-    all(r)
-  }
-
   # Merge network lists without attributes
   lapply(dots, function(x) {
     attributes(x) <- NULL
@@ -30,13 +24,13 @@ c.network.list <- function(..., check_attr = TRUE) {
                     "formula", "constraints", "reference")
     for(an in attr_names) {
       al <- map(dots, ~ attr(.x, an))
-      ok <- check_list(al, all.equal)
+      ok <- all_identical(al, all.equal)
       if(!ok) stop(paste0("network lists do not have equal values on attribute ", an))
     }
 
     # Check if "stats" have identical columns
     l_stats <- map(dots, ~ attr(.x, "stats"))
-    ok <- check_list(
+    ok <- all_identical(
       lapply(l_stats, function(x) colnames(x)),
       fun = identical
     )
