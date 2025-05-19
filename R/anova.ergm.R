@@ -7,22 +7,6 @@
 #
 #  Copyright 2003-2025 Statnet Commons
 ################################################################################
-################################################################################
-# The <anova.ergm> function computes an analysis of variance table for a
-# single model fit
-#
-# --PARAMETERS--
-#   object:  an ergm object
-#   ...   :  additional ergm objects. If this argument is provided,
-#            the <anova.ergmlist> function is used instead
-#
-#
-# --RETURNED--
-#   an anova object with the analysis of variance table for the given ergm
-#
-#################################################################################
-
-
 
 #' ANOVA for ERGM Fits
 #' 
@@ -106,29 +90,6 @@ anova.ergm <- function (object, ..., eval.loglik=FALSE)
   structure(table, heading = c(title, topnote), class = c("anova", 
                                                   "data.frame"))
 }
-#  File R/anova.ergmlist.R in package ergm, part of the
-#  Statnet suite of packages for network analysis, https://statnet.org .
-#
-#  This software is distributed under the GPL-3 license.  It is free,
-#  open source, and has the attribution requirements (GPL Section 7) at
-#  https://statnet.org/attribution .
-#
-#  Copyright 2003-2025 Statnet Commons
-################################################################################
-#################################################################################
-# The <anova.ergmlist> function computes an analysis of variance table for one
-# or more linear model fits with the same response.
-#
-# --PARAMETERS--
-#   object:  an ergm object
-#   ...   :  additional ergm objects. If these have a different response than
-#            that of object, these are ignored. If this argument is not provided,
-#            the <anova.ergm> function is used instead
-#
-# --RETURNED--
-#   an anova object with the analysis of variance table for the considered ergms
-#
-#################################################################################
 
 #' @rdname anova.ergm
 #' @export

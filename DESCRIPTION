@@ -96,7 +96,6 @@ Collate:
     'InitWtErgmTerm.operator.R'
     'InitWtErgmTerm.test.R'
     'anova.ergm.R'
-    'anova.ergmlist.R'
     'approx.hotelling.diff.test.R'
     'as.network.numeric.R'
     'build_term_index.R'
