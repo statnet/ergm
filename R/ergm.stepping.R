@@ -107,15 +107,6 @@
     min(steplength.max, shrink_into_CH(if(!is.null(x2)) x2crs else m2crs, x1crs, verbose=verbose, max_run=max_run)/margin)
   }
 }
-#  File R/is.inCH.R in package ergm, part of the
-#  Statnet suite of packages for network analysis, https://statnet.org .
-#
-#  This software is distributed under the GPL-3 license.  It is free,
-#  open source, and has the attribution requirements (GPL Section 7) at
-#  https://statnet.org/attribution .
-#
-#  Copyright 2003-2025 Statnet Commons
-################################################################################
 
 warning_once <- once(warning)
 
