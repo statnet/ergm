@@ -136,7 +136,6 @@ Collate:
     'ergm.logitreg.R'
     'ergm.mple.R'
     'ergm.pen.glm.R'
-    'ergm.phase12.R'
     'ergm.pl.R'
     'ergm.san.R'
     'ergm.stepping.R'
