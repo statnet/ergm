@@ -10,7 +10,6 @@
 attach(MLE.tools)
 
 theta0err<- 1 # Perturbation in the initial values
-tolerance<-5 # Result must be within 5*MCMCSE of truth.
 
 n<-20 # Number of nodes
 
@@ -24,8 +23,7 @@ run.metric.test<-function(y){
   for(metric in metrics){
     test_that(paste0("Metric test for: ", metric, ", n = ", n, ", naive density = ", network.edgecount(y)/network.dyadcount(y), ", missing fraction = ", network.naedgecount(y)/network.dyadcount(y), "."), {
       mcmcfit<-ergm(y~edges, control=control.ergm(force.main=TRUE, init=truth+theta0err, MCMLE.metric=metric),eval.loglik=FALSE, verbose=FALSE)
-      mcmcOK<-abs(truth-coef(mcmcfit))/sqrt(diag(vcov(mcmcfit, source="estimation")))
-      expect_lt(mcmcOK, tolerance)
+      expect_within_mc_err(mcmcfit, truth)
     })
   }
 }

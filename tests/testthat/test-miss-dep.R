@@ -19,7 +19,7 @@ test_that("Missing data MLE with edge observational constraint", {
   mcmcfit <- suppressWarnings(ergm(flomarriage~edges, constraints = ~fixedas(flobusiness), obs.constraints = ~edges))
 
   ## Point estimate
-  expect_lt(abs(theta-coef(mcmcfit))/sqrt(diag(vcov(mcmcfit, source="estimation"))), tolerance)
+  expect_within_mc_err(mcmcfit, theta)
 
   ## Likelihood
   # Relative to NULL model, whose likelihood is defined to be 0.

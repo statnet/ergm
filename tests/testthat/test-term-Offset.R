@@ -24,10 +24,7 @@ test_that("Estimation with Offset() operator works", {
     Off <- ergm(nw ~ edges + Offset(~triangle, which = 1, coef = 0.1)),
     offset_RE), ".* did not throw the expected message.*")
 
-  expect_lt(
-  (coef(off)[1] - coef(Off)) /
-  sqrt(vcov(off, sources = "estimation")[1,1] + vcov(Off, sources = "estimation")),
-  qnorm(.9999))
+  expect_within_mc_err2(off, Off, 1L, TRUE)
 })
 
 test_that("Offset operator with curved terms works", {
