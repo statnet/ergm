@@ -565,7 +565,7 @@ ergm_symmetrize.network <- function(x, rule=c("weak","strong","upper","lower"), 
   
   for(attr in setdiff(names(el), METACOLS)){
     r <- NVL(rule[[attr]], rule.edges)
-    elle[[attr]] <- ERRVL(try(
+    elle[[attr]] <- ERRVL2(
       if(is.character(r)){
         th <- paste0(attr,".th")
         ht <- paste0(attr,".ht")
@@ -580,7 +580,7 @@ ergm_symmetrize.network <- function(x, rule=c("weak","strong","upper","lower"), 
                upper = elle[[th]])
       }else{
         r(elle, attr)
-      },silent=TRUE), NULL)
+      }, NULL)
   }
   
   o <- network.initialize(network.size(x), directed=FALSE, bipartite=x%n%"bipartite", loops=has.loops(x), hyper=is.hyper(x), multiple=is.multiplex(x))

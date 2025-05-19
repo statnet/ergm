@@ -195,7 +195,7 @@ ergm.bridge.llr<-function(object, response=NULL, reference=~Bernoulli, constrain
                             control = gen_control(FALSE, if(i == 1 && (attempt == 1 || !control$bridge.bidirectional)) "first" else "between"))
       state <- z$networks
       samp <- llrsamp(z$stats, theta)
-      vcov.llrs[i] <- c(ERRVL(try(spectrum0.mvar(samp)/(niter(samp)*nchain(samp)), silent=TRUE), 0))
+      vcov.llrs[i] <- c(ERRVL2(spectrum0.mvar(samp)/(niter(samp)*nchain(samp)), 0))
       llrs[i] <- mean(as.matrix(samp))
 
       if(obs){
@@ -203,7 +203,7 @@ ergm.bridge.llr<-function(object, response=NULL, reference=~Bernoulli, constrain
                               control = gen_control(TRUE, if(i == 1 && (attempt == 1 || !control$bridge.bidirectional)) "first" else "between"))
         state.obs <- z$networks
         samp <- llrsamp(z$stats, theta)
-        vcov.llrs[i] <- vcov.llrs[i] + c(ERRVL(try(spectrum0.mvar(samp)/(niter(samp)*nchain(samp)), silent=TRUE), 0))
+        vcov.llrs[i] <- vcov.llrs[i] + c(ERRVL2(spectrum0.mvar(samp)/(niter(samp)*nchain(samp)), 0))
         llrs[i] <- llrs[i] - mean(as.matrix(samp))
       }else llrs[i] <- llrs[i] - llrsamp(target.stats, theta)
     }

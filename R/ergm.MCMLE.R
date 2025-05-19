@@ -412,7 +412,7 @@ ergm.MCMLE <- function(init, s, s.obs,
     # This allows premature termination.
     
     if(control$MCMLE.termination=='Hotelling'){
-      conv.pval <- ERRVL(try(suppressWarnings(approx.hotelling.diff.test(esteqs, esteqs.obs)$p.value)), NA)
+      conv.pval <- ERRVL2(suppressWarnings(approx.hotelling.diff.test(esteqs, esteqs.obs)$p.value), NA)
       message("Nonconvergence test p-value:", format(conv.pval), "")
       # I.e., so that the probability of one false nonconvergence in two successive iterations is control$MCMLE.conv.min.pval (sort of).
       if(!is.na(conv.pval) && conv.pval>=1-sqrt(1-control$MCMLE.conv.min.pval)){
@@ -632,7 +632,7 @@ ergm.MCMLE <- function(init, s, s.obs,
   I <- diag(length(y))
   WUi <- t(qrssolve(U, W, tol=tol))
   x <- function(l) c(solve(I+l*WUi, y)) # Singluar for negative reciprocals of eigenvalues of WiU.
-  zerofn <- function(l) ERRVL(try(xTAx_seigen(x(l), U, tol=tol) - 1, silent=TRUE), +Inf)
+  zerofn <- function(l) ERRVL2(xTAx_seigen(x(l), U, tol=tol) - 1, +Inf)
 
   # For some reason, WU sometimes has 0i element in its eigenvalues.
   eig <- Re(eigen(WUi, only.values=TRUE)$values)

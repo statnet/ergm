@@ -196,10 +196,10 @@ ergm.mple<-function(s, s.obs, init=NULL,
       MCMCtheta=theta, gradient=gradient,
       hessian=hess, covar=covar, failure=FALSE,
       mple.lik = structure(
-        ERRVL(try(logLik(mplefit), silent=TRUE), -mplefit$deviance/2),
+        ERRVL2(logLik(mplefit), -mplefit$deviance/2),
         nobs = nobs, df = df, class="logLik"),
       mple.lik.null = structure(
-        ERRVL(try(logLik(mplefit.null), silent=TRUE), -mplefit.null$deviance/2),
+        ERRVL2(logLik(mplefit.null), -mplefit.null$deviance/2),
         nobs = nobs, df = df, class="logLik")
       ),
       class="ergm")

@@ -94,7 +94,7 @@ approx.hotelling.diff.test<-function(x,y=NULL, mu0=0, assume.indep=FALSE, var.eq
       vcov <- vcov.indep
       infl <- 1
     }else if(!var.equal){
-      vcov <- ERRVL(try(spectrum0.mvar(v, ...), silent=TRUE),
+      vcov <- ERRVL2(spectrum0.mvar(v, ...),
                     stop("Unable to compute autocorrelation-adjusted standard errors."))
       infl <- attr(vcov, "infl")
     }else{
@@ -141,7 +141,7 @@ approx.hotelling.diff.test<-function(x,y=NULL, mu0=0, assume.indep=FALSE, var.eq
           xyp <- as.mcmc.list(c(unclass(xp), unclass(yp)))
         }
 
-        vcov <- x$vcov <- y$vcov <- ERRVL(try(spectrum0.mvar(xyp, ...), silent=TRUE),
+        vcov <- x$vcov <- y$vcov <- ERRVL2(spectrum0.mvar(xyp, ...),
                                   stop("Unable to compute autocorrelation-adjusted standard errors."))
         infl <- x$infl <- y$infl <- attr(vcov, "infl")
         x$neff <- x$n / infl
@@ -265,7 +265,7 @@ geweke.diag.mv <- function(x, frac1 = 0.1, frac2 = 0.5, split.mcmc.list = FALSE,
   x2 <- window(x, start=end(x) - frac2*x.len, end=end(x))
 
   test <-
-    ERRVL(try(approx.hotelling.diff.test(x1,x2,var.equal=TRUE,...), silent=TRUE),
+    ERRVL2(approx.hotelling.diff.test(x1,x2,var.equal=TRUE,...),
     {
       warning("Multivariate Geweke diagnostic failed, probably due to insufficient sample size.", call.=FALSE, immediate.=TRUE)
       test <- structure(list(p.value=NA), class="htest")
@@ -357,7 +357,7 @@ spectrum0.mvar <- function(x, order.max=NULL, aic=is.null(order.max), tol=.Machi
   # If ar() failed or produced a variance matrix estimate that's
   # not positive semidefinite, try with a lower order.
   arfit <- NULL; ord <- ord + 1
-  while((is.null(arfit) || ERRVL(try(any(eigen(arfit$var.pred, only.values=TRUE)$values<0), silent=TRUE), TRUE)) && ord > 0){
+  while((is.null(arfit) || ERRVL2(any(eigen(arfit$var.pred, only.values=TRUE)$values<0), TRUE)) && ord > 0){
     ord <- ord - 1
     if(ord<=0) stop("Unable to fit ar() even with order 1; this is likely to be due to insufficient sample size or a trend in the data.")
     arfit <- safe_ar(xr,aic=is.null(order.max), order.max=ord, na.action=na.pass, ...)

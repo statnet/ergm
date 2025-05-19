@@ -563,7 +563,7 @@ ergm <- function(formula, response=NULL,
     if(verbose) message("MPLE cannot be used for this constraint structure.")
   }
 
-  control$init.method <- ERRVL(try(match.arg(control$init.method, init.candidates), silent=TRUE), {
+  control$init.method <- ERRVL2(match.arg(control$init.method, init.candidates), {
     message("Specified initial parameter method ", sQuote(control$init.method), " is not in the list of candidates. Use at your own risk.")
     control$init.method
   })

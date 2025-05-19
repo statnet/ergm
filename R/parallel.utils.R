@@ -215,7 +215,7 @@ ergm.getCluster <- function(control=NULL, verbose=FALSE, stop_on_exit=parent.fra
   # If we don't want a cluster, just return NULL.
   if (is.numeric(control$parallel) && control$parallel==0) return(NULL)
 
-  if(ERRVL(try(get.MT_terms(),silent=TRUE), FALSE) && control$parallel.inherit.MT==FALSE) warning("Using term multithreading in combination with parallel MCMC is generally not advised. See help('ergm-parallel') for more information.")
+  if(ERRVL2(get.MT_terms(), FALSE) && control$parallel.inherit.MT==FALSE) warning("Using term multithreading in combination with parallel MCMC is generally not advised. See help('ergm-parallel') for more information.")
   
   if(inherits(control$parallel,"cluster")){
     # Control argument *is* a cluster. Overrides everything.
@@ -278,7 +278,7 @@ ergm.getCluster <- function(control=NULL, verbose=FALSE, stop_on_exit=parent.fra
         stop("The version of ", sQuote(pkg), " (", paste(slave.versions[wrong], collapse=", "), ") attached on one or more slave nodes is different from that on the (this) master node (", master.version,"). Make sure that the same version is installed on all nodes. If you are absolutely certain that this message is in error, override with the parallel.version.check=FALSE control parameter.")
     }
 
-    if(control$parallel.inherit.MT && ERRVL(try(get.MT_terms(), silent=TRUE), 0)!=0){
+    if(control$parallel.inherit.MT && ERRVL2(get.MT_terms(), 0)!=0){
       clusterCall(cl, set.MT_terms,
                   get.MT_terms())
     }
