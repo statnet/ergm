@@ -98,7 +98,6 @@ Collate:
     'approx.hotelling.diff.test.R'
     'as.network.numeric.R'
     'build_term_index.R'
-    'c.network.list.R'
     'check.ErgmTerm.R'
     'control.ergm.R'
     'control.ergm.bridge.R'
