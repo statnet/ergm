@@ -172,7 +172,6 @@ Collate:
     'param_names.R'
     'predict.ergm.R'
     'print.ergm.R'
-    'print.summary.ergm.R'
     'rank_test.ergm.R'
     'to_ergm_Cdouble.R'
     'rlebdm.R'

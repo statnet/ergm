@@ -8,13 +8,9 @@
 #  Copyright 2003-2025 Statnet Commons
 ################################################################################
 
-
-
 #' Summarizing ERGM Model Fits
 #'
 #' [base::summary()] method for [ergm()] fits.
-#'
-#' @order 1
 #'
 #' @param object an object of class `ergm`, usually, a result of a call to
 #'   [ergm()].
@@ -163,18 +159,8 @@ summary.ergm <- function (object, ...,
   class(ans) <- "summary.ergm"
   ans
 }
-#  File R/print.summary.ergm.R in package ergm, part of the
-#  Statnet suite of packages for network analysis, https://statnet.org .
-#
-#  This software is distributed under the GPL-3 license.  It is free,
-#  open source, and has the attribution requirements (GPL Section 7) at
-#  https://statnet.org/attribution .
-#
-#  Copyright 2003-2025 Statnet Commons
-################################################################################
 
 #' @rdname summary.ergm
-#' @order 2
 #' 
 #' @param x object of class `summary.ergm` returned by [summary.ergm()].
 #' @param digits significant digits for coefficients
