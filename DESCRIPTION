@@ -126,8 +126,6 @@ Collate:
     'ergm.errors.R'
     'ergm.estimate.R'
     'ergm.eta.R'
-    'ergm.etagrad.R'
-    'ergm.etagradmult.R'
     'ergm.etamap.R'
     'ergm.geodistn.R'
     'ergm.getCDsample.R'

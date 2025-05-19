@@ -7,21 +7,6 @@
 #
 #  Copyright 2003-2025 Statnet Commons
 ################################################################################
-##############################################################################
-# The <ergm.eta> function calculates and returns eta, mapped from
-# theta using the etamap object created by <ergm.etamap>.
-#
-# --PARAMETERS--
-#   theta :  the curved model parameters  
-#   etamap:  the list of values that constitutes the theta-> eta mapping
-#            and is returned by <ergm.etamap>
-#
-# --RETURNED--
-#   eta:  the canonical eta parameters as mapped from theta
-#
-###############################################################################
-
-
 
 #' Operations to map curved [ergm()] parameters onto canonical parameters
 #' 
@@ -76,30 +61,6 @@
 ergm.eta <- function(theta, etamap){
   .Call("ergm_eta_wrapper", as.numeric(theta), etamap, PACKAGE="ergm")
 }
-#  File R/ergm.etagrad.R in package ergm, part of the
-#  Statnet suite of packages for network analysis, https://statnet.org .
-#
-#  This software is distributed under the GPL-3 license.  It is free,
-#  open source, and has the attribution requirements (GPL Section 7) at
-#  https://statnet.org/attribution .
-#
-#  Copyright 2003-2025 Statnet Commons
-################################################################################
-################################################################################
-# The <ergm.etagrad> function caculates and returns the gradient of eta
-# mapped from theta using the etamap object created by <ergm.etamap>. If the
-# gradient is only intended to be a multiplier for some vector, the more
-# efficient <ergm.etagradmult> is recommended.
-#
-# --PARAMETERS--
-#   theta :  the vector of curved model parameters 
-#   etamap:  the list constituting the theta-> eta mapping that is returned by
-#            <ergm.etamap>
-#
-# --RETURNED--
-#   etagrad: a matrix of the gradient of eta 
-#
-################################################################################
 
 #' @rdname ergm.eta
 #' @description The \code{ergm.etagrad} function caculates and returns
@@ -113,29 +74,6 @@ ergm.eta <- function(theta, etamap){
 ergm.etagrad <- function(theta, etamap){
   .Call("ergm_etagrad_wrapper", as.numeric(theta), etamap, PACKAGE="ergm")
 }
-#  File R/ergm.etagradmult.R in package ergm, part of the
-#  Statnet suite of packages for network analysis, https://statnet.org .
-#
-#  This software is distributed under the GPL-3 license.  It is free,
-#  open source, and has the attribution requirements (GPL Section 7) at
-#  https://statnet.org/attribution .
-#
-#  Copyright 2003-2025 Statnet Commons
-################################################################################
-##############################################################################
-# The <ergm.etagradmult> function calculates and returns the product of the
-# gradient of eta with a vector v
-#
-# --PARAMETERS--
-#   theta :  the curved model parameters
-#   v     :  a vector of the same length as the vector of mapped eta parameters
-#   etamap:  the list constituting the theta-> eta mapping returned by <ergm.etamap>
-#
-# --RETURNED--
-#   ans: the vector that is the product of the gradient of eta and v; infinite
-#        values are replaced by (+-)10000
-#
-#################################################################################
 
 #' @rdname ergm.eta
 #' @description The \code{ergm.etagradmult} function calculates and
