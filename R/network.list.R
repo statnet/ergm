@@ -139,7 +139,7 @@ c.network.list <- function(..., check_attr = TRUE) {
     l_stats <- map(dots, ~ attr(.x, "stats"))
     ok <- all_identical(
       lapply(l_stats, function(x) colnames(x)),
-      fun = identical
+      .p = identical
     )
     if(!ok) stop("network lists do not have identical columns of 'stats' attribute")
   }
