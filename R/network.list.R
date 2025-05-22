@@ -113,6 +113,18 @@ summary.network.list <- function (object, stats.print=TRUE,
 #'
 #' @importFrom purrr map
 #' @export
+#'
+#' @examples
+#' # Simulate some more
+#' g.sim2 <- simulate(~edges+kstar(2), nsim=3, coef=c(-1.8, 0.03),
+#'   basis=g.use, control=control.simulate(
+#'   MCMC.burnin=100000,
+#'   MCMC.interval=1000))
+#'
+#' # Merge the simulations
+#' g.simall <- c(g.sim, g.sim2)
+#' length(g.simall) # 6
+#'
 
 c.network.list <- function(..., check_attr = TRUE) {
   dots <- list(...)
