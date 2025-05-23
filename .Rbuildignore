@@ -13,7 +13,6 @@ appveyor.yml
 .*\.rej$
 .gdb_history
 ^revdep$
-^.github$
 ^man-roxygen$
 ^codecov\.yml$
 ^vignettes/.*_cache$
@@ -21,3 +20,4 @@ appveyor.yml
 ^README.md$
 _snaps
 ^src/.*\.s?o$
+^\.github$
