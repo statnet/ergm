@@ -52,6 +52,7 @@ jobs:
           base <- capture.output(lintr::lint_package("base", exclusions = setdiff(base_files, changed_files)))
           head <- capture.output(lintr::lint_package("head", exclusions = setdiff(head_files, changed_files)))
           writeLines(setdiff(head, base))
+          quit("no", 31L, FALSE)
         shell: Rscript {0}
         env:
           LINTR_ERROR_ON_LINT: false
