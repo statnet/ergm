@@ -80,10 +80,10 @@ ergm.pen.glm <- function(formula,
 #  n <- length(y)
 #  weights <- y-y+1
 
-  k <- ncol(x)  # Anzahl Effekte
+  k<-ncol(x)  # Anzahl Effekte
 
   int <- 0
-  coltotest <-1:k
+  coltotest <-1:k  
 
   if(missing(weights)){weights <- rep(1,length=n)}
   beta <- c(log((sum(y*weights)/sum((1-y)*weights))),
