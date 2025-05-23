@@ -128,8 +128,8 @@ ergm.pen.glm <- function(formula,
     loglik <- loglik + 0.5 * determinant(Fisher)$modulus[1]
     if(loglik > loglik.old) break
     beta <- beta - delta * 2^( - halfs) ##beta-A enderung verkleinern
-   }
-   if(iter == maxit | sum(abs(delta)) <= epsilon){break}
+   }   
+   if(iter == maxit | sum(abs(delta)) <= epsilon){break } 
   }
 
   fit <- list(coefficients = beta, alpha = alpha, var = covs, 
