@@ -68,7 +68,7 @@ ergm.pen.glm <- function(formula,
   maxit = 25, maxhs = 5, epsilon = 0.0001, maxstep = 10, 
   start=NULL,
   weights=NULL)
-{
+{  
   if(missing(data)) data <- environment(formula)
   y <- as.vector(model.extract(model.frame(formula, data = data), "response"))
   n <- length(y)
