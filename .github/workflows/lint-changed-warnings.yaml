@@ -1,0 +1,57 @@
+# Workflow derived from https://github.com/r-lib/actions/tree/v2/examples
+# Need help debugging build failures? Start at https://github.com/r-lib/actions#where-to-find-help
+on:
+  pull_request:
+
+name: lint-changed-warnings.yaml
+
+permissions: read-all
+
+jobs:
+  lint-changed-warnings:
+    runs-on: ubuntu-latest
+    env:
+      GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: head
+
+      - uses: actions/checkout@v4
+        with:
+          path: base
+          ref: ${{ github.event.pull_request.base.ref || github.event.repository.default_branch }}
+
+      - uses: r-lib/actions/setup-r@v2
+
+      - uses: r-lib/actions/setup-r-dependencies@v2
+        with:
+          extra-packages: |
+            any::gh
+            any::lintr
+            any::purrr
+          needs: check
+          working-directory: head
+
+      - name: Add lintr options
+        run: |
+          cat('\noptions(lintr.linter_file = ".lintr")\n', file = "~/.Rprofile", append = TRUE)
+        shell: Rscript {0}
+
+      - name: Install package
+        run: R CMD INSTALL head
+
+      - name: Lint both versions and return only the difference.
+        run: |
+          files <- tryCatch(
+            gh::gh("GET https://api.github.com/repos/${{ github.repository }}/pulls/${{ github.event.pull_request.number }}/files"),
+            error = function(e) gh::gh("GET /repos/statnet/ergm/compare/${{ github.event.repository.default_branch }}...${{ github.ref_name }}")$files)
+          changed_files <- purrr::map_chr(files, "filename")
+          base_files <- list.files("base", recursive = TRUE)
+          head_files <- list.files("head", recursive = TRUE)
+          base <- capture.output(lintr::lint_package("base", exclusions = setdiff(base_files, changed_files)))
+          head <- capture.output(lintr::lint_package("head", exclusions = setdiff(head_files, changed_files)))
+          writeLines(setdiff(head, base))
+        shell: Rscript {0}
+        env:
+          LINTR_ERROR_ON_LINT: false
