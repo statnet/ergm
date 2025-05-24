@@ -1,6 +1,6 @@
 # Workflow derived from https://github.com/r-lib/actions/tree/v2/examples
 # Need help debugging build failures? Start at https://github.com/r-lib/actions#where-to-find-help
-on: push
+on: [push, pull_request]
 
 name: lint-changed-warnings.yaml
 
@@ -17,9 +17,16 @@ jobs:
           path: head
 
       - uses: actions/checkout@v4
+        if: github.event_name == 'pull_request'
         with:
           path: base
-          ref: ${{ github.event.pull_request.base.ref || github.event.repository.default_branch }}
+          ref: ${{ github.event.pull_request.base.ref }}
+
+      - uses: actions/checkout@v4
+        if: github.event_name != 'pull_request'
+        with:
+          path: base
+          ref: ${{ github.ref_name }}^
 
       - uses: r-lib/actions/setup-r@v2
 
@@ -46,7 +53,7 @@ jobs:
           source("head/.github/workflows/lintr-diff.R")
           files <- tryCatch(
             gh::gh("GET https://api.github.com/repos/${{ github.repository }}/pulls/${{ github.event.pull_request.number }}/files"),
-            error = function(e) gh::gh("GET /repos/statnet/ergm/compare/${{ github.event.repository.default_branch }}...${{ github.ref_name }}")$files)
+            error = function(e) gh::gh("GET /repos/${{ github.repository }}/compare/${{ github.ref_name }}^...${{ github.ref_name }}")$files)
           dummy <- writeLines(lintr_filter(files))
         shell: Rscript {0}
         env:
