@@ -24,24 +24,20 @@ mk_mapper <- function(patch) {
     pos1 <- pos1 + gap
     pos2 <- pos2 + gap
     for (d in lines[[ch]]) {
+      if (d == " ") lmap[pos1] <- pos2
       if (d %in% c(" ", "-")) pos1 <- pos1 + 1L
       if (d %in% c(" ", "+")) pos2 <- pos2 + 1L
-
-      lmap[pos1] <- pos2
     }
   }
+
+  gap <- length(lmap) - pos1
+  lmap[pos1 + seq_len(gap)] <- pos2 + seq_len(gap)
 
   shift <- pos2 - pos1
 
   function(i) {
     ifelse(i <= length(lmap), lmap[i], i + shift)
   }
-}
-
-map_lines <- function(warnings, mapper) {
-  str_replace_all(warnings, "line=[0-9]+", function(m) {
-    str_c("line=", mapper(as.integer(str_sub(m, 6))))
-  })
 }
 
 lintr_filter <- function(files) {
