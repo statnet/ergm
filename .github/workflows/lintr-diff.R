@@ -3,17 +3,38 @@ library(purrr)
 
 mk_mapper <- function(patch) {
   m <- str_split(patch, "\n")[[1]] |>
-    str_match("^@@ *-([0-9]+),([0-9]+) *\\+([0-9]+),([0-9]+) *@@") |>
-    na.omit() |>
-    _[, -1, drop = FALSE]
-  storage.mode(m) <- "integer"
+    str_match("^([@+ -])(@ *-([0-9]+))?") |>
+    _[, -c(1L, 3L), drop = FALSE] |>
+    as.data.frame() |>
+    setNames(c("t", "s"))
 
-  ends <- m[, 1L] + m[, 2L]
-  shifts <- cumsum(c(0L, m[, 4L] - m[, 2L]))
+  starts <- as.integer(m$s[m$t == "@"])
+  lines <- split(m$t, cumsum(m$t == "@")) |> map(`[`, -1L)
+  lens <- lengths(lines)
+  ends <- starts + lens
+
+  lmap <- numeric(max(ends))
+
+  pos1 <- 0L
+  pos2 <- 0L
+  for (ch in seq_along(starts)) {
+    gap <- starts[ch] - pos1
+    lmap[pos1 + seq_len(gap)] <- pos2 + seq_len(gap)
+
+    pos1 <- pos1 + gap
+    pos2 <- pos2 + gap
+    for (d in lines[[ch]]) {
+      if (d %in% c(" ", "-")) pos1 <- pos1 + 1L
+      if (d %in% c(" ", "+")) pos2 <- pos2 + 1L
+
+      lmap[pos1] <- pos2
+    }
+  }
+
+  shift <- pos2 - pos1
 
   function(i) {
-    pos <- cut(i, c(0, ends, Inf), labels = FALSE, right = FALSE)
-    i + shifts[pos]
+    ifelse(i <= length(lmap), lmap[i], i + shift)
   }
 }
 
