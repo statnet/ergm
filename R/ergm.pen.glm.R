@@ -65,8 +65,10 @@
 
 ergm.pen.glm <- function(formula,
   data, alpha = 0.05,
-  maxit = 25, maxhs = 5, epsilon = 0.0001, maxstep = 10, 
+  maxit = 25, maxhs = 5, epsilon = 0.0001, maxstep = 10,
+  
   start=NULL,
+
   weights=NULL)
 {
   if(missing(data)) data <- environment(formula)
@@ -80,10 +82,10 @@ ergm.pen.glm <- function(formula,
 #  n <- length(y)
 #  weights <- y-y+1
 
-  k <- ncol(x)  # Anzahl Effekte
+  k<-ncol(x)  # Anzahl Effekte
 
   int <- 0
-  coltotest <-1:k
+  coltotest <-1:k  
 
   if(missing(weights)){weights <- rep(1,length=n)}
   beta <- c(log((sum(y*weights)/sum((1-y)*weights))),
@@ -124,7 +126,8 @@ ergm.pen.glm <- function(formula,
     pi <- as.vector(1/(1 + exp( - x %*% beta)))
     loglik <- .BernLogLik(pi, y, weights)
     XW2 <- sweep(x, 1, (weights*(pi * (1 - pi)))^0.5, "*") #### X' (W ^ 1/2)
-    Fisher <- crossprod(XW2) #### X' W  X
+
+     Fisher <- crossprod(XW2) #### X' W  X
     loglik <- loglik + 0.5 * determinant(Fisher)$modulus[1]
     if(loglik > loglik.old) break
     beta <- beta - delta * 2^( - halfs) ##beta-A enderung verkleinern

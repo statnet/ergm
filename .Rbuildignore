@@ -21,3 +21,4 @@ appveyor.yml
 ^README.md$
 _snaps
 ^src/.*\.s?o$
+^\.github$
