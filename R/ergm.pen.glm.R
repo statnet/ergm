@@ -18,7 +18,7 @@
   sum(ifelse(y, log(p), log1p(-p))*w)
 }
 
-
+   
 
 ###############################################################################
 # The <ergm.pen.glm> function calculates and returns an ergm fit using a
@@ -89,12 +89,15 @@ ergm.pen.glm <- function(formula,
   beta <- c(log((sum(y*weights)/sum((1-y)*weights))),
             rep(0, k - 1))
   if(!missing(start) && !is.null(start) && ncol(x)==length(start) && !is.na(start)){
+
+
     beta[1] <- beta[1] - sum((x %*% start)*weights)
   }
   iter <- 0
+  
   pi <- as.vector(1/(1 + exp( - x %*% beta)))
   loglik <- .BernLogLik(pi, y, weights)
-  XW2 <- sweep(x, 1, (weights*(pi * (1 - pi)))^0.5, "*")  #### X' (W ^ 1/2)
+    XW2 <- sweep(x, 1, (weights*(pi * (1 - pi)))^0.5, "*")  #### X' (W ^ 1/2)
   Fisher <- crossprod(XW2)  #### X' W  X
   loglik <- loglik + 0.5 * determinant(Fisher)$modulus[1]
   repeat {
@@ -106,7 +109,7 @@ ergm.pen.glm <- function(formula,
 #  H <- XW2 %*% covs %*% t(XW2)
    diagH <- pi
    for(i in seq(along=diagH)){
-    diagH[i] <- xTAx(XW2[i,], covs)
+    diagH[i] <- xTAx(XW2[i,], covs)  
    }
 #  U.star <- crossprod(x, y - pi)
 #  U.star <- crossprod(x, (y - pi)*weights)
@@ -131,7 +134,6 @@ ergm.pen.glm <- function(formula,
    }
    if(iter == maxit | sum(abs(delta)) <= epsilon){break}
   }
-
   fit <- list(coefficients = beta, alpha = alpha, var = covs, 
               df = (k-int), 
               loglik = loglik,
@@ -143,7 +145,7 @@ ergm.pen.glm <- function(formula,
               model.matrix = x, 
               method = "pen.glm.fit",
               linear.predictors=as.vector(x %*% beta))
-  class(fit) <- c("pen.glm")
+  class(fit) <- c("pen.glm") 
 # vars <- diag(covs)
   fit
 }

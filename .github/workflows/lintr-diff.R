@@ -15,18 +15,18 @@ mk_mapper <- function(patch) {
 
   lmap <- numeric(max(ends))
 
-  pos1 <- 0L
-  pos2 <- 0L
+  pos1 <- 1L
+  pos2 <- 1L
   for (ch in seq_along(starts)) {
-    gap <- starts[ch] - pos1
+    gap <- starts[ch] - pos1 - 1L
     lmap[pos1 + seq_len(gap)] <- pos2 + seq_len(gap)
 
     pos1 <- pos1 + gap
     pos2 <- pos2 + gap
     for (d in lines[[ch]]) {
-      if (d == " ") lmap[pos1] <- pos2
       if (d %in% c(" ", "-")) pos1 <- pos1 + 1L
       if (d %in% c(" ", "+")) pos2 <- pos2 + 1L
+      if (d == " ") lmap[pos1] <- pos2
     }
   }
 
