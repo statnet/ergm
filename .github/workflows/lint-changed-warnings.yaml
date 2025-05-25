@@ -2,17 +2,18 @@
 # Need help debugging build failures? Start at https://github.com/r-lib/actions#where-to-find-help
 on: [push, pull_request]
 
-name: lint-changed-warnings.yaml
+name: lint-changed-warnings
 
 permissions: read-all
 
 jobs:
-  lint-changed-warnings:
+  redundancy-check:
     runs-on: ubuntu-latest
-    env:
-      GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+    outputs:
+      redundant: ${{ steps.check.outputs.redundant }}
     steps:
-      - name: Prevent a redundant run
+      - name: Check if this branch is a part of a PR
+        id: check
         if: github.event_name != 'pull_request'
         run: |
           import requests
@@ -21,17 +22,22 @@ jobs:
           headers = {'Authorization': 'token ' + '${{ secrets.GITHUB_TOKEN }}'}
           prs = requests.get("https://api.github.com/repos/${{ github.repository }}/pulls?head=${{ github.repository_owner }}:${{ github.ref_name }}",
                              headers = headers)
-          if len(prs.json()) > 0: open(os.getenv("GITHUB_ENV"), 'a').write("REDUNDANT=yes\n")
+          if len(prs.json()) > 0: open(os.getenv("GITHUB_OUTPUT"), 'a').write("redundant=1\n")
         shell: python
 
+  lint-changed-warnings:
+    needs: redundancy-check
+    if: needs.redundancy-check.outputs.redundant == false
+    runs-on: ubuntu-latest
+    env:
+      GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+    steps:
       - name: Check out HEAD
-        if: env.REDUNDANT != 'yes'
         uses: actions/checkout@v4
         with:
           path: head
 
       - name: Select BASE
-        if: env.REDUNDANT != 'yes'
         run: |
           if [[ ${{ github.event_name }}=="pull_request" ]]
           then # PR -> base branch
@@ -45,16 +51,13 @@ jobs:
 
       - name: Check out BASE
         uses: actions/checkout@v4
-        if: env.REDUNDANT != 'yes'
         with:
           path: base
           ref: ${{ env.BASEREF }}
 
       - uses: r-lib/actions/setup-r@v2
-        if: env.REDUNDANT != 'yes'
 
       - uses: r-lib/actions/setup-r-dependencies@v2
-        if: env.REDUNDANT != 'yes'
         with:
           extra-packages: |
             any::gh
@@ -65,13 +68,11 @@ jobs:
           working-directory: head
 
       - name: Add lintr options
-        if: env.REDUNDANT != 'yes'
         run: |
           cat('\noptions(lintr.linter_file = ".lintr")\n', file = "~/.Rprofile", append = TRUE)
         shell: Rscript {0}
 
       - name: Lint both versions and return only the difference.
-        if: env.REDUNDANT != 'yes'
         run: |
           source("head/.github/workflows/lintr-diff.R")
           files <- tryCatch(
