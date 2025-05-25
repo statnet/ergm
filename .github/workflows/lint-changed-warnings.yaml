@@ -1,0 +1,84 @@
+# Workflow derived from https://github.com/r-lib/actions/tree/v2/examples
+# Need help debugging build failures? Start at https://github.com/r-lib/actions#where-to-find-help
+on: [push, pull_request]
+
+name: lint-changed-warnings
+
+permissions: read-all
+
+jobs:
+  redundancy-check:
+    runs-on: ubuntu-latest
+    outputs:
+      redundant: ${{ steps.check.outputs.redundant }}
+    steps:
+      - name: Check if this branch is a part of a PR
+        id: check
+        if: github.event_name != 'pull_request'
+        run: |
+          import requests
+          import os
+          import json
+          headers = {'Authorization': 'token ' + '${{ secrets.GITHUB_TOKEN }}'}
+          prs = requests.get("https://api.github.com/repos/${{ github.repository }}/pulls?head=${{ github.repository_owner }}:${{ github.ref_name }}",
+                             headers = headers)
+          if len(prs.json()) > 0: open(os.getenv("GITHUB_OUTPUT"), 'a').write("redundant=1\n")
+        shell: python
+
+  lint-changed-warnings:
+    needs: redundancy-check
+    if: needs.redundancy-check.outputs.redundant == false
+    runs-on: ubuntu-latest
+    env:
+      GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - name: Check out HEAD
+        uses: actions/checkout@v4
+        with:
+          path: head
+
+      - name: Select BASE
+        run: |
+          if [[ ${{ github.event_name }} == "pull_request" ]]
+          then # PR -> base branch
+            echo "BASEREF=${{ github.event.pull_request.base.ref }}" >> "$GITHUB_ENV"
+          elif [[ ${{ github.ref_name }} == ${{ github.event.repository.default_branch }} ]]
+          then # default branch -> previous push
+            echo "BASEREF=${{ github.event.before }}" >> "$GITHUB_ENV"
+          else # otherwise -> default branch
+            echo "BASEREF=${{ github.event.repository.default_branch }}" >> "$GITHUB_ENV"
+          fi
+
+      - name: Check out BASE
+        uses: actions/checkout@v4
+        with:
+          path: base
+          ref: ${{ env.BASEREF }}
+
+      - uses: r-lib/actions/setup-r@v2
+
+      - uses: r-lib/actions/setup-r-dependencies@v2
+        with:
+          extra-packages: |
+            any::gh
+            any::lintr
+            any::purrr
+            any::stringr
+          needs: check
+          working-directory: head
+
+      - name: Add lintr options
+        run: |
+          cat('\noptions(lintr.linter_file = ".lintr")\n', file = "~/.Rprofile", append = TRUE)
+        shell: Rscript {0}
+
+      - name: Lint both versions and return only the difference.
+        run: |
+          source("head/.github/workflows/lintr-diff.R")
+          files <- tryCatch(
+            gh::gh("GET https://api.github.com/repos/${{ github.repository }}/pulls/${{ github.event.pull_request.number }}/files"),
+            error = function(e) gh::gh("GET /repos/${{ github.repository }}/compare/${{ env.BASEREF }}...${{ github.ref_name }}")$files)
+          writeLines(lintr_filter(files))
+        shell: Rscript {0}
+        env:
+          LINTR_ERROR_ON_LINT: false
