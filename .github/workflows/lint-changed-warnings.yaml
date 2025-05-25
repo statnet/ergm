@@ -24,9 +24,6 @@ jobs:
           if len(prs.json()) > 0: open(os.getenv("GITHUB_ENV"), 'a').write("REDUNDANT=yes\n")
         shell: python
 
-      - uses: r-lib/actions/setup-r@v2
-        if: env.REDUNDANT != 'yes'
-
       - name: Check out HEAD
         if: env.REDUNDANT != 'yes'
         uses: actions/checkout@v4
@@ -53,6 +50,9 @@ jobs:
           path: base
           ref: ${{ env.BASEREF }}
 
+      - uses: r-lib/actions/setup-r@v2
+        if: env.REDUNDANT != 'yes'
+
       - uses: r-lib/actions/setup-r-dependencies@v2
         if: env.REDUNDANT != 'yes'
         with:
@@ -62,12 +62,6 @@ jobs:
             any::purrr
             any::stringr
           needs: check
-          working-directory: base
-
-      - uses: r-lib/actions/setup-r-dependencies@v2
-        if: env.REDUNDANT != 'yes'
-        with:
-          needs: check
           working-directory: head
 
       - name: Add lintr options
@@ -75,10 +69,6 @@ jobs:
         run: |
           cat('\noptions(lintr.linter_file = ".lintr")\n', file = "~/.Rprofile", append = TRUE)
         shell: Rscript {0}
-
-      - name: Install package
-        if: env.REDUNDANT != 'yes'
-        run: R CMD INSTALL head
 
       - name: Lint both versions and return only the difference.
         if: env.REDUNDANT != 'yes'
