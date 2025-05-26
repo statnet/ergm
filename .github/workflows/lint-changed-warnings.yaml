@@ -78,7 +78,27 @@ jobs:
           files <- tryCatch(
             gh::gh("GET https://api.github.com/repos/${{ github.repository }}/pulls/${{ github.event.pull_request.number }}/files"),
             error = function(e) gh::gh("GET /repos/${{ github.repository }}/compare/${{ env.BASEREF }}...${{ github.ref_name }}")$files)
-          writeLines(lintr_filter(files))
+          split_lines(lintr_filter(files), "lintr-{chunk}.txt")
         shell: Rscript {0}
         env:
           LINTR_ERROR_ON_LINT: false
+
+      - name: Print lintr warnings 1
+        if: ${{ hashFiles('lintr-1.txt') != '' }}
+        run: cat "lintr-1.txt"
+
+      - name: Print lintr warnings 2
+        if: ${{ hashFiles('lintr-2.txt') != '' }}
+        run: cat "lintr-2.txt"
+
+      - name: Print lintr warnings 3
+        if: ${{ hashFiles('lintr-3.txt') != '' }}
+        run: cat "lintr-3.txt"
+
+      - name: Print lintr warnings 4
+        if: ${{ hashFiles('lintr-4.txt') != '' }}
+        run: cat "lintr-4.txt"
+
+      - name: Print lintr warnings 5
+        if: ${{ hashFiles('lintr-5.txt') != '' }}
+        run: cat "lintr-5.txt"

@@ -66,3 +66,12 @@ lintr_filter <- function(files) {
 
   setdiff(capture.output(head), capture.output(base))
 }
+
+library(glue)
+
+split_lines <- function(lines, pat) {
+  linel <- split(lines, (seq_along(lines) - 1L) %/% 10)
+
+  for(chunk in seq_along(linel))
+    writeLines(linel[[chunk]], con = glue(pat))
+}
