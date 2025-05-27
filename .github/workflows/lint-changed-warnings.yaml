@@ -1,0 +1,182 @@
+# Workflow derived from https://github.com/r-lib/actions/tree/v2/examples
+# Need help debugging build failures? Start at https://github.com/r-lib/actions#where-to-find-help
+on: [push, pull_request]
+
+name: lint-changed-warnings
+
+permissions: read-all
+
+jobs:
+  redundancy-check:
+    runs-on: ubuntu-latest
+    outputs:
+      redundant: ${{ steps.check.outputs.redundant }}
+    steps:
+      - name: Check if this branch is a part of a PR
+        id: check
+        if: github.event_name != 'pull_request'
+        run: |
+          import requests
+          import os
+          import json
+          headers = {'Authorization': 'token ' + '${{ secrets.GITHUB_TOKEN }}'}
+          prs = requests.get("https://api.github.com/repos/${{ github.repository }}/pulls?head=${{ github.repository_owner }}:${{ github.ref_name }}",
+                             headers = headers)
+          if len(prs.json()) > 0: open(os.getenv("GITHUB_OUTPUT"), 'a').write("redundant=1\n")
+        shell: python
+
+  lint-changed-warnings:
+    needs: redundancy-check
+    if: needs.redundancy-check.outputs.redundant == false
+    runs-on: ubuntu-latest
+    env:
+      GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - name: Check out HEAD
+        uses: actions/checkout@v4
+        with:
+          path: head
+
+      - name: Select BASE
+        run: |
+          if [[ ${{ github.event_name }} == "pull_request" ]]
+          then # PR -> base branch
+            echo "BASEREF=${{ github.event.pull_request.base.ref }}" >> "$GITHUB_ENV"
+          elif [[ ${{ github.ref_name }} == ${{ github.event.repository.default_branch }} ]]
+          then # default branch -> previous push
+            echo "BASEREF=${{ github.event.before }}" >> "$GITHUB_ENV"
+          else # otherwise -> default branch
+            echo "BASEREF=${{ github.event.repository.default_branch }}" >> "$GITHUB_ENV"
+          fi
+
+      - name: Obtain the diff for PR
+        if: github.event_name == 'pull_request'
+        run: |
+          import requests
+          import json
+          headers = {'Authorization': 'token ' + '${{ secrets.GITHUB_TOKEN }}'}
+          files = requests.get("https://api.github.com/repos/${{ github.repository }}/pulls/${{ github.event.pull_request.number }}/files", headers = headers)
+          open('diff.json', 'w').write(files.text)
+          open('files.list', 'w').write('\n'.join([f['filename'] for f in files.json()]))
+        shell: python
+
+      - name: Obtain the diff for other push
+        if: github.event_name != 'pull_request'
+        run: |
+          import requests
+          import json
+          headers = {'Authorization': 'token ' + '${{ secrets.GITHUB_TOKEN }}'}
+          diff = requests.get("https://api.github.com/repos/${{ github.repository }}/compare/${{ env.BASEREF }}...${{ github.ref_name }}", headers = headers)
+          json.dump(diff.json()['files'], open('diff.json', 'w'))
+          open('files.list', 'w').write('\n'.join([f['filename'] for f in diff.json()['files']]))
+        shell: python
+
+      - name: Check out BASE
+        uses: actions/checkout@v4
+        with:
+          path: base
+          ref: ${{ env.BASEREF }}
+
+      - uses: r-lib/actions/setup-r@v2
+
+      - uses: r-lib/actions/setup-r-dependencies@v2
+        with:
+          extra-packages: |
+            any::lintr
+          needs: check
+          working-directory: head
+
+      - name: Add lintr options
+        run: |
+          cat('\noptions(lintr.linter_file = ".lintr")\n', file = "~/.Rprofile", append = TRUE)
+        shell: Rscript {0}
+
+      - name: Lint both versions
+        run: |
+          files <- scan("files.list", character(), sep = "\n")
+          base_files <- list.files("base", recursive = TRUE)
+          base_exclude <- setdiff(base_files, files)
+          base <- lintr::lint_package("base", exclusions = base_exclude)
+          writeLines(capture.output(base), "lintr.base.txt")
+
+          head_files <- list.files("head", recursive = TRUE)
+          head_exclude <- setdiff(head_files, files)
+          head <- lintr::lint_package("head", exclusions = head_exclude)
+          writeLines(capture.output(head), "lintr.head.txt")
+        shell: Rscript {0}
+        env:
+          LINTR_ERROR_ON_LINT: false
+
+      - name: Run cpplint
+        run: |
+          set +e
+          pipx run cpplint --version
+          pipx run cpplint --recursive base 2> cpplint.base.txt
+          pipx run cpplint --recursive head 2> cpplint.head.txt
+          set -e
+
+          # The first -e deletes base/ and head/ from the file path, the
+          # second rearranges the message into GitHub's format.
+          sed -i -r -e 's!^[^/]+/!!' -e 's!^([^:]+):([0-9]+):!::warning file=\1,line=\2::!' cpplint.base.txt cpplint.head.txt
+
+      - name: Save only unique warnings
+        run: |
+          import json
+          import re
+          import sys
+          import os.path
+          sys.path.append(os.path.join('head', '.github', 'workflows'))
+          from changed_warnings import filter_messages, split_lines
+
+          patches = {f['filename']:f['patch'] for f in json.load(open('diff.json'))}
+
+          lintr_re = re.compile('^::warning file=(?P<file>.+),line=(?P<line>[0-9]+),col=(?P<col>[0-9]+)::')
+          o = filter_messages(open("lintr.base.txt"), open("lintr.head.txt"), patches,
+                              lintr_re, lambda l, o, n: l.replace(f',line={o},', f',line={n},'))
+          split_lines(o, 'lintr-')
+
+          cpplint_re = re.compile('^::warning file=(?P<file>.+),line=(?P<line>[0-9]+)::')
+          o = filter_messages(open("cpplint.base.txt"), open("cpplint.head.txt"), patches,
+                              cpplint_re, lambda l, o, n: l.replace(f',line={o}::', f',line={n}::'))
+          split_lines(o, 'cpplint-')
+        shell: python
+
+      - name: Print lintr warnings 1
+        if: ${{ hashFiles('lintr-1.txt') != '' }}
+        run: cat "lintr-1.txt"
+
+      - name: Print lintr warnings 2
+        if: ${{ hashFiles('lintr-2.txt') != '' }}
+        run: cat "lintr-2.txt"
+
+      - name: Print lintr warnings 3
+        if: ${{ hashFiles('lintr-3.txt') != '' }}
+        run: cat "lintr-3.txt"
+
+      - name: Print lintr warnings 4
+        if: ${{ hashFiles('lintr-4.txt') != '' }}
+        run: cat "lintr-4.txt"
+
+      - name: Print lintr warnings 5
+        if: ${{ hashFiles('lintr-5.txt') != '' }}
+        run: cat "lintr-5.txt"
+
+      - name: Print cpplint warnings 1
+        if: ${{ hashFiles('cpplint-1.txt') != '' }}
+        run: cat "cpplint-1.txt"
+
+      - name: Print cpplint warnings 2
+        if: ${{ hashFiles('cpplint-2.txt') != '' }}
+        run: cat "cpplint-2.txt"
+
+      - name: Print cpplint warnings 3
+        if: ${{ hashFiles('cpplint-3.txt') != '' }}
+        run: cat "cpplint-3.txt"
+
+      - name: Print cpplint warnings 4
+        if: ${{ hashFiles('cpplint-4.txt') != '' }}
+        run: cat "cpplint-4.txt"
+
+      - name: Print cpplint warnings 5
+        if: ${{ hashFiles('cpplint-5.txt') != '' }}
+        run: cat "cpplint-5.txt"

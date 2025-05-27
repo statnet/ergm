@@ -57,8 +57,30 @@ env:
             ]}'
 
 jobs:
+  Redundancy-Check:
+    runs-on: ubuntu-latest
+    outputs:
+      redundant: ${{ steps.check.outputs.redundant }}
+    steps:
+      - name: Check if this branch is a part of a PR
+        id: check
+        if: github.event_name != 'pull_request'
+        run: |
+          import requests
+          import os
+          import json
+          headers = {'Authorization': 'token ' + '${{ secrets.GITHUB_TOKEN }}'}
+          prs = requests.get("https://api.github.com/repos/${{ github.repository }}/pulls?head=${{ github.repository_owner }}:${{ github.ref_name }}",
+                             headers = headers)
+          if len(prs.json()) > 0: open(os.getenv("GITHUB_OUTPUT"), 'a').write("redundant=1\n")
+        shell: python
+
   Set-Matrix-Private:
     runs-on: ubuntu-latest
+
+    needs: Redundancy-Check
+    if: needs.Redundancy-Check.outputs.redundant == false
+
     outputs:
       matrix: ${{ steps.set-matrix.outputs.matrix }}
     steps:
@@ -108,7 +130,7 @@ jobs:
   R-CMD-check:
     needs: Set-Matrix-Private
 
-    if: needs.Set-Matrix-Private.outputs.matrix != ''
+    if: needs.Set-Matrix-Private.outputs.matrix != false
 
     runs-on: ${{ matrix.config.os }}
 
@@ -252,7 +274,7 @@ jobs:
             fi
           fi
         shell: bash
-        
+
       - name: Upload check results
         if: contains(matrix.config.flags, 'covr') == false && failure()
         uses: actions/upload-artifact@v4
