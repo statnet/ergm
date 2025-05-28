@@ -114,15 +114,15 @@ san <- function(object, ...){
 #' @template constraints
 #' @param target.stats A vector of the same length as the number of non-offset statistics
 #' implied by the formula. \matchnames{statistic}
-#' @param nsim Number of networks to generate. Deprecated: just use [replicate()].
 #' @param basis If not NULL, a \code{network} object used to start the Markov
 #' chain.  If NULL, this is taken to be the network named in the formula.
 #'
 #' @param output Character, one of `"network"` (default),
-#'   `"edgelist"`, or `"ergm_state"`: determines the
-#'   output format. Partial matching is performed.
+#'   `"edgelist"`, or `"ergm_state"`: determines the output
+#'   format. Partial matching is performed.
 #' @param only.last if `TRUE`, only return the last network generated;
-#'   otherwise, return a [`network.list`] with `nsim` networks.
+#'   otherwise, return a [`network.list`] with a network for each
+#'   iteration.
 #'
 #' @templateVar mycontrol control.san
 #' @template control
@@ -182,7 +182,7 @@ san <- function(object, ...){
 #' }
 #' @export
 san.formula <- function(object, response=NULL, reference=~Bernoulli, constraints=~., target.stats=NULL,
-                        nsim=NULL, basis=NULL,
+                        basis = NULL,
                         output=c("network","edgelist","ergm_state"),
                         only.last=TRUE,
                         control=control.san(),
@@ -202,9 +202,7 @@ san.formula <- function(object, response=NULL, reference=~Bernoulli, constraints
   } else {
     nw <- ergm.getnetwork(formula)
   }
-  if(inherits(nw,"network.list")){
-    nw <- nw$networks[[1]]
-  }
+
   if(is.null(target.stats))
     stop("missing ", sQuote("target.stats"))
 
@@ -232,13 +230,16 @@ san.formula <- function(object, response=NULL, reference=~Bernoulli, constraints
     stop("Missing offset coefficients passed to SAN.")
   }
   
-  san(model, reference=reference, constraints=proposal, target.stats=target.stats, nsim=nsim, basis=nw, output=output, only.last=only.last, control=control, verbose=verbose, offset.coef=offset.coef, ...)
+  san(model, reference = reference, constraints = proposal,
+      target.stats = target.stats, basis = nw, output = output,
+      only.last = only.last, control = control, verbose = verbose,
+      offset.coef = offset.coef, ...)
 }
 
 #' @describeIn san A lower-level function that expects a pre-initialized [`ergm_model`].
 #' @export
 san.ergm_model <- function(object, reference=~Bernoulli, constraints=~., target.stats=NULL,
-                           nsim=NULL, basis=NULL,
+                           basis = NULL,
                            output=c("network","edgelist","ergm_state"),
                            only.last=TRUE,
                            control=control.san(),
@@ -254,25 +255,10 @@ san.ergm_model <- function(object, reference=~Bernoulli, constraints=~., target.
   out.list <- list()
   out.mat <- numeric(0)
 
-  ## TODO: Remove in 4.9 or thereabout.
-  if(!is.null(nsim)){
-    .Deprecate_once(msg = "nsim= argument for the san() functions has been deprecated and may be removed in the a version. Just use replicate().")
-    if(nsim>1 && !is.null(control$seed)) warn("Setting the random seed with nsim>1 will produce a list of identical networks.")
-    if(nsim>1){
-      return(structure(replicate(nsim,
-                                 san(object, reference=reference, constraints=constraints, target.stats=target.stats,
-                                     basis=basis,
-                                     output=output,
-                                     only.last=only.last,
-                                     control=control,
-                                     verbose=verbose,
-                                     offset.coef=offset.coef,
-                                     ...)),
-                       class="network.list"))
-    }
-  }
+  if ("nsim" %in% ...names())
+    stop("The ", sQuote("nsim="), " argument for the ", sQuote("san()"),
+         " family has been deprecated. Just use ", sQuote("replicate()"), ".")
 
-  
   if(!is.null(control$seed)) set.seed(as.integer(control$seed))
   nw <- basis
   nw <- as.network(ensure_network(nw), populate=FALSE)
