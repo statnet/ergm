@@ -15,6 +15,12 @@
 #'   the network list; for others, arguments passed down to
 #'   lower-level functions.
 #'
+#' @note Functions from the [simulate.ergm()] family can also return
+#'   lists of lists of networks. In this case, they have an additional
+#'   class `"network.list.list"`. At this time, it only affects
+#'   printing.
+#'
+#' @aliases network.list.list
 #' @export network.list
 network.list <- function(object,...){
   if(any(!sapply(object, is.network))) stop("network.list() takes a list of networks as its first argument.")
@@ -60,7 +66,10 @@ print.network.list <- function(x, stats.print=FALSE, ...) {
 summary.network.list <- function (object, stats.print=TRUE, 
                        net.print=FALSE, net.summary=FALSE, ...){
 
-  cat("Number of Networks:",length(object),"\n")
+  if (inherits(object, "network.list.list"))
+    cat("List of lists of ", length(object), "*", length(object[[1]]),
+        " Networks\n")
+  else cat("List of ", length(object), " Networks\n")
   attrmap<-list(formula="Model: ",
                 reference="Reference: ",
                 constraints="Constraints: ",

@@ -150,25 +150,25 @@
 #'
 #' The following are the permitted network formats: \describe{
 #'
-#' \item{`"network"`}{If \code{nsim==1}, an object of class
-#' \code{network}.  If \code{nsim>1}, it returns an object of class
-#' [`network.list`] (a list of networks) with the
-#' above-listed additional attributes.}
+#' \item{`"network"`}{A [`network`] object.}
 #'
 #' \item{`"edgelist"`}{An [`edgelist`] representation of the network,
 #' or a list thereof, depending on `nsim`.}
 #'
-#' \item{`"ergm_state"`}{A semi-internal representation of
+#' \item{`"ergm_state"`}{[`ergm_state`], a semi-internal representation of
 #' a network consisting of a [`network`] object emptied of edges, with
-#' an attached edgelist matrix, or a list thereof, depending on
-#' `nsim`.}
+#' an attached edgelist matrix.}
 #'
 #' }
+#'
+#' If \code{nsim > 1}, these objects are returned in a list, with
+#' class [`network.list`].
 #'
 #' If `simplify==FALSE`, the networks are returned as a nested list,
 #' with outer list being the parallel chain (including 1 for no
 #' parallelism) and inner list being the samples within that chains
-#' (including 1, if one network per chain). If `TRUE`, they are
+#' (including 1, if one network per chain). It is assigned an
+#' additional class, `network.list.list`. If `TRUE`, they are
 #' concatenated, and if a total of one network had been simulated, the
 #' network itself will be returned.
 #'
@@ -585,7 +585,7 @@ simulate.ergm_state_full <- function(object, nsim=1, seed=NULL,
                                   if(is.ergm_state(state)) state
                                   else state[[1]]))[3])
     
-    class(nw.list) <- "network.list"
+    class(nw.list) <- c(if (!simplify) "network.list.list", "network.list")
   }
   attr(nw.list, "stats") <- stats
 

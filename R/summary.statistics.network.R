@@ -121,8 +121,22 @@ summary_formula.ergm <- function(object, ..., basis=NULL)
 #' @template response
 #' @export
 summary_formula.network.list <- function(object, response=NULL, ..., basis=eval_lhs.formula(object)){
-  out<-lapply(basis, function(nw) summary_formula.network(object, response=response, ..., basis=nw))
+  out <- lapply(basis, function(nw) {
+    summary_formula(object, response = response, ..., basis = nw)
+  })
   do.call(rbind,out)
+}
+
+#' @describeIn summary_formula a method for a [`network.list.list`] on
+#'   the LHS of the formula.
+#' @export
+summary_formula.network.list.list <- function(object, response = NULL, ...,
+                                              basis =
+                                                eval_lhs.formula(object)) {
+  out <- lapply(basis, lapply, function(nw) {
+    summary_formula(object, response = response, ..., basis = nw)
+  })
+  lapply(out, do.call(what = rbind))
 }
 
 #' @describeIn summary_formula a method for a [`network`] on the LHS of the formula.

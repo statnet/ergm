@@ -286,25 +286,25 @@ sample.}
 
 The following are the permitted network formats: \describe{
 
-\item{\code{"network"}}{If \code{nsim==1}, an object of class
-\code{network}.  If \code{nsim>1}, it returns an object of class
-\code{\link{network.list}} (a list of networks) with the
-above-listed additional attributes.}
+\item{\code{"network"}}{A \code{\link[network:network]{network}} object.}
 
 \item{\code{"edgelist"}}{An \code{\link[network:as.edgelist]{edgelist}} representation of the network,
 or a list thereof, depending on \code{nsim}.}
 
-\item{\code{"ergm_state"}}{A semi-internal representation of
+\item{\code{"ergm_state"}}{\code{\link{ergm_state}}, a semi-internal representation of
 a network consisting of a \code{\link[network:network]{network}} object emptied of edges, with
-an attached edgelist matrix, or a list thereof, depending on
-\code{nsim}.}
+an attached edgelist matrix.}
 
 }
+
+If \code{nsim > 1}, these objects are returned in a list, with
+class \code{\link{network.list}}.
 
 If \code{simplify==FALSE}, the networks are returned as a nested list,
 with outer list being the parallel chain (including 1 for no
 parallelism) and inner list being the samples within that chains
-(including 1, if one network per chain). If \code{TRUE}, they are
+(including 1, if one network per chain). It is assigned an
+additional class, \code{network.list.list}. If \code{TRUE}, they are
 concatenated, and if a total of one network had been simulated, the
 network itself will be returned.
 }

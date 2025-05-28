@@ -2,6 +2,7 @@
 % Please edit documentation in R/network.list.R
 \name{network.list}
 \alias{network.list}
+\alias{network.list.list}
 \alias{print.network.list}
 \alias{summary.network.list}
 \title{A convenience container for a list of \code{\link[network:network]{network}} objects, output
@@ -43,6 +44,12 @@ by \code{\link[=simulate.ergm]{simulate.ergm()}} among others.
 \item \code{summary(network.list)}: A \code{\link[=summary]{summary()}} method for network lists.
 
 }}
+\note{
+Functions from the \code{\link[=simulate.ergm]{simulate.ergm()}} family can also return
+lists of lists of networks. In this case, they have an additional
+class \code{"network.list.list"}. At this time, it only affects
+printing.
+}
 \examples{
 
 # Draw from a Bernoulli model with 16 nodes

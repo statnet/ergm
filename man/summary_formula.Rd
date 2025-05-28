@@ -4,6 +4,7 @@
 \alias{summary_formula}
 \alias{summary_formula.ergm}
 \alias{summary_formula.network.list}
+\alias{summary_formula.network.list.list}
 \alias{summary_formula.network}
 \alias{summary_formula.ergm_state}
 \alias{summary_formula.matrix}
@@ -16,6 +17,8 @@ summary_formula(object, ..., basis = NULL)
 \method{summary_formula}{ergm}(object, ..., basis = NULL)
 
 \method{summary_formula}{network.list}(object, response = NULL, ..., basis = eval_lhs.formula(object))
+
+\method{summary_formula}{network.list.list}(object, response = NULL, ..., basis = eval_lhs.formula(object))
 
 \method{summary_formula}{network}(object, response = NULL, ..., basis = ergm.getnetwork(object))
 
@@ -56,6 +59,9 @@ method.
 \item \code{summary_formula(ergm)}: an \code{\link{ergm}} fit method, extracting its model from the fit.
 
 \item \code{summary_formula(network.list)}: a method for a \code{\link{network.list}} on the LHS of the formula.
+
+\item \code{summary_formula(network.list.list)}: a method for a \code{\link{network.list.list}} on
+the LHS of the formula.
 
 \item \code{summary_formula(network)}: a method for a \code{\link[network:network]{network}} on the LHS of the formula.
 
