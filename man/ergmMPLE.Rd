@@ -58,7 +58,7 @@ If \code{output=="dyadlist"}, as \code{"matrix"}, but rather than
 coalescing the duplicated rows, every relation in the network that
 is not fixed and is observed will have its own row in \code{predictor}
 and element in \code{response} and \code{weights}, and \code{predictor} matrix
-will have two additional rows at the start, \code{tail} and \code{head},
+will have two additional columns at the start, \code{tail} and \code{head},
 indicating to which dyad the row and the corresponding elements
 pertain.
 

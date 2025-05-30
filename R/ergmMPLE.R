@@ -58,7 +58,7 @@
 #' coalescing the duplicated rows, every relation in the network that
 #' is not fixed and is observed will have its own row in `predictor`
 #' and element in `response` and `weights`, and `predictor` matrix
-#' will have two additional rows at the start, `tail` and `head`,
+#' will have two additional columns at the start, `tail` and `head`,
 #' indicating to which dyad the row and the corresponding elements
 #' pertain.
 #' 
@@ -172,42 +172,44 @@ ergmMPLE <- function(formula, constraints=~., obs.constraints=~-observed, output
   pl <- ergm.pl(ergm_state(nw, model=model), fd, verbose=verbose, control=control, ignore.offset=TRUE,...)
 
   structure(
-    switch(output,
-         matrix = list(response = pl$zy, predictor = pl$xmat.full,
-           weights = pl$wend),
-         dyadlist = {
-           o <- order(pl$xmat.full[,"tail"], pl$xmat.full[,"head"])
-           list(response = pl$zy[o], predictor = pl$xmat.full[o,,drop=FALSE],
-                weights = pl$wend[o])
-         },
-         array = {
-           # If expand.bipartite==TRUE, then no special treatment for bipartite networks is needed.
-           bip <- if(!expand.bipartite) NVL(nw %n% "bipartite", 0) else 0
+    switch(
+      output,
+      matrix = list(response = pl$zy, predictor = pl$xmat.full,
+                    weights = pl$wend),
+      dyadlist = {
+        o <- order(pl$xmat.full[, "tail"], pl$xmat.full[, "head"])
+        list(response = pl$zy[o], predictor = pl$xmat.full[o, , drop = FALSE],
+             weights = pl$wend[o])
+      },
+      array = {
+        # If expand.bipartite==TRUE, then no special treatment for
+        # bipartite networks is needed.
+        bip <- if (!expand.bipartite) NVL(nw %n% "bipartite", 0) else 0
 
-           vn <- if(all(is.na(nw %v% "vertex.names"))) 1:network.size(nw) else nw %v% "vertex.names"
-           t.names <- if(bip) vn[seq_len(bip)] else vn
-           h.names <- if(bip) vn[-seq_len(bip)] else vn
-           term.names <- colnames(pl$xmat.full)[-(1:2),drop=FALSE]
+        vn <-
+          if (all(is.na(nw %v% "vertex.names"))) seq_len(network.size(nw))
+          else nw %v% "vertex.names"
 
-           if(bip) pl$xmat.full[,2] <- pl$xmat.full[,2] - bip
-           
-           xa <- array(NA, dim = c(length(t.names), length(h.names), ncol(pl$xmat.full)-2), dimnames = list(tail = t.names, head = h.names, term = term.names))
-           
-           for(k in seq_along(term.names))
-             xa[cbind(pl$xmat.full[,1:2,drop=FALSE],k)] <- pl$xmat.full[,k+2]
+        t_names <- if (bip) vn[seq_len(bip)] else vn
+        h_names <- if (bip) vn[-seq_len(bip)] else vn
+        dyads <- pl$xmat.full[, 1:2, drop = FALSE]
+        storage.mode(dyads) <- "integer"
+        terms <- colnames(pl$xmat.full)[-(1:2), drop = FALSE]
+        dn <- list(tail = t_names, head = h_names)
 
-           ym <- replace(matrix(NA, length(t.names), length(h.names), dimnames = list(tail = t.names, head = h.names)),
-                         pl$xmat.full[,1:2,drop=FALSE],
-                         pl$zy)
+        if (bip) dyads[, 2] <- dyads[, 2] - bip
 
-           wm <- replace(matrix(0, length(t.names), length(h.names), dimnames = list(tail = t.names, head = h.names)),
-                         pl$xmat.full[,1:2,drop=FALSE],
-                         pl$wend)
+        xa <- arr_from_coo(pl$xmat.full[, -(1:2)],
+                           cbind(dyads[, 1], dyads[, 2],
+                                 rep(seq_along(terms), each = nrow(dyads))),
+                           dimnames = c(dn, list(term = terms)))
 
-           list(response = ym, predictor = xa, weights = wm)
-         }
-         ),
+        ym <- arr_from_coo(pl$zy, dyads, dimnames = dn)
+        wm <- arr_from_coo(pl$wend, dyads, x0 = 0, dimnames = dn)
+
+        list(response = ym, predictor = xa, weights = wm)
+      }
+    ),
     etamap = model$etamap
   )
 }
-
