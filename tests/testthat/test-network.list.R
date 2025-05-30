@@ -1,23 +1,9 @@
 suppressMessages({
-  data("faux.desert.high", package = "ergm")
-  fit1 <- ergm(
-    faux.desert.high ~ mm("sex"),
-    control = control.ergm(
-      force.main=TRUE,
-      MCMLE.maxit = 1,
-      seed = 1
-    )
-  )
-  fit2 <- ergm(
-    faux.desert.high ~ mm("sex"),
-    control = control.ergm(
-      force.main=TRUE,
-      MCMLE.maxit = 1,
-      seed = 2
-    )
-  )
-  s1 <- simulate(fit1, 10)
-  s2 <- simulate(fit2, 10)
+  net0 <- network.initialize(36)
+  net0 %v% "x" <- rep(1:2, length = network.size(net0))
+  k <- c(-2, -3, -3, -2)
+  s1 <- simulate(net0 ~ mm("x", levels2=TRUE), nsim=10, coef = k)
+  s2 <- simulate(net0 ~ mm("x", levels2=TRUE), nsim=10, coef = k * 0.01)
 })
 
 test_that("there is no error if attributes match", {
