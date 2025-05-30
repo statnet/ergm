@@ -25,7 +25,7 @@
 #' Both methods can limit calculations to specific set of dyads of interest.
 #'
 #' @param object a formula or a fitted ERGM model object
-#' @param theta numeric vector of ERGM model parameter values
+#' @param eta numeric vector of ERGM model *canonical* parameter values
 #' @param conditional logical whether to compute conditional or unconditional
 #'   predicted probabilities
 #' @param nsim integer, number of simulated networks used for computing
@@ -38,6 +38,9 @@
 #' @param ... other arguments passed to/from other methods. For the `predict.formula` method, if
 #'   `conditional=TRUE` arguments are passed to [ergmMPLE()]. If `conditional=FALSE` arguments
 #'   are passed to [simulate_formula()].
+#' @template basis
+#' @param theta deprecated name for the parameter vector, renamed to
+#'   `eta` since the canonical parameters are expected.
 #'
 #' @return 
 #' Type of object returned depends on the argument `output`. If
@@ -66,81 +69,71 @@
 #' # The p's should be identical
 #' predict(fit)
 #' @export
-predict.formula <- function(object, theta,
+predict.formula <- function(object, eta,
                             conditional = TRUE,
                             type=c("response", "link"),
                             nsim = 100,
-                            output=c("data.frame", "matrix"), ...) {
-  stopifnot(is.numeric(theta))
-  theta <- statnet.common::deInf(theta)
+                            output = c("data.frame", "matrix"), ...,
+                            basis = ergm.getnetwork(object), theta = NULL) {
+
+  ## TODO: Remove the following workaround around June 2026.
+  if (!is.null(theta)) {
+    .Deprecate_once(
+      msg = paste0(sQuote("predict.formula()"), "'s parameter argument is now ",
+                   sQuote("eta"), ".")
+    )
+    eta <- theta
+  }
+
+  stopifnot(is.numeric(eta))
+  eta <- deInf(eta)
   output <- match.arg(output)
   type <- match.arg(type)
   stopifnot(nsim >= 2)
-  
-  # Transform extended ergmMPLE() output to matrix with 0s on the diagonal
-  .df_to_matrix <- function(d) {
-    N <- max(predmat[,c("tail", "head")])
-    res <- replace(matrix(NA, N, N), as.matrix(d[,c("tail", "head")]), d[,"p"])
-    diag(res) <- 0
-    res
-  }
-
-  # Matrix to data.frame
-  .matrix_to_df <- function(m, name=".value") {
-    unames <- sort(unique(unlist(dimnames(m))))
-    d <- as.data.frame(as.table(m), stringsAsFactors=FALSE)
-    names(d) <- c("tail", "head", name)
-    tail <- d$tail <- match(d$tail, unames)
-    head <- d$head <- match(d$head, unames)
-    d[tail!=head, , drop=FALSE]
-  }
 
   # Simulated unconditional Ps
   if(!conditional) {
     if(type != "response") 
       stop("type='link' for unconditional probabilities is not supported")
-    predm <- predict_ergm_unconditional(object=object, coef=theta, nsim=nsim, ...)
+    predm <- predict_ergm_unconditional(object, eta, nsim, ..., basis = basis)
     return(
       switch(
         output,
-        data.frame = .matrix_to_df(predm, name="p"),
+        data.frame = with(arr_to_coo(predm, FALSE, na.rm = TRUE),
+                          data.frame(coord, x)) |>
+          setNames(c("tail", "head", "p")) |>
+          subset(tail != head),
         matrix = predm
       )
     )
   }
-  
-  predmat <- ergmMPLE(
-    statnet.common::nonsimp_update.formula(object, . ~ indices + . ),
-    output = "matrix", # reduced to number of informative dyads in ergm.pl
-    ...
-  )$predictor
-  stopifnot(length(theta) == (ncol(predmat)-2))
-  # Compute conditional Ps and cbind to ergmMPLE() output
-  predmat <- cbind(predmat, p=drop(switch(
-    type,
-    link = predmat[,-(1:2), drop=FALSE] %*% theta,
-    response = 1 / (1 + exp( - predmat[,-(1:2), drop=FALSE] %*% theta))
-  ) ) )
+
+  # Compute conditional Ps
+  predmat <- ergmMPLE(object, output = "dyadlist", ..., basis = basis)$predictor
+  stopifnot(length(eta) == (ncol(predmat) - 2))
+  link <- drop(predmat[, -(1:2), drop = FALSE] %*% eta)
+  pred <- data.frame(predmat[, 1:2, drop = FALSE],
+                     p = switch(type, link = link, response = expit(link)))
   # Format output
   switch(
     output,
-    data.frame = as.data.frame(predmat[,c("tail", "head", "p")]),
+    data.frame = pred,
     matrix = {
-      # Get vertex names
-      vnames <- ergm.getnetwork(object) %v% "vertex.names"
-      structure(.df_to_matrix(predmat), dimnames = list(vnames, vnames))
+      vnames <- basis %v% "vertex.names"
+      arr_from_coo(pred$p, pred[1:2], dimnames = list(vnames, vnames)) |>
+        set_diag(0)
     }
   )
 }
 
-predict_ergm_unconditional <- function(object, coef, nsim=100, output="network", ...) {
-  netlist <- simulate_formula(object=object, coef=coef, nsim=nsim, output=output, ...)
-  mats <- vapply(
-    netlist, as.matrix, 
-    matrix(0, ncol=network.size(netlist[[1]]), nrow=network.size(netlist[[1]])),
-    matrix.type="adjacency"
-  )
-  apply(mats, 1:2, mean)
+predict_ergm_unconditional <- function(object, coef, nsim=100, ...) {
+  output <- function(s, ...) {
+    vn <- s$nw0 %v% "vertex.names"
+    arr_from_coo(TRUE, s$el, x0 = FALSE, dimnames = list(vn, vn))
+  }
+  simulate_formula(object = object, coef = coef, nsim = nsim,
+                   output = output, ...) |>
+    Reduce(`+`, x = _) / nsim
 }
 
 
@@ -150,7 +143,8 @@ predict.ergm <- function(object, ...) {
   if(is.valued(object)) stop("Prediction for valued ERGMs is not implemented at this time.")
   predict.formula(
     object = object$formula,
-    theta = ergm.eta(coef(object), object$etamap),
+    eta = ergm.eta(coef(object), object$etamap),
+    basis = NVL(object$newnetwork, object$network),
     ...
   )
 }

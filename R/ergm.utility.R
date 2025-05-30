@@ -347,3 +347,7 @@ check_ABI <- once(function(client = "ergm", lib  = "ergm", action = getOption("e
     }else TRUE
   }else TRUE
 })
+
+# Useful shorthands
+logit <- qlogis
+expit <- plogis

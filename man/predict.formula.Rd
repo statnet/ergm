@@ -7,12 +7,14 @@
 \usage{
 \method{predict}{formula}(
   object,
-  theta,
+  eta,
   conditional = TRUE,
   type = c("response", "link"),
   nsim = 100,
   output = c("data.frame", "matrix"),
-  ...
+  ...,
+  basis = ergm.getnetwork(object),
+  theta = NULL
 )
 
 \method{predict}{ergm}(object, ...)
@@ -20,7 +22,7 @@
 \arguments{
 \item{object}{a formula or a fitted ERGM model object}
 
-\item{theta}{numeric vector of ERGM model parameter values}
+\item{eta}{numeric vector of ERGM model \emph{canonical} parameter values}
 
 \item{conditional}{logical whether to compute conditional or unconditional
 predicted probabilities}
@@ -38,6 +40,11 @@ See section Value below.}
 \item{...}{other arguments passed to/from other methods. For the \code{predict.formula} method, if
 \code{conditional=TRUE} arguments are passed to \code{\link[=ergmMPLE]{ergmMPLE()}}. If \code{conditional=FALSE} arguments
 are passed to \code{\link[=simulate_formula]{simulate_formula()}}.}
+
+\item{basis}{a value (usually a \code{\link[network:network]{network}}) to override the LHS of the formula.}
+
+\item{theta}{deprecated name for the parameter vector, renamed to
+\code{eta} since the canonical parameters are expected.}
 }
 \value{
 Type of object returned depends on the argument \code{output}. If

@@ -8,19 +8,17 @@
 #  Copyright 2003-2025 Statnet Commons
 ################################################################################
 
-library(ergm)
-
 test_that("predict.formula(type=) give correct results", {
   net <- network.initialize(3, directed=TRUE)
   net[1,2] <- 1
   expect_silent(
-    p.prob <- predict(net ~ edges, theta = log(1/5), type="response") # predict.formula()
+    p_prob <- predict(net ~ edges, eta = log(1 / 5), type = "response")
   )
   expect_silent(
-    p.link <- predict(net ~ edges, theta = log(1/5), type="link") # predict.formula()
+    p_link <- predict(net ~ edges, eta = log(1 / 5), type = "link")
   )
   expect_true(
-    all.equal(p.link$p, log(p.prob$p / (1 - p.prob$p)))
+    all.equal(p_link$p, log(p_prob$p / (1 - p_prob$p)))
   )
 })
 
@@ -29,9 +27,9 @@ test_that("predict.formula(conditional=FALSE)", {
   net <- network.initialize(3, directed=TRUE)
   net[1,2] <- 1
   expect_silent(
-    p.prob <- predict(
+    p_prob <- predict(
       net ~ edges, 
-      theta = log(1/5),
+      eta = log(1 / 5),
       nsim = 5,
       type="response", 
       conditional=FALSE
@@ -72,7 +70,8 @@ test_that("predict.formula(output='matrix') works correctly", {
   net <- network.initialize(3, directed=TRUE)
   net[1,2] <- 1
   expect_silent(
-    p.prob <- predict(net ~ edges, theta = log(1/5), type="response", output="matrix")
+    p_prob <- predict(net ~ edges, eta = log(1 / 5),
+                      type = "response", output = "matrix")
   )
   
 })
