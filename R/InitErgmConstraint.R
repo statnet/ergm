@@ -336,7 +336,7 @@ InitErgmConstraint.blocks <- function(nw, arglist, ...) {
                                        levels2_list)
 
   rows_to_keep <- match(levels2_selected, levels2_list, nomatch = NA)
-  rows_to_keep <- rows_to_keep[!is.na(rows_to_keep)]
+  rows_to_keep <- rows_to_keep %[!f]% is.na
 
   pairs_to_fix <- indices2_grid[rows_to_keep,]
 

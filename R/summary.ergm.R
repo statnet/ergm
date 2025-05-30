@@ -99,11 +99,7 @@ summary.ergm <- function (object, ...,
   est.se <- sqrt(diag(vcov(object, sources="estimation")))
   mod.se <- sqrt(diag(vcov(object, sources="model")))
   tot.se <- sqrt(diag(vcov(object, sources="all")))
-  est.pct <- rep(NA,length(est.se))
-  if(any(!is.na(est.se))){
-    # We want (sqrt(V.model + V.MCMC)-sqrt(V.model))/sqrt(V.model + V.MCMC) * 100%,
-    est.pct[!is.na(est.se)] <- ifelse(est.se[!is.na(est.se)]>0, round(100*(tot.se[!is.na(est.se)]-mod.se[!is.na(est.se)])/tot.se[!is.na(est.se)]), 0)
-  }
+  est_pct <- ifelse(est.se > 0, round(100 * (tot.se - mod.se) / tot.se), 0)
 
   zval <- coef / asyse
   pval <- 2 * pnorm(q=abs(zval), lower.tail=FALSE)
@@ -112,7 +108,7 @@ summary.ergm <- function (object, ...,
   coefmat <- cbind(
     `Estimate` = coef,
     `Std. Error` = asyse,
-    `MCMC %` = est.pct,
+    `MCMC %` = est_pct,
     `z value` = zval,
     `Pr(>|z|)` = pval)
 

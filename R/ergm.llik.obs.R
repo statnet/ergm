@@ -98,12 +98,10 @@ llik.grad.obs.IS <- function(theta, xsim, xsim.obs, ...,
   # Calculate log-importance-weights (constrained)
   obspred <- xsim.obs %*% etaparam + lrowweights(xsim.obs)
   
-  llg <- lweighted.mean(xsim.obs, obspred) - lweighted.mean(xsim, basepred)
-  llg <- t(ergm.etagradmult(theta, llg, etamap))
-
-  llg[is.na(llg)] <- 0 # Note: Before, infinite values would get zeroed as well. Let's see if this works.
-  
-  llg
+  (lweighted.mean(xsim.obs, obspred) - lweighted.mean(xsim, basepred)) |>
+    ergm.etagradmult(theta, v = _, etamap) |>
+    t() |>
+    replace(is.na, 0)
 }
 
 

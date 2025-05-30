@@ -77,14 +77,14 @@ ergm.logitreg <- function(x, y, wt = rep(1, length(y)),
   }
 
   NVL(start) <- rep(NA, p)
-  start[is.na(start)]<-rnorm(sum(is.na(start)), 0, sqrt(.Machine$double.eps))
+  start %[f]% is.na <- rnorm(sum(is.na(start)), 0, sqrt(.Machine$double.eps))
 
   loglikelihoodfn.trust <-
     if(is.null(m)){
       function(theta, X, y, w, offset, etamap, etagrad){
         eta <- as.vector(.multiply.with.inf(X,etamap(theta))+offset)
         Xgradt <- X %*% t(etagrad(theta))
-        p <- plogis(eta)
+        p <- expit(eta)
         o <- list(value = sum(w * ifelse(y, log(p), log1p(-p))),
              gradient = as.vector(matrix(w * dlogis(eta) * ifelse(y, 1/p, -1/(1-p)), 1) %*% Xgradt),
              hessian = -crossprod(Xgradt, w*p*(1-p)*Xgradt))
@@ -109,7 +109,7 @@ ergm.logitreg <- function(x, y, wt = rep(1, length(y)),
         }else{
           eta <- as.vector(.multiply.with.inf(X,etamap(theta))+offset)
           Xgradt <- X %*% t(etagrad(theta))
-          p <- plogis(eta)
+          p <- expit(eta)
           o <- list(
             value = sum(w * ifelse(y, log(p), log1p(-p))),
             gradient = as.vector((matrix(w * dlogis(eta) * ifelse(y, 1/p, -1/(1-p)), 1) %*% Xgradt)[,!m$etamap$offsettheta,drop=FALSE]),

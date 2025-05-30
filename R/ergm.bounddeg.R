@@ -102,15 +102,13 @@ ergm_bd_init <- function(arguments,nw){
     maxin  <- pmax(pmin(matrix(NVL(maxin , NA), ncol=ncol(attribs), nrow=nnodes), nnodes-1), 0)
     maxout <- pmax(pmin(matrix(NVL(maxout, NA), ncol=ncol(attribs), nrow=nnodes), nnodes-1), 0)
 
-    minin [is.na(minin )] <- 0
-    minout[is.na(minout)] <- 0
-    maxin [is.na(maxin )] <- nnodes-1
-    maxout[is.na(maxout)] <- nnodes-1
+    minin %[f]% is.na <- minout %[f]% is.na <- 0
+    maxin %[f]% is.na <- maxout %[f]% is.na <- nnodes - 1
     if (any(outdeg>maxout | outdeg<minout) || (is.directed(nw) && any(indeg>maxin | indeg<minin))) {
       message("Warning:  Initial network does not satisfy degree constraints. ",
           "Proceeding anyway, but final network may not satisfy constraints.")
     }
-    attribs[is.na(attribs)] <- 0
+    attribs %[f]% is.na <- 0
     dependence <- TRUE
     constrains <- "bd"    
   }

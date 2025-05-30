@@ -40,20 +40,16 @@ vcov.ergm <- function(object, sources=c("all","model","estimation"), ...){
       object$covar <- matrix(NA, p, p)
     }
     v.mod <- NVL(object$covar, sginv(-object$hessian, tol=.Machine$double.eps^(3/4)))
-    v.mod[is.na(diag(v.mod))|diag(v.mod)<0|is.infinite(coef(object)),] <- NA
-    v.mod[,is.na(diag(v.mod))|diag(v.mod)<0|is.infinite(coef(object))] <- NA
-    v.mod[object$offset,] <- 0
-    v.mod[,object$offset] <- 0
-     colnames(v.mod) <- rownames(v.mod) <- param_names(object)
+    v.mod %[.|.]% ((diag(.) < 0) %|% TRUE | is.infinite(coef(object))) <- NA
+    v.mod %[.|.]% object$offset <- 0
+    rowcolnames(v.mod) <- param_names(object)
   }
 
   if(src.est){
     v.est<- NVL(object$est.cov, matrix(0, p, p))
-    v.est[diag(v.est)<0,] <- NA
-    v.est[,diag(v.est)<0] <- NA
-    v.est[object$offset,] <- 0
-    v.est[,object$offset] <- 0
-    colnames(v.est) <- rownames(v.est) <- param_names(object)
+    v.est %[.|.]% (diag(.) < 0) <- NA
+    v.est %[.|.]% object$offset <- 0
+    rowcolnames(v.est) <- param_names(object)
   }
 
   switch(sources,

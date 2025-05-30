@@ -559,7 +559,7 @@ ergm <- function(formula, response=NULL,
   # for obtaining initial values.
   init.candidates <- c(proposal$reference$init_methods, "skip")
   if("MPLE" %in% init.candidates && !info$space_dind){
-    init.candidates <- init.candidates[init.candidates!="MPLE"]
+    init.candidates <- init.candidates %[.]% (. != "MPLE")
     if(verbose) message("MPLE cannot be used for this constraint structure.")
   }
 
@@ -708,18 +708,23 @@ ergm.fit <- function(nw, target.stats, model, model.obs, proposal, proposal.obs,
   ## statshift==0. To make target.stats play nicely with offsets, we
   ## set stat shifts to 0 where target.stats is NA (due to offset).
   nw.stats <- summary(model, s)
-  statshift <- nw.stats - NVL(target.stats, nw.stats)
-  statshift[is.na(statshift)] <- 0
+  statshift <- (nw.stats - NVL(target.stats, nw.stats)) |> replace(is.na, 0)
 
   s <- update(s, model=model, proposal=proposal, stats=statshift)
   s.obs <- NVL3(proposal.obs, update(s, model=NVL(model.obs,model), proposal=.))
 
-  ## If all other criteria for MPLE=MLE are met, _and_ SAN network matches target.stats exactly, we can get away with MPLE.
-  if (!is.null(target.stats) && !isTRUE(all.equal(target.stats[!is.na(target.stats)],nw.stats[!is.na(target.stats)])))
-    message("Unable to match target stats. Using MCMLE estimation.")
-  if(control$estimate=="MLE"
-    && info$MPLE_is_MLE && (is.null(target.stats) || isTRUE(all.equal(target.stats,nw.stats)))
-    && !control$force.main){
+  # If all other criteria for MPLE=MLE are met, _and_ SAN network
+  # matches target.stats exactly, we can get away with MPLE.
+  tgtmet <- NVL3(
+    target.stats,
+    isTRUE(all.equal(na.omit(.), nw.stats[!is.na(.)], check.attr = FALSE)),
+    TRUE
+  )
+
+  if (!tgtmet) message("Unable to match target stats. Using MCMLE estimation.")
+  if (control$estimate == "MLE"
+      && info$MPLE_is_MLE && tgtmet
+      && !control$force.main) {
     control$init.method <- "skip"
     control$main.method <- "MPLE"
   }
@@ -733,8 +738,7 @@ ergm.fit <- function(nw, target.stats, model, model.obs, proposal, proposal.obs,
                                 ...)
 
   ## Extract and process the initial value for the next stage:
-  init <- coef(initialfit)
-  init[is.na(init)] <- 0
+  init <- coef(initialfit) |> replace(is.na, 0)
   names(init) <- param_names(model, FALSE)
 
   c(

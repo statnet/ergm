@@ -93,12 +93,10 @@ llik.grad.IS <- function(theta, xsim,  xsim.obs=NULL,
   basepred <- xsim %*% etaparam + lrowweights(xsim)
   
   # Calculate the estimating function values sans offset
-  llg <- - lweighted.mean(xsim, basepred)
-  llg <- t(ergm.etagradmult(theta, llg, etamap))
-  
-  llg[is.na(llg)] <- 0 # Note: Before, infinite values would get zeroed as well. Let's see if this works.
-
-  llg
+  - lweighted.mean(xsim, basepred) |>
+    ergm.etagradmult(theta, v = _, etamap) |>
+    t() |>
+    replace(is.na, 0)
 }
 
 

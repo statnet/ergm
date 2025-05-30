@@ -1312,8 +1312,8 @@ InitErgmTerm.b1twostar <- function(nw, arglist, ..., version=packageVersion("erg
                  else ergm_attr_levels(a$levels2, list(row = b1nodecov, col = b2nodecov, col2 = b2nodecov), nw, levels2.list)
   
   rows2keep <- match(levels2.sel,levels2.list, NA)
-  rows2keep <- rows2keep[!is.na(rows2keep)]
-  
+  rows2keep <- rows2keep %[!f]% is.na
+
   u <- indices2.grid[rows2keep,]
   
   # Recode to numeric
@@ -1886,7 +1886,7 @@ InitErgmTerm.b2twostar <- function(nw, arglist, ..., version=packageVersion("erg
                  else ergm_attr_levels(a$levels2, list(row = b2nodecov, col = b1nodecov, col2 = b1nodecov), nw, levels2.list)
   
   rows2keep <- match(levels2.sel,levels2.list, NA)
-  rows2keep <- rows2keep[!is.na(rows2keep)]
+  rows2keep <- rows2keep %[!f]% is.na
   
   u <- indices2.grid[rows2keep,]
   
@@ -4076,8 +4076,11 @@ InitErgmTerm.nodemix<-function (nw, arglist, ..., version=packageVersion("ergm")
     cn <- c()
 
     if (has.groups) {
-      for (g in sort(unique(as.vector(a$levels2[!is.na(a$levels2) & a$levels2 != ''])))) {
-        if (g != '') {
+      for (g in a$levels2 %[.]% (!is.na(.) & . != "") |>
+                as.vector() |>
+                unique() |>
+                sort()) {
+        if (g != "") {
           cn <- c(cn, paste("mix", paste(attrname, collapse="."), g, sep="."))
           indmat[a$levels2 == g] <- length(cn)
           if (!is.directed(nw)) {
@@ -4089,7 +4092,7 @@ InitErgmTerm.nodemix<-function (nw, arglist, ..., version=packageVersion("ergm")
 
     if (length(levels2.sel) > 0) {
       rows2keep <- match(levels2.sel,levels2.list, NA)
-      rows2keep <- rows2keep[!is.na(rows2keep)]
+      rows2keep <- rows2keep %[!f]% is.na
 
       u <- indices2.grid[rows2keep,]
 
@@ -4143,8 +4146,11 @@ InitErgmTerm.nodemix<-function (nw, arglist, ..., version=packageVersion("ergm")
     cn <- c()
 
     if (has.groups) {
-      for (g in sort(unique(as.vector(a$levels2[!is.na(a$levels2) & a$levels2 != ''])))) {
-        if (g != '') {
+      for (g in a$levels2 %[.]% (!is.na(.) & . != "") |>
+                as.vector() |>
+                unique() |>
+                sort()) {
+        if (g != "") {
           cn <- c(cn, paste("mix", paste(attrname, collapse="."), g, sep="."))
           indmat[a$levels2 == g] <- length(cn)
           if (!is.directed(nw)) {
@@ -4157,7 +4163,7 @@ InitErgmTerm.nodemix<-function (nw, arglist, ..., version=packageVersion("ergm")
     if (length(levels2.sel) > 0) {
       indmat.ungrouped <- matrix(0L, nrow=nr, ncol=nc)
       rows2keep <- match(levels2.sel,levels2.list, NA)
-      rows2keep <- rows2keep[!is.na(rows2keep)]
+      rows2keep <- rows2keep %[!f]% is.na
 
       u <- indices2.grid[rows2keep,]
       uun <- uun[rows2keep]

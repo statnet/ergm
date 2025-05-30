@@ -102,14 +102,9 @@ as.network.numeric<-function(x,
   if(NVL(numedges, 0) > ndyads)
     stop("The number of edges cannot be greater than the number of possible edges.")
 
-  if(missing(density)){
-    if(missing(init)){
-      #     So the expected number of ties is the same as
-      #     the number of nodes
-      density <- nb1/ndyads
-    }else{
-      density <- exp(init)/(1+exp(init))
-    }
+  if (missing(density)) {
+    density <- if (missing(init)) nb1 / ndyads  # E(# ties) == # nodes
+               else expit(init)
   }
 
   if(is.null(numedges))

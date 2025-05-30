@@ -126,7 +126,7 @@ predict.formula <- function(object, eta,
   )
 }
 
-predict_ergm_unconditional <- function(object, coef, nsim=100, ...) {
+predict_ergm_unconditional <- function(object, coef, nsim = 100, ...) {
   output <- function(s, ...) {
     vn <- s$nw0 %v% "vertex.names"
     arr_from_coo(TRUE, s$el, x0 = FALSE, dimnames = list(vn, vn))

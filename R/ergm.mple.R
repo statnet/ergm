@@ -155,13 +155,11 @@ ergm.mple<-function(s, s.obs, init=NULL,
    covar <- diag(rep(0,length(theta)))
    hess <- diag(rep(0,length(theta)))
   }
-# covar <- as.matrix(covar[!m$etamap$offsettheta,!m$etamap$offsettheta])
-# covar[!is.na(real.coef),!is.na(real.coef)] <- real.cov
-  covar[!is.na(theta)&!m$etamap$offsettheta,
-        !is.na(theta)&!m$etamap$offsettheta] <- real.cov
-  hess[!is.na(theta)&!m$etamap$offsettheta,
-        !is.na(theta)&!m$etamap$offsettheta] <- if(length(real.cov)) -sginv(real.cov, tol=.Machine$double.eps^(3/4)) else matrix(0,0,0)
-#
+
+  covar %[.,.]% (!is.na(theta) & !m$etamap$offsettheta) <- real.cov
+  hess %[.,.]% (!is.na(theta) & !m$etamap$offsettheta) <-
+    EVL(real.cov, -sginv(real.cov, tol = .Machine$double.eps^(3 / 4)), 0)
+
   iteration <-  mplefit$iter 
 
 # mplefit <- call(control$MPLE.type, pl$zy ~ 1, family=binomial)

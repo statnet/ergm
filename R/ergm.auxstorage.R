@@ -64,7 +64,7 @@ ergm.auxstorage <- function(model, nw,..., extra.aux=list(), term.options=list()
   for(i in seq_along(aux.outlists)){
     if(length(aux.outlists[[i]])){
       if(i<=n.stat.terms) # If it's a model term.
-        attr(model$terms[[i]],"aux.slots")[seq_len(length(aux.outlists[[i]]))] <- aux.slots[[i]]-1L
+        attr(model$terms[[i]], "aux.slots") <- aux.slots[[i]] - 1L
       else # If it's some other entity requesting auxiliaries.
         slots.extra.aux[[i-n.stat.terms]] <- aux.slots[[i]]-1L
     }
@@ -75,10 +75,10 @@ ergm.auxstorage <- function(model, nw,..., extra.aux=list(), term.options=list()
   aux.aux.slots <- lapply(aux.aux.outlists, match_aux_terms, uniq.aux.outlists)
   
   for(i in seq_along(aux.aux.outlists)){
-    if(length(aux.aux.outlists[[i]])){
-      # 1st slot is the auxiliary's own slot, so its auxiliaries get put into subsequent slots.
-      attr(model$terms[[n.stat.terms+i]], "aux.slots")[1L+seq_len(length(aux.aux.outlists[[i]]))] <- aux.aux.slots[[i]]-1L
-    }
+    # 1st slot is the auxiliary's own slot, so its auxiliaries get put
+    # into subsequent slots.
+    attr(model$terms[[n.stat.terms + i]], "aux.slots")[-1L] <-
+      aux.aux.slots[[i]] - 1L
   }
 
   # Check that terms and auxiliaries are properly positioned.

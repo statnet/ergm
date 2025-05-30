@@ -342,11 +342,11 @@ ergm.estimate<-function(init, model, statsmatrices, statsmatrices.obs=NULL,
     if(inherits(invHessian, "try-error")) invHessian <- Lout$hessian[] <- NA # Hessian non-SNND.
 
     covar <- matrix(NA, ncol=length(theta), nrow=length(theta))
-    covar[!model$etamap$offsettheta, !model$etamap$offsettheta] <- invHessian
-    dimnames(covar) <- list(names(theta),names(theta))
+    covar %[.,.]% !model$etamap$offsettheta <- invHessian
+    rowcolnames(covar) <- names(theta)
     He <- matrix(NA, ncol=length(theta), nrow=length(theta))
-    He[!model$etamap$offsettheta, !model$etamap$offsettheta] <- Lout$hessian
-    dimnames(He) <- list(names(theta),names(theta))
+    He %[.,.]% !model$etamap$offsettheta <- Lout$hessian
+    rowcolnames(He) <- names(theta)
     Lout$hessian <- He
     
     if(calc.mcmc.se){

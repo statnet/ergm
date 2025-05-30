@@ -349,7 +349,7 @@ gof.formula <- function(object, ...,
     pobs <- if(!is.null(names)) obs/sum(obs) else pval.top
     if(!is.null(names)){
       psim <- sweep(sim,1,apply(sim,1,sum),"/")
-      psim[is.na(psim)] <- 1
+      psim %[f]% is.na <- 1
     }else{
       psim <- apply(sim,2,rank)/nrow(sim)
       psim <- matrix(psim, ncol=ncol(sim)) # Guard against the case of sim having only one row.
@@ -507,21 +507,18 @@ plot.gof <- function(x, ...,
     }
 
     if (plotlogodds) {
-      odds <- psim
-      odds[!is.na(odds)] <- log(odds[!is.na(odds)]/(1 - odds[!is.na(odds)]))
-      odds.obs <- pobs
-      odds.obs[!is.na(odds.obs)] <- log(odds.obs[!is.na(odds.obs)]/(1 - odds.obs[!is.na(odds.obs)]))
-      odds.bds <- bds
-      odds.bds[!is.na(odds.bds)] <- log(odds.bds[!is.na(odds.bds)]/(1 - odds.bds[!is.na(odds.bds)]))
-      mininf <- min(min(odds[is.finite(odds)]),min(odds.obs[is.finite(odds.obs)]),min(odds.bds[is.finite(odds.bds)]))
-      maxinf <- max(max(odds[is.finite(odds)]),max(odds.obs[is.finite(odds.obs)]),max(odds.bds[is.finite(odds.bds)]))
+      odds <- logit(psim)
+      odds.obs <- logit(pobs)
+      odds.bds <- logit(bds)
+      mininf <- min(c(odds, odds.obs, odds.bds) %[f]% is.finite)
+      maxinf <- max(c(odds, odds.obs, odds.bds) %[f]% is.finite)
 
-      odds[!is.finite(odds)&odds>0] <- maxinf
-      odds[!is.finite(odds)&odds<0] <- mininf
-      odds.obs[!is.finite(odds.obs)&odds.obs>0] <- maxinf
-      odds.obs[!is.finite(odds.obs)&odds.obs<0] <- mininf
-      odds.bds[!is.finite(odds.bds)&odds.bds>0] <- maxinf
-      odds.bds[!is.finite(odds.bds)&odds.bds<0] <- mininf
+      odds %[.]% (!is.finite(.) & . > 0) <- maxinf
+      odds %[.]% (!is.finite(.) & . < 0) <- mininf
+      odds.obs %[.]% (!is.finite(.) & . > 0) <- maxinf
+      odds.obs %[.]% (!is.finite(.) & . < 0) <- mininf
+      odds.bds %[.]% (!is.finite(.) & . > 0) <- maxinf
+      odds.bds %[.]% (!is.finite(.) & . < 0) <- mininf
 
       out <- odds
       out.obs <- odds.obs

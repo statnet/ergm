@@ -74,8 +74,12 @@ param_names.ergm_model <- function(object, canonical=FALSE, offset=NA, ...){
   values <- split(value, factor(rep(seq_along(lens), lens), levels = seq_along(lens)))
   for(i in seq_along(object$terms)){
     if(lens[i]){
-      if(canonical || is.null(object$terms[[i]]$params)) object$terms[[i]]$coef.names %<>% replace(!is.na(values[[i]]), na.omit(values[[i]]))
-      else names(object$terms[[i]]$params) %<>% replace(!is.na(values[[i]]), na.omit(values[[i]]))
+      if (canonical || is.null(object$terms[[i]]$params))
+        object$terms[[i]]$coef.names[!is.na(values[[i]])] <-
+          na.omit(values[[i]])
+      else
+        names(object$terms[[i]]$params)[!is.na(values[[i]])] <-
+          na.omit(values[[i]])
     }
   }
 

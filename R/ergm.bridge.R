@@ -362,7 +362,7 @@ ergm.bridge.dindstart.llk<-function(object, response=NULL, constraints=~., coef,
   if(!is.null(target.stats)) llk.dind <- llk.dind + c(crossprod(eta.dind, NVL(c(ts.dind), stats.dind[!etamap.dind$offsetmap]) - stats.dind[!etamap.dind$offsetmap]))
 
   coef.dind <- numeric(length(dindmap))
-  coef.dind[dindmap] <- replace(coef(ergm.dind), is.na(coef(ergm.dind)), 0)
+  coef.dind[dindmap] <- replace(coef(ergm.dind), is.na, 0)
   coef.aug <- c(coef, 0)
 
   form.aug <- append_rhs.formula(object, list(as.name("edges")), keep.onesided = TRUE)

@@ -34,9 +34,9 @@
   o <- .consensus.order(e1$values, e2$values)
 
   l1 <- e1$lengths[match(o, e1$values)]
-  l1[is.na(l1)] <- 0
+  l1 %[f]% is.na <- 0
   l2 <- e2$lengths[match(o, e2$values)]
-  l2[is.na(l2)] <- 0
+  l2 %[f]% is.na <- 0
 
   list(values=o, lengths1=l1, lengths2=l2)
 }

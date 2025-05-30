@@ -91,11 +91,11 @@ InitErgmProposal.BDStratTNT <- function(arguments, nw) {
                  matrix(TRUE, ncol = 1L, nrow = network.size(nw)))
 
   maxout <- NVL(arguments$constraints$bd$maxout, network.size(nw))
-  maxout[is.na(maxout)] <- network.size(nw)
+  maxout %[f]% is.na <- network.size(nw)
   maxout <- matrix(rep(maxout, length.out = length(attribs)), ncol = ncol(attribs))
 
   maxin <- NVL(arguments$constraints$bd$maxin, network.size(nw))
-  maxin[is.na(maxin)] <- network.size(nw)
+  maxin %[f]% is.na <- network.size(nw)
   maxin <- matrix(rep(maxin, length.out = length(attribs)), ncol = ncol(attribs))
 
   bd_vattr <- which(attribs, arr.ind = TRUE)

@@ -333,7 +333,7 @@ san.ergm_model <- function(object, reference=~Bernoulli, constraints=~., target.
     
     # if we have (essentially) zero temperature, need to zero out the finite offsets for the C code to work properly,
     # even if control$SAN.ignore.finite.offsets is FALSE
-    if(abs(tau) < .Machine$double.eps) offsets[is.finite(offsets)] <- 0
+    if (abs(tau) < .Machine$double.eps) offsets %[f]% is.finite <- 0
     
     z <- ergm_SAN_slave(state, tau, control, verbose,..., nsteps=nsteps, statindices=statindices, offsetindices=offsetindices, offsets=offsets)
     state <- z$state
@@ -349,7 +349,8 @@ san.ergm_model <- function(object, reference=~Bernoulli, constraints=~., target.
       else sginv(cov(sm.prop), tol=.Machine$double.eps^(3/4))
 
     # Ensure no statistic has weight 0:
-    diag(invcov)[abs(diag(invcov))<.Machine$double.eps] <- min(diag(invcov)[abs(diag(invcov))>=.Machine$double.eps],1)
+    diag(invcov)[diag(invcov) < .Machine$double.eps] <-
+      min(max(diag(invcov), .Machine$double.eps), 1)
     invcov <- invcov / sum(diag(invcov)) # Rescale for consistency.
     control$SAN.invcov <- invcov
     

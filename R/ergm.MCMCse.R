@@ -123,12 +123,11 @@ ergm.MCMCse <- function(model, theta, init, statsmatrices, statsmatrices.obs,
   if(sum(!novar)==0 || ERRVL2(srcond(-H) < .Machine$double.eps, TRUE)){
     warning("Approximate Hessian matrix is singular. Standard errors due to MCMC approximation of the likelihood may be unreliable. This is likely due to insufficient MCMC sample size or highly correlated model terms.", call.=FALSE)
   }
-  mc.cov0 <- sandwich_sginv(-H, cov.zbar)
-  mc.cov[!novar,!novar] <- mc.cov0
 
-  mc.cov.offset[!offsettheta,!offsettheta] <- mc.cov
+  mc.cov %[.,.]% !novar <- sandwich_sginv(-H, cov.zbar)
+  mc.cov.offset %[.,.]% !offsettheta <- mc.cov
 
-  rownames(mc.cov.offset) <- colnames(mc.cov.offset) <- param_names(model)
+  rowcolnames(mc.cov.offset) <- param_names(model)
 
   attr(mc.cov.offset, "imp.factor") <- imp.factor
   attr(mc.cov.offset, "imp.factor.obs") <- imp.factor.obs
