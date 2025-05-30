@@ -7,12 +7,6 @@
 #
 #  Copyright 2003-2025 Statnet Commons
 ################################################################################
-#===================================================================================
-# This file contains the following 2 functions for creating the 'ergm_model' object
-#             <ergm_model>
-#             <updatemodel.ErgmTerm>
-#===================================================================================
-
 #' Internal representation of an `ergm` network model
 #' 
 #' These methods are generally not called directly by users, but may
@@ -47,7 +41,7 @@
 #' @keywords internal
 #' @export
 ergm_model <- function(object, nw=NULL, ..., formula = NULL){
-  ## TODO: Remove workaround around ergm 4.9.
+  ## TODO: Remove the following after October 2025 and ergm 4.8.
   if(!is.null(formula)){
     .Deprecate_once(msg = "ergm_model()'s first argument is now 'object'.")
     object <- formula

@@ -76,7 +76,7 @@ predict.formula <- function(object, eta,
                             output = c("data.frame", "matrix"), ...,
                             basis = ergm.getnetwork(object), theta = NULL) {
 
-  ## TODO: Remove the following workaround around June 2026.
+  ## TODO: Remove the following after May 2026 and ergm 4.10.
   if (!is.null(theta)) {
     .Deprecate_once(
       msg = paste0(sQuote("predict.formula()"), "'s parameter argument is now ",

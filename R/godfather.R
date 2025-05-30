@@ -7,15 +7,6 @@
 #
 #  Copyright 2003-2025 Statnet Commons
 ################################################################################
-#=========================================================================
-# This file contains the following 2 functions for computing changestat
-# summaries of dynamic networks ??
-#   <ergm.godfather>
-#   <control.godfather>
-#=========================================================================
-
-
-
 #' A function to apply a given series of changes to a network.
 #' 
 #' Gives the network a series of proposals it can't refuse. Returns the
@@ -83,7 +74,7 @@ ergm.godfather <- function(object, changes=NULL,
                            verbose=FALSE,
                            basis = NULL,
                            formula = NULL){
-  ## TODO: Remove around ergm 4.9:
+  ## TODO: Remove the following after October 2025 and ergm 4.8.
   if(!is.null(formula)){
     .Deprecate_once(msg = paste0("Argument ", sQuote("formula="), " to ", sQuote("ergm.godfather()"), "has been replaced with ", sQuote("formula="), "."))
     object <- formula
@@ -103,7 +94,7 @@ ergm.godfather.formula <- function(object, changes=NULL, response=NULL,
                                    control=NULL,
                                    basis = ergm.getnetwork(object)){
   ergm_preprocess_response(basis,response)
-  ## TODO: Remove this workaround around the 4.9 release.
+  ## TODO: Remove the following after October 2025 and ergm 4.8.
   m <- if("term.options" %in% ...names()) ergm_model(object, basis, ...)
        else ergm_model(object, basis, term.options = control$term.options, ...)
 
