@@ -20,7 +20,7 @@ Authors@R: c(
              person("Arya", "Karami", role=c("ctb"), email="a.karami@unsw.edu.au"),
              person("Adrien", "Le Guillou", role=c("ctb"), email="git@aleguillou.org", comment=c(ORCID="0000-0002-4791-418X")))
 Depends:
-    R (>= 4.1),
+    R (>= 4.2),
     network (>= 1.19.0)
 Imports:
     robustbase (>= 0.99-4-1),
