@@ -19,6 +19,8 @@ Options set via the built-in \code{\link[=options]{options()}} functions that af
 
 \item{\code{ergm.cluster.retries = 5}}{\CRANpkg{ergm}'s parallel routines implement rudimentary fault-tolerance. This option controls the number of retries for a cluster call before giving up.}
 
+\item{\code{ergm.warn_loops = TRUE}}{Whether to issue a warning if the network contains self-loops.}
+
 \item{\code{ergm.term = list()}}{The default term options below.}
 
 \item{\code{ergm.ABI.action = "stop"}}{What to do when \pkg{ergm} detects that one of its extension packages had been compiled with a different version of \pkg{ergm} from the current one that makes changes at the C level that can cause problems. Other choices include \describe{
