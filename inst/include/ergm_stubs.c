@@ -168,11 +168,6 @@ static void (*fun)(Network *,Model *) = NULL;
 if(fun==NULL) fun = (void (*)(Network *,Model *)) R_FindSymbol("ModelDestroy", "ergm", NULL);
 fun(nwp,m);
 }
-int GetIndexForAttrValue(int value){
-static int (*fun)(int) = NULL;
-if(fun==NULL) fun = (int (*)(int)) R_FindSymbol("GetIndexForAttrValue", "ergm", NULL);
-return fun(value);
-}
 void ChangeStatsDo(unsigned int ntoggles, Vertex *tails, Vertex *heads, Network *nwp, Model *m){
 static void (*fun)(unsigned int,Vertex *,Vertex *,Network *,Model *) = NULL;
 if(fun==NULL) fun = (void (*)(unsigned int,Vertex *,Vertex *,Network *,Model *)) R_FindSymbol("ChangeStatsDo", "ergm", NULL);
