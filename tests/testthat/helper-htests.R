@@ -1,3 +1,12 @@
+#  File tests/testthat/helper-htests.R in package ergm, part of the Statnet
+#  suite of packages for network analysis, https://statnet.org .
+#
+#  This software is distributed under the GPL-3 license.  It is free, open
+#  source, and has the attribution requirements (GPL Section 7) at
+#  https://statnet.org/attribution .
+#
+#  Copyright 2003-2025 Statnet Commons
+################################################################################
 expect_within_mc_err <- function(object, expected, idx = TRUE, alpha = 0.001) {
   act <- quasi_label(rlang::enquo(object), arg = "object")
 
