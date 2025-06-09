@@ -268,7 +268,7 @@
 #' ## Custom `ergm` terms
 #' Users and other packages may build custom terms, and package
 #' \pkg{ergm.userterms} (\url{https://github.com/statnet/ergm.userterms}) provides
-#' tools for implementing them, and the [Terms-API vignette](https://cran.r-project.org/web/packages/ergm/vignettes/Terms-API.html).
+#' tools for implementing them, and the [Terms-API vignette](https://cran.r-project.org/package=ergm/vignettes/Terms-API.html).
 #'
 #' There is also a number of *auxiliaries* available---terms that do
 #' not have statistics of their own but provide data structures useful
