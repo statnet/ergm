@@ -288,16 +288,17 @@ ergm.bridge.dindstart.llk<-function(object, response=NULL, constraints=~., coef,
   m<-ergm_model(object, nw, term.options=control$term.options)
   m.edges <- ergm_model(~edges, nw, term.options = control$term.options)
 
+  coef <- match_names(coef, param_names(m, canonical = FALSE))
+  trm_coef <- split_len(coef, nparam(m, canonical = FALSE, byterm = TRUE))
+
   if(!is.null(target.stats)){
     target.stats <- .embed.target.stats(m, match_names(target.stats, param_names(m, canonical=TRUE, offset=FALSE)))
     if(anyNA(target.stats))
       target.stats[is.na(target.stats) & m$etamap$offsetmap] <- summary(m, nw)[is.na(target.stats) & m$etamap$offsetmap]
+    trm_tgt <- split_len(target.stats,
+                         nparam(m, canonical = TRUE, byterm = TRUE))
   }
 
-  q.pos.full <- c(0,cumsum(nparam(m, canonical=FALSE, byterm=TRUE, offset=TRUE)))
-  p.pos.full <- c(0,cumsum(nparam(m, canonical=TRUE, byterm=TRUE, offset=FALSE)))
-  rng <- function(x, from, to) if(to>=from) x[from:to]
-  
   tmp <- .handle.auto.constraints(nw, constraints, obs.constraints, target.stats); nw <- tmp$nw
   if(!is.dyad.independent(ergm_conlist(tmp$conterms,nw,term.options=control$term.options), ergm_conlist(tmp$conterms.obs,nw,term.options=control$term.options))) stop("Bridge sampling with dyad-independent start does not work with dyad-dependent constraints.")
 
@@ -321,8 +322,8 @@ ergm.bridge.dindstart.llk<-function(object, response=NULL, constraints=~., coef,
         dindmap <- c(dindmap, rep(FALSE, length(m$terms[[i]]$offset)))
       }else{
         dindmap <- c(dindmap, rep(TRUE, length(m$terms[[i]]$offset)))
-        if(!is.null(target.stats)) ts.dind <- c(ts.dind, rng(target.stats, p.pos.full[i]+1, p.pos.full[i+1]))
-        offset.dind <- c(offset.dind, coef[(q.pos.full[i]+1):q.pos.full[i+1]][m$terms[[i]]$offset]) # Add offset coefficient where applicable.
+        if(!is.null(target.stats)) ts.dind <- c(ts.dind, trm_tgt[[i]])
+        offset.dind <- c(offset.dind, trm_coef[[i]][m$terms[[i]]$offset])
       }
 
     terms.full <- c(terms.full, list(as.name("edges")))
@@ -359,7 +360,7 @@ ergm.bridge.dindstart.llk<-function(object, response=NULL, constraints=~., coef,
   # case they are different from those to which the dyad-independent
   # submodel was actually fit:
   # l(theta,ts)-l(theta,ns)=sum(theta*(ts-ns)).
-  if(!is.null(target.stats)) llk.dind <- llk.dind + c(crossprod(eta.dind, NVL(c(ts.dind), stats.dind[!etamap.dind$offsetmap]) - stats.dind[!etamap.dind$offsetmap]))
+  if(!is.null(target.stats)) llk.dind <- llk.dind + c(crossprod(eta.dind, NVL(ts.dind, stats.dind)[!etamap.dind$offsetmap] - stats.dind[!etamap.dind$offsetmap]))
 
   coef.dind <- numeric(length(dindmap))
   coef.dind[dindmap] <- replace(coef(ergm.dind), is.na, 0)
