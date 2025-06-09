@@ -71,7 +71,7 @@ param_names.ergm_model <- function(object, canonical=FALSE, offset=NA, ...){
   lens <- nparam(object, canonical, byterm = TRUE)
   value <- rep_len(value, sum(lens))
 
-  values <- split(value, factor(rep(seq_along(lens), lens), levels = seq_along(lens)))
+  values <- split_len(value, lens)
   for(i in seq_along(object$terms)){
     if(lens[i]){
       if (canonical || is.null(object$terms[[i]]$params))

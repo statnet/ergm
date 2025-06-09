@@ -132,14 +132,16 @@ ergm_model.ergm_model <- function(object, nw, ..., env=globalenv(), extra.aux=li
 
   if(offset.decorate){
     if(length(model$etamap$offsetmap)){
-      ol <- split(model$etamap$offsetmap, factor(rep.int(seq_along(model$terms), nparam(model, byterm=TRUE, canonical=TRUE)), levels=seq_along(model$terms)))
+      ol <- split_len(model$etamap$offsetmap,
+                      nparam(model, byterm = TRUE, canonical = TRUE))
       for(i in seq_along(model$terms)){
         pn <- model$terms[[i]]$coef.names
         if(!is.null(pn)) model$terms[[i]]$coef.names <- ifelse(ol[[i]], paste0("offset(",pn,")"), pn)
       }
     }
     if(length(model$etamap$offsettheta)){
-      ol <- split(model$etamap$offsettheta, factor(rep.int(seq_along(model$terms), nparam(model, byterm=TRUE, canonical=FALSE)), levels=seq_along(model$terms)))
+      ol <- split_len(model$etamap$offsettheta,
+                      nparam(model, byterm = TRUE, canonical = FALSE))
       for(i in seq_along(model$terms)){
         pn <- names(model$terms[[i]]$params)
         if(!is.null(pn)) names(model$terms[[i]]$params) <- ifelse(ol[[i]], paste0("offset(",pn,")"), pn)

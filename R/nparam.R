@@ -54,7 +54,7 @@ nparam.ergm_model <- function(object, canonical=FALSE, offset=NA, byterm=FALSE, 
       })
 
     NVL(tocount) <- rep(TRUE, sum(lens))
-    counts <- tocount %>% split(factor(rep(seq_along(terms), lens),levels=seq_along(terms))) %>% map_int(sum)
+    counts <- tocount |> split_len(lens) |> map_int(sum)
     if(byterm) counts else sum(counts)
   }else sum(tocount)
 }

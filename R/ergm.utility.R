@@ -426,3 +426,8 @@ rowcolnames <- function(x, ...) {
   colnames(x) <- rownames(x) <- value
   x
 }
+
+split_len <- function(x, l) {
+  stopifnot(length(x) == sum(l))
+  unname(split(x, factor(rep.int(seq_along(l), l), levels = seq_along(l))))
+}
