@@ -49,13 +49,13 @@ MH_P_FN(Mp_SPDyad){
     /*   // currently have 0 SP and are adding an edge... */
     /*     Rboolean SP01 = FALSE; // Indicator of whether the toggle will create an SP of an appropriate type. */
     /*     switch(MH_IINPUTS[0]){ */
-    /*     case ESPUTP: */
+    /*     case L2UTP: */
     /*       SP01 = (OUT_DEG[*Mtail]+IN_DEG[*Mtail]) || (OUT_DEG[*Mhead]+IN_DEG[*Mhead]); break; */
-    /*     case ESPOTP: */
-    /*     case ESPITP: */
+    /*     case L2OTP: */
+    /*     case L2ITP: */
     /*       SP01 = IN_DEG[*Mtail] || OUT_DEG[*Mhead]; break; */
-    /*     case ESPOSP: SP01 = IN_DEG[*Mhead] != 0; break; */
-    /*     case ESPISP: SP01 = OUT_DEG[*Mtail] != 0; break; */
+    /*     case L2OSP: SP01 = IN_DEG[*Mhead] != 0; break; */
+    /*     case L2ISP: SP01 = OUT_DEG[*Mtail] != 0; break; */
     /*     } */
     /*     if(!SP01) return; */
 
@@ -67,13 +67,13 @@ MH_P_FN(Mp_SPDyad){
     /*   // currently have 1 SP and are removing an edge... */
     /*     Rboolean SP10 = FALSE; // Indicator of whether the toggle will remove an SP of an appropriate type. */
     /*     switch(MH_IINPUTS[0]){ */
-    /*     case ESPUTP: */
+    /*     case L2UTP: */
     /*       SP10 = (OUT_DEG[*Mtail]+IN_DEG[*Mtail] == 1) || (OUT_DEG[*Mhead]+IN_DEG[*Mhead] == 1); break; */
-    /*     case ESPOTP: */
-    /*     case ESPITP: */
+    /*     case L2OTP: */
+    /*     case L2ITP: */
     /*       SP10 = (IN_DEG[*Mtail] == 1) || (OUT_DEG[*Mhead] == 1); break; */
-    /*     case ESPOSP: SP10 = IN_DEG[*Mhead] == 1; break; */
-    /*     case ESPISP: SP10 = OUT_DEG[*Mtail] == 1; break; */
+    /*     case L2OSP: SP10 = IN_DEG[*Mhead] == 1; break; */
+    /*     case L2ISP: SP10 = OUT_DEG[*Mtail] == 1; break; */
     /*     } */
     /*     if(!SP10) return; */
 
@@ -83,6 +83,8 @@ MH_P_FN(Mp_SPDyad){
     /*   } */
     /* } */
   }
+
+  L2Type type = MH_IINPUTS[0];
 
   BD_COND_LOOP(storage->bd, {
       // Select a random key from the shared partner hash table; only
@@ -97,7 +99,7 @@ MH_P_FN(Mp_SPDyad){
       // As of right now, the data structure does not guarantee correct
       // tail-head ordering for undirected networks.
       if(DIRECTED){
-        if(MH_IINPUTS[0] == ESPITP){
+        if(type == L2ITP){
           *Mtail = dyad.head;
           *Mhead = dyad.tail;
         }else{
@@ -132,12 +134,13 @@ MH_P_FN(Mp_SPDyad){
 
 #define sp_nonzero newtd += (L2 + echange != 0) - (L2 != 0);
 
-  switch(MH_IINPUTS[0]){
-  case ESPUTP: dspUTP_change(sp_nonzero, ); break;
-  case ESPOTP: dspOTP_change(sp_nonzero, ); break;
-  case ESPITP: dspITP_change(sp_nonzero, ); break;
-  case ESPOSP: dspOSP_change(sp_nonzero, ); break;
-  case ESPISP: dspISP_change(sp_nonzero, ); break;
+  switch(type){
+  case L2UTP: dspUTP_change(sp_nonzero, ); break;
+  case L2OTP: dspOTP_change(sp_nonzero, ); break;
+  case L2ITP: dspITP_change(sp_nonzero, ); break;
+  case L2OSP: dspOSP_change(sp_nonzero, ); break;
+  case L2ISP: dspISP_change(sp_nonzero, ); break;
+  default: error("In ergm:Mp_SPDyad(), an unsupported type of triad: %d.", type);
   }
 
 #undef sp_nonzero

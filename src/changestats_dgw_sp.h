@@ -14,14 +14,7 @@
 #include "ergm_changestat.h"
 #include "ergm_dyad_hashmap.h"
 
-#define ESPUTP 0
-#define ESPOTP 1
-#define ESPITP 2
-#define ESPRTP 3
-#define ESPOSP 4
-#define ESPISP 5
-
-
+typedef enum {L2UTP, L2OTP, L2ITP, L2RTP, L2OSP, L2ISP} L2Type;
 
 #define call_subroutine_path(count, subroutine_path)    \
   {int L2 = (L2 ## count);                              \
