@@ -16,25 +16,6 @@ is.ergm <- function(object)
     is(object,"ergm")
 }
 
-###############################################################################
-# The <degreedist> function computes and returns the degree distribution for
-# a given network
-#
-# --PARAMETERS--
-#   g    : a network object
-#   print: whether to print the degree distribution; default=TRUE
-#
-# --RETURNED--
-#   degrees:
-#      if directed  -- a matrix of the distributions of in and out degrees;
-#                      this is row bound and only contains degrees for which
-#                      one of the in or out distributions has a positive count
-#      if bipartite -- a list containing the degree distributions of b1 and b2
-#      otherwise    -- a vector of the positive values in the degree
-#                      distribution
-###############################################################################
-
-
 
 #' Computes and Returns the Degree Distribution Information for a Given Network
 #' 
@@ -80,8 +61,8 @@ degreedist.network <- function(object, print=TRUE, ...)
    degrees <- rbind(indegrees, outdegrees)
  }else{
   if(is.bipartite(g)){
-   nb1 <- get.network.attribute(g,"bipartite")
-   nb2 <- network.size(g) - nb1
+   nb1 <- b1.size(g)
+   nb2 <- b2.size(g)
    mesp <- paste("c(",paste(0:nb2,collapse=","),")",sep="")
    b1degrees <- summary(as.formula(paste('g ~ b1degree(',mesp,')',sep="")))
    mesp <- paste("c(",paste(0:nb1,collapse=","),")",sep="")

@@ -100,8 +100,8 @@ SPTYPE_CODE <- c(UTP = 0L, OTP = 1L, ITP = 2L, RTP = 3L, OSP = 4L, ISP = 5L)
   statname <- if(type=="UTP" || nchar(bip)) utermname else paste(utermname,type,sep=".")
 
   if(!fixed){ # This is a curved exponential family model
-    maxsp <- min(cutoff, if(bip=="b1") network.size(nw)-nw%n%"bipartite"
-                          else if(bip=="b2") nw%n%"bipartite"
+    maxsp <- min(cutoff, if(bip=="b1") b2.size(nw)
+                          else if(bip=="b2") b1.size(nw)
                           else network.size(nw)-2)
     if(maxsp==0) return(NULL)
     d <- seq_len(maxsp)
@@ -120,10 +120,10 @@ SPTYPE_CODE <- c(UTP = 0L, OTP = 1L, ITP = 2L, RTP = 3L, OSP = 4L, ISP = 5L)
 
 .dsp_emptynwstats <- function(nw, d, ...){
   if(any(d==0)){
-    emptynwstats <- numeric(length(d))
+    emptynwstats <- dbl_along(d)
     if(is.bipartite(nw)){
-      nb1 <- nw %n% "bipartite"
-      nb2 <- network.size(nw) - nb1
+      nb1 <- b1.size(nw)
+      nb2 <- b2.size(nw)
       emptynwstats[d==0] <- nb1*(nb1-1)/2 + nb2*(nb2-1)/2
     }else{
       emptynwstats[d==0] <- network.dyadcount(nw,FALSE)

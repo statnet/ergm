@@ -42,7 +42,7 @@ InitErgmTerm.b1mindegree <- function(nw, arglist, ...) {
                        defaultvalues = list(NULL),
                        required = c(TRUE))
   ### Process the arguments
-  nb1 <- get.network.attribute(nw, "bipartite")
+  nb1 <- b1.size(nw)
   nb2 <- get.network.attribute(nw, "n") - nb1
   name <- "b1mindegree"
   coef.names <- paste("b1mindeg", a$d, sep="")
@@ -85,7 +85,7 @@ InitErgmTerm.b2mindegree <- function(nw, arglist, ...) {
                        defaultvalues = list(NULL),
                        required = c(TRUE))
   ### Process the arguments
-  nb1 <- get.network.attribute(nw, "bipartite")
+  nb1 <- b1.size(nw)
   nb2 <- get.network.attribute(nw, "n") - nb1
   name <- "b2mindegree"
   coef.names <- paste("b2mindeg", a$d, sep="")

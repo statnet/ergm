@@ -411,9 +411,9 @@ ergm_get_vattr <- function(object, nw, accept="character", bip=c("n","b1","b2","
     # Now it's negative indices.
     l <- switch(bip,
                 n=seq_len(network.size(nw)),
-                b1=seq_len(nw%n%"bipartite"),
-                b2=seq_len(network.size(nw)-nw%n%"bipartite")+nw%n%"bipartite")
-    if(bip=="b2" && any(-a > nw%n%"bipartite")) a <- a + nw%n%"bipartite"
+                b1=seq_len(b1.size(nw)),
+                b2=seq_len(b2.size(nw))+b1.size(nw))
+    if(bip=="b2" && any(-a > b1.size(nw))) a <- a + b1.size(nw)
     if(!all(-a%in%seq_along(l))) ergm_Init_warning("Vertex index is out of bound.")
 
     structure(l[a], name=name)
@@ -427,12 +427,12 @@ ergm_get_vattr <- function(object, nw, accept="character", bip=c("n","b1","b2","
       if(bip=="n") rep_len_warn(a, network.size(nw))
       else if(NVL(nrow(a), length(a))==network.size(nw)) # Input vector is n-long, need to trim.
         switch(bip,
-               b1 = if(is.null(nrow(a))) a[seq_len(nw%n%"bipartite")] else a[seq_len(nw%n%"bipartite"),,drop=FALSE],
-               b2 = if(is.null(nrow(a))) a[-seq_len(nw%n%"bipartite")] else a[-seq_len(nw%n%"bipartite"),,drop=FALSE])
+               b1 = if(is.null(nrow(a))) a[seq_len(b1.size(nw))] else a[seq_len(b1.size(nw)),,drop=FALSE],
+               b2 = if(is.null(nrow(a))) a[-seq_len(b1.size(nw))] else a[-seq_len(b1.size(nw)),,drop=FALSE])
       else # Othewise, recycle until the right length.
         rep_len_warn(a, switch(bip,
-                               b1=nw%n%"bipartite",
-                               b2=network.size(nw)-nw%n%"bipartite")),
+                               b1=b1.size(nw),
+                               b2=b2.size(nw))),
       name = name)
   }
 }
@@ -474,8 +474,6 @@ ergm_get_vattr <- function(object, nw, accept="character", bip=c("n","b1","b2","
 }
 
 #' @rdname nodal_attributes-API
-#' @importFrom purrr map pmap_chr map_chr discard
-#' @importFrom rlang set_names
 #' @export
 ergm_get_vattr.AsIs <- function(object, nw, accept="character", bip=c("n","b1","b2","a"), multiple=if(accept=="character") "paste" else "stop", ...){
   bip <- match.arg(bip)
@@ -488,8 +486,6 @@ ergm_get_vattr.AsIs <- function(object, nw, accept="character", bip=c("n","b1","
 }
 
 #' @rdname nodal_attributes-API
-#' @importFrom purrr map pmap_chr
-#' @importFrom rlang set_names
 #' @export
 ergm_get_vattr.character <- function(object, nw, accept="character", bip=c("n","b1","b2","a"), multiple=if(accept=="character") "paste" else "stop", ...){
   bip <- match.arg(bip)
@@ -500,7 +496,7 @@ ergm_get_vattr.character <- function(object, nw, accept="character", bip=c("n","
     ergm_Init_stop(paste.and(sQuote(missing_attr)), " is/are not valid nodal attribute(s).")
   }
 
-  object %>% map(~nw%v%.) %>% set_names(object) %>% .handle_multiple(multiple=multiple) %>%
+  object %>% map(~nw%v%.) %>% setNames(object) %>% .handle_multiple(multiple=multiple) %>%
     .rightsize_vattr(nw, bip, accept) %>% structure(name=paste(object, collapse=".")) %>%
     .check_acceptable(accept=accept, xspec=object)
 }
@@ -528,7 +524,6 @@ ergm_get_vattr.function <- function(object, nw, accept="character", bip=c("n","b
 
 
 #' @rdname nodal_attributes-API
-#' @importFrom purrr map when
 #' @importFrom tibble lst
 #' @export
 ergm_get_vattr.formula <- function(object, nw, accept="character", bip=c("n","b1","b2","a"), multiple=if(accept=="character") "paste" else "stop", ...){
@@ -536,7 +531,7 @@ ergm_get_vattr.formula <- function(object, nw, accept="character", bip=c("n","b1
   multiple <- match.arg(multiple, ERGM_GET_VATTR_MULTIPLE_TYPES)
 
   a <- list.vertex.attributes(nw)
-  vlist <- c(a %>% map(~nw%v%.) %>% set_names(a),
+  vlist <- c(a %>% map(~nw%v%.) %>% setNames(a),
              lst(`.`=nw, .nw=nw, ...))
 
   e <- ult(object)

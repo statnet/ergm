@@ -143,7 +143,7 @@ ergm_edgecov_args <- function(name, nw, a){
   # Check dimension
   actual <- dim(xm)
   expected <-
-    if(is.bipartite(nw)) c(nw %n% "bipartite", network.size(nw) - nw %n% "bipartite")
+    if(is.bipartite(nw)) c(b1.size(nw), b2.size(nw))
     else rep(network.size(nw), 2)
 
   if(any(actual!=expected)) ergm_Init_stop("Dyadic covariate matrix has dimension ", actual[1], "x", actual[2], ", ", expected[1], "x", expected[2], " expected.")
@@ -220,9 +220,13 @@ decay_vs_fixed <- function(a, name, no_curved_attrarg=TRUE){
         emptynwstats[du[1,]==0] <- tmp
     }
   } else {
-    if (any(from==0)) {
-      emptynwstats <- rep(0, length(from))
-      emptynwstats[from==0] <- switch(deg, b1 = nw %n% "bipartite", b2 = network.size(nw) - nw %n% "bipartite", network.size(nw))
+    if (any(from == 0)) {
+      emptynwstats <-
+        replace(dbl_along(from), from == 0,
+                switch(deg,
+                       b1 = b1.size(nw),
+                       b2 = b2.size(nw),
+                       network.size(nw)))
     }
   }
   if(is.null(byarg)) {
@@ -290,9 +294,13 @@ decay_vs_fixed <- function(a, name, no_curved_attrarg=TRUE){
         emptynwstats[du[1,]==0] <- tmp
     }
   } else {
-    if (any(d==0)) {
-      emptynwstats <- rep(0, length(d))
-      emptynwstats[d==0] <- switch(deg, b1 = nw %n% "bipartite", b2 = network.size(nw) - nw %n% "bipartite", network.size(nw))
+    if (any(d == 0)) {
+      emptynwstats <-
+        replace(dbl_along(d), d == 0,
+                switch(deg,
+                       b1 = b1.size(nw),
+                       b2 = b2.size(nw),
+                       network.size(nw)))
     }
   }
   if(is.null(byarg)) {
@@ -784,7 +792,6 @@ InitErgmTerm.b1concurrent<-function(nw, arglist, ..., version=packageVersion("er
   }
 
   ### Process the arguments
-  nb1 <- get.network.attribute(nw, "bipartite") 
   byarg <- a$by
   if(!is.null(byarg)) {
     nodecov <- ergm_get_vattr(byarg, nw, bip = "b1")
@@ -807,7 +814,8 @@ InitErgmTerm.b1concurrent<-function(nw, arglist, ..., version=packageVersion("er
     coef.names<-paste("b1concurrent",sep="")
     inputs <- NULL
   }
-  list(name=name, coef.names=coef.names, inputs=inputs, dependence=TRUE, minval=0, maxval=nb1)
+  list(name = name, coef.names = coef.names, inputs = inputs, dependence = TRUE,
+       minval = 0, maxval = b1.size(nw))
 }
 
 ################################################################################
@@ -877,8 +885,7 @@ InitErgmTerm.b1cov<-function (nw, arglist, ..., version=packageVersion("ergm")) 
     f<-a$transform
     f.name<-a$transformname
     coef.names <- paste(paste("b1cov",f.name,sep=""),attrname,sep=".")
-    nb1 <- get.network.attribute(nw, "bipartite")
-    nodecov <- f(get.node.attr(nw, attrname, "b1cov", numeric=TRUE)[1:nb1])
+    nodecov <- f(get.node.attr(nw, attrname, "b1cov", numeric = TRUE)[seq_len(b1.size(nw))])
   }else{
     ### Check the network and arguments to make sure they are appropriate.
     a <- check.ErgmTerm(nw, arglist, directed=FALSE, bipartite=TRUE, 
@@ -947,7 +954,7 @@ InitErgmTerm.b1degree <- function(nw, arglist, ..., version=packageVersion("ergm
 #' @concept undirected
 InitErgmTerm.b1dsp <- function(nw, arglist, cache.sp=TRUE, ...){
   .d_sp_impl("b1", nw, arglist, cache.sp,
-             function(d, nw, ...) replace(numeric(length(d)), d==0, (nw%n%"bipartite")*(nw%n%"bipartite"-1)/2),
+             function(d, nw, ...) replace(dbl_along(d), d == 0, choose(b1.size(nw), 2)),
              ...)
 }
 
@@ -1058,8 +1065,7 @@ InitErgmTerm.b1sociality<-function(nw, arglist, ...) {
                       defaultvalues = list(-1),
                       required = c(FALSE))
                       
-  nb1 <- get.network.attribute(nw, "bipartite")
-  d <- ergm_attr_levels(a$nodes, 1:nb1, nw, 1:nb1)
+  d <- ergm_attr_levels(a$nodes, 1:b1.size(nw), nw, 1:b1.size(nw))
   
   ld<-length(d)
   if(ld==0){return(NULL)}
@@ -1067,7 +1073,8 @@ InitErgmTerm.b1sociality<-function(nw, arglist, ...) {
   coef.names <- paste("b1sociality",d,sep="")
   inputs <- c(d,0) # Input requires a "guard" value.
 
-  list(name="sociality", coef.names=coef.names, inputs=inputs, minval=0, maxval=network.size(nw)-nb1, conflicts.constraints="b1degrees", dependence=FALSE)
+  list(name="sociality", coef.names = coef.names, inputs = inputs, minval = 0, maxval = b2.size(nw),
+       conflicts.constraints = "b1degrees", dependence = FALSE)
 }
 
 ################################################################################
@@ -1194,7 +1201,7 @@ InitErgmTerm.b1starmix <- function(nw, arglist, ..., version=packageVersion("erg
     attrarg <- a$attr
   }
   ### Process the arguments
-  nb1 <- get.network.attribute(nw, "bipartite")
+  nb1 <- b1.size(nw)
   nodecov <- ergm_get_vattr(attrarg, nw)
   attrname <- attr(nodecov, "name")
   u <- sort(unique(nodecov))
@@ -1287,7 +1294,6 @@ InitErgmTerm.b1twostar <- function(nw, arglist, ..., version=packageVersion("erg
   }
   
   ### Process the arguments
-  nb1 <- get.network.attribute(nw, "bipartite")
   n <- network.size(nw)
   
   b1nodecov <- ergm_get_vattr(b1attrarg, nw, bip = "b1")
@@ -1370,7 +1376,6 @@ InitErgmTerm.b2concurrent<-function(nw, arglist, ..., version=packageVersion("er
   }
 
   ### Process the arguments
-  nb1 <- get.network.attribute(nw, "bipartite")
   byarg <- a$by
 
   if(!is.null(byarg)) {
@@ -1394,7 +1399,8 @@ InitErgmTerm.b2concurrent<-function(nw, arglist, ..., version=packageVersion("er
     name <- "b2concurrent"
     inputs <- NULL
   }
-  list(name=name, coef.names=coef.names, inputs=inputs, dependence=TRUE, minval = 0, maxval=network.size(nw)-nb1)
+  list(name = name, coef.names = coef.names, inputs = inputs,
+       dependence = TRUE, minval = 0, maxval = b2.size(nw))
 }
 
 ################################################################################
@@ -1432,8 +1438,7 @@ InitErgmTerm.b2cov<-function (nw, arglist, ..., version=packageVersion("ergm")) 
     f<-a$transform
     f.name<-a$transformname
     coef.names <- paste(paste("b2cov",f.name,sep=""),attrname,sep=".")
-    nb1 <- get.network.attribute(nw, "bipartite")
-    nodecov <- f(get.node.attr(nw, attrname, "b2cov", numeric=TRUE)[(nb1+1):network.size(nw)])
+    nodecov <- f(get.node.attr(nw, attrname, "b2cov", numeric=TRUE)[(b1.size(nw)+1):network.size(nw)])
   }else{
     ### Check the network and arguments to make sure they are appropriate.
     a <- check.ErgmTerm(nw, arglist, directed=FALSE, bipartite=TRUE,
@@ -1534,7 +1539,7 @@ InitErgmTerm.b2degree <- function(nw, arglist, ..., version=packageVersion("ergm
 #' @concept undirected
 InitErgmTerm.b2dsp <- function(nw, arglist, cache.sp=TRUE, ...){
   .d_sp_impl("b2", nw, arglist, cache.sp,
-             function(d, nw, ...) replace(numeric(length(d)), d==0, (network.size(nw)-nw%n%"bipartite")*(network.size(nw)-nw%n%"bipartite"-1)/2),
+             function(d, nw, ...) replace(dbl_along(d), d==0, (b2.size(nw))*(b2.size(nw)-1)/2),
              ...)
 }
 
@@ -1646,7 +1651,7 @@ InitErgmTerm.b2sociality<-function(nw, arglist, ...) {
                       defaultvalues = list(-1),
                       required = c(FALSE))
                       
-  nb1 <- get.network.attribute(nw, "bipartite")
+  nb1 <- b1.size(nw)
   d <- ergm_attr_levels(a$nodes, (1 + nb1):network.size(nw), nw, (1 + nb1):network.size(nw))
   
   ld<-length(d)
@@ -1772,7 +1777,7 @@ InitErgmTerm.b2starmix <- function(nw, arglist, ..., version=packageVersion("erg
     attrarg <- a$attr
   }
   ### Process the arguments
-  nb1 <- get.network.attribute(nw, "bipartite")
+  nb1 <- b1.size(nw)
   nodecov <- ergm_get_vattr(attrarg, nw)
   attrname <- attr(nodecov, "name")
   u <- sort(unique(nodecov))
@@ -1861,7 +1866,6 @@ InitErgmTerm.b2twostar <- function(nw, arglist, ..., version=packageVersion("erg
   }
   
   ### Process the arguments
-  nb1 <- get.network.attribute(nw, "bipartite")
   n <- network.size(nw)
   
   b1nodecov <- ergm_get_vattr(b1attrarg, nw, bip = "b1")
@@ -2588,7 +2592,7 @@ InitErgmTerm.edges<-function(nw, arglist, ...) {
 #' @concept undirected
 #' @concept curved
 InitErgmTerm.gwb1degree<-function(nw, arglist, gw.cutoff=30, ..., version=packageVersion("ergm")) {
-  bip <- nw%n%"bipartite"
+  bip <- b1.size(nw)
   .gwdegree_impl("b1", FALSE, TRUE, network.size(nw)-bip, bip, "mode-1 ", nw, arglist, ..., gw.cutoff=gw.cutoff, version=version, degname="o")
 }
 
@@ -2648,7 +2652,7 @@ InitErgmTerm.gwb1dsp<-function(nw, arglist, cache.sp=TRUE, gw.cutoff=30, ...) {
 #' @concept undirected
 #' @concept curved
 InitErgmTerm.gwb2degree<-function(nw, arglist, gw.cutoff=30, ..., version=packageVersion("ergm")) {
-  .gwdegree_impl("b2", FALSE, TRUE, bip<-nw%n%"bipartite", network.size(nw)-bip, "mode-2 ", nw, arglist, ..., gw.cutoff=gw.cutoff, version=version, degname="i")
+  .gwdegree_impl("b2", FALSE, TRUE, bip<-b1.size(nw), network.size(nw)-bip, "mode-2 ", nw, arglist, ..., gw.cutoff=gw.cutoff, version=version, degname="i")
 }
 
 ################################################################################
@@ -3027,7 +3031,7 @@ InitErgmTerm.isolatededges <- function(nw, arglist, ...) {
        coef.names = "isolatededges",                       #coef.names: required
        emptynwstats = 0,                                   #When nw is empty, isolatededges=0
        minval = 0,
-       maxval = if(is.bipartite(nw)) min(nw%n%"bipartite", network.size(nw) - nw%n%"bipartite") else floor(network.size(nw)/2),
+       maxval = if(is.bipartite(nw)) min(b1.size(nw), b2.size(nw)) else floor(network.size(nw)/2),
        dependence = TRUE
        )                                                               
 }
@@ -3367,14 +3371,13 @@ InitErgmTerm.mm<-function (nw, arglist, ..., version=packageVersion("ergm")) {
   }
 
   # Some preprocessing steps are the same, so run together:
-  #' @import purrr
   #' @importFrom utils relist
   spec <-
     list(attrs = a$attrs, levels = a$levels) %>%
     map_if(~!is(., "formula"), ~call("~", .)) %>% # Embed into RHS of formula.
     map_if(~length(.)==2, ~call("~", .[[2]], .[[2]])) %>% # Convert ~X to X~X.
     map(as.list) %>% map(~.[-1]) %>% # Convert to list(X,X).
-    map(set_names, c("row", "col")) %>% # Name elements rowspec and colspec.
+    map(setNames, c("row", "col")) %>% # Name elements rowspec and colspec.
     transpose() %>%
     unlist(recursive=FALSE) %>% # Convert into a flat list.
     map_if(~is.name(.)&&.==".", ~NULL) %>% # If it's just a dot, convert to NULL.
@@ -3396,8 +3399,8 @@ InitErgmTerm.mm<-function (nw, arglist, ..., version=packageVersion("ergm")) {
         list(valcodes =
                rep(0L,
                    if(!is.bipartite(nw)) network.size(nw)
-                   else if(whose=="row") nw%n%"bipartite"
-                   else if(whose=="col") network.size(nw) - nw%n%"bipartite"
+                   else if(whose=="row") b1.size(nw)
+                   else if(whose=="col") b2.size(nw)
                    ),
              name = ".",
              levels = NA,
@@ -4561,7 +4564,7 @@ InitErgmTerm.receiver<-function(nw, arglist, ..., version=packageVersion("ergm")
   ld<-length(d)
   if(ld==0){return(NULL)}
   list(name="receiver", coef.names=paste("receiver",d,sep=""),
-       inputs=c(d), emptynwstats=rep(0,length(d)), dependence=FALSE, minval=0, maxval=network.size(nw)-1, conflicts.constraints="idegrees")
+       inputs=c(d), emptynwstats=dbl_along(d), dependence=FALSE, minval=0, maxval=network.size(nw)-1, conflicts.constraints="idegrees")
 }
 
 
@@ -4618,7 +4621,7 @@ InitErgmTerm.sender<-function(nw, arglist, ..., version=packageVersion("ergm")) 
   ld<-length(d)
   if(ld==0){return(NULL)}
   list(name="sender", coef.names=paste("sender",d,sep=""),
-       inputs=c(d), emptynwstats=rep(0,length(d)), dependence=FALSE, minval=0, maxval=network.size(nw)-1, conflicts.constraints="odegrees")
+       inputs=c(d), emptynwstats=dbl_along(d), dependence=FALSE, minval=0, maxval=network.size(nw)-1, conflicts.constraints="odegrees")
 }
 
 ################################################################################
@@ -5001,7 +5004,7 @@ InitErgmTerm.triadcensus<-function (nw, arglist, ..., version=packageVersion("er
   d <- match(d, tcn) - 1
   
   if (any(d==0)) {
-    emptynwstats <- rep(0,length(d))
+    emptynwstats <- dbl_along(d)
     nwsize <- network.size(nw)
     # SEARCH_ON_THIS_TO_TRACK_DOWN_TRIADCENSUS_CHANGE
     # to undo triadcensus change, comment out next line:

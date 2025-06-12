@@ -110,7 +110,6 @@ traceback.Initializers <- function(){
 
 # Search back in time through sys.calls() to find the name of the last
 # function whose name matches a regex.
-#' @importFrom purrr map_chr
 traceback.search <- function(pattern, ...) {
   sys.calls() %>%
     as.list() %>%
@@ -121,5 +120,5 @@ traceback.search <- function(pattern, ...) {
 
 regexpr_list <- function(x, pat){
   m <- attributes(regexpr(pat, x, perl=TRUE))
-  Map(function(s, l, n){substr(x, s, s+l-1)}, c(m$capture.start)[-1], c(m$capture.length)[-1]) %>% set_names(m$capture.names[-1]) %>% within({valued<-(valued=="Wt"); type<-tolower(type)})
+  Map(function(s, l, n){substr(x, s, s+l-1)}, c(m$capture.start)[-1], c(m$capture.length)[-1]) %>% setNames(m$capture.names[-1]) %>% within({valued<-(valued=="Wt"); type<-tolower(type)})
 }

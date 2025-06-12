@@ -375,7 +375,7 @@ san.ergm_model <- function(object, reference=~Bernoulli, constraints=~., target.
                               edgelist=as.edgelist(state)
                               )
     }else{
-      if(i<control$SAN.maxit && isTRUE(all.equal(unname(stats), numeric(length(stats))))){
+      if(i<control$SAN.maxit && isTRUE(all.equal(unname(stats), dbl_along(stats)))){
         if(verbose) message("Target statistics matched exactly.")
         break
       }

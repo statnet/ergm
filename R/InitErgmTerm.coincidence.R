@@ -47,8 +47,8 @@ InitErgmTerm.coincidence<-function(nw, arglist, ..., version=packageVersion("erg
                         required = c(FALSE,FALSE))
 	levels <- a$levels
   }
-  nb1 <- get.network.attribute(nw, "bipartite")
-  nb2 <- network.size(nw)-nb1
+  nb1 <- b1.size(nw)
+  nb2 <- b2.size(nw)
 
   # coincidence was originally implemented in such a way that the second column varies fastest
   # this behavior is preserved here, although it violates the convention used by other terms

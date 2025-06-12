@@ -33,7 +33,7 @@ InitErgmConstraint..attributes <- function(nw, arglist, ...){
   storage.mode(n) <- "integer"
   dir <- is.directed(nw)
   loops <- has.loops(nw)
-  bip <- EVL(as.integer(nw%n%"bipartite"), FALSE)
+  bip <- EVL(as.integer(b1.size(nw)), FALSE)
   rm(nw, arglist, "...") # All needed information has now been extracted.
 
   list(
@@ -460,7 +460,7 @@ InitErgmConstraint.fixedas<-function(nw, arglist,...){
   fixed <- as.edgelist(unique(rbind(fixed, present, absent)),
                        n = nw%n%"n",
                        directed = nw%n%"directed",
-                       bipartite = nw%n%"bipartite",
+                       bipartite = b1.size(nw),
                        loops = nw%n%"loops")
 
   rm(nw, a, present, absent, arglist, "...")
@@ -502,7 +502,7 @@ InitErgmConstraint.fixallbut<-function(nw, arglist,...){
                   else as.edgelist(free.dyads,
                                    n=nw%n%"n",
                                    directed=nw%n%"directed",
-                                   bipartite=nw%n%"bipartite",
+                                   bipartite=b1.size(nw),
                                    loops=nw%n%"loops")
                   ),
     dependence = FALSE)

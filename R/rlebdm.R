@@ -312,8 +312,8 @@ as.edgelist.rlebdm <- function(x, prototype=NULL, ..., output=c("matrix", "tibbl
 
   dir <- NVL3(prototype, is.directed(.), TRUE)
   loop <- NVL3(prototype, has.loops(.), TRUE)
-  bip <- NVL3(prototype, . %n% "bipartite", FALSE)
-  
+  bip <- NVL3(prototype, b1.size(.), FALSE)
+
   n <- attr(x, "n")
   starts <- cumsum(c(1,as.numeric(x$lengths)))
   starts <- starts[-length(starts)]

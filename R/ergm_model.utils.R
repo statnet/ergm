@@ -25,7 +25,7 @@ ergm.checkextreme.model <- function(model, nw, init, response, target.stats, dro
   # (no action) for all elements of theta that go into a curved term,
   # and only the elements of extremeval.eta corresponding to
   # canonical terms get copied into it.
-  extremeval.theta <- rep(0, length(init))
+  extremeval.theta <- dbl_along(init)
   extremeval.theta[model$etamap$canonical!=0 & !model$etamap$offsettheta]<-extremeval.eta[model$etamap$canonical[!model$etamap$offsettheta]]
   names.theta <- rep(NA, length(length(init)))
   names.theta[model$etamap$canonical!=0]<-names.eta[model$etamap$canonical]

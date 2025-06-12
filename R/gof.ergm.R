@@ -256,8 +256,8 @@ gof.formula <- function(object, ...,
   }
 
   if(is.bipartite(nw)){
-    nb1 <- nw %n% "bipartite"
-    nb2 <- n-nb1
+    nb1 <- b1.size(nw)
+    nb2 <- b2.size(nw)
   }else{
     nb1 <- nb2 <- n
   }

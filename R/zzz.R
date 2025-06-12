@@ -9,6 +9,7 @@
 ################################################################################
 #' @importFrom Rdpack reprompt
 #' @importFrom rlang "%|%"
+#' @import purrr
 .onAttach <- function(libname, pkgname){
   #' @importFrom statnet.common statnetStartupMessage
   sm <- statnetStartupMessage("ergm", c("statnet","ergm.count","tergm"), TRUE)

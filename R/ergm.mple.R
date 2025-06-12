@@ -152,8 +152,8 @@ ergm.mple<-function(s, s.obs, init=NULL,
    covar <- array(0,dim=c(1,1))
    hess <- array(0,dim=c(1,1))
   }else{
-   covar <- diag(rep(0,length(theta)))
-   hess <- diag(rep(0,length(theta)))
+   covar <- diag(dbl_along(theta))
+   hess <- diag(dbl_along(theta))
   }
 
   covar %[.,.]% (!is.na(theta) & !m$etamap$offsettheta) <- real.cov

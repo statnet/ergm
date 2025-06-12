@@ -82,8 +82,8 @@ InitErgmConstraint.blockdiag<-function(nw, arglist, ...){
          n <- network.size(nw)
          storage.mode(n) <- "integer"
          a <- c(ergm_get_vattr(a$attr, nw)) # Strip attributes, which confuse rle().
-         if(NVL(nw%n%"bipartite",0)){
-           bip <- nw %n% "bipartite"
+         if (is.bipartite(nw)) {
+           bip <- b1.size(nw)
            ea <- a[seq_len(bip)]
            aa <- a[bip+seq_len(n-bip)]
            if(anyDuplicated(rle(ea)$values) || anyDuplicated(rle(aa)$values)) stop(contigmsg)

@@ -601,8 +601,9 @@ PROPOSAL_NOT_IN_TABLE <- "This proposal is not referenced in the lookup table."
          subsection = paste0("\\subsection{Keywords}{", keywords, "}"))
 }
 
+#' @importFrom rlang hash
 .term.rdname <- function(term.type, term.name) {
-  gsub(".", "", paste(term.name, term.type, substr(rlang::hash(term.name), 1, 8), sep = "-"), fixed=TRUE)
+  gsub(".", "", paste(term.name, term.type, substr(hash(term.name), 1, 8), sep = "-"), fixed=TRUE)
 }
 
 search.ergmTermType <-function(term.type, search, net, keywords, name, packages) {

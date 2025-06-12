@@ -32,7 +32,7 @@ InitErgmTerm.Project <- function(nw, arglist, ...){
                       defaultvalues = list(NULL, NULL),
                       required = c(TRUE, TRUE))
 
-  bip <- as.integer(nw %n% "bipartite")
+  bip <- as.integer(b1.size(nw))
   n <- as.integer(network.size(nw))
 
   mode <- a$mode

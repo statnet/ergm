@@ -184,7 +184,7 @@ ergmMPLE <- function(formula, constraints=~., obs.constraints=~-observed, output
       array = {
         # If expand.bipartite==TRUE, then no special treatment for
         # bipartite networks is needed.
-        bip <- if (!expand.bipartite) NVL(nw %n% "bipartite", 0) else 0
+        bip <- if (!expand.bipartite) b1.size(nw) else 0
 
         vn <-
           if (all(is.na(nw %v% "vertex.names"))) seq_len(network.size(nw))
