@@ -59,10 +59,10 @@ SPTYPE_CODE <- c(UTP = 0L, OTP = 1L, ITP = 2L, RTP = 3L, OSP = 4L, ISP = 5L)
   }else bip <- ""
 
   a <- check.ErgmTerm(nw, arglist,
-                      varnames = c("d","type"),
-                      vartypes = c("numeric","character"),
-                      defaultvalues = list(NULL,"OTP"),
-                      required = c(TRUE, FALSE))
+                      varnames = c("d", if(!nchar(bip)) "type"),
+                      vartypes = c("numeric",if(!nchar(bip)) "character"),
+                      defaultvalues = c(list(NULL), if(!nchar(bip)) "OTP"),
+                      required = c(TRUE, if(!nchar(bip)) FALSE))
   utermname <- paste0(bip, sp, "sp")
 
   d<-a$d
@@ -84,10 +84,10 @@ SPTYPE_CODE <- c(UTP = 0L, OTP = 1L, ITP = 2L, RTP = 3L, OSP = 4L, ISP = 5L)
   }else bip <- ""
 
   a <- check.ErgmTerm(nw, arglist,
-                      varnames = c("decay","fixed","cutoff","type", "alpha"),
-                      vartypes = c("numeric","logical","numeric","character", "numeric"),
-                      defaultvalues = list(NULL, FALSE, gw.cutoff,"OTP", NULL),
-                      required = c(FALSE, FALSE, FALSE, FALSE, FALSE))
+                      varnames = c("decay", "fixed", "cutoff", if(!nchar(bip)) "type", "alpha"),
+                      vartypes = c("numeric","logical","numeric", if(!nchar(bip)) "character", "numeric"),
+                      defaultvalues = c(list(NULL), FALSE, gw.cutoff, if(!nchar(bip)) "OTP", list(NULL)),
+                      required = c(FALSE, FALSE, FALSE, if(!nchar(bip)) FALSE, FALSE))
   utermname <- paste0("gw",bip,sp,"sp")
   termname <- paste0("dgw",bip,sp,"sp")
 
