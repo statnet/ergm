@@ -13,7 +13,7 @@
 /* #include "ergm_dyad_hashmap_utils.h" */
 
 /* // sets aux network to y0 XOR y1 */
-/* WtI_CHANGESTAT_FN(i__wtdiscord_net_Network){ */
+/* WtI_CHANGESTAT_FN(i__Wtdiscord_net_Network){ */
 /*   I_WtAUXNET(NetworkCopy(nwp)); */
 /*   int *ref_el = IINPUT_PARAM; */
 
@@ -24,12 +24,12 @@
 /*   } */
 /* } */
 
-/* WtU_CHANGESTAT_FN(u__wtdiscord_net_Network){ */
+/* WtU_CHANGESTAT_FN(u__Wtdiscord_net_Network){ */
 /*   GET_AUX_STORAGE(StoreAuxnet, auxnet); */
 /*   ToggleEdge(tail, head, auxnet->onwp); */
 /* } */
 
-/* F_CHANGESTAT_FN(f__wtdiscord_net_Network){ */
+/* F_CHANGESTAT_FN(f__Wtdiscord_net_Network){ */
 /*   GET_AUX_STORAGE(StoreAuxnet, auxnet); */
 /*   NetworkDestroy(auxnet->onwp); */
 /* } */
@@ -37,7 +37,7 @@
 /* // Initialize empty aux network. Then loop through the edges of y0 (ref_el). */
 /* // If the edge also exists in y1, then toggle it off in auxnet->onwp. */
 /* // The storage auxnet->onwp should be initialized as y0&y1 at the end. */
-/* WtI_CHANGESTAT_FN(i__wtintersect_net_Network){ */
+/* WtI_CHANGESTAT_FN(i__Wtintersect_net_Network){ */
 /*   I_WtAUXNET(NetworkInitialize(NULL, NULL, 0, N_NODES, DIRECTED, BIPARTITE)); */
 /*   int *ref_el = IINPUT_PARAM; */
 
@@ -50,7 +50,7 @@
 /*   } */
 /* } */
 
-/* WtU_CHANGESTAT_FN(u__wtintersect_net_Network){ */
+/* WtU_CHANGESTAT_FN(u__Wtintersect_net_Network){ */
 /*   GET_AUX_STORAGE(StoreAuxnet, auxnet); */
 /*   int *ref_el = IINPUT_PARAM; */
 /*   // only toggle if the edge is in y0. otherwise changing y1 won't matter. */
@@ -58,12 +58,12 @@
 /*     ToggleEdge(tail, head, auxnet->onwp); */
 /* } */
 
-/* WtF_CHANGESTAT_FN(f__wtintersect_net_Network){ */
+/* WtF_CHANGESTAT_FN(f__Wtintersect_net_Network){ */
 /*   GET_AUX_STORAGE(StoreAuxnet, auxnet); */
 /*   NetworkDestroy(auxnet->onwp); */
 /* } */
 
-/* WtI_CHANGESTAT_FN(i__wtintersect_net_toggles_in_list_Network){ */
+/* WtI_CHANGESTAT_FN(i__Wtintersect_net_toggles_in_list_Network){ */
 /*   //Rprintf("allocating intersect_net_tog\n"); */
 /*   I_WtAUXNET(NetworkInitialize(NULL, NULL, 0, N_NODES, DIRECTED, BIPARTITE)); */
 /*   int *ref_el = IINPUT_PARAM; */
@@ -77,12 +77,12 @@
 /*   } */
 /* } */
 
-/* WtU_CHANGESTAT_FN(u__wtintersect_net_toggles_in_list_Network){ */
+/* WtU_CHANGESTAT_FN(u__Wtintersect_net_toggles_in_list_Network){ */
 /*   GET_AUX_STORAGE(StoreAuxnet, auxnet); */
 /*   ToggleEdge(tail, head, auxnet->onwp); */
 /* } */
 
-/* WtF_CHANGESTAT_FN(f__wtintersect_net_toggles_in_list_Network){ */
+/* WtF_CHANGESTAT_FN(f__Wtintersect_net_toggles_in_list_Network){ */
 /*   GET_AUX_STORAGE(StoreAuxnet, auxnet); */
 /*   NetworkDestroy(auxnet->onwp); */
 /* } */
@@ -90,7 +90,7 @@
 /* // Initialize aux network to y1. Then loop through the edges of y0 (ref_el). */
 /* // If the edge does not exists in y1, then toggle it on in aux network. */
 /* // The storage auxnet->onwp should be initialized as y0|y1 at the end. */
-/* WtI_CHANGESTAT_FN(i__wtunion_net_Network){ */
+/* WtI_CHANGESTAT_FN(i__Wtunion_net_Network){ */
 /*   I_WtAUXNET(NetworkCopy(nwp)); */
 /*   int *ref_el = IINPUT_PARAM; */
 
@@ -103,7 +103,7 @@
 /*   } */
 /* } */
 
-/* WtU_CHANGESTAT_FN(u__wtunion_net_Network){ */
+/* WtU_CHANGESTAT_FN(u__Wtunion_net_Network){ */
 /*   GET_AUX_STORAGE(StoreAuxnet, auxnet); */
 /*   int *ref_el = IINPUT_PARAM; */
 /*   // If the edge is in y0, changing y1 won't matter. */
@@ -111,7 +111,7 @@
 /*     ToggleEdge(tail, head, auxnet->onwp); */
 /* } */
 
-/* WtF_CHANGESTAT_FN(f__wtunion_net_Network){ */
+/* WtF_CHANGESTAT_FN(f__Wtunion_net_Network){ */
 /*   GET_AUX_STORAGE(StoreAuxnet, auxnet); */
 /*   NetworkDestroy(auxnet->onwp); */
 /* } */
@@ -122,7 +122,7 @@
 /*    memberships */
 /* *\/ */
 
-/* WtI_CHANGESTAT_FN(i__wtblockdiag_net){ */
+/* WtI_CHANGESTAT_FN(i__Wtblockdiag_net){ */
 /*   I_WtAUXNET(NetworkInitialize(NULL, NULL, 0, N_NODES, DIRECTED, BIPARTITE)); */
 /*   int *b = IINPUT_PARAM-1; // tail and head are indexed from 1. */
 
@@ -136,7 +136,7 @@
 /*   } */
 /* } */
 
-/* WtU_CHANGESTAT_FN(u__wtblockdiag_net){ */
+/* WtU_CHANGESTAT_FN(u__Wtblockdiag_net){ */
 /*   GET_AUX_STORAGE(StoreAuxnet, auxnet); */
 /*   int *b = IINPUT_PARAM-1; // tail and head are indexed from 1. */
 
@@ -144,7 +144,7 @@
 /*     ToggleKnownEdge(tail, head, auxnet->onwp, edgestate); */
 /* } */
 
-/* WtF_CHANGESTAT_FN(f__wtblockdiag_net){ */
+/* WtF_CHANGESTAT_FN(f__Wtblockdiag_net){ */
 /*   GET_AUX_STORAGE(StoreAuxnet, auxnet); */
 /*   NetworkDestroy(auxnet->onwp); */
 /* } */
@@ -160,25 +160,25 @@
 
 */
 
-WtI_CHANGESTAT_FN(i__wtundir_net){
+WtI_CHANGESTAT_FN(i__Wtundir_net){
   I_WtAUXNET(WtNetworkInitialize(NULL, NULL, NULL, 0, N_NODES, FALSE, BIPARTITE));
 
   unsigned int rule = IINPUT_PARAM[0];
   WtEXEC_THROUGH_NET_EDGES_PRE(tail, head, e, weight, {
-      __wtundir_net_totoggle;
+      __Wtundir_net_totoggle;
       if(totoggle) WtSetEdge(tail, head, w, auxnet->onwp);
     });
 }
 
-WtU_CHANGESTAT_FN(u__wtundir_net){
+WtU_CHANGESTAT_FN(u__Wtundir_net){
   GET_AUX_STORAGE(StoreWtAuxnet, auxnet);
   unsigned int rule = IINPUT_PARAM[0];
 
-  __wtundir_net_totoggle;
+  __Wtundir_net_totoggle;
   if(totoggle) WtSetEdge(MIN(tail,head), MAX(tail,head),w, auxnet->onwp);
 }
 
-WtF_CHANGESTAT_FN(f__wtundir_net){
+WtF_CHANGESTAT_FN(f__Wtundir_net){
   GET_AUX_STORAGE(StoreWtAuxnet, auxnet);
   WtNetworkDestroy(auxnet->onwp);
 }
@@ -191,7 +191,7 @@ WtF_CHANGESTAT_FN(f__wtundir_net){
 
 /* *\/ */
 
-/* WtI_CHANGESTAT_FN(i__wtfilter_formula_net){ */
+/* WtI_CHANGESTAT_FN(i__Wtfilter_formula_net){ */
 /*   I_WtAUXNET(WtNetworkInitialize(NULL, NULL, NULL, 0, N_NODES, DIRECTED, BIPARTITE)); */
 /*   GET_STORAGE(WtModel, m); */
 /*   unsigned int op = IINPUT_PARAM[0]; */
@@ -200,24 +200,24 @@ WtF_CHANGESTAT_FN(f__wtundir_net){
 
 /*   WtEXEC_THROUGH_NET_EDGES_PRE(t, h, w, e, { */
 /*       Rboolean edgestate = TRUE; // We know the edge is present in nwp. */
-/*       __wtfilter_formula_net_totoggle(t, h, w, nwp, m); */
+/*       __Wtfilter_formula_net_totoggle(t, h, w, nwp, m); */
 /*       if(totoggle) WtAddEdgeToTrees(t, h, w, auxnet->onwp); */
 /*     }); */
 /* } */
 
-/* WtU_CHANGESTAT_FN(u__wtfilter_formula_net){ */
+/* WtU_CHANGESTAT_FN(u__Wtfilter_formula_net){ */
 /*   GET_AUX_STORAGE(StoreAuxnet, auxnet); */
 /*   GET_STORAGE(Model, m); */
 /*   unsigned int op = IINPUT_PARAM[0]; */
 
-/*   __wtfilter_formula_net_totoggle(tail, head, nwp, m); */
+/*   __Wtfilter_formula_net_totoggle(tail, head, nwp, m); */
 /*   if(totoggle){ */
 /*     if(edgestate) WtDeleteEdgeFromTrees(tail,head,auxnet->onwp); */
 /*     else WtAddEdgeToTrees(tail,head,weight,auxnet->onwp); */
 /*   } */
 /* } */
 
-/* WtF_CHANGESTAT_FN(f__wtfilter_formula_net){ */
+/* WtF_CHANGESTAT_FN(f__Wtfilter_formula_net){ */
 /*   GET_AUX_STORAGE(StoreAuxnet, auxnet); */
 /*   Model *m = STORAGE; */
 
@@ -234,7 +234,7 @@ WtF_CHANGESTAT_FN(f__wtundir_net){
 
 */
 
-WtI_CHANGESTAT_FN(i__wtsubgraph_net){
+WtI_CHANGESTAT_FN(i__Wtsubgraph_net){
   ALLOC_STORAGE(2, int*, thmap);
   int *inputs = IINPUT_PARAM;
   unsigned int type = *(inputs++);
@@ -262,7 +262,7 @@ WtI_CHANGESTAT_FN(i__wtsubgraph_net){
     thmap[1] = inputs + nwp->nnodes - 1;
     break;
   default:
-    error("Error in i__wtsubgraph_net(): unrecognised output network type.");
+    error("Error in i__Wtsubgraph_net(): unrecognised output network type.");
     break;
   }
 
@@ -279,7 +279,7 @@ WtI_CHANGESTAT_FN(i__wtsubgraph_net){
     });
 }
 
-WtU_CHANGESTAT_FN(u__wtsubgraph_net){
+WtU_CHANGESTAT_FN(u__Wtsubgraph_net){
   GET_AUX_STORAGE(StoreWtAuxnet, auxnet);
   GET_STORAGE(int*, thmap);
   Vertex st = thmap[0][tail];
@@ -291,7 +291,7 @@ WtU_CHANGESTAT_FN(u__wtsubgraph_net){
   if(st!=0 && sh!=0) WtSetEdge(st, sh, weight, auxnet->onwp);
 }
 
-WtF_CHANGESTAT_FN(f__wtsubgraph_net){
+WtF_CHANGESTAT_FN(f__Wtsubgraph_net){
   GET_AUX_STORAGE(StoreWtAuxnet, auxnet);
   WtNetworkDestroy(auxnet->onwp);
   // DestroyStats() will deallocate the rest.
@@ -305,25 +305,25 @@ WtF_CHANGESTAT_FN(f__wtsubgraph_net){
 
 */
 
-WtI_CHANGESTAT_FN(i__wttransformed_net){
+WtI_CHANGESTAT_FN(i__Wttransformed_net){
   I_WtAUXNET(WtNetworkInitialize(NULL, NULL, NULL, 0, N_NODES, FALSE, BIPARTITE));
 
   unsigned int op = IINPUT_PARAM[0];
   WtEXEC_THROUGH_NET_EDGES_PRE(tail, head, e, weight, {
-      __wttransformed_net_totoggle;
+      __Wttransformed_net_totoggle;
       if(totoggle) WtSetEdge(tail, head, w, auxnet->onwp);
     });
 }
 
-WtU_CHANGESTAT_FN(u__wttransformed_net){
+WtU_CHANGESTAT_FN(u__Wttransformed_net){
   GET_AUX_STORAGE(StoreWtAuxnet, auxnet);
   unsigned int op = IINPUT_PARAM[0];
 
-  __wttransformed_net_totoggle;
+  __Wttransformed_net_totoggle;
   if(totoggle) WtSetEdge(tail, head, w, auxnet->onwp);
 }
 
-WtF_CHANGESTAT_FN(f__wttransformed_net){
+WtF_CHANGESTAT_FN(f__Wttransformed_net){
   GET_AUX_STORAGE(StoreWtAuxnet, auxnet);
   WtNetworkDestroy(auxnet->onwp);
 }

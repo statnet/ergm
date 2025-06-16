@@ -9,7 +9,7 @@
 ################################################################################
 InitWtErgmTerm.Passthrough <- function(nw, arglist, ...){
   out <- InitErgmTerm.Passthrough(nw, arglist, ...)
-  out$name <- "wtpassthrough_term"
+  out$name <- "Wtpassthrough_term"
   out
 }
 
@@ -140,7 +140,7 @@ InitWtErgmTerm.Symmetrize <- function(...){
   # diagnostic messages.
   f <- InitErgmTerm.Symmetrize
   term <- f(...)
-  term$name <- "on_wtundir_net"
+  term$name <- "on_Wtundir_net"
   term
 }
 
@@ -153,7 +153,7 @@ InitWtErgmTerm.Sum <- function(...){
   # diagnostic messages.
   f <- InitErgmTerm.Sum
   term <- f(...)
-  term$name <- "wtSum"
+  term$name <- "WtSum"
   term
 }
 
@@ -166,7 +166,7 @@ InitWtErgmTerm.S <- function(...){
   # diagnostic messages.
   f <- InitErgmTerm.S
   term <- f(...)
-  term$name <- "on_wtsubgraph_net"
+  term$name <- "on_Wtsubgraph_net"
   term
 }
 
@@ -176,7 +176,7 @@ InitWtErgmTerm.S <- function(...){
 #' # valued: Label(formula, label, pos)
 InitWtErgmTerm.Label <- function(nw, arglist, ...){
   out <- InitErgmTerm.Label(nw, arglist, ...)
-  out$name <- "wtpassthrough_term"
+  out$name <- "Wtpassthrough_term"
   out
 }
 
@@ -186,13 +186,13 @@ InitWtErgmTerm.Label <- function(nw, arglist, ...){
 #' # valued: Curve(formula, params, map, gradient=NULL, minpar=-Inf, maxpar=+Inf, cov=NULL)
 InitWtErgmTerm.Curve <- function(nw, arglist, ...){
   out <- InitErgmTerm.Curve(nw, arglist, ...)
-  out$name <- "wtpassthrough_term"
+  out$name <- "Wtpassthrough_term"
   out
 }
 
 InitWtErgmTerm..submodel_and_summary <- function(nw, arglist, ...){
   out <- InitErgmTerm..submodel_and_summary(nw, arglist, ...)
-  out$name <- "_wtsubmodel_and_summary_term"
+  out$name <- "_Wtsubmodel_and_summary_term"
   out
 }
 
@@ -216,7 +216,7 @@ InitWtErgmTerm.Parametrize <- InitWtErgmTerm.Curve
 #' # valued: Exp(formula)
 InitWtErgmTerm.Exp <- function(nw, arglist, ...){
   out <- InitErgmTerm.Exp(nw, arglist, ...)
-  out$name <- "wtExp"
+  out$name <- "WtExp"
   out
 }
 
@@ -226,7 +226,7 @@ InitWtErgmTerm.Exp <- function(nw, arglist, ...){
 #' # valued: Log(formula, log0=-1/sqrt(.Machine$double.eps))
 InitWtErgmTerm.Log <- function(nw, arglist, ...){
   out <- InitErgmTerm.Log(nw, arglist, ...)
-  out$name <- "wtLog"
+  out$name <- "WtLog"
   out
 }
 
@@ -260,7 +260,7 @@ net_transform_encode <- function(expr, env){
   op <- net_transform_encode(a$expr, env)
   m <- ergm_model(rhs, nw, ..., terms.only = TRUE)
 
-  c(list(name = "on_wttransformed_net", iinput = op, submodel = m, auxiliaries = ~.transformed.net(a$expr)),
+  c(list(name = "on_Wttransformed_net", iinput = op, submodel = m, auxiliaries = ~.transformed.net(a$expr)),
     wrap.ergm_model(m, nw, ergm_mk_std_op_namewrap(a$expr)))
 }
 
@@ -273,5 +273,5 @@ InitWtErgmTerm..transformed.net <- function(nw, arglist, ..., env){
 
   op <- net_transform_encode(a$expr, env)
 
-  c(list(name = "_wttransformed_net", coef.names = c(), iinputs = op, dependence = FALSE))
+  c(list(name = "_Wttransformed_net", coef.names = c(), iinputs = op, dependence = FALSE))
 }

@@ -15,33 +15,33 @@
 
 typedef struct{StoreStrictDyadSet *nwp; int *ref_el;} StoreStrictDyadSetAndRefEL;
 
-/* #define map_toggle_maxtoggles__wtdiscord_net_Network 1 */
-/* MAP_WtTOGGLE_FN(map_toggle__wtdiscord_net_Network){ */
+/* #define map_toggle_maxtoggles__Wtdiscord_net_Network 1 */
+/* MAP_WtTOGGLE_FN(map_toggle__Wtdiscord_net_Network){ */
 /*   MAP_WtTOGGLE_PROPAGATE; */
 /* } */
 
-/* #define map_toggle_maxtoggles__wtintersect_net_Network 1 */
-/* MAP_WtTOGGLE_FN(map_toggle__wtintersect_net_Network){ */
+/* #define map_toggle_maxtoggles__Wtintersect_net_Network 1 */
+/* MAP_WtTOGGLE_FN(map_toggle__Wtintersect_net_Network){ */
 /*   ModelTerm *mtp = auxnet->mtp; */
 /*   int *ref_el = IINPUT_PARAM; */
 /*   MAP_WtTOGGLE_PROPAGATE_IF(iEdgeListSearch(tail, head, ref_el)); */
 /* } */
 
-/* #define map_toggle_maxtoggles__wtunion_net_Network 1 */
-/* MAP_WtTOGGLE_FN(map_toggle__wtunion_net_Network){ */
+/* #define map_toggle_maxtoggles__Wtunion_net_Network 1 */
+/* MAP_WtTOGGLE_FN(map_toggle__Wtunion_net_Network){ */
 /*   ModelTerm *mtp = auxnet->mtp; */
 /*   int *ref_el = IINPUT_PARAM; */
 /*   MAP_WtTOGGLE_PROPAGATE_IF(!iEdgeListSearch(tail, head, ref_el)); */
 /* } */
 
-/* #define map_toggle_maxtoggles__wtblockdiag_net 1 */
-/* MAP_WtTOGGLE_FN(map_toggle__wtblockdiag_net){ */
+/* #define map_toggle_maxtoggles__Wtblockdiag_net 1 */
+/* MAP_WtTOGGLE_FN(map_toggle__Wtblockdiag_net){ */
 /*   ModelTerm *mtp = auxnet->mtp; */
 /*   int *b = IINPUT_PARAM-1; // tail and head are indexed from 1. */
 /*   MAP_WtTOGGLE_PROPAGATE_IF(b[tail]==b[head]); */
 /* } */
 
-#define __wtundir_net_totoggle				\
+#define __Wtundir_net_totoggle				\
   Rboolean totoggle;					\
   double ht = WtGETWT(head,tail);                       \
   double ostate = WtGETWT(head,tail, auxnet->onwp);     \
@@ -68,12 +68,12 @@ typedef struct{StoreStrictDyadSet *nwp; int *ref_el;} StoreStrictDyadSetAndRefEL
     totoggle = FALSE;					\
   }
 
-#define map_toggle_maxtoggles__wtundir_net 1
-MAP_WtTOGGLE_FN(map_toggle__wtundir_net){
+#define map_toggle_maxtoggles__Wtundir_net 1
+MAP_WtTOGGLE_FN(map_toggle__Wtundir_net){
   WtModelTerm *mtp = auxnet->mtp;
   unsigned int rule = IINPUT_PARAM[0];
   WtNetwork *nwp = auxnet->inwp;
-  __wtundir_net_totoggle;
+  __Wtundir_net_totoggle;
   if(totoggle){
     *tails = MIN(tail,head);
     *heads = MAX(tail,head);
@@ -84,7 +84,7 @@ MAP_WtTOGGLE_FN(map_toggle__wtundir_net){
   }
 }
 
-/* #define __wtfilter_formula_net_totoggle(t, h, w, nwp, m)                 \ */
+/* #define __Wtfilter_formula_net_totoggle(t, h, w, nwp, m)                 \ */
 /*   Rboolean totoggle;                                                    \ */
 /*   {                                                                     \ */
 /*     WtChangeStats1((t), (h), (w), (nwp), (m), edgestate);               \ */
@@ -101,17 +101,17 @@ MAP_WtTOGGLE_FN(map_toggle__wtundir_net){
 /*     }                                                                   \ */
 /*   } */
 
-/* #define map_toggle_maxtoggles__wtfilter_formula_net 1 */
-/* MAP_WtTOGGLE_FN(map_toggle__wtfilter_formula_net){ */
+/* #define map_toggle_maxtoggles__Wtfilter_formula_net 1 */
+/* MAP_WtTOGGLE_FN(map_toggle__Wtfilter_formula_net){ */
 /*   WtModelTerm *mtp = auxnet->mtp; */
 /*   unsigned int op = IINPUT_PARAM[0]; */
 /*   GET_STORAGE(WtModel, m); */
-/*   __wtfilter_formula_net_totoggle(tail, head, weight, auxnet->inwp, m); */
+/*   __Wtfilter_formula_net_totoggle(tail, head, weight, auxnet->inwp, m); */
 /*   MAP_WtTOGGLE_PROPAGATE_IF(totoggle); */
 /* } */
 
-#define map_toggle_maxtoggles__wtsubgraph_net 1
-MAP_WtTOGGLE_FN(map_toggle__wtsubgraph_net){
+#define map_toggle_maxtoggles__Wtsubgraph_net 1
+MAP_WtTOGGLE_FN(map_toggle__Wtsubgraph_net){
   WtNetwork *nwp = auxnet->inwp;
   WtModelTerm *mtp = auxnet->mtp;
   GET_STORAGE(int*, thmap);
@@ -132,7 +132,7 @@ MAP_WtTOGGLE_FN(map_toggle__wtsubgraph_net){
   }
 }
 
-#define __wttransformed_net_totoggle                    \
+#define __Wttransformed_net_totoggle                    \
   Rboolean totoggle;					\
   double ostate = WtGETWT(head,tail, auxnet->onwp);     \
   double w;                                             \
@@ -146,11 +146,11 @@ MAP_WtTOGGLE_FN(map_toggle__wtsubgraph_net){
     totoggle = FALSE;					\
   }
 
-#define map_toggle_maxtoggles__wttransformed_net 1
-MAP_WtTOGGLE_FN(map_toggle__wttransformed_net){
+#define map_toggle_maxtoggles__Wttransformed_net 1
+MAP_WtTOGGLE_FN(map_toggle__Wttransformed_net){
   WtModelTerm *mtp = auxnet->mtp;
   unsigned int op = IINPUT_PARAM[0];
-  __wttransformed_net_totoggle;
+  __Wttransformed_net_totoggle;
   if(totoggle){
     *tails = tail;
     *heads = head;

@@ -110,7 +110,7 @@ InitWtErgmTerm..undir.net <- function(...){
   # diagnostic messages.
   f <- InitErgmTerm..undir.net
   term <- f(...)
-  term$name <- "_wtundir_net"
+  term$name <- "_Wtundir_net"
   term
 }
 
@@ -119,6 +119,6 @@ InitWtErgmTerm..subgraph.net <- function(...){
   # diagnostic messages.
   f <- InitErgmTerm..subgraph.net
   term <- f(...)
-  term$name <- "_wtsubgraph_net"
+  term$name <- "_Wtsubgraph_net"
   term
 }
