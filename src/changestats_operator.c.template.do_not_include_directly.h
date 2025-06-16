@@ -8,6 +8,8 @@
  *  Copyright 2003-2025 Statnet Commons
  */
 
+#include "ergm_simple_Matrix.h"
+
 /* passthrough(formula) */
 
 ETYPE(I_CHANGESTAT_FN)(ETYPE(i_, passthrough_term)){
@@ -90,68 +92,64 @@ ETYPE(F_CHANGESTAT_FN)(ETYPE(f__, submodel_and_summary_term)){
 
 // wtSum: Take a weighted sum of the models' statistics.
 
+typedef struct{
+  dgCMatrix_double *wts;
+  ETYPE(Model) **ms;
+} ETYPE(StoreCSparseDMAnd, Models);
+
 ETYPE(I_CHANGESTAT_FN)(ETYPE(i_, Sum)){
   unsigned int nms = *IINPUT_PARAM;
-  ALLOC_STORAGE(nms, ETYPE(Model)*, ms);
+  ALLOC_STORAGE(1, ETYPE(StoreCSparseDMAnd, Models), storage);
 
+  storage->wts = dgCMatrix_double_SEXP(getListElement(mtp->R, "weights"));
+
+  storage->ms = R_Calloc(nms, ETYPE(Model) *);
   SEXP submodels = getListElement(mtp->R, "submodels");
-  for(unsigned int i=0; i<nms; i++){
-    ms[i] = ETYPE(ModelInitialize)(VECTOR_ELT(submodels,i), isNULL(mtp->ext_state) ? NULL : VECTOR_ELT(mtp->ext_state,i), nwp, FALSE);
+  for(unsigned int mi=0; mi<nms; mi++){
+    storage->ms[mi] = ETYPE(ModelInitialize)(VECTOR_ELT(submodels,mi), isNULL(mtp->ext_state) ? NULL : VECTOR_ELT(mtp->ext_state,mi), nwp, FALSE);
   }
-  ETYPE(DELETE_IF_UNUSED_IN_SUBMODELS)(x_func, ms, nms);
-  ETYPE(DELETE_IF_UNUSED_IN_SUBMODELS)(z_func, ms, nms);
+  ETYPE(DELETE_IF_UNUSED_IN_SUBMODELS)(x_func, storage->ms, nms);
+  ETYPE(DELETE_IF_UNUSED_IN_SUBMODELS)(z_func, storage->ms, nms);
 }
 
-ETYPE(C_CHANGESTAT_FN)(ETYPE(c_, Sum)){
-  GET_STORAGE(ETYPE(Model)*, ms);
-  unsigned int nms = *IINPUT_PARAM;
-  double *wts = INPUT_PARAM;
-
-  for(unsigned int i=0; i<nms; i++){
-    ETYPE(Model) *m = ms[i];
-    ETYPE(ChangeStats1)(tail, head, IFEWT(weight,) nwp, m, edgestate);
-    for(unsigned int j=0; j<m->n_stats; j++)
-      for(unsigned int k=0; k<N_CHANGE_STATS; k++)
-	CHANGE_STAT[k] += m->workspace[j]* *(wts++);
+#define SPARSE_STAT_WT_MAT_PROD(CSFUN)                                  \
+  GET_STORAGE(ETYPE(StoreCSparseDMAnd, Models), s);                     \
+  unsigned int nms = *IINPUT_PARAM;                                     \
+                                                                        \
+  double *x = s->wts->x;                                                \
+  for(unsigned int mi = 0, *i = s->wts->i, *p = s->wts->p; mi<nms; mi++){ \
+    ETYPE(Model) *m = s->ms[mi];                                        \
+    CSFUN;                                                              \
+    for(unsigned int j = 0; j < m->n_stats; j++, p++) {                 \
+      unsigned int nnz = *(p + 1) - *p;                                 \
+      for(unsigned int k = 0; k < nnz; k++)                             \
+        CHANGE_STAT[*(i++)] += m->workspace[j] * *(x++);                \
+    }                                                                   \
   }
+
+ETYPE(C_CHANGESTAT_FN)(ETYPE(c_, Sum)){
+  SPARSE_STAT_WT_MAT_PROD(ETYPE(ChangeStats1)(tail, head, IFEWT(weight,) nwp, m, edgestate));
 }
 
 ETYPE(Z_CHANGESTAT_FN)(ETYPE(z_, Sum)){
-  GET_STORAGE(ETYPE(Model)*, ms);
-  unsigned int nms = *IINPUT_PARAM;
-  double *wts = INPUT_PARAM;
-
-  for(unsigned int i=0; i<nms; i++){
-    ETYPE(Model) *m = ms[i];
-    ETYPE(ZStats)(nwp, m, FALSE);
-    for(unsigned int j=0; j<m->n_stats; j++)
-      for(unsigned int k=0; k<N_CHANGE_STATS; k++)
-	CHANGE_STAT[k] += m->workspace[j]* *(wts++);
-  }
+  SPARSE_STAT_WT_MAT_PROD(ETYPE(ZStats)(nwp, m, FALSE));
 }
 
 ETYPE(X_CHANGESTAT_FN)(ETYPE(x_, Sum)){
-  GET_STORAGE(ETYPE(Model)*, ms);
-  unsigned int nms = *IINPUT_PARAM;
-  double *wts = INPUT_PARAM;
-
-  for(unsigned int i=0; i<nms; i++){
-    ETYPE(Model) *m = ms[i];
-    ETYPE(PROPAGATE_X_SIGNAL_INTO)(nwp, m, m->workspace);
-    for(unsigned int j=0; j<m->n_stats; j++)
-      for(unsigned int k=0; k<N_CHANGE_STATS; k++)
-	CHANGE_STAT[k] += m->workspace[j]* *(wts++);
-  }
+  SPARSE_STAT_WT_MAT_PROD(ETYPE(PROPAGATE_X_SIGNAL_INTO)(nwp, m, m->workspace));
 }
 
 ETYPE(F_CHANGESTAT_FN)(ETYPE(f_, Sum)){
-  GET_STORAGE(ETYPE(Model)*, ms);
+  GET_STORAGE(ETYPE(StoreCSparseDMAnd, Models), storage);
   unsigned int nms = *IINPUT_PARAM;
 
-  for(unsigned int i=0; i<nms; i++){
-    ETYPE(ModelDestroy)(nwp, ms[i]);
-  }
+  for(unsigned int mi=0; mi<nms; mi++)
+    ETYPE(ModelDestroy)(nwp, storage->ms[mi]);
+
+  R_Free(storage->wts);
 }
+
+#undef SPARSE_STAT_WT_MAT_PROD
 
 
 // Log: Take a natural logarithm of the model's statistics.

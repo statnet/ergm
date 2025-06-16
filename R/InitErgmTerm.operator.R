@@ -716,7 +716,8 @@ InitErgmTerm.Sum <- function(nw, arglist,...){
   if(!all_identical(nparams)) ergm_Init_stop("Specified models and weights appear to differ in lengths of output statistics.")
   nparam <- nparams[1]
 
-  inputs <- unlist(wl%>%map(t))
+  #' @importClassesFrom Matrix dgCMatrix
+  wmat <- as(do.call(cbind, wl), "dgCMatrix")
 
   if(is.function(a$label)){
     cns <- lapply(ms, param_names, canonical=TRUE)
@@ -770,7 +771,7 @@ InitErgmTerm.Sum <- function(nw, arglist,...){
     }
   }else offset <- FALSE
   
-  c(list(name="Sum", coef.names = coef.names, inputs=inputs, iinputs=nf, submodels=ms, emptynwstats=gs,
+  c(list(name="Sum", coef.names = coef.names, weights = wmat, iinputs = nf, submodels = ms, emptynwstats = gs,
          dependence=dependence, offset=offset,
          ext.encode = if(ms %>% map("terms") %>% unlist(FALSE) %>% map("ext.encode") %>% compact %>% length)
                         function(el, nw0)

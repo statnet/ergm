@@ -37,6 +37,7 @@ Imports:
     Rdpack (>= 2.6.4),
     knitr (>= 1.50),
     stringr (>= 1.5.1),
+    Matrix,
     parallel,
     methods
 Suggests:
