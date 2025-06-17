@@ -34,4 +34,4 @@ deprecated in favor of \code{nodecovar(transform="sqrt")} .
 
 \Sexpr[results=rd,stage=render]{ergm:::.formatTermKeywords("ergmTerm", "nodecovar", "subsection")}
 }
-\concept{directed}
+\concept{undirected}

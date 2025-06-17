@@ -515,7 +515,7 @@ InitWtErgmTerm.sum<-function(nw, arglist, ...) {
 #' @note Note that this term replaces `nodesqrtcovar` , which has been
 #'   deprecated in favor of `nodecovar(transform="sqrt")` .
 #'
-#' @concept directed
+#' @concept undirected
 InitWtErgmTerm.nodecovar<-function (nw, arglist, ...) {
   ### Check the network and arguments to make sure they are appropriate.
   a <- check.ErgmTerm(nw, arglist, directed = FALSE,
