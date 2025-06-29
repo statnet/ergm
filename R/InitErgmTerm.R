@@ -3487,17 +3487,7 @@ InitErgmTerm.mm<-function (nw, arglist, ..., version=packageVersion("ergm")) {
 #' @title Mutuality
 #' @description In binary ERGMs, equal to the number of
 #'   pairs of actors \eqn{i} and \eqn{j} for which \eqn{(i{\rightarrow}j)}{(i,j)}
-#'   and \eqn{(j{\rightarrow}i)}{(j,i)} both exist. For valued ERGMs, equal to \eqn{\sum_{i<j} m(y_{i,j},y_{j,i})} ,
-#'   where \eqn{m} is determined by `form` argument: `"min"`
-#'   for \eqn{\min(y_{i,j},y_{j,i})} , `"nabsdiff"` for
-#'   \eqn{-|y_{i,j},y_{j,i}|} , `"product"` for
-#'   \eqn{y_{i,j}y_{j,i}} , and `"geometric"` for
-#'   \eqn{\sqrt{y_{i,j}}\sqrt{y_{j,i}}} . See Krivitsky (2012) for a
-#'   discussion of these statistics. `form="threshold"` simply
-#'   computes the binary `mutuality` after
-#'   thresholding at `threshold` .
-#'   
-#'   This term can only be used with directed networks. 
+#'   and \eqn{(j{\rightarrow}i)}{(j,i)} both exist.
 #'   
 #' @usage
 #' # binary: mutual(same=NULL, by=NULL, diff=FALSE, keep=NULL, levels=NULL)

@@ -942,9 +942,22 @@ InitWtErgmTerm.edges <- InitWtErgmTerm.nonzero
 
 #' @templateVar name mutual
 #' @template ergmTerm-rdname
+#' @description
+#' For valued ERGMs, equal to \eqn{\sum_{i<j} m(y_{i,j},y_{j,i})} ,
+#'   where \eqn{m} is determined by `form` argument: `"min"`
+#'   for \eqn{\min(y_{i,j},y_{j,i})}, `"nabsdiff"` for
+#'   \eqn{-|y_{i,j},y_{j,i}|}, `"product"` for
+#'   \eqn{y_{i,j}y_{j,i}}, and `"geometric"` for
+#'   \eqn{\sqrt{y_{i,j}}\sqrt{y_{j,i}}}. See Krivitsky (2012) for a
+#'   discussion of these statistics. `form="threshold"` simply
+#'   computes the binary `mutuality` after
+#'   thresholding at `threshold`.
+#'
+#' This term can only be used with directed networks.
+#'
 #' @usage
 #' # valued: mutual(form="min",threshold=0)
-#' @template ergmTerm-form
+#' @param form,threshold variant to be used in the valued case.
 InitWtErgmTerm.mutual<-function (nw, arglist, ...) {
 ### Check the network and arguments to make sure they are appropriate.
   a <- check.ErgmTerm(nw, arglist, directed=TRUE, bipartite=NULL,
