@@ -596,8 +596,11 @@ ergm <- function(formula, response=NULL,
   }
 
   # Make sure any offset elements are given in control$init.
-  if(any(is.na(control$init) & model$etamap$offsettheta)) stop("The model contains offset terms whose parameter values have not been specified:", paste.and(sQuote(param_names(model)[is.na(control$init)&model$offsettheta])), ".", sep="")
-  
+  if(any(tmp <- is.NA(control$init) & model$etamap$offsettheta)) stop("The model contains offset terms whose parameter values have not been specified:", paste.and(sQuote(param_names(model)[tmp])), ".", sep="")
+
+  # Make sure any NAN elements are offsets.
+  if(any(tmp <- is.nan(control$init) & !model$etamap$offsettheta)) stop("The model contains non-offset terms whose parameter values are NAN:", paste.and(sQuote(param_names(model)[tmp])), ".", sep="")
+
   # Check if any terms are constrained to a constant and issue a warning.
   constrcheck <- ergm.checkconstraints.model(model, proposal, control$init)
   model <- constrcheck$model; control$init <- constrcheck$init
@@ -742,7 +745,7 @@ ergm.fit <- function(nw, target.stats, model, model.obs, proposal, proposal.obs,
                                 ...)
 
   ## Extract and process the initial value for the next stage:
-  init <- coef(initialfit) |> replace(is.na, 0)
+  init <- coef(initialfit) |> replace(is.NA, 0)
   names(init) <- param_names(model, FALSE)
 
   c(
@@ -752,7 +755,7 @@ ergm.fit <- function(nw, target.stats, model, model.obs, proposal, proposal.obs,
                               control=control,
                               verbose=verbose, ...),
 
-           "CD" = ergm.CD.fixed(.constrain_init(s$model, ifelse(is.na(init),0,init)),
+           "CD" = ergm.CD.fixed(.constrain_init(s$model, ifelse(is.NA(init),0,init)),
                       s, s.obs, control, verbose,...),
 
            "Stochastic-Approximation" = ergm.stocapprox(init, s, s.obs,

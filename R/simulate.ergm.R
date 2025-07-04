@@ -476,7 +476,7 @@ simulate.ergm_state_full <- function(object, nsim=1, seed=NULL,
     else stop("return.args= is not NULL yet the code has arrived at the actual simulation stage; this likely means an incorrect value had been passed to return.args=")
   }
 
-  if (any(is.na(coef) & !is.nan(coef)))
+  if (any(is.NA(coef)))
     stop("Illegal value of coef passed to simulate functions")
 
   if(is.character(output))
