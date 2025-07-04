@@ -51,9 +51,9 @@ ergm.initialfit<-function(init,
                           s, s.obs,
                           control=NULL,
                           verbose=FALSE, ...) {
-  if(control$init.method!="skip" && any(is.na(init))){
+  if(control$init.method!="skip" && any(is.NA(init))){
     # Respect init elements that are not offsets if it's only a starting value.
-    s$model$etamap$offsettheta[!is.na(init)] <- TRUE
+    s$model$etamap$offsettheta[!is.NA(init)] <- TRUE
 
     # Also make sure that any initial values specified by the user are respected.
     switch(control$init.method,
@@ -65,8 +65,8 @@ ergm.initialfit<-function(init,
                        control=control,
                        verbose=verbose, ...)
            },
-           zeros = structure(list(coefficients=.constrain_init(s$model, ifelse(is.na(init),0,init)))),
-           CD = ergm.CD.fixed(.constrain_init(s$model, ifelse(is.na(init),0,init)),
+           zeros = structure(list(coefficients=.constrain_init(s$model, ifelse(is.NA(init),0,init)))),
+           CD = ergm.CD.fixed(.constrain_init(s$model, ifelse(is.NA(init),0,init)),
                               s, s.obs, control, verbose, ...),
            stop("Invalid method specified for initial parameter calculation.")
     )

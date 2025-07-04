@@ -156,8 +156,8 @@ ergm.mple<-function(s, s.obs, init=NULL,
    hess <- diag(dbl_along(theta))
   }
 
-  covar %[.,.]% (!is.na(theta) & !m$etamap$offsettheta) <- real.cov
-  hess %[.,.]% (!is.na(theta) & !m$etamap$offsettheta) <-
+  covar %[.,.]% (!is.NA(theta) & !m$etamap$offsettheta) <- real.cov
+  hess %[.,.]% (!is.NA(theta) & !m$etamap$offsettheta) <-
     EVL3(real.cov, -sginv(., tol = .Machine$double.eps^(3 / 4)), 0)
 
   iteration <-  mplefit$iter 

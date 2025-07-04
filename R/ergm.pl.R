@@ -112,7 +112,7 @@ ergm.pl<-function(state, state.obs, theta.offset=NULL,
   x.full <- x
 
   if(any(m$etamap$offsettheta) && !ignore.offset){
-    if(any(is.na(theta.offset[m$etamap$offsettheta]))){
+    if(any(is.NA(theta.offset[m$etamap$offsettheta]))){
       stop("Offset terms without offset coefficients specified!")
     }
     # Compute the offset's effect.

@@ -422,3 +422,7 @@ lgl_along <- function(x) logical(length(x))
 
 b1.size <- function(x) if(is.bipartite(x)) x %n% "bipartite" else FALSE
 b2.size <- function(x) if(is.bipartite(x)) network.size(x) - b1.size(x) else FALSE
+
+## For handling skipping statistics.
+
+is.NA <- function(x) is.na(x) & !is.nan(x)
