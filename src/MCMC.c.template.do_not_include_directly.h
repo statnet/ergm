@@ -173,6 +173,13 @@ MCMCStatus ETYPE(MCMCSample)(ETYPE(ErgmState) *s,
   return MCMC_OK;
 }
 
+static inline Rboolean check_skip(double *eta, double* stats, unsigned int n){
+  for(unsigned int i = 0; i < n; i++)
+    if(isnan(eta[i]) && stats[i] != 0)
+      return(TRUE);
+  return(FALSE);
+}
+
 /*********************
  void MetropolisHastings
 
@@ -197,6 +204,8 @@ MCMCStatus ETYPE(MetropolisHastings) (ETYPE(ErgmState) *s,
 /*  if (verbose)
     Rprintf("Now proposing %d MH steps... ", nsteps); */
   for(unsigned int step=0; step < nsteps; step++) {
+    if(verbose>=5) print_vector("stats", networkstatistics, m->n_stats);
+
     MHp->logratio = 0;
     (*(MHp->p_func))(MHp, nwp); /* Call MH function to propose toggles */
 
@@ -217,6 +226,15 @@ MCMCStatus ETYPE(MetropolisHastings) (ETYPE(ErgmState) *s,
 	  return MCMC_MH_FAILED;
 	}
       case MH_CONSTRAINT:
+        if(verbose>=5) Rprintf("Constraint hit.\n");
+
+        if(check_skip(eta, networkstatistics, m->n_stats)){
+          nsteps++;
+          if(verbose>=5){
+            Rprintf("Skipping.\n");
+          }
+        }
+
 	continue;
       }
     }
@@ -264,15 +282,7 @@ MCMCStatus ETYPE(MetropolisHastings) (ETYPE(ErgmState) *s,
       PROP_CHANGESTATS_UNDO;
     }
 
-
-    Rboolean skip = FALSE;
-    for(unsigned int i = 0; i < m->n_stats; i++)
-      if(isnan(eta[i]) && networkstatistics[i] != 0){
-        skip = TRUE;
-        break;
-      }
-
-    if(skip){
+    if(check_skip(eta, networkstatistics, m->n_stats)){
       nsteps++;
       if(verbose>=5){
         Rprintf("Skipping.\n");
