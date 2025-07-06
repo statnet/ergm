@@ -234,16 +234,16 @@ ETYPE(Model)* ETYPE(ModelInitialize) (SEXP mR, SEXP ext_state, ETYPE(Network) *n
           (void (*)(Edge, Vertex*, Vertex*, IFEWT(EWTTYPE*,) ETYPE(ModelTerm)*, ETYPE(Network)*))
           R_FindSymbol(fn,sn,NULL);
 
-        if(thisterm->c_func==NULL && thisterm->d_func==NULL){
-          error("Error in C model initialization: term with functions %s::%s is declared to have statistics but does not appear to have a change or a difference function. Memory has not been deallocated, so restart R sometime soon.\n",sn,fn+2);
-	}
-
 	/* Optional function to compute the statistic of interest for
 	   the network given. It can be more efficient than going one
 	   edge at a time. */
 	fn[0]='s';
 	thisterm->s_func =
 	  (void (*)(ETYPE(ModelTerm)*, ETYPE(Network)*)) R_FindSymbol(fn,sn,NULL);
+
+        if(thisterm->c_func==NULL && thisterm->d_func==NULL && thisterm->s_func==NULL){
+          error("Error in C model initialization: term with functions %s::%s is declared to have statistics but does not appear to have a change, a difference, or a summary function. Memory has not been deallocated, so restart R sometime soon.\n",sn,fn+2);
+	}
 
 	/* Optional function to compute the statistic of interest for
 	   the empty network (over and above the constant value if
@@ -554,4 +554,23 @@ void ETYPE(SummStats)(Edge n_edges, Vertex *tails, Vertex *heads, IFEWT(EWTTYPE 
     memcpy(m->workspace, stats, m->n_stats*sizeof(double));
     UNPROTECT(1);
   }
+}
+
+
+/****************
+ void ETYPE(SummStatsS)
+
+Compute summary statistics, but only for terms that only have s_ statistics. Set the rest to NA_REAL.
+*****************/
+void ETYPE(SummStatsS)(ETYPE(Network) *nwp, ETYPE(Model) *m){
+  /* Calculate statistics for terms have s_functions but not
+     others. */
+  ETYPE(EXEC_THROUGH_TERMS_INTO)(m, m->workspace, {
+      if (mtp->s_func && !mtp->c_func && !mtp->d_func) {
+	(*(mtp->s_func))(mtp, nwp);  /* Call d_??? function */
+	for (unsigned int k = 0; k < N_CHANGE_STATS; k++) {
+	  dstats[k] = mtp->dstats[k]; // Overwrite, not accumulate.
+	}
+      }
+    });
 }

@@ -57,4 +57,4 @@ void ETYPE(ChangeStats1)(Vertex tail, Vertex head, IFEWT(EWTTYPE weight,) ETYPE(
 void ETYPE(ZStats)(ETYPE(Network) *nwp, ETYPE(Model) *m, Rboolean skip_s);
 void ETYPE(EmptyNetworkStats)(ETYPE(Model) *m, Rboolean skip_s);
 void ETYPE(SummStats)(Edge n_edges, Vertex *tails, Vertex *heads, IFEWT(EWTTYPE *weights,) ETYPE(Network) *nwp, ETYPE(Model) *m);
-
+void ETYPE(SummStatsS)(ETYPE(Network) *nwp, ETYPE(Model) *m);

@@ -265,6 +265,11 @@ MCMCStatus ETYPE(MetropolisHastings) (ETYPE(ErgmState) *s,
     }
   }
 
+  /* Calculate and update summary-only statistics */
+  m->workspace = networkstatistics;
+  ETYPE(SummStatsS)(nwp, m);
+  m->workspace = m->workspace_backup;
+
   *staken = taken;
   return MCMC_OK;
 }
