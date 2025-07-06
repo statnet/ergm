@@ -116,3 +116,10 @@ ergm.geodistn <- function(edgelist, n=max(edgelist), directed=FALSE) {
 }
 
 
+
+InitErgmTerm.geodistdist <- function(nw, arglist, ...) {
+  a <- check.ErgmTerm(nw, arglist)
+  n <- network.size(nw)
+  list(name = "geodistdist",
+       coef.names = paste0("geodist.", c(1:(n - 1), "Inf")))
+}

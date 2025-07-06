@@ -7,7 +7,8 @@
  *
  *  Copyright 2003-2025 Statnet Commons
  */
-#include "ergm_edgetree.h"
+#include "ergm_changestat.h"
+#include "ergm_storage.h"
 
 /* The geodist functions are based on breadth-first search.
 
@@ -123,4 +124,52 @@ SEXP full_geodesic_distribution (SEXP edgelist, SEXP nnodes,
 
   UNPROTECT(1);
   return geodistR;
+}
+
+/* As above, but using Network objects. */
+void node_geodesics_Network (Network *nwp, Vertex *workspace, Vertex source) {
+  Vertex n = N_NODES, Qbottom=0, Qtop=0,
+    *dist = workspace, *nodecolor = dist + n, *Q = nodecolor + n;
+
+  for (Vertex i=0; i<n; i++) {
+    nodecolor[i]=0; /* WHITE */
+    dist[i]=n; /* Here, n means infinity */
+  }
+  nodecolor[source-1]=1; /* NONWHITE */
+  dist[source-1]=0;
+  Q[Qtop++]=source;  /* Push source onto top of queue */
+  while (Qbottom<Qtop) {  /* Repeat until queue is empty */
+    Vertex u=Q[Qbottom++]; /* Pop vertex off bottom of queue (it must be NONWHITE) */
+    EXEC_THROUGH_OUTEDGES(u, e, v, {
+        if (nodecolor[v-1]==0) { /* WHITE */
+          nodecolor[v-1]=1; /* NONWHITE */
+          dist[v-1] = dist[u-1]+1; /* Node v is one step farther than node u */
+          Q[Qtop++]=v;  /* Push v onto top of queue */
+      }
+      });
+  }
+}
+
+I_CHANGESTAT_FN(i_geodistdist) {
+  ALLOC_STORAGE(N_NODES * 3, Vertex, workspace);
+  (void) workspace;
+}
+
+S_CHANGESTAT_FN(s_geodistdist) {
+  if(STORAGE == NULL) i_geodistdist(mtp, nwp);
+  GET_STORAGE(Vertex, workspace);
+  Vertex n = N_NODES;
+  memset(workspace, 0, n * 3 * sizeof(Vertex));
+
+  for(Vertex i=1; i<=n; i++) {
+    node_geodesics_Network(nwp, workspace, i);
+    for(Vertex j=0; j<i-1; j++)
+      ++CHANGE_STAT[workspace[j]-1];
+    for(Vertex j=i; j<n; j++)
+      ++CHANGE_STAT[workspace[j]-1];
+  }
+
+  if(!DIRECTED)
+    for(unsigned int i = 0; i < N_NODES; i++)
+      CHANGE_STAT[i] /= 2;
 }
