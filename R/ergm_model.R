@@ -354,6 +354,9 @@ as.ergm_model.formula <- function(x, ...)
 #' @export
 as.ergm_model.NULL <- function(x, ...) NULL
 
+#' @noRd
+#' @export
+as.ergm_model.default <- function(x, ...) ergm_model(object = x, ...)
 
 #' Construct a standard term call
 #'
