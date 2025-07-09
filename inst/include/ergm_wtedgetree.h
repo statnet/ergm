@@ -18,15 +18,18 @@
 
 /*
   Workaround to enable WtNetworkInitialize() to be called with either
-  7 or 10 arguments.
+  7, 8, or 10 arguments.
 
-  TODO: Remove the workaround and rename WtNetworkInitialize_noLT() to
+  TODO: Remove the workaround and rename WtNetworkInitialize_new() to
     WtNetworkInitialize() after no CRAN packages use it.
 */
 
-#define WtNetworkInitialize(...) _GET_OVERRIDE10(__VA_ARGS__, WtNetworkInitialize_LT, , , WtNetworkInitialize_noLT, , , , , , , , )(__VA_ARGS__)
+#define WtNetworkInitialize(...) _GET_OVERRIDE10(__VA_ARGS__, WtNetworkInitialize_LT, , WtNetworkInitialize_new, WtNetworkInitialize_NL, , , , , , , , )(__VA_ARGS__)
 
 #define WtNetworkInitialize_LT(tails, heads, weights, nedges, nnodes, directed_flag, bipartite, lasttoggle_flag, time, lasttoggle) \
-  WtNetworkInitialize_noLT((tails), (heads), (weights), (nedges), (nnodes), (directed_flag), (bipartite))
+  WtNetworkInitialize_new((tails), (heads), (weights), (nedges), (nnodes), (directed_flag), (bipartite), FALSE)
+
+#define WtNetworkInitialize_NL(tails, heads, weights, nedges, nnodes, directed_flag, bipartite) \
+  WtNetworkInitialize_new((tails), (heads), (weights), (nedges), (nnodes), (directed_flag), (bipartite), FALSE)
 
 #endif

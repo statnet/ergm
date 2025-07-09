@@ -65,13 +65,15 @@ typedef struct ETYPE(Networkstruct) {
   unsigned int max_on_edge_change;
   void (**on_edge_change)(Vertex, Vertex, IFEWT(EWTTYPE,) void*, struct ETYPE(Networkstruct)*, EWTTYPE);
   void **on_edge_change_payload;
+
+  Rboolean loops_flag;
 } ETYPE(Network);
 typedef void (*ETYPE(On,NetworkEdgeChange))(Vertex, Vertex, IFEWT(EWTTYPE,) void*, ETYPE(Network)*, EWTTYPE);
 
 /* Initialization and destruction. */
 
-ETYPE(Network) *ETYPE(NetworkInitialize_noLT)(Vertex *tails, Vertex *heads, IFEWT(EWTTYPE *weights,) Edge nedges,
-			       Vertex nnodes, Rboolean directed_flag, Vertex bipartite);
+ETYPE(Network) *ETYPE(NetworkInitialize_new)(Vertex *tails, Vertex *heads, IFEWT(EWTTYPE *weights,) Edge nedges,
+                                             Vertex nnodes, Rboolean directed_flag, Vertex bipartite, Rboolean loops_flag);
 void ETYPE(NetworkDestroy)(ETYPE(Network) *nwp);
 
 ETYPE(Network) *ETYPE(NetworkCopy)(ETYPE(Network) *src);
