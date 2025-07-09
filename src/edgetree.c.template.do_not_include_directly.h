@@ -28,8 +28,8 @@ Note: passing nedges > 0 and tails == heads == NULL is OK: it creates an empty n
 *******************/
 /* *** don't forget, tail -> head */
 
-ETYPE(Network) *ETYPE(NetworkInitialize_noLT)(Vertex *tails, Vertex *heads, IFEWT(EWTTYPE *weights,)
-			       Edge nedges, Vertex nnodes, Rboolean directed_flag, Vertex bipartite) {
+ETYPE(Network) *ETYPE(NetworkInitialize_new)(Vertex *tails, Vertex *heads, IFEWT(EWTTYPE *weights,)
+                                             Edge nedges, Vertex nnodes, Rboolean directed_flag, Vertex bipartite, Rboolean loops_flag) {
   ETYPE(Network) *nwp = R_Calloc(1, ETYPE(Network));
 
   IFEWT(nwp->eattrname = NULL);
@@ -48,6 +48,7 @@ ETYPE(Network) *ETYPE(NetworkInitialize_noLT)(Vertex *tails, Vertex *heads, IFEW
   EDGECOUNT(nwp) = 0; /* Edges will be added one by one */
   nwp->directed_flag=directed_flag;
   nwp->bipartite=bipartite;
+  nwp->loops_flag=loops_flag;
 
   if(nedges == 0) return nwp;
 
@@ -603,7 +604,8 @@ ETYPE(Network) *ETYPE(Redgelist2, Network)(SEXP elR, Rboolean empty){
   Vertex n = asInteger(getAttrib(elR, install("n")));
   Rboolean directed = asLogical(getAttrib(elR, install("directed")));
   Vertex bipartite = asInteger(getAttrib(elR, install("bipartite")));
-  ETYPE(Network) *nwp = ETYPE(NetworkInitialize)(tails, heads, IFEWT(weights,) e, n, directed, bipartite);
+  Rboolean loops = asInteger(getAttrib(elR, install("loops")));
+  ETYPE(Network) *nwp = ETYPE(NetworkInitialize)(tails, heads, IFEWT(weights,) e, n, directed, bipartite, loops);
   IFEWT(nwp->eattrname = CHAR(STRING_ELT(getAttrib(elR, R_NamesSymbol),2)));
   return nwp;
 }

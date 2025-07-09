@@ -38,8 +38,8 @@
     *(head) = 1 + (nwp)->bipartite + unif_rand() * ((nwp)->nnodes - (nwp)->bipartite); \
   }else{								\
     *(tail) = 1 + unif_rand() * (nwp)->nnodes;				\
-    *(head) = 1 + unif_rand() * ((nwp)->nnodes-1);			\
-    if(*(head)>=*(tail)) (*(head))++;					\
+    *(head) = 1 + unif_rand() * ((nwp)->nnodes-(!(nwp)->loops_flag));   \
+    if(!(nwp)->loops_flag && *(head)>=*(tail)) (*(head))++;             \
     									\
     if (!(nwp)->directed_flag && *(tail) > *(head)) {			\
       Vertex tmp = *(tail);						\

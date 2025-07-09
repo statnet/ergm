@@ -84,10 +84,10 @@
    works.*/
 #define WtEXEC_THROUGH_OUTEDGES(a,e,v,w,subroutine) {if(DIRECTED){ WtSTEP_THROUGH_OUTEDGES_DECL(a,e,v) {double w=OUTWT(e); subroutine} } else { WtEXEC_THROUGH_EDGES(a,e,v,w,subroutine) }}
 #define WtEXEC_THROUGH_INEDGES(a,e,v,w,subroutine) {if(DIRECTED){ WtSTEP_THROUGH_INEDGES_DECL(a,e,v) {double w=INWT(e); subroutine} } else { WtEXEC_THROUGH_EDGES(a,e,v,w,subroutine) }}
-#define WtEXEC_THROUGH_EDGES(a,e,v,w,subroutine) { {WtSTEP_THROUGH_OUTEDGES_DECL(a,e,v) {double w=OUTWT(e); subroutine}};  {WtSTEP_THROUGH_INEDGES_DECL(a,e,v) {Vertex v=INVAL(e); double w=INWT(e); subroutine}}; }
+#define WtEXEC_THROUGH_EDGES(a,e,v,w,subroutine) { {WtSTEP_THROUGH_OUTEDGES_DECL(a,e,v) {double w=OUTWT(e); subroutine}};  {WtSTEP_THROUGH_INEDGES_DECL(a,e,v) {Vertex v=INVAL(e); if((a) == (v)) continue; double w=INWT(e); subroutine}}; }
 #define WtEXEC_THROUGH_OUTEDGES_PRE(a,e,v,w,subroutine) {if(DIRECTED){ WtSTEP_THROUGH_OUTEDGES_PRE_DECL(a,e,v) {double w=OUTWT(e); subroutine} } else { WtEXEC_THROUGH_EDGES_PRE(a,e,v,w,subroutine) }}
 #define WtEXEC_THROUGH_INEDGES_PRE(a,e,v,w,subroutine) {if(DIRECTED){ WtSTEP_THROUGH_INEDGES_PRE_DECL(a,e,v) {double w=INWT(e); subroutine} } else { WtEXEC_THROUGH_EDGES_PRE(a,e,v,w,subroutine) }}
-#define WtEXEC_THROUGH_EDGES_PRE(a,e,v,w,subroutine) { {WtSTEP_THROUGH_OUTEDGES_PRE_DECL(a,e,v) {double w=OUTWT(e); subroutine}};  {WtSTEP_THROUGH_INEDGES_PRE_DECL(a,e,v) {double w=INWT(e); subroutine}}; }
+#define WtEXEC_THROUGH_EDGES_PRE(a,e,v,w,subroutine) { {WtSTEP_THROUGH_OUTEDGES_PRE_DECL(a,e,v) {double w=OUTWT(e); subroutine}};  {WtSTEP_THROUGH_INEDGES_PRE_DECL(a,e,v) {if((a) == (v)) continue; double w=INWT(e); subroutine}}; }
 
 /* Non-adaptive versions of the above. (I.e. ForceOUT/INEDGES.) */
 #define WtEXEC_THROUGH_FOUTEDGES(a,e,v,w,subroutine) WtSTEP_THROUGH_OUTEDGES_DECL(a,e,v) {double w=OUTWT(e); subroutine}

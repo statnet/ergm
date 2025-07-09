@@ -19,15 +19,18 @@
 void ToggleKnownEdge (Vertex tail, Vertex head, Network *nwp, Rboolean edgestate);
 
 /*
-  Workaround to enable NetworkInitialize() to be called with either 6
+  Workaround to enable NetworkInitialize() to be called with either 6, 7,
   or 9 arguments.
 
-  TODO: Remove the workaround and rename NetworkInitialize_noLT() to
+  TODO: Remove the workaround and rename NetworkInitialize_new() to
     NetworkInitialize() after no CRAN packages use it.
 */
-#define NetworkInitialize(...) _GET_OVERRIDE9(__VA_ARGS__, NetworkInitialize_LT, , , NetworkInitialize_noLT, , , , , , , , )(__VA_ARGS__)
+#define NetworkInitialize(...) _GET_OVERRIDE9(__VA_ARGS__, NetworkInitialize_LT, , NetworkInitialize_new, NetworkInitialize_NL, , , , , , , , )(__VA_ARGS__)
 
 #define NetworkInitialize_LT(tails, heads, nedges, nnodes, directed_flag, bipartite, lasttoggle_flag, time, lasttoggle) \
-  NetworkInitialize_noLT((tails), (heads), (nedges), (nnodes), (directed_flag), (bipartite))
+  NetworkInitialize_new((tails), (heads), (nedges), (nnodes), (directed_flag), (bipartite), FALSE)
+
+#define NetworkInitialize_NL(tails, heads, nedges, nnodes, directed_flag, bipartite) \
+  NetworkInitialize_new((tails), (heads), (nedges), (nnodes), (directed_flag), (bipartite), FALSE)
 
 #endif
