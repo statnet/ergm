@@ -16,7 +16,7 @@ test_that("gof() defaults are correct for bipartite networks", {
   fit <- ergm(net ~ edges)
   expect_silent(gof <- gof(fit, control=ctrl4))
   expect_silent(plot(gof))
-  expect_setequal(as.character(statnet.common::list_rhs.formula(gof$GOF)),
+  expect_setequal(which_gof(gof),
                   c("b1degree", "b2degree", "espartners", "distance", "model"))
 })
 
@@ -27,7 +27,7 @@ test_that("gof() defaults are correct for undirected networks", {
   fit <- ergm((!flomarriage) ~ edges) # Using complement of flomarriage for a dense network test.
   expect_silent(gof <- gof(fit, control=ctrl4))
   expect_silent(plot(gof))
-  expect_setequal(as.character(statnet.common::list_rhs.formula(gof$GOF)),
+  expect_setequal(which_gof(gof),
                   c("degree", "espartners", "distance", "model"))
 })
 
@@ -39,16 +39,16 @@ test_that("gof() defaults and GOF handling is correct for directed networks", {
 
   expect_silent(gof <- gof(fit, control=ctrl4))
   expect_silent(plot(gof))
-  expect_setequal(as.character(list_rhs.formula(gof$GOF)),
+  expect_setequal(which_gof(gof),
                   c("idegree", "odegree", "espartners", "distance", "model"))
 
   expect_silent(gof <- gof(fit, GOF=~idegree, control=ctrl4))
   expect_silent(plot(gof))
-  expect_setequal(as.character(list_rhs.formula(gof$GOF)),
+  expect_setequal(which_gof(gof),
                   c("idegree", "model"))
 
   expect_silent(gof <- gof(fit, GOF=~idegree-model, control=ctrl4))
   expect_silent(plot(gof))
-  expect_setequal(as.character(list_rhs.formula(gof$GOF)),
+  expect_setequal(which_gof(gof),
                   c("idegree"))
 })

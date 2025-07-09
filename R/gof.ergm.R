@@ -8,6 +8,35 @@
 #  Copyright 2003-2025 Statnet Commons
 ################################################################################
 
+GOF_TERMS <- c(model = "model",
+               distance = "dist",
+               odegree = "odeg",
+               idegree = "ideg",
+               degree = "deg",
+               b1degree = "b1deg",
+               b2degree = "b2deg",
+               espartners = "espart",
+               dspartners = "dspart",
+               triadcensus = "triadcensus")
+#' @importFrom stringr str_match
+sub_gof <- function(x) {
+  terms <- list_rhs.formula(x)
+  mnames <- map_chr(terms, function(x) as.character(if (is.call(x)) "" else x))
+  msigns <- attr(terms, "sign")
+
+  # either no "model"s or "-model"s don't outnumber "model"s
+  has_model <- sum(msigns[mnames == "model"]) >= 0
+  terms <- terms[mnames != "model"]
+
+  for (i in seq_along(terms))
+    if (!is.null(rname <- GOF_TERMS[[mnames[i], exact = FALSE]]))
+      terms[[i]] <- as.name(paste0(".gof.", rname))
+
+  structure(terms, model = has_model)
+}
+
+which_gof <- function(x) names(GOF_TERMS)[hasName(x, paste0("obs.", GOF_TERMS))]
+
 #' Conduct Goodness-of-Fit Diagnostics on a Exponential Family Random Graph
 #' Model
 #' 
@@ -134,7 +163,8 @@ gof.ergm <- function (object, ...,
   handle.control.toplevel("gof.ergm", ...)
 
   if(is.valued(object)) stop("GoF for valued ERGMs is not implemented at this time.")
-  
+  NVL(coef) <- coefficients(object)
+
   # If both the passed control and the object's control are NULL (such as if MPLE was estimated), overwrite with simulate.formula()'s defaults.
   formula.control <- control.simulate.formula()
   for(arg in STATIC_MCMC_CONTROLS)
@@ -158,9 +188,6 @@ gof.ergm <- function (object, ...,
               basis=object$network,
               verbose=verbose, ...)
 }
-
-GOF_VALID_VARS <- c('distance', 'espartners', 'dspartners', 'odegree', 'idegree',
-                    'degree', 'triadcensus', 'model', 'b1degree', 'b2degree')
 
 #' @describeIn gof Perform simulation to evaluate goodness-of-fit for
 #'   a model configuration specified by a [`formula`], coefficient,
@@ -207,29 +234,8 @@ gof.formula <- function(object, ...,
       else ~degree + espartners + distance + model
   }
 
-  # Add a model term, unless it is explicitly excluded
-  GOFtrms <- list_rhs.formula(GOF)
-  if(sum(attr(GOFtrms,"sign")[as.character(GOFtrms)=="model"])==0){ # either no "model"s or "-model"s don't outnumber "model"s
-    GOFtrms <- c(GOFtrms[as.character(GOFtrms)!="model"], list(as.name("model")))
-  }
-
-  # match variables
-  all.gof.vars <- as.character(GOFtrms[attr(GOFtrms,"sign")>0]) %>%
-    sapply(match.arg, GOF_VALID_VARS)
-
-  GOF <- as.formula(paste("~",paste(all.gof.vars,collapse="+")), baseenv())
-
-  m <- ergm_model(object, nw, term.options=control$term.options)
-
-  proposal <- if(inherits(constraints, "ergm_proposal")) constraints
-                else ergm_proposal(constraints,arguments=control$MCMC.prop.args,
-                                   nw=nw, weights=control$MCMC.prop.weights, class="c", term.options=control$term.options## ,reference=reference
-                                   )
-
-  if(is.null(coef)){
-      coef <- numeric(nparam(m, canonical=FALSE))
-      warning("No parameter values given, using 0.")
-  }
+  # Expand specially named terms.
+  GOFtrms <- sub_gof(GOF)
 
   # If missing simulate from the conditional model
   if(network.naedgecount(nw) & unconditional){
@@ -244,129 +250,66 @@ gof.formula <- function(object, ...,
                   verbose=verbose, ...)
   }
 
-  n <- network.size(nw)
-
   # Calculate network statistics for the observed graph
   # Set up the output arrays of sim variables
   if(verbose)
     message("Calculating observed network statistics.")
 
-  summ_form <- function(term, range){
-    as.formula(call('~',call(term, range)))
-  }
-
-  if(is.bipartite(nw)){
-    nb1 <- b1.size(nw)
-    nb2 <- b2.size(nw)
-  }else{
-    nb1 <- nb2 <- n
-  }
-
-  if(is.directed(nw)){
-    triadcensus <- 0:15
-    namestriadcensus <- c("003","012", "102", "021D", "021U", "021C",
-                          "111D", "111U", "030T",
-                          "030C", "201", "120D", "120U", "120C", "210", "300")
-  }else{
-    triadcensus <- 0:3
-    namestriadcensus <- c("0","1","2", "3")
-  }
-
-  GVMAP <- list(model=list('model', NULL, object),
-                distance=list('dist', 1:n, function(x){o <- ergm.geodistdist(x); o[o==Inf]<-n; o}),
-                odegree=list('odeg', 0:(n-1), summ_form('odegree', 0:(n-1))),
-                idegree=list('ideg', 0:(n-1), summ_form('idegree', 0:(n-1))),
-                degree=list('deg', 0:(n-1), summ_form('degree', 0:(n-1))),
-                b1degree=list('b1deg', 0:nb2, summ_form('b1degree', 0:nb2)),
-                b2degree=list('b2deg', 0:nb1, summ_form('b2degree', 0:nb1)),
-                espartners=list('espart', 0:(n-2), summ_form('esp', 0:(n-2))),
-                dspartners=list('dspart', 0:(n-2), summ_form('dsp', 0:(n-2))),
-                triadcensus=list('triadcensus', namestriadcensus, summ_form('triadcensus', triadcensus)))
-
-  GVMAP <- GVMAP[names(GVMAP)%in%all.gof.vars]
-
-  # If gv[[3]] is a formula, preinitialize the model and have the
-  # function execute it on the network.
-  for(i in seq_along(GVMAP))
-    if(is(GVMAP[[i]][[3]], "formula"))
-      GVMAP[[i]][[3]] <- local({
-        m <- ergm_model(GVMAP[[i]][[3]], nw, term.options = control$term.options)
-        function(x) summary(m, nw = x)
-      })
-
-  calc_obs_stat <- function(gv, names, calc){
-    simname <- paste("sim", gv, sep=".")
-    obsname <- paste("obs", gv, sep=".")
-
-    obs <- if(!network.naedgecount(nw) | !unconditional) calc(nw)
-           else colMeans(SimCond[[simname]])
-    assign(obsname, obs, parent.frame())
-
-    sim <- array(0,
-                 dim = c(control$nsim,length(obs)),
-                 dimnames = list(paste(c(1:control$nsim)), NVL3(names, paste(.), names(obs))))
-    assign(simname, sim, parent.frame())
-  }
-
-  for(gv in GVMAP)
-    calc_obs_stat(gv[[1]], gv[[2]], gv[[3]])
+  obs <- summary(suppressWarnings(append_rhs.formula(object, GOFtrms, keep.onesided = TRUE)),
+                 basis = nw, term.options = control$term.options)
 
   if(verbose)
     message("Starting simulations.")
 
-  myenv <- environment()
+  sim <- simulate(object, monitor = GOFtrms, nsim=control$nsim, coef=coef,
+                  constraints = constraints,
+                  control = set.control.class("control.simulate.formula", control),
+                  output = "stats",
+                  basis = nw,
+                  verbose = verbose, ...)
 
-  calc_sim_stat <- function(nw, gv, calc, i){
-    simname <- paste("sim", gv, sep=".")
-    sim <- get(simname)
-    sim[i,] <- calc(nw)
-    assign(simname, sim, myenv)
+  if(!attr(GOFtrms, "model")) {
+    mon <- attr(sim, "monitored")
+    if (length(obs) > sum(mon)) obs <- obs[mon]
+    sim <- sim[, mon, drop = FALSE]
   }
 
-  summfun <- function(state, iter, ...)
-    for(gv in GVMAP) calc_sim_stat(as.network(state), gv[[1]], gv[[3]], iter)
+  gofs <- str_match(names(obs), "^\\.gof\\.([^#]+)#(.*)$")
+  gof_groups <- split(seq_len(nrow(gofs)), replace(gofs[, 2], is.na, "model"))
 
-  simulate(m, nsim=control$nsim, coef=coef,
-           constraints=proposal,
-           control=set.control.class("control.simulate.formula",control),
-           output=summfun,
-           basis=nw,
-           verbose=verbose, ...)
+  out <- imap(gof_groups, function(i, name) {
+    val <- gofs[i, 3]
+    obs <- obs[i]
+    sim <- sim[, i, drop = FALSE]
+    if(name != "model") names(obs) <- colnames(sim) <- val
+    d <- sweep(sim, 2, obs)
 
-  # calculate p-values
-  
-  returnlist <- list(network.size=n, GOF=GOF)
+    pval <- cbind(obs, apply(sim, 2, min), apply(sim, 2, mean),
+                  apply(sim, 2, max),
+                  pmin(1, 2 * pmin(colMeans(d >= 0), colMeans(d <= 0))))
+    colnames(pval) <- c("obs","min","mean","max","MC p-value")
 
-  calc_pvals <- function(gv, names){
-    sim <- get(paste("sim", gv, sep="."))
-    obs <- get(paste("obs", gv, sep="."))
-
-    pval <- apply(sim <= obs[col(sim)],2,mean)
-    pval.top <- apply(sim >= obs[col(sim)],2,mean)
-    pval <- cbind(obs,apply(sim, 2,min), apply(sim, 2,mean),
-                  apply(sim, 2,max), pmin(1,2*pmin(pval,pval.top)))
-    dimnames(pval)[[2]] <- c("obs","min","mean","max","MC p-value")
-    pobs <- if(!is.null(names)) obs/sum(obs) else pval.top
-    if(!is.null(names)){
-      psim <- sweep(sim,1,apply(sim,1,sum),"/")
+    pobs <- if(name == "model") colMeans(d >= 0) else obs / sum(obs)
+    if(name == "model") {
+      psim <- apply(sim, 2, rank) / nrow(sim)
+      psim <- matrix(psim, ncol = ncol(sim)) # Guard against the case of sim having only one row.
+    } else {
+      psim <- sweep(sim, 1, rowSums(sim), "/")
       psim %[f]% is.na <- 1
-    }else{
-      psim <- apply(sim,2,rank)/nrow(sim)
-      psim <- matrix(psim, ncol=ncol(sim)) # Guard against the case of sim having only one row.
     }
-    bds <- apply(psim,2,quantile,probs=c(0.025,0.975))
+
+    bds <- apply(psim, 2, quantile, probs = c(0.025, 0.975))
 
     l <- list(pval = pval, summary = pval, pobs = pobs, psim = psim, bds = bds, obs = obs, sim = sim)
-    setNames(l, paste(names(l), gv, sep="."))
-  }
+    names(l) <- paste(names(l), name, sep=".")
 
-  for(gv in GVMAP)
-    returnlist <- modifyList(returnlist, calc_pvals(gv[[1]],gv[[2]]))
+    l
+  })
 
-  class(returnlist) <- c("gof.ergm", "gof")
-  returnlist
+  modifyList(list(network.size = network.size(nw), GOF = GOF),
+             unlist(unname(out), recursive = FALSE)) |>
+    structure(class = c("gof.ergm", "gof"))
 }
-
 
 
 ################################################################
@@ -392,7 +335,7 @@ gof.formula <- function(object, ...,
 #' @param x an object of class \code{gof} for printing or plotting.
 #' @export
 print.gof <- function(x, ...){
-  all.gof.vars <- as.character(list_rhs.formula(x$GOF))
+  all.gof.vars <- which_gof(x)
   # match variables
   goftypes <- matrix( c(
       "model", "model statistics", "summary.model",
@@ -406,8 +349,7 @@ print.gof <- function(x, ...){
       "dspartners", "dyadwise shared partner", "summary.dspart",
       "triadcensus", "triad census", "summary.triadcensus"), 
                       byrow=TRUE, ncol=3)
-  all.gof.vars <- sapply(all.gof.vars,
-                         match.arg, goftypes[,1])
+
   for(statname in all.gof.vars){
     r <- match(statname, goftypes[,1])  # find row in goftypes matrix
     cat("\nGoodness-of-fit for", goftypes[r, 2],"\n\n")
@@ -472,12 +414,9 @@ plot.gof <- function(x, ...,
  color <- "gray75"
 
   # match variables
-  all.gof.vars <- as.character(list_rhs.formula(x$GOF)) %>%
-    sapply(match.arg, GOF_VALID_VARS)
+  all.gof.vars <- which_gof(x)
 
   if(length(all.gof.vars) == 0) stop("The gof object does not contain any statistics!")
-
-  GOF <- as.formula(paste("~",paste(all.gof.vars,collapse="+")))
 
   gofcomp <- function(tag, unit, idx=c("finite","infinite","nominal")){
     idx <- match.arg(idx)
@@ -597,4 +536,88 @@ plot.gof <- function(x, ...,
 
   mtext(main,side=3,outer=TRUE,cex=1.5,padj=2)
   invisible()
+}
+
+
+### GOF wrappers for ERGM terms.
+
+InitErgmTerm..gof.dist <- function(...) {
+  f <- InitErgmTerm.geodistdist
+  term <- f(...)
+  term$coef.names <- gsub("^geodist\\.", ".gof.dist#", term$coef.names)
+  term
+}
+
+InitErgmTerm..gof.odeg <- function(nw, arglist, ...) {
+  arglist <- list(0:(network.size(nw) - 1))
+  f <- InitErgmTerm.odegree
+  term <- f(nw, arglist, ...)
+  term$coef.names <- gsub("^odegree", ".gof.odeg#", term$coef.names)
+  term
+}
+
+InitErgmTerm..gof.ideg <- function(nw, arglist, ...) {
+  arglist <- list(0:(network.size(nw) - 1))
+  f <- InitErgmTerm.idegree
+  term <- f(nw, arglist, ...)
+  term$coef.names <- gsub("^idegree", ".gof.ideg#", term$coef.names)
+  term
+}
+
+InitErgmTerm..gof.deg <- function(nw, arglist, ...) {
+  arglist <- list(0:(network.size(nw) - 1))
+  f <- InitErgmTerm.degree
+  term <- f(nw, arglist, ...)
+  term$coef.names <- gsub("^degree", ".gof.deg#", term$coef.names)
+  term
+}
+
+InitErgmTerm..gof.b1deg <- function(nw, arglist, ...) {
+  arglist <- list(0:b2.size(nw))
+  f <- InitErgmTerm.b1degree
+  term <- f(nw, arglist, ...)
+  term$coef.names <- gsub("^b1degree", ".gof.b1deg#", term$coef.names)
+  term
+}
+
+InitErgmTerm..gof.b2deg <- function(nw, arglist, ...) {
+  arglist <- list(0:b1.size(nw))
+  f <- InitErgmTerm.b2degree
+  term <- f(nw, arglist, ...)
+  term$coef.names <- gsub("^b2degree", ".gof.b2deg#", term$coef.names)
+  term
+}
+
+InitErgmTerm..gof.espart <- function(nw, arglist, ..., cache.sp = TRUE) {
+  arglist <- list(0:(network.size(nw) - 2))
+  f <- InitErgmTerm.esp
+  term <- f(nw, arglist, ..., cache.sp = cache.sp)
+  term$coef.names <- gsub("^esp", ".gof.espart#", term$coef.names)
+  term
+}
+
+InitErgmTerm..gof.dspart <- function(nw, arglist, ..., cache.sp = TRUE) {
+  arglist <- list(0:(network.size(nw) - 2))
+  f <- InitErgmTerm.dsp
+  term <- f(nw, arglist, ..., cache.sp = cache.sp)
+  term$coef.names <- gsub("^dsp", ".gof.dspart#", term$coef.names)
+  term
+}
+
+InitErgmTerm..gof.triadcensus <- function(nw, arglist, ...) {
+  if (is.directed(nw)) {
+    triadcensus <- 0:15
+    namestriadcensus <- c("003", "012", "102", "021D", "021U", "021C",
+                          "111D", "111U", "030T",
+                          "030C", "201", "120D", "120U", "120C", "210", "300")
+  } else {
+    triadcensus <- 0:3
+    namestriadcensus <- c("0", "1", "2", "3")
+  }
+
+  arglist <- list(triadcensus)
+  f <- InitErgmTerm.triadcensus
+  term <- f(nw, arglist, ...)
+  term$coef.names <- paste0("triadcensus#", namestriadcensus)
+  term
 }
