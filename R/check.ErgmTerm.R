@@ -32,10 +32,9 @@ ergm_Init_warn_once <- once(ergm_Init_warn)
 #'
 #' @param nw the network that term X is being checked against
 #' @param arglist the list of arguments for term X
-#' @param directed logical, whether term X requires a directed
-#'   network, forbids it, or neither
-#' @param bipartite logical; whether term X requires a bipartite
-#'   network, forbids it, or neither
+#' @param directed,bipartite,loops logical, whether term X requires
+#'   (`TRUE`) or forbids (`FALSE`) the network to have the respective
+#'   property or neither (`NULL`, the default)
 #' @param nonnegative deprecated
 #' @param varnames the vector of names of the possible arguments for
 #'   term X
@@ -68,7 +67,7 @@ ergm_Init_warn_once <- once(ergm_Init_warn)
 #'
 #' @import network
 #' @export check.ErgmTerm
-check.ErgmTerm <- function(nw, arglist, directed = NULL, bipartite = NULL, nonnegative = FALSE,
+check.ErgmTerm <- function(nw, arglist, directed = NULL, bipartite = NULL, nonnegative = FALSE, loops = NULL,
                            varnames = NULL, vartypes = NULL,
                            defaultvalues = rep_along(varnames, list(NULL)),
                            required = rep_along(varnames, TRUE),
@@ -88,6 +87,10 @@ check.ErgmTerm <- function(nw, arglist, directed = NULL, bipartite = NULL, nonne
   message <- NULL
   if (!is.null(directed) && directed != (dnw<-is.directed(nw))) {
     message <- paste("networks with directed==", dnw, sep="")
+  }
+
+  if (!is.null(loops) && loops != (lnw <- has.loops(nw))) {
+    message <- paste("networks with loops==", lnw, sep="")
   }
   
   bnw <- b1.size(nw)
