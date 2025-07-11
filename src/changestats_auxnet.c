@@ -266,7 +266,7 @@ I_CHANGESTAT_FN(i__subgraph_net){
     break;
   }
 
-  I_AUXNET(NetworkInitialize(NULL, NULL, 0, n, dir, bip));
+  I_AUXNET(NetworkInitialize(NULL, NULL, 0, n, dir, bip, LOOPS));
 
   EXEC_THROUGH_NET_EDGES_PRE(tail, head, e, {
       Vertex st = thmap[0][tail];
