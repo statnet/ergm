@@ -48,7 +48,7 @@ ETYPE(Network) *ETYPE(NetworkInitialize_new)(Vertex *tails, Vertex *heads, IFEWT
   EDGECOUNT(nwp) = 0; /* Edges will be added one by one */
   nwp->directed_flag=directed_flag;
   nwp->bipartite=bipartite;
-  nwp->loops_flag=loops_flag;
+  nwp->loops_flag = bipartite ? FALSE : loops_flag;
 
   if(nedges == 0) return nwp;
 
@@ -106,6 +106,7 @@ ETYPE(Network) *ETYPE(NetworkCopy)(ETYPE(Network) *src){
 
   dest->directed_flag = src->directed_flag;
   dest->bipartite = src->bipartite;
+  dest->loops_flag = src->loops_flag;
 
   EDGECOUNT(dest) = EDGECOUNT(src);
 
@@ -367,8 +368,7 @@ int ETYPE(GetRandEdge)(Vertex *tail, Vertex *head, IFEWT(EWTTYPE *weight,) ETYPE
   value of i is (ndyads - EDGECOUNT(nwp)).
 ******************/
 
-/* This function is not yet written.  It's not clear whether it'll
-   be needed. */
+/* TODO: This function does not yet handle self-loops. Test if it's needed. */
   /* *** but if it is needed, don't forget,  tail -> head */
 
 int ETYPE(FindithNonedge) (Vertex *tail, Vertex *head, Dyad i, ETYPE(Network) *nwp) {
@@ -634,6 +634,7 @@ SEXP ETYPE(Network2Redgelist)(ETYPE(Network) *nwp){
   setAttrib(outl, install("n"), PROTECT(ScalarInteger(nwp->nnodes)));
   setAttrib(outl, install("directed"), PROTECT(ScalarLogical(nwp->directed_flag)));
   setAttrib(outl, install("bipartite"), PROTECT(ScalarInteger(nwp->bipartite)));
+  setAttrib(outl, install("loops"), PROTECT(ScalarInteger(nwp->loops_flag)));
   IFEWT(setAttrib(outl, install("response"), PROTECT(mkChar(nwp->eattrname))));
   UNPROTECT(IFELSEEWT(4,3));
 
