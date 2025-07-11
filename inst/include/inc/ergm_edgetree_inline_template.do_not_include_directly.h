@@ -154,7 +154,7 @@ static inline EWTTYPE ETYPE(GetEdge) (Vertex tail, Vertex head, ETYPE(Network) *
  Construct an empty network with the same settings (size, etc.) to the given network; simple enough to be static inline.
 *****************/
 static inline ETYPE(Network)* ETYPE(NetworkInitializeLike)(ETYPE(Network) *nwp) {
-  return ETYPE(NetworkInitialize_noLT)(NULL, NULL, IFEWT(NULL,) 0, nwp->nnodes, nwp->directed_flag, nwp->bipartite);
+  return ETYPE(NetworkInitialize_new)(NULL, NULL, IFEWT(NULL,) 0, nwp->nnodes, nwp->directed_flag, nwp->bipartite, nwp->loops_flag);
 }
 
 #ifdef __cplusplus
