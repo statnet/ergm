@@ -35,6 +35,7 @@ double my_choose(double n, int r);
 #define IN_DEG (nwp->indegree) /* Vector of length N_NODES giving current indegrees */
 #define DIRECTED (nwp->directed_flag) /* 0 if network is undirected, 1 if directed */
 #define N_EDGES (EDGECOUNT(nwp)) /* Total number of edges in the network currently */
+#define LOOPS (nwp->loops_flag) /* 0 if the network cannot have self-loops, 1 if it can */
 
 /* 0 if network is not bipartite, otherwise number of nodes of the first type (the first node of the second type has Vertex index BIPARTITE+1 */
 #define BIPARTITE (nwp->bipartite)
