@@ -10,6 +10,7 @@ check.ErgmTerm(
   directed = NULL,
   bipartite = NULL,
   nonnegative = FALSE,
+  loops = NULL,
   varnames = NULL,
   vartypes = NULL,
   defaultvalues = list(),
@@ -24,11 +25,7 @@ check.ErgmTerm(
 
 \item{arglist}{the list of arguments for term X}
 
-\item{directed}{logical, whether term X requires a directed
-network; default=NULL}
-
-\item{bipartite}{whether term X requires a bipartite network (T or
-F); default=NULL}
+\item{directed, bipartite, loops}{logical, whether term X requires (\code{TRUE}) or forbids (\code{FALSE}) the network to have the respective property or neither (\code{NULL}, the default)}
 
 \item{nonnegative}{whether term X requires a network with only
 nonnegative weights; default=FALSE}
