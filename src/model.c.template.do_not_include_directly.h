@@ -480,7 +480,7 @@ void ETYPE(SummStats)(Edge n_edges, Vertex *tails, Vertex *heads, IFEWT(EWTTYPE 
     stats = m->workspace;
 
     /* Replace the model and network with an empty one. */
-    nwp = ETYPE(NetworkInitialize)(NULL, NULL, IFEWT(NULL,) 0, N_NODES, DIRECTED, BIPARTITE);
+    nwp = ETYPE(NetworkInitializeLike)(nwp);
     m = ETYPE(ModelInitialize)(m->R, m->ext_state, nwp, TRUE);
     mynet = TRUE;
   }else{
