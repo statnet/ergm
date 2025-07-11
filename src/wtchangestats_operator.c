@@ -23,7 +23,7 @@
 WtI_CHANGESTAT_FN(i_import_binary_term_sum){
   ALLOC_STORAGE(1, StoreNetAndModel, store);
 
-  store->nwp = NetworkInitialize(NULL, NULL, 0, N_NODES, DIRECTED, BIPARTITE);
+  store->nwp = NetworkInitialize(NULL, NULL, 0, N_NODES, DIRECTED, BIPARTITE, LOOPS);
   Network *mynwp = store->nwp;
   store->m = ModelInitialize(getListElement(mtp->R, "submodel"), NULL,  mynwp, FALSE);
   DELETE_IF_UNUSED_IN_SUBMODEL(z_func, store->m);
@@ -152,7 +152,7 @@ WtF_CHANGESTAT_FN(f_import_binary_term_form){
 */
 
 WtI_CHANGESTAT_FN(i__binary_nonzero_net){
-  Network *bnwp = AUX_STORAGE = NetworkInitialize(NULL, NULL, 0, N_NODES, DIRECTED, BIPARTITE);
+  Network *bnwp = AUX_STORAGE = NetworkInitialize(NULL, NULL, 0, N_NODES, DIRECTED, BIPARTITE, LOOPS);
   WtEXEC_THROUGH_NET_EDGES_PRE(t, h, e, w, {
       if(w!=0) ToggleEdge(t, h, bnwp);
     });
@@ -186,7 +186,7 @@ WtF_CHANGESTAT_FN(f__binary_nonzero_net){
 WtI_CHANGESTAT_FN(i__binary_formula_net){
   ALLOC_AUX_STORAGE(1, StoreNetAndWtModel, storage);
   WtModel *m = storage->m = WtModelInitialize(getListElement(mtp->R, "submodel"), NULL, nwp, FALSE);
-  Network *bnwp = storage->nwp = NetworkInitialize(NULL, NULL, 0, N_NODES, DIRECTED, BIPARTITE);
+  Network *bnwp = storage->nwp = NetworkInitialize(NULL, NULL, 0, N_NODES, DIRECTED, BIPARTITE, LOOPS);
  
   WtEXEC_THROUGH_NET_EDGES_PRE(t, h, e, w, {
       if(w!=0){
