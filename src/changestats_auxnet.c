@@ -161,7 +161,7 @@ F_CHANGESTAT_FN(f__blockdiag_net){
 */
 
 I_CHANGESTAT_FN(i__undir_net){
-  I_AUXNET(NetworkInitialize(NULL, NULL, 0, N_NODES, FALSE, BIPARTITE, FALSE, 0, NULL));
+  I_AUXNET(NetworkInitialize(NULL, NULL, 0, N_NODES, FALSE, BIPARTITE, LOOPS));
 
   unsigned int rule = IINPUT_PARAM[0];
   EXEC_THROUGH_NET_EDGES_PRE(tail, head, e, {
@@ -295,4 +295,29 @@ F_CHANGESTAT_FN(f__subgraph_net){
   GET_AUX_STORAGE(StoreAuxnet, auxnet);
   NetworkDestroy(auxnet->onwp);
   // DestroyStats() will deallocate the rest.
+}
+
+
+/* _noloops_net
+
+   Maintain a binary network that strips self-loops.
+*/
+
+I_CHANGESTAT_FN(i__noloops_net){
+  I_AUXNET(NetworkInitialize(NULL, NULL, 0, N_NODES, DIRECTED, BIPARTITE, FALSE));
+
+  EXEC_THROUGH_NET_EDGES_PRE(tail, head, e, {
+      if(tail != head) ToggleKnownEdge(tail, head, auxnet->onwp, FALSE);
+    });
+}
+
+U_CHANGESTAT_FN(u__noloops_net){
+  GET_AUX_STORAGE(StoreAuxnet, auxnet);
+
+  if(tail != head) ToggleEdge(tail, head, auxnet->onwp);
+}
+
+F_CHANGESTAT_FN(f__noloops_net){
+  GET_AUX_STORAGE(StoreAuxnet, auxnet);
+  NetworkDestroy(auxnet->onwp);
 }

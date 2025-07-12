@@ -327,3 +327,28 @@ WtF_CHANGESTAT_FN(f__Wttransformed_net){
   GET_AUX_STORAGE(StoreWtAuxnet, auxnet);
   WtNetworkDestroy(auxnet->onwp);
 }
+
+
+/* _Wtnoloops_net
+
+   Maintain a valued network that strips self-loops.
+*/
+
+WtI_CHANGESTAT_FN(i__Wtnoloops_net){
+  I_WtAUXNET(WtNetworkInitialize(NULL, NULL, NULL, 0, N_NODES, DIRECTED, BIPARTITE, FALSE));
+
+  WtEXEC_THROUGH_NET_EDGES_PRE(tail, head, e, weight, {
+      if(tail != head) WtSetEdge(tail, head, weight, auxnet->onwp);
+    });
+}
+
+WtU_CHANGESTAT_FN(u__Wtnoloops_net){
+  GET_AUX_STORAGE(StoreWtAuxnet, auxnet);
+
+  if(tail != head) WtSetEdge(tail, head, weight, auxnet->onwp);
+}
+
+WtF_CHANGESTAT_FN(f__Wtnoloops_net){
+  GET_AUX_STORAGE(StoreWtAuxnet, auxnet);
+  WtNetworkDestroy(auxnet->onwp);
+}

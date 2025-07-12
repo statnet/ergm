@@ -1258,3 +1258,32 @@ InitErgmTerm.For <- function(nw, arglist, ...){
 
   ergm_model(terms, nw, ..., terms.only=TRUE)
 }
+
+
+#' @templateVar name NoLoops
+#' @title Remove self-loops before evaluating
+#' @description Evaluates the given `formula` on a network constructed removing all self-loops.
+#'
+#' @usage
+#' # binary: NoLoops(formula)
+#' @template ergmTerm-formula
+#'
+#' @template ergmTerm-general
+#'
+#' @concept operator
+#' @concept self-loops
+InitErgmTerm.NoLoops <- function(nw, arglist, ...) {
+  a <- check.ErgmTerm(nw, arglist, loops = TRUE,
+                      varnames = c("formula"),
+                      vartypes = c("formula"),
+                      defaultvalues = list(NULL),
+                      required = c(TRUE))
+
+  m <- ergm_model(a$formula, nw, ..., offset.decorate = FALSE)
+  ergm_no_ext.encode(m)
+
+  c(list(name = "on_noloops_net",
+         submodel = m,
+         auxiliaries = trim_env(~.noloops.net)),
+    wrap.ergm_model(m, nw, ergm_mk_std_op_namewrap("NoLoops")))
+}

@@ -122,6 +122,7 @@ eval(UPDATE_MY_SCTRL_EXPR)
   ergm_keyword(name="triad-related", short="triad rel", description="involves triangles, two-paths, and other triadic structures", popular=FALSE, package="ergm")
   ergm_keyword(name="valued", short="val", description="suitable for valued ERGMs", popular=TRUE, package="ergm")
   ergm_keyword(name="undirected", short="undir", description="suitable for undirected networks", popular=TRUE, package="ergm")
+  ergm_keyword(name="self-loops", short="loops", description="specific to networks with self-loops", popular=FALSE, package="ergm")
 }
 
 .onUnload <- function(libpath){

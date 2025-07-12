@@ -294,3 +294,16 @@ InitWtErgmTerm..transformed.net <- function(nw, arglist, ..., env){
 
   c(list(name = "_Wttransformed_net", coef.names = c(), iinputs = op, dependence = FALSE))
 }
+
+#' @templateVar name NoLoops
+#' @template ergmTerm-rdname
+#' @usage
+#' # valued: NoLoops(formula)
+InitWtErgmTerm.NoLoops <- function(...) {
+  # Rename the function to avoid the extra nesting level in the
+  # diagnostic messages.
+  f <- InitErgmTerm.NoLoops
+  term <- f(...)
+  term$name <- "on_Wtnoloops_net"
+  term
+}

@@ -144,3 +144,14 @@ InitErgmTerm..subgraph.net <- function(nw, arglist, ...){
 
   list(name=paste0("_subgraph_net"), coef.names = c(), iinputs=c(match(type, TYPES), length(tailsel), if(type=="bip") length(headsel), tailmap, headmap), dependence=FALSE)
 }
+
+
+InitErgmTerm..noloops.net <- function(nw, arglist, ...){
+  a <- check.ErgmTerm(nw, arglist, loops = TRUE,
+                      varnames = c(),
+                      vartypes = c(),
+                      defaultvalues = list(),
+                      required = c())
+
+  list(name="_noloops_net", coef.names = c())
+}
