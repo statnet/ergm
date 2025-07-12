@@ -1244,7 +1244,7 @@ InitErgmTerm.For <- function(nw, arglist, ...){
 #' @template ergmTerm-general
 #'
 #' @concept operator
-#' @concept self-loops
+#' @concept self-loop
 InitErgmTerm.NoLoops <- function(nw, arglist, ...) {
   a <- check.ErgmTerm(nw, arglist, loops = TRUE,
                       varnames = c("formula"),
