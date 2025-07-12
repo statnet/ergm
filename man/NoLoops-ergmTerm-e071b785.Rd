@@ -23,4 +23,4 @@ Evaluates the given \code{formula} on a network constructed removing all self-lo
 \Sexpr[results=rd,stage=render]{ergm:::.formatTermKeywords("ergmTerm", "NoLoops", "subsection")}
 }
 \concept{operator}
-\concept{self-loops}
+\concept{self-loop}

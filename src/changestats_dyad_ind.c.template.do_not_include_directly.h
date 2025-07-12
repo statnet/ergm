@@ -425,3 +425,34 @@ ETYPE(C_CHANGESTAT_FN)(SVARIANT(c_sociality)) {
 }
 
 }
+
+/*****************
+ changestat: c_loop
+*****************/
+ETYPE(C_CHANGESTAT_FN)(SVARIANT(c_loop)) {
+  if(tail == head) CHANGE_STAT[0] = ECHANGE1;
+}
+
+
+/*****************
+ changestat: c_loopcov
+*****************/
+ETYPE(C_CHANGESTAT_FN)(SVARIANT(c_loopcov)) {
+  if(tail != head) return;
+
+  unsigned int oshift = N_INPUT_PARAMS / N_CHANGE_STATS;
+
+  for(unsigned int j = 0, o = 0; j < N_CHANGE_STATS; j++, o += oshift)
+    CHANGE_STAT[j] += ECHANGE(INPUT_ATTRIB[tail + o - 1]);
+}
+
+
+/*****************
+ changestat: c_loopfactor
+*****************/
+ETYPE(C_CHANGESTAT_FN)(SVARIANT(c_loopfactor)) {
+  if(tail != head) return;
+
+  int pos = IINPUT_ATTRIB[tail - 1];
+  if (pos != -1) CHANGE_STAT[pos] += ECHANGE1;
+}

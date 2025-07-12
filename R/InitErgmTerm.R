@@ -5277,3 +5277,114 @@ InitErgmTerm.twopath<-function(nw, arglist, ...) {
 }
 
 
+#' @templateVar name loop
+#' @title Number of self-loops in the network
+#' @description This term adds one network statistic equal to the number of
+#'   self-loops in the network.
+#'
+#' @usage
+#' # binary: loop
+#'
+#' @template ergmTerm-general
+#'
+#' @concept dyad-independent
+#' @concept directed
+#' @concept undirected
+InitErgmTerm.loop <- function(nw, arglist, ...) {
+  a <- check.ErgmTerm(nw, arglist, loops = TRUE,
+                      varnames = NULL,
+                      vartypes = NULL,
+                      defaultvalues = list(),
+                      required = NULL)
+
+  list(name = "loop", coef.names = "loop", dependence = FALSE,
+       minval = 0, maxval = network.size(nw))
+}
+
+
+#' @templateVar name loopcov
+#' @title Main effect of a covariate on the presence of self-loops
+#' @description This term adds a single network statistic for each quantitative attribute or matrix column to the model equaling
+#'   `attr(i)` for self-loops \eqn{(i,i)} in the
+#'   network. For categorical attributes, see `loopfactor`.
+#'
+#' @usage
+#' # binary: loopcov(attr)
+#'
+#' @template ergmTerm-attr
+#'
+#' @template ergmTerm-general
+#'
+#' @concept dyad-independent
+#' @concept directed
+#' @concept undirected
+#' @concept quantitative nodal attribute
+#' @concept self-loop
+InitErgmTerm.loopcov <- function(nw, arglist, ...) {
+  ### Check the network and arguments to make sure they are appropriate.
+  a <- check.ErgmTerm(nw, arglist, loops = TRUE,
+                      varnames = c("attr"),
+                      vartypes = c(ERGM_VATTR_SPEC),
+                      defaultvalues = list(NULL),
+                      required = c(TRUE))
+  ### Process the arguments
+  nodecov <- ergm_get_vattr(a$attr, nw, accept = "numeric", multiple = "matrix")
+  coef.names <- nodecov_names(nodecov, "nodecov")
+
+  list(name = "loopcov", coef.names = coef.names, inputs = c(nodecov),
+       dependence = FALSE)
+}
+
+
+#' @templateVar name loopfactor
+#' @title Factor attribute effect on the presence of self-loops
+#' @description This term adds multiple network statistics to the
+#'   model, one for each of (a subset of) the unique values of the
+#'   `attr` attribute (or each combination of the attributes
+#'   given). Each of these statistics gives the number of times a node
+#'   with that attribute or those attributes has a self-loop.
+#'
+#' @usage
+#' # binary: loopfactor(attr, levels = -1)
+#'
+#' @template ergmTerm-attr
+#' @templateVar explain this optional argument controls which levels of the attribute should be included and which should be excluded.
+#' @template ergmTerm-levels-doco
+#'
+#' @template ergmTerm-general
+#'
+#' @template ergmTerm-levels-not-first
+#'
+#' @concept dyad-independent
+#' @concept directed
+#' @concept undirected
+#' @concept categorical nodal attribute
+#' @concept self-loop
+InitErgmTerm.loopfactor <- function(nw, arglist, ...) {
+  a <- check.ErgmTerm(nw, arglist, loops = TRUE,
+                      varnames = c("attr", "levels"),
+                      vartypes = c(ERGM_VATTR_SPEC, ERGM_LEVELS_SPEC),
+                      defaultvalues = list(NULL, -1),
+                      required = c(TRUE, FALSE))
+  attrarg <- a$attr
+  levels <- a$levels
+
+  nodecov <- ergm_get_vattr(attrarg, nw)
+  attrname <- attr(nodecov, "name")
+  u <- ergm_attr_levels(levels, nodecov, nw, levels = sort(unique(nodecov)))
+
+  if (length(u) == 0) { # Get outta here!  (can happen if user passes attribute with one value)
+    return()
+  }
+  #   Recode to numeric
+  nodepos <- match(nodecov, u, nomatch = 0L)
+  ### Construct the list to return
+  inputs <- nodepos - 1L
+  list(name = "loopfactor",
+       coef.names = paste("loopfactor", paste(attrname, collapse = "."), u, sep = "."),
+       iinputs = inputs,
+       dependence = FALSE, # So we don't use MCMC if not necessary
+       minval = 0,
+       maxval = table(nodepos, length(u))
+       )
+}
