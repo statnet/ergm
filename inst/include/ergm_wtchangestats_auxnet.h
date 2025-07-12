@@ -161,4 +161,10 @@ MAP_WtTOGGLE_FN(map_toggle__Wttransformed_net){
   }
 }
 
+
+#define map_toggle_maxtoggles__Wtnoloops_net 1
+MAP_WtTOGGLE_FN(map_toggle__Wtnoloops_net){
+  MAP_WtTOGGLE_PROPAGATE_IF(tail != head);
+}
+
 #endif

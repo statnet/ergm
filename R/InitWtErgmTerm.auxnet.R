@@ -122,3 +122,12 @@ InitWtErgmTerm..subgraph.net <- function(...){
   term$name <- "_Wtsubgraph_net"
   term
 }
+
+InitWtErgmTerm..noloops.net <- function(...){
+  # Rename the function to avoid the extra nesting level in the
+  # diagnostic messages.
+  f <- InitErgmTerm..noloops.net
+  term <- f(...)
+  term$name <- "_Wtnoloops_net"
+  term
+}

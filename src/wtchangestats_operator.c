@@ -238,3 +238,4 @@ ON_WtAUXNET(_Wtundir_net)
 /* ON_WtAUXNET(_filter_formula_net) */
 ON_WtAUXNET(_Wtsubgraph_net)
 ON_WtAUXNET(_Wttransformed_net)
+ON_WtAUXNET(_Wtnoloops_net)

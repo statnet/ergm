@@ -122,4 +122,10 @@ MAP_TOGGLE_FN(map_toggle__subgraph_net){
   }
 }
 
+
+#define map_toggle_maxtoggles__noloops_net 1
+MAP_TOGGLE_FN(map_toggle__noloops_net){
+  MAP_TOGGLE_PROPAGATE_IF(tail != head);
+}
+
 #endif
