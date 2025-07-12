@@ -1132,7 +1132,44 @@ InitWtErgmTerm.mm<-function (nw, arglist, ...) {
   binary_dind_wrap("mm", nw, a, ...)
 }
 
+#' @templateVar name loop
+#' @template ergmTerm-rdname
+#' @usage
+#' # valued: loop(form="sum")
+#' @template ergmTerm-form
+InitWtErgmTerm.loop <- function(nw, arglist, ...) {
+  a <- check.ErgmTerm(nw, arglist,
+                      varnames = c("form"),
+                      vartypes = c("character"),
+                      defaultvalues = list("sum"),
+                      required = c(FALSE))
+  binary_dind_wrap("loop", nw, a, ...)
+}
 
-################################################################################
+#' @templateVar name loopcov
+#' @template ergmTerm-rdname
+#' @usage
+#' # valued: loopcov(attr, form="sum")
+#' @template ergmTerm-form
+InitWtErgmTerm.loopcov <- function(nw, arglist, ...) {
+  a <- check.ErgmTerm(nw, arglist, loops = TRUE,
+                      varnames = c("attr", "form"),
+                      vartypes = c(ERGM_VATTR_SPEC, "character"),
+                      defaultvalues = list(NULL, "sum"),
+                      required = c(TRUE, FALSE))
+  binary_dind_wrap("loopcov", nw, a, ...)
+}
 
-
+#' @templateVar name loopfactor
+#' @template ergmTerm-rdname
+#' @usage
+#' # valued: loopfactor(attr, levels = -1, form="sum")
+#' @template ergmTerm-form
+InitWtErgmTerm.loopfactor <- function(nw, arglist, ...) {
+  a <- check.ErgmTerm(nw, arglist, loops = TRUE,
+                      varnames = c("attr", "levels", "form"),
+                      vartypes = c(ERGM_VATTR_SPEC, ERGM_LEVELS_SPEC, "character"),
+                      defaultvalues = list(NULL, -1, "sum"),
+                      required = c(TRUE, FALSE, FALSE))
+  binary_dind_wrap("loopfactor", nw, a, ...)
+}
