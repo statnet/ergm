@@ -140,7 +140,10 @@ static inline EWTTYPE ETYPE(GetEdge) (Vertex tail, Vertex head, ETYPE(Network) *
 {
   ENSURE_TH_ORDER;
 
-  Edge oe=ETYPE(EdgetreeSearch)(tail,head,nwp->outedges);
-  return IFELSEEWT(oe ? nwp->outedges[oe].weight : 0,
-                      oe != 0);
+  Rboolean oside = nwp->outdegree[tail] <= nwp->indegree[head];
+
+  Edge e = ETYPE(EdgetreeSearch)(tail, head,
+                                 oside ? nwp->outedges : nwp->inedges);
+  return IFELSEEWT(e ? (oside ? nwp->outedges : nwp->inedges)[e].weight : 0,
+                   e != 0);
 }
