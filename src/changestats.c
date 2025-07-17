@@ -3403,46 +3403,6 @@ C_CHANGESTAT_FN(c_triadcensus) {
   }
 }
 
-/*****************
- changestat: d_triangle
-*****************/
-C_CHANGESTAT_FN(c_triangle) {
-  Edge e;
-  Vertex node3;
-
-  /* *** don't forget tail -> head */
-  int change = 0;
-    if(N_IINPUT_PARAMS>0){ /* match on attributes */
-      Rboolean diff = IINPUT_PARAM[0];
-      unsigned int tailattr = IINPUT_PARAM[tail];
-      if(tailattr && tailattr == IINPUT_PARAM[head]){
-        STEP_THROUGH_OUTEDGES(head, e, node3) { /* step through outedges of head */
-          if(tailattr == IINPUT_PARAM[node3]){
-            if (DIRECTED) change += IS_OUTEDGE(node3, tail) + IS_INEDGE(node3, tail);
-            else change += IS_UNDIRECTED_EDGE(node3,tail);
-          }
-        }
-        STEP_THROUGH_INEDGES(head, e, node3) { /* step through inedges of head */
-          if(tailattr == IINPUT_PARAM[node3]){
-            if (DIRECTED) change += IS_OUTEDGE(node3, tail) + IS_INEDGE(node3, tail);
-            else change += IS_UNDIRECTED_EDGE(node3,tail);
-          }
-        }
-
-        CHANGE_STAT[diff ? tailattr-1 : 0] += edgestate ? -change : change;
-      }
-    }else{ /* no attribute matching */
-      STEP_THROUGH_OUTEDGES(head, e, node3) { /* step through outedges of head */
-        if (DIRECTED) change += IS_OUTEDGE(node3, tail) + IS_INEDGE(node3, tail);
-	      else change += IS_UNDIRECTED_EDGE(node3,tail);
-      }
-      STEP_THROUGH_INEDGES(head, e, node3) { /* step through inedges of head */
-        if (DIRECTED) change += IS_OUTEDGE(node3, tail) + IS_INEDGE(node3, tail);
-	      else change += IS_UNDIRECTED_EDGE(node3,tail);
-      }
-      CHANGE_STAT[0] += edgestate ? -change : change;
-    }
-}
 
 /*****************
  changestat: d_tripercent
