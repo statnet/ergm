@@ -249,19 +249,14 @@ net_transform_encode <- function(expr, env){
 
 `InitWtErgmTerm.~` <- function(nw, arglist, ..., env){
   al <- substitute(arglist)
-  a <- check.ErgmTerm(nw, arglist[-2],
-                      varnames = "expr",
-                      vartypes = "character",
-                      defaultvalues = list(NULL),
-                      required = TRUE)
 
   rhs <- as.formula(call("~", al[[3]]), env)
 
-  op <- net_transform_encode(a$expr, env)
+  op <- net_transform_encode(al[[2]], env)
   m <- ergm_model(rhs, nw, ..., terms.only = TRUE)
 
-  c(list(name = "on_Wttransformed_net", iinput = op, submodel = m, auxiliaries = ~.transformed.net(a$expr)),
-    wrap.ergm_model(m, nw, ergm_mk_std_op_namewrap(a$expr)))
+  c(list(name = "on_Wttransformed_net", iinput = op, submodel = m, auxiliaries = ~.transformed.net(al[[2]])),
+    wrap.ergm_model(m, nw, ergm_mk_std_op_namewrap(al[[2]])))
 }
 
 InitWtErgmTerm..transformed.net <- function(nw, arglist, ..., env){
