@@ -717,6 +717,7 @@ InitErgmTerm.Sum <- function(nw, arglist,...){
   nparam <- nparams[1]
 
   #' @importClassesFrom Matrix dgCMatrix
+  #' @importFrom methods as
   wmat <- as(do.call(cbind, wl), "dgCMatrix")
 
   if(is.function(a$label)){
