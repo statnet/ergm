@@ -1,8 +1,6 @@
 #pragma once
 
-#include <cstddef>
-#include <stdexcept>
-#include <iterator>
+#include "FixedArray.h"
 
 extern "C" {
 #include "../ergm_changestat.h"
@@ -15,75 +13,12 @@ extern "C" {
     {impl;}                                                             \
   }
 
-template<typename T>
-class FixedArray {
-public:
-  using value_type = T;
-  using size_type = std::size_t;
-  using reference = T&;
-  using const_reference = const T&;
-  using pointer = T*;
-  using const_pointer = const T*;
-  using iterator = T*;
-  using const_iterator = const T*;
-
-  // Wrap an existing C array
-  FixedArray(pointer arr, size_type n)
-    : size_(n), data_(arr) {}
-
-  // Copy constructor: only copy the pointer and size
-  FixedArray(const FixedArray& other)
-    : size_(other.size_), data_(other.data_) {}
-
-  // Assignment operator: only copy the pointer and size
-  FixedArray& operator=(const FixedArray& other) {
-    if(this != &other) {
-      size_ = other.size_;
-      data_ = other.data_;
-    }
-    return *this;
+#define S_CHANGESTAT_CPP(name, impl)                                    \
+  extern "C" void s_ ## name (ModelTerm *mtp, Network *nwp) { \
+    ErgmCppNetwork nw(nwp);                                             \
+    ErgmCppModelTerm mt(mtp);                                           \
+    {impl;}                                                             \
   }
-
-  // Destructor: do not delete the array
-  ~FixedArray() = default;
-
-  reference operator[](size_type idx) {
-    return data_[idx];
-  }
-
-  const_reference operator[](size_type idx) const {
-    return data_[idx];
-  }
-
-  reference at(size_type idx) {
-    if(idx >= size_) throw std::out_of_range("FixedArray::at");
-    return data_[idx];
-  }
-
-  const_reference at(size_type idx) const {
-    if(idx >= size_) throw std::out_of_range("FixedArray::at");
-    return data_[idx];
-  }
-
-  size_type size() const noexcept {
-    return size_;
-  }
-
-  iterator begin() noexcept { return data_; }
-  iterator end() noexcept { return data_ + size_; }
-  const_iterator begin() const noexcept { return data_; }
-  const_iterator end() const noexcept { return data_ + size_; }
-  const_iterator cbegin() const noexcept { return data_; }
-  const_iterator cend() const noexcept { return data_ + size_; }
-
-  pointer data() noexcept { return data_; }
-  const_pointer data() const noexcept { return data_; }
-
-private:
-  size_type size_;
-  pointer data_;
-};
-
 
 class ErgmCppModelTerm {
 public:
@@ -91,12 +26,16 @@ public:
     : mtp_(mtp),
       stat(mtp->dstats, mtp->nstats),
       dinput(mtp->inputparams, mtp->ninputparams),
-      iinput(mtp->iinputparams, mtp->niinputparams)
+      iinput(mtp->iinputparams, mtp->niinputparams),
+      dattrib(mtp->attrib, (mtp->attrib && mtp->inputparams) ? (mtp->ninputparams - (mtp->attrib - mtp->inputparams)) : 0),
+      iattrib(mtp->iattrib, (mtp->iattrib && mtp->iinputparams) ? (mtp->niinputparams - (mtp->iattrib - mtp->iinputparams)) : 0)
   {}
 
   FixedArray<double> stat;
   const FixedArray<double> dinput;
   const FixedArray<int> iinput;
+  const FixedArray<double> dattrib;
+  const FixedArray<int> iattrib;
 
 private:
   ModelTerm* mtp_;
