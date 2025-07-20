@@ -1,5 +1,8 @@
 #pragma once
 
+#include <optional>
+#include <tuple>
+
 extern "C" {
 #include "ergm_edgetree.h"
 }
@@ -7,7 +10,7 @@ extern "C" {
 class ErgmCppNetwork {
 public:
   explicit ErgmCppNetwork(Network* nwp)
-    : nwp_(nwp), dir(nwp->directed_flag != 0), n(nwp->nnodes) {}
+    : nwp_(nwp), dir(nwp->directed_flag != 0), n(nwp->nnodes), bip(nwp->bipartite) {}
 
   // Unified edge iterator
   class EdgeIterator {
@@ -53,14 +56,21 @@ public:
     using pointer = Vertex*;
     using reference = Vertex&;
 
-    CombinedEdgeIterator(EdgeRange in_range, EdgeRange out_range, bool end = false)
-      : out_range_(out_range), it_(in_range.begin()), in_end_(in_range.end()),
-        out_end_(out_range_.end()), in_(!end) {
-      if (in_ && !(it_ != in_end_)) {
-        in_ = false;
-        it_ = out_range_.begin();
+    // Accept optional second range argument
+    CombinedEdgeIterator(EdgeRange range1, std::optional<EdgeRange> range2 = std::nullopt, bool end = false)
+      : range2_(range2), it_(range1.begin()), end1_(range1.end()),
+        end2_(range2 ? range2->end() : EdgeIterator(nullptr, 0)), in1_(!end), only1_(!range2.has_value()) {
+      if (in1_ && !(it_ != end1_)) {
+        if (!only1_) {
+          in1_ = false;
+          it_ = range2_->begin();
+        }
       } else if (end) {
-        it_ = out_range_.end();
+        if (only1_) {
+          it_ = end1_;
+        } else {
+          it_ = range2_->end();
+        }
       }
     }
 
@@ -70,59 +80,71 @@ public:
 
     CombinedEdgeIterator& operator++() {
       ++it_;
-      if (in_ && !(it_ != in_end_)) {
-        in_ = false;
-        it_ = out_range_.begin();
+      if (!only1_ && in1_ && !(it_ != end1_)) {
+        in1_ = false;
+        it_ = range2_->begin();
       }
       return *this;
     }
 
     bool operator!=(const CombinedEdgeIterator& other) const {
-      return in_ != other.in_ || it_ != other.it_;
+      return in1_ != other.in1_ || it_ != other.it_;
     }
 
   private:
-    EdgeRange out_range_;
-    EdgeIterator it_, in_end_, out_end_;
-    bool in_;
+    std::optional<EdgeRange> range2_;
+    EdgeIterator it_, end1_, end2_;
+    bool in1_;
+    bool only1_;
   };
 
   class CombinedEdgeRange {
   public:
-    CombinedEdgeRange(TreeNode* inedges, TreeNode* outedges, Vertex node)
-      : in_range_(inedges, node), out_range_(outedges, node) {}
-    CombinedEdgeIterator begin() const { return CombinedEdgeIterator(in_range_, out_range_, false); }
-    CombinedEdgeIterator end() const { return CombinedEdgeIterator(in_range_, out_range_, true); }
+    // Accept optional second edges argument
+    CombinedEdgeRange(TreeNode* edges1, TreeNode* edges2, Vertex node)
+      : range1_(edges1, node), range2_(edges2 ? std::make_optional<EdgeRange>(edges2, node) : std::nullopt) {}
+    CombinedEdgeRange(TreeNode* edges1, Vertex node)
+      : range1_(edges1, node), range2_(std::nullopt) {}
+
+    CombinedEdgeIterator begin() const { return CombinedEdgeIterator(range1_, range2_, false); }
+    CombinedEdgeIterator end() const { return CombinedEdgeIterator(range1_, range2_, true); }
   private:
-    EdgeRange in_range_;
-    EdgeRange out_range_;
+    EdgeRange range1_;
+    std::optional<EdgeRange> range2_;
   };
 
-  EdgeRange out_neighbors(Vertex node) { return EdgeRange(nwp_->outedges, node); }
-  EdgeRange in_neighbors(Vertex node) { return EdgeRange(nwp_->inedges, node); }
+  CombinedEdgeRange out_neighbors(Vertex node) {
+    if(dir) {
+      return CombinedEdgeRange(nwp_->outedges, node);
+    } else {
+      return CombinedEdgeRange(nwp_->inedges, nwp_->outedges, node);
+    }
+  }
+  CombinedEdgeRange in_neighbors(Vertex node) {
+    if(dir) {
+      return CombinedEdgeRange(nwp_->inedges, node);
+    } else {
+      return CombinedEdgeRange(nwp_->inedges, nwp_->outedges, node);
+    }
+  }
   CombinedEdgeRange neighbors(Vertex node) {
     return CombinedEdgeRange(nwp_->inedges, nwp_->outedges, node);
   }
 
-  struct EdgePair {
-    Vertex tail;
-    Vertex head;
-  };
-
   class NetworkEdgeIterator {
   public:
     using iterator_category = std::forward_iterator_tag;
-    using value_type = EdgePair;
+    using value_type = std::tuple<Vertex, Vertex>;
     using difference_type = std::ptrdiff_t;
-    using pointer = EdgePair*;
-    using reference = EdgePair&;
+    using pointer = value_type*;
+    using reference = value_type&;
 
     NetworkEdgeIterator(TreeNode* outedges, Vertex nnodes, Vertex tail = 1)
       : outedges_(outedges), nnodes_(nnodes), tail_(tail), range_(outedges, tail), it_(range_.begin()), end_it_(range_.end()) {
       advance_to_next_valid();
     }
 
-    EdgePair operator*() const { return {tail_, *it_}; }
+    value_type operator*() const { return std::make_tuple(tail_, *it_); }
     NetworkEdgeIterator& operator++() {
       ++it_;
       if (!(it_ != end_it_)) {
@@ -174,7 +196,36 @@ public:
     return NetworkEdgeRange(nwp_->outedges, nwp_->nnodes);
   }
 
-  // Add more wrappers for other Network functions as needed...
+  class NodeIterator {
+  public:
+    using iterator_category = std::forward_iterator_tag;
+    using value_type = Vertex;
+    using difference_type = std::ptrdiff_t;
+    using pointer = Vertex*;
+    using reference = Vertex&;
+
+    NodeIterator(Vertex v) : v_(v) {}
+    Vertex operator*() const { return v_; }
+    NodeIterator& operator++() { ++v_; return *this; }
+    bool operator!=(const NodeIterator& other) const { return v_ != other.v_; }
+  private:
+    Vertex v_;
+  };
+
+  class NodeRange {
+  public:
+    NodeRange(Vertex n) : start_(1), end_(n + 1) {}
+    NodeRange(Vertex start, Vertex end) : start_(start), end_(end) {}
+    NodeIterator begin() const { return NodeIterator(start_); }
+    NodeIterator end() const { return NodeIterator(end_); }
+  private:
+    Vertex start_;
+    Vertex end_;
+  };
+
+  NodeRange nodes() const { return NodeRange(1, n + 1); }
+  NodeRange b1() const { return NodeRange(1, bip + 1); }
+  NodeRange b2() const { return NodeRange(bip + 1, n + 1); }
 
   bool operator()(Vertex tail, Vertex head) const {
     return GetEdge(tail, head, nwp_);
@@ -182,6 +233,7 @@ public:
 
   const bool dir;
   const Vertex n;
+  const Vertex bip;
 
 private:
   Network* nwp_;
