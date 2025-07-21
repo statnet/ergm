@@ -4,52 +4,52 @@
 #include <tuple>
 
 extern "C" {
-#include "ergm_edgetree.h"
+#include "ergm_wtedgetree.h"
 }
 
-class ErgmCppNetwork {
+class ErgmCppWtNetwork {
 public:
-  explicit ErgmCppNetwork(Network* nwp)
+  explicit ErgmCppWtNetwork(WtNetwork* nwp)
     : nwp_(nwp), dir(nwp->directed_flag != 0), n(nwp->nnodes), bip(nwp->bipartite) {}
 
   // Unified edge iterator
   class EdgeIterator {
   public:
     using iterator_category = std::forward_iterator_tag;
-    using value_type = Vertex;
+    using value_type = std::pair<Vertex, double>;
     using difference_type = std::ptrdiff_t;
-    using pointer = Vertex*;
-    using reference = Vertex&;
+    using pointer = value_type*;
+    using reference = value_type&;
 
-    EdgeIterator(TreeNode* edges, Vertex node)
-      : edges_(edges), e_(node && edges_[node].value? EdgetreeMinimum(edges_, node) : 0) {}
-    Vertex operator*() const { return edges_[e_].value; }
+    EdgeIterator(WtTreeNode* edges, Vertex node)
+      : edges_(edges), e_(node && edges_[node].value? WtEdgetreeMinimum(edges_, node) : 0) {}
+    value_type operator*() const { return {edges_[e_].value, edges_[e_].weight}; }
     EdgeIterator& operator++() {
-      e_ = EdgetreeSuccessor(edges_, e_);
+      e_ = WtEdgetreeSuccessor(edges_, e_);
       return *this;
     }
     bool operator!=(const EdgeIterator& other) const { return edges_[e_].value != other.edges_[other.e_].value; }
 
   private:
-    TreeNode* edges_;
+    WtTreeNode* edges_;
     Edge e_;
   };
 
   class EdgeRange {
   public:
-    EdgeRange(TreeNode* edges, Vertex node)
+    EdgeRange(WtTreeNode* edges, Vertex node)
       : edges_(edges), node_(node) {}
     EdgeIterator begin() const { return EdgeIterator(edges_, node_); }
     EdgeIterator end() const { return EdgeIterator(edges_, 0); }
   private:
-    TreeNode* edges_;
+    WtTreeNode* edges_;
     Vertex node_;
   };
 
   class CombinedEdgeIterator {
   public:
     using iterator_category = std::forward_iterator_tag;
-    using value_type = Vertex;
+    using value_type = std::pair<Vertex, double>;
     using difference_type = std::ptrdiff_t;
     using pointer = value_type*;
     using reference = value_type&;
@@ -95,10 +95,9 @@ public:
 
   class CombinedEdgeRange {
   public:
-    // Accept optional second edges argument
-    CombinedEdgeRange(TreeNode* edges1, TreeNode* edges2, Vertex node)
+    CombinedEdgeRange(WtTreeNode* edges1, WtTreeNode* edges2, Vertex node)
       : range1_(edges1, node), range2_(edges2 ? std::make_optional<EdgeRange>(edges2, node) : std::nullopt) {}
-    CombinedEdgeRange(TreeNode* edges1, Vertex node)
+    CombinedEdgeRange(WtTreeNode* edges1, Vertex node)
       : range1_(edges1, node), range2_(std::nullopt) {}
 
     CombinedEdgeIterator begin() const { return CombinedEdgeIterator(range1_, range2_, false); }
@@ -129,20 +128,23 @@ public:
   class NetworkEdgeIterator {
   public:
     using iterator_category = std::forward_iterator_tag;
-    using value_type = std::tuple<Vertex, Vertex>;
+    using value_type = std::tuple<Vertex, Vertex, double>;
     using difference_type = std::ptrdiff_t;
     using pointer = value_type*;
     using reference = value_type&;
 
-    NetworkEdgeIterator(TreeNode* outedges, Vertex nnodes, Vertex tail = 1)
+    NetworkEdgeIterator(WtTreeNode* outedges, Vertex nnodes, Vertex tail = 1)
       : outedges_(outedges), nnodes_(nnodes), tail_(tail), range_(outedges, tail <= nnodes ? tail : 0), it_(range_.begin()), end_it_(range_.end()) {
-      advance_to_next_valid();
+      advance_vertex();
     }
 
-    value_type operator*() const { return std::make_tuple(tail_, *it_); }
+    value_type operator*() const {
+      auto pair = *it_;
+      return std::make_tuple(tail_, pair.first, pair.second);
+    }
     NetworkEdgeIterator& operator++() {
       ++it_;
-      advance_to_next_valid();
+      advance_vertex();
       return *this;
     }
     bool operator!=(const NetworkEdgeIterator& other) const {
@@ -150,13 +152,13 @@ public:
     }
 
   private:
-    TreeNode* outedges_;
+    WtTreeNode* outedges_;
     Vertex nnodes_;
     Vertex tail_;
     EdgeRange range_;
     EdgeIterator it_, end_it_;
 
-    void advance_to_next_valid() {
+    void advance_vertex() {
       while (tail_ <= nnodes_ && !(it_ != end_it_)) {
         ++tail_;
         if (tail_ <= nnodes_) {
@@ -170,12 +172,12 @@ public:
 
   class NetworkEdgeRange {
   public:
-    NetworkEdgeRange(TreeNode* outedges, Vertex nnodes)
+    NetworkEdgeRange(WtTreeNode* outedges, Vertex nnodes)
       : outedges_(outedges), nnodes_(nnodes) {}
     NetworkEdgeIterator begin() const { return NetworkEdgeIterator(outedges_, nnodes_, 1); }
     NetworkEdgeIterator end() const { return NetworkEdgeIterator(outedges_, nnodes_, nnodes_ + 1); }
   private:
-    TreeNode* outedges_;
+    WtTreeNode* outedges_;
     Vertex nnodes_;
   };
 
@@ -214,8 +216,8 @@ public:
   NodeRange b1() const { return NodeRange(1, bip + 1); }
   NodeRange b2() const { return NodeRange(bip + 1, n + 1); }
 
-  bool operator()(Vertex tail, Vertex head) const {
-    return GetEdge(tail, head, nwp_);
+  double operator()(Vertex tail, Vertex head) const {
+    return WtGetEdge(tail, head, nwp_);
   }
 
   const bool dir;
@@ -223,5 +225,5 @@ public:
   const Vertex bip;
 
 private:
-  Network* nwp_;
+  WtNetwork* nwp_;
 };
