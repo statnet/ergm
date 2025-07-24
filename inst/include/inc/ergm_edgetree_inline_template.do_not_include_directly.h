@@ -142,5 +142,5 @@ static inline EWTTYPE ETYPE(GetEdge) (Vertex tail, Vertex head, ETYPE(Network) *
 
   Edge oe=ETYPE(EdgetreeSearch)(tail,head,nwp->outedges);
   return IFELSEEWT(oe ? nwp->outedges[oe].weight : 0,
-                      oe != 0);
+                   oe != 0 ? TRUE : FALSE);
 }
