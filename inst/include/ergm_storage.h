@@ -45,12 +45,12 @@
 #define ALLOC_AUX_STORAGE(nmemb, stored_type, store_into) stored_type *store_into = (stored_type *) (AUX_STORAGE = R_Calloc(nmemb, stored_type));
 // 1. Declares a stored_type *store_into.
 // 2. Assigns pointer to its assigned auxiliary storage slot (or, for a statistic, its first requested auxiliary) to store_into.
-#define _GET_AUX_STORAGE2(stored_type, store_into) stored_type *store_into = AUX_STORAGE;
+#define _GET_AUX_STORAGE2(stored_type, store_into) stored_type *store_into = (stored_type *) AUX_STORAGE;
 // Pointer to the storage slot of a statistic's ind'th requested auxiliary.
 #define AUX_STORAGE_NUM(ind) (mtp->aux_storage[mtp->aux_slots[ind]])
 // 1. Declares a stored_type *store_into.
 // 2. Assigns pointer to its ind'th requested auxiliary to store_into.
-#define _GET_AUX_STORAGE3(ind, stored_type, store_into) stored_type *store_into = AUX_STORAGE_NUM(ind);
+#define _GET_AUX_STORAGE3(ind, stored_type, store_into) stored_type *store_into = (stored_type *) AUX_STORAGE_NUM(ind);
 // For backwards-compatibility. TODO: Delete around 4.10 release.
 #define GET_AUX_STORAGE_NUM(stored_type, store_into, ind) _GET_AUX_STORAGE3(ind, stored_type, store_into)
 // This version takes 2 or 3 arguments; if 3 arguments, the first argument is the slot number.
