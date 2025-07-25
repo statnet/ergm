@@ -3,6 +3,8 @@
 #include <optional>
 #include <tuple>
 
+#include "combined_range.h"
+
 extern "C" {
 #include "ergm_edgetree.h"
 }
@@ -10,7 +12,7 @@ extern "C" {
 class ErgmCppNetwork {
 public:
   explicit ErgmCppNetwork(Network* nwp)
-    : nwp_(nwp), dir(nwp->directed_flag != 0), n(nwp->nnodes), bip(nwp->bipartite) {}
+    : dir(nwp->directed_flag != 0), n(nwp->nnodes), bip(nwp->bipartite), nwp_(nwp) {}
 
   // Unified edge iterator
   class EdgeIterator {
@@ -23,12 +25,13 @@ public:
 
     EdgeIterator(TreeNode* edges, Vertex node)
       : edges_(edges), e_(node && edges_[node].value? EdgetreeMinimum(edges_, node) : 0) {}
+    EdgeIterator() : edges_(nullptr), e_(0) {}
     Vertex operator*() const { return edges_[e_].value; }
     EdgeIterator& operator++() {
       e_ = EdgetreeSuccessor(edges_, e_);
       return *this;
     }
-    bool operator!=(const EdgeIterator& other) const { return edges_[e_].value != other.edges_[other.e_].value; }
+    bool operator!=(const EdgeIterator& other) const { return (e_ == 0 || edges_[e_].value == 0) != (other.e_ == 0 || other.edges_[other.e_].value == 0); }
 
   private:
     TreeNode* edges_;
@@ -37,8 +40,10 @@ public:
 
   class EdgeRange {
   public:
+    using iterator = EdgeIterator;
     EdgeRange(TreeNode* edges, Vertex node)
       : edges_(edges), node_(node) {}
+    EdgeRange() : edges_(nullptr), node_(0) {}
     EdgeIterator begin() const { return EdgeIterator(edges_, node_); }
     EdgeIterator end() const { return EdgeIterator(edges_, 0); }
   private:
@@ -46,84 +51,25 @@ public:
     Vertex node_;
   };
 
-  class CombinedEdgeIterator {
-  public:
-    using iterator_category = std::forward_iterator_tag;
-    using value_type = Vertex;
-    using difference_type = std::ptrdiff_t;
-    using pointer = value_type*;
-    using reference = value_type&;
-
-    CombinedEdgeIterator(EdgeRange range1, std::optional<EdgeRange> range2 = std::nullopt, bool end = false)
-      : range2_(range2), it_(range1.begin()), end1_(range1.end()),
-        end2_(range2 ? range2->end() : EdgeIterator(nullptr, 0)), in1_(!end), only1_(!range2.has_value()) {
-      if (in1_ && !(it_ != end1_)) {
-        if (!only1_) {
-          in1_ = false;
-          it_ = range2_->begin();
-        }
-      } else if (end) {
-        if (only1_) {
-          it_ = end1_;
-        } else {
-          it_ = range2_->end();
-        }
-      }
-    }
-
-    value_type operator*() const { return *it_; }
-
-    CombinedEdgeIterator& operator++() {
-      ++it_;
-      if (!only1_ && in1_ && !(it_ != end1_)) {
-        in1_ = false;
-        it_ = range2_->begin();
-      }
-      return *this;
-    }
-
-    bool operator!=(const CombinedEdgeIterator& other) const {
-      return in1_ != other.in1_ || it_ != other.it_;
-    }
-
-  private:
-    std::optional<EdgeRange> range2_;
-    EdgeIterator it_, end1_, end2_;
-    bool in1_;
-    bool only1_;
-  };
-
-  class CombinedEdgeRange {
-  public:
-    // Accept optional second edges argument
-    CombinedEdgeRange(TreeNode* edges1, TreeNode* edges2, Vertex node)
-      : range1_(edges1, node), range2_(edges2 ? std::make_optional<EdgeRange>(edges2, node) : std::nullopt) {}
-    CombinedEdgeRange(TreeNode* edges1, Vertex node)
-      : range1_(edges1, node), range2_(std::nullopt) {}
-
-    CombinedEdgeIterator begin() const { return CombinedEdgeIterator(range1_, range2_, false); }
-    CombinedEdgeIterator end() const { return CombinedEdgeIterator(range1_, range2_, true); }
-  private:
-    EdgeRange range1_;
-    std::optional<EdgeRange> range2_;
-  };
+  // Use generic CombinedRange<EdgeRange> for combined edge iteration
+  using CombinedEdgeRange = CombinedRange<EdgeRange>;
 
   CombinedEdgeRange out_neighbors(Vertex node) {
     if(dir) {
-      return CombinedEdgeRange(nwp_->outedges, node);
+      return CombinedEdgeRange(EdgeRange(nwp_->outedges, node));
     } else {
-      return CombinedEdgeRange(nwp_->inedges, nwp_->outedges, node);
+      return CombinedEdgeRange(EdgeRange(nwp_->inedges, node), std::make_optional(EdgeRange(nwp_->outedges, node)));
     }
   }
   CombinedEdgeRange in_neighbors(Vertex node) {
     if(dir) {
-      return CombinedEdgeRange(nwp_->inedges, node);
+      return CombinedEdgeRange(EdgeRange(nwp_->inedges, node));
     } else {
-      return CombinedEdgeRange(nwp_->inedges, nwp_->outedges, node);
+      return CombinedEdgeRange(EdgeRange(nwp_->inedges, node), std::make_optional(EdgeRange(nwp_->outedges, node)));
     }
   }
   CombinedEdgeRange neighbors(Vertex node) {
-    return CombinedEdgeRange(nwp_->inedges, nwp_->outedges, node);
+    return CombinedEdgeRange(EdgeRange(nwp_->inedges, node), std::make_optional(EdgeRange(nwp_->outedges, node)));
   }
 
   class NetworkEdgeIterator {
