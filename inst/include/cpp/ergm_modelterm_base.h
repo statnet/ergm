@@ -6,14 +6,14 @@ template<typename ModelTermType, typename StorageType = void>
 class ErgmCppModelTermBase {
 public:
   ErgmCppModelTermBase(ModelTermType* mtp)
-    : mtp_(mtp),
-      stat(mtp->dstats, mtp->nstats),
+    : stat(mtp->dstats, mtp->nstats),
       dinput(mtp->inputparams, mtp->ninputparams),
       iinput(mtp->iinputparams, mtp->niinputparams),
       dattrib(mtp->attrib, (mtp->attrib && mtp->inputparams) ? (mtp->ninputparams - (mtp->attrib - mtp->inputparams)) : 0),
       iattrib(mtp->iattrib, (mtp->iattrib && mtp->iinputparams) ? (mtp->niinputparams - (mtp->iattrib - mtp->iinputparams)) : 0),
       storage(static_cast<StorageType*>(mtp->storage)),
-      aux_storage(mtp)
+      aux_storage(mtp),
+      mtp_(mtp)
   {}
 
   FixedArray<double> stat;
