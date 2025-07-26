@@ -24,7 +24,8 @@ template <
 class ErgmCppNetworkBase {
 public:
   explicit ErgmCppNetworkBase(NetType* nwp)
-    : dir(nwp->directed_flag != 0), n(nwp->nnodes), bip(nwp->bipartite), nwp_(nwp) {}
+    : dir(nwp->directed_flag != 0), n(nwp->nnodes), bip(nwp->bipartite), nwp_(nwp),
+      out_degree(this), in_degree(this), degree(this) {}
 
   class EdgeIterator {
   public:
@@ -49,7 +50,7 @@ public:
       return *this;
     }
     bool operator!=(const EdgeIterator& other) const {
-      return (e_ == 0 || edges_[e_].value == 0) != (other.e_ == 0 || other.edges_[other.e_].value == 0);
+      return (e_ == 0) != (other.e_ == 0);
     }
   private:
     TreeType* edges_;
@@ -119,8 +120,7 @@ public:
     }
     bool operator!=(const NetworkEdgeIterator& other) const {
       // Consider both iterators at end if both are past-the-end
-      if (is_end() && other.is_end()) return false;
-      return tail_ != other.tail_ || it_ != other.it_;
+      return is_end() != other.is_end();
     }
   private:
     TreeType* outedges_;
@@ -189,6 +189,46 @@ public:
     return GetEdgeFunc::call(tail, head, nwp_);
   }
 
+  // Proxy classes for degree access (moved lower in the class)
+  class OutDegreeProxy {
+  public:
+    explicit OutDegreeProxy(const ErgmCppNetworkBase* nw) : nw_(nw) {}
+    Vertex operator[](Vertex i) const {
+      if (nw_->dir || nw_->bip) {
+        return nw_->nwp_->outdegree[i];
+      } else {
+        return nw_->nwp_->outdegree[i] + nw_->nwp_->indegree[i];
+      }
+    }
+  private:
+    const ErgmCppNetworkBase* nw_;
+  };
+  class InDegreeProxy {
+  public:
+    explicit InDegreeProxy(const ErgmCppNetworkBase* nw) : nw_(nw) {}
+    Vertex operator[](Vertex i) const {
+      if (nw_->dir || nw_->bip) {
+        return nw_->nwp_->indegree[i];
+      } else {
+        return nw_->nwp_->outdegree[i] + nw_->nwp_->indegree[i];
+      }
+    }
+  private:
+    const ErgmCppNetworkBase* nw_;
+  };
+  class DegreeProxy {
+  public:
+    explicit DegreeProxy(const ErgmCppNetworkBase* nw) : nw_(nw) {}
+    Vertex operator[](Vertex i) const {
+      return nw_->nwp_->outdegree[i] + nw_->nwp_->indegree[i];
+    }
+  private:
+    const ErgmCppNetworkBase* nw_;
+  };
+
+  OutDegreeProxy out_degree{this};
+  InDegreeProxy in_degree{this};
+  DegreeProxy degree{this};
   const bool dir;
   const Vertex n;
   const Vertex bip;
