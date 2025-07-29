@@ -84,7 +84,7 @@ static inline void DyadGenRandDyad(Vertex *tail, Vertex *head, DyadGen *gen){
 
   if(gen->intertype == UnsrtELDyadGen){ /* If we are maintaining an unsorted edgelist (which also implies that we are *not* in a *RandDyadGen mode)... */
     /* Use the appropriate function to check if we had selected an extant edge, */
-    Rboolean extant;
+    bool extant;
     switch(gen->type){
     case RLEBDM1DGen:
     case EdgeListGen:
@@ -174,7 +174,7 @@ static inline void DyadGenRandNonedge(Vertex *tail, Vertex *head, DyadGen *gen){
     break;
   default:
     {
-      Rboolean valued = gen->type == WtRLEBDM1DGen || gen->type == WtEdgeListGen;
+      bool valued = gen->type == WtRLEBDM1DGen || gen->type == WtEdgeListGen;
       do{
         switch(gen->type){
         case RLEBDM1DGen:
@@ -244,10 +244,10 @@ static inline Rboolean DyadGenSearch(Vertex tail, Vertex head, DyadGen *gen){
     return TRUE;
   case RLEBDM1DGen:
   case WtRLEBDM1DGen:
-    return GetRLEBDM1D(tail, head, &gen->dyads.rlebdm);
+    return GetRLEBDM1D(tail, head, &gen->dyads.rlebdm) != 0 ? TRUE : FALSE;
   case EdgeListGen:
   case WtEdgeListGen:
-    return iEdgeListSearch(tail, head, gen->dyads.el);
+    return iEdgeListSearch(tail, head, gen->dyads.el) != 0 ? TRUE : FALSE;
   default:
     error("Undefined dyad generator type.");
   }
@@ -270,7 +270,7 @@ static inline void DyadGenWake(DyadGen *gen){
 
 
 static inline void DyadGenCareful(DyadGen *gen, Rboolean value){
-  gen->careless = !value;
+  gen->careless = (!value) ? TRUE : FALSE;
 }
 
 #endif
