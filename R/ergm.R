@@ -585,10 +585,14 @@ ergm <- function(formula, response=NULL,
   }
 
   if(verbose){
-    message("Initial parameters:")
-    message_print(control$init)
-    message("number of free parameters: ", nparam(model, canonical=FALSE, offset=FALSE))
-    message("number of fixed parameters: ", nparam(model, canonical=FALSE, offset=TRUE))
+    message("Initial parameters provided by caller:", appendLF = FALSE)
+    init <- discard(control$init, is.na)
+    if (length(init)) {
+      message("")
+      message_print(init)
+    } else message(" None.")
+    message("  number of free parameters: ", nparam(model, canonical = FALSE, offset = FALSE))
+    message("  number of fixed parameters: ", nparam(model, canonical = FALSE, offset = TRUE))
   }
 
   # Make sure any offset elements are given in control$init.
