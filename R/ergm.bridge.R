@@ -147,13 +147,6 @@ ergm.bridge.llr<-function(object, response=NULL, reference=~Bernoulli, constrain
   model <- as.ergm_model(state[[1]])
   etamap <- model$etamap
   
-  if(obs){
-    if(verbose) message("Initializing constrained model and proposals...")
-    sim_settings.obs <- simulate(object, coef=from, nsim=1, reference=reference, constraints=list(constraints, obs.constraints), observational=TRUE, output="ergm_state", verbose=max(verbose-1,0), basis = basis, control=gen_control(TRUE, "first"), ..., return.args = "ergm_state")
-    if(verbose) message("Constrained model and proposals initialized.")
-    state.obs <- list(sim_settings.obs$object)
-  }
-
   ## Miscellaneous settings
   Dtheta.Du <- ifelse(mapply(identical, to, from), 0, to - from)[!etamap$offsettheta]
 
@@ -164,13 +157,23 @@ ergm.bridge.llr<-function(object, response=NULL, reference=~Bernoulli, constrain
     if(any(etamap$offsetmap)) warning("Using target.stats for a model with offset terms may produce an inaccurate estimate of the log-likelihood and derived quantities (deviance, AIC, BIC, etc.), because some of the target stats must be imputed.")
   }else target.stats <- summary(state[[1]])
 
+  ## Either initialize the constrained MCMC or shift the MCMC state by
+  ## the observed/target values.
+  if (obs) {
+    if (verbose) message("Initializing constrained model and proposals...")
+    sim_settings.obs <-
+      simulate(object, coef = from, nsim = 1, reference = reference,
+               constraints = list(constraints, obs.constraints),
+               observational = TRUE, output = "ergm_state",
+               verbose = max(verbose - 1, 0), basis = basis,
+               control = gen_control(TRUE, "first"), ...,
+               return.args = "ergm_state")
+    if (verbose) message("Constrained model and proposals initialized.")
+    state.obs <- list(sim_settings.obs$object)
+  } else state[[1]]$stats <- state[[1]]$stats - target.stats
 
   ## Helper function to calculate Dtheta.Du %*% Deta.Dtheta %*% g(y)
-  llrsamp <- function(samp, theta){
-    if(is.mcmc.list(samp)) lapply.mcmc.list(ergm.estfun(samp, theta, etamap), `%*%`, Dtheta.Du)
-    else sum(ergm.estfun(samp, theta, etamap) * Dtheta.Du)
-  }
-
+  llrsamp <- function(samp, theta) lapply.mcmc.list(ergm.estfun(samp, theta, etamap), `%*%`, Dtheta.Du)
 
   message("Using ", control$bridge.nsteps, " bridges: ", appendLF=FALSE)
 
@@ -205,7 +208,7 @@ ergm.bridge.llr<-function(object, response=NULL, reference=~Bernoulli, constrain
         samp <- llrsamp(z$stats, theta)
         vcov.llrs[i] <- vcov.llrs[i] + c(ERRVL2(spectrum0.mvar(samp)/(niter(samp)*nchain(samp)), 0))
         llrs[i] <- llrs[i] - mean(as.matrix(samp))
-      }else llrs[i] <- llrs[i] - llrsamp(target.stats, theta)
+      }
     }
     message(".")
 
