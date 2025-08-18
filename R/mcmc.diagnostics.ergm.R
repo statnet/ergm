@@ -328,8 +328,8 @@ mcmc.diagnostics.ergm <- function(object,
 #'
 #' @export ergm_plot.mcmc.list
 ergm_plot.mcmc.list <- function(x, main=NULL, vars.per.page=3,...){
-  if(!requireNamespace('lattice', quietly=TRUE, warn.conflicts=FALSE) ||
-     !requireNamespace('latticeExtra', quietly=TRUE, warn.conflicts=FALSE))
+  if(!requireNamespace('lattice', quietly=TRUE) ||
+     !requireNamespace('latticeExtra', quietly=TRUE))
     stop("ergm_plot.mcmc.list() requires ",sQuote('lattice')," and ",sQuote('latticeExtra')," packages.",call.=FALSE)
 
   # Workaround for coda::densityplot.mcmc.list(), which can't handle
