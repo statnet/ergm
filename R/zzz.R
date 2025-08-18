@@ -27,7 +27,8 @@
     ergm.eval.loglik=TRUE,
     ergm.loglik.warn_dyads=TRUE,
     ergm.warn_loops = TRUE,
-    ergm.cluster.retries=5
+    ergm.cluster.retries = 5,
+    ergm.ABI.action = "warning"
   )
 
   eval(COLLATE_ALL_MY_CONTROLS_EXPR)

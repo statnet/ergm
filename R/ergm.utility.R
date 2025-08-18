@@ -321,7 +321,7 @@ check_ABI <- once(function(client = "ergm", lib  = "ergm", action = getOption("e
       switch(action,
              abort =,
              stop = stop(msg, call. = FALSE),
-             warning = warning(msg, call. = FALSE, immediate. = TRUE),
+             warning = warning_once(msg, call. = FALSE, immediate. = TRUE),
              inform =,
              message = message(msg))
       FALSE
