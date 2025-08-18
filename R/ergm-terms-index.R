@@ -349,7 +349,7 @@ ergmTermCache <- local({
     )
   }
 
-  ret
+  structure(ret, termType = term_type)
 }
 
 .filterProposals <- function(proposals, proposal=NULL, ...) {
@@ -570,15 +570,21 @@ PROPOSAL_NOT_IN_TABLE <- "This proposal is not referenced in the lookup table."
 
 .formatTocHtml <- function(toc, wrapRdTags=TRUE) {
   if(is.null(toc)) return(NULL)
+  term_type <- NVL3(attr(toc, "termType"), paste0(., "_"), "")
 
-  out <- paste('Jump to keyword:', paste(sprintf('<a href="#cat_%s">%s</a>', gsub(' ', '_', names(toc)), names(toc)), collapse=' '))
+  out <- paste("Jump to keyword:",
+               paste(sprintf("<a href=\"#cat_%s%s\">%s</a>", term_type,
+                             gsub(" ", "_", names(toc)), names(toc)),
+                     collapse = " "))
   for (cat in names(toc)) {
-    out <- sprintf('%s<h3><a id="cat_%s">%s</a></h3>%s', out, gsub(' ', '_', cat), cat,
-      paste(sprintf('<a href="#%s">%s</a>', toc[[cat]]$link, toc[[cat]]$name), collapse=' '))
+    out <- sprintf("%s<h3><a id=\"cat_%s%s\">%s</a></h3>%s", out, term_type,
+                   gsub(" ", "_", cat), cat,
+                   paste(sprintf("<a href=\"#%s\">%s</a>", toc[[cat]]$link,
+                                 toc[[cat]]$name), collapse = " "))
   }
 
   if(wrapRdTags) {
-    out <- sprintf('\\out{%s}', out)
+    out <- sprintf("\\out{%s}", out)
   }
 
   out
