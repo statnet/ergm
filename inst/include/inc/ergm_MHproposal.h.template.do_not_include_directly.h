@@ -63,7 +63,6 @@ typedef struct ETYPE(MHProposalstruct) {
   Vertex *togglehead;
   IFEWT(EWTTYPE *toggleweight;)
   double logratio;
-  int status;
   int ninputs;
   double *inputs;
   int niinputs;
