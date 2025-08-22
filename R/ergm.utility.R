@@ -222,10 +222,11 @@ single.impute.dyads <- function(nw, constraints=NULL, constraints.obs=NULL, min_
   nw
 }
 
-## A is a matrix. V is a column vector that may contain Infs
-## computes A %*% V, counting 0*Inf as 0
-.multiply.with.inf <- function(A,V) {
-  cbind(colSums(t(A)*c(V), na.rm=TRUE))
+## A is a matrix. x is a column vector that may contain Infs, NaNs,
+## and NAs. This function computes A %*% x, treating 0*Inf, 0*NA, and
+## 0*NaN as 0.
+mat_by_coef <- function(A, x) {
+  .Call("mat_by_coef", A, x)
 }
 
 trim_env_const_formula <- function(x, keep=NULL){

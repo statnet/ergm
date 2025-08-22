@@ -77,12 +77,12 @@ ergm.logitreg <- function(x, y, wt = rep(1, length(y)),
   }
 
   NVL(start) <- rep(NA, p)
-  start %[f]% is.na <- rnorm(sum(is.na(start)), 0, sqrt(.Machine$double.eps))
+  start %[f]% (\(x) is.na(x) & !is.nan(x)) <- rnorm(sum(is.na(start)), 0, sqrt(.Machine$double.eps))
 
   loglikelihoodfn.trust <-
     if(is.null(m)){
       function(theta, X, y, w, offset, etamap, etagrad){
-        eta <- as.vector(.multiply.with.inf(X,etamap(theta))+offset)
+        eta <- as.vector(mat_by_coef(X, etamap(theta)) + offset)
         Xgradt <- X %*% t(etagrad(theta))
         p <- expit(eta)
         o <- list(value = sum(w * ifelse(y, log(p), log1p(-p))),
@@ -102,12 +102,20 @@ ergm.logitreg <- function(x, y, wt = rep(1, length(y)),
         theta[!m$etamap$offsettheta] <- theta.no
         
         # Check for box constraint violation.
-        if(any(is.na(theta)) ||
+        if(any(is.na(theta) & !is.nan(theta)) ||
            any(theta[!m$etamap$offsettheta] < m$etamap$mintheta[!m$etamap$offsettheta]) ||
            any(theta[!m$etamap$offsettheta] > m$etamap$maxtheta[!m$etamap$offsettheta])){
           o <- list(value=-Inf)
         }else{
-          eta <- as.vector(.multiply.with.inf(X,etamap(theta))+offset)
+          eta <- as.vector(mat_by_coef(X, etamap(theta)) + offset)
+          ## FIXME: This can certainly be precomputed, rather than
+          ## done every iteration.
+          if (any(etanan <- is.nan(eta))) {
+            eta <- eta[!etanan]
+            X <- X[!etanan, , drop = FALSE]
+            w <- w[!etanan]
+            y <- y[!etanan]
+          }
           Xgradt <- X %*% t(etagrad(theta))
           p <- expit(eta)
           o <- list(

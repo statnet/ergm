@@ -34,6 +34,7 @@ extern SEXP full_geodesic_distribution(SEXP, SEXP, SEXP, SEXP);
 extern SEXP get_ergm_omp_terms(void);
 extern SEXP GetBuiltABIVersion_wrapper(SEXP, SEXP);
 extern SEXP Godfather_wrapper(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
+extern SEXP mat_by_coef(SEXP, SEXP);
 extern SEXP MCMC_wrapper(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
 extern SEXP MCMCPhase12(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
 extern SEXP MPLE_workspace_free(void);
@@ -61,6 +62,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"get_ergm_omp_terms",         (DL_FUNC) &get_ergm_omp_terms,          0},
     {"GetBuiltABIVersion_wrapper", (DL_FUNC) &GetBuiltABIVersion_wrapper,  2},
     {"Godfather_wrapper",          (DL_FUNC) &Godfather_wrapper,           6},
+    {"mat_by_coef",                (DL_FUNC) &mat_by_coef,                 2},
     {"MCMC_wrapper",               (DL_FUNC) &MCMC_wrapper,                7},
     {"MCMCPhase12",                (DL_FUNC) &MCMCPhase12,                11},
     {"MPLE_workspace_free",        (DL_FUNC) &MPLE_workspace_free,         0},
