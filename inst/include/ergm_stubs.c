@@ -203,6 +203,11 @@ static void (*fun)(Edge,Vertex *,Vertex *,Network *,Model *) = NULL;
 if(fun==NULL) fun = (void (*)(Edge,Vertex *,Vertex *,Network *,Model *)) R_FindSymbol("SummStats", "ergm", NULL);
 fun(n_edges,tails,heads,nwp,m);
 }
+void SummStatsS(Network *nwp, Model *m){
+static void (*fun)(Network *,Model *) = NULL;
+if(fun==NULL) fun = (void (*)(Network *,Model *)) R_FindSymbol("SummStatsS", "ergm", NULL);
+fun(nwp,m);
+}
 
 #include "ergm_dyadgen.h"
 WtNetwork * WtNetworkInitialize_noLT(Vertex *tails, Vertex *heads, double *weights, Edge nedges,Vertex nnodes, Rboolean directed_flag, Vertex bipartite){
@@ -546,6 +551,11 @@ void WtSummStats(Edge n_edges, Vertex *tails, Vertex *heads, double *weights, Wt
 static void (*fun)(Edge,Vertex *,Vertex *,double *,WtNetwork *,WtModel *) = NULL;
 if(fun==NULL) fun = (void (*)(Edge,Vertex *,Vertex *,double *,WtNetwork *,WtModel *)) R_FindSymbol("WtSummStats", "ergm", NULL);
 fun(n_edges,tails,heads,weights,nwp,m);
+}
+void WtSummStatsS(WtNetwork *nwp, WtModel *m){
+static void (*fun)(WtNetwork *,WtModel *) = NULL;
+if(fun==NULL) fun = (void (*)(WtNetwork *,WtModel *)) R_FindSymbol("WtSummStatsS", "ergm", NULL);
+fun(nwp,m);
 }
 
 #include "ergm_wtstate.h"
