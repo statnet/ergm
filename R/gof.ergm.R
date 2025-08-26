@@ -36,7 +36,10 @@ sub_gof <- function(x) {
   structure(terms, model = has_model)
 }
 
-which_gof <- function(x) names(GOF_TERMS)[hasName(x, paste0("obs.", GOF_TERMS))]
+which_gof <- function(x) {
+  names(GOF_TERMS)[map_lgl(paste0("obs.", GOF_TERMS),
+                           function(which) !is.null(x[[which]]))]
+}
 
 #' Conduct Goodness-of-Fit Diagnostics on a Exponential Family Random Graph
 #' Model
