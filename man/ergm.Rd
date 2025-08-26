@@ -118,7 +118,7 @@ arguments to the proposal should be specified through the
 \code{obs.prop.args} argument to the relevant control function.}
 
 \item{offset.coef}{A vector of coefficients for the offset
-terms. Note that \code{NaN} elements are treated specially. See
+terms. Note that \code{\link{NaN}} elements are treated specially. See
 Skipping below. \matchnames{coefficient}}
 
 \item{target.stats}{vector of "observed network statistics,"
@@ -313,13 +313,13 @@ In some scenarios, it is helpful to forbid certain network
 configurations from being sampled this can be specified using
 \code{constraints}, or by creating an \code{offset()} term which has value 0
 if the network is allowed and positive (negative) if the network is
-not, with offset coefficient set to \code{-Inf} (\code{+Inf}). Sometimes,
-however, a permitted configuration can be reached by
-"passing through" a forbidden one. For example, if isolates are
-possible but not nodes with degree exactly 1. Then, an offset term
-with coefficient \code{NaN} (not \code{NA}!) will cause the MCMC to not
-terminate as long as the value of that offset term is different
-from 0.
+not, with offset coefficient set to \code{-\link{Inf}}
+(\code{+\link{Inf}}). Sometimes, however, a permitted configuration
+can be reached by "passing through" a forbidden one. For example,
+if isolates are possible but not nodes with degree exactly 1. Then,
+an offset term with coefficient \code{\link{NaN}} (not \code{\link{NA}}!) will cause
+the MCMC to not terminate as long as the value of that offset term
+is different from 0.
 
 Note that this means that MCMC is not guaranteed to terminate, and
 there are very few safeguards at this time.

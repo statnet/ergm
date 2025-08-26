@@ -145,9 +145,9 @@ algorithm.}
 \item{coef}{Vector of parameter values for the model from which the
 sample is to be drawn.  If \code{object} is of class \code{ergm},
 the default value is the vector of estimated coefficients. Can be
-set to \code{NULL} to bypass, but only if \code{return.args} below is
-used. Note that \code{NaN} values are treated
-specially: see the section on skipping below. \matchnames{coefficient}}
+set to \code{\link{NULL}} to bypass, but only if \code{return.args} below is
+used. Note that \code{\link{NaN}} values are treated specially: see the
+section on skipping below. \matchnames{coefficient}}
 
 \item{response}{Either a character string, a formula, or \code{NULL} (the default), to specify the response attributes and whether the ERGM is binary or valued. Interpreted as follows: \describe{
 
@@ -365,13 +365,13 @@ In some scenarios, it is helpful to forbid certain network
 configurations from being sampled this can be specified using
 \code{constraints}, or by creating an \code{offset()} term which has value 0
 if the network is allowed and positive (negative) if the network is
-not, with offset coefficient set to \code{-Inf} (\code{+Inf}). Sometimes,
-however, a permitted configuration can be reached by
-"passing through" a forbidden one. For example, if isolates are
-possible but not nodes with degree exactly 1. Then, an offset term
-with coefficient \code{NaN} (not \code{NA}!) will cause the MCMC to not
-terminate as long as the value of that offset term is different
-from 0.
+not, with offset coefficient set to \code{-\link{Inf}}
+(\code{+\link{Inf}}). Sometimes, however, a permitted configuration
+can be reached by "passing through" a forbidden one. For example,
+if isolates are possible but not nodes with degree exactly 1. Then,
+an offset term with coefficient \code{\link{NaN}} (not \code{\link{NA}}!) will cause
+the MCMC to not terminate as long as the value of that offset term
+is different from 0.
 
 Note that this means that MCMC is not guaranteed to terminate, and
 there are very few safeguards at this time.

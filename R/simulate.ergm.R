@@ -53,9 +53,9 @@
 #' @param coef Vector of parameter values for the model from which the
 #'   sample is to be drawn.  If \code{object} is of class \code{ergm},
 #'   the default value is the vector of estimated coefficients. Can be
-#'   set to `NULL` to bypass, but only if `return.args` below is
-#'   used. Note that `NaN` values are treated
-#'   specially: see the section on skipping below. \matchnames{coefficient}
+#'   set to [`NULL`] to bypass, but only if `return.args` below is
+#'   used. Note that [`NaN`] values are treated specially: see the
+#'   section on skipping below. \matchnames{coefficient}
 #' 
 #' @template response
 #' @template reference

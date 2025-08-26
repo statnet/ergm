@@ -64,13 +64,13 @@
 #'   argument to the relevant control function. In that case,
 #'   arguments to the proposal should be specified through the
 #'   \code{obs.prop.args} argument to the relevant control function.
-#' 
+#'
 #' @param offset.coef A vector of coefficients for the offset
-#'   terms. Note that `NaN` elements are treated specially. See
+#'   terms. Note that [`NaN`] elements are treated specially. See
 #'   Skipping below. \matchnames{coefficient}
 #'
 #' @param target.stats vector of "observed network statistics,"
-#' if these statistics are for some reason different than the 
+#' if these statistics are for some reason different than the
 #' actual statistics of the network on the left-hand side of
 #' \code{formula}.
 #' Equivalently, this vector is the mean-value parameter values for the
