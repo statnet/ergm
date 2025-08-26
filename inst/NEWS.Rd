@@ -74,7 +74,7 @@
 
 %% }
 
-\section{Changes in version 4.10.0}{
+\section{Changes in version 4.10.1}{
 
   \subsection{NEW FEATURES}{
     \itemize{
