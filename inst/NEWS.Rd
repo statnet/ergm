@@ -74,6 +74,81 @@
 
 %% }
 
+\section{Changes in version 4.10.0}{
+
+  \subsection{NEW FEATURES}{
+    \itemize{
+      \item{
+        \code{\link{gof}}'s \code{GOF=} formula can now contain any \code{\link{ergm}()} statistics in addition to the special ones.
+      }
+      \item{
+        Passing \code{\link{NaN}} rather than \code{\link{NA}} as a fixed (offset) coefficient will now cause the MCMC sampler to \dQuote{skip} any iterations for which the corresponding statistic is not 0, in the sense that the MCMC step counter is paused until the statistic returns to 0, so it is never recorded.
+
+        This is mathematically equivalent to setting it to \code{-\link{Inf}} (for a positive statistic) in the sense that the networks in question are excluded from the sample, with the difference being that it can be used to reach a valid configuration that can only be reached via an invalid one.
+      }
+    }
+  }
+
+
+  \subsection{BUG FIXES}{
+    \itemize{
+      \item{
+        Documentation link and typo fixes.
+      }
+      \item{
+        Fixes to MPLE Hessian calculation.
+      }
+      \item{
+        Fixed an initialization error in the experimental \ergmTerm{ergm}{~}{}.
+      }
+      \item{
+        Printing of user-provided initial parameters is now more clear.
+      }
+      \item{
+        \code{\link{requireNamespace}()} calls are no longer passed \code{warn.conflicts=} arguments.
+      }
+      \item{
+        Dynamic HTML term index generation now avoids creating tags with repeated HTML \code{id}s.
+      }
+    }
+  }
+
+
+  \subsection{OTHER USER-VISIBLE CHANGES}{
+    \itemize{
+      \item{
+        \ergmTerm{ergm}{Sum}{()} now uses a sparse matrix representation fr its weight matrix.
+      }
+      \item{
+        \code{\link{gof}} should now run significantly faster by making use of the \code{s_}-only statistics.
+      }
+    }
+  }
+
+
+  \subsection{C-LEVEL FACILITIES}{
+    \itemize{
+      \item{
+        A vestigial element, \code{int status;}, has been removed from \code{*MHProposal} structures.
+      }
+      \item{
+        ABI version has been increased.
+      }
+      \item{
+        All header files (including those with static inline functions and macros) should now compile under C++.
+      }
+      \item{
+        The default ABI mismatch action is now to warn the user once per session.
+      }
+      \item{
+        A statistic may now implement \code{s_} (summary) functions without implementing \code{c_} and \code{d_} function. Any term using this in the model may only appear with coefficient 0, that is, it must not affect the distribution sampled. Under MCMC sampling, it will only be called at the end of each interval. This can be useful for simulating complex network statistics (e.g., geodesic distance) from a simpler model.
+      }
+    }
+  }
+}
+
+
+
 \section{Changes in version 4.9.0}{
 
   \subsection{NEW FEATURES}{
@@ -166,25 +241,6 @@
       }
     }
   }
-
-  % \subsection{UTILITIES}{
-  %   \itemize{
-  %     \item Likewise, "UTILITIES" is probably unnecessary.
-  %   }
-  % }
-
-  % \subsection{INSTALLATION}{
-  %   \itemize{
-  %     \item ... as is "INSTALLATION".
-  %   }
-  % }
-
-  % \subsection{PACKAGE INSTALLATION}{
-  %   \itemize{
-  %     \item ditto.
-  %   }
-  % }
-
 }
 
 
