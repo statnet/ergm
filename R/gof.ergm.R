@@ -29,8 +29,9 @@ sub_gof <- function(x) {
   terms <- terms[mnames != "model"]
 
   for (i in seq_along(terms))
-    if (!is.null(rname <- GOF_TERMS[[mnames[i], exact = FALSE]]))
+    if (!is.null(rname <- as.list(GOF_TERMS)[[mnames[i], exact = FALSE]]))
       terms[[i]] <- as.name(paste0(".gof.", rname))
+    else has_mode <- TRUE
 
   structure(terms, model = has_model)
 }
@@ -39,22 +40,22 @@ which_gof <- function(x) names(GOF_TERMS)[hasName(x, paste0("obs.", GOF_TERMS))]
 
 #' Conduct Goodness-of-Fit Diagnostics on a Exponential Family Random Graph
 #' Model
-#' 
+#'
 #' [gof()] calculates \eqn{p}-values for geodesic distance, degree,
 #' and reachability summaries to diagnose the goodness-of-fit of exponential
 #' family random graph models.  See [ergm()] for more information on
 #' these models.
-#' 
+#'
 #' A sample of graphs is randomly drawn from the specified model.  The first
 #' argument is typically the output of a call to [ergm()] and the
 #' model used for that call is the one fit.
-#' 
+#'
 #' For \code{GOF = ~model}, the model's observed sufficient statistics are
 #' plotted as quantiles of the simulated sample. In a good fit, the observed
 #' statistics should be near the sample median (0.5).
 #'
 #' By default, the sample consists of 100 simulated networks, but this sample
-#' size (and many other settings) can be changed using the \code{control} 
+#' size (and many other settings) can be changed using the \code{control}
 #' argument described above.
 #'
 #' @aliases gof.default
@@ -64,22 +65,42 @@ which_gof <- function(x) names(GOF_TERMS)[hasName(x, paste0("obs.", GOF_TERMS))]
 #' @param coef When given either a formula or an object of class ergm,
 #' \code{coef} are the parameters from which the sample is drawn. By default
 #' set to a vector of 0. \matchnames{coefficient}
-#' @param GOF formula; an formula object, of the form \code{~ <model terms>}
-#' specifying the statistics to use to diagnosis the goodness-of-fit of the
-#' model.  They do not need to be in the model formula specified in
-#' \code{formula}, and typically are not.  Currently supported terms are the
-#' degree distribution (\dQuote{degree} for undirected graphs,
-#' \dQuote{idegree} and/or \dQuote{odegree} for directed graphs, and \dQuote{b1degree} and \dQuote{b2degree} for bipartite undirected graphs), geodesic
-#' distances (\dQuote{distance}), shared partner distributions
-#' (\dQuote{espartners} and \dQuote{dspartners}), the triad census
-#' (\dQuote{triadcensus}), and the terms of the original model
-#' (\dQuote{model}). The default formula for undirected networks is \code{~
-#' degree + espartners + distance + model}, and the default formula for
-#' directed networks is \code{~ idegree + odegree + espartners + distance +
-#' model}.  By default a \dQuote{model} term is added to the formula.  It is a
-#' very useful overall validity check and a reminder of the statistical
-#' variation in the estimates of the mean value parameters.  To omit the
-#' \dQuote{model} term, add \dQuote{- model} to the formula.
+#'
+#' @param GOF formula; a one-sided formula, of the form \code{~ <model
+#'   terms>} specifying the statistics to use to diagnosis the
+#'   goodness-of-fit of the model. They do not need to be in the model
+#'   formula specified in \code{formula}, and typically are not. These
+#'   can be any `ergm()` terms, but the following are given special
+#'   meaning: \describe{
+#'
+#'   \item{the degree distribution}{\code{degree} for undirected
+#'     graphs, \code{idegree} and/or \code{odegree} for directed
+#'     graphs, and \code{b1degree} and \code{b2degree} for bipartite
+#'     undirected graphs}
+#'
+#'   \item{geodesic distances}{\code{distance}}
+#'
+#'   \item{shared partner distributions}{\code{espartners} and
+#'     \code{dspartners}}
+#'
+#'   \item{triad census}{\code{triadcensus}}
+#'
+#'   \item{terms of the original model}{\code{model}}
+#'
+#'   }
+#'
+#'   The default formula for undirected networks is
+#'   \code{~ degree + espartners + distance + model}, and the default
+#'   formula for directed networks is \code{~ idegree + odegree +
+#'   espartners + distance + model}. By default a \code{model} term
+#'   is added to the formula.  It is a very useful overall validity
+#'   check and a reminder of the statistical variation in the
+#'   estimates of the mean value parameters.  To omit the
+#'   \code{model} term, add \code{- model} to the formula.
+#'
+#'   Note that if ordinary `ergm()` terms are given on the formula,
+#'   they will be returned as a part of \code{model} statistics.
+#'
 #' @param constraints A one-sided formula specifying one or more constraints on
 #' the support of the distribution of the networks being modeled. See the help
 #' for similarly-named argument in [ergm()] for more information. For
@@ -148,7 +169,7 @@ gof.default <- function(object,...) {
 #' @note For \code{gof.ergm} and \code{gof.formula}, default behavior depends on the
 #' directedness of the network involved; if undirected then degree, espartners,
 #' and distance are used as default properties to examine.  If the network in
-#' question is directed, \dQuote{degree} in the above is replaced by idegree
+#' question is directed, \code{degree} in the above is replaced by idegree
 #' and odegree.
 #'
 #' @export
@@ -214,7 +235,7 @@ gof.formula <- function(object, ...,
     NVL(control) <- control.gof.ergm()
     
     return(
-      gof(basis, GOF = GOF, coef = coef, control = control, unconditional = unconditional, verbose = verbose, ...)
+      gof(basis, GOF = GOF, coef = coef, control = control, verbose = verbose, ...)
     )
   }
 
@@ -238,7 +259,7 @@ gof.formula <- function(object, ...,
   GOFtrms <- sub_gof(GOF)
 
   # If missing simulate from the conditional model
-  if(network.naedgecount(nw) & unconditional){
+  if(network.naedgecount(nw) && unconditional){
    if(verbose){message("Conditional simulations for missing fit")}
    constraints.obs<-nonsimp_update.formula(constraints,~.+observed)
    SimCond <- gof(object=object, coef=coef,

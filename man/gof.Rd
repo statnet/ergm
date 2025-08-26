@@ -56,22 +56,40 @@ See documentation for \code{\link[=ergm]{ergm()}}.}
 \code{coef} are the parameters from which the sample is drawn. By default
 set to a vector of 0. \matchnames{coefficient}}
 
-\item{GOF}{formula; an formula object, of the form \code{~ <model terms>}
-specifying the statistics to use to diagnosis the goodness-of-fit of the
-model.  They do not need to be in the model formula specified in
-\code{formula}, and typically are not.  Currently supported terms are the
-degree distribution (\dQuote{degree} for undirected graphs,
-\dQuote{idegree} and/or \dQuote{odegree} for directed graphs, and \dQuote{b1degree} and \dQuote{b2degree} for bipartite undirected graphs), geodesic
-distances (\dQuote{distance}), shared partner distributions
-(\dQuote{espartners} and \dQuote{dspartners}), the triad census
-(\dQuote{triadcensus}), and the terms of the original model
-(\dQuote{model}). The default formula for undirected networks is \code{~
-degree + espartners + distance + model}, and the default formula for
-directed networks is \code{~ idegree + odegree + espartners + distance +
-model}.  By default a \dQuote{model} term is added to the formula.  It is a
-very useful overall validity check and a reminder of the statistical
-variation in the estimates of the mean value parameters.  To omit the
-\dQuote{model} term, add \dQuote{- model} to the formula.}
+\item{GOF}{formula; a one-sided formula, of the form \code{~ <model
+  terms>} specifying the statistics to use to diagnosis the
+goodness-of-fit of the model. They do not need to be in the model
+formula specified in \code{formula}, and typically are not. These
+can be any \code{ergm()} terms, but the following are given special
+meaning: \describe{
+
+\item{the degree distribution}{\code{degree} for undirected
+graphs, \code{idegree} and/or \code{odegree} for directed
+graphs, and \code{b1degree} and \code{b2degree} for bipartite
+undirected graphs}
+
+\item{geodesic distances}{\code{distance}}
+
+\item{shared partner distributions}{\code{espartners} and
+\code{dspartners}}
+
+\item{triad census}{\code{triadcensus}}
+
+\item{terms of the original model}{\code{model}}
+
+}
+
+The default formula for undirected networks is
+\code{~ degree + espartners + distance + model}, and the default
+formula for directed networks is \code{~ idegree + odegree +
+  espartners + distance + model}. By default a \code{model} term
+is added to the formula.  It is a very useful overall validity
+check and a reminder of the statistical variation in the
+estimates of the mean value parameters.  To omit the
+\code{model} term, add \code{- model} to the formula.
+
+Note that if ordinary \code{ergm()} terms are given on the formula,
+they will be returned as a part of \code{model} statistics.}
 
 \item{constraints}{A one-sided formula specifying one or more constraints on
 the support of the distribution of the networks being modeled. See the help
@@ -168,7 +186,7 @@ models.
 For \code{gof.ergm} and \code{gof.formula}, default behavior depends on the
 directedness of the network involved; if undirected then degree, espartners,
 and distance are used as default properties to examine.  If the network in
-question is directed, \dQuote{degree} in the above is replaced by idegree
+question is directed, \code{degree} in the above is replaced by idegree
 and odegree.
 }
 \examples{
