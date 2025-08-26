@@ -71,6 +71,7 @@ For the purposes of this overview, the following information is relevant, and is
 		    1. It makes the toggle provisionally (if more to come).
 	    1. It undoes the provisional toggles.
     1. If the proposal is accepted, `u_` function is called, and network is updated for each toggle.
+1. If the term has an `s_` function but neither `c_` nor `d_`, `SummStatsS()` is called after each MCMC interval.
 1. `ErgmStateRSave()` is called:
     1. `Network2Redgelist()` is called, returning a `SEXP` with the state.
     1. For each term, a writer (`w_` function) is called if defined, returning a `SEXP` with the extended state.
