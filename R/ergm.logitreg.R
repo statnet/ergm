@@ -100,13 +100,13 @@ ergm.logitreg <- function(x, y, wt = rep(1, length(y)),
       function(theta.no, X, y, w, offset, etamap, etagrad){
         theta <- start
         theta[!m$etamap$offsettheta] <- theta.no
-        
+
         # Check for box constraint violation.
-        if(any(is.na(theta) & !is.nan(theta)) ||
-           any(theta[!m$etamap$offsettheta] < m$etamap$mintheta[!m$etamap$offsettheta]) ||
-           any(theta[!m$etamap$offsettheta] > m$etamap$maxtheta[!m$etamap$offsettheta])){
-          o <- list(value=-Inf)
-        }else{
+        if (any(is.na(theta.no)) ||
+            any(theta.no < m$etamap$mintheta[!m$etamap$offsettheta]) ||
+            any(theta.no > m$etamap$maxtheta[!m$etamap$offsettheta])) {
+          o <- list(value = -Inf)
+        } else {
           eta <- as.vector(mat_by_coef(X, etamap(theta)) + offset)
           ## FIXME: This can certainly be precomputed, rather than
           ## done every iteration.
