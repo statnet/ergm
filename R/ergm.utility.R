@@ -273,6 +273,8 @@ packageBuiltABI <- memoise(function(client = "ergm", lib = "ergm"){
       NA_integer_)
 })
 
+message_once <- once(message)
+
 #' ABI version checking
 #'
 #' Check if package `client` was built under the same ABI version of
@@ -311,12 +313,20 @@ check_ABI <- once(function(client = "ergm", lib  = "ergm", action = getOption("e
 
     if(is.na(libABI)) return(TRUE)
 
-    msg <- if(is.na(clientABI)) sprintf("Package %s was compiled with an older version of %s that did not save its C application binary interface (ABI) version information at the time. Inconsistent ABI versions may cause malfunctions ranging from incorrect results to R crashing. Please rebuild the package against the current %s version. If you believe message to be spurious, you can override by changing %s (See %s for possible values.) and proceed at your own risk.",
-                                     sQuote(client), sQuote(lib), sQuote(lib), sQuote("options(ergm.ABI.action = ...)"), sQuote("options?ergm"))
-                                     else if(clientABI != libABI) sprintf("Package %s was compiled with %s that had one C application binary interface (ABI), but it is being loaded with %s that has a different C ABI version. (Respectively, %s and %s; note that the ABI version is not the same as the package version and may lag behind it.) Inconsistent versions may result in malfunctions ranging from incorrect results to R crashing. Please rebuild the package with the current %s version. If you believe message to be spurious, you can override by changing %s (See %s for possible values.) and proceed at your own risk.",
-                                                sQuote(client), sQuote(lib), sQuote(lib), clientABI, libABI, sQuote(lib), sQuote("options(ergm.ABI.action = ...)"), sQuote("options?ergm"))
+    if(action %in% c("inform", "message")) {
+      msg <- if(is.na(clientABI)) sprintf("NOTE: Possible C application binary interface (ABI) version mismatch between %s and %s detected. If you experience mysterious crashes and errors, rebuilding the package may help. You can silence this message by setting %s. (See %s for possible values.)",
+                                          sQuote(client), sQuote(lib), sQuote(lib), sQuote("options(ergm.ABI.action = ...)"), sQuote("options?ergm"))
+             else if(clientABI != libABI) sprintf("NOTE: Possible C application binary interface (ABI) version mismatch between %s and %s detected (compiled against %s, running against %s).  If you experience mysterious crashes and errors, rebuilding the package may help. You can silence this message by setting %s. (See %s for possible values.)",
+                                                  sQuote(client), sQuote(lib), clientABI, libABI, sQuote("options(ergm.ABI.action = ...)"), sQuote("options?ergm"))
+      msg <- NVL3(msg, paste(strwrap(., indent = 0, exdent = 2), collapse = "\n"))
+    } else {
+      msg <- if(is.na(clientABI)) sprintf("Package %s was compiled with an older version of %s that did not save its C application binary interface (ABI) version information at the time. Inconsistent ABI versions may cause malfunctions ranging from incorrect results to R crashing. Please rebuild the package against the current %s version. If you believe message to be spurious, you can override by changing %s (See %s for possible values.) and proceed at your own risk.",
+                                          sQuote(client), sQuote(lib), sQuote(lib), sQuote("options(ergm.ABI.action = ...)"), sQuote("options?ergm"))
+             else if(clientABI != libABI) sprintf("Package %s was compiled with %s that had one C application binary interface (ABI), but it is being loaded with %s that has a different C ABI version. (Respectively, %s and %s; note that the ABI version is not the same as the package version and may lag behind it.) Inconsistent versions may result in malfunctions ranging from incorrect results to R crashing. Please rebuild the package with the current %s version. If you believe message to be spurious, you can override by changing %s (See %s for possible values.) and proceed at your own risk.",
+                                                  sQuote(client), sQuote(lib), sQuote(lib), clientABI, libABI, sQuote(lib), sQuote("options(ergm.ABI.action = ...)"), sQuote("options?ergm"))
+      msg <- NVL3(msg, paste(c("", strwrap(., indent = 2, exdent = 2)), collapse = "\n"))
+    }
 
-    msg <- NVL3(msg, paste(c("", strwrap(., indent = 2, exdent = 2)), collapse = "\n"))
 
     if(!is.null(msg)){
       switch(action,
@@ -324,7 +334,7 @@ check_ABI <- once(function(client = "ergm", lib  = "ergm", action = getOption("e
              stop = stop(msg, call. = FALSE),
              warning = warning_once(msg, call. = FALSE, immediate. = TRUE),
              inform =,
-             message = message(msg))
+             message = message_once(msg))
       FALSE
     }else TRUE
   }else TRUE
