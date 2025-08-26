@@ -21,3 +21,5 @@ appveyor.yml
 ^README.md$
 _snaps
 ^src/.*\.s?o$
+^\.vscode/
+.*\.code-workspace
