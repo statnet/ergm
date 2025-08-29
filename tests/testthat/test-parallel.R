@@ -8,7 +8,6 @@
 #  Copyright 2003-2025 Statnet Commons
 ################################################################################
 
-library(statnet.common)
 opttest({
 
 data(florentine)

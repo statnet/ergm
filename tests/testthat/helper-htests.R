@@ -15,7 +15,7 @@ expect_within_mc_err <- function(object, expected, idx = TRUE, alpha = 0.001) {
   x <- coef(act$val)[idx]
   v <- vcov(act$val, source = "estimation")[idx, idx, drop = FALSE]
 
-  chi2 <- statnet.common::xTAx_seigen(x - expected, v)
+  chi2 <- xTAx_seigen(x - expected, v)
   df <- attr(chi2, "rank")
 
   expect((pval <- pchisq(chi2, df, lower.tail = FALSE)) > alpha,
@@ -37,7 +37,7 @@ expect_within_mc_err2 <- function(object1, object2, idx1 = TRUE, idx2 = idx1, al
   x2 <- coef(obj2$val)[idx2]
   v2 <- vcov(obj2$val, source = "estimation")[idx2, idx2, drop = FALSE]
 
-  chi2 <- statnet.common::xTAx_seigen(x1 - x2, v1 + v2)
+  chi2 <- xTAx_seigen(x1 - x2, v1 + v2)
   df <- attr(chi2, "rank")
 
   expect((pval <- pchisq(chi2, df, lower.tail = FALSE)) > alpha,

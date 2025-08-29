@@ -8,6 +8,8 @@
 #  Copyright 2003-2025 Statnet Commons
 ################################################################################
 
+skip_if_not_checking()
+
 library(ergm.count)
 
 test_that("check initialisation functions", {

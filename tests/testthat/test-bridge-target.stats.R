@@ -10,9 +10,6 @@
 
 attach(MLE.tools)
 
-library(ergm)
-library(statnet.common)
-
 data(florentine)
 y <- flomarriage
 

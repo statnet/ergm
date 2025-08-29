@@ -9,17 +9,17 @@
 ################################################################################
 
 mean_mat <- function(Mmin, Mmax){
-  Mmin <- statnet.common::NVL(Mmin, Mmax)
-  Mmax <- statnet.common::NVL(Mmax, Mmin)
+  Mmin <- NVL(Mmin, Mmax)
+  Mmax <- NVL(Mmax, Mmin)
   matrix(ifelse(rbinom(length(Mmin), 1, .5), Mmin, Mmax), nrow(Mmin), ncol(Mmin))
 }
 
 test_dind_constr <- function(y0, con, Mmin=NULL, Mmax=NULL, response=NULL, ...){
   nn <- network.dyadcount(y0, FALSE)
   test_that(paste0("dyad independent constraint with constraint = ", format(con), ", and ", if(is.directed(y0)) "directed " else "undirected ", if(is.bipartite(y0)) "bipartite ", if(!is.null(response)) "valued ", "network"), {
-    ymin <- simulate(statnet.common::NVL2(response, y0~sum, y0~edges), coef=-100, constraints=con, control=control.simulate.formula(MCMC.burnin=nn*100), response=response, ...)
+    ymin <- simulate(NVL2(response, y0~sum, y0~edges), coef=-100, constraints=con, control=control.simulate.formula(MCMC.burnin=nn*100), response=response, ...)
     expect_true(all(na.omit(c(suppressWarnings(as.matrix(ymin, attrname=response))==Mmin))))
-    ymax <- simulate(statnet.common::NVL2(response, y0~sum, y0~edges), coef=+100, constraints=con, control=control.simulate.formula(MCMC.burnin=nn*100), response=response, ...)
+    ymax <- simulate(NVL2(response, y0~sum, y0~edges), coef=+100, constraints=con, control=control.simulate.formula(MCMC.burnin=nn*100), response=response, ...)
     expect_true(all(na.omit(c(as.matrix(ymax, attrname=response)==Mmax))))
   })
 }

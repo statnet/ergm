@@ -8,6 +8,7 @@
 #  Copyright 2003-2025 Statnet Commons
 ################################################################################
 library(testthat)
+library(statnet.common)
 library(ergm)
 
 test_check("ergm")
