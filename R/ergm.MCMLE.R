@@ -200,8 +200,8 @@ ergm.MCMLE <- function(init, s, s.obs,
   for(iteration in 1:control$MCMLE.maxit){
     if(verbose){
       message("\nIteration ",iteration," of at most ", control$MCMLE.maxit,
-          " with parameter:")
-      message_print(mcmc.init)
+              " with free parameter vector:")
+      message_print(mcmc.init[!model$etamap$offsettheta])
     }else{
       message("Iteration ",iteration," of at most ", control$MCMLE.maxit,":")
     }
