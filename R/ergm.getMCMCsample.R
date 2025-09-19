@@ -137,6 +137,7 @@ ergm_MCMC_sample <- function(state, control, theta=NULL,
 
   force(eta)
   state0 <- state
+  etamap <- as.ergm_model(state0[[1]])$etamap
 
   send_model_proposal <- function(){
     if(verbose>1) message("Populating the state cache on worker nodes.")
@@ -239,9 +240,12 @@ ergm_MCMC_sample <- function(state, control, theta=NULL,
         interval <- interval*2
         if(verbose) message("Increasing thinning to ",interval,".")
       }
-      
-      esteq <- lapply(sms, function(sm) NVL3(theta, ergm.estfun(sm, ., as.ergm_model(state0[[1]])), sm[,!as.ergm_model(state0[[1]])$etamap$offsetmap,drop=FALSE])) %>%
-        lapply.mcmc.list(mcmc, start=1, thin=interval) %>% lapply.mcmc.list(`-`)
+
+      sms <- lapply.mcmc.list(sms, mcmc, start = 1, thin = interval)
+      esteq <- NVL3(theta,
+                    ergm.estfun(sms, ., etamap),
+                    sms[, !etamap$offsetmap, drop = FALSE]) |>
+        lapply.mcmc.list(`-`)
 
       if(control.parallel$MCMC.runtime.traceplot) runtime_traceplot(esteq, 1000)
 
@@ -299,9 +303,12 @@ ergm_MCMC_sample <- function(state, control, theta=NULL,
     if(status <- handle_statuses(outl)) return(list(status=status)) # Stop if something went wrong.
     sms <- map(outl, "s") %>% map(coda::mcmc, control.parallel$MCMC.burnin+1, thin=control.parallel$MCMC.interval)
     if(!is.null(nws)) nws <- map(outl, "saved")
-    
+
     if(control.parallel$MCMC.runtime.traceplot){
-      lapply(sms, function(sm) NVL3(theta, ergm.estfun(sm, ., as.ergm_model(state0[[1]])), sm[,!as.ergm_model(state0[[1]])$etamap$offsetmap,drop=FALSE])) %>% lapply(mcmc, start=control.parallel$MCMC.burnin+1, thin=control.parallel$MCMC.interval) %>% as.mcmc.list() %>% window(., thin=thin(.)*max(1,floor(niter(.)/1000))) %>% plot(ask=FALSE,smooth=TRUE,density=FALSE)
+      NVL3(theta,
+           ergm.estfun(sms, ., etamap),
+           sms[, !etamap$offsetmap, drop = FALSE]) |>
+        runtime_traceplot(1000)
     }
 
     final.effectiveSize <- final.interval <- NULL
@@ -450,6 +457,7 @@ ergm_MCMC_slave <- function(state, eta,control,verbose,..., burnin=NULL, samples
   list(burnin=round(best), pval=geweke(round(best)))
 }
 
+#' @importFrom graphics par text
 runtime_traceplot <- function(x, nmax) {
   nv <- min(nvar(x), 49)
   nr <- ceiling(sqrt(nv))
