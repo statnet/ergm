@@ -127,9 +127,8 @@ statistics of the network, and, optionally, the final network.
 an \code{\link[=ergm.godfather]{ergm.godfather()}} method for the \code{\link{ergm_model}} class. The \code{basis}
 argument is required.
 
-\code{\link[=ergm.godfather.ergm_model]{ergm.godfather.ergm_model()}} is a lower-level interface, providing
-an \code{\link[=ergm.godfather]{ergm.godfather()}} method for the \code{\link{ergm_model}} class. The \code{basis}
-argument is required.
+\code{\link[=ergm.godfather.ergm_state]{ergm.godfather.ergm_state()}} is the lowest-level interface, providing
+an \code{\link[=ergm.godfather]{ergm.godfather()}} method for the \code{\link{ergm_state}} class.
 }
 \examples{
 data(florentine)

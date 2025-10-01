@@ -135,9 +135,8 @@ ergm.godfather.ergm_model <- function(object, changes=NULL,
 }
 
 #' @rdname ergm.godfather
-#' @note [ergm.godfather.ergm_model()] is a lower-level interface, providing
-#'   an [ergm.godfather()] method for the [`ergm_model`] class. The `basis`
-#'   argument is required.
+#' @note [ergm.godfather.ergm_state()] is the lowest-level interface, providing
+#'   an [ergm.godfather()] method for the [`ergm_state`] class.
 #' @export
 ergm.godfather.ergm_state <- function(object, changes=NULL,
                                    ...,
