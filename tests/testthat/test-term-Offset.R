@@ -18,7 +18,7 @@ test_that("Estimation with Offset() operator works", {
 
   expect_no_message(
     off <- ergm(nw ~ edges + offset(triangle), offset.coef = 0.1),
-    offset_RE
+    message = offset_RE
   )
 
   expect_no_message(
