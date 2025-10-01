@@ -16,13 +16,15 @@ test_that("Estimation with Offset() operator works", {
     ergm_model(nw ~ edges + offset(Offset(~triangle, which = 1, coef = 0.1))),
     offset_RE)
 
-  expect_failure(expect_message(
+  expect_no_message(
     off <- ergm(nw ~ edges + offset(triangle), offset.coef = 0.1),
-    offset_RE), ".* did not throw the expected message.*")
+    message = offset_RE
+  )
 
-  expect_failure(expect_message(
+  expect_no_message(
     Off <- ergm(nw ~ edges + Offset(~triangle, which = 1, coef = 0.1)),
-    offset_RE), ".* did not throw the expected message.*")
+    message = offset_RE
+  )
 
   expect_within_mc_err2(off, Off, 1L, TRUE)
 })
