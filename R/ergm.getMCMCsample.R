@@ -467,7 +467,7 @@ runtime_traceplot <- function(x, nmax) {
 
   x <- window(x, thin = thin(x) * max(1, floor(niter(x) / nmax)))
   for (i in seq_len(nvar(x))) {
-    traceplot(x[, 1L, drop = FALSE], col = 2:7, smooth = TRUE, xlab = "", main = "")
+    traceplot(x[, i, drop = FALSE], col = 2:7, smooth = TRUE, xlab = "", main = "")
     text(mean(par("usr")[1:2]), mean(par("usr")[3:4]), varnames(x)[i], cex = 1.5)
   }
 }
