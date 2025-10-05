@@ -314,8 +314,8 @@ ergm.MCMLE <- function(init, s, s.obs,
 
     # These are only nontrivial when the model is curved or when there are missing data.
     if(verbose){
-      message("Average estimating function values:")
-      message_print(if(obs) colMeans(esteq.obs)-colMeans(esteq) else -colMeans(esteq))
+      message("Estimated gradient of the log-likelihood:")
+      message_print(if (obs) colMeans(esteq) - colMeans(esteq.obs) else colMeans(esteq))
     }
 
     if(!estimate){

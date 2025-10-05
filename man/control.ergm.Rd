@@ -546,8 +546,11 @@ MCMC network statistics from the last iteration of network of the
 estimation. They will be thinned to have length of at most
 \code{MCMC.return.stats}. They are used for MCMC diagnostics.}
 
-\item{MCMC.runtime.traceplot}{Logical: If \code{TRUE}, plot traceplots of the MCMC
-sample after every MCMC MLE iteration.}
+\item{MCMC.runtime.traceplot}{Logical: If \code{TRUE}, plot trace plots
+of the MCMC sample after every MCMC MLE iteration. Since curved
+models tend to produce large numbers of mostly constant
+statistics, they are plotted on the estimating function scale,
+i.e., \eqn{\eta'(\theta)^\top \{g(Y^s) - g(y)\}}.}
 
 \item{MCMC.maxedges}{The maximum number of edges that may occur during the MCMC sampling. If this number is exceeded at any time, sampling is stopped immediately.}
 

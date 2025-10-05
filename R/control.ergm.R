@@ -209,8 +209,12 @@
 #'   estimation. They will be thinned to have length of at most
 #'   `MCMC.return.stats`. They are used for MCMC diagnostics.
 #'
-#' @param MCMC.runtime.traceplot Logical: If `TRUE`, plot traceplots of the MCMC
-#' sample after every MCMC MLE iteration.
+#' @param MCMC.runtime.traceplot Logical: If `TRUE`, plot trace plots
+#'   of the MCMC sample after every MCMC MLE iteration. Since curved
+#'   models tend to produce large numbers of mostly constant
+#'   statistics, they are plotted on the estimating function scale,
+#'   i.e., \eqn{\eta'(\theta)^\top \{g(Y^s) - g(y)\}}.
+#'
 #' @template control_MCMC_maxedges
 #' @param MCMC.addto.se Whether to add the standard errors induced by the MCMC
 #' algorithm to the estimates' standard errors.
