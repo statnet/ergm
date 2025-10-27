@@ -76,7 +76,7 @@ static inline BDStratBlocks *BDStratBlocksInitialize(int **maxout,
                                                      int **indegree,
                                                      int **outdegree,
                                                      Network *nwp) {
-  BDStratBlocks *blocks = Calloc(1, BDStratBlocks);
+  BDStratBlocks *blocks = R_Calloc(1, BDStratBlocks);
 
   // do some copying
   blocks->nwp = nwp;
@@ -101,41 +101,41 @@ static inline BDStratBlocks *BDStratBlocksInitialize(int **maxout,
   blocks->bd_vattr = bd_vattr;
 
   // set up node lists
-  blocks->bothpos = Calloc(bd_nlevels, int *);
-  blocks->tailpos = DIRECTED ? Calloc(bd_nlevels, int *) : blocks->bothpos;  
-  blocks->headpos = DIRECTED ? Calloc(bd_nlevels, int *) : blocks->bothpos;  
+  blocks->bothpos = R_Calloc(bd_nlevels, int *);
+  blocks->tailpos = DIRECTED ? R_Calloc(bd_nlevels, int *) : blocks->bothpos;  
+  blocks->headpos = DIRECTED ? R_Calloc(bd_nlevels, int *) : blocks->bothpos;  
   
   for(int i = 0; i < bd_nlevels; i++) {
-    blocks->bothpos[i] = Calloc(N_NODES + 1, int);
+    blocks->bothpos[i] = R_Calloc(N_NODES + 1, int);
     if(DIRECTED) {
-      blocks->tailpos[i] = Calloc(N_NODES + 1, int);  
-      blocks->headpos[i] = Calloc(N_NODES + 1, int); 
+      blocks->tailpos[i] = R_Calloc(N_NODES + 1, int);  
+      blocks->headpos[i] = R_Calloc(N_NODES + 1, int); 
     }
   }
     
-  blocks->boths_by_attr = Calloc(strat_nlevels, NodeList ****);
-  blocks->tails_by_attr = DIRECTED ? Calloc(strat_nlevels, NodeList ****) : blocks->boths_by_attr;
-  blocks->heads_by_attr = DIRECTED ? Calloc(strat_nlevels, NodeList ****) : blocks->boths_by_attr;
+  blocks->boths_by_attr = R_Calloc(strat_nlevels, NodeList ****);
+  blocks->tails_by_attr = DIRECTED ? R_Calloc(strat_nlevels, NodeList ****) : blocks->boths_by_attr;
+  blocks->heads_by_attr = DIRECTED ? R_Calloc(strat_nlevels, NodeList ****) : blocks->boths_by_attr;
   
   for(int i = 0; i < strat_nlevels; i++) {
-    blocks->boths_by_attr[i] = Calloc(blocks_nlevels, NodeList ***);
+    blocks->boths_by_attr[i] = R_Calloc(blocks_nlevels, NodeList ***);
     if(DIRECTED) {
-      blocks->tails_by_attr[i] = Calloc(blocks_nlevels, NodeList ***);
-      blocks->heads_by_attr[i] = Calloc(blocks_nlevels, NodeList ***);
+      blocks->tails_by_attr[i] = R_Calloc(blocks_nlevels, NodeList ***);
+      blocks->heads_by_attr[i] = R_Calloc(blocks_nlevels, NodeList ***);
     }
     
     for(int j = 0; j < blocks_nlevels; j++) {
-      blocks->boths_by_attr[i][j] = Calloc(bd_nlevels, NodeList **);
+      blocks->boths_by_attr[i][j] = R_Calloc(bd_nlevels, NodeList **);
       if(DIRECTED) {
-        blocks->tails_by_attr[i][j] = Calloc(bd_nlevels, NodeList **);
-        blocks->heads_by_attr[i][j] = Calloc(bd_nlevels, NodeList **);          
+        blocks->tails_by_attr[i][j] = R_Calloc(bd_nlevels, NodeList **);
+        blocks->heads_by_attr[i][j] = R_Calloc(bd_nlevels, NodeList **);          
       }
       
       for(int k = 0; k < bd_nlevels; k++) {
-        blocks->boths_by_attr[i][j][k] = Calloc(bd_nlevels, NodeList *);
+        blocks->boths_by_attr[i][j][k] = R_Calloc(bd_nlevels, NodeList *);
         if(DIRECTED) {
-          blocks->tails_by_attr[i][j][k] = Calloc(bd_nlevels, NodeList *);
-          blocks->heads_by_attr[i][j][k] = Calloc(bd_nlevels, NodeList *);          
+          blocks->tails_by_attr[i][j][k] = R_Calloc(bd_nlevels, NodeList *);
+          blocks->heads_by_attr[i][j][k] = R_Calloc(bd_nlevels, NodeList *);          
         }
         
         for(int l = 0; l < bd_nlevels; l++) {
@@ -149,9 +149,9 @@ static inline BDStratBlocks *BDStratBlocksInitialize(int **maxout,
     }
   }
 
-  blocks->boths = Calloc(N_NODES + 1, NodeList **);
-  blocks->tails = DIRECTED ? Calloc(N_NODES + 1, NodeList **) : blocks->boths;
-  blocks->heads = DIRECTED ? Calloc(N_NODES + 1, NodeList **) : blocks->boths;
+  blocks->boths = R_Calloc(N_NODES + 1, NodeList **);
+  blocks->tails = DIRECTED ? R_Calloc(N_NODES + 1, NodeList **) : blocks->boths;
+  blocks->heads = DIRECTED ? R_Calloc(N_NODES + 1, NodeList **) : blocks->boths;
 
   for(Vertex vertex = 1; vertex <= N_NODES; vertex++) {
     int strat_val = blocks->strat_vattr[vertex];
@@ -180,8 +180,8 @@ static inline BDStratBlocks *BDStratBlocksInitialize(int **maxout,
   }
 
   // set up blocks
-  blocks->blocks = Calloc(strat_nmixtypes, Block **);
-  blocks->nblocks = Calloc(strat_nmixtypes, int);
+  blocks->blocks = R_Calloc(strat_nmixtypes, Block **);
+  blocks->nblocks = R_Calloc(strat_nmixtypes, int);
   blocks->strat_nmixtypes = strat_nmixtypes;
   for(int i = 0; i < strat_nmixtypes; i++) {
     int strat_diag = (strat_tails[i] == strat_heads[i]);
@@ -193,7 +193,7 @@ static inline BDStratBlocks *BDStratBlocksInitialize(int **maxout,
     
     int base_nblocks = (1 + !strat_diag)*nblocksoffdiag*bd_mixtypes[0] + nblocksdiag*bd_mixtypes[strat_diag];
     blocks->nblocks[i] = DIRECTED ? 4*base_nblocks : base_nblocks;
-    blocks->blocks[i] = Calloc(blocks->nblocks[i], Block *);
+    blocks->blocks[i] = R_Calloc(blocks->nblocks[i], Block *);
     int l = 0;
     for(int j = 0; j < nblocksmixtypes; j++) {
       int blocks_diag = (blocks_tails[j] == blocks_heads[j]);
@@ -221,10 +221,10 @@ static inline void BDStratBlocksDestroy(BDStratBlocks *blocks) {
     for(int j = 0; j < blocks->nblocks[i]; j++) {
       BlockDestroy(blocks->blocks[i][j]);
     }
-    Free(blocks->blocks[i]);
+    R_Free(blocks->blocks[i]);
   }
-  Free(blocks->blocks);
-  Free(blocks->nblocks);
+  R_Free(blocks->blocks);
+  R_Free(blocks->nblocks);
   
   for(int i = 0; i < blocks->strat_nlevels; i++) {
     for(int j = 0; j < blocks->blocks_nlevels; j++) {
@@ -236,49 +236,49 @@ static inline void BDStratBlocksDestroy(BDStratBlocks *blocks) {
             NodeListDestroy(blocks->heads_by_attr[i][j][k][l]);
           }            
         }
-        Free(blocks->boths_by_attr[i][j][k]);
+        R_Free(blocks->boths_by_attr[i][j][k]);
         if(blocks->directed) {
-          Free(blocks->tails_by_attr[i][j][k]);
-          Free(blocks->heads_by_attr[i][j][k]);
+          R_Free(blocks->tails_by_attr[i][j][k]);
+          R_Free(blocks->heads_by_attr[i][j][k]);
         }                    
       }
-      Free(blocks->boths_by_attr[i][j]);
+      R_Free(blocks->boths_by_attr[i][j]);
       if(blocks->directed) {
-        Free(blocks->tails_by_attr[i][j]);
-        Free(blocks->heads_by_attr[i][j]);
+        R_Free(blocks->tails_by_attr[i][j]);
+        R_Free(blocks->heads_by_attr[i][j]);
       }                    
     }
-    Free(blocks->boths_by_attr[i]);
+    R_Free(blocks->boths_by_attr[i]);
     if(blocks->directed) {
-      Free(blocks->tails_by_attr[i]);
-      Free(blocks->heads_by_attr[i]);
+      R_Free(blocks->tails_by_attr[i]);
+      R_Free(blocks->heads_by_attr[i]);
     }                    
   }
-  Free(blocks->boths_by_attr);
+  R_Free(blocks->boths_by_attr);
   if(blocks->directed) {
-    Free(blocks->tails_by_attr);
-    Free(blocks->heads_by_attr);
+    R_Free(blocks->tails_by_attr);
+    R_Free(blocks->heads_by_attr);
   }
-  Free(blocks->boths);
+  R_Free(blocks->boths);
   if(blocks->directed) {
-    Free(blocks->tails);
-    Free(blocks->heads);
+    R_Free(blocks->tails);
+    R_Free(blocks->heads);
   }
   
   for(int i = 0; i < blocks->bd_nlevels; i++) {
-    Free(blocks->bothpos[i]);
+    R_Free(blocks->bothpos[i]);
     if(blocks->directed) {
-      Free(blocks->tailpos[i]);
-      Free(blocks->headpos[i]);
+      R_Free(blocks->tailpos[i]);
+      R_Free(blocks->headpos[i]);
     }
   }
-  Free(blocks->bothpos);
+  R_Free(blocks->bothpos);
   if(blocks->directed) {
-    Free(blocks->tailpos);
-    Free(blocks->headpos);
+    R_Free(blocks->tailpos);
+    R_Free(blocks->headpos);
   }
   
-  Free(blocks);
+  R_Free(blocks);
 }
 
 static inline Dyad BDStratBlocksDyadCount(BDStratBlocks *blocks, int stratmixingtype) {

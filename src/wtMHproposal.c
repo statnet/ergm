@@ -16,7 +16,7 @@
  A helper function to process the MH_* related initialization.
 *********************/
 WtMHProposal *WtMHProposalInitialize(SEXP pR, WtNetwork *nwp, void **aux_storage){
-  WtMHProposal *MHp = Calloc(1, WtMHProposal);
+  WtMHProposal *MHp = R_Calloc(1, WtMHProposal);
   MHp->R = pR;
 
   MHp->i_func=MHp->p_func=MHp->f_func=NULL;
@@ -26,7 +26,7 @@ WtMHProposal *WtMHProposalInitialize(SEXP pR, WtNetwork *nwp, void **aux_storage
   /* Extract the required string information from the relevant sources */
   const char *fname = FIRSTCHAR(getListElement(pR, "name")),
     *sn = FIRSTCHAR(getListElement(pR, "pkgname"));
-  char *fn = Calloc(strlen(fname)+4, char);
+  char *fn = R_Calloc(strlen(fname)+4, char);
   fn[0]='M';
   fn[1]='H';
   fn[2]='_';
@@ -62,7 +62,7 @@ WtMHProposal *WtMHProposalInitialize(SEXP pR, WtNetwork *nwp, void **aux_storage
   MHp->iinputs=length(tmp) ? INTEGER(tmp) : NULL;
 
   /*Clean up by freeing sn and fn*/
-  Free(fn);
+  R_Free(fn);
 
   MHp->aux_storage = aux_storage;
   SEXP aux_slotsR = getListElement(pR,"aux.slots");
@@ -87,9 +87,9 @@ WtMHProposal *WtMHProposalInitialize(SEXP pR, WtNetwork *nwp, void **aux_storage
     WtMHProposalDestroy(MHp, nwp);
     return NULL;
   }
-  MHp->toggletail = (Vertex *)Calloc(MHp->ntoggles, Vertex);
-  MHp->togglehead = (Vertex *)Calloc(MHp->ntoggles, Vertex);
-  MHp->toggleweight = (double *)Calloc(MHp->ntoggles, double);
+  MHp->toggletail = (Vertex *)R_Calloc(MHp->ntoggles, Vertex);
+  MHp->togglehead = (Vertex *)R_Calloc(MHp->ntoggles, Vertex);
+  MHp->toggleweight = (double *)R_Calloc(MHp->ntoggles, double);
 
   if(MHp->u_func){
     AddOnWtNetworkEdgeChange(nwp, (OnWtNetworkEdgeChange) MHp->u_func, MHp, 0); // Need to insert at the start.
@@ -108,14 +108,14 @@ void WtMHProposalDestroy(WtMHProposal *MHp, WtNetwork *nwp){
   if(MHp->u_func) DeleteOnWtNetworkEdgeChange(nwp, (OnWtNetworkEdgeChange) MHp->u_func, MHp);
   if(MHp->f_func) (*(MHp->f_func))(MHp, nwp);
   if(MHp->storage){
-    Free(MHp->storage);
+    R_Free(MHp->storage);
     MHp->storage=NULL;
   }
   MHp->aux_storage=NULL;
-  Free(MHp->toggletail);
-  Free(MHp->togglehead);
-  Free(MHp->toggleweight);
+  R_Free(MHp->toggletail);
+  R_Free(MHp->togglehead);
+  R_Free(MHp->toggleweight);
 
-  Free(MHp);
+  R_Free(MHp);
 }
 

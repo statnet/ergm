@@ -16,7 +16,7 @@ static unsigned int ergm_wtstate_array_maxlen = 0;
 
 WtErgmState *WtErgmStateInit(SEXP stateR,
                              unsigned int flags){
-  WtErgmState *s = Calloc(1, WtErgmState);
+  WtErgmState *s = R_Calloc(1, WtErgmState);
 
   /* Save a reference to the corresponding R object */
   s->R = stateR;
@@ -43,7 +43,7 @@ WtErgmState *WtErgmStateInit(SEXP stateR,
 
   if(ergm_wtstate_array_len == ergm_wtstate_array_maxlen){
     ergm_wtstate_array_maxlen = MAX(1, ergm_wtstate_array_maxlen*2);
-    ergm_wtstate_array = Realloc(ergm_wtstate_array, ergm_wtstate_array_maxlen, WtErgmState*);
+    ergm_wtstate_array = R_Realloc(ergm_wtstate_array, ergm_wtstate_array_maxlen, WtErgmState*);
   }
   ergm_wtstate_array[ergm_wtstate_array_len++] = s;
 
@@ -101,12 +101,12 @@ void WtErgmStateDestroy(WtErgmState *s){
   if(s->MHp) WtMHProposalDestroy(s->MHp, s->nwp);
   if(s->m) WtModelDestroy(s->nwp, s->m);
   if(s->nwp) WtNetworkDestroy(s->nwp);
-  Free(s);
+  R_Free(s);
 }
 
 SEXP ErgmWtStateArrayClear(){
   while(ergm_wtstate_array_len) WtErgmStateDestroy(ergm_wtstate_array[0]);
   ergm_wtstate_array_maxlen = 0;
-  Free(ergm_wtstate_array);
+  R_Free(ergm_wtstate_array);
   return R_NilValue;
 }

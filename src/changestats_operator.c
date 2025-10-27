@@ -150,7 +150,7 @@ I_CHANGESTAT_FN(i__submodel_and_summary_term){
   // Unpack the submodel.
   Model *m = storage->m = ModelInitialize(getListElement(mtp->R, "submodel"),  NULL, nwp, FALSE);
 
-  storage->stats = Calloc(m->n_stats, double);
+  storage->stats = R_Calloc(m->n_stats, double);
 
   SummStats(0, NULL, NULL, nwp, m);
   memcpy(storage->stats, m->workspace, m->n_stats*sizeof(double));
@@ -169,7 +169,7 @@ U_CHANGESTAT_FN(u__submodel_and_summary_term){
 F_CHANGESTAT_FN(f__submodel_and_summary_term){
   GET_AUX_STORAGE(StoreModelAndStats, storage);
 
-  Free(storage->stats);
+  R_Free(storage->stats);
   ModelDestroy(nwp, storage->m);
 }
 

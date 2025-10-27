@@ -22,7 +22,7 @@
 // 2. Allocates a vector of `nmemb` elements of type `stored_type`.
 // 3. Saves its pointer to private storage.
 // 4. Also assigns its pointer to store_into.
-#define ALLOC_STORAGE(nmemb, stored_type, store_into) stored_type *store_into = (stored_type *) (STORAGE = Calloc(nmemb, stored_type));
+#define ALLOC_STORAGE(nmemb, stored_type, store_into) stored_type *store_into = (stored_type *) (STORAGE = R_Calloc(nmemb, stored_type));
 
 // 1. Declares a stored_type *store_into.
 // 2. Assigns pointer to private storage to store_into.
@@ -40,7 +40,7 @@
 // 2. Allocates a vector of `nmemb` elements of type `stored_type`.
 // 3. Saves its pointer to its assigned public storage slot.
 // 4. Also assigns its pointer to store_into.
-#define ALLOC_AUX_STORAGE(nmemb, stored_type, store_into) stored_type *store_into = (stored_type *) (AUX_STORAGE = Calloc(nmemb, stored_type));
+#define ALLOC_AUX_STORAGE(nmemb, stored_type, store_into) stored_type *store_into = (stored_type *) (AUX_STORAGE = R_Calloc(nmemb, stored_type));
 // 1. Declares a stored_type *store_into.
 // 2. Assigns pointer to its assigned auxiliary storage slot (or, for a statistic, its first requested auxiliary) to store_into.
 #define GET_AUX_STORAGE(stored_type, store_into) stored_type *store_into = AUX_STORAGE;

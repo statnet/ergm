@@ -22,7 +22,7 @@ typedef struct {
 } HashEL;
 
 static inline HashEL *HashELInitialize(unsigned int nedges, Vertex *tails, Vertex *heads, Rboolean copy, Rboolean directed) {
-  HashEL *hash = Calloc(1, HashEL);
+  HashEL *hash = R_Calloc(1, HashEL);
 
   hash->list = UnsrtELInitialize(nedges, tails, heads, copy);
 
@@ -43,7 +43,7 @@ static inline HashEL *HashELInitialize(unsigned int nedges, Vertex *tails, Verte
 static inline void HashELDestroy(HashEL *hash) {
   kh_destroy(DyadMapUInt, hash->hash);
   UnsrtELDestroy(hash->list);
-  Free(hash);
+  R_Free(hash);
 }
 
 static inline void HashELClear(HashEL *hash) {

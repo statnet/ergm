@@ -73,10 +73,10 @@ static inline void WtDestroyStats(WtNetwork *nwp, WtModel *m){
         if(mtp->f_func)
           (*(mtp->f_func))(mtp, nwp);  /* Call f_??? function */
       }
-      Free(m->dstatarray[i]);
-      Free(mtp->statcache);
+      R_Free(m->dstatarray[i]);
+      R_Free(mtp->statcache);
       if(mtp->storage){
-        Free(mtp->storage);
+        R_Free(mtp->storage);
         mtp->storage = NULL;
       }
       i++;
@@ -92,12 +92,12 @@ void WtModelDestroy(WtNetwork *nwp, WtModel *m)
 
   for(unsigned int i=0; i < m->n_aux; i++)
     if(m->termarray[0].aux_storage[i]!=NULL){
-      Free(m->termarray[0].aux_storage[i]);
+      R_Free(m->termarray[0].aux_storage[i]);
       m->termarray[0].aux_storage[i] = NULL;
   }
   
   if(m->n_terms && m->termarray[0].aux_storage!=NULL){
-    Free(m->termarray[0].aux_storage);
+    R_Free(m->termarray[0].aux_storage);
   }
   
   WtEXEC_THROUGH_TERMS(m, {
@@ -105,10 +105,10 @@ void WtModelDestroy(WtNetwork *nwp, WtModel *m)
 	mtp->aux_storage=NULL;
     });
   
-  Free(m->dstatarray);
-  Free(m->termarray);
-  Free(m->workspace_backup);
-  Free(m);
+  R_Free(m->dstatarray);
+  R_Free(m->termarray);
+  R_Free(m->workspace_backup);
+  R_Free(m);
 }
 
 /*****************
@@ -121,10 +121,10 @@ WtModel* WtModelInitialize (SEXP mR, SEXP ext_state, WtNetwork *nwp, Rboolean no
   SEXP terms = getListElement(mR, "terms");
   if(ext_state == R_NilValue) ext_state = NULL;
 
-  WtModel *m = (WtModel *) Calloc(1, WtModel);
+  WtModel *m = (WtModel *) R_Calloc(1, WtModel);
   unsigned int n_terms = m->n_terms = length(terms);
-  m->termarray = (WtModelTerm *) Calloc(n_terms, WtModelTerm);
-  m->dstatarray = (double **) Calloc(n_terms, double *);
+  m->termarray = (WtModelTerm *) R_Calloc(n_terms, WtModelTerm);
+  m->dstatarray = (double **) R_Calloc(n_terms, double *);
   m->n_stats = 0;
   m->n_aux = 0;
   m->n_u = 0;
@@ -159,7 +159,7 @@ WtModel* WtModelInitialize (SEXP mR, SEXP ext_state, WtNetwork *nwp, Rboolean no
       const char *fname = FIRSTCHAR(getListElement(thisterm->R, "name")),
         *sn = FIRSTCHAR(getListElement(thisterm->R, "pkgname"));
       /* Extract the required string information from the relevant sources */
-      char *fn = Calloc(strlen(fname)+3, char);
+      char *fn = R_Calloc(strlen(fname)+3, char);
       fn[1]='_';
       strcpy(fn+2, fname);
       /* fn is now the string ' _[name]', where [name] is fname */
@@ -198,13 +198,13 @@ WtModel* WtModelInitialize (SEXP mR, SEXP ext_state, WtNetwork *nwp, Rboolean no
 
       /*  Update the running total of statistics */
       m->n_stats += thisterm->nstats; 
-      m->dstatarray[l] = (double *) Calloc(thisterm->nstats, double);
+      m->dstatarray[l] = (double *) R_Calloc(thisterm->nstats, double);
       thisterm->dstats = m->dstatarray[l];  /* This line is important for
                                                eventually freeing up allocated
 					       memory, since thisterm->dstats
 					       can be modified but 
 					       m->dstatarray[l] cannot be.  */
-      thisterm->statcache = (double *) Calloc(thisterm->nstats, double);
+      thisterm->statcache = (double *) R_Calloc(thisterm->nstats, double);
 
       if(ext_state) thisterm->ext_state = VECTOR_ELT(ext_state, l);
 
@@ -284,10 +284,10 @@ WtModel* WtModelInitialize (SEXP mR, SEXP ext_state, WtNetwork *nwp, Rboolean no
       if(!ext_state && (thisterm->w_func)) error("Error in ModelInitialize: not provided with extended state, but model terms with functions %s::%s requires extended state. This should normally be caught sooner. This limitation may be removed in the future.  Memory has not been deallocated, so restart R sometime soon.\n",sn,fn+2);
 
       /*Clean up by freeing fn*/
-      Free(fn);
+      R_Free(fn);
   }
   
-  m->workspace_backup = m->workspace = (double *) Calloc(m->n_stats, double);
+  m->workspace_backup = m->workspace = (double *) R_Calloc(m->n_stats, double);
 
   unsigned int pos = 0;
   WtFOR_EACH_TERM(m){
@@ -297,7 +297,7 @@ WtModel* WtModelInitialize (SEXP mR, SEXP ext_state, WtNetwork *nwp, Rboolean no
   
   /* Allocate auxiliary storage and put a pointer to it on every model term. */
   if(m->n_aux){
-    m->termarray[0].aux_storage = (void *) Calloc(m->n_aux, void *);
+    m->termarray[0].aux_storage = (void *) R_Calloc(m->n_aux, void *);
     for(unsigned int l=1; l < n_terms; l++)
       m->termarray[l].aux_storage = m->termarray[0].aux_storage;
   }
@@ -442,9 +442,9 @@ void WtSummStats(Edge n_edges, Vertex *tails, Vertex *heads, double *weights, Wt
     /* The following code is pretty inefficient, but it'll do for now. */
     /* Grab network state and output workspace. */
     n_edges = EDGECOUNT(nwp);
-    tails = Calloc(n_edges, Vertex);
-    heads = Calloc(n_edges, Vertex);
-    weights = Calloc(n_edges, double);
+    tails = R_Calloc(n_edges, Vertex);
+    heads = R_Calloc(n_edges, Vertex);
+    weights = R_Calloc(n_edges, double);
     WtEdgeTree2EdgeList(tails, heads, weights, nwp, n_edges);
     stats = m->workspace;
 
@@ -453,7 +453,7 @@ void WtSummStats(Edge n_edges, Vertex *tails, Vertex *heads, double *weights, Wt
     m = WtModelInitialize(m->R, m->ext_state, nwp, TRUE);
     mynet = TRUE;
   }else{
-    stats = Calloc(m->n_stats, double);
+    stats = R_Calloc(m->n_stats, double);
     mynet = FALSE;
   }
 
@@ -509,12 +509,12 @@ void WtSummStats(Edge n_edges, Vertex *tails, Vertex *heads, double *weights, Wt
   if(mynet){
     WtModelDestroy(nwp,m);
     WtNetworkDestroy(nwp);
-    Free(tails);
-    Free(heads);
-    Free(weights);
+    R_Free(tails);
+    R_Free(heads);
+    R_Free(weights);
   }else{
     WtDetUnShuffleEdges(tails,heads,weights,n_edges); /* Unshuffle edgelist. */
     memcpy(m->workspace, stats, m->n_stats*sizeof(double));
-    Free(stats);
+    R_Free(stats);
   }
 }

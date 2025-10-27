@@ -47,15 +47,15 @@ DegreeBound* DegreeBoundInitialize(int *attribs, int *maxout, int *maxin,
   if(!condAllDegExact && !attriblength) return NULL;
 
 
-  bd = (DegreeBound *) Calloc(1, DegreeBound);
+  bd = (DegreeBound *) R_Calloc(1, DegreeBound);
 
   bd->fBoundDegByAttr = 0;
   bd->attrcount = condAllDegExact ? 1 : attriblength / nwp->nnodes;
-  bd->attribs = (int *) Calloc(attriblength, int);
-  bd->maxout  = (int *) Calloc(attriblength, int);
-  bd->maxin   = (int *) Calloc(attriblength, int);
-  bd->minout  = (int *) Calloc(attriblength, int);
-  bd->minin   = (int *) Calloc(attriblength, int);
+  bd->attribs = (int *) R_Calloc(attriblength, int);
+  bd->maxout  = (int *) R_Calloc(attriblength, int);
+  bd->maxin   = (int *) R_Calloc(attriblength, int);
+  bd->minout  = (int *) R_Calloc(attriblength, int);
+  bd->minin   = (int *) R_Calloc(attriblength, int);
 
   /* bound by degree by attribute per node */
   if (bd->attrcount)
@@ -105,12 +105,12 @@ DegreeBound* DegreeBoundInitialize(int *attribs, int *maxout, int *maxin,
 void DegreeBoundDestroy(DegreeBound *bd)
 {
   if(!bd) return;
-  Free(bd->attribs);
-  Free(bd->maxout);
-  Free(bd->minout);
-  Free(bd->maxin);
-  Free(bd->minin);
-  Free(bd);
+  R_Free(bd->attribs);
+  R_Free(bd->maxout);
+  R_Free(bd->minout);
+  R_Free(bd->maxin);
+  R_Free(bd->minin);
+  R_Free(bd);
 }
 
 
@@ -124,8 +124,8 @@ int CheckTogglesValid(DegreeBound *bd, MHProposal *MHp, Network *nwp) {
   if(!bd) return 1;
 
   /* *** don't forget when getting attributes that tail-> head */
-  int *tailattr = (int *) Calloc(bd->attrcount, int);
-  int *headattr = (int *) Calloc(bd->attrcount, int);
+  int *tailattr = (int *) R_Calloc(bd->attrcount, int);
+  int *headattr = (int *) R_Calloc(bd->attrcount, int);
 
   fvalid = 1;
 
@@ -208,8 +208,8 @@ int CheckTogglesValid(DegreeBound *bd, MHProposal *MHp, Network *nwp) {
     }
   }
 
-  Free(tailattr);
-  Free(headattr);
+  R_Free(tailattr);
+  R_Free(headattr);
 
   /* Undo proposed toggles (of edges(tail, head)) */
   for (i=0; i<MHp->ntoggles; i++)
@@ -233,8 +233,8 @@ int CheckConstrainedTogglesValid(DegreeBound *bd, MHProposal *MHp, Network *nwp)
   if (bd->fBoundDegByAttr && fvalid)
   {
     int k;
-    int *tailattr = (int *) Calloc(bd->attrcount, int);
-    int *headattr = (int *) Calloc(bd->attrcount, int);
+    int *tailattr = (int *) R_Calloc(bd->attrcount, int);
+    int *headattr = (int *) R_Calloc(bd->attrcount, int);
 
     if (nwp->directed_flag)
     {
@@ -305,8 +305,8 @@ int CheckConstrainedTogglesValid(DegreeBound *bd, MHProposal *MHp, Network *nwp)
         (headattr[k] < bd->minout[MHp->togglehead[i]-1+k*nwp->nnodes]) ;
 	    }
     }
-    Free(tailattr);
-    Free(headattr);
+    R_Free(tailattr);
+    R_Free(headattr);
   }
   /* Make proposed toggles (of edges (tail, head), not (head, tail) */
   for (i=0; i<MHp->ntoggles; i++)
