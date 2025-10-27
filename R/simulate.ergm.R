@@ -215,6 +215,9 @@
 #' # Starting from this network let's draw 3 realizations
 #' # of a edges and 2-star network
 #' #
+#' # Here, we also use control.simulate() to specify some MCMC
+#' # settings. We could also use more explicitly
+#' # control.simulate.formula() or snctrl().
 #' g.sim <- simulate(~edges+kstar(2), nsim=3, coef=c(-1.8,0.03),
 #'                basis=g.use, control=control.simulate(
 #'                  MCMC.burnin=1000,
