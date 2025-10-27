@@ -437,3 +437,17 @@ b2.size <- function(x) if(is.bipartite(x)) network.size(x) - b1.size(x) else FAL
 ## For handling skipping statistics.
 
 is.NA <- function(x) is.na(x) & !is.nan(x)
+
+## Enclose variable names with nonalphanumeric characters in them in
+## backticks.
+quote_var_name <- function(x) ifelse(grepl("[^a-zA-Z0-9._]", x), paste0("`", x, "`"), x)
+
+##
+
+strwrppst <- function(x, ..., parsep = "") {
+  paste0(
+    sapply(lapply(x, strwrap, ...),
+           paste0, "\n", collapse = ""),
+    collapse = parsep
+  )
+}

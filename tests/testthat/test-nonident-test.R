@@ -13,10 +13,12 @@ data(florentine)
 
 test_that("Nonidentifiable model produces a warning.", {
   warnpat <- ".*nodecov\\.-wealth/2\\+1.*\\bnonidentifiable\\b.*"
-  expect_warning(ergm(flomarriage~edges+nodecov(~wealth)+nodecov(~-wealth/2+1)), warnpat)
+  expect_warning(e1 <- ergm(flomarriage~edges+nodecov(~wealth)+nodecov(~-wealth/2+1)), warnpat)
   expect_warning(ergm(flomarriage~edges+nodecov(~wealth)+nodecov(~-wealth/2+1), control=control.ergm(init.method="CD")), warnpat)
   warns <- capture_warnings(ergm(flomarriage~edges+nodecov(~wealth)+nodecov(~-wealth/2+1)+gwesp(fixed=FALSE), control=control.ergm(MCMLE.maxit=1)))
   expect_match(warns, warnpat, all=FALSE)
+
+  expect_equal(alias(e1), matrix(c(2, -0.5, -1), 1L, 3L, dimnames = list(NULL, c("edges", "nodecov.wealth", "nodecov.-wealth/2+1"))))
 })
 
 test_that("Model identifiable only due to offsets does not.", {

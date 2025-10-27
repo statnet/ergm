@@ -247,10 +247,10 @@ ergm.MCMLE <- function(init, s, s.obs,
     if(is.const.sample(esteq) && !all(esteq==0))
       stop("Unconstrained MCMC sampling did not mix at all. Optimization cannot continue.")
 
-    check_nonidentifiability(esteq, NULL, model,
-                             tol = control$MCMLE.nonident.tol, type="statistics",
-                             nonident_action = control$MCMLE.nonident,
-                             nonvar_action = control$MCMLE.nonvar)
+    nonident <- check_nonidentifiability(esteq, NULL, model,
+                                         tol = control$MCMLE.nonident.tol, type="statistics",
+                                         nonident_action = control$MCMLE.nonident,
+                                         nonvar_action = control$MCMLE.nonvar)
 
     ##  Do the same, if observation process:
     if(obs){
@@ -329,7 +329,8 @@ ergm.MCMLE <- function(init, s, s.obs,
                 gradient=rep(NA,length=length(mcmc.init)), #acf=NULL,
                 samplesize=control$MCMC.samplesize, failure=TRUE,
                 newnetwork = s.returned[[1]],
-                newnetworks = s.returned)
+                newnetworks = s.returned,
+                lindep = nonident$lindep)
       return(l)
     } 
 
@@ -615,6 +616,7 @@ ergm.MCMLE <- function(init, s, s.obs,
   
   v$etamap <- model$etamap
   v$MCMCflag <- TRUE
+  v$lindep <- nonident$lindep
   v
 }
 

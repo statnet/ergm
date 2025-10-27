@@ -33,10 +33,15 @@ check_nonidentifiability <- function(x, theta, model, tol=1e-10, type=c("covaria
 
   v <- v[!nonvarying,!nonvarying]
 
-  q <- qr(v, tol=tol)
-  redundant <- q$pivot[-seq_len(q$rank)]
-  redundant_names <- param_names(model, canonical=FALSE, offset=FALSE)[redundant]
-  if(length(redundant)) msg[[nonident_action]] <- paste(c(msg[[nonident_action]], paste0("Model statistics ", paste.and(sQuote(redundant_names)), " are linear combinations of some set of preceding statistics at the current stage of the estimation. This may indicate that the model is nonidentifiable.")), collapse=" ")
+  lindep <- ergm_lindep(v, tol = tol)
+
+  if (nrow(lindep))
+    msg[[nonident_action]] <-
+      paste(c(msg[[nonident_action]],
+              paste0("The following linear dependence has been detected among the model statistics:\n",
+                     paste("  ", format(lindep), collapse = "\n"),
+                     "\nThis may indicate that the model is nonidentifiable.")),
+            collapse = " ")
 
   for(action in names(msg))
     if(!is.null(m <- msg[[action]]))
@@ -46,5 +51,79 @@ check_nonidentifiability <- function(x, theta, model, tol=1e-10, type=c("covaria
              message = message(m)
            )
 
-  invisible(list(qr=q, redundant=redundant, redundant_names=redundant_names, nonvarying=nonvarying, nonvarying_names=nonvarying_names))
+  invisible(list(lindep = lindep, nonvarying = nonvarying, nonvarying_names = nonvarying_names))
 }
+
+
+ergm_lindep <- function(m, tol) {
+  n <- min(dim(as.matrix(m)))
+  qr <- qr(m, tol = tol)
+  r <- qr.R(qr)
+  rindep <- r[seq_len(qr$rank), seq_len(qr$rank)]
+  rdep <- r[seq_len(qr$rank), -seq_len(qr$rank), drop = FALSE]
+
+  coefs <- matrix(NA, n - qr$rank, n, dimnames = list(NULL, colnames(m)))
+
+  coefs[, qr$pivot[seq_len(qr$rank)]] <- t(backsolve(rindep, rdep))
+  coefs[, qr$pivot[-seq_len(qr$rank)]] <- -diag(ncol(rdep))
+
+  structure(coefs, class = "ergm_lindep")
+}
+
+#' @noRd
+#' @export
+format.ergm_lindep <- function(x, ...) {
+  if (is.null(colnames(x))) {
+    colnames(x) <- paste0("x", seq_len(ncol(x)))
+  }
+
+  format_term <- function(coeff, var_name) {
+    frac <- as.character(MASS::fractions(abs(coeff)))
+    var_name <- quote_var_name(var_name)
+    if (frac == "1") var_name
+    else if (frac == "0") character(0)
+    else paste0(frac, " * ", var_name)
+  }
+
+  apply(x, 1, function(row) {
+    lhs <- c()
+    rhs <- c()
+    for (i in seq_along(row)) {
+      coeff <- row[i]
+      var_name <- colnames(x)[i]
+      term <- format_term(coeff, var_name)
+      if (coeff > 0) {
+        lhs <- c(lhs, term)
+      } else {
+        rhs <- c(rhs, term)
+      }
+    }
+
+    # Shorter set goes on the LHS.
+    if (length(lhs) > length(rhs)) {
+      tmp <- lhs
+      lhs <- rhs
+      rhs <- tmp
+    }
+
+    lhs_str <- if (length(lhs) > 0) paste(lhs, collapse = " + ") else "CONSTANT"
+    rhs_str <- if (length(rhs) > 0) paste(rhs, collapse = " + ") else "CONSTANT"
+    paste(lhs_str, "=", rhs_str)
+  })
+}
+
+#' @noRd
+#' @export
+print.ergm_lindep <- function(x, ...) {
+  cat(strwrppst("Detected linear dependence in ERGM sufficient statistics or estimating functions:"), "\n")
+  cat(strwrppst(format(x, ...), exdent = 2, parsep = "\n"))
+}
+
+#' @describeIn ergm Extract a matrix of detected linear dependence
+#'   among the model's sufficient statistics or estimating functions
+#'   (if curved). Each row, if any, contains coefficients for a linear
+#'   combination of the statistics that results in a constant. These
+#'   are pretty-printed as a series of equations.
+#'
+#' @export
+alias.ergm <- function(object, ...) object$lindep

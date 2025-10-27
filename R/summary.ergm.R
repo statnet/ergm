@@ -91,7 +91,8 @@ summary.ergm <- function (object, ...,
               independence=independence,
               estimate=object$estimate,
               estimate.desc=object$estimate.desc,
-              control=object$control)
+              control=object$control,
+              lindep = object$lindep)
   
   asycov <- vcov(object, sources=if(total.variation) "all" else "model")
   asyse <- sqrt(diag(asycov))
@@ -165,7 +166,7 @@ summary.ergm <- function (object, ...,
 #' @param eps.Pvalue \eqn{p}-values below this level will be printed
 #'   as "<`eps.Pvalue`".
 #' @param
-#'   print.formula,print.fitinfo,print.coefmat,print.message,print.deviances,print.drop,print.offset,print.call
+#'   print.formula,print.fitinfo,print.coefmat,print.message,print.deviances,print.drop,print.lindep,print.offset,print.call
 #'   which components of the fit summary to print.
 #'   
 #' @details The default printout of the summary object contains the
@@ -185,7 +186,10 @@ print.summary.ergm <- function (x,
               digits = max(3, getOption("digits") - 3),
               correlation=x$correlation, covariance=x$covariance,
               signif.stars= getOption("show.signif.stars"),
-              eps.Pvalue=0.0001, print.formula=FALSE, print.fitinfo=TRUE, print.coefmat=TRUE, print.message=TRUE, print.deviances=TRUE, print.drop=TRUE, print.offset=TRUE, print.call=TRUE,...){
+              eps.Pvalue = 0.0001, print.formula = FALSE, print.fitinfo = TRUE,
+              print.coefmat = TRUE, print.message = TRUE, print.deviances = TRUE,
+              print.drop = TRUE, print.offset = TRUE, print.call = TRUE,
+              print.lindep = TRUE, ...) {
   
   control <- x$control
 
@@ -231,22 +235,57 @@ print.summary.ergm <- function (x,
     }
   }
 
-  if(print.drop){
-    if(any(x$drop!=0)){
-      cat("\n Warning: The following terms have infinite coefficient estimates:\n  ")
-      cat(rownames(coef(x))[x$drop!=0], "\n")
-    }
-    if(any(!x$estimable)){
-      cat("\n Warning: The following terms could not be estimated because they conflicted with the sample space constraint:\n  ")
-      cat(rownames(coef(x))[!x$estimable], "\n")
-    }
-  }
+  short_list <- function(x) paste(x, collapse = ", ")
+  wrap_list <- function(x, indent = 3, exdent = 3) strwrap(x, indent = indent, exdent = exdent)
 
   if(print.offset){
     if(any(x$offset & x$drop==0 & x$estimable)){
-      cat("\n The following terms are fixed by offset and are not estimated:\n  ")
-      cat(rownames(coef(x))[x$offset & x$drop==0 & x$estimable], "\n\n")
+      cat("\n The following terms are fixed by offset and are not estimated:\n")
+      rownames(coef(x))[x$offset & x$drop==0 & x$estimable] |>
+        quote_var_name() |>
+        short_list() |>
+        wrap_list() |>
+        paste("\n") |>
+        cat("\n")
     }
+  }
+
+  warnings <- c()
+
+  wrap_head <- function(x) strwrap(x, exdent = 3, initial = " * ")
+
+  if(print.drop){
+    if (any(x$drop != 0))
+      warnings <- c(warnings, "",
+                    wrap_head("The following terms have infinite coefficient estimates due to an extreme sufficient statistic:"),
+                    "",
+                    rownames(coef(x))[x$drop != 0] |>
+                    quote_var_name() |>
+                    short_list() |>
+                    wrap_list())
+
+    if (any(!x$estimable))
+      warnings <- c(warnings, "",
+                    wrap_head("The following terms could not be estimated because they conflicted with the sample space constraint:"),
+                    "",
+                    rownames(coef(x))[!x$estimable] |>
+                    quote_var_name() |>
+                    short_list() |>
+                    wrap_list())
+  }
+
+  if (print.lindep) {
+    if(nrow(x$lindep) %||% 0)
+      warnings <- c(warnings, "",
+                    wrap_head("The following linear dependence has been detected among the model statistics and/or estimating functions:"),
+                    "",
+                    sapply(format(x$lindep), function(z) c(wrap_list(z, exdent = 5), "")) |> unlist()
+                    )
+  }
+
+  if(length(warnings)) {
+    cat("Warnings:\n")
+    cat(paste0(warnings, "\n", collapse = ""))
   }
 
   if(covariance == TRUE){

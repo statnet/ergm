@@ -183,10 +183,10 @@ ergm.mple<-function(s, s.obs, init=NULL,
 
   message("Finished MPLE.")
 
-  check_nonidentifiability(pl$xmat.full, theta, m,
-                           tol = control$MPLE.nonident.tol, type="covariates",
-                           nonident_action = control$MPLE.nonident,
-                           nonvar_action = control$MPLE.nonvar)
+  nonident <- check_nonidentifiability(pl$xmat.full, theta, m,
+                              tol = control$MPLE.nonident.tol, type="covariates",
+                              nonident_action = control$MPLE.nonident,
+                              nonvar_action = control$MPLE.nonvar)
 
   # Output results as ergm-class object
   structure(list(coefficients=theta,
@@ -198,7 +198,8 @@ ergm.mple<-function(s, s.obs, init=NULL,
         nobs = nobs, df = df, class="logLik"),
       mple.lik.null = structure(
         ERRVL2(logLik(mplefit.null), -mplefit.null$deviance/2),
-        nobs = nobs, df = df, class="logLik")
+        nobs = nobs, df = df, class="logLik"),
+      lindep = nonident$lindep
       ),
       class="ergm")
 }

@@ -28,6 +28,7 @@
   print.drop = TRUE,
   print.offset = TRUE,
   print.call = TRUE,
+  print.lindep = TRUE,
   ...
 )
 }
@@ -59,7 +60,7 @@ statistical significance. See \code{\link[=print.summary.lm]{print.summary.lm()}
 \item{eps.Pvalue}{\eqn{p}-values below this level will be printed
 as "<\code{eps.Pvalue}".}
 
-\item{print.formula, print.fitinfo, print.coefmat, print.message, print.deviances, print.drop, print.offset, print.call}{which components of the fit summary to print.}
+\item{print.formula, print.fitinfo, print.coefmat, print.message, print.deviances, print.drop, print.lindep, print.offset, print.call}{which components of the fit summary to print.}
 }
 \value{
 The returned object is a list of class "ergm.summary" with
