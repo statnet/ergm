@@ -31,11 +31,11 @@ extern "C" MH_P_FN(Mp_SPDyad){
   ErgmCppProposal<StoreDyadGenAndDegreeBoundAndModel> p(MHp);
   auto spcache = (StoreStrictDyadMapUInt *) p.aux_storage[0];
 
-  // With probability 1-MH_INPUTS[0], or if no dyad has any shared
+  // With probability 1-p.dinput[0], or if no dyad has any shared
   // partners, just fall back to TNT. This is OK to do because it is
   // impossible for the triadic proposal to produce a network with no
   // shared partners.
-  if(unif_rand() > MH_INPUTS[0]){
+  if(unif_rand() > p.dinput[0]){
     Mp_TNT(MHp, nwp);
     return;
   }else if(kh_size(spcache) == 0){
@@ -53,7 +53,7 @@ extern "C" MH_P_FN(Mp_SPDyad){
     /*   // Find out if we are jumping from 0-SP to a 1-SP state: if we */
     /*   // currently have 0 SP and are adding an edge... */
     /*     Rboolean SP01 = FALSE; // Indicator of whether the toggle will create an SP of an appropriate type. */
-    /*     switch(MH_IINPUTS[0]){ */
+    /*     switch(p.iinput[0]){ */
     /*     case L2UTP: */
     /*       SP01 = nw.degree[p.tail[0]] || nw.degree[p.head[0]]; break; */
     /*     case L2OTP: */
@@ -64,14 +64,14 @@ extern "C" MH_P_FN(Mp_SPDyad){
     /*     } */
     /*     if(!SP01) return; */
 
-    /*     MHp->logratio += log1p(-MH_INPUTS[0]) - log(DyadGenEdgecount(storage->gen)+1) */
+    /*     MHp->logratio += log1p(-p.dinput[0]) - log(DyadGenEdgecount(storage->gen)+1) */
     /*       - log(0.5) + log(storage->gen->ndyads); */
     /*     return; */
     /*   }else if(kh_size(spcache) == 1 && edgestate){ */
     /*   // Find out if we are jumping from 1-SP to a 0-SP state: if we */
     /*   // currently have 1 SP and are removing an edge... */
     /*     Rboolean SP10 = FALSE; // Indicator of whether the toggle will remove an SP of an appropriate type. */
-    /*     switch(MH_IINPUTS[0]){ */
+    /*     switch(p.iinput[0]){ */
     /*     case L2UTP: */
     /*       SP10 = (nw.degree[p.tail[0]] == 1) || (nw.degree[p.head[0]] == 1); break; */
     /*     case L2OTP: */
@@ -83,7 +83,7 @@ extern "C" MH_P_FN(Mp_SPDyad){
     /*     if(!SP10) return; */
 
     /*     MHp->logratio += log(0.5) - log(storage->gen->ndyads) */
-    /*       - log1p(-MH_INPUTS[0]) + log(DyadGenEdgecount(storage->gen)); */
+    /*       - log1p(-p.dinput[0]) + log(DyadGenEdgecount(storage->gen)); */
     /*     return; */
     /*   } */
     /* } */
