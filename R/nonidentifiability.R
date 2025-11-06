@@ -71,6 +71,7 @@ ergm_lindep <- function(m, tol) {
 }
 
 #' @noRd
+#' @importFrom MASS fractions
 #' @export
 format.ergm_lindep <- function(x, ...) {
   if (is.null(colnames(x))) {
@@ -78,7 +79,7 @@ format.ergm_lindep <- function(x, ...) {
   }
 
   format_term <- function(coeff, var_name) {
-    frac <- as.character(MASS::fractions(abs(coeff)))
+    frac <- as.character(fractions(abs(coeff)))
     var_name <- quote_var_name(var_name)
     if (frac == "1") var_name
     else if (frac == "0") character(0)
