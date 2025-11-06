@@ -27,6 +27,7 @@ sub_gof <- function(x) {
   # either no "model"s or "-model"s don't outnumber "model"s
   has_model <- sum(msigns[mnames == "model"]) >= 0
   terms <- terms[mnames != "model"]
+  mnames <- mnames[mnames != "model"]
 
   for (i in seq_along(terms))
     if (!is.null(rname <- as.list(GOF_TERMS)[[mnames[i], exact = FALSE]]))
@@ -642,6 +643,6 @@ InitErgmTerm..gof.triadcensus <- function(nw, arglist, ...) {
   arglist <- list(triadcensus)
   f <- InitErgmTerm.triadcensus
   term <- f(nw, arglist, ...)
-  term$coef.names <- paste0("triadcensus#", namestriadcensus)
+  term$coef.names <- paste0(".gof.triadcensus#", namestriadcensus)
   term
 }

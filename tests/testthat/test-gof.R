@@ -51,4 +51,9 @@ test_that("gof() defaults and GOF handling is correct for directed networks", {
   expect_silent(plot(gof))
   expect_setequal(which_gof(gof),
                   c("idegree"))
+
+  expect_silent(gof <- gof(fit, GOF=~model+triadcensus, control=ctrl4))
+  expect_silent(plot(gof))
+  expect_setequal(which_gof(gof),
+                  c("triadcensus", "model"))
 })
