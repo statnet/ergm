@@ -64,7 +64,7 @@ test_that("test search ergm constraint", {
 
   ## expect_equal(length(search.ergmConstraints(keywords = 'directed')), 16)
   expect_equal(length(search.ergmConstraints(keywords = 'directed', packages='blah')), 0)
-  expect_equal(length(search.ergmConstraints(keywords = 'directed', packages='ergm')), 16)
+  expect_equal(length(search.ergmConstraints(keywords = 'directed', packages='ergm')), 17)
 
   expect_gt(length(search.ergmConstraints(name = 'b1degrees', packages='ergm')), 0)
   expect_equal(length(search.ergmConstraints(name = 'b3degrees', packages='ergm')), 0)

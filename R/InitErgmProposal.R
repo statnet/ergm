@@ -41,7 +41,6 @@
 #        package: is "ergm"
 #
 ############################################################################
-DyadGenType <- list(RandDyadGen=0L, WtRandDyadGen=1L, RLEBDM1DGen=2L, EdgeListGen=3L)
 
 #' @templateVar name randomtoggle
 #' @aliases InitErgmProposal.randomtoggle
@@ -50,7 +49,8 @@ DyadGenType <- list(RandDyadGen=0L, WtRandDyadGen=1L, RLEBDM1DGen=2L, EdgeListGe
 #' @template ergmProposal-general
 NULL
 InitErgmProposal.randomtoggle <- function(arguments, nw){
-  list(name = "randomtoggle", dyadgen = ergm_dyadgen_select(arguments, nw), bd = ergm_bd_init(arguments, nw))
+  c(list(name = "randomtoggle", dyadgen = ergm_dyadgen_select(arguments, nw), bd = ergm_bd_init(arguments, nw)),
+    ergm_constrain_changestats(arguments))
 }
 
 #' @templateVar name TNT
@@ -63,7 +63,8 @@ InitErgmProposal.randomtoggle <- function(arguments, nw){
 #' @template ergmProposal-general
 NULL
 InitErgmProposal.TNT <- function(nw, arguments, ...){
-  list(name = "TNT", dyadgen = ergm_dyadgen_select(arguments, nw), bd = ergm_bd_init(arguments, nw))
+  c(list(name = "TNT", dyadgen = ergm_dyadgen_select(arguments, nw), bd = ergm_bd_init(arguments, nw)),
+    ergm_constrain_changestats(arguments))
 }
 
 #' @templateVar name BDStratTNT
@@ -404,9 +405,9 @@ InitErgmProposal.HammingTNT <- function(arguments, nw) {
 #' @template ergmProposal-general
 NULL
 InitErgmProposal.SPDyad <- function(arguments, nw) {
-  list(name = "SPDyad",
-       inputs = c(NVL(arguments$constraints$triadic$triFocus,0.25)),
-       iinputs = SPTYPE_CODE[arguments$constraints$triadic$type],
-       auxiliaries = .spcache.aux(arguments$constraints$triadic$type),
-       dyadgen = ergm_dyadgen_select(arguments, nw), bd = ergm_bd_init(arguments, nw))
+  c(list(name = "SPDyad",
+         inputs = c(NVL(arguments$constraints$triadic$triFocus,0.25)),
+         iinputs = SPTYPE_CODE[arguments$constraints$triadic$type],
+         dyadgen = ergm_dyadgen_select(arguments, nw), bd = ergm_bd_init(arguments, nw)),
+    ergm_constrain_changestats(arguments, .spcache.aux(arguments$constraints$triadic$type)))
 }

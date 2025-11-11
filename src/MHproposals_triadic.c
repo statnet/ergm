@@ -23,7 +23,7 @@ MH_I_FN(Mi_SPDyad){
 }
 
 MH_P_FN(Mp_SPDyad){
-  MH_GET_STORAGE(StoreDyadGenAndDegreeBound, storage);
+  MH_GET_STORAGE(StoreDyadGenAndDegreeBoundAndModel, storage);
   MH_GET_AUX_STORAGE(StoreStrictDyadMapUInt, spcache);
 
   // With probability 1-MH_INPUTS[0], or if no dyad has any shared
@@ -120,6 +120,8 @@ MH_P_FN(Mp_SPDyad){
     Mp_TNT(MHp, nwp);
     return;
   }
+
+  CHECK_CHANGESTATS(storage->m);
 
   // q(y* | y) = 1/TD(y), where TD(y) is the number of transitive
   // dyads in y.

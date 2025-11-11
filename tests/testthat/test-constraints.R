@@ -111,3 +111,35 @@ test_that("constraint conflict is detected", {
 
   expect_equal(coef(fit)[1],0, ignore_attr=TRUE)
 })
+
+test_that("ChangeStats() constraining a dyad-dependent statistic to 0", {
+  S <- 100
+  data(florentine)
+
+  flo0 <- flomarriage
+  flo0[,] <- 0
+
+  sim <- simulate(flo0 ~ edges + triangle, coef = c(0, 1), constraints = ~ChangeStats(~triangle), output = "stats", nsim = S)
+  expect_equal(sim[, 2], numeric(S))
+})
+
+test_that("ChangeStats() constraining a dyad-independent statistic falls back to Dyads()", {
+  S <- 100
+  data(sampson)
+
+  expect_message(sim <- simulate(samplike ~ edges, coef = 0, monitor = ~nodemix("group", levels2 = TRUE), constraints = ~ChangeStats(~nodematch("group")), output = "stats", nsim = S),
+                 ".*constraint formula is dyad-independent; falling back.*")
+
+  expect_equal(apply(sim, 2, sd)[c(2,6,10)], numeric(3), ignore_attr = TRUE)
+  expect_true(all(apply(sim, 2, sd)[-c(2,6,10)] > 0))
+})
+
+test_that("ChangeStats() constraining a dyad-independent statistic enforces", {
+  S <- 100
+  data(sampson)
+
+  sim <- expect_silent(simulate(samplike ~ edges, coef = 0, monitor = ~nodemix("group", levels2 = TRUE), constraints = ~ChangeStats(~nodematch("group"), FALSE), output = "stats", nsim = S))
+
+  expect_equal(apply(sim, 2, sd)[c(2,6,10)], numeric(3), ignore_attr = TRUE)
+  expect_true(all(apply(sim, 2, sd)[-c(2,6,10)] > 0))
+})

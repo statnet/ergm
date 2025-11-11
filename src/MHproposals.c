@@ -26,19 +26,19 @@
  Default MH algorithm with dyad generator API.
 *********************/
 MH_I_FN(Mi_randomtoggle){
-  INIT_DYADGEN_AND_DEGREE_BOUND(FALSE);
+  INIT_DYADGEN_AND_DEGREE_BOUND_AND_MODEL(FALSE);
   MHp->ntoggles = storage->gen->ndyads!=0 ? 1 : MH_FAILED;
 }
 
 MH_P_FN(MH_randomtoggle){
-  GET_STORAGE(StoreDyadGenAndDegreeBound, storage);
-  BD_LOOP(storage->bd, {
-      DyadGenRandDyad(Mtail, Mhead, storage->gen);
-    });
+  GET_STORAGE(StoreDyadGenAndDegreeBoundAndModel, storage);
+  DyadGenRandDyad(Mtail, Mhead, storage->gen);
+  CHECK_BD(storage->bd);
+  CHECK_CHANGESTATS(storage->m);
 }
 
 MH_F_FN(Mf_randomtoggle){
-  DESTROY_DYADGEN_AND_DEGREE_BOUND;
+  DESTROY_DYADGEN_AND_DEGREE_BOUND_AND_MODEL;
 }
 
 /********************
@@ -55,38 +55,42 @@ MH_F_FN(Mf_randomtoggle){
 ***********************/
 
 MH_I_FN(Mi_TNT){
-  INIT_DYADGEN_AND_DEGREE_BOUND(TRUE);
+  INIT_DYADGEN_AND_DEGREE_BOUND_AND_MODEL(TRUE);
   MHp->ntoggles = storage->gen->ndyads!=0 ? 1 : MH_FAILED;
 }
 
 MH_P_FN(Mp_TNT){
-  GET_STORAGE(StoreDyadGenAndDegreeBound, storage);
+  GET_STORAGE(StoreDyadGenAndDegreeBoundAndModel, storage);
 
   const double P=0.5, Q=1-P;
   double DP = P*storage->gen->ndyads, DO = DP/Q;
 
   Edge nedges = DyadGenEdgecount(storage->gen);
   double logratio=0;
-  BD_LOOP(storage->bd, {
-      if (unif_rand() < P && nedges > 0) { /* Select a tie at random from the network of eligibles */
-        DyadGenRandEdge(Mtail, Mhead, storage->gen);
-	logratio = TNT_LR_E(nedges, Q, DP, DO);
-      }else{ /* Select a dyad at random from the list */
-	DyadGenRandDyad(Mtail, Mhead, storage->gen);
-	
-	if(IS_OUTEDGE(Mtail[0],Mhead[0])){
-	  logratio = TNT_LR_DE(nedges, Q, DP, DO);
-	}else{
-	  logratio = TNT_LR_DN(nedges, Q, DP, DO);
-	}
-      }
-    });
+  bool edgestate;
+  if (unif_rand() < P && nedges > 0) { /* Select a tie at random from the network of eligibles */
+    DyadGenRandEdge(Mtail, Mhead, storage->gen);
+    logratio = TNT_LR_E(nedges, Q, DP, DO);
+    edgestate = true;
+  }else{ /* Select a dyad at random from the list */
+    DyadGenRandDyad(Mtail, Mhead, storage->gen);
+
+    if((edgestate = IS_OUTEDGE(Mtail[0],Mhead[0]))){
+      logratio = TNT_LR_DE(nedges, Q, DP, DO);
+    }else{
+      logratio = TNT_LR_DN(nedges, Q, DP, DO);
+    }
+  }
+
+  CHECK_BD(storage->bd);
+  CHECK_CHANGESTATS(storage->m, edgestate);
+
   MHp->logratio += logratio;
 }
 
 
 MH_F_FN(Mf_TNT){
-  DESTROY_DYADGEN_AND_DEGREE_BOUND;
+  DESTROY_DYADGEN_AND_DEGREE_BOUND_AND_MODEL;
 }
 
 /********************
@@ -452,22 +456,22 @@ MH_P_FN(MH_TNT10){
 
 
   double logratio = 0;
-  BD_LOOP(MH_STORAGE, {
-      logratio = 0;
-      for(unsigned int n = 0; n < 10; n++){
-	if (unif_rand() < P && nedges > 0) { /* Select a tie at random */
-	  GetRandEdge(Mtail, Mhead, nwp);
-	  logratio += TNT_LR_E(nedges, Q, DP, DO);
-	}else{ /* Select a dyad at random */
-	  GetRandDyad(Mtail+n, Mhead+n, nwp);
-	  if(IS_OUTEDGE(Mtail[n],Mhead[n])!=0){
-	    logratio += TNT_LR_DE(nedges, Q, DP, DO);
-	  }else{
-	    logratio += TNT_LR_DN(nedges, Q, DP, DO);
-	  }
-	} 
+  logratio = 0;
+  for(unsigned int n = 0; n < 10; n++){
+    if (unif_rand() < P && nedges > 0) { /* Select a tie at random */
+      GetRandEdge(Mtail, Mhead, nwp);
+      logratio += TNT_LR_E(nedges, Q, DP, DO);
+    }else{ /* Select a dyad at random */
+      GetRandDyad(Mtail+n, Mhead+n, nwp);
+      if(IS_OUTEDGE(Mtail[n],Mhead[n])!=0){
+        logratio += TNT_LR_DE(nedges, Q, DP, DO);
+      }else{
+        logratio += TNT_LR_DN(nedges, Q, DP, DO);
       }
-    });
+    }
+  }
+
+  CHECK_BD(MH_STORAGE);
   MHp->logratio += logratio;
 }
 
@@ -488,24 +492,25 @@ MH_F_FN(Mf_TNT10){
  datasets are sparse, so this is not likely to be an issue.
 *********************/
 MH_I_FN(Mi_ConstantEdges){
-  INIT_DYADGEN_AND_DEGREE_BOUND(TRUE);
+  INIT_DYADGEN_AND_DEGREE_BOUND_AND_MODEL(TRUE);
   Edge nedges = DyadGenEdgecount(storage->gen);
   MHp->ntoggles = nedges>0 && nedges<storage->gen->ndyads && storage->gen->ndyads>=2 ? 2 : MH_FAILED;
 }
 
 MH_P_FN(MH_ConstantEdges){  
-  GET_STORAGE(StoreDyadGenAndDegreeBound, storage);
-  
-  BD_LOOP(storage->bd, {
-      /* First, select edge at random */
-      DyadGenRandEdge(Mtail, Mhead, storage->gen);
-      /* Second, select non-edge at random */
-      DyadGenRandNonedge(Mtail+1, Mhead+1, storage->gen);
-    });
+  GET_STORAGE(StoreDyadGenAndDegreeBoundAndModel, storage);
+
+  /* First, select edge at random */
+  DyadGenRandEdge(Mtail, Mhead, storage->gen);
+  /* Second, select non-edge at random */
+  DyadGenRandNonedge(Mtail+1, Mhead+1, storage->gen);
+
+  CHECK_BD(storage->bd);
+  CHECK_CHANGESTATS(storage->m);
 }
 
 MH_F_FN(Mf_ConstantEdges){
-  DESTROY_DYADGEN_AND_DEGREE_BOUND;
+  DESTROY_DYADGEN_AND_DEGREE_BOUND_AND_MODEL;
 }
 
 

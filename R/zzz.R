@@ -59,8 +59,8 @@ eval(UPDATE_MY_SCTRL_EXPR)
 ## END boilerplate: should be kept in sync with statnet.common.
 
 .RegisterProposals <- function(){
-  ergm_proposal_table("c", "Bernoulli", "|.dyads|bd",  -2, "random", "randomtoggle")
-  ergm_proposal_table("c", "Bernoulli", "|.dyads|bd&sparse",  0, "TNT", "TNT")
+  ergm_proposal_table("c", "Bernoulli", "|.dyads|bd|changestats",  -2, "random", "randomtoggle")
+  ergm_proposal_table("c", "Bernoulli", "|.dyads|bd|changestats&sparse",  0, "TNT", "TNT")
   ergm_proposal_table("c", "Bernoulli", "|bdmax|blocks|strat&sparse",  -3, "BDStratTNT", "BDStratTNT")
   ergm_proposal_table("c", "Bernoulli", c("&bdmax|blocks|strat&sparse", "|bdmax&blocks|strat&sparse", "|bdmax|blocks&strat&sparse"),  5, "BDStratTNT", "BDStratTNT")
   ergm_proposal_table("c", "Bernoulli", "", -100, "TNT10", "TNT10")
@@ -79,7 +79,7 @@ eval(UPDATE_MY_SCTRL_EXPR)
   ergm_proposal_table("c", "Bernoulli", "&hamming&sparse",  0, "random", "HammingTNT")
   ergm_proposal_table("c", "Bernoulli", "&dyadnoise&sparse",  1, "TNT", "dyadnoiseTNT")
   ergm_proposal_table("c", "Bernoulli", "&dyadnoise",  0, "random", "dyadnoise")
-  ergm_proposal_table("c", "Bernoulli", "|.dyads|bd&sparse&triadic",  0, "TNT", "SPDyad")
+  ergm_proposal_table("c", "Bernoulli", "|.dyads|bd|changestats&sparse&triadic",  0, "TNT", "SPDyad")
 
   ergm_proposal_table("c", "StdNormal", "",  0, "random", "StdNormal")
   ergm_proposal_table("c", "StdNormal", "|.dyads",  0, "random", "DistRLE")

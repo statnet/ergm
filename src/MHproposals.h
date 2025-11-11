@@ -13,6 +13,7 @@
 #include "ergm_MHproposal.h"
 #include "ergm_MHproposal_bd.h"
 #include "ergm_dyadgen.h"
+#include "ergm_MHproposal_changestat.h"
 
 typedef struct{DyadGen *gen; DegreeBound *bd;} StoreDyadGenAndDegreeBound;
 
@@ -25,6 +26,20 @@ typedef struct{DyadGen *gen; DegreeBound *bd;} StoreDyadGenAndDegreeBound;
   GET_STORAGE(StoreDyadGenAndDegreeBound, storage);     \
   DyadGenDestroy(storage->gen);                         \
   DegreeBoundDestroy(storage->bd);
+
+typedef struct{DyadGen *gen; DegreeBound *bd; Model*m;} StoreDyadGenAndDegreeBoundAndModel;
+
+#define INIT_DYADGEN_AND_DEGREE_BOUND_AND_MODEL(el)                     \
+  ALLOC_STORAGE(1, StoreDyadGenAndDegreeBoundAndModel, storage);        \
+  storage->gen = DyadGenInitializeR(MHp->R, nwp, el);                   \
+  storage->bd = DegreeBoundInitializeR(MHp->R, nwp);                    \
+  GET_CHANGESTATS_MODEL(storage->m);
+
+#define DESTROY_DYADGEN_AND_DEGREE_BOUND_AND_MODEL              \
+  GET_STORAGE(StoreDyadGenAndDegreeBoundAndModel, storage);     \
+  DyadGenDestroy(storage->gen);                                 \
+  DegreeBoundDestroy(storage->bd);
+
 
 // Declared here so other routines can use it as a subroutine.
 MH_I_FN(Mi_TNT);

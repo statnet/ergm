@@ -250,7 +250,7 @@ InitErgmTerm.Label <- function(nw, arglist, ...){
 InitErgmTerm..submodel <- function(nw, arglist, ...){
   a <- check.ErgmTerm(nw, arglist,
                       varnames = c("formula"),
-                      vartypes = c("formula"),
+                      vartypes = c("formula,term_list"),
                       defaultvalues = list(NULL),
                       required = c(TRUE))
 

@@ -22,7 +22,7 @@
 #' @concept operator
 #' @concept directed
 #' @concept undirected
-InitErgmConstraint.Dyads<-function(nw, arglist, ...){
+InitErgmConstraint.Dyads<-function(nw, arglist, ..., verify_dind = TRUE){
   a <- check.ErgmTerm(nw, arglist,
                       varnames = c("fix", "vary"),
                       vartypes = c("formula", "formula"),
@@ -31,13 +31,14 @@ InitErgmConstraint.Dyads<-function(nw, arglist, ...){
   fix <- a$fix; vary <- a$vary
 
   if(is.null(fix) & is.null(vary))
-    ergm_Init_stop("Dyads constraint takes at least one argument, either ",sQuote("fix")," or ",sQuote("vary")," or both.")
+    ergm_Init_stop(sQuote("Dyads()"), " constraint takes at least one argument, either ",sQuote("fix"), " or ", sQuote("vary"), " or both.")
 
-  for(f in c(fix, vary)){
-    f[[3]] <- f[[2]]
-    f[[2]] <- nw
-    if(!is.dyad.independent(f)) ergm_Init_stop("Terms passed to the Dyads constraint must be dyad-independent.")
-  }
+  if (verify_dind)
+    for(f in c(fix, vary)){
+      f[[3]] <- f[[2]]
+      f[[2]] <- nw
+      if(!is.dyad.independent(f)) ergm_Init_stop("Terms passed to the ", sQuote("Dyads"), " constraint must be dyad-independent.")
+    }
 
   list(
     free_dyads = function(){
@@ -89,4 +90,82 @@ InitErgmConstraint.I <- function(nw, arglist, ...) {
                       required = c(TRUE))
 
   ergm_conlist(a$formula, nw, ...)
+}
+
+#' @templateVar name ChangeStats
+#' @title Specified statistics must remain constant
+#' @description This is an constraint operator that takes a [`ergmTerm`] formula, and prevents any changes to the network that modify its value. Unlike \ergmConstraint{ergm}{Dyads}{(fix = ...)}, the terms can be dyad-dependent and are calculated at the same time as the proposal rather than used to select proposable-dyads in the first place.
+#'
+#' @usage
+#' # ChangeStats(fix, check_dind = TRUE)
+#' @param fix an [`ergmTerm`] formula.
+#' @param check_dind logical; if `fix` turns out to be dyad-independent, fall back to \ergmConstraint{ergm}{Dyads}{(fix)}.
+#'
+#' @section Dyadic dependence:
+#'
+#' If the constraint is dyad-independent, \ergmConstraint{ergm}{Dyads}{(fix)} will usually be faster (at least for estimation) and will make MPLE far more accurate, so if `ChangeStats` detects a dyad-independent constraint, it will fall back to `Dyads`. This can be overridden by setting `check_dind = FALSE`.
+#'
+#' @section Sampleability is not guaranteed:
+#'
+#' It is perfectly possible for this constraint to make sampling impossible. For example, `ChangeStats(~edges)` will prevent any proposals that change the number of edges in the network, but \pkg{ergm} has no way of knowing that two toggles (edge and non-edge) are now required, so it will keep trying making proposals and failing.
+#'
+#' More insidiously, it is in principle possible for the constraint to split the sample space into two parts such that it is not possible to go between them without passing through a state that breaks the constraint.
+#'
+#' Thus, it is recommended to use this constraint to, e.g., prevent certain motifs from forming.
+#'
+#'
+#' @template ergmConstraint-general
+#'
+#' @concept operator
+#' @concept directed
+#' @concept undirected
+InitErgmConstraint.ChangeStats <- function(nw, arglist, ...) {
+  a <- check.ErgmTerm(nw, arglist,
+                      varnames = c("fix", "check_dind"),
+                      vartypes = c("formula", "logical"),
+                      defaultvalues = list(NULL, TRUE),
+                      required = c(TRUE, FALSE))
+
+  if(a$check_dind) {
+    f <- a$fix
+    f[[3]] <- f[[2]]
+    f[[2]] <- nw
+    if(is.dyad.independent(f)) {
+      message(sQuote("ChangeStats()"), " constraint formula is dyad-independent; falling back to ", sQuote("Dyads()"), ".")
+      return(InitErgmConstraint.Dyads(nw, arglist, ..., verify_dind = FALSE))
+    }
+  }
+
+
+  list(
+    fix = a$fix,
+    dependence = TRUE,
+    constrain = "changestats"
+  )
+}
+
+EMPTY_TERM_LIST <- term_list(~.)[-1]
+
+ergm_constrain_changestats <- function(arguments,
+                                       aux_before = EMPTY_TERM_LIST,
+                                       aux_after = EMPTY_TERM_LIST) {
+  conlist <- arguments$constraints
+  terms <- if (hasName(conlist, "changestats"))
+             conlist[names(conlist) == "changestats"] |>
+               map("fix") |>
+               map(list_rhs.formula) |>
+               unname() |>
+               do.call(c, args = _)
+           else EMPTY_TERM_LIST
+
+  if (is(aux_before, "formula")) aux_before <- list_rhs.formula(aux_before)
+  if (is(aux_after, "formula")) aux_after <- list_rhs.formula(aux_after)
+
+  list(
+    auxiliaries =
+      c(aux_before,
+        list_rhs.formula(~.submodel(terms)),
+        aux_after),
+    ChangeStat_pos = length(aux_before)
+  )
 }

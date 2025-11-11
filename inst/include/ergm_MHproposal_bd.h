@@ -50,4 +50,11 @@ int CheckConstrainedTogglesValid(DegreeBound *bd, MHProposal *MHp, Network *nwp)
     MHp->togglehead[0]=MH_CONSTRAINT;                                   \
   }
 
+#define CHECK_BD(bd)                                                    \
+  if (!CheckTogglesValid(bd, MHp, nwp)) {                               \
+    MHp->toggletail[0] = MH_FAILED;                                     \
+    MHp->togglehead[0] = MH_CONSTRAINT;                                 \
+    return;                                                             \
+  }
+
 #endif
