@@ -131,6 +131,24 @@ InitWtErgmTerm..binary.formula.net <- function(nw, arglist, ...){
 
 # Arguments and outputs are identical to the binary version, except for the C routine names.
 
+InitWtErgmTerm..submodel <- function(...){
+  # Rename the function to avoid the extra nesting level in the
+  # diagnostic messages.
+  f <- InitErgmTerm..submodel
+  term <- f(...)
+  term$name <- "_Wtsubmodel_term"
+  term
+}
+
+InitWtErgmTerm.submodel.test <- function(...){
+  # Rename the function to avoid the extra nesting level in the
+  # diagnostic messages.
+  f <- InitErgmTerm.submodel.test
+  term <- f(...)
+  term$name <- "_Wtsubmodel_test_term"
+  term
+}
+
 #' @templateVar name Symmetrize
 #' @template ergmTerm-rdname
 #' @usage

@@ -12,32 +12,6 @@
 #include "ergm_changestats_operator.h"
 #include "ergm_util.h"
 
-/* .submodel(formula) */
-
-I_CHANGESTAT_FN(i__submodel_term){
-  // No need to allocate it: we are only storing a pointer to a model.
-  AUX_STORAGE = ModelInitialize(getListElement(mtp->R, "submodel"), NULL,  nwp, FALSE);
-}
-
-F_CHANGESTAT_FN(f__submodel_term){
-  GET_AUX_STORAGE(Model, m);
-
-  ModelDestroy(nwp, m);
-
-  AUX_STORAGE=NULL;
-}
-
-/* submodel.test(formula) */
-
-D_CHANGESTAT_FN(d_submodel_test_term){
-  GET_AUX_STORAGE(Model, m);
-
-  double *tmp = m->workspace;
-  m->workspace = CHANGE_STAT;
-  ChangeStats(ntoggles, tails, heads, nwp, m);
-  m->workspace = tmp;
-}
-
 /* .summary(formula) */
 
 

@@ -59,6 +59,34 @@ ETYPE(F_CHANGESTAT_FN)(ETYPE(f_, passthrough_term)){
 }
 
 
+/* .submodel(formula) */
+
+ETYPE(I_CHANGESTAT_FN)(ETYPE(i_, _submodel_term)){
+  // No need to allocate it: we are only storing a pointer to a model.
+  AUX_STORAGE = ETYPE(ModelInitialize)(getListElement(mtp->R, "submodel"), NULL,  nwp, FALSE);
+}
+
+ETYPE(F_CHANGESTAT_FN)(ETYPE(f_, _submodel_term)){
+  GET_AUX_STORAGE(ETYPE(Model), m);
+
+  ETYPE(ModelDestroy)(nwp, m);
+
+  AUX_STORAGE=NULL;
+}
+
+
+/* submodel.test(formula) */
+
+ETYPE(D_CHANGESTAT_FN)(ETYPE(d_, submodel_test_term)){
+  GET_AUX_STORAGE(ETYPE(Model), m);
+
+  double *tmp = m->workspace;
+  m->workspace = CHANGE_STAT;
+  ETYPE(ChangeStats)(ntoggles, tails, heads, IFEWT(weights,) nwp, m);
+  m->workspace = tmp;
+}
+
+
 /* .submodel_and_summary(formula) */
 
 ETYPE(I_CHANGESTAT_FN)(ETYPE(i__, submodel_and_summary_term)){
@@ -72,7 +100,7 @@ ETYPE(I_CHANGESTAT_FN)(ETYPE(i__, submodel_and_summary_term)){
   ETYPE(SummStats)(0, NULL, NULL, IFEWT(NULL,) nwp, m);
   memcpy(storage->stats, m->workspace, m->n_stats*sizeof(double));
 
-  DELETE_IF_UNUSED_IN_SUBMODEL(z_func, m);
+  ETYPE(DELETE_IF_UNUSED_IN_SUBMODEL)(z_func, m);
 }
 
 ETYPE(U_CHANGESTAT_FN)(ETYPE(u__, submodel_and_summary_term)){
