@@ -203,7 +203,7 @@ the network(s) themselves. Deprecated in favor of \verb{output=}.}
 \item{esteq}{Logical: If TRUE, compute the sample estimating equations of an
 ERGM: if the model is non-curved, all non-offset statistics are returned
 either way, but if the model is curved, the score estimating function values
-(3.1) by Hunter and Handcock (2006) are returned instead.}
+(3.1) by \insertCite{HuHa06i;textual}{ergm} are returned instead.}
 
 \item{output}{Normally character, one of \code{"network"} (default),
 \code{"stats"}, \code{"edgelist"}, or \code{"ergm_state"}: determines the output

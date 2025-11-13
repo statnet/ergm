@@ -11,7 +11,7 @@
 This term adds one network statistic to the model equaling the sum over
 the actors of each actor's degree taken to the 3/2 power (or,
 equivalently, multiplied by its square root). This term is an
-undirected analog to the terms of Snijders et al. (2010), equations
+undirected analog to the terms of \insertCite{SnVa10i;textual}{ergm}, equations
 (11) and (12). This term can only be used with undirected networks.
 }
 \seealso{

@@ -50,8 +50,8 @@ is.ergm(object)
 \code{\link[network:network]{network}} object or a matrix that can be
 coerced to a \code{\link[network:network]{network}} object.  For the
 details on the possible \code{<model terms>}, see
-\code{\link{ergmTerm}} and Morris, Handcock and Hunter (2008)
-for binary ERGM terms and Krivitsky (2012) for valued ERGM terms
+\code{\link{ergmTerm}} and \insertCite{MoHa08s}{ergm}
+for binary ERGM terms and \insertCite{Kr12e}{ergm} for valued ERGM terms
 (terms for weighted edges).  To create a
 \code{\link[network:network]{network}} object in \R, use the
 \code{network()} function, then add nodal attributes to it using
@@ -107,8 +107,8 @@ specified by \code{constraints}, following the same syntax as the
 \code{constraints} argument.
 
 This allows the domain of the integral in the numerator of the
-partially obseved network face-value likelihoods of Handcock and
-Gile (2010) and Karwa et al. (2017) to be specified explicitly.
+partially obseved network face-value likelihoods of
+\insertCite{HaGi10m}{ergm} and \insertCite{KaKr16s}{ergm} to be specified explicitly.
 
 The default is to constrain the integral to only integrate over
 the missing dyads (if present), after incorporating constraints
@@ -293,7 +293,7 @@ normalizing constant for the distribution.
 estimate, an approximate maximum likelihood estimate based on a Monte
 Carlo scheme, or an approximate contrastive divergence estimate based
 on a similar scheme.
-(For an overview of the package \insertCite{HuHa08e,KrHu23e}{ergm}, see \CRANpkg{ergm}.)
+(For an overview of the package \insertCite{HuHa08e,KrHu23e;nobrackets}{ergm}, see \CRANpkg{ergm}.)
 }
 \details{
 \insertNoCite{AdHa07n,BeMo08p,Bu08sna,Bu08net,GoHa08s,GoKi09b,Ha03a,Ha03deg,HaGi10m,HuHa08e,HaHu08s,HuHa06i,KaKr16s,Kr12e,MoHa08s,Sn02m}{ergm}

@@ -524,7 +524,7 @@ InitErgmConstraint.fixallbut<-function(nw, arglist,...){
 #'
 #' @template ergmConstraint-general
 #'
-#' @note See Karwa et al. (2016) for an application.
+#' @note See \insertCite{KaKr16s;textual}{ergm} for an application.
 #' @concept soft
 #' @concept dyad-independent
 #' @concept directed

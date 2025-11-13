@@ -18,7 +18,7 @@
 #' \eqn{p} by \eqn{q} Jacobian matrix of the mapping from curved
 #' parameters to natural parmeters.  If the model is linear, all
 #' non-offset statistics are passed. If the model is curved, the score
-#' estimating equations (3.1) by Hunter and Handcock (2006) are given
+#' estimating equations (3.1) by \insertCite{HuHa06i;textual}{ergm} are given
 #' instead.
 #'
 #' @param stats An object representing sample statistics with observed values subtracted out.

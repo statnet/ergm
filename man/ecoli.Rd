@@ -7,8 +7,8 @@
 \alias{ecoli2}
 \title{Two versions of an E. Coli network dataset}
 \source{
-The data set is based on the RegulonDB network (Salgado et al, 2001)
-and was modified by Shen-Orr et al (2002).
+The data set is based on the RegulonDB network of \insertCite{SaSu01r;textual}{ergm}
+and was modified by \insertCite{ShSh02n;textual}{ergm}.
 }
 \usage{
 data(ecoli)
@@ -25,12 +25,10 @@ The object \code{ecoli2} is an undirected version of the same network, in
 which all arcs are treated as edges and the five isolated nodes (which
 exhibit only self-regulation in \code{ecoli1}) are removed, leaving 418
 nodes.
-
-\insertNoCite{SaSu01r,ShSh02n}{ergm}
 }
 \section{Licenses and Citation}{
  When publishing results obtained using this
-data set, the original authors (Salgado et al, 2001; Shen-Orr et al, 2002)
+data set, the original authors \insertCite{SaSu01r,ShSh02n}{ergm}
 should be cited, along with this \code{R} package.
 }
 

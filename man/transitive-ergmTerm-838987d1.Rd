@@ -11,7 +11,7 @@
 This term adds one statistic to the model, equal to the number of triads in
 the network that are transitive. The transitive triads are those of type
 \verb{120D} , \verb{030T} , \verb{120U} , or \code{300} in the categorization
-of Davis and Leinhardt (1972). For details on the 16 possible triad types,
+of \insertCite{DaLe72s;textual}{ergm}. For details on the 16 possible triad types,
 see \code{?triad.classify} in the \CRANpkg{sna} package.
 Note the distinction from the \code{ttriple} term. This term can only be
 used with directed networks.

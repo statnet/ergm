@@ -7,18 +7,18 @@
 \alias{flomarriage}
 \title{Florentine Family Marriage and Business Ties Data as a "network" object}
 \source{
-Padgett and Johnson (1994).
+\insertCite{PaJo94m}{ergm}.
 }
 \usage{
 data(florentine)
 }
 \description{
 This is a data set of marriage and business ties among Renaissance
-Florentine families. The data is originally from Padgett (1994) via
+Florentine families. The data is originally from \insertCite{PaJo94m;textual}{ergm} via
 \code{UCINET} and stored as a \code{\link[network:network]{network}} object.
 }
 \details{
-Breiger & Pattison (1986), in their discussion of local role analysis, use
+\insertCite{BrPa86c;textual}{ergm}, in their discussion of local role analysis, use
 a subset of data on the social relations among Renaissance Florentine
 families (person aggregates) collected by John Padgett from historical
 documents. The two relations are business ties (\code{flobusiness} -
@@ -34,14 +34,14 @@ vertex information on (1) \code{wealth} each family's net wealth in 1427 (in
 thousands of lira); (2) \code{priorates} the number of priorates (seats on
 the civic council) held between 1282- 1344; and (3) \code{totalties} the
 total number of business or marriage ties in the total dataset of 116
-families (see Breiger & Pattison (1986), p 239).
+families (see \insertCite{BrPa86c;nobrackets}{ergm}, p 239).
 
 Substantively, the data include families who were locked in a struggle for
 political control of the city of Florence around 1430. Two factions were
 dominant in this struggle: one revolved around the infamous Medicis (9), the
 other around the powerful Strozzis (15).
 
-\insertNoCite{WaFa94s,BrPa86c,PaJo94m}{ergm}
+\insertNoCite{WaFa94s}{ergm}
 }
 \references{
 \insertAllCited{}

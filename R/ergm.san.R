@@ -15,8 +15,7 @@
 #'
 #' \insertNoCite{KrHu23e}{ergm}
 #' 
-#' @details The following description is an exegesis of section 4 of Krivitsky
-#'   et al. (2022).
+#' @details The following description is an exegesis of section 4 of \insertCite{KrHu23e;textual}{ergm}.
 #' 
 #'   Let \eqn{\mathbf{g}}{g} be a vector of target statistics for the
 #'   network we wish to construct. That is, we are given an arbitrary network

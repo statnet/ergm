@@ -20,7 +20,7 @@ geometric mean ( \code{"geomean"} )}
 }
 \description{
 This statistic implements the cyclical weights
-statistic, like that defined by Krivitsky (2012), Equation 13,
+statistic, like that defined by \insertCite{Kr12e;textual}{ergm}, Equation 13,
 but with the focus dyad being \eqn{y_{j,i}} rather than
 \eqn{y_{i,j}} . For each option,
 the first (and the default) is more stable but also more

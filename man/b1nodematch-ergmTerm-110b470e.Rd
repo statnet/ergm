@@ -30,7 +30,7 @@ attributes and Levels (\code{\link[=nodal_attributes]{?nodal_attributes}}) for d
 }
 \description{
 This term is introduced
-in \insertCite{BoBa23m}{ergm}. With the default \code{alpha} and \code{beta} values, this term will
+in \insertCite{BoBa23m;textual}{ergm}. With the default \code{alpha} and \code{beta} values, this term will
 simply be a homophily based two-star statistic. This term adds one statistic to the model
 unless \code{diff} is set to \code{TRUE} , in which case the term adds multiple network
 statistics to the model, one for each of (a subset of) the unique values of the \code{attr}

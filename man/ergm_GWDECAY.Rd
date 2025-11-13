@@ -11,7 +11,7 @@ An object of class \code{list} of length 3.
 ergm_GWDECAY
 }
 \description{
-This is a list containing \code{map} and \code{gradient} for the weights described by Hunter (2007).
+This is a list containing \code{map} and \code{gradient} for the weights described by \insertCite{Hu07c;textual}{ergm}.
 
 \insertNoCite{Hu07c}{ergm}
 }

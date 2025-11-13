@@ -76,7 +76,7 @@
 #' @param esteq Logical: If TRUE, compute the sample estimating equations of an
 #' ERGM: if the model is non-curved, all non-offset statistics are returned
 #' either way, but if the model is curved, the score estimating function values
-#' (3.1) by Hunter and Handcock (2006) are returned instead.
+#' (3.1) by \insertCite{HuHa06i;textual}{ergm} are returned instead.
 #' 
 #' @param output Normally character, one of `"network"` (default),
 #'   `"stats"`, `"edgelist"`, or `"ergm_state"`: determines the output

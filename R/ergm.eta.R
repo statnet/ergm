@@ -20,11 +20,9 @@
 #' model. In non-curved models, we may assume without loss of generality that
 #' eta(theta)=theta.
 #'
-#' \insertNoCite{HuHa06i,Hu07c}{ergm}
-#' 
 #' A succinct description of how eta(theta) is incorporated into an ERGM is
-#' given by equation (5) of Hunter (2007).  See Hunter and Handcock (2006) and
-#' Hunter (2007) for further details about how eta and its derivatives are used
+#' given by equation (5) of \insertCite{Hu07c;textual}{ergm}.  See \insertCite{HuHa06i;textual}{ergm} and
+#' \insertCite{Hu07c;textual}{ergm} for further details about how eta and its derivatives are used
 #' in the estimation process.
 #' 
 #' @param theta the curved model parameters

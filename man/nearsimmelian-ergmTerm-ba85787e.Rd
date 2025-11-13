@@ -9,7 +9,7 @@
 }
 \description{
 This term adds one statistic to the model equal to the number of near
-Simmelian triads, as defined by Krackhardt and Handcock (2007). This is a
+Simmelian triads, as defined by \insertCite{KrHa07h;textual}{ergm}. This is a
 sub-graph of size three which is exactly one tie short of being complete.
 }
 \note{

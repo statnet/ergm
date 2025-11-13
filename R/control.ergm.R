@@ -27,7 +27,7 @@
 #'
 #' \item{`MCMLE`}{Monte-Carlo MLE \insertCite{HuHa06i,HuHu12i}{ergm}}
 #'
-#' \item{`SA`}{Stochastic Approximation via Robbins--Monro \insertCite{RoMo51s,Sn02m}{ergm}}
+#' \item{`SA`}{Stochastic Approximation via Robbins--Monro \insertCite{RoMo51s,Sn02m;textual}{ergm}}
 #'
 #' \item{`SAN`}{Simulated Annealing used when `target.stats` are specified for [ergm()]}
 #'
@@ -96,8 +96,8 @@
 #'   yields the MLE in the case of an exponential family model. The
 #'   direct use of the likelihood function has many theoretical
 #'   advantages over stochastic approximation, but the choice will
-#'   depend on the model and data being fit. See Handcock (2000) and
-#'   Hunter and Handcock (2006) for details.
+#'   depend on the model and data being fit. See
+#'   \insertCite{HuHa06i}{ergm} for details.
 #'
 #' @param force.main Logical: If TRUE, then force MCMC-based estimation method,
 #' even if the exact MLE can be computed via maximum pseudolikelihood
@@ -126,7 +126,7 @@
 #' @param MPLE.type One of `"glm"`, `"penalized"`, or
 #' `"logitreg"`.  Chooses method of calculating MPLE.  `"glm"` is the
 #' usual formal logistic regression called via [glm()], whereas
-#' `"penalized"` uses the bias-reduced method of Firth (1993) as
+#' `"penalized"` uses the bias-reduced method of \insertCite{Fi93b;textual}{ergm} as
 #' originally implemented by Meinhard Ploner, Daniela Dunkler, Harry
 #' Southworth, and Georg Heinze in the "logistf" package. `"logitreg"` is
 #' an "in-house" implementation that is slower and probably less stable but
@@ -231,7 +231,7 @@
 #' estimation:
 #' * `"Hummel"` Terminate when the Hummel step length is
 #' 1 for two consecutive iterations. For the last iteration, the sample size is
-#' boosted by a factor of \code{MCMLE.last.boost}. See Hummel et. al. (2012).
+#' boosted by a factor of \code{MCMLE.last.boost}. See \insertCite{HuHu12i;textual}{ergm}.
 #'
 #' Note that this criterion is incompatible with \code{MCMLE.steplength}
 #' \eqn{\ne} 1 or \code{MCMLE.steplength.margin} \eqn{=} \code{NULL}.
@@ -327,7 +327,7 @@
 #' If effective sample size is used (see \code{MCMC.effectiveSize}), then ergm
 #' may increase the target ESS to reduce the MCMC standard error.
 #' @param MCMLE.metric Method to calculate the loglikelihood approximation.
-#' See Hummel et al (2010) for an explanation of "lognormal" and "naive".
+#' See \insertCite{HuHu12i;textual}{ergm} for an explanation of "lognormal" and "naive".
 #' @param MCMLE.method Deprecated. By default, ergm uses \code{trust}, and
 #' falls back to \code{optim} with Nelder-Mead method when \code{trust} fails.
 #' @param MCMLE.dampening (logical) Should likelihood dampening be used?
@@ -346,8 +346,7 @@
 #'   make fitting more stable at the cost of computational efficiency.
 #'
 #'   If \code{MCMLE.steplength.margin} is not \code{NULL}, the step
-#'   length will be set using the algorithm of Hummel et
-#'   al. (2010). In that case, it will serve as the maximum step
+#'   length will be set using the algorithm of \insertCite{HuHu12i;textual}{ergm}. In that case, it will serve as the maximum step
 #'   length considered. However, setting it to anything other than 1
 #'   will preclude using Hummel or precision as termination criteria.
 #'
@@ -429,24 +428,24 @@
 #'   parameters `q`, number of free canonical statistic `p`, and
 #'   network size `n`, giving the number of MCMC samples to draw in
 #'   Phase 1 of the stochastic approximation algorithm.  Defaults to
-#'   \eqn{\max(200, 7+3p)}.  See Snijders (2002) for details.
+#'   \eqn{\max(200, 7+3p)}.  See \insertCite{Sn02m;textual}{ergm} for details.
 #'
 #' @param SA.initial_gain Initial gain to Phase 2 of the stochastic
-#'   approximation algorithm. Defaults to 0.1. See Snijders (2002) for
+#'   approximation algorithm. Defaults to 0.1. See \insertCite{Sn02m;textual}{ergm} for
 #'   details.
 #' @param SA.nsubphases Number of sub-phases in Phase 2 of the
 #'   stochastic approximation algorithm.  Defaults to
-#'   \code{MCMLE.maxit}.  See Snijders (2002) for details.
+#'   \code{MCMLE.maxit}.  See \insertCite{Sn02m;textual}{ergm} for details.
 #'
 #' @param SA.min_iterations,SA.max_iterations A constant or a function
 #'   of number of free parameters `q`, number of free canonical
 #'   statistic `p`, and network size `n`, giving the baseline numbers
 #'   of iterations within each subphase of Phase 2 of the stochastic
 #'   approximation algorithm. Default to \eqn{7+p} and \eqn{207+p},
-#'   respectively.  See Snijders (2002) for details.
+#'   respectively.  See \insertCite{Sn02m;textual}{ergm} for details.
 #'
 #' @param SA.phase3_n Sample size for the MCMC sample in Phase 3 of
-#'   the stochastic approximation algorithm.  See Snijders (2002) for
+#'   the stochastic approximation algorithm.  See \insertCite{Sn02m;textual}{ergm} for
 #'   details.
 #'
 #' @param CD.nsteps,CD.multiplicity Main settings for contrastive
@@ -497,7 +496,7 @@
 #' [control.gof()] performs a similar function for [gof()].
 #' @references \insertAllCited{}
 #'
-#' * Firth (1993), Bias Reduction in Maximum Likelihood Estimates.
+#' * \insertCite{Fi93b}{ergm}, Bias Reduction in Maximum Likelihood Estimates.
 #' Biometrika, 80: 27-38.
 #'
 #'

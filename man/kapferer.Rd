@@ -14,8 +14,7 @@ reflect data collected during the first period.  The individuals' names are
 included as a nodal covariate called \code{names}.
 }
 \source{
-Original source: Kapferer, Bruce (1972), Strategy and Transaction in
-an African Factory, Manchester University Press.
+Original source: \insertCite{Ka72s}{ergm}.
 }
 \usage{
 data(kapferer)
@@ -41,9 +40,9 @@ times of personal crisis and help at work."
 
 Kapferer also observed and recorded instrumental transactions, many of which
 are unilateral (directed) rather than reciprocal (undirected), though those
-transactions are not recorded here.  In addition, there was a second period
+transactions are not recorded here.  However, there was a second period
 of data collection, from September 1965 to January 1966, but these data are
-also not recorded here.  All data are given in Kapferer's 1972 book on pp.
+also not recorded here.  All data are given in \insertCite{Ka72s;textual}{ergm} on pp.
 176-179.
 
 During the first time period, there were 43 individuals working in this

@@ -14,7 +14,7 @@ attributes and Levels (\code{\link[=nodal_attributes]{?nodal_attributes}}) for d
 \description{
 For a directed network, this term adds one network statistic for each of
 an arbitrary subset of the 16 possible types of triads categorized by
-Davis and Leinhardt (1972) as \verb{003, 012, 102, 021D, 021U, 021C, 111D, } \verb{	111U, 030T, 030C, 201, 120D, 120U, 120C, 210,} and \code{300} . Note that at
+\insertCite{DaLe72s;textual}{ergm} as \verb{003, 012, 102, 021D, 021U, 021C, 111D, } \verb{	111U, 030T, 030C, 201, 120D, 120U, 120C, 210,} and \code{300} . Note that at
 least one category should be dropped; otherwise a linear dependency will
 exist among the 16 statistics, since they must sum to the total number of
 three-node sets. By default, the category \code{003} , which is the category

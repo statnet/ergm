@@ -13,7 +13,7 @@
 
 \item{fixed}{indicates whether the \code{decay} parameter is
 fixed at the given value, or is to be fit as a curved exponential family model
-(see Hunter and Handcock, 2006).  The default is \code{FALSE}, which means the scale
+(see \insertCite{HuHa06i;nobrackets}{ergm}).  The default is \code{FALSE}, which means the scale
 parameter is not fixed and thus the model is a CEF model.}
 }
 \description{
@@ -21,13 +21,13 @@ Add one network statistic to the model equal to a weighted alternating
 sequence of \eqn{k}-star statistics with weight parameter \code{lambda}.
 }
 \details{
-This is the version given in Snijders et al. (2006). The \code{gwdegree} and
+This is the version given by \insertCite{SnPa06n;textual}{ergm}. The \code{gwdegree} and
 \code{altkstar} produce mathematically equivalent models, as long as they are used
 together with the \code{edges} (or \code{kstar(1)}) term, yet the interpretation of the
 \code{gwdegree} parameters is slightly more straightforward than the interpretation
 of the \code{altkstar} parameters. For this reason, we recommend the use of the
 \code{gwdegree} instead of \code{altkstar}. See Section 3 and especially equation (13)
-of Hunter (2007) for details.
+of \insertCite{Hu07c;textual}{ergm} for details.
 }
 \note{
 This term can only be used with undirected networks.

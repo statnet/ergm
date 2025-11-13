@@ -207,7 +207,7 @@ ergm.mple<-function(s, s.obs, init=NULL,
 #' Test whether the MPLE exists
 #'
 #' The \code{mple.existence} function tests whether the MPLE actually exists. The code
-#' applies the approach introduced by Konis (2007).
+#' applies the approach introduced by \insertCite{Ko07l;textual}{ergm}.
 #'
 #' \insertNoCite{Ko07l}{ergm}
 #'

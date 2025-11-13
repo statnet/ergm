@@ -22,9 +22,9 @@ file \code{LICENSE} and \url{https://statnet.org/attribution}.
 
 Recent advances in the statistical modeling of random networks have had an
 impact on the empirical study of social networks. Statistical exponential
-family models (Strauss and Ikeda 1990) are a generalization of the Markov
+family models \insertCite{StIk90p;textual}{ergm} are a generalization of the Markov
 random network models introduced by \insertCite{FrSt86m;textual}{ergm}, which in turn
-derived from developments in spatial statistics \insertCite{Be74s}{ergm}. These models
+derived from developments in spatial statistics \insertCite{Be74s;textual}{ergm}. These models
 recognize the complex dependencies within relational data structures.  To
 date, the use of stochastic network models for networks has been limited by
 three interrelated factors: the complexity of realistic models, the lack of

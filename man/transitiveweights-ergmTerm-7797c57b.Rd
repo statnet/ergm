@@ -21,7 +21,7 @@ geometric mean ( \code{"geomean"} )}
 }
 \description{
 This statistic implements the transitive weights
-statistic defined by Krivitsky (2012), Equation 13. For each of these options,
+statistic defined by \insertCite{Kr12e;textual}{ergm}, Equation 13. For each of these options,
 the first (and the default) is more stable but also more
 conservative, while the second is more sensitive but more likely
 to induce a multimodal distribution of networks.

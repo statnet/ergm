@@ -138,8 +138,7 @@ those passed in via the \code{target.stats} vector.
 \details{
 \insertNoCite{KrHu23e}{ergm}
 
-The following description is an exegesis of section 4 of Krivitsky
-et al. (2022).
+The following description is an exegesis of section 4 of \insertCite{KrHu23e;textual}{ergm}.
 
 Let \eqn{\mathbf{g}}{g} be a vector of target statistics for the
 network we wish to construct. That is, we are given an arbitrary network

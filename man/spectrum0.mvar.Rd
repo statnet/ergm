@@ -28,7 +28,7 @@ columns.}
 A square matrix with dimension equalling to the number of
 columns of \code{x}, with an additional attribute \code{"infl"} giving the
 factor by which the effective sample size is reduced due to
-autocorrelation, according to the Vats, Flegal, and Jones (2015)
+autocorrelation, according to the \insertCite{VaFl15m;textual}{ergm}
 estimate for ESS.
 }
 \description{

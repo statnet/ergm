@@ -27,7 +27,7 @@
 #' @templateVar name b1nodematch
 #' @title Nodal attribute-based homophily effect for the first mode in a bipartite network
 #' @description This term is introduced
-#'   in \insertCite{BoBa23m}{ergm}. With the default `alpha` and `beta` values, this term will
+#'   in \insertCite{BoBa23m;textual}{ergm}. With the default `alpha` and `beta` values, this term will
 #'   simply be a homophily based two-star statistic. This term adds one statistic to the model
 #'   unless `diff` is set to `TRUE` , in which case the term adds multiple network
 #'   statistics to the model, one for each of (a subset of) the unique values of the `attr`
@@ -159,7 +159,7 @@ InitErgmTerm.b1nodematch	<-	function (nw, arglist, ..., version=packageVersion("
 
 #' @templateVar name b2nodematch
 #' @title Nodal attribute-based homophily effect for the second mode in a bipartite network
-#' @description This term is introduced in \insertCite{BoBa23m}{ergm}.
+#' @description This term is introduced by \insertCite{BoBa23m;textual}{ergm}.
 #'   With the default `alpha` and `beta` values, this term will
 #'   simply be a homophily based two-star statistic. This term adds one statistic to the model
 #'   unless `diff` is set to `TRUE` , in which case the term adds multiple network

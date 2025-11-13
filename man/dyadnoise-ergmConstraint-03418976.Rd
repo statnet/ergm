@@ -20,7 +20,7 @@ had a non-tie and \code{p10} giving the dyadwise probability of
 erroneously observing a nontie where the true network had a tie.
 }
 \note{
-See Karwa et al. (2016) for an application.
+See \insertCite{KaKr16s;textual}{ergm} for an application.
 }
 \seealso{
 \code{\link{ergmConstraint}} for index of constraints and hints currently visible to the package.

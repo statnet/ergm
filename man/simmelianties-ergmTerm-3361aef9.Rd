@@ -10,8 +10,8 @@
 \description{
 This term adds
 one statistic to the model equal to the number of ties in the network that
-are associated with Simmelian triads, as defined by Krackhardt and Handcock
-(2007). Each Simmelian has six ties in it but, because Simmelians can
+are associated with Simmelian triads, as defined by \insertCite{KrHa07h;textual}{ergm}.
+Each Simmelian has six ties in it but, because Simmelians can
 overlap in terms of nodes (and associated ties), the total number of ties in
 these Simmelians is less than six times the number of Simmelians. Hence this
 is a measure of the clustering of Simmelians (given the number of

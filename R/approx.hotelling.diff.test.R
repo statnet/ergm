@@ -291,7 +291,7 @@ geweke.diag.mv <- function(x, frac1 = 0.1, frac2 = 0.5, split.mcmc.list = FALSE,
 #' @return A square matrix with dimension equalling to the number of
 #'   columns of `x`, with an additional attribute `"infl"` giving the
 #'   factor by which the effective sample size is reduced due to
-#'   autocorrelation, according to the Vats, Flegal, and Jones (2015)
+#'   autocorrelation, according to the \insertCite{VaFl15m;textual}{ergm}
 #'   estimate for ESS.
 #' 
 #' @note [ar()] fails if `crossprod(x)` is singular. This is

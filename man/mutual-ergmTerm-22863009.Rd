@@ -42,7 +42,7 @@ where \eqn{m} is determined by \code{form} argument: \code{"min"}
 for \eqn{\min(y_{i,j},y_{j,i})}, \code{"nabsdiff"} for
 \eqn{-|y_{i,j},y_{j,i}|}, \code{"product"} for
 \eqn{y_{i,j}y_{j,i}}, and \code{"geometric"} for
-\eqn{\sqrt{y_{i,j}}\sqrt{y_{j,i}}}. See Krivitsky (2012) for a
+\eqn{\sqrt{y_{i,j}}\sqrt{y_{j,i}}}. See \insertCite{Kr12e;textual}{ergm} for a
 discussion of these statistics. \code{form="threshold"} simply
 computes the binary \code{mutuality} after
 thresholding at \code{threshold}.

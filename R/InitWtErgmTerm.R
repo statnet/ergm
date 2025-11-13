@@ -948,7 +948,7 @@ InitWtErgmTerm.edges <- InitWtErgmTerm.nonzero
 #'   for \eqn{\min(y_{i,j},y_{j,i})}, `"nabsdiff"` for
 #'   \eqn{-|y_{i,j},y_{j,i}|}, `"product"` for
 #'   \eqn{y_{i,j}y_{j,i}}, and `"geometric"` for
-#'   \eqn{\sqrt{y_{i,j}}\sqrt{y_{j,i}}}. See Krivitsky (2012) for a
+#'   \eqn{\sqrt{y_{i,j}}\sqrt{y_{j,i}}}. See \insertCite{Kr12e;textual}{ergm} for a
 #'   discussion of these statistics. `form="threshold"` simply
 #'   computes the binary `mutuality` after
 #'   thresholding at `threshold`.
@@ -996,7 +996,7 @@ InitWtErgmTerm.transitiveties<-function (nw, arglist, ...) {
 #' @templateVar name transitiveweights
 #' @title Transitive weights
 #' @description This statistic implements the transitive weights
-#'   statistic defined by Krivitsky (2012), Equation 13. For each of these options,
+#'   statistic defined by \insertCite{Kr12e;textual}{ergm}, Equation 13. For each of these options,
 #'   the first (and the default) is more stable but also more
 #'   conservative, while the second is more sensitive but more likely
 #'   to induce a multimodal distribution of networks.
@@ -1068,7 +1068,7 @@ InitWtErgmTerm.cyclicalties<-function (nw, arglist, ...) {
 #' @templateVar name cyclicalweights
 #' @title Cyclical weights
 #' @description This statistic implements the cyclical weights
-#'   statistic, like that defined by Krivitsky (2012), Equation 13,
+#'   statistic, like that defined by \insertCite{Kr12e;textual}{ergm}, Equation 13,
 #'   but with the focus dyad being \eqn{y_{j,i}} rather than
 #'   \eqn{y_{i,j}} . For each option,
 #'   the first (and the default) is more stable but also more

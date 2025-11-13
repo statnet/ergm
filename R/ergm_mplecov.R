@@ -10,8 +10,8 @@
 #' Approximate MPLE standard errors in dyad-dependent models
 #'
 #' Function to approximate the MPLE covariance matrix in a dyad dependence model
-#' using the Godambe matrix as described in Schmid and Hunter (2020) or by parametric bootstrap
-#' as described by Schmid and Desmarais (2017).
+#' using the Godambe matrix as described by \insertCite{ScHu23c;textual}{ergm} or by parametric bootstrap
+#' as described by \insertCite{ScDe17e;textual}{ergm}.
 #'
 #' @param pl An [`ergm.pl`] object.
 #' @param init a vector a vector of initial theta coefficients
@@ -23,8 +23,6 @@
 #'
 #' @param family the family to use in the R native routine
 #' default="binomial"
-#'
-#' \insertNoCite{ScDe17e,ScHu23c}{ergm}
 #'
 #' @return \code{ergm_mplecov} returns a list either
 #'   containing a Godambe covariance matrix or a diagonal matrix with bootstrap variances.

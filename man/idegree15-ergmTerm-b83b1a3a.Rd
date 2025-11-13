@@ -11,7 +11,7 @@
 This term adds one network statistic to the model equaling the sum
 over the actors of each actor's indegree taken to the 3/2 power
 (or, equivalently, multiplied by its square root). This term is
-analogous to the term of Snijders et al. (2010), equation (12). This
+analogous to the term of \insertCite{SnVa10i;textual}{ergm}, equation (12). This
 term can only be used with directed networks.
 }
 \seealso{

@@ -52,15 +52,10 @@ is: \code{~ edges + nodefactor("sex.ident", levels = 3) + nodecov("age") + nodec
 }
 }
 
-\insertNoCite{KrHu23e}{ergm}
+\insertNoCite{KrHu23e,NCHS20n}{ergm}
 }
 \references{
 \insertAllCited{}
-
-National Center for Health Statistics (NCHS). (2020). 2006-2015 National
-Survey of Family Growth Public-Use Data and Documentation. Hyattsville, MD:
-CDC National Center for Health Statistics.
-Retrieved from \url{https://www.cdc.gov/nchs/nsfg/index.htm}
 }
 \seealso{
 ergm

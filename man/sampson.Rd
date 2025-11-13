@@ -10,7 +10,7 @@
 \alias{samplk3}
 \title{Longitudinal and cumulative networks of positive and negative affect in a monastery}
 \source{
-Sampson (1969).
+\insertCite{Sa68n}{ergm}.
 
 \url{https://github.com/bavla/Nets/raw/refs/heads/master/data/Pajek/esna/Sampson.zip}
 }
@@ -20,14 +20,14 @@ data(samplk)
 }
 \description{
 A collection of \code{\link[network:network]{network}} objects containing the "liking"
-nominations of Sampson's (1969) monks over the three time points:
+nominations of the monks studied by \insertCite{Sa68n;textual}{ergm} over the three time points:
 \code{data(samplk)} contains the time-sliced networks of liking and
 disliking (\code{samplk1}, \code{samplk2}, \code{samplk3}, \code{sampdlk1}, \code{sampdlk2},
 and \code{sampdlk3}) and \code{data(sampson)} (\code{samplike}) a network cumulative network
 of liking nominations.
 }
 \details{
-Sampson (1969) recorded the social interactions among a group of monks while
+\insertCite{Sa68n;textual}{ergm} recorded the social interactions among a group of monks while
 he was a resident as an experimenter at the cloister.  During his stay, a
 political "crisis in the cloister" resulted in the expulsion of four
 monks-- namely, the three "outcasts," Brothers Elias, Simplicius, Basil, and
@@ -39,8 +39,7 @@ Brother Romuald.  Eventually, Brother Peter and Brother Winfrid also left,
 leaving only four of the original group.
 
 Of particular interest are the data on positive affect relations
-("liking," using the terminology later adopted by White et
-al. (1976)), in which each monk was asked to list three monks with
+("liking," using the terminology later adopted by \insertCite{WhBo76s;textual}{ergm}), in which each monk was asked to list three monks with
 whom he had positive affect ("liked the most", "liked 2nd most",
 and "liked 3rd most") and three monks with whom he had negative
 affect ("liked the least", "liked 2nd least", liked 3rd
@@ -53,10 +52,11 @@ major conflict began.  These three time points are labeled T2, T3, and T4 in
 Tables D5 through D16 in the appendices of Sampson's 1969 dissertation.
 
 This data set is standard in the social network analysis
-literature, having been modeled by Holland and Leinhardt (1981),
-Reitz (1982), Holland, Laskey and Leinhardt (1983), Fienberg,
-Meyer, and Wasserman (1981), Hoff, Raftery, and Handcock (2002)
-(using \verb{samplk3), and Krivitsky, Handcock, Raftery, and Hoff (2019) (}samplike`).  This is only a small piece of the data collected by
+literature, having been modeled by \insertCite{HoLe81e;textual}{ergm},
+\insertCite{Re82u;textual}{ergm}, \insertCite{HoLa83s;textual}{ergm},
+\insertCite{FiWa81c;textual}{ergm}, \insertCite{HoRa02l;textual}{ergm}
+(using \code{samplk3}), and \insertCite{KrHa09r;textual}{ergm}
+(\code{samplike}).  This is only a small piece of the data collected by
 Sampson.
 \subsection{Common attributes}{
 
@@ -120,8 +120,6 @@ number of times (out of 3) that monk A nominated monk B.
 
 For historical reasons, its vertex attribute \code{group} is the same as
 \code{group3} described above.
-
-\insertNoCite{WhBo76s,DeNo05e,Sa68n}{ergm}
 }
 }
 \section{History}{
@@ -146,22 +144,22 @@ inherited from \code{sampson} and \code{group4} from \code{samplk}.
 
 This data set was updated for version 2.5 (March 2012) to add the
 \code{cloisterville} variable and refine the names. This information is from
-de Nooy, Mrvar, and Batagelj (2005). The original vertex names were:
+\insertCite{DeNo05e;textual}{ergm}. The original vertex names were:
 Romul_10, Bonaven_5, Ambrose_9, Berth_6, Peter_4, Louis_11, Victor_8,
 Winf_12, John_1, Greg_2, Hugh_14, Boni_15, Mark_7, Albert_16, Amand_13,
 Basil_3, Elias_17, Simp_18. The numbers indicate the ordering used in the
-original dissertation of Sampson (1969).
+original dissertation of \insertCite{Sa68n;textual}{ergm}.
 }
 
 \subsection{Mislabeling in Versions Prior to 3.6.1}{
 
 In \pkg{ergm} version 3.6.0 and earlier, The adjacency matrices of
 the \code{\link{samplike}}, \code{\link{samplk1}}, \code{\link{samplk2}}, and \code{\link{samplk3}}
-networks reflected the original Sampson (1969) ordering of the
-names even though the vertex labels used the name order of de Nooy,
-Mrvar, and Batagelj (2005). That is, in \code{ergm} version 3.6.0
+networks reflected the original \insertCite{Sa68n;textual}{ergm} ordering of the
+names even though the vertex labels used the name order of \insertCite{DeNo05e;textual}{ergm}.
+That is, in \code{ergm} version 3.6.0
 and earlier, the vertices were mislabeled. The correct order is the
-same one given in Tables D5, D9, and D13 of Sampson (1969): John
+same one given in Tables D5, D9, and D13 of \insertCite{Sa68n;textual}{ergm}: John
 Bosco, Gregory, Basil, Peter, Bonaventure, Berthold, Mark, Victor,
 Ambrose, Romauld (Sampson uses both spellings "Romauld" and
 "Ramauld" in the dissertation), Louis, Winfrid, Amand, Hugh,
@@ -177,7 +175,7 @@ Simplicius.
 
 data(samplk)
 
-# Table D5 in Sampson (1969)
+# Table D5 in \insertCite{Sa68n;textual}{ergm}
 as.matrix(samplk1, attrname = "score") + as.matrix(sampdlk1, attrname = "score")
 
 # Table D9

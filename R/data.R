@@ -20,22 +20,21 @@
 #' exhibit only self-regulation in \code{ecoli1}) are removed, leaving 418
 #' nodes.
 #' 
-#' \insertNoCite{SaSu01r,ShSh02n}{ergm}
 #' @usage
 #' data(ecoli)
 #' @docType data
 #' @name ecoli
 #' @aliases ecoli ecoli1 ecoli2
 #' @section Licenses and Citation: When publishing results obtained using this
-#' data set, the original authors (Salgado et al, 2001; Shen-Orr et al, 2002)
+#' data set, the original authors \insertCite{SaSu01r,ShSh02n}{ergm}
 #' should be cited, along with this \code{R} package.
 #' @references \insertAllCited{}
 #' 
 #' %Saul and Filkov (2007)
 #' 
 #' %Hummel et al (2010)
-#' @source The data set is based on the RegulonDB network (Salgado et al, 2001)
-#' and was modified by Shen-Orr et al (2002).
+#' @source The data set is based on the RegulonDB network of \insertCite{SaSu01r;textual}{ergm}
+#' and was modified by \insertCite{ShSh02n;textual}{ergm}.
 #' @keywords datasets
 NULL
 
@@ -45,7 +44,6 @@ NULL
 #' network.  The network is named faux.desert.high.
 #' 
 #' 
-#' \insertNoCite{ReGa97p}{ergm}
 #' @usage
 #' data(faux.desert.high)
 #' @docType data
@@ -66,7 +64,7 @@ NULL
 #' License \url{https://creativecommons.org/licenses/by-nc-nd/2.5/}.
 #' 
 #' When publishing results obtained using this data set, the original authors
-#' (Resnick et al, 1997) should be cited. In addition this package should be
+#' \insertCite{ReGa97p}{ergm} should be cited. In addition this package should be
 #' cited as:
 #' 
 #' Mark S. Handcock, David R. Hunter, Carter T. Butts, Steven M. Goodreau, and
@@ -78,8 +76,8 @@ NULL
 #' [`faux.magnolia.high`]
 #' @references \insertAllCited{}
 #' @source The data set is simulation based upon an ergm model fit to data from
-#' one school community from the AddHealth Study, Wave I (Resnick et al.,
-#' 1997). It was constructed as follows:
+#' one school community from the AddHealth Study, Wave I \insertCite{ReGa97p}{ergm}.
+#' It was constructed as follows:
 #' 
 #' The school in question (a single school with 7th through 12th grades) was
 #' selected from the Add Health "structure files."  Documentation on these
@@ -119,7 +117,6 @@ NULL
 #' network.  The network is named faux.dixon.high.
 #' 
 #' 
-#' \insertNoCite{ReGa97p}{ergm}
 #' @usage
 #' data(faux.dixon.high)
 #' @docType data
@@ -140,7 +137,7 @@ NULL
 #' License \url{https://creativecommons.org/licenses/by-nc-nd/2.5/}.
 #' 
 #' When publishing results obtained using this data set, the original authors
-#' (Resnick et al, 1997) should be cited. In addition this package should be
+#' \insertCite{ReGa97p}{ergm} should be cited. In addition this package should be
 #' cited as:
 #' 
 #' Mark S. Handcock, David R. Hunter, Carter T. Butts, Steven M. Goodreau, and
@@ -152,8 +149,8 @@ NULL
 #' [`faux.magnolia.high`]
 #' @references \insertAllCited{}
 #' @source The data set is simulation based upon an ergm model fit to data from
-#' one school community from the AddHealth Study, Wave I (Resnick et al.,
-#' 1997). It was constructed as follows:
+#' one school community from the AddHealth Study, Wave I \insertCite{ReGa97p}{ergm}.
+#' It was constructed as follows:
 #' 
 #' The school in question (a single school with 7th through 12th grades) was
 #' selected from the Add Health "structure files."  Documentation on these
@@ -193,7 +190,6 @@ NULL
 #' which it is based are large and located in the southern US.
 #' 
 #' 
-#' \insertNoCite{ReGa97p}{ergm}
 #' @usage
 #' data(faux.magnolia.high)
 #' @docType data
@@ -214,7 +210,7 @@ NULL
 #' License \url{https://creativecommons.org/licenses/by-nc-nd/2.5/}.
 #' 
 #' When publishing results obtained using this data set, the original authors
-#' (Resnick et al, 1997) should be cited. In addition this package should be
+#' \insertCite{ReGa97p}{ergm} should be cited. In addition this package should be
 #' cited as:
 #' 
 #' Mark S. Handcock, David R. Hunter, Carter T. Butts, Steven M. Goodreau, and
@@ -225,7 +221,7 @@ NULL
 #' [`faux.mesa.high`]
 #' @references \insertAllCited{}
 #' @source The data set is based upon a model fit to data from two school
-#' communities from the AddHealth Study, Wave I (Resnick et al., 1997). It was
+#' communities from the AddHealth Study, Wave I \insertCite{ReGa97p}{ergm}. It was
 #' constructed as follows:
 #' 
 #' The two schools in question (a junior and senior high school in the same
@@ -260,7 +256,6 @@ NULL
 #' US, with a student body that is largely Hispanic and Native American.
 #' 
 #' 
-#' \insertNoCite{HuGo08g,ReGa97p}{ergm}
 #' @usage
 #' data(faux.mesa.high)
 #' @docType data
@@ -282,7 +277,7 @@ NULL
 #' License \url{https://creativecommons.org/licenses/by-nc-nd/2.5/}.
 #' 
 #' When publishing results obtained using this data set, the original authors
-#' (Resnick et al, 1997) should be cited. In addition this package should be
+#' \insertCite{ReGa97p}{ergm} should be cited. In addition this package should be
 #' cited as:
 #' 
 #' Mark S. Handcock, David R. Hunter, Carter T. Butts, Steven M. Goodreau, and
@@ -293,7 +288,7 @@ NULL
 #' [`faux.magnolia.high`]
 #' @references \insertAllCited{}
 #' @source The data set is based upon a model fit to data from one school
-#' community from the AddHealth Study, Wave I (Resnick et al., 1997). It was
+#' community from the AddHealth Study, Wave I \insertCite{ReGa97p}{ergm}. It was
 #' constructed as follows:
 #' 
 #' A vector representing the sex of each student in the school was randomly
@@ -315,17 +310,17 @@ NULL
 #' data.
 #' 
 #' The processes for handling missing data and defining the race attribute are
-#' described in Hunter, Goodreau & Handcock (2008).
+#' described in \insertCite{HuGo08g;textual}{ergm}.
 #' @keywords datasets
 NULL
 
 #' Florentine Family Marriage and Business Ties Data as a "network" object
 #' 
 #' This is a data set of marriage and business ties among Renaissance
-#' Florentine families. The data is originally from Padgett (1994) via
+#' Florentine families. The data is originally from \insertCite{PaJo94m;textual}{ergm} via
 #' \code{UCINET} and stored as a [`network`] object.
 #' 
-#' Breiger & Pattison (1986), in their discussion of local role analysis, use
+#' \insertCite{BrPa86c;textual}{ergm}, in their discussion of local role analysis, use
 #' a subset of data on the social relations among Renaissance Florentine
 #' families (person aggregates) collected by John Padgett from historical
 #' documents. The two relations are business ties (\code{flobusiness} -
@@ -341,14 +336,14 @@ NULL
 #' thousands of lira); (2) \code{priorates} the number of priorates (seats on
 #' the civic council) held between 1282- 1344; and (3) \code{totalties} the
 #' total number of business or marriage ties in the total dataset of 116
-#' families (see Breiger & Pattison (1986), p 239).
+#' families (see \insertCite{BrPa86c;nobrackets}{ergm}, p 239).
 #' 
 #' Substantively, the data include families who were locked in a struggle for
 #' political control of the city of Florence around 1430. Two factions were
 #' dominant in this struggle: one revolved around the infamous Medicis (9), the
 #' other around the powerful Strozzis (15).
 #' 
-#' \insertNoCite{WaFa94s,BrPa86c,PaJo94m}{ergm}
+#' \insertNoCite{WaFa94s}{ergm}
 #' @usage
 #' data(florentine)
 #' @docType data
@@ -358,7 +353,7 @@ NULL
 #' 
 #' @seealso flo, network, plot.network, ergm
 #' @references \insertAllCited{}
-#' @source Padgett and Johnson (1994).
+#' @source \insertCite{PaJo94m}{ergm}.
 #' @keywords datasets
 NULL
 
@@ -409,9 +404,9 @@ NULL
 #' 
 #' Kapferer also observed and recorded instrumental transactions, many of which
 #' are unilateral (directed) rather than reciprocal (undirected), though those
-#' transactions are not recorded here.  In addition, there was a second period
+#' transactions are not recorded here.  However, there was a second period
 #' of data collection, from September 1965 to January 1966, but these data are
-#' also not recorded here.  All data are given in Kapferer's 1972 book on pp.
+#' also not recorded here.  All data are given in \insertCite{Ka72s;textual}{ergm} on pp.
 #' 176-179.
 #' 
 #' During the first time period, there were 43 individuals working in this
@@ -433,8 +428,7 @@ NULL
 #' present at both data-collection time periods.  However, these data only
 #' reflect data collected during the first period.  The individuals' names are
 #' included as a nodal covariate called \code{names}.
-#' @source Original source: Kapferer, Bruce (1972), Strategy and Transaction in
-#' an African Factory, Manchester University Press.
+#' @source Original source: \insertCite{Ka72s}{ergm}.
 #' @keywords datasets
 NULL
 
@@ -459,13 +453,13 @@ NULL
 #' Longitudinal and cumulative networks of positive and negative affect in a monastery
 #' 
 #' A collection of [`network`] objects containing the "liking"
-#' nominations of Sampson's (1969) monks over the three time points:
+#' nominations of the monks studied by \insertCite{Sa68n;textual}{ergm} over the three time points:
 #' `data(samplk)` contains the time-sliced networks of liking and
 #' disliking (`samplk1`, `samplk2`, `samplk3`, `sampdlk1`, `sampdlk2`,
 #' and `sampdlk3`) and `data(sampson)` (`samplike`) a network cumulative network
 #' of liking nominations.
 #' 
-#' Sampson (1969) recorded the social interactions among a group of monks while
+#' \insertCite{Sa68n;textual}{ergm} recorded the social interactions among a group of monks while
 #' he was a resident as an experimenter at the cloister.  During his stay, a
 #' political "crisis in the cloister" resulted in the expulsion of four
 #' monks-- namely, the three "outcasts," Brothers Elias, Simplicius, Basil, and
@@ -477,8 +471,7 @@ NULL
 #' leaving only four of the original group.
 #' 
 #' Of particular interest are the data on positive affect relations
-#' ("liking," using the terminology later adopted by White et
-#' al. (1976)), in which each monk was asked to list three monks with
+#' ("liking," using the terminology later adopted by \insertCite{WhBo76s;textual}{ergm}), in which each monk was asked to list three monks with
 #' whom he had positive affect ("liked the most", "liked 2nd most",
 #' and "liked 3rd most") and three monks with whom he had negative
 #' affect ("liked the least", "liked 2nd least", liked 3rd
@@ -491,10 +484,10 @@ NULL
 #' Tables D5 through D16 in the appendices of Sampson's 1969 dissertation.
 #'
 #' This data set is standard in the social network analysis
-#' literature, having been modeled by Holland and Leinhardt (1981),
-#' Reitz (1982), Holland, Laskey and Leinhardt (1983), Fienberg,
-#' Meyer, and Wasserman (1981), Hoff, Raftery, and Handcock (2002)
-#' (using `samplk3), and Krivitsky, Handcock, Raftery, and Hoff (2019)
+#' literature, having been modeled by \insertCite{HoLe81e;textual}{ergm},
+#' \insertCite{Re82u;textual}{ergm}, \insertCite{HoLa83s;textual}{ergm},
+#' \insertCite{FiWa81c;textual}{ergm}, \insertCite{HoRa02l;textual}{ergm}
+#' (using `samplk3`), and \insertCite{KrHa09r;textual}{ergm}
 #' (`samplike`).  This is only a small piece of the data collected by
 #' Sampson.
 #' 
@@ -560,7 +553,6 @@ NULL
 #' For historical reasons, its vertex attribute `group` is the same as
 #' `group3` described above.
 #' 
-#' \insertNoCite{WhBo76s,DeNo05e,Sa68n}{ergm}
 #' @usage
 #' data(sampson)
 #' data(samplk)
@@ -569,7 +561,7 @@ NULL
 #'
 #' data(samplk)
 #'
-#' # Table D5 in Sampson (1969)
+#' # Table D5 in \insertCite{Sa68n;textual}{ergm}
 #' as.matrix(samplk1, attrname = "score") + as.matrix(sampdlk1, attrname = "score")
 #'
 #' # Table D9
@@ -610,21 +602,21 @@ NULL
 #' 
 #' This data set was updated for version 2.5 (March 2012) to add the
 #' \code{cloisterville} variable and refine the names. This information is from
-#' de Nooy, Mrvar, and Batagelj (2005). The original vertex names were:
+#' \insertCite{DeNo05e;textual}{ergm}. The original vertex names were:
 #' Romul_10, Bonaven_5, Ambrose_9, Berth_6, Peter_4, Louis_11, Victor_8,
 #' Winf_12, John_1, Greg_2, Hugh_14, Boni_15, Mark_7, Albert_16, Amand_13,
 #' Basil_3, Elias_17, Simp_18. The numbers indicate the ordering used in the
-#' original dissertation of Sampson (1969).
+#' original dissertation of \insertCite{Sa68n;textual}{ergm}.
 #' 
 #' ## Mislabeling in Versions Prior to 3.6.1
 #'
 #' In \pkg{ergm} version 3.6.0 and earlier, The adjacency matrices of
 #' the [`samplike`], [`samplk1`], [`samplk2`], and [`samplk3`]
-#' networks reflected the original Sampson (1969) ordering of the
-#' names even though the vertex labels used the name order of de Nooy,
-#' Mrvar, and Batagelj (2005). That is, in \code{ergm} version 3.6.0
+#' networks reflected the original \insertCite{Sa68n;textual}{ergm} ordering of the
+#' names even though the vertex labels used the name order of \insertCite{DeNo05e;textual}{ergm}.
+#' That is, in \code{ergm} version 3.6.0
 #' and earlier, the vertices were mislabeled. The correct order is the
-#' same one given in Tables D5, D9, and D13 of Sampson (1969): John
+#' same one given in Tables D5, D9, and D13 of \insertCite{Sa68n;textual}{ergm}: John
 #' Bosco, Gregory, Basil, Peter, Bonaventure, Berthold, Mark, Victor,
 #' Ambrose, Romauld (Sampson uses both spellings "Romauld" and
 #' "Ramauld" in the dissertation), Louis, Winfrid, Amand, Hugh,
@@ -636,7 +628,7 @@ NULL
 #'
 #' @seealso [`florentine`], [`network`], [`plot.network`], [`ergm`]
 #' @references \insertAllCited{}
-#' @source Sampson (1969).
+#' @source \insertCite{Sa68n}{ergm}.
 #' 
 #' \url{https://github.com/bavla/Nets/raw/refs/heads/master/data/Pajek/esna/Sampson.zip}
 #' @keywords datasets
@@ -684,7 +676,7 @@ NULL
 #' }
 #' }
 #' 
-#' \insertNoCite{KrHu23e}{ergm}
+#' \insertNoCite{KrHu23e,NCHS20n}{ergm}
 #' @usage
 #' data(cohab)
 #' @docType data
@@ -692,11 +684,6 @@ NULL
 #' @aliases cohab_MixMat cohab_PopWts cohab_TargetStats
 #' @seealso ergm
 #' @references \insertAllCited{}
-#' 
-#' National Center for Health Statistics (NCHS). (2020). 2006-2015 National 
-#' Survey of Family Growth Public-Use Data and Documentation. Hyattsville, MD: 
-#' CDC National Center for Health Statistics. 
-#' Retrieved from \url{https://www.cdc.gov/nchs/nsfg/index.htm}
 #' @keywords datasets
 NULL
 

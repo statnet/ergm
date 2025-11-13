@@ -11,7 +11,7 @@
 This term adds one statistic to the model, equal to the number of triads in
 the network that are intransitive. The intransitive triads are those of type
 \verb{111D} , \code{201} , \verb{111U} , \verb{021C} , or \verb{030C} in the
-categorization of Davis and Leinhardt (1972). For details on the 16 possible
+categorization of \insertCite{DaLe72s;textual}{ergm}. For details on the 16 possible
 triad types, see \code{triad.classify} in the
 \CRANpkg{sna} package. Note the distinction from the \code{ctriple}
 term.

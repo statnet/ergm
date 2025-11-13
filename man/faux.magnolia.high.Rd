@@ -19,7 +19,7 @@ Native American, and Other (non-Hisp.)
 }
 \source{
 The data set is based upon a model fit to data from two school
-communities from the AddHealth Study, Wave I (Resnick et al., 1997). It was
+communities from the AddHealth Study, Wave I \insertCite{ReGa97p}{ergm}. It was
 constructed as follows:
 
 The two schools in question (a junior and senior high school in the same
@@ -52,16 +52,13 @@ This data set represents a simulation of an in-school friendship network.
 The network is named faux.magnolia.high because the school commnunities on
 which it is based are large and located in the southern US.
 }
-\details{
-\insertNoCite{ReGa97p}{ergm}
-}
 \section{Licenses and Citation}{
  If the source of the data set does not
 specified otherwise, this data set is protected by the Creative Commons
 License \url{https://creativecommons.org/licenses/by-nc-nd/2.5/}.
 
 When publishing results obtained using this data set, the original authors
-(Resnick et al, 1997) should be cited. In addition this package should be
+\insertCite{ReGa97p}{ergm} should be cited. In addition this package should be
 cited as:
 
 Mark S. Handcock, David R. Hunter, Carter T. Butts, Steven M. Goodreau, and

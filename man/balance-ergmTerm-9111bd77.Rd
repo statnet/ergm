@@ -10,7 +10,7 @@
 \description{
 This term adds one network statistic to the model equal to the number of
 triads in the network that are balanced. The balanced triads are those of
-type \code{102} or \code{300} in the categorization of Davis and Leinhardt (1972). For details on the 16 possible triad types, see
+type \code{102} or \code{300} in the categorization of \insertCite{DaLe72s;textual}{ergm}. For details on the 16 possible triad types, see
 \code{?triad.classify} in the \code{{sna}} package. For an undirected
 network, the balanced triads are those with an odd number of ties (i.e., 1
 and 3).
