@@ -4,8 +4,11 @@
 \name{sampson}
 \alias{sampson}
 \alias{samplike}
-\title{Cumulative network of positive affection within a monastery as a "network"
-object}
+\alias{samplk}
+\alias{samplk1}
+\alias{samplk2}
+\alias{samplk3}
+\title{Longitudinal and cumulative networks of positive and negative affect in a monastery}
 \source{
 Sampson, S.~F. (1968), \emph{A novitiate in a period of change: An
 experimental and case study of relationships,} Unpublished Ph.D.
@@ -15,10 +18,15 @@ dissertation, Department of Sociology, Cornell University.
 }
 \usage{
 data(sampson)
+data(samplk)
 }
 \description{
-A \code{\link[network:network]{network}} object containing the cumulative "liking"
-nominations of Sampson's (1969) monks over the three time points.
+A collection of \code{\link[network:network]{network}} objects containing the "liking"
+nominations of Sampson's (1969) monks over the three time points:
+\code{data(samplk)} contains the time-sliced networks of liking and
+disliking (\code{samplk1}, \code{samplk2}, \code{samplk3}, \code{sampdlk1}, \code{sampdlk2},
+and \code{sampdlk3}) and \code{data(sampson)} (\code{samplike}) a network cumulative network
+of liking nominations.
 }
 \details{
 Sampson (1969) recorded the social interactions among a group of monks while
@@ -33,42 +41,108 @@ Brother Romuald.  Eventually, Brother Peter and Brother Winfrid also left,
 leaving only four of the original group.
 
 Of particular interest are the data on positive affect relations
-("liking," using the terminology later adopted by White et al. (1976)), in
-which each monk was asked if he had positive relations to each of the other
-monks. Each monk ranked only his top three choices (or four, in the case of
-ties) on "liking".  Here, we consider a directed edge from monk A to monk
-B to exist if A nominated B among these top choices.
+("liking," using the terminology later adopted by White et
+al. (1976)), in which each monk was asked to list three monks with
+whom he had positive affect ("liked the most", "liked 2nd most",
+and "liked 3rd most") and three monks with whom he had negative
+affect ("liked the least", "liked 2nd least", liked 3rd
+least"). (Some did not comply fully and provided additional names, forcing ties.)
 
 The data were gathered at three times to capture changes in group sentiment
 over time. They represent three time points in the period during which a new
 cohort had entered the monastery near the end of the study but before the
 major conflict began.  These three time points are labeled T2, T3, and T4 in
-Tables D5 through D16 in the appendices of Sampson's 1969 dissertation.  The
-\code{samplike} data set is the time-aggregated network.  Thus, a tie from
-monk A to monk B exists if A nominated B as one of his three (or four, in
-case of ties) best friends at any of the three time points.
+Tables D5 through D16 in the appendices of Sampson's 1969 dissertation.
 
-See also the data sets \code{\link{samplk1}}, \code{\link{samplk2}}, and
-\code{\link{samplk3}}, containing the networks at each of the three
-individual time points.
+This data set is standard in the social network analysis
+literature, having been modeled by Holland and Leinhardt (1981),
+Reitz (1982), Holland, Laskey and Leinhardt (1983), Fienberg,
+Meyer, and Wasserman (1981), Hoff, Raftery, and Handcock (2002)
+(using \verb{samplk3), and Krivitsky, Handcock, Raftery, and Hoff (2019) (}samplike`).  This is only a small piece of the data collected by
+Sampson.
+\subsection{Common attributes}{
 
-The data set is stored as a \code{\link[network:network]{network}} object with three
-vertex attributes:
+All of the networks contain the following identical vertex attributes:
+\describe{
 
-\describe{ \item{group}{Groups of novices as classified by Sampson:
-"Loyal", "Outcasts", and "Turks".} \item{cloisterville}{An indicator
-of attendance in the minor seminary of "Cloisterville" before coming to
-the monastery.} \item{vertex.names}{The given names of the novices.  NB:
+\item{\code{cloisterville}}{An indicator
+of attendance at the minor seminary of "Cloisterville" before coming to
+the monastery.}
+
+\item{\code{vertex.names}}{The given names of the novices.  NB:
 These names have been corrected as of \code{ergm} version 3.6.1; see details
-below.} } In addition, the data set has an edge attribute,
-\code{nominations}, giving the number of times (out of 3) that monk A
-nominated monk B.
+below.}
 
-This data set is standard in the social network analysis literature, having
-been modeled by Holland and Leinhardt (1981), Reitz (1982), Holland, Laskey
-and Leinhardt (1983), Fienberg, Meyer, and Wasserman (1981), and Hoff,
-Raftery, and Handcock (2002), among others. This is only a small piece of
-the data collected by Sampson.
+\item{\code{group4}}{The original grouping by Sampson ("[Young] Turks",
+"Loyal [Opposition]", "Outcasts", and "Waverers").}
+
+\item{\code{group3}}{As \code{group4}, but with "Waverers" merged into their
+nearest group; retained for historical reasons.}
+
+}
+
+Note that the \code{group} vertex attribute differs between \code{sampson}
+and \code{samplk} for historical reasons.
+}
+
+\subsection{Time-sliced networks (\code{samplk})}{
+
+The data from the three time points (T2, T3, T4) are provided as
+\code{samplk1}, \code{samplk2}, and \code{samplk3} for liking most and
+\code{sampdlk1}, \code{sampdlk2}, and \code{sampdlk3} for liking least,
+respectively. A directed edge from monk A to monk B exists if A
+nominated B among his top three (or four, in case of ties) choices
+at that time point. Each network also has an edge attribute
+\code{score}, indicating the ranking given:\tabular{lr}{
+   list \tab score \cr
+   liked the most \tab +3 \cr
+   liked 2nd most \tab +2 \cr
+   liked 3rd most \tab +1 \cr
+   not nominated \tab 0 \cr
+   liked 3rd least \tab -1 \cr
+   liked 2nd least \tab -2 \cr
+   liked the least \tab -3 \cr
+}
+
+
+Note that the \code{samplk[1-3]} networks only contain positive scores
+and \code{sampdlk[1-3]} only negative.
+
+For historical reasons, their vertex attribute \code{group} is the same
+as \code{group4} described above.
+}
+
+\subsection{Cumulative ties (\code{sampson})}{
+
+The \code{samplike} network is the time-aggregated network.  Thus,
+a tie from monk A to monk B exists if A nominated B as one of his
+three (or four, in case of ties) most liked at any of the three
+time points. An edge attribute, \code{nominations}, gives the
+number of times (out of 3) that monk A nominated monk B.
+
+For historical reasons, its vertex attribute \code{group} is the same as
+\code{group3} described above.
+}
+}
+\section{History}{
+
+\subsection{Dislike networks, edge scores, and \code{group} harmonization}{
+
+\pkg{ergm} 4.11 added dislike networks \code{sampdlk[1-3]}; note that
+unlike the positive affection networks, it is not clear whether
+these were collected contemporaneously or retrospectively.
+
+For all networks in \code{samplk}, scores reflecting the position in the
+ranking were added.
+
+The \code{group} vertex attribute meaning differed between the \code{sampson}
+(\code{samplike}) and the \code{samplk} networks and will continue to do so
+for reproducibility; for removal of ambiguity, both datasets now
+have \code{group3} and \code{group4} vertex attributes, with \code{group3}
+inherited from \code{sampson} and \code{group4} from \code{samplk}.
+}
+
+\subsection{Cloisterville and vertex names}{
 
 This data set was updated for version 2.5 (March 2012) to add the
 \code{cloisterville} variable and refine the names. This information is from
@@ -78,23 +152,48 @@ Winf_12, John_1, Greg_2, Hugh_14, Boni_15, Mark_7, Albert_16, Amand_13,
 Basil_3, Elias_17, Simp_18. The numbers indicate the ordering used in the
 original dissertation of Sampson (1969).
 }
-\section{Mislabeling in Versions Prior to 3.6.1}{
- In \code{ergm} version
-3.6.0 and earlier, The adjacency matrices of the \code{\link{samplike}},
-\code{\link{samplk1}}, \code{\link{samplk2}}, and \code{\link{samplk3}}
-networks reflected the original Sampson (1969) ordering of the names even
-though the vertex labels used the name order of de Nooy, Mrvar, and Batagelj
-(2005). That is, in \code{ergm} version 3.6.0 and earlier, the vertices were
-mislabeled. The correct order is the same one given in Tables D5, D9, and
-D13 of Sampson (1969): John Bosco, Gregory, Basil, Peter, Bonaventure,
-Berthold, Mark, Victor, Ambrose, Romauld (Sampson uses both spellings
-"Romauld" and "Ramauld" in the dissertation), Louis, Winfrid, Amand, Hugh,
-Boniface, Albert, Elias, Simplicius. By contrast, the order given in
-\code{ergm} version 3.6.0 and earlier is: Ramuald, Bonaventure, Ambrose,
-Berthold, Peter, Louis, Victor, Winfrid, John Bosco, Gregory, Hugh,
-Boniface, Mark, Albert, Amand, Basil, Elias, Simplicius.
+
+\subsection{Mislabeling in Versions Prior to 3.6.1}{
+
+In \pkg{ergm} version 3.6.0 and earlier, The adjacency matrices of
+the \code{\link{samplike}}, \code{\link{samplk1}}, \code{\link{samplk2}}, and \code{\link{samplk3}}
+networks reflected the original Sampson (1969) ordering of the
+names even though the vertex labels used the name order of de Nooy,
+Mrvar, and Batagelj (2005). That is, in \code{ergm} version 3.6.0
+and earlier, the vertices were mislabeled. The correct order is the
+same one given in Tables D5, D9, and D13 of Sampson (1969): John
+Bosco, Gregory, Basil, Peter, Bonaventure, Berthold, Mark, Victor,
+Ambrose, Romauld (Sampson uses both spellings "Romauld" and
+"Ramauld" in the dissertation), Louis, Winfrid, Amand, Hugh,
+Boniface, Albert, Elias, Simplicius. By contrast, the order given
+in \code{ergm} version 3.6.0 and earlier is: Ramuald, Bonaventure,
+Ambrose, Berthold, Peter, Louis, Victor, Winfrid, John Bosco,
+Gregory, Hugh, Boniface, Mark, Albert, Amand, Basil, Elias,
+Simplicius.
+}
 }
 
+\examples{
+
+data(samplk)
+
+# Table D5 in Sampson (1969)
+as.matrix(samplk1, attrname = "score") + as.matrix(sampdlk1, attrname = "score")
+
+# Table D9
+as.matrix(samplk2, attrname = "score") + as.matrix(sampdlk2, attrname = "score")
+
+# Table D13
+as.matrix(samplk3, attrname = "score") + as.matrix(sampdlk3, attrname = "score")
+
+# Cumulative ties in `samplike`
+data(sampson)
+all(as.matrix(samplike) ==
+    as.matrix(samplk1) | as.matrix(samplk2) | as.matrix(samplk3))
+all(as.matrix(samplike, attrname = "nominations") ==
+    as.matrix(samplk1) + as.matrix(samplk2) + as.matrix(samplk3))
+
+}
 \references{
 White, H.C., Boorman, S.A. and Breiger, R.L. (1976).
 \emph{Social structure from multiple networks. I. Blockmodels of roles and
@@ -104,6 +203,6 @@ Wouter de Nooy, Andrej Mrvar, Vladimir Batagelj (2005) \emph{Exploratory
 Social Network Analysis with Pajek}, Cambridge: Cambridge University Press
 }
 \seealso{
-florentine, network, plot.network, ergm
+\code{\link{florentine}}, \code{\link[network:network]{network}}, \code{\link[network:plot.network]{plot.network}}, \code{\link{ergm}}
 }
 \keyword{datasets}
