@@ -12,8 +12,6 @@ ergm_GWDECAY
 }
 \description{
 This is a list containing \code{map} and \code{gradient} for the weights described by \insertCite{Hu07c;textual}{ergm}.
-
-\insertNoCite{Hu07c}{ergm}
 }
 \references{
 \insertAllCited{}

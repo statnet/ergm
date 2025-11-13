@@ -52,6 +52,8 @@
 #'
 #' @template ergmAuxiliary-general
 #'
+#' @references \insertAllCited{}
+#'
 #' @concept directed
 #' @concept undirected
 #' @concept triad-related

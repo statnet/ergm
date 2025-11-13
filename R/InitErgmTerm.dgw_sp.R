@@ -166,6 +166,8 @@ SPTYPE_CODE <- c(UTP = 0L, OTP = 1L, ITP = 2L, RTP = 3L, OSP = 4L, ISP = 5L)
 #'
 #' @template ergmTerm-sp-types
 #'
+#' @references \insertAllCited{}
+#'
 #' @concept directed
 #' @aliases desp-ergmTerm
 InitErgmTerm.desp<-function(nw, arglist, cache.sp=TRUE, ...) {
@@ -211,6 +213,8 @@ InitErgmTerm.desp<-function(nw, arglist, cache.sp=TRUE, ...) {
 #'
 #' @template ergmTerm-gw-alpha-to-decay
 #'
+#' @references \insertAllCited{}
+#'
 #' @concept directed
 #' @aliases dgwesp-ergmTerm
 InitErgmTerm.dgwesp<-function(nw, arglist, cache.sp=TRUE, gw.cutoff=30, ...) {
@@ -250,6 +254,8 @@ InitErgmTerm.dgwesp<-function(nw, arglist, cache.sp=TRUE, gw.cutoff=30, ...) {
 #'
 #' @template ergmTerm-sp-types
 #'
+#' @references \insertAllCited{}
+#'
 #' @concept directed
 #' @aliases ddsp-ergmTerm
 InitErgmTerm.ddsp<-function(nw, arglist, cache.sp=TRUE, ...) {
@@ -281,6 +287,8 @@ InitErgmTerm.ddsp<-function(nw, arglist, cache.sp=TRUE, ...) {
 #' @note The GWDSP statistic is equal to the sum of GWNSP plus GWESP.
 #'
 #' @template ergmTerm-gw-alpha-to-decay
+#'
+#' @references \insertAllCited{}
 #'
 #' @concept directed
 #' @aliases dgwdsp-ergmTerm
@@ -324,6 +332,8 @@ InitErgmTerm.dgwdsp<-function(nw, arglist, cache.sp=TRUE, gw.cutoff=30, ...) {
 #'
 #' @template ergmTerm-sp-types
 #'
+#' @references \insertAllCited{}
+#'
 #' @concept directed
 #' @aliases dnsp-ergmTerm
 InitErgmTerm.dnsp<-function(nw, arglist, cache.sp=TRUE, ...) {
@@ -351,6 +361,8 @@ InitErgmTerm.dnsp<-function(nw, arglist, cache.sp=TRUE, ...) {
 #' @template ergmTerm-general
 #'
 #' @template ergmTerm-gw-alpha-to-decay
+#'
+#' @references \insertAllCited{}
 #'
 #' @concept directed
 #' @aliases dgwnsp-ergmTerm

@@ -58,9 +58,6 @@ data(faux.dixon.high)
 This data set represents a simulation of a directed in-school friendship
 network.  The network is named faux.dixon.high.
 }
-\details{
-\insertNoCite{ReGa97p}{ergm}
-}
 \section{Licenses and Citation}{
  If the source of the data set does not
 specified otherwise, this data set is protected by the Creative Commons

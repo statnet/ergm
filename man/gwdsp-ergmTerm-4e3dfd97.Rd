@@ -45,7 +45,7 @@ The \code{decay} parameter was called \code{alpha} prior to \code{ergm} 3.7.
 case, nine distinct configurations are possible for directed graphs, selected
 using the \code{type} argument. Currently, terms may be defined with respect to
 five of these configurations; they are defined here as follows (using
-terminology from Butts (2008) and the \code{relevent} package):
+terminology from \insertCite{Bu08r;textual}{ergm} and the \code{relevent} package):
 \itemize{
 \item Outgoing Two-path (\code{"OTP"}): vertex \eqn{k} is an OTP shared partner of ordered
 pair \eqn{(i,j)} iff \eqn{i \to k \to j}{i->k->j}. Also known as "transitive
@@ -61,10 +61,13 @@ ordered pair \eqn{(i,j)} iff \eqn{i \to k, j \to k}{i->k, j->k}.
 pair \eqn{(i,j)} iff \eqn{k \to i, k \to j}{k->i, k->j}.
 }
 
-By default, outgoing two-paths (\code{"OTP"}) are calculated. Note that Robins et al. (2009)
+By default, outgoing two-paths (\code{"OTP"}) are calculated. Note that \insertCite{RoPa09c;textual}{ergm}
 define closely related statistics to several of the above, using slightly different terminology.
 }
 
+\references{
+\insertAllCited{}
+}
 \seealso{
 \code{\link{ergmTerm}} for index of model terms currently visible to the package.
 

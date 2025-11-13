@@ -11,7 +11,7 @@
 #'   case, nine distinct configurations are possible for directed graphs, selected
 #'   using the `type` argument. Currently, terms may be defined with respect to
 #'   five of these configurations; they are defined here as follows (using
-#'   terminology from Butts (2008) and the `relevent` package):
+#'   terminology from \insertCite{Bu08r;textual}{ergm} and the `relevent` package):
 #' -  Outgoing Two-path (`"OTP"`): vertex \eqn{k} is an OTP shared partner of ordered
 #'    pair \eqn{(i,j)} iff \eqn{i \to k \to j}{i->k->j}. Also known as "transitive
 #'    shared partner".
@@ -25,5 +25,5 @@
 #' - Incoming Shared Partner (`"ISP"`): vertex \eqn{k} is an ISP shared partner of ordered
 #'    pair \eqn{(i,j)} iff \eqn{k \to i, k \to j}{k->i, k->j}.
 #'
-#' By default, outgoing two-paths (`"OTP"`) are calculated. Note that Robins et al. (2009)
+#' By default, outgoing two-paths (`"OTP"`) are calculated. Note that \insertCite{RoPa09c;textual}{ergm}
 #'   define closely related statistics to several of the above, using slightly different terminology.
