@@ -12,8 +12,10 @@ ergm_GWDECAY
 }
 \description{
 This is a list containing \code{map} and \code{gradient} for the weights described by Hunter (2007).
+
+\insertNoCite{Hu07c}{ergm}
 }
 \references{
-David R. Hunter (2007) Curved Exponential Family Models for Social Networks. \emph{Social Networks}, 29: 216-230. \doi{10.1016/j.socnet.2006.08.005}
+\insertAllCited{}
 }
 \keyword{internal}

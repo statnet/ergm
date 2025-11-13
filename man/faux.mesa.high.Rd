@@ -53,6 +53,9 @@ an in-school friendship network.  The network is named \code{faux.mesa.high}
 because the school commnunity on which it is based is in the rural western
 US, with a student body that is largely Hispanic and Native American.
 }
+\details{
+\insertNoCite{HuGo08g,ReGa97p}{ergm}
+}
 \section{Licenses and Citation}{
  If the source of the data set does not
 specified otherwise, this data set is protected by the Creative Commons
@@ -68,14 +71,7 @@ Modeling of Network Data} \cr \url{https://statnet.org}.
 }
 
 \references{
-Hunter D.R., Goodreau S.M. and Handcock M.S. (2008). \emph{Goodness of Fit
-of Social Network Models}, \emph{Journal of the American Statistical
-Association}.
-
-Resnick M.D., Bearman, P.S., Blum R.W. et al. (1997). \emph{Protecting
-adolescents from harm. Findings from the National Longitudinal Study on
-Adolescent Health}, \emph{Journal of the American Medical Association}, 278:
-823-32.
+\insertAllCited{}
 }
 \seealso{
 \code{\link[network:network]{network}},

@@ -25,6 +25,8 @@ The object \code{ecoli2} is an undirected version of the same network, in
 which all arcs are treated as edges and the five isolated nodes (which
 exhibit only self-regulation in \code{ecoli1}) are removed, leaving 418
 nodes.
+
+\insertNoCite{SaSu01r,ShSh02n}{ergm}
 }
 \section{Licenses and Citation}{
  When publishing results obtained using this
@@ -33,12 +35,7 @@ should be cited, along with this \code{R} package.
 }
 
 \references{
-Salgado et al (2001), Regulondb (version 3.2): Transcriptional Regulation
-and Operon Organization in Escherichia Coli K-12, \emph{Nucleic Acids
-Research}, 29(1): 72-74.
-
-Shen-Orr et al (2002), Network Motifs in the Transcriptional Regulation
-Network of Escerichia Coli, \emph{Nature Genetics}, 31(1): 64-68.
+\insertAllCited{}
 
 \%Saul and Filkov (2007)
 

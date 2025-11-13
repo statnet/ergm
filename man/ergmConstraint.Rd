@@ -10,6 +10,8 @@
 \description{
 This page describes how to specify the constraints on the network sample space (the set of possible networks \eqn{Y}, the set of networks \eqn{y} for which \eqn{h(y)>0}) and sometimes the baseline weights \eqn{h(y)} to functions in the \code{\link[=ergm-package]{ergm}}
 package. It also provides an indexed list of the constraints visible to the \CRANpkg{ergm}'s API. Constraints can also be searched via \code{\link{search.ergmConstraints}}, and help for an individual constraint can be obtained with \verb{ergmConstraint?<constraint>} or \code{help("<constraint>-ergmConstraint")}.
+
+\insertNoCite{GoHa08s,HuHa06i,HuHa08e,KaKr16s,Kr12e,MoHa08s}{ergm}
 }
 \section{Specifying constraints}{
 
@@ -93,27 +95,6 @@ formula will suppress the inherited formula altogether.
 }
 
 \references{
-\itemize{
-\item Goodreau SM, Handcock MS, Hunter DR, Butts CT, Morris M (2008a).  A
-\CRANpkg{statnet} Tutorial. \emph{Journal of Statistical Software}, 24(8).
-\doi{10.18637/jss.v024.i08}
-\item Hunter, D. R. and Handcock, M. S. (2006) \emph{Inference in curved
-exponential family models for networks}, Journal of Computational and
-Graphical Statistics.
-\item Hunter DR, Handcock MS, Butts CT, Goodreau SM, Morris M (2008b).
-\CRANpkg{ergm}: A Package to Fit, Simulate and Diagnose Exponential-Family
-Models for Networks.  \emph{Journal of Statistical Software}, 24(3).
-\doi{10.18637/jss.v024.i03}
-\item Karwa V, Krivitsky PN, and Slavkovi\'c AB (2016). Sharing Social Network
-Data: Differentially Private Estimation of Exponential-Family Random Graph
-Models. \emph{Journal of the Royal Statistical Society, Series C}, 66(3):
-481-500. \doi{10.1111/rssc.12185}
-\item Krivitsky PN (2012). Exponential-Family Random Graph Models for Valued
-Networks. \emph{Electronic Journal of Statistics}, 6, 1100-1128.
-\doi{10.1214/12-EJS696}
-\item Morris M, Handcock MS, Hunter DR (2008).  Specification of
-Exponential-Family Random Graph Models: Terms and Computational Aspects.
-\emph{Journal of Statistical Software}, 24(4). \doi{10.18637/jss.v024.i04}
-}
+\insertAllCited{}
 }
 \keyword{models}

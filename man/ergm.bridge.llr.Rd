@@ -168,10 +168,11 @@ parameter configuration.  Note that it only handles binary ERGMs
 (\code{response=NULL}) and with constraints (\verb{constraints=}) that that
 do not induce dyadic dependence.
 }
+\details{
+\insertNoCite{HuHa06i}{ergm}
+}
 \references{
-Hunter, D. R. and Handcock, M. S. (2006)
-\emph{Inference in curved exponential family models for
-networks}, Journal of Computational and Graphical Statistics.
+\insertAllCited{}
 }
 \seealso{
 \code{\link[=simulate.formula.ergm]{simulate.formula.ergm()}}

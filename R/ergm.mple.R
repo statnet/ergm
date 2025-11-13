@@ -209,6 +209,8 @@ ergm.mple<-function(s, s.obs, init=NULL,
 #' The \code{mple.existence} function tests whether the MPLE actually exists. The code
 #' applies the approach introduced by Konis (2007).
 #'
+#' \insertNoCite{Ko07l}{ergm}
+#'
 #' Konis shows that the MPLE doesn't exist if data may be separated in the sense that
 #' there exists a vector beta such that
 #'    beta > (T(A^+_{ij})-T(A^-_{ij})) <0  when Aij= 0, and
@@ -225,9 +227,7 @@ ergm.mple<-function(s, s.obs, init=NULL,
 #'
 #' @param pl An ergm.pl-object
 #'
-#' @references Konis K (2007).  "Linear Programming Algorithms for Detecting Separated
-#' Data in Binary LogisticRegression Models (Ph.D. Thesis)." _Worcester College, Oxford University_.
-#' \url{https://ora.ox.ac.uk/objects/uuid:8f9ee0d0-d78e-4101-9ab4-f9cbceed2a2a}
+#' @references \insertAllCited{}
 #' @noRd
 mple.existence <- function(pl) {
 #' @importFrom lpSolveAPI make.lp set.column set.objfn set.constr.type set.rhs set.bounds lp.control

@@ -68,6 +68,8 @@ given size as an object of class \code{\link[network:network]{network}}.
 \details{
 The network will not have vertex, edge or network attributes.  These
 can be added with operators such as \code{\%v\%}, \code{\%n\%}, \code{\%e\%}.
+
+\insertNoCite{Bu02m}{ergm}
 }
 \examples{
 # Draw a random directed network with 25 nodes
@@ -83,8 +85,7 @@ g <- network(10, bipartite=4, directed=FALSE, density=0.1)
 g <- network(25, numedges=50)
 }
 \references{
-Butts, C.T.  2002.  ``Memory Structures for Relational Data in
-R: Classes and Interfaces'' Working Paper.
+\insertAllCited{}
 }
 \seealso{
 \code{\link[network:network]{network}}

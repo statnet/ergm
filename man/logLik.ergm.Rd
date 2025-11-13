@@ -111,12 +111,11 @@ logLikNull(gest) # == network.dyadcount(flomarriage)*log(1/2)
 
 }
 \references{
-Hunter, D. R. and Handcock, M. S. (2006)
-\emph{Inference in curved exponential family models for
-networks}, Journal of Computational and Graphical Statistics.
+\insertAllCited{}
 }
 \seealso{
 \code{\link[=logLik]{logLik()}}, \code{\link[=logLikNull]{logLikNull()}}, \code{\link[=ergm.bridge.llr]{ergm.bridge.llr()}},
 \code{\link[=ergm.bridge.dindstart.llk]{ergm.bridge.dindstart.llk()}}
+\insertNoCite{HuHa06i}{ergm}
 }
 \keyword{models}

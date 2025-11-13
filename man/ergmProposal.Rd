@@ -16,6 +16,8 @@ user but are rather selected based on the provided \link[=ergmConstraint]{sample
 \code{\link{search.ergmProposals}}, and help for an individual proposal can
 be obtained with \verb{ergmProposal?<proposal>} or
 \code{help("<proposal>-ergmProposal")}.
+
+\insertNoCite{GoHa08s,HuHa06i,HuHa08e,Kr12e,MoHa08s}{ergm}
 }
 \details{
 \code{\link{ergm}} uses a Metropolis-Hastings (MH) algorithm to
@@ -45,22 +47,7 @@ Note that \code{\link[=.dyads-ergmConstraint]{.dyads}} is a meta-constraint, ind
 }
 
 \references{
-\itemize{
-\item Goodreau SM, Handcock MS, Hunter DR, Butts CT, Morris M (2008a).  A \CRANpkg{statnet} Tutorial.
-\emph{Journal of Statistical Software}, 24(8). \doi{10.18637/jss.v024.i08}
-\item Hunter, D. R. and Handcock, M. S. (2006) Inference in curved exponential family models for networks.
-\emph{Journal of Computational and Graphical Statistics}.
-\item Hunter DR, Handcock MS, Butts CT, Goodreau SM, Morris M (2008b). \CRANpkg{ergm}:
-A Package to Fit, Simulate and Diagnose Exponential-Family Models for
-Networks. \emph{Journal of Statistical Software}, 24(3).
-\doi{10.18637/jss.v024.i03}
-\item Krivitsky PN (2012). Exponential-Family Random Graph Models for Valued
-Networks. \emph{Electronic Journal of Statistics}, 2012, 6, 1100-1128.
-\doi{10.1214/12-EJS696}
-\item Morris M, Handcock MS, Hunter DR (2008). Specification of Exponential-Family Random Graph Models:
-Terms and Computational Aspects. \emph{Journal of Statistical Software}, 24(4).
-\doi{10.18637/jss.v024.i04}
-}
+\insertAllCited{}
 }
 \seealso{
 \code{\link[=ergm-package]{ergm}} package, \code{\link{ergm}}, \code{\link{ergmConstraint}}, \code{\link{ergmHint}}, \code{\link{ergm_proposal}}

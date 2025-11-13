@@ -55,78 +55,14 @@
 #' tutorial, support newsgroup, references and links to further resources are
 #' provided there.
 #'
+#'
+#' \insertNoCite{AdHa07n,BeMo08p,BoHu03s,Bu08sna,Bu08net,GoHa08s,GoKi09b,Ha03a,Ha03deg,HaHu08s,HuHa06i,KrHa08l,Kr12e,MoHa08s,StIk90p}{ergm}
+#'
 #' @seealso [`ergmTerm`], [`ergmConstraint`], [`ergmReference`],
 #'   [`ergmHint`], and [`ergmProposal`] for indices of model
 #'   specification and estimation components visible to the \CRANpkg{ergm}'s API at any given time.
 #' 
 #' @references \insertAllCited{}
-#'
-#' Admiraal R, Handcock MS (2007).  \CRANpkg{networksis}: Simulate
-#' bipartite graphs with fixed marginals through sequential importance
-#' sampling.  Statnet Project, Seattle, WA.  Version 1,
-#' \url{https://statnet.org}.
-#' 
-#' Bender-deMoll S, Morris M, Moody J (2008).  Prototype Packages for Managing
-#' and Animating Longitudinal Network Data: \pkg{dynamicnetwork} and
-#' \pkg{rSoNIA}.  \emph{Journal of Statistical Software}, 24(7).
-#' \doi{10.18637/jss.v024.i07}
-#' 
-#' Boer P, Huisman M, Snijders T, Zeggelink E (2003).  StOCNET: an open
-#' software system for the advanced statistical analysis of social networks.
-#' Groningen: ProGAMMA / ICS, version 1.4 edition.
-#' 
-#' Butts CT (2007).  \CRANpkg{sna}: Tools for Social Network Analysis.  R package
-#' version 2.3-2. \url{https://cran.r-project.org/package=sna}
-#' 
-#' Butts CT (2008).  \CRANpkg{network}: A Package for Managing Relational Data in .
-#' \emph{Journal of Statistical Software}, 24(2).
-#' \doi{10.18637/jss.v024.i02}
-#' 
-#' Butts C (2015). \CRANpkg{network}: Classes for Relational Data. The Statnet
-#' Project (\url{https://statnet.org}). R package version 1.12.0,
-#' \url{https://cran.r-project.org/package=network}.
-#' 
-#' Goodreau SM, Handcock MS, Hunter DR, Butts CT, Morris M (2008a).  A
-#' \CRANpkg{statnet} Tutorial.  \emph{Journal of Statistical Software}, 24(8).
-#' \doi{10.18637/jss.v024.i08}
-#' 
-#' Goodreau SM, Kitts J, Morris M (2008b).  Birds of a Feather, or Friend of a
-#' Friend? Using Exponential Random Graph Models to Investigate Adolescent
-#' Social Networks.  \emph{Demography}, 45, in press.
-#' 
-#' Handcock, M. S. (2003) Assessing Degeneracy in Statistical Models of Social
-#' Networks, Working Paper #39, Center for Statistics and the Social Sciences,
-#' University of Washington.
-#' \url{https://csss.uw.edu/research/working-papers/assessing-degeneracy-statistical-models-social-networks}
-#' 
-#' Handcock MS (2003b).  \CRANpkg{degreenet}: Models for Skewed Count Distributions
-#' Relevant to Networks.  Statnet Project, Seattle, WA.  Version 1.0,
-#' \url{https://statnet.org}.
-#' 
-#' Handcock MS, Hunter DR, Butts CT, Goodreau SM, Morris M (2003b).
-#' \CRANpkg{statnet}: Software Tools for the Statistical Modeling of Network Data.
-#' Statnet Project, Seattle, WA.  Version 3, \url{https://statnet.org}.
-#' 
-#' Hunter, D. R. and Handcock, M. S. (2006) Inference in curved exponential
-#' family models for networks, \emph{Journal of Computational and Graphical
-#' Statistics}, 15: 565-583
-#' 
-#' Krivitsky PN, Handcock MS (2007).  \CRANpkg{latentnet}: Latent position and
-#' cluster models for statistical networks.  Seattle, WA.  Version 2,
-#' \url{https://statnet.org}.
-#' 
-#' Krivitsky PN (2012). Exponential-Family Random Graph Models for Valued
-#' Networks. \emph{Electronic Journal of Statistics}, 2012, 6, 1100-1128.
-#' \doi{10.1214/12-EJS696}
-#' 
-#' Morris M, Handcock MS, Hunter DR (2008).  Specification of
-#' Exponential-Family Random Graph Models: Terms and Computational Aspects.
-#' \emph{Journal of Statistical Software}, 24(4).
-#' \doi{10.18637/jss.v024.i04}
-#' 
-#' Strauss, D., and Ikeda, M.(1990). Pseudolikelihood estimation for social
-#' networks. \emph{Journal of the American Statistical Association}, 85,
-#' 204-212.
 #' @keywords models
 "_PACKAGE"
 
@@ -136,6 +72,8 @@
 #' @name ergmTerm
 #' @aliases ergm-terms ergm.terms terms-ergm terms.ergm InitErgmTerm InitErgmWtTerm
 #' @description This page explains how to specify the network statistics \eqn{g(y)} to functions in the [`ergm`][ergm-package] package and packages that extend it. It also provides an indexed list of the possible terms (and hence network statistics) visible to the \CRANpkg{ergm} API. Terms can also be searched via [`search.ergmTerms`], and help for an individual term can be obtained with `ergmTerm?<term>` or `help("<term>-ergmTerm")`.
+#'
+#' \insertNoCite{KrHu23e,BoBa23m,Bu08r,DaLe72s,HoLe81e,HuHa06i,Hu07c,KrHa07h,Kr12e,RoPa09c,SnVa10i,MoHa08s,SnPa06n}{ergm}
 #'
 #' @section Specifying models:
 #' \ERGMspec
@@ -320,57 +258,7 @@
 #'
 #' @seealso [`ergm`][ergm-package] package, [`search.ergmTerms`], [`ergm`], [`network`], [`%v%`], [`%n%`]
 #'
-#' @references 
-#' - Krivitsky P. N., Hunter D. R., Morris M., Klumb
-#' C. (2021). "ergm 4.0: New features and improvements."
-#' arXiv:2106.04997. \url{https://arxiv.org/abs/2106.04997}
-#' 
-#' - Bomiriya, R. P, Bansal, S., and Hunter, D. R. (2014).  Modeling
-#' Homophily in ERGMs for Bipartite Networks.  Submitted.
-#' 
-#' - Butts, CT.  (2008).  "A Relational Event Framework for Social
-#' Action." *Sociological Methodology,* 38(1).
-#' 
-#' - Davis, J.A. and Leinhardt, S.  (1972).  The Structure of Positive
-#' Interpersonal Relations in Small Groups.  In J. Berger (Ed.),
-#' *Sociological Theories in Progress, Volume 2*, 218--251.  Boston:
-#' Houghton Mifflin.
-#' 
-#' - Holland, P. W. and S. Leinhardt (1981). An exponential family of
-#' probability distributions for directed graphs.  *Journal of the
-#' American Statistical Association*, 76: 33--50.
-#' 
-#' - Hunter, D. R. and M. S. Handcock (2006). Inference in curved
-#' exponential family models for networks. *Journal of Computational and
-#' Graphical Statistics*, 15: 565--583.
-#' 
-#' - Hunter, D. R. (2007). Curved exponential family models for social
-#' networks. *Social Networks*, 29: 216--230.
-#' 
-#' - Krackhardt, D. and Handcock, M. S. (2007).  Heider versus Simmel:
-#' Emergent Features in Dynamic Structures. *Lecture Notes in Computer
-#' Science*, 4503, 14--27.
-#' 
-#' - Krivitsky P. N. (2012). Exponential-Family Random Graph Models for
-#' Valued Networks. *Electronic Journal of Statistics*, 2012, 6,
-#' 1100-1128. \doi{10.1214/12-EJS696}
-#' 
-#' - Robins, G; Pattison, P; and Wang, P.  (2009).  "Closure,
-#' Connectivity, and Degree Distributions: Exponential Random Graph (p*) Models
-#' for Directed Social Networks." *Social Networks,* 31:105-117.
-#' 
-#' - Snijders T. A. B., G. G. van de Bunt, and C. E. G. Steglich.
-#' Introduction to Stochastic Actor-Based Models for Network Dynamics.
-#' *Social Networks*, 2010, 32(1), 44-60. \doi{10.1016/j.socnet.2009.02.004}
-#' 
-#' - Morris M, Handcock MS, and Hunter DR. Specification of
-#' Exponential-Family Random Graph Models: Terms and Computational Aspects.
-#' *Journal of Statistical Software*, 2008, 24(4), 1-24.
-#' \doi{10.18637/jss.v024.i04}
-#' 
-#' - Snijders, T. A. B., P. E. Pattison, G. L. Robins, and M. S. Handcock
-#' (2006). New specifications for exponential random graph models,
-#' *Sociological Methodology*, 36(1): 99-153.
+#' @references \insertAllCited{}
 #' 
 #' @keywords models
 #' 
@@ -424,6 +312,8 @@ NULL
 #' @aliases ergm-constraints constraints-ergm ergm.constraints constraints.ergm
 #' @description This page describes how to specify the constraints on the network sample space (the set of possible networks \eqn{Y}, the set of networks \eqn{y} for which \eqn{h(y)>0}) and sometimes the baseline weights \eqn{h(y)} to functions in the [`ergm`][ergm-package]
 #' package. It also provides an indexed list of the constraints visible to the \CRANpkg{ergm}'s API. Constraints can also be searched via [`search.ergmConstraints`], and help for an individual constraint can be obtained with `ergmConstraint?<constraint>` or `help("<constraint>-ergmConstraint")`.
+#'
+#' \insertNoCite{GoHa08s,HuHa06i,HuHa08e,KaKr16s,Kr12e,MoHa08s}{ergm}
 #'
 #' @section Specifying constraints:
 #' \ERGMspec
@@ -499,32 +389,7 @@ NULL
 #' \if{text}{\Sexpr[results=rd,stage=render]{ergm:::.formatTocText(ergm:::.termToc("ergmConstraint"))}}
 #' \if{html}{\Sexpr[results=rd,stage=render]{ergm:::.formatTocHtml(ergm:::.termToc("ergmConstraint"))}}
 #'
-#' @references
-#' - Goodreau SM, Handcock MS, Hunter DR, Butts CT, Morris M (2008a).  A
-#' \CRANpkg{statnet} Tutorial. *Journal of Statistical Software*, 24(8).
-#' \doi{10.18637/jss.v024.i08}
-#'
-#' - Hunter, D. R. and Handcock, M. S. (2006) *Inference in curved
-#' exponential family models for networks*, Journal of Computational and
-#' Graphical Statistics.
-#'
-#' - Hunter DR, Handcock MS, Butts CT, Goodreau SM, Morris M (2008b).
-#' \CRANpkg{ergm}: A Package to Fit, Simulate and Diagnose Exponential-Family
-#' Models for Networks.  *Journal of Statistical Software*, 24(3).
-#' \doi{10.18637/jss.v024.i03}
-#'
-#' - Karwa V, Krivitsky PN, and Slavkovi\'c AB (2016). Sharing Social Network
-#' Data: Differentially Private Estimation of Exponential-Family Random Graph
-#' Models. *Journal of the Royal Statistical Society, Series C*, 66(3):
-#' 481-500. \doi{10.1111/rssc.12185}
-#'
-#' - Krivitsky PN (2012). Exponential-Family Random Graph Models for Valued
-#' Networks. *Electronic Journal of Statistics*, 6, 1100-1128.
-#' \doi{10.1214/12-EJS696}
-#'
-#' - Morris M, Handcock MS, Hunter DR (2008).  Specification of
-#' Exponential-Family Random Graph Models: Terms and Computational Aspects.
-#' *Journal of Statistical Software*, 24(4). \doi{10.18637/jss.v024.i04}
+#' @references \insertAllCited{}
 #' @keywords models
 NULL
 
@@ -534,6 +399,8 @@ NULL
 #' @aliases ergm-hints hints-ergm ergm.hints hints.ergm hints
 #' @description This page describes how to provide to the
 #'   \CRANpkg{ergm}'s MCMC algorithms information about the sample space. Hints can also be searched via [`search.ergmHints`], and help for an individual hint can be obtained with `ergmHint?<hint>` or `help("<hint>-ergmHint")`.
+#'
+#' \insertNoCite{GoHa08s,HuHa06i,HuHa08e,KaKr16s,Kr12e,MoHa08s}{ergm}
 #'
 #' @section \dQuote{Hints} for MCMC:
 #' \ERGMspec
@@ -577,32 +444,7 @@ NULL
 #' \if{text}{\Sexpr[results=rd,stage=render]{ergm:::.formatIndexText(ergm:::.buildTermsDataframe("ergmHint"))}}
 #' \if{html}{\Sexpr[results=rd,stage=render]{ergm:::.formatIndexHtml(ergm:::.buildTermsDataframe("ergmHint"))}}
 #' 
-#' @references
-#' - Goodreau SM, Handcock MS, Hunter DR, Butts CT, Morris M (2008a).  A
-#' \CRANpkg{statnet} Tutorial. *Journal of Statistical Software*, 24(8).
-#' \doi{10.18637/jss.v024.i08}
-#' 
-#' - Hunter, D. R. and Handcock, M. S. (2006) *Inference in curved
-#' exponential family models for networks*, Journal of Computational and
-#' Graphical Statistics.
-#' 
-#' - Hunter DR, Handcock MS, Butts CT, Goodreau SM, Morris M (2008b).
-#' \CRANpkg{ergm}: A Package to Fit, Simulate and Diagnose Exponential-Family
-#' Models for Networks.  *Journal of Statistical Software*, 24(3).
-#' \doi{10.18637/jss.v024.i03}
-#' 
-#' - Karwa V, Krivitsky PN, and Slavkovi\'c AB (2016). Sharing Social Network
-#' Data: Differentially Private Estimation of Exponential-Family Random Graph
-#' Models. *Journal of the Royal Statistical Society, Series C*, 66(3):
-#' 481-500. \doi{10.1111/rssc.12185}
-#' 
-#' - Krivitsky PN (2012). Exponential-Family Random Graph Models for Valued
-#' Networks. *Electronic Journal of Statistics*, 6, 1100-1128.
-#' \doi{10.1214/12-EJS696}
-#' 
-#' - Morris M, Handcock MS, Hunter DR (2008).  Specification of
-#' Exponential-Family Random Graph Models: Terms and Computational Aspects.
-#' *Journal of Statistical Software*, 24(4). \doi{10.18637/jss.v024.i04}
+#' @references \insertAllCited{}
 #' @keywords models
 NULL
 
@@ -614,6 +456,8 @@ NULL
 #' @description This page describes how to specify the reference measures (baseline distributions)
 #' (the set of possible networks \eqn{Y} and the baseline weights \eqn{h(y)} to functions in the [`ergm`][ergm-package]
 #' package. It also provides an indexed list of the references visible to the \CRANpkg{ergm}'s API. References can also be searched via [search.ergmReferences()], and help for an individual reference can be obtained with `ergmReference?<reference>` or `help("<reference>-ergmReference")`.
+#'
+#' \insertNoCite{HuHa08e,Kr12e}{ergm}
 #'
 #' @section Specifying reference measures:
 #' \ERGMspec
@@ -641,15 +485,7 @@ NULL
 #'
 #' @seealso [`ergm`][ergm-package], [`network`], \CRANpkg{sna}, [`summary.ergm`], [`print.ergm`], `\%v\%`, `\%n\%`
 #' 
-#' @references
-#' - Hunter DR, Handcock MS, Butts CT, Goodreau SM, Morris M (2008b). \CRANpkg{ergm}:
-#' A Package to Fit, Simulate and Diagnose Exponential-Family Models for
-#' Networks. *Journal of Statistical Software*, 24(3).
-#' \doi{10.18637/jss.v024.i03}
-#' 
-#' - Krivitsky PN (2012). Exponential-Family Random Graph Models for Valued
-#' Networks. *Electronic Journal of Statistics*, 2012, 6, 1100-1128.
-#' \doi{10.1214/12-EJS696}
+#' @references \insertAllCited{}
 #'
 #' @keywords models
 NULL
@@ -667,6 +503,8 @@ NULL
 #'   [`search.ergmProposals`], and help for an individual proposal can
 #'   be obtained with `ergmProposal?<proposal>` or
 #'   `help("<proposal>-ergmProposal")`.
+#'
+#' \insertNoCite{GoHa08s,HuHa06i,HuHa08e,Kr12e,MoHa08s}{ergm}
 #'
 #' @details [`ergm`] uses a Metropolis-Hastings (MH) algorithm to
 #'   control the behavior of the Markov Chain Monte Carlo (MCMC) for
@@ -694,25 +532,7 @@ NULL
 #'
 #' @seealso [`ergm`][ergm-package] package, [`ergm`], [`ergmConstraint`], [`ergmHint`], [`ergm_proposal`]
 #'
-#' @references
-#' - Goodreau SM, Handcock MS, Hunter DR, Butts CT, Morris M (2008a).  A \CRANpkg{statnet} Tutorial.
-#' *Journal of Statistical Software*, 24(8). \doi{10.18637/jss.v024.i08}
-#'
-#' - Hunter, D. R. and Handcock, M. S. (2006) Inference in curved exponential family models for networks.
-#' *Journal of Computational and Graphical Statistics*.
-#'
-#' - Hunter DR, Handcock MS, Butts CT, Goodreau SM, Morris M (2008b). \CRANpkg{ergm}:
-#' A Package to Fit, Simulate and Diagnose Exponential-Family Models for
-#' Networks. *Journal of Statistical Software*, 24(3).
-#' \doi{10.18637/jss.v024.i03}
-#'
-#' - Krivitsky PN (2012). Exponential-Family Random Graph Models for Valued
-#' Networks. *Electronic Journal of Statistics*, 2012, 6, 1100-1128.
-#' \doi{10.1214/12-EJS696}
-#'
-#' - Morris M, Handcock MS, Hunter DR (2008). Specification of Exponential-Family Random Graph Models:
-#' Terms and Computational Aspects. *Journal of Statistical Software*, 24(4).
-#' \doi{10.18637/jss.v024.i04}
+#' @references \insertAllCited{}
 #'
 #' @keywords models
 NULL

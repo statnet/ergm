@@ -73,6 +73,8 @@ output statistic values on the left and density estimate for each variable
 in the MCMC chain on the right.  Diagnostics printed to the console include
 correlations and convergence diagnostics.
 
+\insertNoCite{RaLe95n}{ergm}
+
 For \code{\link[=ergm]{ergm()}} specifically, recent changes in the
 estimation algorithm mean that these plots can no longer be used
 to ensure that the mean statistics from the model match the
@@ -123,10 +125,7 @@ plot(gest$sample, ask=FALSE)
 
 }
 \references{
-Raftery, A.E. and Lewis, S.M. (1995).  The number of iterations, convergence
-diagnostics and generic Metropolis algorithms.  In Practical Markov Chain
-Monte Carlo (W.R. Gilks, D.J. Spiegelhalter and S. Richardson, eds.).
-London, U.K.: Chapman and Hall.
+\insertAllCited{}
 }
 \seealso{
 \code{\link[=ergm]{ergm()}}, \CRANpkg{network} package, \CRANpkg{coda} package,

@@ -10,9 +10,7 @@
 \alias{samplk3}
 \title{Longitudinal and cumulative networks of positive and negative affect in a monastery}
 \source{
-Sampson, S.~F. (1968), \emph{A novitiate in a period of change: An
-experimental and case study of relationships,} Unpublished Ph.D.
-dissertation, Department of Sociology, Cornell University.
+Sampson (1969).
 
 \url{https://github.com/bavla/Nets/raw/refs/heads/master/data/Pajek/esna/Sampson.zip}
 }
@@ -122,6 +120,8 @@ number of times (out of 3) that monk A nominated monk B.
 
 For historical reasons, its vertex attribute \code{group} is the same as
 \code{group3} described above.
+
+\insertNoCite{WhBo76s,DeNo05e,Sa68n}{ergm}
 }
 }
 \section{History}{
@@ -195,12 +195,7 @@ all(as.matrix(samplike, attrname = "nominations") ==
 
 }
 \references{
-White, H.C., Boorman, S.A. and Breiger, R.L. (1976).
-\emph{Social structure from multiple networks. I. Blockmodels of roles and
-positions.} American Journal of Sociology, 81(4), 730-780.
-
-Wouter de Nooy, Andrej Mrvar, Vladimir Batagelj (2005) \emph{Exploratory
-Social Network Analysis with Pajek}, Cambridge: Cambridge University Press
+\insertAllCited{}
 }
 \seealso{
 \code{\link{florentine}}, \code{\link[network:network]{network}}, \code{\link[network:plot.network]{plot.network}}, \code{\link{ergm}}

@@ -46,9 +46,8 @@
 #'   that.)
 #' @seealso [logLik()], [logLikNull()], [ergm.bridge.llr()],
 #'   [ergm.bridge.dindstart.llk()]
-#' @references Hunter, D. R. and Handcock, M. S. (2006)
-#'   \emph{Inference in curved exponential family models for
-#'   networks}, Journal of Computational and Graphical Statistics.
+#' \insertNoCite{HuHa06i}{ergm}
+#' @references \insertAllCited{}
 #' @keywords models
 #' @examples
 #' 

@@ -31,6 +31,8 @@
 #' difference between them. This version attempts to adjust for
 #' multivariate autocorrelation in the samples.
 #'
+#' \insertNoCite{Ho47m}{ergm}
+#'
 #' @param x a numeric matrix of data values with cases in rows and
 #'   variables in columns.
 #' @param y an optinal matrix of data values with cases in rows and
@@ -65,11 +67,7 @@
 #' @seealso [t.test()]
 #' @note For [`mcmc.list`] input, the variance for this test is
 #'   estimated with unpooled means. This is not strictly correct.
-#' @references
-#' 
-#' Hotelling, H. (1947). Multivariate Quality Control. In C. Eisenhart, M. W.
-#' Hastay, and W. A. Wallis, eds. Techniques of Statistical Analysis. New York:
-#' McGraw-Hill.
+#' @references \insertAllCited{}
 #'
 #' @export approx.hotelling.diff.test
 approx.hotelling.diff.test<-function(x,y=NULL, mu0=0, assume.indep=FALSE, var.equal=FALSE, ...){

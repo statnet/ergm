@@ -69,19 +69,15 @@ linear function of the natural parameters (eta) in the exponential-family
 model. In non-curved models, we may assume without loss of generality that
 eta(theta)=theta.
 
+\insertNoCite{HuHa06i,Hu07c}{ergm}
+
 A succinct description of how eta(theta) is incorporated into an ERGM is
 given by equation (5) of Hunter (2007).  See Hunter and Handcock (2006) and
 Hunter (2007) for further details about how eta and its derivatives are used
 in the estimation process.
 }
 \references{
-\itemize{ \item Hunter, D. R. and M. S. Handcock
-(2006).  Inference in curved exponential family models for
-networks. \emph{Journal of Computational and Graphical
-Statistics}, 15: 565--583.
-
-\item Hunter, D. R. (2007). Curved exponential family models for social
-networks. \emph{Social Networks}, 29: 216--230.  }
+\insertAllCited{}
 }
 \seealso{
 \code{\link{ergmTerm}}

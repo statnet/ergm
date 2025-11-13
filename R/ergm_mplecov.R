@@ -24,14 +24,12 @@
 #' @param family the family to use in the R native routine
 #' default="binomial"
 #'
+#' \insertNoCite{ScDe17e,ScHu23c}{ergm}
+#'
 #' @return \code{ergm_mplecov} returns a list either
 #'   containing a Godambe covariance matrix or a diagonal matrix with bootstrap variances.
 #'
-#' @references Schmid CS and Desmarais BA (2017). "Exponential random graph
-#' models with big networks: Maximum pseudolikelihood estimation and the parametric bootstrap"
-#' _IEEE International Conference on Big Data (Big Data)_, pp. 116-121.
-#'
-#' Schmid CS and Hunter DR (2023).  "Computing Pseudolikelihood Estimators for Exponential-Family Random Graph Models" _Journal of Data Science_.
+#' @references \insertAllCited{}
 #' @noRd
 #'
 #' @examples

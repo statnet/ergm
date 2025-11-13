@@ -7,9 +7,7 @@
 \alias{flomarriage}
 \title{Florentine Family Marriage and Business Ties Data as a "network" object}
 \source{
-Padgett, John F. 1994. Marriage and Elite Structure in Renaissance
-Florence, 1282-1500. Paper delivered to the Social Science History
-Association.
+Padgett and Johnson (1994).
 }
 \usage{
 data(florentine)
@@ -42,14 +40,11 @@ Substantively, the data include families who were locked in a struggle for
 political control of the city of Florence around 1430. Two factions were
 dominant in this struggle: one revolved around the infamous Medicis (9), the
 other around the powerful Strozzis (15).
+
+\insertNoCite{WaFa94s,BrPa86c,PaJo94m}{ergm}
 }
 \references{
-Wasserman, S. and Faust, K. (1994) \emph{Social Network
-Analysis: Methods and Applications}, Cambridge University Press, Cambridge,
-England.
-
-Breiger R. and Pattison P. (1986). \emph{Cumulated social roles: The duality
-of persons and their algebras}, Social Networks, 8, 215-256.
+\insertAllCited{}
 }
 \seealso{
 flo, network, plot.network, ergm

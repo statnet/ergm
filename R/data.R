@@ -20,6 +20,7 @@
 #' exhibit only self-regulation in \code{ecoli1}) are removed, leaving 418
 #' nodes.
 #' 
+#' \insertNoCite{SaSu01r,ShSh02n}{ergm}
 #' @usage
 #' data(ecoli)
 #' @docType data
@@ -28,14 +29,7 @@
 #' @section Licenses and Citation: When publishing results obtained using this
 #' data set, the original authors (Salgado et al, 2001; Shen-Orr et al, 2002)
 #' should be cited, along with this \code{R} package.
-#' @references
-#' 
-#' Salgado et al (2001), Regulondb (version 3.2): Transcriptional Regulation
-#' and Operon Organization in Escherichia Coli K-12, \emph{Nucleic Acids
-#' Research}, 29(1): 72-74.
-#' 
-#' Shen-Orr et al (2002), Network Motifs in the Transcriptional Regulation
-#' Network of Escerichia Coli, \emph{Nature Genetics}, 31(1): 64-68.
+#' @references \insertAllCited{}
 #' 
 #' %Saul and Filkov (2007)
 #' 
@@ -51,6 +45,7 @@ NULL
 #' network.  The network is named faux.desert.high.
 #' 
 #' 
+#' \insertNoCite{ReGa97p}{ergm}
 #' @usage
 #' data(faux.desert.high)
 #' @docType data
@@ -81,12 +76,7 @@ NULL
 #' [plot.network()], [ergm()],
 #' [`faux.desert.high`], [`faux.mesa.high`],
 #' [`faux.magnolia.high`]
-#' @references
-#' 
-#' Resnick M.D., Bearman, P.S., Blum R.W. et al. (1997). \emph{Protecting
-#' adolescents from harm. Findings from the National Longitudinal Study on
-#' Adolescent Health}, \emph{Journal of the American Medical Association}, 278:
-#' 823-32.
+#' @references \insertAllCited{}
 #' @source The data set is simulation based upon an ergm model fit to data from
 #' one school community from the AddHealth Study, Wave I (Resnick et al.,
 #' 1997). It was constructed as follows:
@@ -129,6 +119,7 @@ NULL
 #' network.  The network is named faux.dixon.high.
 #' 
 #' 
+#' \insertNoCite{ReGa97p}{ergm}
 #' @usage
 #' data(faux.dixon.high)
 #' @docType data
@@ -159,12 +150,7 @@ NULL
 #' [plot.network()], [ergm()],
 #' [`faux.desert.high`], [`faux.mesa.high`],
 #' [`faux.magnolia.high`]
-#' @references
-#' 
-#' Resnick M.D., Bearman, P.S., Blum R.W. et al. (1997). \emph{Protecting
-#' adolescents from harm. Findings from the National Longitudinal Study on
-#' Adolescent Health}, \emph{Journal of the American Medical Association}, 278:
-#' 823-32.
+#' @references \insertAllCited{}
 #' @source The data set is simulation based upon an ergm model fit to data from
 #' one school community from the AddHealth Study, Wave I (Resnick et al.,
 #' 1997). It was constructed as follows:
@@ -207,6 +193,7 @@ NULL
 #' which it is based are large and located in the southern US.
 #' 
 #' 
+#' \insertNoCite{ReGa97p}{ergm}
 #' @usage
 #' data(faux.magnolia.high)
 #' @docType data
@@ -236,12 +223,7 @@ NULL
 #' @seealso [`network`],
 #' [plot.network()], [ergm()],
 #' [`faux.mesa.high`]
-#' @references
-#' 
-#' Resnick M.D., Bearman, P.S., Blum R.W. et al. (1997). \emph{Protecting
-#' adolescents from harm. Findings from the National Longitudinal Study on
-#' Adolescent Health}, \emph{Journal of the American Medical Association}, 278:
-#' 823-32.
+#' @references \insertAllCited{}
 #' @source The data set is based upon a model fit to data from two school
 #' communities from the AddHealth Study, Wave I (Resnick et al., 1997). It was
 #' constructed as follows:
@@ -278,6 +260,7 @@ NULL
 #' US, with a student body that is largely Hispanic and Native American.
 #' 
 #' 
+#' \insertNoCite{HuGo08g,ReGa97p}{ergm}
 #' @usage
 #' data(faux.mesa.high)
 #' @docType data
@@ -308,16 +291,7 @@ NULL
 #' @seealso [`network`],
 #' [plot.network()], [ergm()],
 #' [`faux.magnolia.high`]
-#' @references
-#' 
-#' Hunter D.R., Goodreau S.M. and Handcock M.S. (2008). \emph{Goodness of Fit
-#' of Social Network Models}, \emph{Journal of the American Statistical
-#' Association}.
-#' 
-#' Resnick M.D., Bearman, P.S., Blum R.W. et al. (1997). \emph{Protecting
-#' adolescents from harm. Findings from the National Longitudinal Study on
-#' Adolescent Health}, \emph{Journal of the American Medical Association}, 278:
-#' 823-32.
+#' @references \insertAllCited{}
 #' @source The data set is based upon a model fit to data from one school
 #' community from the AddHealth Study, Wave I (Resnick et al., 1997). It was
 #' constructed as follows:
@@ -374,6 +348,7 @@ NULL
 #' dominant in this struggle: one revolved around the infamous Medicis (9), the
 #' other around the powerful Strozzis (15).
 #' 
+#' \insertNoCite{WaFa94s,BrPa86c,PaJo94m}{ergm}
 #' @usage
 #' data(florentine)
 #' @docType data
@@ -382,15 +357,8 @@ NULL
 #' 
 #' 
 #' @seealso flo, network, plot.network, ergm
-#' @references Wasserman, S. and Faust, K. (1994) \emph{Social Network
-#' Analysis: Methods and Applications}, Cambridge University Press, Cambridge,
-#' England.
-#' 
-#' Breiger R. and Pattison P. (1986). \emph{Cumulated social roles: The duality
-#' of persons and their algebras}, Social Networks, 8, 215-256.
-#' @source Padgett, John F. 1994. Marriage and Elite Structure in Renaissance
-#' Florence, 1282-1500. Paper delivered to the Social Science History
-#' Association.
+#' @references \insertAllCited{}
+#' @source Padgett and Johnson (1994).
 #' @keywords datasets
 NULL
 
@@ -592,6 +560,7 @@ NULL
 #' For historical reasons, its vertex attribute `group` is the same as
 #' `group3` described above.
 #' 
+#' \insertNoCite{WhBo76s,DeNo05e,Sa68n}{ergm}
 #' @usage
 #' data(sampson)
 #' data(samplk)
@@ -666,15 +635,8 @@ NULL
 #' Simplicius.
 #'
 #' @seealso [`florentine`], [`network`], [`plot.network`], [`ergm`]
-#' @references White, H.C., Boorman, S.A. and Breiger, R.L. (1976).
-#' \emph{Social structure from multiple networks. I. Blockmodels of roles and
-#' positions.} American Journal of Sociology, 81(4), 730-780.
-#' 
-#' Wouter de Nooy, Andrej Mrvar, Vladimir Batagelj (2005) \emph{Exploratory
-#' Social Network Analysis with Pajek}, Cambridge: Cambridge University Press
-#' @source Sampson, S.~F. (1968), \emph{A novitiate in a period of change: An
-#' experimental and case study of relationships,} Unpublished Ph.D.
-#' dissertation, Department of Sociology, Cornell University.
+#' @references \insertAllCited{}
+#' @source Sampson (1969).
 #' 
 #' \url{https://github.com/bavla/Nets/raw/refs/heads/master/data/Pajek/esna/Sampson.zip}
 #' @keywords datasets
@@ -722,14 +684,14 @@ NULL
 #' }
 #' }
 #' 
+#' \insertNoCite{KrHu23e}{ergm}
 #' @usage
 #' data(cohab)
 #' @docType data
 #' @name cohab
 #' @aliases cohab_MixMat cohab_PopWts cohab_TargetStats
 #' @seealso ergm
-#' @references Krivitsky, P.N., Hunter, D.R., Morris, M., and Klumb, C. (2021).
-#' \emph{ergm 4.0: New Features and Improvements}. arXiv
+#' @references \insertAllCited{}
 #' 
 #' National Center for Health Statistics (NCHS). (2020). 2006-2015 National 
 #' Survey of Family Growth Public-Use Data and Documentation. Hyattsville, MD: 

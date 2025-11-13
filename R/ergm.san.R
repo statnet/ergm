@@ -12,6 +12,8 @@
 #' 
 #' This function attempts to find a network or networks whose statistics match
 #' those passed in via the `target.stats` vector.
+#'
+#' \insertNoCite{KrHu23e}{ergm}
 #' 
 #' @details The following description is an exegesis of section 4 of Krivitsky
 #'   et al. (2022).
@@ -94,8 +96,7 @@
 #'   are provided about their probability distribution. Additionally,
 #'   [attr()]-style attributes `formula` and `stats` are included.
 #' 
-#' @references Krivitsky, P. N., Hunter, D. R., Morris, M., & Klumb, C. (2022).
-#'   ergm 4: Computational Improvements. arXiv preprint arXiv:2203.08198.
+#' @references \insertAllCited{}
 #' 
 #' 
 #' @keywords models

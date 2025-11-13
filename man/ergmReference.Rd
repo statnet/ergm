@@ -11,6 +11,8 @@
 This page describes how to specify the reference measures (baseline distributions)
 (the set of possible networks \eqn{Y} and the baseline weights \eqn{h(y)} to functions in the \code{\link[=ergm-package]{ergm}}
 package. It also provides an indexed list of the references visible to the \CRANpkg{ergm}'s API. References can also be searched via \code{\link[=search.ergmReferences]{search.ergmReferences()}}, and help for an individual reference can be obtained with \verb{ergmReference?<reference>} or \code{help("<reference>-ergmReference")}.
+
+\insertNoCite{HuHa08e,Kr12e}{ergm}
 }
 \section{Specifying reference measures}{
 
@@ -44,15 +46,7 @@ typically as the \code{reference} argument.
 }
 
 \references{
-\itemize{
-\item Hunter DR, Handcock MS, Butts CT, Goodreau SM, Morris M (2008b). \CRANpkg{ergm}:
-A Package to Fit, Simulate and Diagnose Exponential-Family Models for
-Networks. \emph{Journal of Statistical Software}, 24(3).
-\doi{10.18637/jss.v024.i03}
-\item Krivitsky PN (2012). Exponential-Family Random Graph Models for Valued
-Networks. \emph{Electronic Journal of Statistics}, 2012, 6, 1100-1128.
-\doi{10.1214/12-EJS696}
-}
+\insertAllCited{}
 }
 \seealso{
 \code{\link[=ergm-package]{ergm}}, \code{\link[network:network]{network}}, \CRANpkg{sna}, \code{\link{summary.ergm}}, \code{\link{print.ergm}}, \verb{\\\%v\\\%}, \verb{\\\%n\\\%}

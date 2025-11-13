@@ -136,6 +136,8 @@ This function attempts to find a network or networks whose statistics match
 those passed in via the \code{target.stats} vector.
 }
 \details{
+\insertNoCite{KrHu23e}{ergm}
+
 The following description is an exegesis of section 4 of Krivitsky
 et al. (2022).
 
@@ -259,7 +261,6 @@ plot(y)
 }
 }
 \references{
-Krivitsky, P. N., Hunter, D. R., Morris, M., & Klumb, C. (2022).
-ergm 4: Computational Improvements. arXiv preprint arXiv:2203.08198.
+\insertAllCited{}
 }
 \keyword{models}

@@ -28,16 +28,14 @@
 #' in the MCMC chain on the right.  Diagnostics printed to the console include
 #' correlations and convergence diagnostics.
 #'
+#' \insertNoCite{RaLe95n}{ergm}
+#'
 #' @aliases mcmc.diagnostics.default
 #' @param object A model fit object to be diagnosed.
 #' @param \dots Additional arguments, to be passed to plotting functions.
 #' @seealso [ergm()], \CRANpkg{network} package, \CRANpkg{coda} package,
 #' [summary.ergm()]
-#' @references
-#' Raftery, A.E. and Lewis, S.M. (1995).  The number of iterations, convergence
-#' diagnostics and generic Metropolis algorithms.  In Practical Markov Chain
-#' Monte Carlo (W.R. Gilks, D.J. Spiegelhalter and S. Richardson, eds.).
-#' London, U.K.: Chapman and Hall.
+#' @references \insertAllCited{}
 #' @keywords models
 #' @examples
 #'

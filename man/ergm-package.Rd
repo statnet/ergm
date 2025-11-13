@@ -55,76 +55,11 @@ For detailed information on how to download and install the software, go to
 the \CRANpkg{ergm} website: \url{https://statnet.org}. A
 tutorial, support newsgroup, references and links to further resources are
 provided there.
+
+\insertNoCite{AdHa07n,BeMo08p,BoHu03s,Bu08sna,Bu08net,GoHa08s,GoKi09b,Ha03a,Ha03deg,HaHu08s,HuHa06i,KrHa08l,Kr12e,MoHa08s,StIk90p}{ergm}
 }
 \references{
 \insertAllCited{}
-
-Admiraal R, Handcock MS (2007).  \CRANpkg{networksis}: Simulate
-bipartite graphs with fixed marginals through sequential importance
-sampling.  Statnet Project, Seattle, WA.  Version 1,
-\url{https://statnet.org}.
-
-Bender-deMoll S, Morris M, Moody J (2008).  Prototype Packages for Managing
-and Animating Longitudinal Network Data: \pkg{dynamicnetwork} and
-\pkg{rSoNIA}.  \emph{Journal of Statistical Software}, 24(7).
-\doi{10.18637/jss.v024.i07}
-
-Boer P, Huisman M, Snijders T, Zeggelink E (2003).  StOCNET: an open
-software system for the advanced statistical analysis of social networks.
-Groningen: ProGAMMA / ICS, version 1.4 edition.
-
-Butts CT (2007).  \CRANpkg{sna}: Tools for Social Network Analysis.  R package
-version 2.3-2. \url{https://cran.r-project.org/package=sna}
-
-Butts CT (2008).  \CRANpkg{network}: A Package for Managing Relational Data in .
-\emph{Journal of Statistical Software}, 24(2).
-\doi{10.18637/jss.v024.i02}
-
-Butts C (2015). \CRANpkg{network}: Classes for Relational Data. The Statnet
-Project (\url{https://statnet.org}). R package version 1.12.0,
-\url{https://cran.r-project.org/package=network}.
-
-Goodreau SM, Handcock MS, Hunter DR, Butts CT, Morris M (2008a).  A
-\CRANpkg{statnet} Tutorial.  \emph{Journal of Statistical Software}, 24(8).
-\doi{10.18637/jss.v024.i08}
-
-Goodreau SM, Kitts J, Morris M (2008b).  Birds of a Feather, or Friend of a
-Friend? Using Exponential Random Graph Models to Investigate Adolescent
-Social Networks.  \emph{Demography}, 45, in press.
-
-Handcock, M. S. (2003) Assessing Degeneracy in Statistical Models of Social
-Networks, Working Paper #39, Center for Statistics and the Social Sciences,
-University of Washington.
-\url{https://csss.uw.edu/research/working-papers/assessing-degeneracy-statistical-models-social-networks}
-
-Handcock MS (2003b).  \CRANpkg{degreenet}: Models for Skewed Count Distributions
-Relevant to Networks.  Statnet Project, Seattle, WA.  Version 1.0,
-\url{https://statnet.org}.
-
-Handcock MS, Hunter DR, Butts CT, Goodreau SM, Morris M (2003b).
-\CRANpkg{statnet}: Software Tools for the Statistical Modeling of Network Data.
-Statnet Project, Seattle, WA.  Version 3, \url{https://statnet.org}.
-
-Hunter, D. R. and Handcock, M. S. (2006) Inference in curved exponential
-family models for networks, \emph{Journal of Computational and Graphical
-Statistics}, 15: 565-583
-
-Krivitsky PN, Handcock MS (2007).  \CRANpkg{latentnet}: Latent position and
-cluster models for statistical networks.  Seattle, WA.  Version 2,
-\url{https://statnet.org}.
-
-Krivitsky PN (2012). Exponential-Family Random Graph Models for Valued
-Networks. \emph{Electronic Journal of Statistics}, 2012, 6, 1100-1128.
-\doi{10.1214/12-EJS696}
-
-Morris M, Handcock MS, Hunter DR (2008).  Specification of
-Exponential-Family Random Graph Models: Terms and Computational Aspects.
-\emph{Journal of Statistical Software}, 24(4).
-\doi{10.18637/jss.v024.i04}
-
-Strauss, D., and Ikeda, M.(1990). Pseudolikelihood estimation for social
-networks. \emph{Journal of the American Statistical Association}, 85,
-204-212.
 }
 \seealso{
 \code{\link{ergmTerm}}, \code{\link{ergmConstraint}}, \code{\link{ergmReference}},

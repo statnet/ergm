@@ -14,6 +14,7 @@
 #' estimate the difference between the log-likelihoods of two parameter vectors
 #' for an ERGM via repeated calls to [simulate.formula.ergm()].
 #' 
+#' \insertNoCite{HuHa06i}{ergm}
 #' 
 #' 
 #' @param object A model formula. See [ergm()] for details.
@@ -72,9 +73,7 @@
 #'   \item{Dtheta.Du}{The gradient vector of the parameter values with
 #'   respect to position of the bridge.}
 #' @seealso [simulate.formula.ergm()]
-#' @references Hunter, D. R. and Handcock, M. S. (2006)
-#'   \emph{Inference in curved exponential family models for
-#'   networks}, Journal of Computational and Graphical Statistics.
+#' @references \insertAllCited{}
 #' @keywords model
 #' @export
 ergm.bridge.llr<-function(object, response=NULL, reference=~Bernoulli, constraints=~., from, to, obs.constraints=~.-observed, target.stats=NULL, basis=ergm.getnetwork(object), verbose=FALSE, ..., llronly=FALSE, control=control.ergm.bridge()){

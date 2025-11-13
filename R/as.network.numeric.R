@@ -15,6 +15,8 @@
 #' 
 #' The network will not have vertex, edge or network attributes.  These
 #' can be added with operators such as \code{\%v\%}, \code{\%n\%}, \code{\%e\%}.
+#'
+#' \insertNoCite{Bu02m}{ergm}
 #' 
 #' @param x count; the number of nodes in the network
 #' @param directed logical; should edges be interpreted as directed?
@@ -42,8 +44,7 @@
 #' @param ... additional arguments
 #' @return An object of class [`network`]
 #' @seealso [`network`]
-#' @references Butts, C.T.  2002.  ``Memory Structures for Relational Data in
-#' R: Classes and Interfaces'' Working Paper.
+#' @references \insertAllCited{}
 #' @keywords classes graphs
 #' @examples
 #' # Draw a random directed network with 25 nodes

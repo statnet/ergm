@@ -29,7 +29,7 @@ attributes and Levels (\code{\link[=nodal_attributes]{?nodal_attributes}}) for d
 \item{attr}{a vertex attribute specification (see Specifying Vertex attributes and Levels (\code{?nodal_attributes}) for details.)}
 }
 \description{
-This term is introduced in Bomiriya et al (2014).
+This term is introduced in \insertCite{BoBa23m}{ergm}.
 With the default \code{alpha} and \code{beta} values, this term will
 simply be a homophily based two-star statistic. This term adds one statistic to the model
 unless \code{diff} is set to \code{TRUE} , in which case the term adds multiple network

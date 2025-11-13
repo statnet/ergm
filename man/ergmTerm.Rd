@@ -11,6 +11,8 @@
 \title{Terms used in Exponential Family Random Graph Models}
 \description{
 This page explains how to specify the network statistics \eqn{g(y)} to functions in the \code{\link[=ergm-package]{ergm}} package and packages that extend it. It also provides an indexed list of the possible terms (and hence network statistics) visible to the \CRANpkg{ergm} API. Terms can also be searched via \code{\link{search.ergmTerms}}, and help for an individual term can be obtained with \verb{ergmTerm?<term>} or \code{help("<term>-ergmTerm")}.
+
+\insertNoCite{KrHu23e,BoBa23m,Bu08r,DaLe72s,HoLe81e,HuHa06i,Hu07c,KrHa07h,Kr12e,RoPa09c,SnVa10i,MoHa08s,SnPa06n}{ergm}
 }
 \section{Specifying models}{
 
@@ -229,46 +231,7 @@ ergm(molecule ~ edges + kstar(2:3) + triangle
 }
 }
 \references{
-\itemize{
-\item Krivitsky P. N., Hunter D. R., Morris M., Klumb
-C. (2021). "ergm 4.0: New features and improvements."
-arXiv:2106.04997. \url{https://arxiv.org/abs/2106.04997}
-\item Bomiriya, R. P, Bansal, S., and Hunter, D. R. (2014).  Modeling
-Homophily in ERGMs for Bipartite Networks.  Submitted.
-\item Butts, CT.  (2008).  "A Relational Event Framework for Social
-Action." \emph{Sociological Methodology,} 38(1).
-\item Davis, J.A. and Leinhardt, S.  (1972).  The Structure of Positive
-Interpersonal Relations in Small Groups.  In J. Berger (Ed.),
-\emph{Sociological Theories in Progress, Volume 2}, 218--251.  Boston:
-Houghton Mifflin.
-\item Holland, P. W. and S. Leinhardt (1981). An exponential family of
-probability distributions for directed graphs.  \emph{Journal of the
-American Statistical Association}, 76: 33--50.
-\item Hunter, D. R. and M. S. Handcock (2006). Inference in curved
-exponential family models for networks. \emph{Journal of Computational and
-Graphical Statistics}, 15: 565--583.
-\item Hunter, D. R. (2007). Curved exponential family models for social
-networks. \emph{Social Networks}, 29: 216--230.
-\item Krackhardt, D. and Handcock, M. S. (2007).  Heider versus Simmel:
-Emergent Features in Dynamic Structures. \emph{Lecture Notes in Computer
-Science}, 4503, 14--27.
-\item Krivitsky P. N. (2012). Exponential-Family Random Graph Models for
-Valued Networks. \emph{Electronic Journal of Statistics}, 2012, 6,
-1100-1128. \doi{10.1214/12-EJS696}
-\item Robins, G; Pattison, P; and Wang, P.  (2009).  "Closure,
-Connectivity, and Degree Distributions: Exponential Random Graph (p*) Models
-for Directed Social Networks." \emph{Social Networks,} 31:105-117.
-\item Snijders T. A. B., G. G. van de Bunt, and C. E. G. Steglich.
-Introduction to Stochastic Actor-Based Models for Network Dynamics.
-\emph{Social Networks}, 2010, 32(1), 44-60. \doi{10.1016/j.socnet.2009.02.004}
-\item Morris M, Handcock MS, and Hunter DR. Specification of
-Exponential-Family Random Graph Models: Terms and Computational Aspects.
-\emph{Journal of Statistical Software}, 2008, 24(4), 1-24.
-\doi{10.18637/jss.v024.i04}
-\item Snijders, T. A. B., P. E. Pattison, G. L. Robins, and M. S. Handcock
-(2006). New specifications for exponential random graph models,
-\emph{Sociological Methodology}, 36(1): 99-153.
-}
+\insertAllCited{}
 }
 \seealso{
 \code{\link[=ergm-package]{ergm}} package, \code{\link{search.ergmTerms}}, \code{\link{ergm}}, \code{\link[network:network]{network}}, \code{\link[network:network.extraction]{\%v\%}}, \code{\link[network:network.extraction]{\%n\%}}
