@@ -74,6 +74,92 @@
 
 %% }
 
+
+
+\section{Changes in version 4.11.0}{
+
+  \subsection{NEW FEATURES}{
+    \itemize{
+      \item{
+        Nonidentifiability detection now returns details about which variables are linear combinations of which variables. This information is also saved as a part of the \code{ergm} object and is accessible via \code{\link[=alias.ergm]{alias}()} and \code{\link[=summary.ergm]{summary}()} methods.
+      }
+      \item{
+        Auxiliary \ergmAuxiliary{ergm}{.submodel}{()} and term \ergmTerm{ergm}{submodel.test}{()} now work for valued networks as well.
+      }
+      \item{
+        Sampson's monks data (\code{\link{sampson}} and \code{\link{samplk}}) has been augmented:
+        \itemize{
+          \item{
+            Dislike networks \code{sampdlk1}, \code{sampdlk2}, and \code{sampdlk3} have been added.
+          }
+          \item{
+            \code{samplk} networks also have the edge weights with the scores recorded by Sampson.
+          }
+          \item{
+            \code{sampson} (\code{samplike}) and \code{samplk} (\code{samplk#} and \code{samdlk#}) now have more consistent vertex attributes.
+          }
+        }
+      }
+    }
+  }
+
+  \subsection{BUG FIXES}{
+    \itemize{
+      \item{
+        Update to work with \CRANpkg{testthat} 3.3.0. (Thanks to Hadley Wickham.)
+      }
+      \item{
+        Fixes to the \code{\link{gof}()} code; in particular, the triad census was being plotted with the model statistics but in a separate plot.
+      }
+    }
+  }
+
+  \subsection{OTHER USER-VISIBLE CHANGES}{
+    \itemize{
+      \item{
+        MCMLE verbose progress printing is now a bit more concise and focused.
+      }
+      \item{
+        MCMLE verbose printing now prints the estimated gradient of the log-likelihood, rather than its negation as estimating function values.
+      }
+      \item{
+        Runtime trace plots are now more compact, with less paging.
+      }
+      \item{
+        Example of \code{\link{control.simulate.formula}()} is now provided.
+      }
+      \item{
+        References have been ported to \CRANpkg{Rdpack} and cleaned up.
+      }
+    }
+  }
+
+  %% \subsection{C-LEVEL FACILITIES}{
+  %%   \itemize{
+  %%   }
+  %% }
+
+  %% \subsection{UTILITIES}{
+  %%   \itemize{
+  %%     \item Likewise, "UTILITIES" is probably unnecessary.
+  %%   }
+  %% }
+
+  %% \subsection{INSTALLATION}{
+  %%   \itemize{
+  %%     \item ... as is "INSTALLATION".
+  %%   }
+  %% }
+
+  %% \subsection{PACKAGE INSTALLATION}{
+  %%   \itemize{
+  %%     \item ditto.
+  %%   }
+  %% }
+
+}
+
+
 \section{Changes in version 4.10.1}{
 
   \subsection{NEW FEATURES}{
