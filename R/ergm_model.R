@@ -73,7 +73,7 @@ ergm_model.term_list <- function(object, nw=NULL, silent=FALSE, ..., term.option
 
   for (i in seq_along(v)) {
     term <- v[[i]]
-    term.env <- attr(v,"env")[[i]]
+    term.env <- envir(v)[[i]]
 
     if (is.call(term) && term[[1L]] == "offset"){ # Offset term
       offset <-

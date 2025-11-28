@@ -285,8 +285,8 @@ ergm_conlist.term_list <- function(object, nw, ..., term.options=list()){
   object <-
     if(is(object, "AsIs")) structure(object, class = class(object)[class(object) != "AsIs"])
     else c(object, list(call(".attributes")))
-  consigns <- attr(object, "sign")
-  conenvs <- attr(object, "env")
+  consigns <- sign(object)
+  conenvs <- envir(object)
 
   conlist<-list()
   for(i in seq_along(object)){
