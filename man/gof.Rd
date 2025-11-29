@@ -83,14 +83,15 @@ undirected graphs}
 
 }
 
-The default formula for undirected networks is
-\code{~ degree + espartners + distance + model}, and the default
-formula for directed networks is \code{~ idegree + odegree +
-  espartners + distance + model}. By default a \code{model} term
-is added to the formula.  It is a very useful overall validity
-check and a reminder of the statistical variation in the
-estimates of the mean value parameters.  To omit the
-\code{model} term, add \code{- model} to the formula.
+The default formula for undirected networks is \code{~ degree +
+  espartners + distance + model}, for directed networks \code{~
+  idegree + odegree + espartners + distance + model}, and for
+bipartite \code{~b1degree + b2degree + dspartners + distance}. By
+default a \code{model} term is added to the formula.  It is a
+very useful overall validity check and a reminder of the
+statistical variation in the estimates of the mean value
+parameters.  To omit the \code{model} term, add \code{- model} to
+the formula.
 
 Ordinary \code{ergm()} terms can also be given on the formula; if
 present, they will be returned as "user" statistics.}
@@ -183,13 +184,6 @@ reachability for the goodness-of-fit of exponential family random graph
 models.
 
 }}
-\note{
-For \code{gof.ergm} and \code{gof.formula}, default behavior depends on the
-directedness of the network involved; if undirected then degree, espartners,
-and distance are used as default properties to examine.  If the network in
-question is directed, \code{degree} in the above is replaced by idegree
-and odegree.
-}
 \examples{
 
 \donttest{

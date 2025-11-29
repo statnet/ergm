@@ -94,14 +94,15 @@ which_gof <- function(x) {
 #'
 #'   }
 #'
-#'   The default formula for undirected networks is
-#'   \code{~ degree + espartners + distance + model}, and the default
-#'   formula for directed networks is \code{~ idegree + odegree +
-#'   espartners + distance + model}. By default a \code{model} term
-#'   is added to the formula.  It is a very useful overall validity
-#'   check and a reminder of the statistical variation in the
-#'   estimates of the mean value parameters.  To omit the
-#'   \code{model} term, add \code{- model} to the formula.
+#'   The default formula for undirected networks is \code{~ degree +
+#'   espartners + distance + model}, for directed networks \code{~
+#'   idegree + odegree + espartners + distance + model}, and for
+#'   bipartite \code{~b1degree + b2degree + dspartners + distance}. By
+#'   default a \code{model} term is added to the formula.  It is a
+#'   very useful overall validity check and a reminder of the
+#'   statistical variation in the estimates of the mean value
+#'   parameters.  To omit the \code{model} term, add \code{- model} to
+#'   the formula.
 #'
 #'   Ordinary `ergm()` terms can also be given on the formula; if
 #'   present, they will be returned as "user" statistics.
@@ -166,12 +167,6 @@ gof.default <- function(object,...) {
 
 #' @describeIn gof Perform simulation to evaluate goodness-of-fit for
 #'   a specific [ergm()] fit.
-#'
-#' @note For \code{gof.ergm} and \code{gof.formula}, default behavior depends on the
-#' directedness of the network involved; if undirected then degree, espartners,
-#' and distance are used as default properties to examine.  If the network in
-#' question is directed, \code{degree} in the above is replaced by idegree
-#' and odegree.
 #'
 #' @export
 gof.ergm <- function (object, ...,
@@ -257,7 +252,7 @@ gof.formula <- function(object, ...,
         message("At this time, any valued GoF effects beyond those already in the model must be specified manually. This may change in the future.")
         ~model
       } else if (is.directed(nw)) ~idegree + odegree + espartners + distance
-      else if(is.bipartite(nw)) ~b1degree + b2degree + espartners + distance
+      else if(is.bipartite(nw)) ~b1degree + b2degree + dspartners + distance
       else ~degree + espartners + distance
   }
 
@@ -304,6 +299,7 @@ gof.formula <- function(object, ...,
   if(!attr(GOFtrms, "model")) {
     if (length(obs) > sum(mon)) obs <- obs[mon]
     sim <- sim[, mon, drop = FALSE]
+    mon <- mon[mon]
   }
 
   gofs <- names(obs) |>
