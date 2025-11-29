@@ -9,6 +9,7 @@
 ################################################################################
 
 GOF_TERMS <- c(model = "model",
+               user = "user",
                distance = "dist",
                odegree = "odeg",
                idegree = "ideg",
@@ -32,7 +33,6 @@ sub_gof <- function(x) {
   for (i in seq_along(terms))
     if (!is.null(rname <- as.list(GOF_TERMS)[[mnames[i], exact = FALSE]]))
       terms[[i]] <- as.name(paste0(".gof.", rname))
-    else has_mode <- TRUE
 
   structure(terms, model = has_model)
 }
@@ -45,10 +45,11 @@ which_gof <- function(x) {
 #' Conduct Goodness-of-Fit Diagnostics on a Exponential Family Random Graph
 #' Model
 #'
-#' [gof()] calculates \eqn{p}-values for geodesic distance, degree,
-#' and reachability summaries to diagnose the goodness-of-fit of exponential
-#' family random graph models.  See [ergm()] for more information on
-#' these models.
+#' [gof()] calculates \eqn{p}-values for a variety of network features
+#' to diagnose the goodness-of-fit of exponential family random graph
+#' models. For binary networks, these default to geodesic distance,
+#' degree, and reachability summaries. See [ergm()] for more
+#' information on these models.
 #'
 #' A sample of graphs is randomly drawn from the specified model.  The first
 #' argument is typically the output of a call to [ergm()] and the
@@ -102,14 +103,10 @@ which_gof <- function(x) {
 #'   estimates of the mean value parameters.  To omit the
 #'   \code{model} term, add \code{- model} to the formula.
 #'
-#'   Note that if ordinary `ergm()` terms are given on the formula,
-#'   they will be returned as a part of \code{model} statistics.
+#'   Ordinary `ergm()` terms can also be given on the formula; if
+#'   present, they will be returned as "user" statistics.
 #'
-#' @param constraints A one-sided formula specifying one or more constraints on
-#' the support of the distribution of the networks being modeled. See the help
-#' for similarly-named argument in [ergm()] for more information. For
-#' \code{gof.formula}, defaults to unconstrained. For \code{gof.ergm}, defaults
-#' to the constraints with which \code{object} was fitted.
+#' @param response,reference,constraints See analogous arguments for [simulate.ergm()].
 #'
 #' @templateVar mycontrols [control.gof.formula()] or [control.gof.ergm()]
 #' @template control2
@@ -180,15 +177,14 @@ gof.default <- function(object,...) {
 gof.ergm <- function (object, ...,
                       coef = coefficients(object),
                       GOF = NULL,
+                      response=object$network%ergmlhs%"response",
+                      reference=object$reference,
                       constraints = object$constraints,
                       control = control.gof.ergm(),
                       verbose = FALSE) {
   check_dots_used(error = unused_dots_warning)
   check.control.class(c("gof.ergm","gof.formula"), "gof.ergm")
   handle.control.toplevel("gof.ergm", ...)
-
-  if(is.valued(object)) stop("GoF for valued ERGMs is not implemented at this time.")
-  NVL(coef) <- coefficients(object)
 
   # If both the passed control and the object's control are NULL (such as if MPLE was estimated), overwrite with simulate.formula()'s defaults.
   formula.control <- control.simulate.formula()
@@ -207,6 +203,8 @@ gof.ergm <- function (object, ...,
   control <- set.control.class("control.gof.formula")
 
   gof.formula(object=object$formula, coef=coef,
+              response = response,
+              reference = reference,
               GOF=GOF,
               constraints=constraints,
               control=control,
@@ -222,13 +220,13 @@ gof.ergm <- function (object, ...,
 gof.formula <- function(object, ..., 
                         coef=NULL,
                         GOF=NULL,
+                        response=NULL,
+                        reference=~Bernoulli,
                         constraints=~.,
                         basis=eval_lhs.formula(object),
                         control=NULL,
                         unconditional=TRUE,
                         verbose=FALSE) {
-  if("response" %in% ...names()) stop("GoF for valued ERGMs is not implemented at this time.")
-
   if(!is.null(control$seed)){
     set.seed(as.integer(control$seed))
   }
@@ -239,12 +237,13 @@ gof.formula <- function(object, ...,
     NVL(control) <- control.gof.ergm()
     
     return(
-      gof(basis, GOF = GOF, coef = coef, control = control, verbose = verbose, ...)
+      gof(basis, GOF = GOF, coef = coef, response = response, reference = reference, control = control, verbose = verbose, ...)
     )
   }
 
   # Otherwise, LHS/basis must be a network.
   nw <- ensure_network(basis)
+  ergm_preprocess_response(nw, response)
   NVL(control) <- control.gof.formula()
 
   check_dots_used(error = unused_dots_warning)
@@ -254,9 +253,12 @@ gof.formula <- function(object, ...,
   #Set up the defaults, if called with GOF==NULL
   if(is.null(GOF)){
     GOF <-
-      if(is.directed(nw)) ~idegree + odegree + espartners + distance + model
-      else if(is.bipartite(nw)) ~b1degree + b2degree + espartners + distance + model
-      else ~degree + espartners + distance + model
+      if (is.valued(nw)) {
+        message("At this time, any valued GoF effects beyond those already in the model must be specified manually. This may change in the future.")
+        ~model
+      } else if (is.directed(nw)) ~idegree + odegree + espartners + distance
+      else if(is.bipartite(nw)) ~b1degree + b2degree + espartners + distance
+      else ~degree + espartners + distance
   }
 
   # Expand specially named terms.
@@ -267,7 +269,8 @@ gof.formula <- function(object, ...,
    if(verbose){message("Conditional simulations for missing fit")}
    constraints.obs<-nonsimp_update.formula(constraints,~.+observed)
    SimCond <- gof(object=object, coef=coef,
-                  GOF=GOF, 
+                  GOF=GOF,
+                  reference=reference,
                   constraints=constraints.obs,
                   control=control,
                   basis=basis,
@@ -277,36 +280,44 @@ gof.formula <- function(object, ...,
 
   # Calculate network statistics for the observed graph
   # Set up the output arrays of sim variables
-  if(verbose)
-    message("Calculating observed network statistics.")
 
-  obs <- summary(suppressWarnings(append_rhs.formula(object, GOFtrms, keep.onesided = TRUE)),
-                 basis = nw, term.options = control$term.options)
+  if(verbose) message("Setting up.")
+  sim_setup <- simulate(object, monitor = GOFtrms,
+                        nsim = control$nsim, coef = coef,
+                        reference = reference,
+                        constraints = constraints,
+                        control = set.control.class("control.simulate.formula", control),
+                        output = "stats",
+                        basis = nw,
+                        verbose = verbose, ...,
+                        return.args = "ergm_state")
 
-  if(verbose)
-    message("Starting simulations.")
+  if(verbose) message("Calculating observed network statistics.")
 
-  sim <- simulate(object, monitor = GOFtrms, nsim=control$nsim, coef=coef,
-                  constraints = constraints,
-                  control = set.control.class("control.simulate.formula", control),
-                  output = "stats",
-                  basis = nw,
-                  verbose = verbose, ...)
+  obs <- summary(sim_setup$object)
+  mon <- attr(sim_setup, "monitored")
+
+  if(verbose) message("Starting simulations.")
+
+  sim <- do.call(simulate, replace(sim_setup, "return.args", NULL))
 
   if(!attr(GOFtrms, "model")) {
-    mon <- attr(sim, "monitored")
     if (length(obs) > sum(mon)) obs <- obs[mon]
     sim <- sim[, mon, drop = FALSE]
   }
 
-  gofs <- str_match(names(obs), "^\\.gof\\.([^#]+)#(.*)$")
-  gof_groups <- split(seq_len(nrow(gofs)), replace(gofs[, 2], is.na, "model"))
+  gofs <- names(obs) |>
+    replace(function(x) !mon & !startsWith(x, ".gof."),
+            function(x) paste0(".gof.model#", x)) |>
+    replace(function(x) mon & !startsWith(x, ".gof."),
+            function(x) paste0(".gof.user#", x)) |>
+    str_match("^\\.gof\\.([^#]+)#(.*)$")
+  gof_groups <- split(seq_len(nrow(gofs)), gofs[, 2])
 
   out <- imap(gof_groups, function(i, name) {
     val <- gofs[i, 3]
     obs <- obs[i]
     sim <- sim[, i, drop = FALSE]
-    if(name != "model") names(obs) <- colnames(sim) <- val
     d <- sweep(sim, 2, obs)
 
     pval <- cbind(obs, apply(sim, 2, min), apply(sim, 2, mean),
@@ -364,6 +375,7 @@ print.gof <- function(x, ...){
   # match variables
   goftypes <- matrix( c(
       "model", "model statistics", "summary.model",
+      "user", "user statistics", "summary.user",
       "distance", "minimum geodesic distance", "summary.dist",
       "idegree", "in-degree", "summary.ideg",
       "odegree", "out-degree", "summary.odeg",
@@ -528,6 +540,7 @@ plot.gof <- function(x, ...,
   ###model####
 
   GVMAP <- list(model = list('model', 'statistic', 'n', 'model statistics', identity),
+                user = list("user", "statistic", "n", "user statistics", identity),
                 degree = list('deg', 'node', 'f', 'degree', identity),
                 b1degree = list('b1deg', 'node', 'f', 'b1degree', identity),
                 b2degree = list('b2deg', 'node', 'f', 'b2degree', identity),

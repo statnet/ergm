@@ -17,6 +17,8 @@ gof(object, ...)
   ...,
   coef = coefficients(object),
   GOF = NULL,
+  response = object$network \%ergmlhs\% "response",
+  reference = object$reference,
   constraints = object$constraints,
   control = control.gof.ergm(),
   verbose = FALSE
@@ -27,6 +29,8 @@ gof(object, ...)
   ...,
   coef = NULL,
   GOF = NULL,
+  response = NULL,
+  reference = ~Bernoulli,
   constraints = ~.,
   basis = eval_lhs.formula(object),
   control = NULL,
@@ -88,14 +92,10 @@ check and a reminder of the statistical variation in the
 estimates of the mean value parameters.  To omit the
 \code{model} term, add \code{- model} to the formula.
 
-Note that if ordinary \code{ergm()} terms are given on the formula,
-they will be returned as a part of \code{model} statistics.}
+Ordinary \code{ergm()} terms can also be given on the formula; if
+present, they will be returned as "user" statistics.}
 
-\item{constraints}{A one-sided formula specifying one or more constraints on
-the support of the distribution of the networks being modeled. See the help
-for similarly-named argument in \code{\link[=ergm]{ergm()}} for more information. For
-\code{gof.formula}, defaults to unconstrained. For \code{gof.ergm}, defaults
-to the constraints with which \code{object} was fitted.}
+\item{response, reference, constraints}{See analogous arguments for \code{\link[=simulate.ergm]{simulate.ergm()}}.}
 
 \item{control}{A list of control parameters for algorithm tuning,
 typically constructed with \code{\link[=control.gof.formula]{control.gof.formula()}} or \code{\link[=control.gof.ergm]{control.gof.ergm()}}, which have different
@@ -140,10 +140,11 @@ is a list of the tables of statistics and \eqn{p}-values.  This is typically
 plotted using \code{\link[=plot.gof]{plot.gof()}}.
 }
 \description{
-\code{\link[=gof]{gof()}} calculates \eqn{p}-values for geodesic distance, degree,
-and reachability summaries to diagnose the goodness-of-fit of exponential
-family random graph models.  See \code{\link[=ergm]{ergm()}} for more information on
-these models.
+\code{\link[=gof]{gof()}} calculates \eqn{p}-values for a variety of network features
+to diagnose the goodness-of-fit of exponential family random graph
+models. For binary networks, these default to geodesic distance,
+degree, and reachability summaries. See \code{\link[=ergm]{ergm()}} for more
+information on these models.
 }
 \details{
 A sample of graphs is randomly drawn from the specified model.  The first
