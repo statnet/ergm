@@ -2,10 +2,12 @@
 
 #include "FixedArray.h"
 #include "ergm_auxstorage_proxy.h"
+#include "ergm_R_proxy.h"
 
 template<typename ModelTermType, typename StorageType = void>
 class ErgmCppModelTermBase {
 public:
+
   ErgmCppModelTermBase(ModelTermType* mtp)
     : stat(mtp->dstats, mtp->nstats),
       dinput(mtp->inputparams, mtp->ninputparams),
@@ -14,6 +16,7 @@ public:
       iattrib(mtp->iattrib, (mtp->iattrib && mtp->iinputparams) ? (mtp->niinputparams - (mtp->iattrib - mtp->iinputparams)) : 0),
       storage(reinterpret_cast<StorageType*&>(mtp->storage)),
       aux_storage(mtp),
+      R(mtp),
       mtp_(mtp)
   {}
 
@@ -26,6 +29,8 @@ public:
 
   // aux_storage access via proxy
   AuxStorageProxy<ModelTermType> aux_storage;
+
+  RListProxy<ModelTermType> R;
 
 private:
   ModelTermType* mtp_;
