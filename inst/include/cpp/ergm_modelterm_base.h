@@ -16,7 +16,8 @@ public:
       iattrib(mtp->iattrib, (mtp->iattrib && mtp->iinputparams) ? (mtp->niinputparams - (mtp->iattrib - mtp->iinputparams)) : 0),
       storage(reinterpret_cast<StorageType*&>(mtp->storage)),
       aux_storage(mtp),
-      R(mtp),
+      R(mtp->R),
+      ext_state(mtp->ext_state),
       mtp_(mtp)
   {}
 
@@ -30,7 +31,8 @@ public:
   // aux_storage access via proxy
   AuxStorageProxy<ModelTermType> aux_storage;
 
-  RListProxy<ModelTermType> R;
+  RListProxy R;
+  RListProxy ext_state;
 
 private:
   ModelTermType* mtp_;
