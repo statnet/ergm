@@ -2417,7 +2417,8 @@ InitErgmTerm.diff <- function(nw, arglist, ..., version=packageVersion("ergm")) 
   ### Construct the list to return
   list(name="diff",                                     #name: required
        coef.names = paste0("diff", if(a$pow!=1) a$pow else "", if(sign.action!="identity") paste0(".", sign.action), if(sign.action!="abs") paste0(".", dir), ".", attrname), #coef.names: required
-       inputs = c(a$pow, dir.mul, sign.code, nodecov),  # We need to include the nodal covariate for this term
+       iinputs = c(dir.mul, sign.code),
+       inputs = c(a$pow, nodecov),
        dependence = FALSE # So we don't use MCMC if not necessary
        )
 }
