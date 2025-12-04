@@ -114,11 +114,11 @@ ETYPE(C_CHANGESTAT_FN)(SVARIANT(c_density)) {
  changestat: d_diff
 *****************/
 ETYPE(C_CHANGESTAT_FN)(SVARIANT(c_diff)) {
-  double p = INPUT_PARAM[0], *x = INPUT_PARAM+2;
-  int mul = INPUT_PARAM[1], sign_code = INPUT_PARAM[2];
+  double p = INPUT_PARAM[0]; // Conveniently, nodal covariate starts at 1.
+  int mul = IINPUT_PARAM[0], sign_code = IINPUT_PARAM[1];
 
   /* *** don't forget tail -> head */
-    double change = (x[tail] - x[head])*mul;
+    double change = (INPUT_PARAM[tail] - INPUT_PARAM[head])*mul;
     switch(sign_code){
     case 1: // identity
       break;
