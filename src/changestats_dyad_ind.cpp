@@ -7,7 +7,8 @@
  *
  *  Copyright 2003-2025 Statnet Commons
  */
-#include "ergm_changestat.h"
+#include "cpp/ergm_changestat.h"
+extern "C" {
 #include "ergm_edgetype_set_binary.h"
 #define ECHANGE(a) (edgestate ? -(a) : +(a))
 #define ECHANGE1 (edgestate ? -1 : +1)
@@ -16,4 +17,5 @@
 
 S_CHANGESTAT_FN(s_edges) {
   CHANGE_STAT[0] = N_EDGES;
+}
 }

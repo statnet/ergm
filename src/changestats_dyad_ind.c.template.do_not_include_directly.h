@@ -8,430 +8,413 @@
  *
  *  Copyright 2003-2025 Statnet Commons
  */
-#include "ergm_Rutil.h"
+
+// This file has been converted to idiomatic C++ using the
+// ergm_changestat.h and ergm_wtchangestat.h macro definitions.
+// Each function is wrapped using C_CHANGESTAT_CPP or WtC_CHANGESTAT_CPP.
+
+#include <cmath>
 #include "ergm_storage.h"
-#include "ergm_edgelist.h"
+
+using namespace std;
+
+// Ugly but functional: otherwise, *C_CHANGESTAT_CPP will clobber SVARIANT().
+#define c_SVARIANT(name) SVARIANT(c_ ## name)
+#define i_SVARIANT(name) SVARIANT(i_ ## name)
+#define u_SVARIANT(name) SVARIANT(u_ ## name)
+#define f_SVARIANT(name) SVARIANT(f_ ## name)
 
 /********************  changestats:  A    ***********/
-/*****************
+
+/*
  changestat: c_absdiff
-*****************/
-ETYPE(C_CHANGESTAT_FN)(SVARIANT(c_absdiff)) {
-  double p = INPUT_ATTRIB[0];
-  if(p==1.0){
-    CHANGE_STAT[0] = ECHANGE(fabs(INPUT_ATTRIB[tail] - INPUT_ATTRIB[head]));
+*/
+ETYPE(C_CHANGESTAT_CPP)(SVARIANT(absdiff), {
+  double p = mt.dinput[0];
+  if(p == 1.0) {
+    mt.stat[0] = ECHANGE(fabs(mt.dinput[tail] - mt.dinput[head]));
   } else {
-    CHANGE_STAT[0] = ECHANGE(pow(fabs(INPUT_ATTRIB[tail] - INPUT_ATTRIB[head]), p));
+    mt.stat[0] = ECHANGE(pow(fabs(mt.dinput[tail] - mt.dinput[head]), p));
   }
-}
+})
 
-/*****************
- changestat: d_absdiffcat
-*****************/
-ETYPE(C_CHANGESTAT_FN)(SVARIANT(c_absdiffcat)) {
-  /* *** don't forget tail -> head */
-  double tailval = INPUT_ATTRIB[tail-1],
-    headval = INPUT_ATTRIB[head-1],
-    absdiff = fabs(tailval - headval);
-    if (absdiff>0) {
-      for (unsigned int j=0; j<N_CHANGE_STATS; j++) {
-        CHANGE_STAT[j] += (absdiff==INPUT_PARAM[j]) ? ECHANGE1 : 0.0;
-      }
+/*
+ changestat: c_absdiffcat
+*/
+ETYPE(C_CHANGESTAT_CPP)(SVARIANT(absdiffcat), {
+  double tailval = mt.dattrib[tail - 1];
+  double headval = mt.dattrib[head - 1];
+  double absdiff = fabs(tailval - headval);
+  if (absdiff > 0) {
+    for (unsigned int j = 0; j < mt.stat.size(); j++) {
+      mt.stat[j] += (absdiff == mt.dinput[j]) ? ECHANGE1 : 0.0;
     }
-}
+  }
+})
 
-/*****************
- changestat: attrcov
-*****************/
+/*
+ changestat: attrcov - with storage
+*/
+struct SVARIANT(AttrcovStorage) {
+  int* nodecov;
+  double** mat;
+};
 
-typedef struct {
-  int *nodecov;
-  double **mat;
-} SVARIANT(attrcov_storage);
+ETYPE(I_CHANGESTAT_CPP)(SVARIANT(attrcov), {
+  ALLOC_STORAGE(1, SVARIANT(AttrcovStorage), sto);
+  sto->nodecov = INTEGER(mt.R["nodecov"]);
 
-ETYPE(I_CHANGESTAT_FN)(SVARIANT(i_attrcov)) {
-  ALLOC_STORAGE(1, SVARIANT(attrcov_storage), sto);
-  sto->nodecov = INTEGER(getListElement(mtp->R, "nodecov"));
+  int nr = asInteger(mt.R["nr"]);
+  int nc = asInteger(mt.R["nc"]);
 
-  int nr = asInteger(getListElement(mtp->R, "nr"));
-  int nc = asInteger(getListElement(mtp->R, "nc"));
-
-  // rows vary faster than columns because we did not transpose a$mat in the InitErgmTerm function
-  sto->mat = R_Calloc(nc, double *);
-  sto->mat[0] = REAL(getListElement(mtp->R, "mat"));
+  sto->mat = R_Calloc(nc, double*);
+  sto->mat[0] = REAL(mt.R["mat"]);
   for(int i = 1; i < nc; i++) {
     sto->mat[i] = sto->mat[i - 1] + nr;
   }
-}
+}, SVARIANT(AttrcovStorage))
 
-ETYPE(C_CHANGESTAT_FN)(SVARIANT(c_attrcov)) {
-  GET_STORAGE(SVARIANT(attrcov_storage), sto);
-  // head comes before tail here because we did not transpose a$mat in the InitErgmTerm function
-  CHANGE_STAT[0] += ECHANGE(sto->mat[sto->nodecov[head]][sto->nodecov[tail]]);
-}
+ETYPE(C_CHANGESTAT_CPP)(SVARIANT(attrcov), {
+  mt.stat[0] += ECHANGE(mt.storage->mat[mt.storage->nodecov[head]][mt.storage->nodecov[tail]]);
+}, SVARIANT(AttrcovStorage))
 
-ETYPE(F_CHANGESTAT_FN)(SVARIANT(f_attrcov)) {
-  GET_STORAGE(SVARIANT(attrcov_storage), sto);
-  R_Free(sto->mat);
-}
+ETYPE(F_CHANGESTAT_CPP)(SVARIANT(attrcov), {
+  R_Free(mt.storage->mat);
+}, SVARIANT(AttrcovStorage))
 
-/*****************
- changestat: d_b2cov
-*****************/
-ETYPE(C_CHANGESTAT_FN)(SVARIANT(c_b2cov)) {
-  unsigned int oshift = N_INPUT_PARAMS / N_CHANGE_STATS;
+/*
+ changestat: c_b2cov
+*/
+ETYPE(C_CHANGESTAT_CPP)(SVARIANT(b2cov), {
+  unsigned int oshift = mt.dinput.size() / mt.stat.size();
+  Vertex nb1 = nw.bip;
 
-  /* *** don't forget tail -> head */
-  Vertex nb1 = BIPARTITE;
-      for(unsigned int j=0, o=0; j<N_CHANGE_STATS; j++, o+=oshift){
-	double sum = INPUT_ATTRIB[head-nb1+o-1];
-	CHANGE_STAT[j] += ECHANGE(sum);
-    }
-}
+  for(unsigned int j = 0, o = 0; j < mt.stat.size(); j++, o += oshift) {
+    double sum = mt.dattrib[head - nb1 + o - 1];
+    mt.stat[j] += ECHANGE(sum);
+  }
+})
 
-/*****************
- changestat: d_b2factor
-*****************/
-ETYPE(C_CHANGESTAT_FN)(SVARIANT(c_b2factor)) {
-  /* *** don't forget tail -> head */
-    int headpos = INPUT_ATTRIB[head-1-BIPARTITE];
-    if (headpos!=-1) CHANGE_STAT[headpos] += ECHANGE1;
-}
+/*
+ changestat: c_b2factor
+*/
+ETYPE(C_CHANGESTAT_CPP)(SVARIANT(b2factor), {
+  int headpos = mt.dattrib[head - 1 - nw.bip];
+  if (headpos != -1) {
+    mt.stat[headpos] += ECHANGE1;
+  }
+})
 
 /********************  changestats:  D    ***********/
 
-/*****************
- changestat: d_density
-*****************/
-ETYPE(C_CHANGESTAT_FN)(SVARIANT(c_density)) {
-  Dyad ndyads = N_DYADS;
+/*
+ changestat: c_density
+*/
+ETYPE(C_CHANGESTAT_CPP)(SVARIANT(density), {
+  Dyad ndyads = nw.n * (nw.n - 1) / (nw.dir ? 1 : 2);
+  mt.stat[0] += ECHANGE(1.0 / ndyads);
+})
 
-  /* *** don't forget tail -> head */
-  CHANGE_STAT[0] += ECHANGE(1.0 / ndyads);
-}
+/*
+ changestat: c_diff
+*/
+ETYPE(C_CHANGESTAT_CPP)(SVARIANT(diff), {
+  double p = mt.dinput[0];
+  int mul = mt.iinput[0];
+  int sign_code = mt.iinput[1];
 
-/*****************
- changestat: d_diff
-*****************/
-ETYPE(C_CHANGESTAT_FN)(SVARIANT(c_diff)) {
-  double p = INPUT_PARAM[0]; // Conveniently, nodal covariate starts at 1.
-  int mul = IINPUT_PARAM[0], sign_code = IINPUT_PARAM[1];
+  double change = (mt.dinput[tail] - mt.dinput[head]) * mul;
 
-  /* *** don't forget tail -> head */
-    double change = (INPUT_PARAM[tail] - INPUT_PARAM[head])*mul;
-    switch(sign_code){
-    case 1: // identity
+  switch(sign_code) {
+    case 1:  // identity
       break;
-    case 2: // abs
+    case 2:  // abs
       change = fabs(change);
       break;
-    case 3: // positive only
-      change = change<0 ? 0 : change;
+    case 3:  // positive only
+      change = change < 0 ? 0 : change;
       break;
-    case 4: // negative only
-      change = change>0 ? 0 : change;
+    case 4:  // negative only
+      change = change > 0 ? 0 : change;
       break;
     default:
-      error("Invalid sign action code passed to d_diff.");
+      error("Invalid sign action code passed to c_diff.");
       break;
-    }
-
-    if(p==0.0){ // Special case: take the sign of the difference instead.
-      change = sign(change);
-    }else if(p!=1.0){
-      change = pow(change, p);
-    }
-
-    CHANGE_STAT[0] += ECHANGE(change);
-}
-
-/********************  changestats:  E    ***********/
-/*****************
- changestat: d_edgecov
-*****************/
-ETYPE(C_CHANGESTAT_FN)(SVARIANT(c_edgecov)) {
-  double val;
-  int nrow, noffset;
-
-  noffset = BIPARTITE;
-  if(noffset > 0){
-    /*   nrow = (N_NODES)-(long int)(INPUT_PARAM[0]); */
-    nrow = noffset;
-  }else{
-    nrow = (long int)(INPUT_PARAM[0]);
   }
 
-  /* *** don't forget tail -> head */
-    /*Get the initial edge state*/
-    /*Get the covariate value*/
-    val = INPUT_ATTRIB[(head-1-noffset)*nrow+(tail-1)];
-    /*  Rprintf("tail %d head %d nrow %d val %f\n", tail, head, nrow, val); */
-    /*Update the change statistic, based on the toggle type*/
-    CHANGE_STAT[0] += ECHANGE(val);
-}
+  if(p == 0.0) {
+    change = (change > 0) ? 1.0 : ((change < 0) ? -1.0 : 0.0);
+  } else if(p != 1.0) {
+    change = pow(change, p);
+  }
 
-/*****************
+  mt.stat[0] += ECHANGE(change);
+})
+
+/********************  changestats:  E    ***********/
+
+/*
+ changestat: c_edgecov
+*/
+ETYPE(C_CHANGESTAT_CPP)(SVARIANT(edgecov), {
+  int noffset = nw.bip;
+  int nrow = (noffset > 0) ? noffset : (int)mt.dinput[0];
+
+  double val = mt.dattrib[(head - 1 - noffset) * nrow + (tail - 1)];
+  mt.stat[0] += ECHANGE(val);
+})
+
+/*
  changestat: c_edges
-*****************/
-ETYPE(C_CHANGESTAT_FN)(SVARIANT(c_edges)) {
-  CHANGE_STAT[0] = ECHANGE1;
-}
+*/
+ETYPE(C_CHANGESTAT_CPP)(SVARIANT(edges), {
+  mt.stat[0] = ECHANGE1;
+})
 
 /********************  changestats:  L    ***********/
 
-/*****************
- changestat: d_meandeg
-*****************/
-ETYPE(C_CHANGESTAT_FN)(SVARIANT(c_meandeg)) {
-  // Effectively, change is 2/n if undirected and 1/n if directed.
-  if(DIRECTED) CHANGE_STAT[0] = ECHANGE(1.0/N_NODES);
-  else CHANGE_STAT[0] = ECHANGE(2.0/N_NODES);
-}
-
-/*****************
- changestat: d_mixmat
- General mixing matrix (mm) implementation.
-*****************/
-ETYPE(C_CHANGESTAT_FN)(SVARIANT(c_mixmat)){
-  unsigned int symm = IINPUT_PARAM[0] & 1;
-  unsigned int marg = IINPUT_PARAM[0] & 2;
-  int *tx = IINPUT_PARAM;
-  int *hx = BIPARTITE? IINPUT_PARAM : IINPUT_PARAM + N_NODES;
-  int *cells = BIPARTITE? IINPUT_PARAM + N_NODES + 1: IINPUT_PARAM + N_NODES*2 + 1;
-
-  unsigned int diag = tx[tail]==tx[head] && hx[tail]==hx[head];
-  for(unsigned int j=0; j<N_CHANGE_STATS; j++){
-    unsigned int thmatch = tx[tail]==cells[j*2] && hx[head]==cells[j*2+1];
-    unsigned int htmatch = tx[head]==cells[j*2] && hx[tail]==cells[j*2+1];
-
-    int w = DIRECTED || BIPARTITE? thmatch :
-      (symm ? thmatch||htmatch : thmatch+htmatch)*(symm && marg && diag?2:1);
-    if(w) CHANGE_STAT[j] += ECHANGE(w);
+/*
+ changestat: c_meandeg
+*/
+ETYPE(C_CHANGESTAT_CPP)(SVARIANT(meandeg), {
+  if(nw.dir) {
+    mt.stat[0] = ECHANGE(1.0 / nw.n);
+  } else {
+    mt.stat[0] = ECHANGE(2.0 / nw.n);
   }
-}
+})
 
-/*****************
- changestat: d_nodecov
-*****************/
-ETYPE(C_CHANGESTAT_FN)(SVARIANT(c_nodecov)) {
-  unsigned int oshift = N_INPUT_PARAMS / N_CHANGE_STATS;
+/*
+ changestat: c_mixmat - General mixing matrix (mm) implementation
+*/
+ETYPE(C_CHANGESTAT_CPP)(SVARIANT(mixmat), {
+  unsigned int symm = mt.iinput[0] & 1;
+  unsigned int marg = mt.iinput[0] & 2;
+  const int* tx = mt.iinput.data();
+  const int* hx = nw.bip ? mt.iinput.data() : mt.iinput.data() + nw.n;
+  const int* cells = nw.bip ? mt.iinput.data() + nw.n + 1 : mt.iinput.data() + nw.n * 2 + 1;
 
-  /* *** don't forget tail -> head */
-      for(unsigned int j=0, o=0; j<N_CHANGE_STATS; j++, o+=oshift){
-	double sum = INPUT_ATTRIB[tail+o-1] + INPUT_ATTRIB[head+o-1];
-	CHANGE_STAT[j] += ECHANGE(sum);
+  unsigned int diag = tx[tail] == tx[head] && hx[tail] == hx[head];
+  for(unsigned int j = 0; j < mt.stat.size(); j++) {
+    unsigned int thmatch = tx[tail] == cells[j*2] && hx[head] == cells[j*2+1];
+    unsigned int htmatch = tx[head] == cells[j*2] && hx[tail] == cells[j*2+1];
+
+    int w = (nw.dir || nw.bip) ? thmatch :
+      (symm ? (thmatch || htmatch) : (thmatch + htmatch)) * (symm && marg && diag ? 2 : 1);
+    if(w) {
+      mt.stat[j] += ECHANGE(w);
     }
-}
+  }
+})
 
-/*****************
- changestat: d_nodefactor
-*****************/
-ETYPE(C_CHANGESTAT_FN)(SVARIANT(c_nodefactor)) {
-  int tailpos = IINPUT_ATTRIB[tail-1];
-  int headpos = IINPUT_ATTRIB[head-1];
-  if (tailpos!=-1) CHANGE_STAT[tailpos] += ECHANGE1;
-  if (headpos!=-1) CHANGE_STAT[headpos] += ECHANGE1;
-}
+/*
+ changestat: c_nodecov
+*/
+ETYPE(C_CHANGESTAT_CPP)(SVARIANT(nodecov), {
+  unsigned int oshift = mt.dinput.size() / mt.stat.size();
 
-/*****************
- changestat: d_nodeicov
-*****************/
-ETYPE(C_CHANGESTAT_FN)(SVARIANT(c_nodeicov)) {
-  unsigned int oshift = N_INPUT_PARAMS / N_CHANGE_STATS;
+  for(unsigned int j = 0, o = 0; j < mt.stat.size(); j++, o += oshift) {
+    double sum = mt.dattrib[tail + o - 1] + mt.dattrib[head + o - 1];
+    mt.stat[j] += ECHANGE(sum);
+  }
+})
 
-  /* *** don't forget tail -> head */
-      for(unsigned int j=0, o=0; j<N_CHANGE_STATS; j++, o+=oshift){
-	double sum = INPUT_ATTRIB[head+o-1];
-	CHANGE_STAT[j] += ECHANGE(sum);
-      }
-}
+/*
+ changestat: c_nodefactor
+*/
+ETYPE(C_CHANGESTAT_CPP)(SVARIANT(nodefactor), {
+  int tailpos = mt.iattrib[tail - 1];
+  int headpos = mt.iattrib[head - 1];
+  if (tailpos != -1) {
+    mt.stat[tailpos] += ECHANGE1;
+  }
+  if (headpos != -1) {
+    mt.stat[headpos] += ECHANGE1;
+  }
+})
 
-/*****************
- changestat: d_nodeifactor
-*****************/
-ETYPE(C_CHANGESTAT_FN)(SVARIANT(c_nodeifactor)) {
-  int headpos = INPUT_ATTRIB[head-1];
-  if (headpos!=-1) CHANGE_STAT[headpos] += ECHANGE1;
-}
+/*
+ changestat: c_nodeicov
+*/
+ETYPE(C_CHANGESTAT_CPP)(SVARIANT(nodeicov), {
+  unsigned int oshift = mt.dinput.size() / mt.stat.size();
 
-/*****************
- changestat: d_nodematch
-*****************/
-ETYPE(C_CHANGESTAT_FN)(SVARIANT(c_nodematch)) {
-  double matchval;
-  Vertex ninputs;
-  int j;
+  for(unsigned int j = 0, o = 0; j < mt.stat.size(); j++, o += oshift) {
+    double sum = mt.dattrib[head + o - 1];
+    mt.stat[j] += ECHANGE(sum);
+  }
+})
 
-  ninputs = N_INPUT_PARAMS - N_NODES;
+/*
+ changestat: c_nodeifactor
+*/
+ETYPE(C_CHANGESTAT_CPP)(SVARIANT(nodeifactor), {
+  int headpos = mt.dattrib[head - 1];
+  if (headpos != -1) {
+    mt.stat[headpos] += ECHANGE1;
+  }
+})
 
-  /* *** don't forget tail -> head */
-    matchval = INPUT_PARAM[tail+ninputs-1];
-    if (matchval == INPUT_PARAM[head+ninputs-1]) { /* We have a match! */
-      if (ninputs==0) {/* diff=F in network statistic specification */
-        CHANGE_STAT[0] += ECHANGE1;
-      } else { /* diff=T */
-        for (j=0; j<ninputs; j++) {
-          if (matchval == INPUT_PARAM[j])
-            CHANGE_STAT[j] += ECHANGE1;
+/*
+ changestat: c_nodematch
+*/
+ETYPE(C_CHANGESTAT_CPP)(SVARIANT(nodematch), {
+  Vertex ninputs = mt.dinput.size() - nw.n;
+
+  double matchval = mt.dinput[tail + ninputs - 1];
+  if (matchval == mt.dinput[head + ninputs - 1]) {
+    if (ninputs == 0) {
+      mt.stat[0] += ECHANGE1;
+    } else {
+      for (unsigned int j = 0; j < ninputs; j++) {
+        if (matchval == mt.dinput[j]) {
+          mt.stat[j] += ECHANGE1;
         }
       }
     }
-}
+  }
+})
 
-/*****************
- changestat: nodemix
-*****************/
+/*
+ changestat: nodemix - with storage
+*/
+struct SVARIANT(NodemixStorage) {
+  int* nodecov;
+  int** indmat;
+};
 
-typedef struct {
-  int *nodecov;
-  int **indmat;
-} SVARIANT(nodemix_storage);
+ETYPE(I_CHANGESTAT_CPP)(SVARIANT(nodemix), {
+  ALLOC_STORAGE(1, SVARIANT(NodemixStorage), sto);
+  sto->nodecov = INTEGER(mt.R["nodecov"]);
 
-ETYPE(I_CHANGESTAT_FN)(SVARIANT(i_nodemix)) {
-  ALLOC_STORAGE(1, SVARIANT(nodemix_storage), sto);
-  sto->nodecov = INTEGER(getListElement(mtp->R, "nodecov"));
+  int nr = asInteger(mt.R["nr"]);
+  int nc = asInteger(mt.R["nc"]);
 
-  int nr = asInteger(getListElement(mtp->R, "nr"));
-  int nc = asInteger(getListElement(mtp->R, "nc"));
-
-  sto->indmat = R_Calloc(nr, int *);
-  sto->indmat[0] = INTEGER(getListElement(mtp->R, "indmat"));
+  sto->indmat = R_Calloc(nr, int*);
+  sto->indmat[0] = INTEGER(mt.R["indmat"]);
   for(int i = 1; i < nr; i++) {
     sto->indmat[i] = sto->indmat[i - 1] + nc;
   }
-}
+}, SVARIANT(NodemixStorage))
 
-ETYPE(C_CHANGESTAT_FN)(SVARIANT(c_nodemix)) {
-  GET_STORAGE(SVARIANT(nodemix_storage), sto);
-  int index = sto->indmat[sto->nodecov[tail]][sto->nodecov[head]];
+ETYPE(C_CHANGESTAT_CPP)(SVARIANT(nodemix), {
+  int index = mt.storage->indmat[mt.storage->nodecov[tail]][mt.storage->nodecov[head]];
   if(index >= 0) {
-    CHANGE_STAT[index] += ECHANGE1;
+    mt.stat[index] += ECHANGE1;
   }
-}
+}, SVARIANT(NodemixStorage))
 
-ETYPE(F_CHANGESTAT_FN)(SVARIANT(f_nodemix)) {
-  GET_STORAGE(SVARIANT(nodemix_storage), sto);
-  R_Free(sto->indmat);
-}
+ETYPE(F_CHANGESTAT_CPP)(SVARIANT(nodemix), {
+  R_Free(mt.storage->indmat);
+}, SVARIANT(NodemixStorage))
 
-/*****************
- changestat: d_nodeocov
-*****************/
-ETYPE(C_CHANGESTAT_FN)(SVARIANT(c_nodeocov)) {
-  unsigned int oshift = N_INPUT_PARAMS / N_CHANGE_STATS;
+/*
+ changestat: c_nodeocov
+*/
+ETYPE(C_CHANGESTAT_CPP)(SVARIANT(nodeocov), {
+  unsigned int oshift = mt.dinput.size() / mt.stat.size();
 
-  /* *** don't forget tail -> head */
-      for(unsigned int j=0, o=0; j<N_CHANGE_STATS; j++, o+=oshift){
-	double sum = INPUT_ATTRIB[tail+o-1];
-	CHANGE_STAT[j] += ECHANGE(sum);
-      }
-}
+  for(unsigned int j = 0, o = 0; j < mt.stat.size(); j++, o += oshift) {
+    double sum = mt.dattrib[tail + o - 1];
+    mt.stat[j] += ECHANGE(sum);
+  }
+})
 
-/*****************
- changestat: d_nodeofactor
-*****************/
-ETYPE(C_CHANGESTAT_FN)(SVARIANT(c_nodeofactor)) {
-  int tailpos = INPUT_ATTRIB[tail-1];
-  if (tailpos!=-1) CHANGE_STAT[tailpos] += ECHANGE1;
-}
+/*
+ changestat: c_nodeofactor
+*/
+ETYPE(C_CHANGESTAT_CPP)(SVARIANT(nodeofactor), {
+  int tailpos = mt.dattrib[tail - 1];
+  if (tailpos != -1) {
+    mt.stat[tailpos] += ECHANGE1;
+  }
+})
 
 /********************  changestats:  O    ***********/
 
-/*****************
- changestat: d_receiver
-*****************/
-ETYPE(C_CHANGESTAT_FN)(SVARIANT(c_receiver)) {
-  int j;
+/*
+ changestat: c_receiver
+*/
+ETYPE(C_CHANGESTAT_CPP)(SVARIANT(receiver), {
   Vertex deg;
 
-  /* *** don't forget tail -> head */
-    j=0;
-    deg = (Vertex)INPUT_PARAM[j];
-    while((deg != head) && (j < (N_CHANGE_STATS-1))){
-      j++;
-      deg = (Vertex)INPUT_PARAM[j];
+  for(unsigned int j = 0; j < mt.stat.size(); j++) {
+    deg = (Vertex)mt.dinput[j];
+    if(deg == head) {
+      mt.stat[j] += ECHANGE1;
+      break;
     }
-    if(deg==head){CHANGE_STAT[j] += ECHANGE1;}
-}
+  }
+})
 
 /********************  changestats:  S    ***********/
-/*****************
- changestat: d_sender
-*****************/
-ETYPE(C_CHANGESTAT_FN)(SVARIANT(c_sender)) {
-  int j;
+
+/*
+ changestat: c_sender
+*/
+ETYPE(C_CHANGESTAT_CPP)(SVARIANT(sender), {
   Vertex deg;
 
-  /* *** don't forget tail -> head */
-    j=0;
-    deg = (Vertex)INPUT_PARAM[j];
-    while((deg != tail) && (j < (N_CHANGE_STATS-1))){
-      j++;
-      deg = (Vertex)INPUT_PARAM[j];
+  for(unsigned int j = 0; j < mt.stat.size(); j++) {
+    deg = (Vertex)mt.dinput[j];
+    if(deg == tail) {
+      mt.stat[j] += ECHANGE1;
+      break;
     }
-    if(deg==tail){CHANGE_STAT[j] += ECHANGE1;}
-}
+  }
+})
 
-/*****************
- changestat: d_smalldiff
-*****************/
-ETYPE(C_CHANGESTAT_FN)(SVARIANT(c_smalldiff)) {
+/*
+ changestat: c_smalldiff
+*/
+ETYPE(C_CHANGESTAT_CPP)(SVARIANT(smalldiff), {
+  mt.stat[0] += (fabs(mt.dattrib[tail - 1] - mt.dattrib[head - 1]) > mt.dinput[0])
+    ? 0.0 : ECHANGE1;
+})
 
-  /* *** don't forget tail -> head */
-    CHANGE_STAT[0] += (fabs(INPUT_ATTRIB[tail-1] - INPUT_ATTRIB[head-1])
-    > INPUT_PARAM[0]) ? 0.0 : ECHANGE1;
-}
+/*
+ changestat: c_sociality
+*/
+ETYPE(C_CHANGESTAT_CPP)(SVARIANT(sociality), {
+  unsigned int ninputs = mt.dinput.size();
+  unsigned int nstats = mt.stat.size();
 
-/*****************
- changestat: d_sociality
-*****************/
-ETYPE(C_CHANGESTAT_FN)(SVARIANT(c_sociality)) {
-  int j;
-  Vertex deg;
-  int ninputs, nstats;
-  double tailattr;
+  if(ninputs > nstats + 1) {
+    // match on attributes
+    double tailattr = mt.dattrib[tail - 1 + nstats + 1];
+    double headattr = mt.dattrib[head - 1 + nstats + 1];
 
-  ninputs = (int)N_INPUT_PARAMS;
-  nstats  = (int)N_CHANGE_STATS;
-
-  /* *** don't forget tail -> head */
-  if(ninputs>nstats+1){
-    /* match on attributes */
-      tailattr = INPUT_ATTRIB[tail-1+nstats+1]; // +1 for the "guard" value between vertex IDs and attribute vector
-      if(tailattr == INPUT_ATTRIB[head-1+nstats+1]){
-	j=0;
-	deg = (Vertex)INPUT_PARAM[j];
-	while(deg != tail && j < nstats){
-	  j++;
-	  deg = (Vertex)INPUT_PARAM[j];
-	}
-	if(j < nstats){CHANGE_STAT[j] += ECHANGE1;}
-	j=0;
-	deg = (Vertex)INPUT_PARAM[j];
-	while(deg != head && j < nstats){
-	  j++;
-	  deg = (Vertex)INPUT_PARAM[j];
-	}
-	if(j < nstats){CHANGE_STAT[j] += ECHANGE1;}
+    if(tailattr == headattr) {
+      // Find tail
+      for(unsigned int j = 0; j < nstats; j++) {
+        if((Vertex)mt.dinput[j] == tail) {
+          mt.stat[j] += ECHANGE1;
+          break;
+        }
       }
-
-}else{
-    /* *** don't forget tail -> head */
-      j=0;
-      deg = (Vertex)INPUT_PARAM[j];
-      while(deg != tail && j < nstats){
-	j++;
-	deg = (Vertex)INPUT_PARAM[j];
+      // Find head
+      for(unsigned int j = 0; j < nstats; j++) {
+        if((Vertex)mt.dinput[j] == head) {
+          mt.stat[j] += ECHANGE1;
+          break;
+        }
       }
-      if(j < nstats){CHANGE_STAT[j] += ECHANGE1;}
-      j=0;
-      deg = (Vertex)INPUT_PARAM[j];
-      while(deg != head && j < nstats){
-	j++;
-	deg = (Vertex)INPUT_PARAM[j];
+    }
+  } else {
+    // Find tail
+    for(unsigned int j = 0; j < nstats; j++) {
+      if((Vertex)mt.dinput[j] == tail) {
+        mt.stat[j] += ECHANGE1;
+        break;
       }
-      if(j < nstats){CHANGE_STAT[j] += ECHANGE1;}
+    }
+    // Find head
+    for(unsigned int j = 0; j < nstats; j++) {
+      if((Vertex)mt.dinput[j] == head) {
+        mt.stat[j] += ECHANGE1;
+        break;
+      }
+    }
+  }
+})
 
-}
-
-}

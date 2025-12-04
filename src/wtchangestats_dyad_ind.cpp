@@ -7,7 +7,8 @@
  *
  *  Copyright 2003-2025 Statnet Commons
  */
-#include "ergm_wtchangestat.h"
+#include "cpp/ergm_wtchangestat.h"
+extern "C" {
 #include "ergm_edgetype_set_double.h"
 #define ECHANGE(a) ((a) * (weight - edgestate))
 #define ECHANGE1 (weight - edgestate)
@@ -21,3 +22,4 @@
 #define ECHANGE1 ((weight!=0) - (edgestate!=0))
 #define SVARIANT(a) a ## _nonzero
 #include "changestats_dyad_ind.c.template.do_not_include_directly.h"
+}

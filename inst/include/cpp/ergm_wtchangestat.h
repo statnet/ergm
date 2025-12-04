@@ -2,6 +2,7 @@
 
 #include "FixedArray.h"
 #include "ergm_modelterm_base.h"
+#include "ergm_wtnetwork.h"
 
 extern "C" {
 #include "../ergm_wtchangestat.h"
