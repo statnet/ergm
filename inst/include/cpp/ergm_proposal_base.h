@@ -18,7 +18,7 @@ public:
       iinput(mhp->iinputs, mhp->niinputs),
       storage(reinterpret_cast<StorageType*&>(mhp->storage)),
       aux_storage(mhp),
-      R(mhp) {}
+      R(mhp->R) {}
 
   ProposalType* ptr;
 
@@ -35,5 +35,5 @@ public:
   AuxStorageProxy<ProposalType> aux_storage;
 
   // R list and attribute proxy
-  RListProxy<ProposalType> R;
+  RListProxy R;
 };

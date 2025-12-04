@@ -3,27 +3,25 @@
 #include "../ergm_Rutil.h"
 #include <string>
 
-// Generic proxy classes for accessing an R-backed struct's list elements
-// and attributes. The template parameter RStruct must have a member `SEXP R`.
+// Generic proxy classes for accessing a SEXP's list elements and attributes.
+// These proxies store a pointer to the SEXP directly.
 
-template<typename RStruct>
 class RAttrProxy {
 public:
-  explicit RAttrProxy(RStruct* p): p_(p) {}
-  SEXP operator[](const char* name) const { return getAttrib(p_->R, Rf_install(name)); }
-  SEXP operator[](const std::string& name) const { return getAttrib(p_->R, Rf_install(name.c_str())); }
+  explicit RAttrProxy(SEXP sexp): sexp_(sexp) {}
+  SEXP operator[](const char* name) const { return getAttrib(sexp_, Rf_install(name)); }
+  SEXP operator[](const std::string& name) const { return getAttrib(sexp_, Rf_install(name.c_str())); }
 private:
-  RStruct* p_;
+  SEXP sexp_;
 };
 
-template<typename RStruct>
 class RListProxy {
 public:
-  explicit RListProxy(RStruct* p): p_(p), attr(p) {}
-  SEXP operator[](const char* name) const { return getListElement(p_->R, name); }
-  SEXP operator[](const std::string& name) const { return getListElement(p_->R, name.c_str()); }
-  operator SEXP() const { return p_->R; }
-  RAttrProxy<RStruct> attr;
+  explicit RListProxy(SEXP sexp): sexp_(sexp), attr(sexp) {}
+  SEXP operator[](const char* name) const { return getListElement(sexp_, name); }
+  SEXP operator[](const std::string& name) const { return getListElement(sexp_, name.c_str()); }
+  operator SEXP() const { return sexp_; }
+  RAttrProxy attr;
 private:
-  RStruct* p_;
+  SEXP sexp_;
 };
