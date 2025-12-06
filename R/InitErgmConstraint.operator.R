@@ -63,3 +63,30 @@ InitErgmConstraint.Dyads<-function(nw, arglist, ...){
     dependence = FALSE
   )
 }
+
+
+#' @templateVar name I
+#' @title Substitute a formula into the constraints formula
+#' @description This is a convenience operator that can be used to
+#'   paste terms constructed elsewhere into a formula.
+#'
+#' @usage
+#' # I(formula)
+#' @param formula a constraints formula
+#'
+#' @note `formula` can also be a [term_list].
+#'
+#' @seealso [base::I()] (a.k.a. `AsIs`)
+#'
+#' @template ergmConstraint-general
+#'
+#' @concept operator
+InitErgmConstraint.I <- function(nw, arglist, ...) {
+  a <- check.ErgmTerm(nw, arglist,
+                      varnames = c("formula"),
+                      vartypes = c("formula"),
+                      defaultvalues = list(NULL),
+                      required = c(TRUE))
+
+  ergm_conlist(a$formula, nw, ...)
+}

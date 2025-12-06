@@ -288,7 +288,7 @@ ergm_conlist.term_list <- function(object, nw, ..., term.options=list()){
   consigns <- sign(object)
   conenvs <- envir(object)
 
-  conlist<-list()
+  conlist <- structure(list(), class = "ergm_conlist")
   for(i in seq_along(object)){
     constraint <- object[[i]]
     consign <- consigns[[i]]
@@ -312,6 +312,10 @@ ergm_conlist.term_list <- function(object, nw, ..., term.options=list()){
 
     con <- eval(as.call(init.call), conenv)
     if(is.null(con)) next
+    else if (is(con, "ergm_conlist")) {
+      conlist <- c(conlist, con)
+      next
+    }
 
     NVL(con$priority) <- Inf # Default priority
     if(con$priority < Inf) con$dependence <- FALSE # Hints do not induce dependence in the sample space.
@@ -345,7 +349,7 @@ c.ergm_conlist <- function(...) NextMethod() %>% prune.ergm_conlist()
 select_ergm_proposals <- function(conlist, class, ref, weights){
   # Extract directly selected proposal, if given, check that it's unique, and discard its constraint and other placeholders.
   name <- conlist %>% .keep_constraint(".select") %>% map_chr("proposal") %>% unique()
-  if(length(name) > 1) stop("Error in direct proposal selection: two distinct proposals selected: ", paste.and(sQuote(name)), ".", call.=FALSE)
+  if (length(name) > 1) stop("Error in direct proposal selection: multiple distinct proposals selected: ", paste.and(sQuote(name)), ".", call. = FALSE)
   conlist <- conlist %>% .delete_constraint(c(".", ".select"))
 
   # Initial narrowing down of the proposal table.
