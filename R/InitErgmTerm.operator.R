@@ -163,6 +163,33 @@ InitErgmTerm.Passthrough <- function(nw, arglist, ...){
   }
 }
 
+
+#' @templateVar name I
+#' @title Substitute a formula into the model formula
+#' @description This is a convenience operator that can be used to
+#'   paste terms constructed elsewhere into a formula.
+#'
+#' @usage
+#' # binary: I(formula)
+#' @template ergmTerm-formula
+#'
+#' @note `formula` can also be a [term_list].
+#'
+#' @seealso [base::I()] (a.k.a. `AsIs`)
+#'
+#' @template ergmTerm-general
+#'
+#' @concept operator
+InitErgmTerm.I <- function(nw, arglist, ...) {
+  a <- check.ErgmTerm(nw, arglist,
+                      varnames = c("formula"),
+                      vartypes = c("formula"),
+                      defaultvalues = list(NULL),
+                      required = c(TRUE))
+
+  ergm_model(a$formula, nw, ..., offset.decorate = FALSE, terms.only = TRUE)
+}
+
 #' @templateVar name Label
 #' @title Modify terms' coefficient names
 #' @description This operator evaluates `formula` without modification, but modifies its coefficient and/or parameter names based on `label` and `pos` .

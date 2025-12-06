@@ -248,6 +248,12 @@ InitWtErgmTerm.Log <- function(nw, arglist, ...){
   out
 }
 
+#' @templateVar name I
+#' @template ergmTerm-rdname
+#' @usage
+#' # valued: I(formula)
+InitWtErgmTerm.I <- InitErgmTerm.I
+
 #' @templateVar name Prod
 #' @template ergmTerm-rdname
 #' @usage
