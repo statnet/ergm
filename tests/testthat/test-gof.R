@@ -59,28 +59,18 @@ test_that("gof() defaults and GOF handling is correct for directed networks", {
 
 
 
-test_that("gof() defaults and GOF handling is correct for valued networks", {
+test_that("gof() is correct for valued networks", {
   data(sampson)
   fit <- ergm(samplike~sum + nonzero + nodematch("group",diff=TRUE,form="sum"),
               response="nominations", reference=~DiscUnif(0, 3),
               control = control.ergm(MCMLE.maxit = 2), eval.loglik = FALSE)
 
-  expect_message(gof <- gof(fit), ".*must be specified manually.*")
+  gof <- gof(fit)
   expect_no_error(expect_no_warning(print(gof)))
   expect_no_error(expect_no_warning(plot(gof)))
-  expect_setequal(which_gof(gof), c("model"))
-})
+  expect_setequal(which_gof(gof), c("model", "cdf"))
 
-
-
-test_that("gof() with specified GOF handling is correct for valued networks", {
-  data(sampson)
-  fit <- ergm(samplike~sum + nonzero + nodematch("group",diff=TRUE,form="sum"),
-              response="nominations", reference=~DiscUnif(0, 3),
-              control = control.ergm(MCMLE.maxit = 2), eval.loglik = FALSE)
-
-  expect_no_message(gof <- gof(fit, GOF = ~For(v = -1:4, ~atmost(v))),
-                    message = ".*must be specified manually.*")
+  gof <- gof(fit, GOF = ~For(v = -1:4, ~atmost(v)))
   expect_no_error(expect_no_warning(print(gof)))
   expect_no_error(expect_no_warning(plot(gof)))
   expect_setequal(which_gof(gof), c("model", "user"))

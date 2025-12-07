@@ -10,6 +10,7 @@
 
 GOF_TERMS <- c(model = "model",
                user = "user",
+               cdf = "cdf",
                distance = "dist",
                odegree = "odeg",
                idegree = "ideg",
@@ -90,6 +91,10 @@ which_gof <- function(x) {
 #'
 #'   \item{triad census}{\code{triadcensus}}
 #'
+#'   \item{the cumulative distribution function of edge
+#'     values}{`cdf(min, max, step, margin, nmax)`, which will be
+#'     autodetected from the observed network (using `margin` and `nmax` if possible)}
+#'
 #'   \item{terms of the original model}{\code{model}}
 #'
 #'   }
@@ -97,12 +102,13 @@ which_gof <- function(x) {
 #'   The default formula for undirected networks is \code{~ degree +
 #'   espartners + distance + model}, for directed networks \code{~
 #'   idegree + odegree + espartners + distance + model}, and for
-#'   bipartite \code{~b1degree + b2degree + dspartners + distance}. By
-#'   default a \code{model} term is added to the formula.  It is a
-#'   very useful overall validity check and a reminder of the
-#'   statistical variation in the estimates of the mean value
-#'   parameters.  To omit the \code{model} term, add \code{- model} to
-#'   the formula.
+#'   bipartite \code{~b1degree + b2degree + dspartners +
+#'   distance}. For valued networks, only \code{~cdf} is calculated,
+#'   regardless of directedness. By default a \code{model} term is
+#'   added to the formula.  It is a very useful overall validity check
+#'   and a reminder of the statistical variation in the estimates of
+#'   the mean value parameters.  To omit the \code{model} term, add
+#'   \code{- model} to the formula.
 #'
 #'   Ordinary `ergm()` terms can also be given on the formula; if
 #'   present, they will be returned as "user" statistics.
@@ -249,8 +255,7 @@ gof.formula <- function(object, ...,
   if(is.null(GOF)){
     GOF <-
       if (is.valued(nw)) {
-        message("At this time, any valued GoF effects beyond those already in the model must be specified manually. This may change in the future.")
-        ~model
+        ~model + cdf
       } else if (is.directed(nw)) ~idegree + odegree + espartners + distance
       else if(is.bipartite(nw)) ~b1degree + b2degree + dspartners + distance
       else ~degree + espartners + distance
@@ -314,6 +319,7 @@ gof.formula <- function(object, ...,
     val <- gofs[i, 3]
     obs <- obs[i]
     sim <- sim[, i, drop = FALSE]
+    names(obs) <- colnames(sim) <- val
     d <- sweep(sim, 2, obs)
 
     pval <- cbind(obs, apply(sim, 2, min), apply(sim, 2, mean),
@@ -321,13 +327,20 @@ gof.formula <- function(object, ...,
                   pmin(1, 2 * pmin(colMeans(d >= 0), colMeans(d <= 0))))
     colnames(pval) <- c("obs","min","mean","max","MC p-value")
 
-    pobs <- if(name == "model") colMeans(d >= 0) else obs / sum(obs)
     if(name == "model") {
       psim <- apply(sim, 2, rank) / nrow(sim)
       psim <- matrix(psim, ncol = ncol(sim)) # Guard against the case of sim having only one row.
+      pobs <- colMeans(d >= 0)
+    } else if (name == "user") {
+      psim <- sim
+      pobs <- obs
+    } else if (name == "cdf") {
+      psim <- sim / ult(obs)
+      pobs <- obs / ult(obs)
     } else {
       psim <- sweep(sim, 1, rowSums(sim), "/")
       psim %[f]% is.na <- 1
+      pobs <- obs / sum(obs)
     }
 
     bds <- apply(psim, 2, quantile, probs = c(0.025, 0.975))
@@ -372,6 +385,7 @@ print.gof <- function(x, ...){
   goftypes <- matrix( c(
       "model", "model statistics", "summary.model",
       "user", "user statistics", "summary.user",
+      "cdf", "cumulative distribution function", "summary.cdf",
       "distance", "minimum geodesic distance", "summary.dist",
       "idegree", "in-degree", "summary.ideg",
       "odegree", "out-degree", "summary.odeg",
@@ -496,13 +510,15 @@ plot.gof <- function(x, ...,
       out.obs <- odds.obs
       out.bds <- odds.bds
 
-      ylab <- paste0("log-odds for a ", unit)
+      ylab <- if(is(unit, "AsIs")) unit
+              else paste0("log-odds for ", unit)
     }
     else {
       out <- psim
       out.obs <- pobs
       out.bds <- bds
-      ylab <- paste0("proportion of ", unit, "s")
+      ylab <- if(is(unit, "AsIs")) unit
+              else paste0("proportion of ", unit)
     }
     pnames <- colnames(sim)[i]
 
@@ -535,17 +551,18 @@ plot.gof <- function(x, ...,
 
   ###model####
 
-  GVMAP <- list(model = list('model', 'statistic', 'n', 'model statistics', identity),
-                user = list("user", "statistic", "n", "user statistics", identity),
-                degree = list('deg', 'node', 'f', 'degree', identity),
-                b1degree = list('b1deg', 'node', 'f', 'b1degree', identity),
-                b2degree = list('b2deg', 'node', 'f', 'b2degree', identity),
-                odegree = list('odeg', 'node', 'f', 'odegree', identity),
-                idegree = list('ideg', 'node', 'f', 'idegree', identity),
-                espartners = list('espart', 'edge', 'f', 'edge-wise shared partners', identity),
-                dspartners = list('dspart', 'dyad', 'f', 'dyad-wise shared partners', identity),
-                triadcensus = list('triadcensus', 'triad', 'n', 'triad census', identity),
-                distance = list('dist', 'dyad', 'i', 'minimum geodesic distance', function(gc){
+  GVMAP <- list(model = list('model', 'statistics', 'n', 'model statistic', identity),
+                user = list("user", I("value"), "n", "user statistic", identity),
+                cdf = list("cdf", I(expression("values" <= x)), "n", "x", identity),
+                degree = list('deg', 'nodes', 'f', 'degree', identity),
+                b1degree = list('b1deg', 'nodes', 'f', 'b1degree', identity),
+                b2degree = list('b2deg', 'nodes', 'f', 'b2degree', identity),
+                odegree = list('odeg', 'nodes', 'f', 'odegree', identity),
+                idegree = list('ideg', 'nodes', 'f', 'idegree', identity),
+                espartners = list('espart', 'edges', 'f', 'edge-wise shared partners', identity),
+                dspartners = list('dspart', 'dyads', 'f', 'dyad-wise shared partners', identity),
+                triadcensus = list('triadcensus', 'triads', 'n', 'triad census', identity),
+                distance = list('dist', 'dyads', 'i', 'minimum geodesic distance', function(gc){
                   ult(gc$pnames) <- "NR"
                   if(normalize.reachability){
                     gc <- within(gc,
@@ -653,5 +670,75 @@ InitErgmTerm..gof.triadcensus <- function(nw, arglist, ...) {
   f <- InitErgmTerm.triadcensus
   term <- f(nw, arglist, ...)
   term$coef.names <- paste0(".gof.triadcensus#", namestriadcensus)
+  term
+}
+
+
+#' @templateVar name cdf
+#' @aliases InitWtErgmTerm.cdf
+#' @title Empirical cumulative distribution function (unnormalized) of
+#'   the network's dyad values
+#' @description For every value \eqn{x} in [`seq`]`(min, max, by)`,
+#'   compute the number of dyads whose value is less than or equal
+#'   than \eqn{x}. If not given, the range is autodetected based on
+#'   the values in the LHS network, subject to adjustment via `margin`
+#'   and `nmax`.
+#'
+#' @usage
+#' # valued: cdf(min = NULL, max = NULL, by = NULL, margin = 0.1, nmax = 100)
+#'
+#' @param min,max,by range and step size for values at which to compute the CDF
+#' @param margin,nmax autodetection of the range and step size; see Details.
+#'
+#' @details If `min`, `max`, and/or `by` is missing, it is
+#'   automatically computed based on the LHS network's nonzero edge
+#'   values, specifically their range and resolution (smallest
+#'   observed difference between distinct values). Minimum and maximum
+#'   are taken from the minimal and the maximal edge values, and then
+#'   expanded by `margin` multiplied by their range, and rounded up to
+#'   the nearest multiple of the resolution. The step is set to the
+#'   smallest multiple of the resolution such that the total number of
+#'   statistics is no more than `nmax`.
+#'
+#' @note This term is intended to be used in a [gof()]'s `GOF`
+#'   formula, so its coefficient names are specially formatted to be
+#'   interpreted by `gof()` rather than for readability.
+#'
+#' @seealso \ergmTerm{ergm}{atmost}{()}
+#'
+#' @template ergmTerm-general
+#'
+#' @concept directed
+#' @concept undirected
+#' @concept dyad-independent
+InitWtErgmTerm..gof.cdf <- InitWtErgmTerm.cdf <- function(nw, arglist, ...) {
+  a <- check.ErgmTerm(nw, arglist,
+                      varnames = c("min", "max", "by", "margin", "nmax"),
+                      vartypes = c("numeric", "numeric", "numeric", "numeric", "numeric"),
+                      defaultvalues = list(NULL, NULL, NULL, 0.1, 100),
+                      required = c(FALSE, FALSE, FALSE, FALSE, FALSE))
+
+  nzvals <- sort(unique(nw %e% (nw %ergmlhs% "response")))
+  if (!length(nzvals) && (is.null(a$min) || is.null(a$max) || is.null(a$by))) ergm_Init_stop("LHS network does not appear to have nonzero values: minimum, maximum, and step size cannot be autodetected.")
+
+  d <- diff(nzvals)
+  res <- suppressWarnings(min(d[d > sqrt(.Machine$double.eps)]))
+  if (res == -Inf) ergm_Init_stop("LHS network does not appear to have nonzero values: minimum, maximum, and step size cannot be autodetected.")
+
+  nzmin <- nzvals[1]
+  nzmax <- ult(nzvals)
+
+  ceiling_res <- function(x, res) ceiling(x / res) * res
+  margin <- ceiling_res((nzmax - nzmin) * a$margin, res)
+
+  NVL(a$min) <- nzmin - margin
+  NVL(a$max) <- nzmax + margin
+  NVL(a$by) <- max(res, ceiling_res((a$max - a$min) / (a$nmax - 1), res))
+
+  x <- seq(a$min, a$max, a$by)
+  arglist <- list(x)
+  f <- InitWtErgmTerm.atmost
+  term <- f(nw, arglist, ...)
+  term$coef.names <- paste0(".gof.cdf#", x)
   term
 }

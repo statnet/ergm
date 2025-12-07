@@ -79,6 +79,10 @@ undirected graphs}
 
 \item{triad census}{\code{triadcensus}}
 
+\item{the cumulative distribution function of edge
+values}{\code{cdf(min, max, step, margin, nmax)}, which will be
+autodetected from the observed network (using \code{margin} and \code{nmax} if possible)}
+
 \item{terms of the original model}{\code{model}}
 
 }
@@ -86,12 +90,13 @@ undirected graphs}
 The default formula for undirected networks is \code{~ degree +
   espartners + distance + model}, for directed networks \code{~
   idegree + odegree + espartners + distance + model}, and for
-bipartite \code{~b1degree + b2degree + dspartners + distance}. By
-default a \code{model} term is added to the formula.  It is a
-very useful overall validity check and a reminder of the
-statistical variation in the estimates of the mean value
-parameters.  To omit the \code{model} term, add \code{- model} to
-the formula.
+bipartite \code{~b1degree + b2degree + dspartners +
+  distance}. For valued networks, only \code{~cdf} is calculated,
+regardless of directedness. By default a \code{model} term is
+added to the formula.  It is a very useful overall validity check
+and a reminder of the statistical variation in the estimates of
+the mean value parameters.  To omit the \code{model} term, add
+\code{- model} to the formula.
 
 Ordinary \code{ergm()} terms can also be given on the formula; if
 present, they will be returned as "user" statistics.}
