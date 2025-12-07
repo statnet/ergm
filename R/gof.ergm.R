@@ -222,8 +222,8 @@ gof.formula <- function(object, ...,
                         coef=NULL,
                         GOF=NULL,
                         response=NULL,
-                        reference=~Bernoulli,
-                        constraints=~.,
+                        reference = NULL,
+                        constraints = NULL,
                         basis=eval_lhs.formula(object),
                         control=NULL,
                         unconditional=TRUE,
@@ -234,12 +234,23 @@ gof.formula <- function(object, ...,
   if (verbose) message("Starting GOF for the given ERGM formula.")
 
   if(is.ergm(basis)){ # Kick it back to gof.ergm().
-    NVL(GOF) <- nonsimp_update.formula(object, ~.) # Remove LHS from formula.
+    NVL(GOF) <- nonsimp_update.formula(object, base_env(~.)) # Remove LHS from formula.
     NVL(control) <- control.gof.ergm()
+    NVL(coef) <- coefficients(basis)
+    NVL(constraints) <- basis$constraints
+    NVL(response) <- basis$network %ergmlhs% "response"
+    NVL(reference) <- basis$reference
     
     return(
-      gof(basis, GOF = GOF, coef = coef, response = response, reference = reference, control = control, verbose = verbose, ...)
+      gof(basis, GOF = GOF, coef = coef, response = response,
+          reference = reference, constraints = constraints, control = control,
+          verbose = verbose, ...)
     )
+  } else {
+    NVL(coef, stop(sQuote("gof"), " ", sQuote("formula"), " method given a ",
+                   sQuote("NULL"), " ", sQuote("coef")))
+    NVL(constraints) <- base_env(~.)
+    NVL(reference) <- base_env(~Bernoulli)
   }
 
   # Otherwise, LHS/basis must be a network.
