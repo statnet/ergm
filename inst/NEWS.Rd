@@ -100,6 +100,15 @@
           }
         }
       }
+      \item{
+        \code{\link{gof}()} functions now support valued ERGMs, with a statistic comparing the observed empirical CDF of edge values with predicted.
+      }
+      \item{
+        Added a \ergmTerm{ergm}{I}{()}/\ergmConstraint{ergm}{I}{()} operators for models and constraints for conveniently substituting expressions into model formulas.
+      }
+      \item{
+        Added a constraint operator \ergmConstraint{ergm}{ChangeStats}{()} that takes a model formula and rejects any proposal changes the statistics in that formula.
+      }
     }
   }
 
@@ -109,7 +118,10 @@
         Update to work with \CRANpkg{testthat} 3.3.0. (Thanks to Hadley Wickham.)
       }
       \item{
-        Fixes to the \code{\link{gof}()} code; in particular, the triad census was being plotted with the model statistics but in a separate plot.
+        Fixes to the \code{\link{gof}()} code; in particular, the triad census was being plotted with the model statistics but in a separate plot, and an \code{\link{ergm}} object on the LHS was being mishandled.
+      }
+      \item{
+        In \code{\link{gof}()} for bipartite networks, replaced ESP with DSP in the default GoF statistic, since the former is always 0.
       }
     }
   }
@@ -130,6 +142,12 @@
       }
       \item{
         References have been ported to \CRANpkg{Rdpack} and cleaned up.
+      }
+      \item{
+        Some optimisations to the \ergmTerm{ergm}{diff}{()} term.
+      }
+      \item{
+        \code{\link{ergm_most_frequent_n}()} helper function for obtaining the \code{n} most or least frequent levels of a factor has been exported.
       }
     }
   }
