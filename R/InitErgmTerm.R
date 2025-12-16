@@ -221,7 +221,7 @@ decay_vs_fixed <- function(a, name, no_curved_attrarg=TRUE){
   } else {
     if (any(from == 0)) {
       emptynwstats <-
-        replace(dbl_along(from), from == 0,
+        replace(rep_along(from, 0), from == 0,
                 switch(deg,
                        b1 = b1.size(nw),
                        b2 = b2.size(nw),
@@ -295,7 +295,7 @@ decay_vs_fixed <- function(a, name, no_curved_attrarg=TRUE){
   } else {
     if (any(d == 0)) {
       emptynwstats <-
-        replace(dbl_along(d), d == 0,
+        replace(rep_along(d, 0), d == 0,
                 switch(deg,
                        b1 = b1.size(nw),
                        b2 = b2.size(nw),
@@ -953,7 +953,7 @@ InitErgmTerm.b1degree <- function(nw, arglist, ..., version=packageVersion("ergm
 #' @concept undirected
 InitErgmTerm.b1dsp <- function(nw, arglist, cache.sp=TRUE, ...){
   .d_sp_impl("b1", nw, arglist, cache.sp,
-             function(d, nw, ...) replace(dbl_along(d), d == 0, choose(b1.size(nw), 2)),
+             function(d, nw, ...) replace(rep_along(d, 0), d == 0, choose(b1.size(nw), 2)),
              ...)
 }
 
@@ -1538,7 +1538,7 @@ InitErgmTerm.b2degree <- function(nw, arglist, ..., version=packageVersion("ergm
 #' @concept undirected
 InitErgmTerm.b2dsp <- function(nw, arglist, cache.sp=TRUE, ...){
   .d_sp_impl("b2", nw, arglist, cache.sp,
-             function(d, nw, ...) replace(dbl_along(d), d==0, (b2.size(nw))*(b2.size(nw)-1)/2),
+             function(d, nw, ...) replace(rep_along(d, 0), d==0, (b2.size(nw))*(b2.size(nw)-1)/2),
              ...)
 }
 
@@ -4554,7 +4554,7 @@ InitErgmTerm.receiver<-function(nw, arglist, ..., version=packageVersion("ergm")
   ld<-length(d)
   if(ld==0){return(NULL)}
   list(name="receiver", coef.names=paste("receiver",d,sep=""),
-       inputs=c(d), emptynwstats=dbl_along(d), dependence=FALSE, minval=0, maxval=network.size(nw)-1, conflicts.constraints="idegrees")
+       inputs=c(d), emptynwstats=rep_along(d, 0), dependence=FALSE, minval=0, maxval=network.size(nw)-1, conflicts.constraints="idegrees")
 }
 
 
@@ -4611,7 +4611,7 @@ InitErgmTerm.sender<-function(nw, arglist, ..., version=packageVersion("ergm")) 
   ld<-length(d)
   if(ld==0){return(NULL)}
   list(name="sender", coef.names=paste("sender",d,sep=""),
-       inputs=c(d), emptynwstats=dbl_along(d), dependence=FALSE, minval=0, maxval=network.size(nw)-1, conflicts.constraints="odegrees")
+       inputs=c(d), emptynwstats=rep_along(d, 0), dependence=FALSE, minval=0, maxval=network.size(nw)-1, conflicts.constraints="odegrees")
 }
 
 ################################################################################
@@ -4994,7 +4994,7 @@ InitErgmTerm.triadcensus<-function (nw, arglist, ..., version=packageVersion("er
   d <- match(d, tcn) - 1
   
   if (any(d==0)) {
-    emptynwstats <- dbl_along(d)
+    emptynwstats <- rep_along(d, 0)
     nwsize <- network.size(nw)
     # SEARCH_ON_THIS_TO_TRACK_DOWN_TRIADCENSUS_CHANGE
     # to undo triadcensus change, comment out next line:

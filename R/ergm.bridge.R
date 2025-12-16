@@ -247,7 +247,9 @@ ergm.bridge.0.llk<-function(object, response=NULL, reference=~Bernoulli, coef, .
   check.control.class("ergm.bridge", "ergm.bridge.0.llk")
   handle.control.toplevel("ergm.bridge", ...)
   ergm_preprocess_response(basis, response)
-  br<-ergm.bridge.llr(object, from=dbl_along(coef), to=coef, reference=reference, control=control, ..., basis=basis)
+  br <- ergm.bridge.llr(object, from = rep_along(coef, 0), to = coef,
+                        reference = reference, control = control, ...,
+                        basis = basis)
   if(llkonly) br$llr
   else c(br,llk=br$llr)
 }
@@ -364,7 +366,7 @@ ergm.bridge.dindstart.llk<-function(object, response=NULL, constraints=~., coef,
   # l(theta,ts)-l(theta,ns)=sum(theta*(ts-ns)).
   if(!is.null(target.stats)) llk.dind <- llk.dind + c(crossprod(eta.dind, NVL(ts.dind, stats.dind)[!etamap.dind$offsetmap] - stats.dind[!etamap.dind$offsetmap]))
 
-  coef.dind <- dbl_along(dindmap)
+  coef.dind <- rep_along(dindmap, 0)
   coef.dind[dindmap] <- replace(coef(ergm.dind), is.na, 0)
   coef.aug <- c(coef, 0)
 

@@ -56,7 +56,7 @@ ergm.logitreg <- function(x, y, wt = rep(1, length(y)),
                           offset=NULL, m=NULL, maxit=200, verbose=FALSE, ...){
 
   if(is.null(dim(x))) dim(x) <- c(length(x), 1)
-  if(is.null(offset)) offset <- dbl_along(y)
+  if(is.null(offset)) offset <- rep_along(y, 0)
   if(intercept){
     x <- cbind(1, x)
     dn <- c("(Intercept)", dn)

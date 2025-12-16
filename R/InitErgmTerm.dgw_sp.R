@@ -127,7 +127,7 @@ SPTYPE_CODE <- c(UTP = 0L, OTP = 1L, ITP = 2L, RTP = 3L, OSP = 4L, ISP = 5L)
                OSP = b1.size(nw),
                ISP = b2.size(nw))
       else network.size(nw)
-    replace(dbl_along(d), d == 0,
+    replace(rep_along(d, 0), d == 0,
             choose(n, 2L) * (is.directed(nw) + 1L))
   }
 }
