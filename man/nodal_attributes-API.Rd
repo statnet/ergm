@@ -21,6 +21,7 @@
 \alias{ERGM_VATTR_SPEC}
 \alias{ERGM_VATTR_SPEC_NULL}
 \alias{ERGM_LEVELS_SPEC}
+\alias{ergm_most_frequent_n}
 \title{Helper functions for specifying nodal attribute levels}
 \format{
 An object of class \code{character} of length 3.
@@ -102,6 +103,8 @@ ERGM_VATTR_SPEC
 ERGM_VATTR_SPEC_NULL
 
 ERGM_LEVELS_SPEC
+
+ergm_most_frequent_n(x, n, levels = sort(unique(x)), ...)
 }
 \arguments{
 \item{object}{An argument specifying the nodal attribute to select
@@ -128,6 +131,10 @@ specifying the attribute vector.}
 
 \item{levels}{Starting set of levels to use; defaults to the sorted
 list of unique attributes.}
+
+\item{x}{a vector}
+
+\item{n}{number of most frequent (or least, for \code{-n}) levels to return}
 
 \item{a}{arguments to \code{LARGEST}, which is actually a function
 that gets processed as a function level spec does.}
@@ -158,6 +165,10 @@ attribute.  It is strongly recommended that \code{\link[=check.ErgmTerm]{check.E
 corresponding
 \code{vartype="function,formula,character,numeric,logical,AsIs,NULL"} (using the
 \code{ERGM_LEVELS_SPEC} constant).
+
+a helper function to obtain the \code{abs(n)} most (or
+least, for negative \code{n}) levels in vector \code{x}, with optional
+\code{levels} specifying the levels of \code{x}.
 }
 \details{
 The \code{accept} argument is meant to allow the user to

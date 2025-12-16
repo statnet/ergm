@@ -664,38 +664,44 @@ ERGM_VATTR_SPEC_NULL <- "function,formula,character,AsIs,NULL"
 #' @export
 ERGM_LEVELS_SPEC <- "function,formula,character,numeric,logical,AsIs,NULL,matrix"
 
-rank_cut <- function(x, n, tie_action = c("warning", "error"), top = FALSE){    
-  ordrank <- if(top) function(r) length(x) + 1 - r else identity
-  s1 <- ordrank(rank(x, ties.method="min")) <= n
-  s2 <- ordrank(rank(x, ties.method="max")) <= n
+rank_cut <- function(x, n, tie_action = c("warning", "error")) {
+  i <- which_top_n(x, n)
+  tied <- attr(i, "tied")
 
-  if(identical(s1, s2)) which(s1)
-  else{
+  if (length(tied)) {
     tie_action <- match.arg(tie_action)
-    msg <- paste0("Levels ", paste.and(sQuote(names(x)[s1!=s2])), " are tied.")
+    msg <- paste0("Levels ", paste.and(sQuote(names(x)[tied])), " are tied.")
     switch(tie_action,
            error = ergm_Init_stop(msg, " Specify explicitly."),
-           warning = {
-             ergm_Init_warning(msg, " Using the order given.")
-             which(ordrank(rank(x, ties.method="first")) <= n)
-           })
+           warning = ergm_Init_warning(msg, " Using the order given."))
   }
+
+  c(i)
 }
 
-levels_cut <- function(x, n, lvls = sort(unique(x)), top = FALSE, ...){
-  f <- setNames(tabulate(match(x, lvls)), lvls)
-  sel <- rank_cut(f, n, top=top, ...)
-  if(missing(lvls)) lvls[sel] else sel
+#' @rdname nodal_attributes-API
+#' @description a helper function to obtain the `abs(n)` most (or
+#'   least, for negative `n`) levels in vector `x`, with optional
+#'   `levels` specifying the levels of `x`.
+#'
+#' @param x a vector
+#' @param n number of most frequent (or least, for `-n`) levels to return
+#'
+#' @export
+ergm_most_frequent_n <- function(x, n, levels = sort(unique(x)), ...) {
+  f <- setNames(tabulate(match(x, levels)), levels)
+  sel <- rank_cut(f, n, ...)
+  if(missing(levels)) levels[sel] else sel
 }
 
 #' @rdname nodal_attributes
 #' @export
 LARGEST <- structure(function(l, a){
-  if(!missing(a)) levels_cut(a, 1, l, top=TRUE) # passed as levels=LARGEST
+  if (!missing(a)) ergm_most_frequent_n(a, 1, l) # passed as levels=LARGEST
   else{ # passed as levels=LARGEST(n): return a function
     n <- l
     structure(function(l, a){
-      levels_cut(a, n, l, top=TRUE)
+      ergm_most_frequent_n(a, n, l)
     }, class = c("ergm_levels_spec_function", "function"))
   }
 }, class = c("ergm_levels_spec_function", "function"))
@@ -703,11 +709,11 @@ LARGEST <- structure(function(l, a){
 #' @rdname nodal_attributes
 #' @export
 SMALLEST <- structure(function(l, a){
-  if(!missing(a)) levels_cut(a, 1, l) # passed as levels=SMALLEST
+  if (!missing(a)) ergm_most_frequent_n(a, -1, l) # passed as levels=SMALLEST
   else{ # passed as levels=SMALLEST(n): return a function
     n <- l
     structure(function(l, a){
-      levels_cut(a, n, l)
+      ergm_most_frequent_n(a, -n, l)
     }, class = c("ergm_levels_spec_function", "function"))
   }
 }, class = c("ergm_levels_spec_function", "function"))
@@ -734,7 +740,7 @@ COLLAPSE_SMALLEST <- function(object, n, into){
   attr <- object
   function(...){
     vattr <- ergm_get_vattr(attr, ...)
-    smallest <- levels_cut(vattr, n)
+    smallest <- ergm_most_frequent_n(vattr, -n)
     vattr[vattr %in% smallest] <- into
     vattr
   }
