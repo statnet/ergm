@@ -17,20 +17,19 @@
 D_CHANGESTAT_FN(d_b1kappa){
   int i, j, echange=0;
   double nedges, change, iar0, far0;
-  Vertex tail, head, taild, iak2, fak2, *od;
+  Vertex tail, head, taild, iak2, fak2;
   Vertex nb1;
 
-  od=OUT_DEG;
   nb1 = BIPARTITE;
   change = 0.0;
   FOR_EACH_TOGGLE(i) {
     echange = IS_OUTEDGE(tail=TAIL(i), head=HEAD(i)) ? -1 : 1;
     iak2=0;
     for (j=1; j<=nb1; j++) {      
-      fak2 = od[j];
+      fak2 = OUT_DEG[j];
       iak2 += fak2*(fak2-1);
     }
-    taild = od[tail] + (echange-1)/2;
+    taild = OUT_DEG[tail] + (echange-1)/2;
     fak2 = iak2 + echange*2*taild;
     nedges = (double)(N_EDGES);
     iar0 = (N_EDGES==0) ? 0.0 : (iak2*1.0/nedges);
@@ -50,16 +49,15 @@ D_CHANGESTAT_FN(d_b1kappa){
 D_CHANGESTAT_FN(d_altistar) {
   int i, echange=0;
   double lambda, oneexpl, change;
-  Vertex tail, head, headd=0, *id;
+  Vertex tail, head, headd=0;
   
-  id=IN_DEG;
   change = 0.0;
   lambda = INPUT_PARAM[0];
   oneexpl = 1.0-1.0/lambda;
   
   FOR_EACH_TOGGLE(i) {
     echange = IS_OUTEDGE(tail=TAIL(i), head=HEAD(i)) ? -1 : 1;
-    headd = id[head] + (echange - 1)/2;
+    headd = IN_DEG[head] + (echange - 1)/2;
     if(headd!=0){
       change += echange*(1.0-pow(oneexpl,(double)headd));
     }
@@ -75,16 +73,15 @@ D_CHANGESTAT_FN(d_altistar) {
 D_CHANGESTAT_FN(d_altostar) {
   int i, echange=0;
   double lambda, oneexpl, change;
-  Vertex tail, head, taild=0, *od;
+  Vertex tail, head, taild=0;
   
-  od=OUT_DEG;
   change = 0.0;
   lambda = INPUT_PARAM[0];
   oneexpl = 1.0-1.0/lambda;
   
   FOR_EACH_TOGGLE(i) {
     echange = IS_OUTEDGE(tail=TAIL(i), head=HEAD(i)) ? -1 : 1;
-    taild = od[tail] + (echange - 1)/2;
+    taild = OUT_DEG[tail] + (echange - 1)/2;
     if(taild!=0){
       change += echange*(1.0-pow(oneexpl,(double)taild));
     }
@@ -250,11 +247,9 @@ D_CHANGESTAT_FN(d_bimix){
 D_CHANGESTAT_FN(d_bkappa)  {
   int i, j, echange=0;
   double nedges, change, iar0, far0, ier0, fer0;
-  Vertex tail, head, taild, headd=0, iak2, fak2, iek2, fek2, nnodes, *id, *od;
+  Vertex tail, head, taild, headd=0, iak2, fak2, iek2, fek2, nnodes;
   Vertex /* nb2, */ nb1;
   
-  id=IN_DEG;
-  od=OUT_DEG;
   nnodes = N_NODES;
   nb1 = BIPARTITE;
   /* nb2 = nnodes - nb1; */
@@ -264,16 +259,16 @@ D_CHANGESTAT_FN(d_bkappa)  {
     echange = IS_OUTEDGE(tail=TAIL(i), head=HEAD(i)) ? -1 : 1;
     iak2=0;
     for (j=1; j<=nb1; j++) {      
-      fak2 = od[j];
+      fak2 = OUT_DEG[j];
       iak2 += fak2*(fak2-1);
     }
     iek2=0;
     for (j=nb1+1; j<=nnodes; j++) {      
-      fek2 = id[j];
+      fek2 = IN_DEG[j];
       iek2 += fek2*(fek2-1);
     }
-    taild = od[tail] + (echange-1)/2;
-    headd = id[head] + (echange-1)/2;
+    taild = OUT_DEG[tail] + (echange-1)/2;
+    headd = IN_DEG[head] + (echange-1)/2;
     fak2 = iak2 + echange*2*taild;
     fek2 = iek2 + echange*2*headd;
     nedges = (double)(N_EDGES);
@@ -296,15 +291,13 @@ D_CHANGESTAT_FN(d_bkappa)  {
 D_CHANGESTAT_FN(d_degreep) 
 {
   int i, j, echange;
-  Vertex tail, head, taildeg, headdeg, deg, *id, *od;
+  Vertex tail, head, taildeg, headdeg, deg;
 
-  id=IN_DEG;
-  od=OUT_DEG;
   ZERO_ALL_CHANGESTATS(i);
   FOR_EACH_TOGGLE(i) {
     echange=IS_OUTEDGE(tail=TAIL(i), head=HEAD(i))? -1:1;
-    taildeg = od[tail] + id[tail];
-    headdeg = od[head] + id[head];
+    taildeg = DEG(tail);
+    headdeg = DEG(head);
     for(j = 0; j < mtp->nstats; j++) {
       deg = (Vertex)INPUT_PARAM[j];
       CHANGE_STAT[j] += ((taildeg + echange == deg) - (taildeg == deg))/(double)N_NODES;
@@ -325,15 +318,13 @@ D_CHANGESTAT_FN(d_degreep_by_attr)
   The values following the first 2*nstats values are the nodal attributes.
   */
   int i, j, echange, tailattr, headattr, testattr;
-  Vertex tail, head, taildeg, headdeg, d, *id, *od;
+  Vertex tail, head, taildeg, headdeg, d;
   
-  id=IN_DEG;
-  od=OUT_DEG;
   ZERO_ALL_CHANGESTATS(i);
   FOR_EACH_TOGGLE(i) {
     echange=IS_OUTEDGE(tail=TAIL(i), head=HEAD(i))? -1:1;
-    taildeg = od[tail] + id[tail];
-    headdeg = od[head] + id[head];
+    taildeg = DEG(tail);
+    headdeg = DEG(head);
     tailattr = INPUT_PARAM[2*mtp->nstats + tail - 1]; 
     headattr = INPUT_PARAM[2*mtp->nstats + head - 1]; 
     for(j = 0; j < mtp->nstats; j++) {
@@ -483,10 +474,9 @@ D_CHANGESTAT_FN(d_duration) {
 D_CHANGESTAT_FN(d_b2kappa)  {
   int i, j, echange=0;
   double nedges, change, ier0, fer0;
-  Vertex tail, head, headd=0, iek2, fek2, nnodes, *id;
+  Vertex tail, head, headd=0, iek2, fek2, nnodes;
   Vertex nb1;
 
-  id=IN_DEG;
   nnodes = N_NODES;
   nb1 = BIPARTITE;
   
@@ -495,10 +485,10 @@ D_CHANGESTAT_FN(d_b2kappa)  {
     echange = IS_OUTEDGE(tail=TAIL(i), head=HEAD(i)) ? -1 : +1;
     iek2=0;
     for (j=nb1+1; j<=nnodes; j++) {      
-      fek2 = id[j];
+      fek2 = IN_DEG[j];
       iek2 += fek2*(fek2-1);
     }
-    headd = id[head] + (echange-1)/2;
+    headd = IN_DEG[head] + (echange-1)/2;
     fek2 = iek2 + echange*2*headd;
     nedges = (double)(N_EDGES);
     ier0 = (N_EDGES==0) ? 0.0 : (iek2*1.0/nedges);
@@ -545,17 +535,15 @@ D_CHANGESTAT_FN(d_factor)  {
 D_CHANGESTAT_FN(d_geodegree) {
   int i, echange;
   double alpha;
-  Vertex tail, head, taild, headd=0, *id, *od;
+  Vertex tail, head, taild, headd=0;
                                                
-  id=IN_DEG;
-  od=OUT_DEG;
   CHANGE_STAT[0] = 0.0;
   alpha = INPUT_PARAM[0];
   
   FOR_EACH_TOGGLE(i) {
     echange = IS_OUTEDGE(tail=TAIL(i), head=HEAD(i)) ? -1 : 1;
-    taild = od[tail] + id[tail] + (echange - 1)/2;
-    headd = od[head] + id[head] + (echange - 1)/2;
+    taild = DEG(tail) + (echange - 1)/2;
+    headd = DEG(head) + (echange - 1)/2;
     CHANGE_STAT[0] += echange*(exp(-alpha*taild)+exp(-alpha*headd));
     TOGGLE_IF_MORE_TO_COME(i);
   }
@@ -625,14 +613,13 @@ D_CHANGESTAT_FN(d_geospartner) {
 D_CHANGESTAT_FN(d_gwb1) {
   int i, echange=0;
   double alpha, loneexpa, change;
-  Vertex tail, head, taild=0, *od;
+  Vertex tail, head, taild=0;
   /* int nb1 , nb2 
 
   nb1 = (int)INPUT_PARAM[0];
   nb2 = (N_NODES) - nb1; */
   
   //id=IN_DEG;
-  od=OUT_DEG;
   change = 0.0;
   alpha = INPUT_PARAM[1];
   loneexpa = log1mexp(alpha);
@@ -640,7 +627,7 @@ D_CHANGESTAT_FN(d_gwb1) {
   CHANGE_STAT[0] = 0.0;
   FOR_EACH_TOGGLE(i) {
     echange = IS_OUTEDGE(tail=TAIL(i), head=HEAD(i)) ? -1 : 1;
-    taild = od[tail] + (echange - 1)/2;
+    taild = OUT_DEG[tail] + (echange - 1)/2;
     if(taild!=0){
       change += echange*exp(log1mexp(-loneexpa*taild));
     }
@@ -656,17 +643,15 @@ D_CHANGESTAT_FN(d_gwb1) {
 D_CHANGESTAT_FN(d_gwd) {
   int i, echange;
   double alpha;
-  Vertex tail, head, taild, headd=0, *id, *od;
+  Vertex tail, head, taild, headd=0;
   
-  id=IN_DEG;
-  od=OUT_DEG;
   CHANGE_STAT[0] = 0.0;
   alpha = INPUT_PARAM[0];
   
   FOR_EACH_TOGGLE(i) {
     echange = IS_OUTEDGE(tail=TAIL(i), head=HEAD(i)) ? -1 : 1;
-    taild = od[tail] + id[tail] + (echange - 1)/2;
-    headd = od[head] + id[head] + (echange - 1)/2;
+    taild = DEG(tail) + (echange - 1)/2;
+    headd = DEG(head) + (echange - 1)/2;
     CHANGE_STAT[0] += echange*(exp(-alpha*taild)+exp(-alpha*headd)); 
     TOGGLE_IF_MORE_TO_COME(i);
   }
@@ -680,10 +665,8 @@ D_CHANGESTAT_FN(d_gwdegree706)  {
   /* Slight modification to the parameterization in d_gwdegree */
   int i, echange=0;
   double decay, loneexpd, change;
-  Vertex tail, head, taild, headd=0, *id, *od;
+  Vertex tail, head, taild, headd=0;
   
-  id=IN_DEG;
-  od=OUT_DEG;
   decay = INPUT_PARAM[0];
   loneexpd = log1mexp(decay);
   
@@ -691,8 +674,8 @@ D_CHANGESTAT_FN(d_gwdegree706)  {
   FOR_EACH_TOGGLE(i) {
     echange = IS_OUTEDGE(tail=TAIL(i), head=HEAD(i)) ? -1 : 1;
     change += 4.0*echange;
-    taild = od[tail] + id[tail] + (echange - 1)/2;
-    headd = od[head] + id[head] + (echange - 1)/2;
+    taild = DEG(tail) + (echange - 1)/2;
+    headd = DEG(head) + (echange - 1)/2;
     if(taild!=0){
       change -= echange*exp(log1mexp(-loneexpd*taild));
     }
@@ -711,18 +694,16 @@ D_CHANGESTAT_FN(d_gwdegree706)  {
 D_CHANGESTAT_FN(d_gwdegreealpha)  {
   int i, echange=0;
   double alpha, loneexpa, change;
-  Vertex tail, head, taild, headd=0, *id, *od;
+  Vertex tail, head, taild, headd=0;
   
-  id=IN_DEG;
-  od=OUT_DEG;
   change = 0.0;
   alpha = INPUT_PARAM[0];
   loneexpa = log1mexp(alpha);
   
   FOR_EACH_TOGGLE(i) {
     echange = IS_OUTEDGE(tail=TAIL(i), head=HEAD(i)) ? -1 : 1;
-    taild = od[tail] + id[tail] + (echange - 1)/2;
-    headd = od[head] + id[head] + (echange - 1)/2;
+    taild = DEG(tail) + (echange - 1)/2;
+    headd = DEG(head) + (echange - 1)/2;
     if(taild!=0){
       change += echange*exp(log1mexp(-loneexpa*taild));
     }
@@ -741,10 +722,8 @@ D_CHANGESTAT_FN(d_gwdegreealpha)  {
 D_CHANGESTAT_FN(d_gwdegreelambda)  {
   int i, echange=0;
   double lambda, oneexpl, change;
-  Vertex tail, head, taild, headd=0, *id, *od;
+  Vertex tail, head, taild, headd=0;
   
-  id=IN_DEG;
-  od=OUT_DEG;
   lambda = INPUT_PARAM[0];
   oneexpl = 1.0-1.0/lambda;
   
@@ -753,8 +732,8 @@ D_CHANGESTAT_FN(d_gwdegreelambda)  {
     echange = IS_OUTEDGE(tail=TAIL(i), head=HEAD(i)) ? -1 : 1;
     change += 4.0*echange;
     /* The above line may be an error -- should it be 2.0*echange? */
-    taild = od[tail] + id[tail] + (echange - 1)/2;
-    headd = od[head] + id[head] + (echange - 1)/2;
+    taild = DEG(tail) + (echange - 1)/2;
+    headd = DEG(head) + (echange - 1)/2;
     if(taild!=0){
       change -= echange*(1.0-pow(oneexpl,(double)taild));
     }
@@ -773,13 +752,12 @@ D_CHANGESTAT_FN(d_gwdegreelambda)  {
 D_CHANGESTAT_FN(d_gwb2){
   int i, echange=0;
   double alpha, loneexpa, change;
-  Vertex tail, head, headd=0, *id;
+  Vertex tail, head, headd=0;
   /* int nb1, nb2;
 
   nb2 = (int)INPUT_PARAM[0];
   nb1 = N_NODES - nb2; */
 
-  id=IN_DEG;
   //od=OUT_DEG;
   change = 0.0;
   alpha = INPUT_PARAM[1];
@@ -787,8 +765,8 @@ D_CHANGESTAT_FN(d_gwb2){
   
   FOR_EACH_TOGGLE(i) {
     echange = IS_OUTEDGE(tail=TAIL(i), head=HEAD(i)) ? -1 : 1;
-    // taild = od[tail] + id[head] + (echange - 1)/2;
-    headd = id[head] + (echange - 1)/2;
+    // taild = OUT_DEG[tail] + IN_DEG[head] + (echange - 1)/2;
+    headd = IN_DEG[head] + (echange - 1)/2;
     // if(taild!=0){
       // change += echange*exp(log1mexp(-loneexpa*taild));
     // }
@@ -797,7 +775,7 @@ D_CHANGESTAT_FN(d_gwb2){
     }
     //Rprintf("tail %d head %d headd %d echange %d change %f\n", tail, head, headd, echange,change);
     // Rprintf(" tail %d head %d taild %d echange %d change %f\n", tail, head, taild, echange,change);
-    // Rprintf(" od[tail] %d id[tail] %d od[head] %d id[head] %d\n", od[tail], id[tail], od[head], id[head]);
+    // Rprintf(" OUT_DEG[tail] %d IN_DEG[tail] %d OUT_DEG[head] %d IN_DEG[head] %d\n", OUT_DEG[tail], IN_DEG[tail], OUT_DEG[head], IN_DEG[head]);
     TOGGLE_IF_MORE_TO_COME(i);
   }
   CHANGE_STAT[0] = change*exp(alpha);  
@@ -953,20 +931,19 @@ double numposthree (Vertex head, Network *nwp) {
 *****************/
 D_CHANGESTAT_FN(d_icvar)  {
   int i, edgestate, ichange, change;
-  Vertex nnodes, tail, head, *id;
+  Vertex nnodes, tail, head;
   
-  id=IN_DEG;
   nnodes = N_NODES;
   
   change = 0;
   FOR_EACH_TOGGLE(i) {
       edgestate = IS_OUTEDGE(tail=TAIL(i), head=HEAD(i));
       if(edgestate){
-        ichange = -(2*(nnodes*(id[head]-1) - N_EDGES+1) + nnodes - 1);
+        ichange = -(2*(nnodes*(IN_DEG[head]-1) - N_EDGES+1) + nnodes - 1);
       }else{
-        ichange =   2*(nnodes* id[head]    - N_EDGES  ) + nnodes - 1;
+        ichange =   2*(nnodes* IN_DEG[head]    - N_EDGES  ) + nnodes - 1;
       }
-      // Rprintf("tail %d head %d nnodes %d  N_EDGES %d id[head] %d  ic %d\n",tail,head, nnodes,  N_EDGES, id[head], ichange);
+      // Rprintf("tail %d head %d nnodes %d  N_EDGES %d IN_DEG[head] %d  ic %d\n",tail,head, nnodes,  N_EDGES, IN_DEG[head], ichange);
       // change += edgestate ? (-ichange) : ichange;
       change += ichange;
       TOGGLE_IF_MORE_TO_COME(i);
@@ -981,32 +958,31 @@ D_CHANGESTAT_FN(d_icvar)  {
 D_CHANGESTAT_FN(d_idc)  {
   int i, edgestate, ichange, change;
   Vertex k, nnodes, maxidegree0, maxidegree1;
-  Vertex tail, head, *id;
+  Vertex tail, head;
   
-  id=IN_DEG;
   nnodes = N_NODES;
   
   change = 0;
   FOR_EACH_TOGGLE(i) {
       edgestate = IS_OUTEDGE(tail=TAIL(i), head=HEAD(i));
       if(edgestate){
-        maxidegree0 = id[head];
-        maxidegree1 = id[head]-1;
+        maxidegree0 = IN_DEG[head];
+        maxidegree1 = IN_DEG[head]-1;
         for (k=1; k<=nnodes; k++){
-          if(id[k] > maxidegree0) {maxidegree0=id[k];}
-          if(k != head && id[k] > maxidegree1) {maxidegree1=id[k];}
+          if(IN_DEG[k] > maxidegree0) {maxidegree0=IN_DEG[k];}
+          if(k != head && IN_DEG[k] > maxidegree1) {maxidegree1=IN_DEG[k];}
         }
         ichange = nnodes*(maxidegree1-maxidegree0) + 1;
       }else{
         maxidegree0 = 0;
-        maxidegree1 = id[head]+1;
+        maxidegree1 = IN_DEG[head]+1;
         for (k=1; k<=nnodes; k++){
-          if(id[k] > maxidegree0) {maxidegree0=id[k];}
-          if(id[k] > maxidegree1) {maxidegree1=id[k];}
+          if(IN_DEG[k] > maxidegree0) {maxidegree0=IN_DEG[k];}
+          if(IN_DEG[k] > maxidegree1) {maxidegree1=IN_DEG[k];}
         }
         ichange = nnodes*(maxidegree1-maxidegree0) - 1;
       }
-      // Rprintf("tail %d head %d nnodes %d  N_EDGES %d id[head] %d  ic %d\n",tail,head, nnodes,  N_EDGES, id[head], ichange);
+      // Rprintf("tail %d head %d nnodes %d  N_EDGES %d IN_DEG[head] %d  ic %d\n",tail,head, nnodes,  N_EDGES, IN_DEG[head], ichange);
       change += ichange;
       TOGGLE_IF_MORE_TO_COME(i);
   }
@@ -1299,10 +1275,8 @@ D_CHANGESTAT_FN(d_intransitivity) {
 D_CHANGESTAT_FN(d_kappa)  {
   int i, j, echange=0;
   double nedges, change, ir0, fr0;
-  Vertex tail, head, taild, headd=0, ik2, fk2, nnodes, *id, *od;
+  Vertex tail, head, taild, headd=0, ik2, fk2, nnodes;
   
-  id=IN_DEG;
-  od=OUT_DEG;
   nnodes = N_NODES;
   
   change = 0.0;
@@ -1310,11 +1284,11 @@ D_CHANGESTAT_FN(d_kappa)  {
     echange = IS_OUTEDGE(tail=TAIL(i), head=HEAD(i)) ? -1 : 1;
     ik2=0;
     for (j=1; j<=nnodes; j++) {      
-      fk2 = od[j] + id[j];
+      fk2 = DEG(j);
       ik2 += fk2*(fk2-1);
     }
-    taild = od[tail] + id[tail] + (echange-1)/2;
-    headd = od[head] + id[head] + (echange-1)/2;
+    taild = DEG(tail) + (echange-1)/2;
+    headd = DEG(head) + (echange-1)/2;
     fk2 = ik2 + echange*2*(taild+headd);
     nedges = (double)(N_EDGES);
     ir0 = (N_EDGES==0) ? 0.0 : (ik2*0.5/nedges);
@@ -1339,13 +1313,12 @@ D_CHANGESTAT_FN(d_monopolymixmat) {
   /* m/p means monogamous/polygamous; F/M means female/male */
   int mFmM, mFpM, pFmM;   
   /* NB: pFpM would be redundant since the total of all 4 is #edges */
-  Vertex *od=OUT_DEG, *id=IN_DEG;
 
   CHANGE_STAT[0] = CHANGE_STAT[1] = CHANGE_STAT[2] = 0.0;
   FOR_EACH_TOGGLE(i) {
     edgestate = IS_OUTEDGE(tail=TAIL(i), head=HEAD(i));
-    Fdeg = od[tail];
-    Mdeg = id[head];
+    Fdeg = OUT_DEG[tail];
+    Mdeg = IN_DEG[head];
     /* Calculate contribution from change of (F,M) edge only */
     mFmM = (Fdeg==0 && Mdeg==0) - (Fdeg==1 && Mdeg==1 && edgestate);
     mFpM = (Fdeg==0 && Mdeg>0) - (Fdeg==1 && Mdeg>1 && edgestate);
@@ -1355,7 +1328,7 @@ D_CHANGESTAT_FN(d_monopolymixmat) {
       for(e = EdgetreeMinimum(nwp->outedges, tail);
       (otherM = nwp->outedges[e].value) != 0 && otherM == head;
       e = EdgetreeSuccessor(nwp->outedges, e)); /* This finds otherM */
-      if (id[otherM] > 1) {
+      if (IN_DEG[otherM] > 1) {
         mFpM += (Fdeg==1 ? -1 : 1);
       } else {
         mFmM += (Fdeg==1 ? -1 : 1);
@@ -1366,7 +1339,7 @@ D_CHANGESTAT_FN(d_monopolymixmat) {
       for(e = EdgetreeMinimum(nwp->inedges, head);
       (otherF = nwp->inedges[e].value) != 0 && otherF == tail;
       e = EdgetreeSuccessor(nwp->inedges, e)); /* This finds otherF */
-      if (od[otherF] > 1) { /* otherF is poly */
+      if (OUT_DEG[otherF] > 1) { /* otherF is poly */
         pFmM += (Mdeg==1 ? -1 : 1);
       } else { /*otherF is mono */
         mFmM += (Mdeg==1 ? -1 : 1);

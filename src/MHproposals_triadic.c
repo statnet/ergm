@@ -50,7 +50,7 @@ MH_P_FN(Mp_SPDyad){
     /*     Rboolean SP01 = FALSE; // Indicator of whether the toggle will create an SP of an appropriate type. */
     /*     switch(MH_IINPUTS[0]){ */
     /*     case L2UTP: */
-    /*       SP01 = (OUT_DEG[*Mtail]+IN_DEG[*Mtail]) || (OUT_DEG[*Mhead]+IN_DEG[*Mhead]); break; */
+    /*       SP01 = DEG(*Mtail) || DEG(*Mhead); break; */
     /*     case L2OTP: */
     /*     case L2ITP: */
     /*       SP01 = IN_DEG[*Mtail] || OUT_DEG[*Mhead]; break; */
@@ -68,7 +68,7 @@ MH_P_FN(Mp_SPDyad){
     /*     Rboolean SP10 = FALSE; // Indicator of whether the toggle will remove an SP of an appropriate type. */
     /*     switch(MH_IINPUTS[0]){ */
     /*     case L2UTP: */
-    /*       SP10 = (OUT_DEG[*Mtail]+IN_DEG[*Mtail] == 1) || (OUT_DEG[*Mhead]+IN_DEG[*Mhead] == 1); break; */
+    /*       SP10 = (DEG(*Mtail) == 1) || (DEG(*Mhead) == 1); break; */
     /*     case L2OTP: */
     /*     case L2ITP: */
     /*       SP10 = (IN_DEG[*Mtail] == 1) || (OUT_DEG[*Mhead] == 1); break; */
