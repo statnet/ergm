@@ -24,8 +24,7 @@ template <
 class ErgmCppNetworkBase {
 public:
   explicit ErgmCppNetworkBase(NetType* nwp)
-    : dir(nwp->directed_flag != 0), n(nwp->nnodes), bip(nwp->bipartite), nwp_(nwp),
-      out_degree(this), in_degree(this), degree(this) {}
+    : dir(nwp->directed_flag != 0), n(nwp->nnodes), bip(nwp->bipartite), nwp_(nwp) {}
 
   class EdgeIterator {
   public:
@@ -189,46 +188,25 @@ public:
     return GetEdgeFunc::call(tail, head, nwp_);
   }
 
-  // Proxy classes for degree access (moved lower in the class)
-  class OutDegreeProxy {
-  public:
-    explicit OutDegreeProxy(const ErgmCppNetworkBase* nw) : nw_(nw) {}
-    Vertex operator[](Vertex i) const {
-      if (nw_->dir || nw_->bip) {
-        return nw_->nwp_->outdegree[i];
-      } else {
-        return nw_->nwp_->outdegree[i] + nw_->nwp_->indegree[i];
-      }
+  // Degree access methods
+  Vertex out_degree(Vertex i) const {
+    if (dir || bip) {
+      return nwp_->outdegree[i];
+    } else {
+      return nwp_->outdegree[i] + nwp_->indegree[i];
     }
-  private:
-    const ErgmCppNetworkBase* nw_;
-  };
-  class InDegreeProxy {
-  public:
-    explicit InDegreeProxy(const ErgmCppNetworkBase* nw) : nw_(nw) {}
-    Vertex operator[](Vertex i) const {
-      if (nw_->dir || nw_->bip) {
-        return nw_->nwp_->indegree[i];
-      } else {
-        return nw_->nwp_->outdegree[i] + nw_->nwp_->indegree[i];
-      }
+  }
+  Vertex in_degree(Vertex i) const {
+    if (dir || bip) {
+      return nwp_->indegree[i];
+    } else {
+      return nwp_->outdegree[i] + nwp_->indegree[i];
     }
-  private:
-    const ErgmCppNetworkBase* nw_;
-  };
-  class DegreeProxy {
-  public:
-    explicit DegreeProxy(const ErgmCppNetworkBase* nw) : nw_(nw) {}
-    Vertex operator[](Vertex i) const {
-      return nw_->nwp_->outdegree[i] + nw_->nwp_->indegree[i];
-    }
-  private:
-    const ErgmCppNetworkBase* nw_;
-  };
-
-  OutDegreeProxy out_degree{this};
-  InDegreeProxy in_degree{this};
-  DegreeProxy degree{this};
+  }
+  // Total degree convenience method (always out + in)
+  Vertex degree(Vertex i) const {
+    return nwp_->outdegree[i] + nwp_->indegree[i];
+  }
   const bool dir;
   const Vertex n;
   const Vertex bip;
