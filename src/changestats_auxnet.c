@@ -38,7 +38,7 @@ F_CHANGESTAT_FN(f__discord_net_Network){
 // If the edge also exists in y1, then toggle it off in auxnet->onwp.
 // The storage auxnet->onwp should be initialized as y0&y1 at the end.
 I_CHANGESTAT_FN(i__intersect_net_Network){
-  I_AUXNET(NetworkInitialize(NULL, NULL, 0, N_NODES, DIRECTED, BIPARTITE, 0, 0, NULL));
+  I_AUXNET(NetworkInitializeLike(nwp));
   int *ref_el = IINPUT_PARAM;
 
   Edge nedges = *ref_el;
@@ -65,7 +65,7 @@ F_CHANGESTAT_FN(f__intersect_net_Network){
 
 I_CHANGESTAT_FN(i__intersect_net_toggles_in_list_Network){
   //Rprintf("allocating intersect_net_tog\n");
-  I_AUXNET(NetworkInitialize(NULL, NULL, 0, N_NODES, DIRECTED, BIPARTITE, 0, 0, NULL));
+  I_AUXNET(NetworkInitializeLike(nwp));
   int *ref_el = IINPUT_PARAM;
 
   Edge nedges = *ref_el;
@@ -123,7 +123,7 @@ F_CHANGESTAT_FN(f__union_net_Network){
 */
 
 I_CHANGESTAT_FN(i__blockdiag_net){
-  I_AUXNET(NetworkInitialize(NULL, NULL, 0, N_NODES, DIRECTED, BIPARTITE, 0, 0, NULL));
+  I_AUXNET(NetworkInitializeLike(nwp));
   int *b = IINPUT_PARAM-1; // tail and head are indexed from 1.
 
   for(Vertex tail=1; tail <= N_TAILS; tail++){
@@ -192,7 +192,7 @@ F_CHANGESTAT_FN(f__undir_net){
 */
 
 I_CHANGESTAT_FN(i__filter_formula_net){
-  I_AUXNET(NetworkInitialize(NULL, NULL, 0, N_NODES, DIRECTED, BIPARTITE, FALSE, 0, NULL));
+  I_AUXNET(NetworkInitializeLike(nwp));
   GET_STORAGE(Model, m);
   unsigned int op = IINPUT_PARAM[0];
 
@@ -266,7 +266,7 @@ I_CHANGESTAT_FN(i__subgraph_net){
     break;
   }
 
-  I_AUXNET(NetworkInitialize(NULL, NULL, 0, n, dir, bip, FALSE, 0, NULL));
+  I_AUXNET(NetworkInitialize(NULL, NULL, 0, n, dir, bip));
 
   EXEC_THROUGH_NET_EDGES_PRE(tail, head, e, {
       Vertex st = thmap[0][tail];
