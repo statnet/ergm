@@ -152,10 +152,16 @@
     }
   }
 
-  %% \subsection{C-LEVEL FACILITIES}{
-  %%   \itemize{
-  %%   }
-  %% }
+  \subsection{C-LEVEL FACILITIES}{
+    \itemize{
+      \item{
+        New macro, \code{DEG(a)} to return the undirected degree of a node (typically outdegree plus indegree).
+      }
+      \item{
+        New function, \code{NetworkInitializeLike(nwp)} to construct an empty \code{Network} copying attributes (size, etc.) from the specified network.
+      }
+    }
+  }
 
   %% \subsection{UTILITIES}{
   %%   \itemize{
