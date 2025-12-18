@@ -11,12 +11,14 @@ This vignette documents the C++ convenience wrappers for developing ERGM terms a
 
 The API focuses on lightweight wrappers (no ownership) around existing C structs to provide: range-based iteration, safer array handling, and access to `->R` list elements/attributes.
 
+**WARNING:** This API is *experimental* and is subject to change in response to evolving needs and user feedback, but some effort will be made to maintain backwards compatibility. In particular, see the item about namespace versioning below.
 
 ## Overview
 
 - Headers live in `inst/include/cpp/` and complement the C headers in `inst/include/`.
 - Wrappers are header-only and intended to be used in compiled code within `src/`, typically via `#include "cpp/ergm_network.h"`, `#include "cpp/ergm_changestat.h"`, etc.
 - All C++ wrappers, aliases, and helper macros live in the `ergm` namespace (e.g., `ergm::ErgmCppNetwork`); either qualify their names or add `using` declarations in your translation units.
+- The API is versioned via an inline namespace `ergm::v1` (currently defaulted); pin explicitly with `ergm::v1::ErgmCppNetwork` if you need to avoid future breaking changes.
 - All classes are thin wrappers around existing C pointers; they do not allocate or free memory.
 
 
