@@ -70,11 +70,6 @@ ETYPE(C_CHANGESTAT_FN)(SVARIANT(c_attrcov)) {
   CHANGE_STAT[0] += ECHANGE(sto->mat[sto->nodecov[head]][sto->nodecov[tail]]);
 }
 
-ETYPE(F_CHANGESTAT_FN)(SVARIANT(f_attrcov)) {
-  GET_STORAGE(SVARIANT(attrcov_storage), sto);
-  R_Free(sto->mat);
-}
-
 /*****************
  changestat: d_b2cov
 *****************/
@@ -307,11 +302,6 @@ ETYPE(C_CHANGESTAT_FN)(SVARIANT(c_nodemix)) {
   if(index >= 0) {
     CHANGE_STAT[index] += ECHANGE1;
   }
-}
-
-ETYPE(F_CHANGESTAT_FN)(SVARIANT(f_nodemix)) {
-  GET_STORAGE(SVARIANT(nodemix_storage), sto);
-  R_Free(sto->indmat);
 }
 
 /*****************
