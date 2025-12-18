@@ -1,6 +1,8 @@
 #pragma once
 #include <cstddef>
 
+namespace ergm {
+
 template<typename StructType>
 class AuxStorageProxy {
 public:
@@ -19,3 +21,5 @@ public:
   iterator begin() const { return iterator(ptr_, 0); }
   iterator end() const { return iterator(ptr_, size()); }
 };
+
+} // namespace ergm

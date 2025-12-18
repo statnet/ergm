@@ -3,6 +3,8 @@
 #include "../ergm_Rutil.h"
 #include <string>
 
+namespace ergm {
+
 // Generic proxy classes for accessing a SEXP's list elements and attributes.
 // These proxies store a pointer to the SEXP directly.
 
@@ -25,3 +27,5 @@ public:
 private:
   SEXP sexp_;
 };
+
+} // namespace ergm

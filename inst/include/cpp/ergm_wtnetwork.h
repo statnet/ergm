@@ -8,6 +8,8 @@ extern "C" {
 
 // Functor wrappers for static inline C functions for template use (weighted)
 
+namespace ergm {
+
 struct WtGetEdgeFunc {
   static double call(Vertex tail, Vertex head, WtNetwork* nwp) {
     return WtGetEdge(tail, head, nwp);
@@ -34,3 +36,5 @@ using ErgmCppWtNetwork = ErgmCppNetworkBase<
   WtEdgetreeMinimumFunc,
   WtEdgetreeSuccessorFunc
 >;
+
+} // namespace ergm

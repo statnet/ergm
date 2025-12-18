@@ -2,6 +2,8 @@
 #include <optional>
 #include <iterator>
 
+namespace ergm {
+
 // Generic combined iterator for two ranges of the same iterator type
 // Templated on Iterator type
 // Assumes Iterator supports operator*, operator++, operator!=
@@ -91,3 +93,5 @@ private:
     Range range1_;
     std::optional<Range> range2_;
 };
+
+} // namespace ergm

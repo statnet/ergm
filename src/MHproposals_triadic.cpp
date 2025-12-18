@@ -19,6 +19,9 @@ extern "C" {
 #include "cpp/ergm_changestat.h"
 #include "cpp/ergm_proposal.h"
 
+using ergm::ErgmCppNetwork;
+using ergm::ErgmCppProposal;
+
 /*********************
  void MH_SPDyad
 *********************/

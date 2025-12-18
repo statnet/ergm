@@ -9,6 +9,8 @@
 // Template C++ wrapper for MHProposal and WtMHProposal structs
 // Usage: ErgmCppProposalBase<MHProposal> or ErgmCppProposalBase<WtMHProposal>
 
+namespace ergm {
+
 template<typename ProposalType, typename StorageType = void>
 class ErgmCppProposalBase {
 public:
@@ -37,3 +39,5 @@ public:
   // R list and attribute proxy
   RListProxy R;
 };
+
+} // namespace ergm

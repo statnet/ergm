@@ -10,6 +10,11 @@ extern "C" {
 #include "combined_range.h"
 
 // Template for both weighted and unweighted network wrappers
+#include "combined_range.h"
+
+namespace ergm {
+
+// Template for both weighted and unweighted network wrappers
 
 template <
   typename NetType,
@@ -200,7 +205,7 @@ public:
     if (dir || bip) {
       return nwp_->indegree[i];
     } else {
-      return nwp_->outdegree[i] + nwp_->indegree[i];
+      return nwp_->indegree[i] + nwp_->outdegree[i];
     }
   }
   // Total degree convenience method (always out + in)
@@ -214,3 +219,5 @@ public:
 private:
   NetType* nwp_;
 };
+
+} // namespace ergm

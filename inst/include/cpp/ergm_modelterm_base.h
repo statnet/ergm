@@ -4,6 +4,8 @@
 #include "ergm_auxstorage_proxy.h"
 #include "ergm_R_proxy.h"
 
+namespace ergm {
+
 template<typename ModelTermType, typename StorageType = void>
 class ErgmCppModelTermBase {
 public:
@@ -37,3 +39,5 @@ public:
 private:
   ModelTermType* mtp_;
 };
+
+} // namespace ergm

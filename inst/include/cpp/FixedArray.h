@@ -4,6 +4,8 @@
 #include <stdexcept>
 #include <iterator>
 
+namespace ergm {
+
 template<typename T>
 class FixedArray {
 public:
@@ -72,3 +74,5 @@ private:
   size_type size_;
   pointer data_;
 };
+
+} // namespace ergm
