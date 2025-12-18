@@ -1,0 +1,127 @@
+---
+title: "A C++ shim for ergm"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{A C++ shim for ergm}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+This vignette documents the C++ convenience wrappers for developing ERGM terms and proposals using modern C++ while interfacing with ergm's core C data structures.
+
+The API focuses on lightweight wrappers (no ownership) around existing C structs to provide: range-based iteration, safer array handling, and access to `->R` list elements/attributes.
+
+
+## Overview
+
+- Headers live in `inst/include/cpp/` and complement the C headers in `inst/include/`.
+- Wrappers are header-only and intended to be used in compiled code within `src/`, typically via `#include "cpp/ergm_network.h"`, `#include "cpp/ergm_changestat.h"`, etc.
+- All C++ wrappers, aliases, and helper macros live in the `ergm` namespace (e.g., `ergm::ErgmCppNetwork`); either qualify their names or add `using` declarations in your translation units.
+- All classes are thin wrappers around existing C pointers; they do not allocate or free memory.
+
+
+## Core Concepts
+
+- Arrays you write/read: `mt.stat`, `mt.dinput`, `mt.iinput`, `mt.dattrib`, `mt.iattrib` and, for proposals, `p.dinput`, `p.iinput`. Treat these as array-like: use `[]` for access and `.size()` for length.
+- Network iteration: use `nw.nodes()`, `nw.out_neighbors(i)`, `nw.in_neighbors(i)`, `nw.neighbors(i)`, and `nw.edges()` with range-based `for` loops; for weighted networks, neighbor/edge values include weights.
+- Term/proposal storage: `mt.storage` / `p.storage` let you keep a user-defined pointer across calls; `mt.aux_storage[i]` / `p.aux_storage[i]` access auxiliaries at position `i`. (Cast to your type before use.)
+- The elements of the R list returned by the `Init*Ergm*()` function can be accessed as `mt.R["name"]`, its attributes as `mt.R.attr["name"]`, and analogously for `mt.ext_state`. They return `SEXP` values; use the standard R API to handle them as needed.
+
+
+## Network Wrappers: `ErgmCppNetwork` and `ErgmCppWtNetwork`
+
+Headers: `#include "cpp/ergm_network.h"`, `#include "cpp/ergm_wtnetwork.h"`
+
+These wrap `Network` (unweighted) and `WtNetwork` (weighted) to provide edge queries, degree access, and simple iteration.
+
+- Construction: `ErgmCppNetwork nw(nwp);` and `ErgmCppWtNetwork nw(nwp);`
+- Edge query: `nw(tail, head)` returns presence (`Rboolean`) or `double` weight (0 for no edge).
+- Node ranges: `nw.nodes()`, bipartite halves: `nw.b1()`, `nw.b2()`.
+- Neighbor ranges: `nw.out_neighbors(i)`, `nw.in_neighbors(i)`, `nw.neighbors(i)`.
+- Degree access: `nw.out_degree(i)`, `nw.in_degree(i)`, `nw.degree(i)`.
+- Edge range over all edges: `for (auto e : nw.edges())` yields `(tail, head)`.
+- Directed accessors starting with `in_` and `out_` automatically fall back to the undirected network if `nw` is undirected.
+- Valued neighbor iteration yields pairs `(neighbor, weight)`; `edges()` yields `(tail, head, weight)`.
+
+Example:
+
+```cpp
+// You can also use nw.edges(), though for an undirected network, the following
+// code will visit each edge twice, once from each end.
+ErgmCppNetwork nw(nwp);
+for(Vertex i : nw.nodes()) {
+  for(Vertex j : nw.out_neighbors(i)) {
+    // process edge i->j
+  }
+}
+```
+
+```cpp
+ErgmCppWtNetwork nw(nwp);
+for(auto [j, w] : nw.neighbors(i)) {
+  // weighted edge i->j of weight w
+}
+
+for(auto [i, j, w] : nw.edges()) {
+  // weighted edge i->j of weight w
+}
+```
+
+
+## Model Terms: `ErgmCppModelTerm` and `ErgmCppWtModelTerm`
+
+Headers: `#include "cpp/ergm_changestat.h"`, `#include "cpp/ergm_wtchangestat.h"`
+
+- Constructed from `ModelTerm*` (or `WtModelTerm*`).
+- Arrays (use `.size()` to get lengths):
+  - `stat`: writable stats (`double`); length via `mt.stat.size()`.
+  - `dinput`, `iinput`: numeric and integer inputs; lengths via `mt.dinput.size()` / `mt.iinput.size()`.
+  - `dattrib`, `iattrib`: attribute slices of inputs if present; lengths via `.size()`.
+- `storage`: user-defined pointer you manage across calls (`mt.storage`).
+- `aux_storage`: access auxiliary storage by index, e.g., `auto* my_aux = static_cast<MyType*>(mt.aux_storage[0])`.
+- `R` and `ext_state`: access term and extended state via `mt.R["name"]` / `mt.ext_state["name"]`, their attributes via `mt.R.attr["name"]` and `mt.ext_state.attr["name"]`
+
+## Proposals: `ErgmCppProposal` and `ErgmCppWtProposal`
+
+Headers: `#include "cpp/ergm_proposal.h"`, `#include "cpp/ergm_wtproposal.h"`
+
+- Constructed from `MHProposal*`.
+- Direct members:
+  - `size` (`Edge&`): number of toggles (`ntoggles`).
+  - `tail`, `head` (`Vertex*`), `weight` (`double*`, for valued networks): toggle arrays.
+  - `logratio` (`double&`).
+- Inputs: `dinput`, `iinput` are array-like; use `.size()` for lengths.
+- `storage`: user-managed pointer reference (`p.storage`).
+- `aux_storage`: access by index if present, e.g., `p.aux_storage[0]`.
+- `R`: access proposal list elements if needed.
+
+## Helper macros
+
+The following macros define the C entry point and construct network and model term handles named `nw` and `mt` for use in `impl`:
+
+- `C_CHANGESTAT_CPP(name, impl, StorageType)`
+- `S_CHANGESTAT_CPP(name, impl, StorageType)`
+- `D_CHANGESTAT_CPP(name, impl, StorageType)`
+- `I_CHANGESTAT_CPP(name, impl, StorageType)`
+- `U_CHANGESTAT_CPP(name, impl, StorageType)`
+- `F_CHANGESTAT_CPP(name, impl, StorageType)`
+- `W_CHANGESTAT_CPP(name, impl, StorageType)` (returns `SEXP`)
+- `X_CHANGESTAT_CPP(name, impl, StorageType)`
+- `Z_CHANGESTAT_CPP(name, impl, StorageType)`
+
+Weighted counterparts in `ergm_wtchangestat.h` are prefixed with `Wt` (e.g., `WtC_CHANGESTAT_CPP`).
+
+## Examples
+
+Binary terms: triangle count in `src/cpp_changestats.cpp`.
+
+Valued terms: transitive weights in `src/cpp_wtchangestats.cpp`.
+
+Proposal: `src/MHproposals_triadic.cpp`.
+
+## Notes and Best Practices
+
+- All wrappers are non-owning; manage lifetimes via the usual ergm mechanisms.
+- Prefer range-based loops for clarity and correctness.
+- Use `FixedArray::size()` to avoid out-of-bounds when iterating inputs and stats.
+- Cast `aux_storage` elements to the correct type before use.
