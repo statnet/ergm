@@ -13,6 +13,7 @@ extern "C" {
 #include "combined_range.h"
 
 namespace ergm {
+inline namespace v1 {
 
 // Template for both weighted and unweighted network wrappers
 
@@ -220,4 +221,5 @@ private:
   NetType* nwp_;
 };
 
+} // namespace v1
 } // namespace ergm

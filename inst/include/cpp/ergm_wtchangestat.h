@@ -9,10 +9,12 @@ extern "C" {
 }
 
 namespace ergm {
+inline namespace v1 {
 
 template<typename StorageType = void>
   using ErgmCppWtModelTerm = ErgmCppModelTermBase<WtModelTerm, StorageType>;
 
+} // namespace v1
 } // namespace ergm
 
 #define WtC_CHANGESTAT_CPP(name, impl, ...)                             \

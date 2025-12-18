@@ -3,6 +3,7 @@
 #include <iterator>
 
 namespace ergm {
+inline namespace v1 {
 
 // Generic combined iterator for two ranges of the same iterator type
 // Templated on Iterator type
@@ -94,4 +95,5 @@ private:
     std::optional<Range> range2_;
 };
 
+} // namespace v1
 } // namespace ergm

@@ -9,10 +9,12 @@ extern "C" {
 }
 
 namespace ergm {
+inline namespace v1 {
 
 template<typename StorageType = void>
   using ErgmCppModelTerm = ErgmCppModelTermBase<ModelTerm, StorageType>;
 
+} // namespace v1
 } // namespace ergm
 
 #define C_CHANGESTAT_CPP(name, impl, ...)                               \

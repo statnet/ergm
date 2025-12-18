@@ -4,6 +4,7 @@
 #include <string>
 
 namespace ergm {
+inline namespace v1 {
 
 // Generic proxy classes for accessing a SEXP's list elements and attributes.
 // These proxies store a pointer to the SEXP directly.
@@ -28,4 +29,5 @@ private:
   SEXP sexp_;
 };
 
+} // namespace v1
 } // namespace ergm

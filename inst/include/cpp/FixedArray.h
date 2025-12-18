@@ -5,6 +5,7 @@
 #include <iterator>
 
 namespace ergm {
+inline namespace v1 {
 
 template<typename T>
 class FixedArray {
@@ -75,4 +76,5 @@ private:
   pointer data_;
 };
 
+} // namespace v1
 } // namespace ergm

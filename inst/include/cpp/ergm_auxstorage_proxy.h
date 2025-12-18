@@ -2,6 +2,7 @@
 #include <cstddef>
 
 namespace ergm {
+inline namespace v1 {
 
 template<typename StructType>
 class AuxStorageProxy {
@@ -22,4 +23,5 @@ public:
   iterator end() const { return iterator(ptr_, size()); }
 };
 
+} // namespace v1
 } // namespace ergm

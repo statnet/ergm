@@ -10,6 +10,7 @@
 // Usage: ErgmCppProposalBase<MHProposal> or ErgmCppProposalBase<WtMHProposal>
 
 namespace ergm {
+inline namespace v1 {
 
 template<typename ProposalType, typename StorageType = void>
 class ErgmCppProposalBase {
@@ -40,4 +41,5 @@ public:
   RListProxy R;
 };
 
+} // namespace v1
 } // namespace ergm

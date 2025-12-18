@@ -4,6 +4,7 @@
 #include "ergm_wtMHproposal.h"
 
 namespace ergm {
+inline namespace v1 {
 
 template<typename StorageType = void>
 class ErgmCppWtProposal : public ErgmCppProposalBase<WtMHProposal, StorageType> {
@@ -15,4 +16,5 @@ public:
   double* weight;
 };
 
+} // namespace v1
 } // namespace ergm
