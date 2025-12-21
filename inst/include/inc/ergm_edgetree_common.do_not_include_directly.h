@@ -8,7 +8,6 @@
  *
  *  Copyright 2003-2025 Statnet Commons
  */
-#include <math.h>
 #include <R.h>
 #include <Rinternals.h>
 #include <Rmath.h>
