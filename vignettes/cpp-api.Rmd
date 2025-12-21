@@ -9,7 +9,7 @@ vignette: >
 
 This vignette documents the C++ convenience wrappers for developing ERGM terms and proposals using modern C++ while interfacing with ergm's core C data structures.
 
-The API focuses on lightweight wrappers (no ownership) around existing C structs to provide: range-based iteration, safer array handling, and access to `->R` list elements/attributes.
+The API partially wraps the Terms and Proposals APIs and focuses on lightweight wrappers (no ownership) around existing C structs to provide: range-based iteration, safer array handling, and access to `->R` list elements/attributes.
 
 **WARNING:** This API is *experimental* and is subject to change in response to evolving needs and user feedback, but some effort will be made to maintain backwards compatibility. In particular, see the item about namespace versioning below.
 
@@ -101,21 +101,23 @@ Headers: `#include "cpp/ergm_proposal.h"`, `#include "cpp/ergm_wtproposal.h"`
 
 The following macros define the C entry point and construct network and model term handles named `nw` and `mt` for use in `impl`:
 
-- `C_CHANGESTAT_CPP(name, impl, StorageType)`
-- `S_CHANGESTAT_CPP(name, impl, StorageType)`
-- `D_CHANGESTAT_CPP(name, impl, StorageType)`
-- `I_CHANGESTAT_CPP(name, impl, StorageType)`
-- `U_CHANGESTAT_CPP(name, impl, StorageType)`
-- `F_CHANGESTAT_CPP(name, impl, StorageType)`
-- `W_CHANGESTAT_CPP(name, impl, StorageType)` (returns `SEXP`)
-- `X_CHANGESTAT_CPP(name, impl, StorageType)`
-- `Z_CHANGESTAT_CPP(name, impl, StorageType)`
+- `C_CHANGESTAT_CPP(name, StorageType, impl)`
+- `S_CHANGESTAT_CPP(name, StorageType, impl)`
+- `D_CHANGESTAT_CPP(name, StorageType, impl)`
+- `I_CHANGESTAT_CPP(name, StorageType, impl)`
+- `U_CHANGESTAT_CPP(name, StorageType, impl)`
+- `F_CHANGESTAT_CPP(name, StorageType, impl)`
+- `W_CHANGESTAT_CPP(name, StorageType, impl)` (returns `SEXP`)
+- `X_CHANGESTAT_CPP(name, StorageType, impl)`
+- `Z_CHANGESTAT_CPP(name, StorageType, impl)`
+
+`StorageType` can be omitted (i.e., passing only 2 arguments) if no private storage is used.
 
 Weighted counterparts in `ergm_wtchangestat.h` are prefixed with `Wt` (e.g., `WtC_CHANGESTAT_CPP`).
 
 ## Examples
 
-Binary terms: triangle count in `src/cpp_changestats.cpp`.
+Binary terms: triangle and cycle counts in `src/cpp_changestats.cpp`.
 
 Valued terms: transitive weights in `src/cpp_wtchangestats.cpp`.
 
