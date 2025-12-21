@@ -154,6 +154,7 @@ dyad-independent model.
 \code{ergm.bridge.llr} uses bridge sampling with geometric spacing to
 estimate the difference between the log-likelihoods of two parameter vectors
 for an ERGM via repeated calls to \code{\link[=simulate.formula.ergm]{simulate.formula.ergm()}}.
+\insertNoCite{HuHa06i}{ergm}
 
 \code{ergm.bridge.0.llk} is a convenience wrapper that
 returns the log-likelihood of configuration \eqn{\theta}
@@ -167,9 +168,6 @@ estimate the log-likelihood for a given dyad-dependent model and
 parameter configuration.  Note that it only handles binary ERGMs
 (\code{response=NULL}) and with constraints (\verb{constraints=}) that that
 do not induce dyadic dependence.
-}
-\details{
-\insertNoCite{HuHa06i}{ergm}
 }
 \references{
 \insertAllCited{}

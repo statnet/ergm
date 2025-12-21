@@ -294,8 +294,6 @@ estimate, an approximate maximum likelihood estimate based on a Monte
 Carlo scheme, or an approximate contrastive divergence estimate based
 on a similar scheme.
 (For an overview of the package \CRANpkg{ergm}, see \insertCite{HuHa08e;textual}{ergm} and \insertCite{KrHu23e;textual}{ergm}.)
-}
-\details{
 \insertNoCite{AdHa07n,BeMo08p,Bu08sna,Bu08net,GoHa08s,GoKi09b,Ha03a,Ha03deg,HaGi10m,HaHu08s,HuHa06i,KaKr16s,Kr12e,MoHa08s,Sn02m}{ergm}
 }
 \section{Methods (by generic)}{

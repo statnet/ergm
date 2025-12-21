@@ -30,7 +30,6 @@
 #' A multivariate hypothesis test for a single population mean or a
 #' difference between them. This version attempts to adjust for
 #' multivariate autocorrelation in the samples.
-#'
 #' \insertNoCite{Ho47m}{ergm}
 #'
 #' @param x a numeric matrix of data values with cases in rows and

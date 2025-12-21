@@ -55,8 +55,6 @@ It has a print method \code{\link[=print.htest]{print.htest()}}.
 A multivariate hypothesis test for a single population mean or a
 difference between them. This version attempts to adjust for
 multivariate autocorrelation in the samples.
-}
-\details{
 \insertNoCite{Ho47m}{ergm}
 }
 \note{

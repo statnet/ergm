@@ -13,10 +13,8 @@
 #' \code{ergm.bridge.llr} uses bridge sampling with geometric spacing to
 #' estimate the difference between the log-likelihoods of two parameter vectors
 #' for an ERGM via repeated calls to [simulate.formula.ergm()].
-#' 
 #' \insertNoCite{HuHa06i}{ergm}
-#' 
-#' 
+#'
 #' @param object A model formula. See [ergm()] for details.
 #' @template response
 #' @param constraints,obs.constraints One-sided formulas specifying
