@@ -23,7 +23,7 @@ template<typename StorageType = void>
     impl;                                                               \
   }
 
-#define _WtC_CHANGESTAT_CPP_3(name, impl, StorageType)                  \
+#define _WtC_CHANGESTAT_CPP_3(name, StorageType, impl)                  \
   extern "C" void c_ ## name (Vertex tail, Vertex head, double weight, WtModelTerm *mtp, WtNetwork *nwp, double edgestate) { \
     ergm::ErgmCppWtNetwork nw(nwp);                                     \
     ergm::ErgmCppWtModelTerm<StorageType> mt(mtp);                      \
@@ -40,7 +40,7 @@ template<typename StorageType = void>
     impl;                                                               \
   }
 
-#define _WtS_CHANGESTAT_CPP_3(name, impl, StorageType)                  \
+#define _WtS_CHANGESTAT_CPP_3(name, StorageType, impl)                  \
   extern "C" void s_ ## name (WtModelTerm *mtp, WtNetwork *nwp) {       \
     ergm::ErgmCppWtNetwork nw(nwp);                                     \
     ergm::ErgmCppWtModelTerm<StorageType> mt(mtp);                      \
@@ -57,7 +57,7 @@ template<typename StorageType = void>
     impl;                                                               \
   }
 
-#define _WtD_CHANGESTAT_CPP_3(name, impl, StorageType)                  \
+#define _WtD_CHANGESTAT_CPP_3(name, StorageType, impl)                  \
   extern "C" void d_ ## name (Edge ntoggles, Vertex *tails, Vertex *heads, double *weights, WtModelTerm *mtp, WtNetwork *nwp) { \
     ergm::ErgmCppWtNetwork nw(nwp);                                     \
     ergm::ErgmCppWtModelTerm<StorageType> mt(mtp);                      \
@@ -74,7 +74,7 @@ template<typename StorageType = void>
     impl;                                                               \
   }
 
-#define _WtI_CHANGESTAT_CPP_3(name, impl, StorageType)                  \
+#define _WtI_CHANGESTAT_CPP_3(name, StorageType, impl)                  \
   extern "C" void i_ ## name (WtModelTerm *mtp, WtNetwork *nwp) {       \
     ergm::ErgmCppWtNetwork nw(nwp);                                     \
     ergm::ErgmCppWtModelTerm<StorageType> mt(mtp);                      \
@@ -91,7 +91,7 @@ template<typename StorageType = void>
     impl;                                                               \
   }
 
-#define _WtU_CHANGESTAT_CPP_3(name, impl, StorageType)                  \
+#define _WtU_CHANGESTAT_CPP_3(name, StorageType, impl)                  \
   extern "C" void u_ ## name (Vertex tail, Vertex head, double weight, WtModelTerm *mtp, WtNetwork *nwp, double edgestate) { \
     ergm::ErgmCppWtNetwork nw(nwp);                                     \
     ergm::ErgmCppWtModelTerm<StorageType> mt(mtp);                      \
@@ -108,7 +108,7 @@ template<typename StorageType = void>
     impl;                                                               \
   }
 
-#define _WtF_CHANGESTAT_CPP_3(name, impl, StorageType)                  \
+#define _WtF_CHANGESTAT_CPP_3(name, StorageType, impl)                  \
   extern "C" void f_ ## name (WtModelTerm *mtp, WtNetwork *nwp) {       \
     ergm::ErgmCppWtNetwork nw(nwp);                                     \
     ergm::ErgmCppWtModelTerm<StorageType> mt(mtp);                      \
@@ -125,7 +125,7 @@ template<typename StorageType = void>
     impl;                                                               \
   }
 
-#define _WtW_CHANGESTAT_CPP_3(name, impl, StorageType)                  \
+#define _WtW_CHANGESTAT_CPP_3(name, StorageType, impl)                  \
   extern "C" SEXP w_ ## name (WtModelTerm *mtp, WtNetwork *nwp) {       \
     ergm::ErgmCppWtNetwork nw(nwp);                                     \
     ergm::ErgmCppWtModelTerm<StorageType> mt(mtp);                      \
@@ -142,7 +142,7 @@ template<typename StorageType = void>
     impl;                                                               \
   }
 
-#define _WtX_CHANGESTAT_CPP_3(name, impl, StorageType)                  \
+#define _WtX_CHANGESTAT_CPP_3(name, StorageType, impl)                  \
   extern "C" void x_ ## name (unsigned int type, void *data, WtModelTerm *mtp, WtNetwork *nwp) { \
     ergm::ErgmCppWtNetwork nw(nwp);                                     \
     ergm::ErgmCppWtModelTerm<StorageType> mt(mtp);                      \
@@ -158,7 +158,7 @@ template<typename StorageType = void>
     impl;                                                               \
   }
 
-#define _WtZ_CHANGESTAT_CPP_3(name, impl, StorageType)                  \
+#define _WtZ_CHANGESTAT_CPP_3(name, StorageType, impl)                  \
   extern "C" void z_ ## name (WtModelTerm *mtp, WtNetwork *nwp, Rboolean skip_s) { \
     ergm::ErgmCppWtNetwork nw(nwp);                                     \
     ergm::ErgmCppWtModelTerm<StorageType> mt(mtp);                      \

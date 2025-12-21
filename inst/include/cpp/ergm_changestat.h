@@ -23,7 +23,7 @@ template<typename StorageType = void>
     impl;                                                               \
   }
 
-#define _C_CHANGESTAT_CPP_3(name, impl, StorageType)                    \
+#define _C_CHANGESTAT_CPP_3(name, StorageType, impl)                    \
   extern "C" void c_ ## name (Vertex tail, Vertex head, ModelTerm *mtp, Network *nwp, int edgestate) { \
     ergm::ErgmCppNetwork nw(nwp);                                       \
     ergm::ErgmCppModelTerm<StorageType> mt(mtp);                        \
@@ -40,7 +40,7 @@ template<typename StorageType = void>
     impl;                                                               \
   }
 
-#define _S_CHANGESTAT_CPP_3(name, impl, StorageType)                    \
+#define _S_CHANGESTAT_CPP_3(name, StorageType, impl)                    \
   extern "C" void s_ ## name (ModelTerm *mtp, Network *nwp) {           \
     ergm::ErgmCppNetwork nw(nwp);                                       \
     ergm::ErgmCppModelTerm<StorageType> mt(mtp);                        \
@@ -57,7 +57,7 @@ template<typename StorageType = void>
     impl;                                                               \
   }
 
-#define _D_CHANGESTAT_CPP_3(name, impl, StorageType)                    \
+#define _D_CHANGESTAT_CPP_3(name, StorageType, impl)                    \
   extern "C" void d_ ## name (Edge ntoggles, Vertex *tails, Vertex *heads, ModelTerm *mtp, Network *nwp) { \
     ergm::ErgmCppNetwork nw(nwp);                                       \
     ergm::ErgmCppModelTerm<StorageType> mt(mtp);                        \
@@ -74,7 +74,7 @@ template<typename StorageType = void>
     impl;                                                               \
   }
 
-#define _I_CHANGESTAT_CPP_3(name, impl, StorageType)                    \
+#define _I_CHANGESTAT_CPP_3(name, StorageType, impl)                    \
   extern "C" void i_ ## name (ModelTerm *mtp, Network *nwp) {           \
     ergm::ErgmCppNetwork nw(nwp);                                       \
     ergm::ErgmCppModelTerm<StorageType> mt(mtp);                        \
@@ -91,7 +91,7 @@ template<typename StorageType = void>
     impl;                                                               \
   }
 
-#define _U_CHANGESTAT_CPP_3(name, impl, StorageType)                    \
+#define _U_CHANGESTAT_CPP_3(name, StorageType, impl)                    \
   extern "C" void u_ ## name (Vertex tail, Vertex head, ModelTerm *mtp, Network *nwp, Rboolean edgestate) { \
     ergm::ErgmCppNetwork nw(nwp);                                       \
     ergm::ErgmCppModelTerm<StorageType> mt(mtp);                        \
@@ -108,7 +108,7 @@ template<typename StorageType = void>
     impl;                                                               \
   }
 
-#define _F_CHANGESTAT_CPP_3(name, impl, StorageType)                    \
+#define _F_CHANGESTAT_CPP_3(name, StorageType, impl)                    \
   extern "C" void f_ ## name (ModelTerm *mtp, Network *nwp) {           \
     ergm::ErgmCppNetwork nw(nwp);                                       \
     ergm::ErgmCppModelTerm<StorageType> mt(mtp);                        \
@@ -125,7 +125,7 @@ template<typename StorageType = void>
     impl;                                                               \
   }
 
-#define _W_CHANGESTAT_CPP_3(name, impl, StorageType)                    \
+#define _W_CHANGESTAT_CPP_3(name, StorageType, impl)                    \
   extern "C" SEXP w_ ## name (ModelTerm *mtp, Network *nwp) {           \
     ergm::ErgmCppNetwork nw(nwp);                                       \
     ergm::ErgmCppModelTerm<StorageType> mt(mtp);                        \
@@ -142,7 +142,7 @@ template<typename StorageType = void>
     impl;                                                               \
   }
 
-#define _X_CHANGESTAT_CPP_3(name, impl, StorageType)                    \
+#define _X_CHANGESTAT_CPP_3(name, StorageType, impl)                    \
   extern "C" void x_ ## name (unsigned int type, void *data, ModelTerm *mtp, Network *nwp) { \
     ergm::ErgmCppNetwork nw(nwp);                                       \
     ergm::ErgmCppModelTerm<StorageType> mt(mtp);                        \
@@ -159,7 +159,7 @@ template<typename StorageType = void>
     impl;                                                               \
   }
 
-#define _Z_CHANGESTAT_CPP_3(name, impl, StorageType)                    \
+#define _Z_CHANGESTAT_CPP_3(name, StorageType, impl)                    \
   extern "C" void z_ ## name (ModelTerm *mtp, Network *nwp, Rboolean skip_s) { \
     ergm::ErgmCppNetwork nw(nwp);                                       \
     ergm::ErgmCppModelTerm<StorageType> mt(mtp);                        \
