@@ -123,6 +123,9 @@
       \item{
         In \code{\link{gof}()} for bipartite networks, replaced ESP with DSP in the default GoF statistic, since the former is always 0.
       }
+      \item{
+        One of the C macros for pre-order traversal of the edge tree would cause R to hang in an infinite loop.
+      }
     }
   }
 
@@ -158,7 +161,10 @@
         New macro, \code{DEG(a)} to return the undirected degree of a node (typically outdegree plus indegree).
       }
       \item{
-        New function, \code{NetworkInitializeLike(nwp)} to construct an empty \code{Network} copying attributes (size, etc.) from the specified network.
+        New function, \code{NetworkInitializeLike(nwp)} (and its valued analogue) to construct an empty \code{Network} copying attributes (size, etc.) from the specified network.
+      }
+      \item{
+        An experimental C++ shim (translation API) for implementing ERGM statistics and proposals has been added. The shim wraps the C data structures to enable them to be queried and manipulated using idiomatic C++. Generally, most of the header files have been adjusted to compile cleanly under C++ if needed. A vignette documenting it has been provided.
       }
     }
   }
