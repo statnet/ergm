@@ -20,7 +20,7 @@ private:
 
 class RListProxy {
 public:
-  explicit RListProxy(SEXP sexp): sexp_(sexp), attr(sexp) {}
+  explicit RListProxy(SEXP sexp): attr(sexp), sexp_(sexp) {}
   SEXP operator[](const char* name) const { return getListElement(sexp_, name); }
   SEXP operator[](const std::string& name) const { return getListElement(sexp_, name.c_str()); }
   operator SEXP() const { return sexp_; }
