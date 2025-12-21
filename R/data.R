@@ -579,7 +579,7 @@ NULL
 #' 
 #' @docType data
 #' @name sampson
-#' @aliases sampson samplike samplk samplk1 samplk2 samplk3
+#' @aliases sampson samplike samplk samplk1 samplk2 samplk3 sampdlk1 sampdlk2 sampdlk3
 #'
 #' @section History:
 #'

@@ -8,6 +8,9 @@
 \alias{samplk1}
 \alias{samplk2}
 \alias{samplk3}
+\alias{sampdlk1}
+\alias{sampdlk2}
+\alias{sampdlk3}
 \title{Longitudinal and cumulative networks of positive and negative affect in a monastery}
 \source{
 \insertCite{Sa68n}{ergm}.
