@@ -15,8 +15,7 @@ ergm.godfather(
   stats.start = FALSE,
   changes.only = FALSE,
   verbose = FALSE,
-  basis = NULL,
-  formula = NULL
+  basis = NULL
 )
 
 \method{ergm.godfather}{formula}(
@@ -28,7 +27,6 @@ ergm.godfather(
   stats.start = FALSE,
   changes.only = FALSE,
   verbose = FALSE,
-  control = NULL,
   basis = ergm.getnetwork(object)
 )
 
@@ -40,7 +38,6 @@ ergm.godfather(
   stats.start = FALSE,
   changes.only = FALSE,
   verbose = FALSE,
-  control = NULL,
   basis = NULL
 )
 
@@ -50,8 +47,7 @@ ergm.godfather(
   ...,
   end.network = FALSE,
   stats.start = FALSE,
-  verbose = FALSE,
-  control = NULL
+  verbose = FALSE
 )
 }
 \arguments{
@@ -88,8 +84,6 @@ down processing.}
 
 \item{basis}{a value (usually a \code{\link[network:network]{network}}) to override the LHS of the formula.}
 
-\item{formula}{Deprecated; replaced with \code{object} for consistency.}
-
 \item{response}{Either a character string, a formula, or \code{NULL} (the default), to specify the response attributes and whether the ERGM is binary or valued. Interpreted as follows: \describe{
 
 \item{\code{NULL}}{Model simple presence or absence, via a binary ERGM.}
@@ -99,9 +93,6 @@ down processing.}
 \item{a formula}{must be of the form \code{NAME~EXPR|TYPE} (with \code{|} being literal). \code{EXPR} is evaluated in the formula's environment with the network's edge attributes accessible as variables. The optional \code{NAME} specifies the name of the edge attribute into which the results should be stored, with the default being a concise version of \code{EXPR}. Normally, the type of ERGM is determined by whether the result of evaluating \code{EXPR} is logical or numeric, but the optional \code{TYPE} can be used to override by specifying a scalar of the type involved (e.g., \code{TRUE} for binary and \code{1} for valued).}
 
 }}
-
-\item{control}{Deprecated; arguments such as \code{term.options} can be
-passed directly.}
 }
 \value{
 If \code{end.network==FALSE} (the default), an

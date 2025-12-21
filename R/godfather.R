@@ -33,9 +33,6 @@
 #' @param changes.only Whether to return network statistics or only
 #'   their changes relative to the initial network.
 #'
-#' @param control Deprecated; arguments such as `term.options` can be
-#'   passed directly.
-#' @param formula Deprecated; replaced with `object` for consistency.
 #' @template verbose
 #'
 #' @param ... additional arguments to [ergm_model()].
@@ -72,16 +69,7 @@ ergm.godfather <- function(object, changes=NULL,
                            stats.start=FALSE,
                            changes.only=FALSE,
                            verbose=FALSE,
-                           basis = NULL,
-                           formula = NULL){
-  ## TODO: Remove the following after October 2025 and ergm 4.8.
-  if(!is.null(formula)){
-    .Deprecate_once(msg = paste0("Argument ", sQuote("formula="), " to ", sQuote("ergm.godfather()"), "has been replaced with ", sQuote("formula="), "."))
-    object <- formula
-  }
-
-  UseMethod("ergm.godfather", object)
-}
+                           basis = NULL) UseMethod("ergm.godfather")
 
 #' @rdname ergm.godfather
 #' @export
@@ -91,20 +79,16 @@ ergm.godfather.formula <- function(object, changes=NULL, response=NULL,
                                    stats.start=FALSE,
                                    changes.only=FALSE,
                                    verbose=FALSE,
-                                   control=NULL,
                                    basis = ergm.getnetwork(object)){
   ergm_preprocess_response(basis,response)
-  ## TODO: Remove the following after October 2025 and ergm 4.8.
-  m <- if("term.options" %in% ...names()) ergm_model(object, basis, ...)
-       else ergm_model(object, basis, term.options = control$term.options, ...)
 
-  ergm.godfather(m, changes = changes, ...,
-                 end.network = end.network,
-                 stats.start = stats.start,
-                 changes.only = changes.only,
-                 verbose = verbose,
-                 control = control,
-                 basis = basis)
+  ergm_model(object, basis, ...) |>
+    ergm.godfather(changes = changes, ...,
+                   end.network = end.network,
+                   stats.start = stats.start,
+                   changes.only = changes.only,
+                   verbose = verbose,
+                   basis = basis)
 }
 
 #' @rdname ergm.godfather
@@ -118,7 +102,6 @@ ergm.godfather.ergm_model <- function(object, changes=NULL,
                                    stats.start=FALSE,
                                    changes.only=FALSE,
                                    verbose=FALSE,
-                                   control=NULL,
                                    basis = NULL){
   if(is.null(basis)) stop("This method requires the ", sQuote("basis="), " argument.")
 
@@ -127,8 +110,7 @@ ergm.godfather.ergm_model <- function(object, changes=NULL,
 
   s <- ergm.godfather(state, changes = changes, ...,
                       end.network = end.network, stats.start = stats.start,
-                      changes.only = changes.only, verbose = verbose,
-                      control = control)
+                      changes.only = changes.only, verbose = verbose)
 
   if(end.network) structure(as.network(s), stats = attr(s, "stats"))
   else s
@@ -142,11 +124,8 @@ ergm.godfather.ergm_state <- function(object, changes=NULL,
                                    ...,
                                    end.network=FALSE,
                                    stats.start=FALSE,
-                                   verbose=FALSE,
-                                   control=NULL){
-  if(!is.null(control)) check.control.class("ergm.godfather", "ergm.godfather")
-
-  if(!is.list(changes)) changes <- list(changes)
+                                   verbose=FALSE){
+  changes <- enlist(changes)
 
   ncols <- sapply(changes, ncol)
   if(!all_identical(ncols) || ncols[1]<2 || ncols[1]>3 || (is.valued(object)&&ncols[1]==2)) abort("Invalid format for list of changes. See help('ergm.godfather').")

@@ -41,6 +41,7 @@
 \alias{InitErgmTerm.degreepopularity}
 \alias{InitErgmTerm.idegreepopularity}
 \alias{InitErgmTerm.odegreepopularity}
+\alias{control.ergm.godfather}
 \title{Functions that have been removed from this package}
 \usage{
 robust.inverse(...)
@@ -112,6 +113,8 @@ InitErgmTerm.degreepopularity(...)
 InitErgmTerm.idegreepopularity(...)
 
 InitErgmTerm.odegreepopularity(...)
+
+control.ergm.godfather(...)
 }
 \arguments{
 \item{...}{Arguments to defunct functions.}
@@ -187,5 +190,7 @@ Functions that have been removed after a period of deprecation.
 \code{degreepopularity}, \code{odegreepopularity}, \code{idegreepopularity}: use the corresponding \code{degree1.5} term
 
 \code{hammingmix}: use \code{hamming(...):nodemix(...)} for example
+
+\code{control.ergm.godfather(...)}: no longer used
 }
 \keyword{internal}

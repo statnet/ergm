@@ -17,7 +17,7 @@
 \alias{param_names<-.ergm_model}
 \title{Internal representation of an \code{ergm} network model}
 \usage{
-ergm_model(object, nw = NULL, ..., formula = NULL)
+ergm_model(object, ...)
 
 \method{ergm_model}{formula}(object, nw = NULL, ...)
 
@@ -62,22 +62,18 @@ as.ergm_model(x, ...)
 \method{param_names}{ergm_model}(object, canonical = FALSE, ...) <- value
 }
 \arguments{
-\item{object}{An \code{ergm_model} object.}
-
-\item{nw}{The network of interest, optionally instrumented with \code{\link[=ergm_preprocess_response]{ergm_preprocess_response()}} to have a response attribute specification; if passed, the LHS of \code{formula} is ignored. This is the recommended usage.}
+\item{object}{An object; see specific methods.}
 
 \item{\dots}{additional parameters for model formulation}
 
-\item{formula}{An \code{\link[=ergm]{ergm()}}
-formula of the form \code{network ~ model.term(s)} or \code{~
-model.term(s)} or a \code{\link[statnet.common:term_list]{term_list}} object, typically constructed from a formula's LHS.}
+\item{nw}{The network of interest, optionally instrumented with \code{\link[=ergm_preprocess_response]{ergm_preprocess_response()}} to have a response attribute specification; if passed, the LHS of \code{formula} is ignored. This is the recommended usage.}
 
 \item{silent}{logical, whether to print the warning messages from the
 initialization of each model term.}
 
 \item{term.options}{A list of additional arguments to be passed to term initializers. See \code{\link[=term.options]{? term.options}}.}
 
-\item{env}{a throwaway argument needed to prevent conflicts with some usages of \code{ergm_model}. The initialization environment is \emph{always} taken from the \code{formula}.}
+\item{env}{a throwaway argument needed to prevent conflicts with some usages of \code{ergm_model}. The initialization environment is \emph{always} taken from the formula or the term list environments.}
 
 \item{extra.aux}{a list of auxiliary request formulas required elsewhere; if named, the resulting \code{slots.extra.aux} will also be named.}
 
@@ -125,7 +121,7 @@ initialized via the \code{InitErgmTerm} functions to create a
 }
 \section{Methods (by class)}{
 \itemize{
-\item \code{ergm_model(formula)}: a method for \code{\link{formula}}: extracts the \code{\link[network:network]{network}} and the \code{\link[statnet.common:term_list]{term_list}} and passes it on to the next method.
+\item \code{ergm_model(formula)}: a method for an \code{\link[=ergm]{ergm()}} \code{\link{formula}}: extracts the \code{\link[network:network]{network}} and the \code{\link[statnet.common:term_list]{term_list}} and passes it on to the next method.
 
 \item \code{ergm_model(term_list)}: a method for \code{\link[statnet.common:term_list]{term_list}}: \verb{nw=} is mandatory;  initializes the terms in the list and passes it on to the next method.
 
@@ -150,7 +146,7 @@ initialized via the \code{InitErgmTerm} functions to create a
 \note{
 This API is not to be considered fixed and may change between versions. However, an effort will be made to ensure that the methods of this class remain stable.
 
-Earlier versions also had an optional \verb{response=} parameter that, if not \code{NULL}, switched to valued mode and used the edge attribute named in \verb{response=} as the response. This is no longer used; instead, the response is to be set on \code{nw} via \code{ergm_preprocess_response(nw, response)}.
+Earlier versions also had an optional \verb{response=} parameter that, if not \code{NULL}, switched to valued mode and used the edge attribute named in \verb{response=} as the response. This is no longer used; instead, the response is to be set on \code{nw} via \code{ergm_preprocess_response(nw, response)}. They also had an argument named \code{formula}, which has been renamed to \code{object} for better generic dispatching.
 }
 \seealso{
 \code{\link[=summary.ergm_model]{summary.ergm_model()}}, \code{\link[=ergm_preprocess_response]{ergm_preprocess_response()}}

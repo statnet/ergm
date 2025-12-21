@@ -15,20 +15,17 @@
 #' initialized via the \code{InitErgmTerm} functions to create a
 #' \code{ergm_model} object.
 #' @note This API is not to be considered fixed and may change between versions. However, an effort will be made to ensure that the methods of this class remain stable.
-#' @param formula An [ergm()]
-#' formula of the form \code{network ~ model.term(s)} or \code{~
-#' model.term(s)} or a [`term_list`] object, typically constructed from a formula's LHS.
 #' @param nw The network of interest, optionally instrumented with [ergm_preprocess_response()] to have a response attribute specification; if passed, the LHS of `formula` is ignored. This is the recommended usage.
 #' @param silent logical, whether to print the warning messages from the
 #' initialization of each model term.
 #' @param \dots additional parameters for model formulation
 #' @template term_options
 #' @param extra.aux a list of auxiliary request formulas required elsewhere; if named, the resulting `slots.extra.aux` will also be named.
-#' @param env a throwaway argument needed to prevent conflicts with some usages of `ergm_model`. The initialization environment is *always* taken from the `formula`.
+#' @param env a throwaway argument needed to prevent conflicts with some usages of `ergm_model`. The initialization environment is *always* taken from the formula or the term list environments.
 #' @param offset.decorate logical; whether offset coefficient and parameter names should be enclosed in `"offset()"`.
 #' @param terms.only logical; whether auxiliaries, eta map, and UID constructions should be skipped. This is useful for submodels.
-#' @param object An `ergm_model` object.
-#' @note Earlier versions also had an optional `response=` parameter that, if not `NULL`, switched to valued mode and used the edge attribute named in `response=` as the response. This is no longer used; instead, the response is to be set on `nw` via `ergm_preprocess_response(nw, response)`.
+#' @param object An object; see specific methods.
+#' @note Earlier versions also had an optional `response=` parameter that, if not `NULL`, switched to valued mode and used the edge attribute named in `response=` as the response. This is no longer used; instead, the response is to be set on `nw` via `ergm_preprocess_response(nw, response)`. They also had an argument named `formula`, which has been renamed to `object` for better generic dispatching.
 #' @return `ergm_model` returns an  `ergm_model` object as a list
 #' containing:
 #' \item{terms}{a list of terms and 'term components' initialized by the
@@ -40,16 +37,9 @@
 #' @seealso [summary.ergm_model()], [ergm_preprocess_response()]
 #' @keywords internal
 #' @export
-ergm_model <- function(object, nw=NULL, ..., formula = NULL){
-  ## TODO: Remove the following after October 2025 and ergm 4.8.
-  if(!is.null(formula)){
-    .Deprecate_once(msg = "ergm_model()'s first argument is now 'object'.")
-    object <- formula
-  }
-  UseMethod("ergm_model", object)
-}
+ergm_model <- function(object, ...) UseMethod("ergm_model")
 
-#' @describeIn ergm_model a method for [`formula`]: extracts the [`network`] and the [`term_list`] and passes it on to the next method.
+#' @describeIn ergm_model a method for an [ergm()] [`formula`]: extracts the [`network`] and the [`term_list`] and passes it on to the next method.
 #' @export
 ergm_model.formula <- function(object, nw=NULL, ...){
   #' @importFrom statnet.common eval_lhs.formula

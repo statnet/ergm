@@ -40,11 +40,3 @@ coef.ergm <- function(object, ...) {
     x[[name, exact = FALSE]]
   }
 }
-
-#' @describeIn ergm-deprecated constructs a control list for [ergm.godfather()]; not used at this time.
-#' @export control.ergm.godfather
-control.ergm.godfather<-function(term.options=NULL){
-  .Deprecate_once(msg = paste0("This function is no longer used and may be removed in a future version; ", sQuote("term.options="), " can be passed directly to ", sQuote("ergm.godfather()"), "."))
-  control <- handle.controls("control.ergm.godfather")
-  set.control.class("control.ergm.godfather")
-}

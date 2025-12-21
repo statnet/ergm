@@ -4,14 +4,11 @@
 \alias{ergm-deprecated}
 \alias{coef.ergm}
 \alias{$.ergm}
-\alias{control.ergm.godfather}
 \title{Functions that will no longer be supported in future releases of the package}
 \usage{
 \method{coef}{ergm}(object, ...)
 
 \method{$}{ergm}(x, name)
-
-control.ergm.godfather(term.options = NULL)
 }
 \arguments{
 \item{..., object, x}{Arguments to deprecated functions.}
@@ -29,8 +26,6 @@ objects with \verb{$coef} elements in the wild is sufficiently low.
 
 \item \code{$}: accesses elements of \code{ergm} objects;
 needed for backwards compatibility when components get renamed.
-
-\item \code{control.ergm.godfather()}: constructs a control list for \code{\link[=ergm.godfather]{ergm.godfather()}}; not used at this time.
 
 }}
 \keyword{internal}
