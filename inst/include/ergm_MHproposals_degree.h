@@ -10,6 +10,10 @@
 #include "ergm_MHproposal.h"
 #include "ergm_changestat.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 MH_P_FN(MH_CondDegreeTetrad);
 MH_P_FN(MH_CondDegreeHexad);
 MH_P_FN(MH_CondDegree);
@@ -17,3 +21,7 @@ MH_P_FN(MH_CondOutDegree);
 MH_P_FN(MH_CondInDegree);
 MH_P_FN(MH_CondB1Degree);
 MH_P_FN(MH_CondB2Degree);
+
+#ifdef __cplusplus
+}
+#endif

@@ -15,13 +15,21 @@
 
 #include "ergm_khash.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /* Data structure to represent a dyad that can serve as a key to the hash. */
 typedef struct TailHead_s{
   Vertex tail, head;
 } TailHead;
 
-/* Helper macros to construct TailHeads with the correct ordering. */
-#define TH(T,H) ((TailHead){.tail=(T),.head=(H)})
+/* Helpers to construct TailHeads with the correct ordering. */
+
+static inline TailHead TH(Vertex tail, Vertex head){
+  TailHead th = {tail, head};
+  return th;
+}
 #define UTH(tail, head) tail < head ? TH(tail, head) : TH(head, tail)
 
 /* Hash and comparison functions designed for tail-head pairs. */
@@ -134,5 +142,9 @@ KHASH_INIT(StrictDyadSet, TailHead, char, FALSE, kh_vertexvertex_strict_hash_fun
 typedef khash_t(StrictDyadSet) StoreStrictDyadSet;
 DyadSetToggleTemplate(DDyadSetToggle, StrictDyadSet, TH(tail, head))
 DyadSetToggleTemplate(UDyadSetToggle, StrictDyadSet, UTH(tail, head))
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // _ERGM_DYAD_HASHMAP_H_
