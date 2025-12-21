@@ -4,9 +4,7 @@
 #include "ergm_modelterm_base.h"
 #include "ergm_network.h"
 
-extern "C" {
 #include "../ergm_changestat.h"
-}
 
 namespace ergm {
 inline namespace v1 {

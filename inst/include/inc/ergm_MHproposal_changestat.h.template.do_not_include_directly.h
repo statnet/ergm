@@ -1,5 +1,9 @@
 #include "ergm_Rutil.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 static inline bool ETYPE(ChangeStats1_changed)(ETYPE(MHProposal) *MHp, ETYPE(Network) *nwp, ETYPE(Model) *m, EWTTYPE edgestate) {
   ETYPE(ChangeStats1)(*MHp->toggletail, *MHp->togglehead, IFEWT(*MHp->toggleweight,) nwp, m, edgestate);
   for (unsigned int i = 0; i < m->n_stats; i++) if (m->workspace[i] != 0) return(TRUE);
@@ -11,6 +15,10 @@ static inline bool ETYPE(ChangeStats_changed)(ETYPE(MHProposal) *MHp, ETYPE(Netw
   for (unsigned int i = 0; i < m->n_stats; i++) if (m->workspace[i] != 0) return(TRUE);
   return(FALSE);
 }
+
+#ifdef __cplusplus
+}
+#endif
 
 #define GET_CHANGESTATS_MODEL(into)                             \
   {                                                             \

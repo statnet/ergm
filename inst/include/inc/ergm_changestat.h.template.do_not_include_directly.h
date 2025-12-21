@@ -9,6 +9,10 @@
  *  Copyright 2003-2025 Statnet Commons
  */
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef struct ETYPE(ModelTermstruct) {
   void (*c_func)(Vertex, Vertex, IFEWT(EWTTYPE,) struct ETYPE(ModelTermstruct)*, ETYPE(Network)*, EWTTYPE);
   void (*d_func)(Edge, Vertex*, Vertex*, IFEWT(EWTTYPE*,) struct ETYPE(ModelTermstruct)*, ETYPE(Network)*);
@@ -40,5 +44,9 @@ typedef struct ETYPE(ModelTermstruct) {
 
 /****************************************************
  Macros to make life easier when writing C code for change statistics:  */
+
+#ifdef __cplusplus
+}
+#endif
 
 #include "ergm_changestat_common.do_not_include_directly.h"

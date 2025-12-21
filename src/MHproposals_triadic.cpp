@@ -9,11 +9,9 @@
  */
 #define STRICT_MH_HEADERS
 
-extern "C" {
 #include "MHproposals.h"
 #include "ergm_dyad_hashmap.h"
 #include "changestats_dgw_sp.h"
-}
 
 #include "cpp/ergm_network.h"
 #include "cpp/ergm_changestat.h"

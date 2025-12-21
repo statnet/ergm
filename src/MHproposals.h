@@ -41,10 +41,17 @@ typedef struct{DyadGen *gen; DegreeBound *bd; Model*m;} StoreDyadGenAndDegreeBou
   DegreeBoundDestroy(storage->bd);
 
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 // Declared here so other routines can use it as a subroutine.
 MH_I_FN(Mi_TNT);
 MH_P_FN(Mp_TNT);
 MH_F_FN(Mf_TNT);
 
+#ifdef __cplusplus
+}
+#endif
 
 #endif 

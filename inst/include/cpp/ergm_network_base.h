@@ -3,9 +3,7 @@
 #include <optional>
 #include <tuple>
 
-extern "C" {
 #include "ergm_edgetree_types.h"
-}
 
 #include "combined_range.h"
 

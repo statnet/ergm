@@ -11,6 +11,10 @@
 
 #include "ergm_edgetree_common.do_not_include_directly.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /*  ETYPE(TreeNode) is a binary tree structure, which is how the edgelists
     are stored.  The root of the tree for vertex i will be inedges[i]
     or outedges[i].  inedges[0] and outedges[0] are unused, since the
@@ -102,7 +106,15 @@ int ETYPE(DeleteEdgeFromTrees)(Vertex tail, Vertex head, ETYPE(Network) *nwp);
 void ETYPE(AddOn,NetworkEdgeChange)(ETYPE(Network) *nwp, ETYPE(On,NetworkEdgeChange) callback, void *payload, unsigned int pos);
 void ETYPE(DeleteOn,NetworkEdgeChange)(ETYPE(Network) *nwp, ETYPE(On,NetworkEdgeChange) callback, void *payload);
 
+#ifdef __cplusplus
+}
+#endif
+
 #include "ergm_edgetree_inline_template.do_not_include_directly.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /* Utility functions. */
 int ETYPE(FindithEdge) (Vertex *tail, Vertex *head, IFEWT(EWTTYPE *weight,) Edge i, ETYPE(Network) *nwp);
@@ -117,3 +129,7 @@ void ETYPE(DetUnShuffleEdges)(Vertex *tails, Vertex *heads, IFEWT(EWTTYPE *weigh
 
 /* Others... */
 Edge ETYPE(EdgeTree2EdgeList)(Vertex *tails, Vertex *heads, IFEWT(EWTTYPE *weights,) ETYPE(Network) *nwp, Edge nmax);
+
+#ifdef __cplusplus
+}
+#endif

@@ -36,6 +36,10 @@
 #define XOR(a,b) (((a)==0) != ((b)==0))
 #define XNOR(a,b) (((a)==0) == ((b)==0))
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /*  Notes on ETYPE(MHProposal) type:
    An Weighted MH proposal function must take two arguments:  a pointer to an
    Weighted MHProposal structure, which holds all the information regarding the
@@ -76,6 +80,10 @@ typedef struct ETYPE(MHProposalstruct) {
 ETYPE(MHProposal) *ETYPE(MHProposalInitialize)(SEXP pR, ETYPE(Network) *nwp, void **aux_storage);
 
 void ETYPE(MHProposalDestroy)(ETYPE(MHProposal) *MH, ETYPE(Network) *nwp);
+
+#ifdef __cplusplus
+}
+#endif
 
 /* Helper macros */
 #define MH_N_DINPUTS MHp->ninputs

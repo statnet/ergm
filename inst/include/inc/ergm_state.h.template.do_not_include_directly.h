@@ -11,6 +11,10 @@
 
 #include "../ergm_constants.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef struct{
   SEXP R;
   double *stats;
@@ -25,3 +29,7 @@ ETYPE(ErgmState) *ETYPE(ErgmStateInit)(SEXP stateR,
 SEXP ETYPE(ErgmStateRSave)(ETYPE(ErgmState) *s);
 void ETYPE(ErgmStateDestroy)(ETYPE(ErgmState) *s);
 SEXP ETYPE(ErgmStateArrayClear)(void);
+
+#ifdef __cplusplus
+}
+#endif

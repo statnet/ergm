@@ -11,6 +11,10 @@
 #include "R_ext/Rdynload.h"
 #include "../ergm_Rutil.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /* A ETYPE(Model) object contains information about an entire ERGM, including the
    total numbers of terms, parameters, and statistics along with a pointer
    to an array of ETYPE(ModelTerm) structures.  */
@@ -58,3 +62,7 @@ void ETYPE(ZStats)(ETYPE(Network) *nwp, ETYPE(Model) *m, Rboolean skip_s);
 void ETYPE(EmptyNetworkStats)(ETYPE(Model) *m, Rboolean skip_s);
 void ETYPE(SummStats)(Edge n_edges, Vertex *tails, Vertex *heads, IFEWT(EWTTYPE *weights,) ETYPE(Network) *nwp, ETYPE(Model) *m);
 void ETYPE(SummStatsS)(ETYPE(Network) *nwp, ETYPE(Model) *m);
+
+#ifdef __cplusplus
+}
+#endif

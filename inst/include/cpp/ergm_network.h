@@ -2,9 +2,7 @@
 
 #include "ergm_network_base.h"
 
-extern "C" {
 #include "ergm_edgetree.h"
-}
 
 // Functor wrappers for static inline C functions for template use (unweighted)
 
