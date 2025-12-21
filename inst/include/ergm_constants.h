@@ -15,7 +15,7 @@
    'ergm' version. They should be updated with every minor version
    update. */
 #define ERGM_API_MAJOR 4
-#define ERGM_API_MINOR 10
+#define ERGM_API_MINOR 11
 
 /* ABI version: this should be updated only when the ABI changes, even
    if the change is 100% source-compatible. This includes, for
