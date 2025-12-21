@@ -63,7 +63,7 @@
 
 /* As WtSTEP_THROUGH_*EDGES, but visit the parent nodes before the child
    nodes. This is useful for "copying" an edgetree. */
-#define WtSTEP_THROUGH_OUTEDGES_PRE(a,e,v) for((e)=(a); ((v)=OUTVAL(e))!=0;WtNEXT_OUTEDGE_PRE(e))
+#define WtSTEP_THROUGH_OUTEDGES_PRE(a,e,v) for((e)=(a); ((v)=OUTVAL(e))!=0;(e)=WtNEXT_OUTEDGE_PRE(e))
 #define WtSTEP_THROUGH_INEDGES_PRE(a,e,v) for((e)=(a);((v)=INVAL(e))!=0;(e)=WtNEXT_INEDGE_PRE(e))
 
 // These are "declaring" versions of the above, optimized for use in EXEC_TROUGH_*EDGES macros.
