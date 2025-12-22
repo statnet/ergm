@@ -12,36 +12,31 @@
 #include<Rinternals.h>
 #include<string.h>
 
-/*
-  This function is based on
-  https://cran.r-project.org/doc/manuals/r-release/R-exts.html#Handling-lists
+static inline R_len_t findListElement(SEXP list, const char *str){
+  SEXP names = getAttrib(list, R_NamesSymbol);
 
-  I'm putting it here pending its terms of use being clarified in https://bugs.r-project.org/bugzilla/show_bug.cgi?id=17664 .
-*/
+  for (R_len_t i = 0; i < length(list); i++)
+    if (strcmp(CHAR(STRING_ELT(names, i)), str) == 0)
+      return(i);
+
+  return(-1);
+}
+
 static inline SEXP getListElement(SEXP list, const char *str){
-  SEXP elmt = R_NilValue, names = getAttrib(list, R_NamesSymbol);
-
-  for (unsigned int i = 0; i < length(list); i++)
-    if(strcmp(CHAR(STRING_ELT(names, i)), str) == 0) {
-      elmt = VECTOR_ELT(list, i);
-      break;
-    }
-  return elmt;
+  R_len_t i = findListElement(list, str);
+  if (i == -1) return(R_NilValue);
+  else return(VECTOR_ELT(list, i));
 }
 
 static inline SEXP setListElement(SEXP list, const char *str, SEXP value){
   value = PROTECT(value);
-  SEXP names = getAttrib(list, R_NamesSymbol);
 
-  for (unsigned int i = 0; i < length(list); i++)
-    if(strcmp(CHAR(STRING_ELT(names, i)), str) == 0) {
-      SET_VECTOR_ELT(list, i, value);
-      UNPROTECT(1);
-      return value;
-    }
+  R_len_t i = findListElement(list, str);
+  if (i == -1) error("List does not have element '%s' to set.", str);
+  else SET_VECTOR_ELT(list, i, value);
+
   UNPROTECT(1);
-  error("List does not have element '%s' to set.", str);
-  return R_NilValue;
+  return value;
 }
 
 static inline SEXP mkRStrVec(const char **x){
