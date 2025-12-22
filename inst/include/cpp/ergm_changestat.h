@@ -26,14 +26,14 @@ template<typename StorageType = void>
 } // namespace ergm
 
 #define _C_CHANGESTAT_CPP_2(name, impl)                                 \
-  extern "C" void c_ ## name (Vertex tail, Vertex head, ModelTerm *mtp, Network *nwp, int edgestate) { \
+  extern "C" void c_ ## name (Vertex tail, Vertex head, ModelTerm *mtp, Network *nwp, Rboolean edgestate) { \
     ergm::ErgmCppNetwork nw(nwp);                                       \
     ergm::ErgmCppModelTerm<> mt(mtp);                                   \
     impl;                                                               \
   }
 
 #define _C_CHANGESTAT_CPP_3(name, StorageType, impl)                    \
-  extern "C" void c_ ## name (Vertex tail, Vertex head, ModelTerm *mtp, Network *nwp, int edgestate) { \
+  extern "C" void c_ ## name (Vertex tail, Vertex head, ModelTerm *mtp, Network *nwp, Rboolean edgestate) { \
     ergm::ErgmCppNetwork nw(nwp);                                       \
     ergm::ErgmCppModelTerm<StorageType> mt(mtp);                        \
     impl;                                                               \
