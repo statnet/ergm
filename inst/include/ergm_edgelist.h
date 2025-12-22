@@ -70,7 +70,7 @@ static inline unsigned int dEdgeListSearch(Vertex tail, Vertex head, double *el)
 static inline unsigned int iEdgeListSearch(Vertex tail, Vertex head, int *el){
   unsigned int nedges=el[0];
   unsigned int u=nedges,l=1;
-  int *tails = el, *heads = el+nedges;
+  Vertex *tails = (Vertex *) el, *heads = (Vertex *) el+nedges;
 
   if(nedges==0) return(0);
 

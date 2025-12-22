@@ -5,7 +5,7 @@ C_CHANGESTAT_CPP(triangle, {
     int change = 0;
     if(mt.iinput.size()){
       bool diff = mt.iinput[0] != 0;
-      unsigned int tailattr = mt.iinput[tail];
+      int tailattr = mt.iinput[tail];
       if(tailattr && tailattr == mt.iinput[head]){
         for(auto k: nw.neighbors(head)) {
           if(tailattr == mt.iinput[k]){
@@ -29,15 +29,15 @@ C_CHANGESTAT_CPP(triangle, {
  changestat: d_cycle
 *****************/
 void edgewise_path_recurse(Network *nwp, Vertex dest, Vertex curnode,
-     int *visited, Vertex curlen, int *countv, Vertex maxlen, bool semi);
+                           Vertex *visited, Vertex curlen, Vertex *countv, Vertex maxlen, bool semi);
 void edgewise_cycle_census(Network *nwp, Vertex tail, Vertex head,
-                           int *countv, Vertex maxlen, bool semi);
+                           Vertex *countv, Vertex maxlen, bool semi);
 
-I_CHANGESTAT_CPP(cycle, int, {
-    mt.storage = R_Calloc(mt.iinput[1] * 2, int);
+I_CHANGESTAT_CPP(cycle, Vertex, {
+    mt.storage = R_Calloc(mt.iinput[1] * 2, Vertex);
   })
 
-C_CHANGESTAT_CPP(cycle, int, {
+C_CHANGESTAT_CPP(cycle, Vertex, {
     int emult;
 
   /*Perform initial setup*/
@@ -57,7 +57,7 @@ C_CHANGESTAT_CPP(cycle, int, {
       emult = edgestate ? -1 : 1;
       for(unsigned int j=0, k=0; j<maxlen-1;j++)
         if(mt.iinput[2+j] > 0)
-          mt.stat[k++] += emult * mt.storage[j];
+          mt.stat[k++] += emult * (int) mt.storage[j];
     }
   })
 
@@ -65,7 +65,7 @@ C_CHANGESTAT_CPP(cycle, int, {
  edgewise_path_recurse:  Called by d_cycle
 *****************/
 void edgewise_path_recurse(Network *nwp, Vertex dest, Vertex curnode,
-     int *visited, Vertex curlen, int *countv, Vertex maxlen, bool semi) {
+                           Vertex *visited, Vertex curlen, Vertex *countv, Vertex maxlen, bool semi) {
   Vertex v;
   Edge e;
 
@@ -110,9 +110,9 @@ void edgewise_path_recurse(Network *nwp, Vertex dest, Vertex curnode,
  edgewise_cycle_census:  Called by d_cycle
 *****************/
 void edgewise_cycle_census(Network *nwp, Vertex tail, Vertex head,
-                           int *countv, Vertex maxlen, bool semi) {
+                           Vertex *countv, Vertex maxlen, bool semi) {
   /* *** don't forget tail -> head */
-  int *visited;
+  Vertex *visited;
   Vertex v;
   Edge e;
 
