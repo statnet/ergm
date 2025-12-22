@@ -23,8 +23,8 @@ typedef struct ETYPE(Modelstruct) {
   SEXP ext_state; /* Pointer to the extended state for the whole model. */
   ETYPE(ModelTerm) *termarray; /* array of size n_terms; see changestat.h
                            for ETYPE(ModelTerm) definition */
-  int n_terms;
-  int n_stats;
+  unsigned int n_terms;
+  unsigned int n_stats;
   unsigned int n_u; /* Number of terms with updaters. */
   double *workspace; /* temporary workspace of size n_stats */
   double *workspace_backup; /* since workspace is often replaced, we need to keep track of it for freeing */
