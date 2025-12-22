@@ -152,11 +152,17 @@
       \item{
         \code{\link{ergm_most_frequent_n}()} helper function for obtaining the \code{n} most or least frequent levels of a factor has been exported.
       }
+      \item{
+        Some deprecated arguments have been removed, particularly \code{control=} from \code{\link{ergm.godfather}()} and \code{formula=} from \code{\link{ergm_model}()}.
+      }
     }
   }
 
   \subsection{C-LEVEL FACILITIES}{
     \itemize{
+      \item{
+        An experimental C++ shim (translation API) for implementing ERGM statistics and proposals has been added. The shim wraps the C data structures to enable them to be queried and manipulated using idiomatic C++. Generally, most of the header files have been adjusted to compile cleanly under C++ if needed. A vignette documenting it has been provided.
+      }
       \item{
         New macro, \code{DEG(a)} to return the undirected degree of a node (typically outdegree plus indegree).
       }
@@ -164,7 +170,10 @@
         New function, \code{NetworkInitializeLike(nwp)} (and its valued analogue) to construct an empty \code{Network} copying attributes (size, etc.) from the specified network.
       }
       \item{
-        An experimental C++ shim (translation API) for implementing ERGM statistics and proposals has been added. The shim wraps the C data structures to enable them to be queried and manipulated using idiomatic C++. Generally, most of the header files have been adjusted to compile cleanly under C++ if needed. A vignette documenting it has been provided.
+        New helper function, \code{findListElement(list, str)}, to performs a linear search of a named list to find an element with a given name.
+      }
+      \item{
+        Deprecated helper macros \code{MH_GET_AUX_STORAGE_NUM()} and \code{GET_AUX_STORAGE_NUM()} have been removed.
       }
     }
   }
