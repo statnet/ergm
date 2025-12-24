@@ -7,33 +7,6 @@
 #
 #  Copyright 2003-2025 Statnet Commons
 ################################################################################
-#============================================================================
-# This file contains the following 3 functions used to update networks:
-#          <network.update>
-#          <as.edgelist.compressed>
-#          <as.network.uncompressed>
-#===========================================================================
-
-
-
-###############################################################################
-# The <network.update> function returns the given network with with only the
-# ties specified by a given matrix
-#
-# --PARAMETERS--
-#   nw         : a network object
-#   newmatrix  : the matrix specifying the new set of ties with which to
-#                update 'nw' 
-#   matrix.type: the type of matrix that 'newmatrix' is, as "adjacency" or
-#                "edgelist"; default=which.matrix.type(newmatrix)
-#   output     : a string indicating whether the output should be an
-#                edgelist (using "edgelist.compressed") or should be a 
-#                network (using any other string); default="network"
-#
-# --RETURNED--
-#   unw:  the updated network, having only those ties specified by 'newmatrix'
-#
-###############################################################################
 
 #' Update the edges in a network based on a matrix
 #' 
