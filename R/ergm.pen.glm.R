@@ -85,7 +85,7 @@ ergm.pen.glm <- function(formula,
   int <- 0
   coltotest <-1:k
 
-  if(missing(weights)){weights <- rep(1,length=n)}
+  if (missing(weights)) weights <- rep_len(1, n)
   beta <- c(log((sum(y*weights)/sum((1-y)*weights))),
             rep(0, k - 1))
   if(!missing(start) && !is.null(start) && ncol(x)==length(start) && !is.na(start)){
@@ -104,10 +104,7 @@ ergm.pen.glm <- function(formula,
    covs <- sginv(Fisher, tol=.Machine$double.eps^(3/4))  ### (X' W  X) ^ -1
 #  H <- crossprod(XW2, covs) %*% XW2
 #  H <- XW2 %*% covs %*% t(XW2)
-   diagH <- pi
-   for(i in seq(along=diagH)){
-    diagH[i] <- xTAx(XW2[i,], covs)
-   }
+   diagH <- map_dbl(seq_along(pi), function(i) xTAx(XW2[i, ], covs))
 #  U.star <- crossprod(x, y - pi)
 #  U.star <- crossprod(x, (y - pi)*weights)
 #  U.star <- crossprod(x, (y - pi + diagH * (0.5 - pi))*weights)
