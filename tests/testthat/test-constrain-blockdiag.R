@@ -19,11 +19,15 @@ mean_mat <- function(Mmin, Mmax){
 test_dind_constr <- function(y0, con, Mmin=NULL, Mmax=NULL, response=NULL, ..., expectation = function(x) expect_silent(x)){
   nn <- network.dyadcount(y0, FALSE)
   test_that(paste0("blockdiag constraint with constraint = ", format(con), ", and ", if(is.directed(y0)) "directed " else "undirected ", if(is.bipartite(y0)) "bipartite ", if(!is.null(response)) "valued ", "network"), {
-    expectation(ymin <- simulate(NVL2(response, y0~sum, y0~edges), coef=-100, constraints=con, control=control.simulate.formula(MCMC.burnin=nn*100), response=response, ...))
-    expect_true(all(na.omit(c(suppressWarnings(as.matrix(ymin, attrname=response))==Mmin))))
+    expectation({
+      ymin <- simulate(NVL2(response, y0~sum, y0~edges), coef=-100, constraints=con, control=control.simulate.formula(MCMC.burnin=nn*100), response=response, ...)
+      expect_true(all(na.omit(c(suppressWarnings(as.matrix(ymin, attrname=response))==Mmin))))
+    })
 
-    expectation(ymax <- simulate(NVL2(response, y0~sum, y0~edges), coef=+100, constraints=con, control=control.simulate.formula(MCMC.burnin=nn*100), response=response, ...))
-    expect_true(all(na.omit(c(as.matrix(ymax, attrname=response)==Mmax))))
+    expectation({
+      ymax <- simulate(NVL2(response, y0~sum, y0~edges), coef=+100, constraints=con, control=control.simulate.formula(MCMC.burnin=nn*100), response=response, ...)
+      expect_true(all(na.omit(c(as.matrix(ymax, attrname=response)==Mmax))))
+    })
   })
 }
 
@@ -164,11 +168,10 @@ y0 %v% "b" <- a
 
 # Noncontiguity warning
 test_dind_constr(y0, ~blockdiag("b"), Mmin, Mmax,
-                 expectation = function(x) expect_warning(x, ".*non-contiguous blocks.*"))
+                 expectation = function(x) expect_error(x, ".*contiguous.*"))
 
 # Selective suppression
-test_dind_constr(y0, ~blockdiag("b"), Mmin, Mmax,
-                 expectation = function(x) expect_warning(suppressWarnings(x, "ergm_blockdiag_contig_warn"), NA))
+test_dind_constr(y0, ~blockdiag("b", noncontig = "split"), Mmin, Mmax)
 
 #### Valued ####
 

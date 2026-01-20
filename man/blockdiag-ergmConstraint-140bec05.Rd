@@ -5,24 +5,29 @@
 \alias{InitErgmConstraint.blockdiag}
 \title{Block-diagonal structure constraint}
 \usage{
-# blockdiag(attr)
+# blockdiag(attr, noncontig = "merge")
 }
 \arguments{
 \item{attr}{a vertex attribute specification (see Specifying Vertex attributes and Levels (\code{?nodal_attributes}) for details.)}
+
+\item{noncontig}{character: what to do if the blocks are not contiguous? \describe{
+
+\item{\code{"merge"}}{A placeholder option, to treat them as the same block. It may be implemented in the future, and an explicit \code{"stop"} option added later.}
+
+\item{\code{"split"}}{Treat them as separate blocks.}
+
+}}
 }
 \description{
 Force a block-diagonal structure (and its bipartite analogue) on
 the network. Only dyads \eqn{(i,j)} for which
 \code{attr(i)==attr(j)} can have edges.
-
-Note that the current implementation treats blocks that are not
-contiguous as multiple separate blocks, signaling a warning that
-can be selectively silenced with \code{suppressWarnings(..., class = "ergm_blockdiag_contig_warn")}.
-
-For bipartite graphs, blocks must be have the same ordering in
-both partitions. (They do not, however, require that all blocks
-be represented in both partitions, but those that overlap must
-have the same order.)
+}
+\details{
+For bipartite graphs, blocks must be have the same
+ordering in both partitions. (They do not, however, require that
+all blocks be represented in both partitions, but those that
+overlap must have the same order.)
 
 If multiple block-diagonal constraints are given, or if
 \code{attr} is a vector with multiple attribute names, blocks
