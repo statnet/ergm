@@ -16,13 +16,13 @@ mean_mat <- function(Mmin, Mmax){
   matrix(ifelse(rbinom(length(Mmin), 1, .5), Mmin, Mmax), nrow(Mmin), ncol(Mmin))
 }
 
-test_dind_constr <- function(y0, con, Mmin=NULL, Mmax=NULL, response=NULL, ...){
+test_dind_constr <- function(y0, con, Mmin=NULL, Mmax=NULL, response=NULL, ..., expectation = function(x) expect_silent(x)){
   nn <- network.dyadcount(y0, FALSE)
   test_that(paste0("blockdiag constraint with constraint = ", format(con), ", and ", if(is.directed(y0)) "directed " else "undirected ", if(is.bipartite(y0)) "bipartite ", if(!is.null(response)) "valued ", "network"), {
-    ymin <- simulate(NVL2(response, y0~sum, y0~edges), coef=-100, constraints=con, control=control.simulate.formula(MCMC.burnin=nn*100), response=response, ...)
+    expectation(ymin <- simulate(NVL2(response, y0~sum, y0~edges), coef=-100, constraints=con, control=control.simulate.formula(MCMC.burnin=nn*100), response=response, ...))
     expect_true(all(na.omit(c(suppressWarnings(as.matrix(ymin, attrname=response))==Mmin))))
 
-    ymax <- simulate(NVL2(response, y0~sum, y0~edges), coef=+100, constraints=con, control=control.simulate.formula(MCMC.burnin=nn*100), response=response, ...)
+    expectation(ymax <- simulate(NVL2(response, y0~sum, y0~edges), coef=+100, constraints=con, control=control.simulate.formula(MCMC.burnin=nn*100), response=response, ...))
     expect_true(all(na.omit(c(as.matrix(ymax, attrname=response)==Mmax))))
   })
 }
@@ -147,6 +147,29 @@ y0 %v% "b2" <- a2
 
 test_dind_constr(y0, ~blockdiag("b1") + blockdiag("b2"), Mmin, Mmax)
 
+#### Noncontiguous ###
+
+a <- c(1,1,1,2,1,1,2,2,2,1)
+a.act <- with(rle(a), rep(seq_along(lengths), lengths))
+
+Mmax <- Mmin <- matrix(0,n,n)
+
+for(i in unique(a.act)){
+  Mmax[a.act==i,a.act==i]<-1
+}
+diag(Mmax)<-0
+
+y0 <- as.network(mean_mat(Mmin,Mmax), matrix.type="adjacency", directed=TRUE)
+y0 %v% "b" <- a
+
+# Noncontiguity warning
+test_dind_constr(y0, ~blockdiag("b"), Mmin, Mmax,
+                 expectation = function(x) expect_warning(x, ".*non-contiguous blocks.*"))
+
+# Selective suppression
+test_dind_constr(y0, ~blockdiag("b"), Mmin, Mmax,
+                 expectation = function(x) expect_warning(suppressWarnings(x, "ergm_blockdiag_contig_warn"), NA))
+
 #### Valued ####
 
 a <- rep(1:4,1:4)
@@ -161,6 +184,6 @@ diag(Mmax)<-0
 y0 <- as.network(mean_mat(Mmin,Mmax), matrix.type="adjacency", directed=TRUE, ignore.eval=FALSE, names.eval="w")
 y0 %v% "b" <- a
 
-test_dind_constr(y0, ~blockdiag("b"), Mmin, Mmax, response="w", reference=~DiscUnif(0,4))
+test_dind_constr(y0, ~blockdiag("b"), Mmin, Mmax, response="w", reference=~DiscUnif(0,4), expectation = identity)
 
 library(ergm.count)

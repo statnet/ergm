@@ -15,12 +15,14 @@ Force a block-diagonal structure (and its bipartite analogue) on
 the network. Only dyads \eqn{(i,j)} for which
 \code{attr(i)==attr(j)} can have edges.
 
-Note that the current implementation requires that blocks be
-contiguous for unipartite graphs, and for bipartite
-graphs, they must be contiguous within a partition and must have
-the same ordering in both partitions. (They do not, however,
-require that all blocks be represented in both partitions, but
-those that overlap must have the same order.)
+Note that the current implementation treats blocks that are not
+contiguous as multiple separate blocks, signaling a warning that
+can be selectively silenced with \code{suppressWarnings(..., class = "ergm_blockdiag_contig_warn")}.
+
+For bipartite graphs, blocks must be have the same ordering in
+both partitions. (They do not, however, require that all blocks
+be represented in both partitions, but those that overlap must
+have the same order.)
 
 If multiple block-diagonal constraints are given, or if
 \code{attr} is a vector with multiple attribute names, blocks

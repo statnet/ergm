@@ -47,12 +47,15 @@
 #'   the network. Only dyads \eqn{(i,j)} for which
 #'   `attr(i)==attr(j)` can have edges.
 #'
-#'   Note that the current implementation requires that blocks be
-#'   contiguous for unipartite graphs, and for bipartite
-#'   graphs, they must be contiguous within a partition and must have
-#'   the same ordering in both partitions. (They do not, however,
-#'   require that all blocks be represented in both partitions, but
-#'   those that overlap must have the same order.)
+#'   Note that the current implementation treats blocks that are not
+#'   contiguous as multiple separate blocks, signaling a warning that
+#'   can be selectively silenced with `suppressWarnings(..., class =
+#'   "ergm_blockdiag_contig_warn")`.
+#'
+#'   For bipartite graphs, blocks must be have the same ordering in
+#'   both partitions. (They do not, however, require that all blocks
+#'   be represented in both partitions, but those that overlap must
+#'   have the same order.)
 #'
 #'   If multiple block-diagonal constraints are given, or if
 #'   `attr` is a vector with multiple attribute names, blocks
@@ -75,7 +78,7 @@ InitErgmConstraint.blockdiag<-function(nw, arglist, ...){
                       defaultvalues = list(NULL),
                       required = c(TRUE))
 
-  contigmsg <- paste0("Current implementation of the block-diagonal constraint requires that the blocks be contiguous. See ", sQuote("ergmConstraint?blockdiag"), " for more information.")
+  contigmsg <- paste0("Current implementation of the block-diagonal constraint treats non-contiguous blocks as separate; this behavior may change in the future. See ", sQuote("ergmConstraint?blockdiag"), " for more information.")
 
   list(attr=a$attr,
        free_dyads = {
@@ -86,7 +89,8 @@ InitErgmConstraint.blockdiag<-function(nw, arglist, ...){
            bip <- b1.size(nw)
            ea <- a[seq_len(bip)]
            aa <- a[bip+seq_len(n-bip)]
-           if(anyDuplicated(rle(ea)$values) || anyDuplicated(rle(aa)$values)) stop(contigmsg)
+           if (anyDuplicated(rle(ea)$values) || anyDuplicated(rle(aa)$values))
+             warn(contigmsg, "ergm_blockdiag_contig_warn")
 
            tmp <- .double.rle(ea, aa)
            el <- tmp$lengths1
@@ -110,7 +114,8 @@ InitErgmConstraint.blockdiag<-function(nw, arglist, ...){
            compress(o | ot)
          }else{
            a <- rle(a)
-           if(anyDuplicated(a$values)) stop(contigmsg)
+           if (anyDuplicated(a$values))
+             warn(contigmsg, "ergm_blockdiag_contig_warn")
            rlebdm(compress(do.call(c,rep(
                                        Map(function(blen,bend){rep(rle(c(FALSE,TRUE,FALSE)), c(bend-blen, blen, n-bend), scale="run")},
                                            a$lengths, cumsum(a$lengths)),
