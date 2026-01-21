@@ -81,7 +81,7 @@ ergm_mplecov <- function(pl,
     # calculation of V(theta) = Var(u(theta,y)) using the sim.num networks
     u.data <- matrix(0,nrow=length(sim.mple), ncol=num.variables)
 
-    for(i in 1:length(sim.mple)){
+    for(i in seq_along(sim.mple)){
       dat <- ergm.pl(sim.mple[[i]], NULL, theta.offset = init, control=control)
 
       # write the response, weight and designmatrix into one matrix
@@ -96,7 +96,7 @@ ergm_mplecov <- function(pl,
     # calculate V.hat by estimating sd
     u.mean <- colMeans(u.data)
     u.sum <- matrix(0,num.variables,num.variables)
-    for(i in 1: nrow(u.data)){
+    for(i in seq_len(nrow(u.data))) {
       u.diff <- u.data[i,]- u.mean
       u.sum <- u.sum + u.diff%*%t(u.diff)
     }
@@ -113,7 +113,7 @@ ergm_mplecov <- function(pl,
     boot.mple.mat <- matrix(0, nrow=length(sim.mple), ncol=num.variables)
     colnames(boot.mple.mat) <- colnames(pl$xmat)
 
-    for(i in 1:length(sim.mple)){
+    for(i in seq_along(sim.mple)){
 
       dat <- ergm.pl(sim.mple[[i]], NULL, theta.offset = init, control=control)
 
