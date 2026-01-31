@@ -37,6 +37,7 @@ Imports:
     Rdpack (>= 2.6.4),
     knitr (>= 1.50),
     stringr (>= 1.6.0),
+    cli (>= 3.6.0),
     MASS,
     Matrix,
     parallel,
@@ -139,6 +140,7 @@ Collate:
     'ergm.mple.R'
     'ergm.pen.glm.R'
     'ergm.pl.R'
+    'ergm.progress.R'
     'ergm.san.R'
     'ergm.stepping.R'
     'ergm.stocapprox.R'

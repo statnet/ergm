@@ -9,6 +9,7 @@
  */
 #include "ergm_etamap.h"
 #include "ergm_util.h"
+#include "ergm_progress.h"
 /*****************
  Note on undirected networks:  For j<k, edge {j,k} should be stored
  as (j,k) rather than (k,j).  In other words, only directed networks
@@ -125,6 +126,12 @@ MCMCStatus ETYPE(MCMCSample)(ETYPE(ErgmState) *s,
     staken = 0;
     tottaken = 0;
 
+    /* Initialize progress bar if verbose */
+    Rboolean show_progress = verbose > 0;
+    if (show_progress) {
+      ergm_progress_init("MCMC sampling", samplesize - 1);
+    }
+
     /* Now sample networks */
     for (unsigned int i=1; i < samplesize; i++){
       /* Set current vector of stats equal to previous vector */
@@ -147,6 +154,11 @@ MCMCStatus ETYPE(MCMCSample)(ETYPE(ErgmState) *s,
 
       tottaken += staken;
 
+      /* Update progress bar periodically (every 10 iterations or at key milestones) */
+      if (show_progress && (i % 10 == 0 || i == samplesize - 1)) {
+        ergm_progress_update(i);
+      }
+
       R_CheckUserInterrupt();
 #ifdef Win32
       if( ((100*i) % samplesize)==0 && samplesize > 500){
@@ -155,6 +167,12 @@ MCMCStatus ETYPE(MCMCSample)(ETYPE(ErgmState) *s,
       }
 #endif
     }
+
+    /* Complete progress bar */
+    if (show_progress) {
+      ergm_progress_done();
+    }
+
     /*********************
     Below is an extremely crude device for letting the user know
     when the chain doesn't accept many of the proposed steps.
@@ -389,6 +407,12 @@ MCMCStatus ETYPE(MCMCSamplePhase12)(ETYPE(ErgmState) *s,
                                            verbose);
   if(status!=MCMC_OK) return status;
   Rprintf("Phase 1: %d steps (interval = %d)\n", nphase1,interval);
+  
+  /* Initialize progress bar for Phase 1 */
+  if (verbose > 0) {
+    ergm_progress_init("Phase 1 sampling", nphase1);
+  }
+  
   /* Now sample networks */
   for (unsigned int i=0; i <= nphase1; i++){
     MCMCStatus status = ETYPE(MetropolisHastings)(s, eta,
@@ -403,6 +427,16 @@ MCMCStatus ETYPE(MCMCSamplePhase12)(ETYPE(ErgmState) *s,
         u2bar[j] += u*u;
       }
     }
+    
+    /* Update progress bar periodically */
+    if (verbose > 0 && (i % 10 == 0 || i == nphase1)) {
+      ergm_progress_update(i);
+    }
+  }
+
+  /* Complete progress bar */
+  if (verbose > 0) {
+    ergm_progress_done();
   }
 
   if (verbose){
@@ -422,6 +456,11 @@ MCMCStatus ETYPE(MCMCSamplePhase12)(ETYPE(ErgmState) *s,
 
   if(verbose){
     Rprintf("\nPhase 2:\n");
+  }
+
+  /* Initialize progress bar for Phase 2 subphases */
+  if (verbose > 0) {
+    ergm_progress_init("Phase 2 subphases", nsubphases);
   }
 
   double *theta_sum = R_calloc(n_param, double),
@@ -503,11 +542,22 @@ MCMCStatus ETYPE(MCMCSamplePhase12)(ETYPE(ErgmState) *s,
     }
 
     /* Set current vector of stats equal to previous vector */
+    
+    /* Update progress bar for each completed subphase */
+    if (verbose > 0) {
+      ergm_progress_update(subphase);
+    }
+    
     R_CheckUserInterrupt();
 #ifdef Win32
     R_FlushConsole();
     R_ProcessEvents();
 #endif
+  }
+
+  /* Complete progress bar */
+  if (verbose > 0) {
+    ergm_progress_done();
   }
 
   // R_calloc()-ed variables freed on return to R.

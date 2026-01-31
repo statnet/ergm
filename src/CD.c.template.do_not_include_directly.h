@@ -8,6 +8,7 @@
  *  Copyright 2003-2025 Statnet Commons
  */
 #include "ergm_util.h"
+#include "ergm_progress.h"
 /*****************
  Note on undirected networks:  For j<k, edge {j,k} should be stored
  as (j,k) rather than (k,j).  In other words, only directed networks
@@ -90,6 +91,12 @@ MCMCStatus ETYPE(CDSample)(ETYPE(ErgmState) *s,
 /* } */
 /* Rprintf("\n"); */
 
+  /* Initialize progress bar if verbose */
+  Rboolean show_progress = verbose > 0;
+  if (show_progress) {
+    ergm_progress_init("CD sampling", samplesize);
+  }
+
   /* Now sample networks */
   unsigned int i=0, sattempted=0;
   while(i<samplesize){
@@ -99,6 +106,12 @@ MCMCStatus ETYPE(CDSample)(ETYPE(ErgmState) *s,
       return MCMC_MH_FAILED;
 
     R_CheckUserInterruptEvery(16L, i);
+    
+    /* Update progress bar periodically */
+    if (show_progress && (i % 10 == 0 || i == samplesize - 1)) {
+      ergm_progress_update(i + 1);
+    }
+    
 #ifdef Win32
     if( ((100*i) % samplesize)==0 && samplesize > 500){
       R_FlushConsole();
@@ -110,6 +123,11 @@ MCMCStatus ETYPE(CDSample)(ETYPE(ErgmState) *s,
       i++;
 
     sattempted++;
+  }
+
+  /* Complete progress bar */
+  if (show_progress) {
+    ergm_progress_done();
   }
 
   if (verbose){

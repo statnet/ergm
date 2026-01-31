@@ -10,6 +10,7 @@
 #include "MPLE.h"
 #include "ergm_changestat.h"
 #include "ergm_rlebdm.h"
+#include "ergm_progress.h"
 
 static kvec_t(double*) MPLE_workspace = kv_blank;
 static StoreDVecMapENE *MPLE_covfreq = NULL;
@@ -147,8 +148,22 @@ StoreDVecMapENE *MpleInit_hash_wl_RLE(ErgmState *s, RLEBDM1D *wl, Edge maxNumDya
     Dyad d = TH2Dyad(nwp->nnodes, t,h);
     RLERun r=0;
     
-    for(Dyad i = 0; i < MIN(maxNumDyads,dc); i++, d=NextRLEBDM1D(d, step, wl, &r)){
+    Dyad total_dyads = MIN(maxNumDyads,dc);
+    
+    // Initialize progress bar for large MPLE iterations
+    Rboolean show_progress = total_dyads > 10000;
+    if (show_progress) {
+      ergm_progress_init("MPLE dyad iteration", total_dyads);
+    }
+    
+    for(Dyad i = 0; i < total_dyads; i++, d=NextRLEBDM1D(d, step, wl, &r)){
       R_CheckUserInterruptEvery(1024u, i);
+      
+      /* Update progress bar every 1000 iterations for large loops */
+      if (show_progress && i % 1000 == 0) {
+        ergm_progress_update(i);
+      }
+      
       Dyad2TH(&t, &h, d, N_NODES);
       
       int response = IS_OUTEDGE(t,h);
@@ -160,6 +175,11 @@ StoreDVecMapENE *MpleInit_hash_wl_RLE(ErgmState *s, RLEBDM1D *wl, Edge maxNumDya
       }
 
       insCovMatRow(covfreq, m->workspace, response);
+    }
+    
+    // Complete progress bar
+    if (show_progress) {
+      ergm_progress_done();
     }
   } // End scope for loop variables.
 
