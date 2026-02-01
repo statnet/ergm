@@ -80,3 +80,5 @@ dkms.conf
 *~
 *.bak
 .Rproj.user
+# CodeQL
+_codeql_detected_source_root
