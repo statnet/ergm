@@ -7,6 +7,7 @@
  *
  *  Copyright 2003-2025 Statnet Commons
  */
+#include "ergm_progress.h"
 
 /*****************
  Note on undirected networks:  For j<k, edge {j,k} should be stored
@@ -103,6 +104,9 @@ MCMCStatus ETYPE(SANSample)(ETYPE(ErgmState) *s,
     tottaken = 0;
     ptottaken = 0;
     
+    /* Initialize progress bar */
+    ergm_progress_bar progress = ergm_progress_init("SAN sampling", samplesize);
+    
     /* Now sample networks */
     for (unsigned int i=1; i < samplesize; i++){
       /* Set current vector of stats equal to previous vector */
@@ -135,6 +139,11 @@ MCMCStatus ETYPE(SANSample)(ETYPE(ErgmState) *s,
         "%d steps out of a possible %d\n",  ptottaken-tottaken, i); 
       }
 
+      /* Update progress bar periodically */
+      if (i % ERGM_PROGRESS_UPDATE_FREQ == 0 || i == samplesize - 1) {
+        ergm_progress_update(&progress, i);
+      }
+
       R_CheckUserInterrupt();
 #ifdef Win32
       if( ((100*i) % samplesize)==0 && samplesize > 500){
@@ -143,6 +152,10 @@ MCMCStatus ETYPE(SANSample)(ETYPE(ErgmState) *s,
       }
 #endif
     }
+
+    /* Complete progress bar */
+    ergm_progress_done(&progress);
+
     /*********************
     Below is an extremely crude device for letting the user know
     when the chain doesn't accept many of the proposed steps.
