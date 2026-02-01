@@ -13,6 +13,10 @@
 #include <R.h>
 #include <Rinternals.h>
 
+// Progress bar update frequency (update every N iterations)
+#define ERGM_PROGRESS_UPDATE_FREQ 10
+#define ERGM_PROGRESS_MPLE_UPDATE_FREQ 1000  // For large MPLE loops
+
 // Progress bar functions that call R functions using cli package
 // These are safe to call from C code
 
@@ -20,7 +24,7 @@
 // name: Progress bar label/message
 // total: Total number of steps
 // Returns: TRUE if successful, FALSE otherwise
-static inline Rboolean ergm_progress_init(const char *name, int total) {
+static inline Rboolean ergm_progress_init(const char *name, unsigned int total) {
   SEXP call, result;
   int error = 0;
   
@@ -38,7 +42,7 @@ static inline Rboolean ergm_progress_init(const char *name, int total) {
 
 // Update progress bar to current step
 // current: Current step number (0-based or 1-based depending on usage)
-static inline void ergm_progress_update(int current) {
+static inline void ergm_progress_update(unsigned int current) {
   SEXP call;
   int error = 0;
   

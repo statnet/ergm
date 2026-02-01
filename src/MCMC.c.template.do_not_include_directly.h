@@ -129,7 +129,7 @@ MCMCStatus ETYPE(MCMCSample)(ETYPE(ErgmState) *s,
     /* Initialize progress bar if verbose */
     Rboolean show_progress = verbose > 0;
     if (show_progress) {
-      ergm_progress_init("MCMC sampling", samplesize - 1);
+      ergm_progress_init("MCMC sampling", samplesize);
     }
 
     /* Now sample networks */
@@ -154,8 +154,8 @@ MCMCStatus ETYPE(MCMCSample)(ETYPE(ErgmState) *s,
 
       tottaken += staken;
 
-      /* Update progress bar periodically (every 10 iterations or at key milestones) */
-      if (show_progress && (i % 10 == 0 || i == samplesize - 1)) {
+      /* Update progress bar periodically */
+      if (show_progress && (i % ERGM_PROGRESS_UPDATE_FREQ == 0 || i == samplesize - 1)) {
         ergm_progress_update(i);
       }
 
@@ -429,7 +429,7 @@ MCMCStatus ETYPE(MCMCSamplePhase12)(ETYPE(ErgmState) *s,
     }
     
     /* Update progress bar periodically */
-    if (verbose > 0 && (i % 10 == 0 || i == nphase1)) {
+    if (verbose > 0 && (i % ERGM_PROGRESS_UPDATE_FREQ == 0 || i == nphase1)) {
       ergm_progress_update(i);
     }
   }

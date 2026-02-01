@@ -107,7 +107,7 @@ MCMCStatus ETYPE(SANSample)(ETYPE(ErgmState) *s,
     /* Initialize progress bar if verbose */
     Rboolean show_progress = verbose > 0;
     if (show_progress) {
-      ergm_progress_init("SAN sampling", samplesize - 1);
+      ergm_progress_init("SAN sampling", samplesize);
     }
     
     /* Now sample networks */
@@ -143,7 +143,7 @@ MCMCStatus ETYPE(SANSample)(ETYPE(ErgmState) *s,
       }
 
       /* Update progress bar periodically */
-      if (show_progress && (i % 10 == 0 || i == samplesize - 1)) {
+      if (show_progress && (i % ERGM_PROGRESS_UPDATE_FREQ == 0 || i == samplesize - 1)) {
         ergm_progress_update(i);
       }
 

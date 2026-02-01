@@ -159,8 +159,8 @@ StoreDVecMapENE *MpleInit_hash_wl_RLE(ErgmState *s, RLEBDM1D *wl, Edge maxNumDya
     for(Dyad i = 0; i < total_dyads; i++, d=NextRLEBDM1D(d, step, wl, &r)){
       R_CheckUserInterruptEvery(1024u, i);
       
-      /* Update progress bar every 1000 iterations for large loops */
-      if (show_progress && i % 1000 == 0) {
+      /* Update progress bar at consistent intervals for large loops */
+      if (show_progress && i % ERGM_PROGRESS_MPLE_UPDATE_FREQ == 0) {
         ergm_progress_update(i);
       }
       

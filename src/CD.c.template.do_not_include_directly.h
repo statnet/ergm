@@ -107,11 +107,6 @@ MCMCStatus ETYPE(CDSample)(ETYPE(ErgmState) *s,
 
     R_CheckUserInterruptEvery(16L, i);
     
-    /* Update progress bar periodically */
-    if (show_progress && (i % 10 == 0 || i == samplesize - 1)) {
-      ergm_progress_update(i + 1);
-    }
-    
 #ifdef Win32
     if( ((100*i) % samplesize)==0 && samplesize > 500){
       R_FlushConsole();
@@ -121,6 +116,11 @@ MCMCStatus ETYPE(CDSample)(ETYPE(ErgmState) *s,
 
       networkstatistics += m->n_stats;
       i++;
+      
+    /* Update progress bar periodically */
+    if (show_progress && (i % ERGM_PROGRESS_UPDATE_FREQ == 0 || i == samplesize)) {
+      ergm_progress_update(i);
+    }
 
     sattempted++;
   }
