@@ -150,18 +150,15 @@ StoreDVecMapENE *MpleInit_hash_wl_RLE(ErgmState *s, RLEBDM1D *wl, Edge maxNumDya
     
     Dyad total_dyads = MIN(maxNumDyads,dc);
     
-    // Initialize progress bar for large MPLE iterations
-    Rboolean show_progress = total_dyads > 10000;
-    if (show_progress) {
-      ergm_progress_init("MPLE dyad iteration", total_dyads);
-    }
+    // Initialize progress bar (always show for MPLE since it can be long)
+    ergm_progress_bar progress = ergm_progress_init("MPLE dyad iteration", total_dyads);
     
     for(Dyad i = 0; i < total_dyads; i++, d=NextRLEBDM1D(d, step, wl, &r)){
       R_CheckUserInterruptEvery(1024u, i);
       
-      /* Update progress bar at consistent intervals for large loops */
-      if (show_progress && i % ERGM_PROGRESS_MPLE_UPDATE_FREQ == 0) {
-        ergm_progress_update(i);
+      /* Update progress bar at consistent intervals */
+      if (i % ERGM_PROGRESS_MPLE_UPDATE_FREQ == 0) {
+        ergm_progress_update(&progress, i);
       }
       
       Dyad2TH(&t, &h, d, N_NODES);
@@ -178,9 +175,7 @@ StoreDVecMapENE *MpleInit_hash_wl_RLE(ErgmState *s, RLEBDM1D *wl, Edge maxNumDya
     }
     
     // Complete progress bar
-    if (show_progress) {
-      ergm_progress_done();
-    }
+    ergm_progress_done(&progress);
   } // End scope for loop variables.
 
   return covfreq;

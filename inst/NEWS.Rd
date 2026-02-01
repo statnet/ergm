@@ -81,12 +81,12 @@
   \subsection{NEW FEATURES}{
     \itemize{
       \item{
-        Added progress bars for MCMC sampling using the \code{cli} package.
-        When \code{verbose > 0}, progress bars will now be displayed during
-        MCMC sampling, SAN (Stochastic Approximation), CD (Contrastive Divergence),
-        and MPLE (Maximum Pseudo-Likelihood Estimation) to provide real-time
-        feedback on sampling progress. Progress bars show the current iteration
-        and estimated time remaining.
+        Added progress bars for MCMC sampling using the \code{cli} package's C API.
+        Progress bars are now displayed during MCMC sampling, SAN (Stochastic Approximation),
+        CD (Contrastive Divergence), and MPLE (Maximum Pseudo-Likelihood Estimation)
+        to provide real-time feedback on sampling progress. Progress bars show the
+        current iteration and estimated time remaining. Progress bars are controlled
+        by the \code{cli} package and can be disabled using standard \code{cli} options.
       }
     }
   }

@@ -91,11 +91,8 @@ MCMCStatus ETYPE(CDSample)(ETYPE(ErgmState) *s,
 /* } */
 /* Rprintf("\n"); */
 
-  /* Initialize progress bar if verbose */
-  Rboolean show_progress = verbose > 0;
-  if (show_progress) {
-    ergm_progress_init("CD sampling", samplesize);
-  }
+  /* Initialize progress bar */
+  ergm_progress_bar progress = ergm_progress_init("CD sampling", samplesize);
 
   /* Now sample networks */
   unsigned int i=0, sattempted=0;
@@ -118,17 +115,15 @@ MCMCStatus ETYPE(CDSample)(ETYPE(ErgmState) *s,
       i++;
       
     /* Update progress bar periodically */
-    if (show_progress && (i % ERGM_PROGRESS_UPDATE_FREQ == 0 || i == samplesize)) {
-      ergm_progress_update(i);
+    if (i % ERGM_PROGRESS_UPDATE_FREQ == 0 || i == samplesize) {
+      ergm_progress_update(&progress, i);
     }
 
     sattempted++;
   }
 
   /* Complete progress bar */
-  if (show_progress) {
-    ergm_progress_done();
-  }
+  ergm_progress_done(&progress);
 
   if (verbose){
     Rprintf("Sampler accepted %7.3f%% of %lld proposed steps.\n",

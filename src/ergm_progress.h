@@ -12,56 +12,52 @@
 
 #include <R.h>
 #include <Rinternals.h>
+#include <cli/progress.h>
 
 // Progress bar update frequency (update every N iterations)
 #define ERGM_PROGRESS_UPDATE_FREQ 10
 #define ERGM_PROGRESS_MPLE_UPDATE_FREQ 1000  // For large MPLE loops
 
-// Progress bar functions that call R functions using cli package
-// These are safe to call from C code
+// Progress bar structure to track state
+typedef struct {
+  SEXP id;  // Progress bar ID from cli
+  unsigned int total;
+  Rboolean active;
+} ergm_progress_bar;
 
-// Initialize a progress bar
+// Initialize a progress bar using cli C API
 // name: Progress bar label/message
 // total: Total number of steps
-// Returns: TRUE if successful, FALSE otherwise
-static inline Rboolean ergm_progress_init(const char *name, unsigned int total) {
-  SEXP call, result;
-  int error = 0;
+// Returns: Progress bar structure
+static inline ergm_progress_bar ergm_progress_init(const char *name, unsigned int total) {
+  ergm_progress_bar pb = {R_NilValue, total, FALSE};
   
-  // Protect all SEXP objects
-  PROTECT(call = lang4(install(".ergm_progress_init"), 
-                       mkString(name), 
-                       ScalarInteger(total),
-                       ScalarLogical(FALSE)));
+  if (CLI_SHOULD_TICK) {
+    // Create progress bar using cli C API
+    pb.id = PROTECT(cli_progress_bar(total, NULL));
+    pb.active = TRUE;
+  }
   
-  result = R_tryEval(call, R_GlobalEnv, &error);
-  UNPROTECT(1);
-  
-  return error == 0;
+  return pb;
 }
 
 // Update progress bar to current step
-// current: Current step number (0-based or 1-based depending on usage)
-static inline void ergm_progress_update(unsigned int current) {
-  SEXP call;
-  int error = 0;
-  
-  PROTECT(call = lang2(install(".ergm_progress_update"), 
-                       ScalarInteger(current)));
-  
-  R_tryEval(call, R_GlobalEnv, &error);
-  UNPROTECT(1);
+// pb: Progress bar structure
+// current: Current step number
+static inline void ergm_progress_update(ergm_progress_bar *pb, unsigned int current) {
+  if (pb->active && !Rf_isNull(pb->id)) {
+    cli_progress_set(pb->id, current);
+  }
 }
 
 // Complete and close the progress bar
-static inline void ergm_progress_done(void) {
-  SEXP call;
-  int error = 0;
-  
-  PROTECT(call = lang1(install(".ergm_progress_done")));
-  
-  R_tryEval(call, R_GlobalEnv, &error);
-  UNPROTECT(1);
+// pb: Progress bar structure
+static inline void ergm_progress_done(ergm_progress_bar *pb) {
+  if (pb->active && !Rf_isNull(pb->id)) {
+    cli_progress_done(pb->id);
+    UNPROTECT(1);  // Unprotect the id that was protected in init
+    pb->active = FALSE;
+  }
 }
 
 #endif // ERGM_PROGRESS_H

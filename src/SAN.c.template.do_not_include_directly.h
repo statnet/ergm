@@ -104,11 +104,8 @@ MCMCStatus ETYPE(SANSample)(ETYPE(ErgmState) *s,
     tottaken = 0;
     ptottaken = 0;
     
-    /* Initialize progress bar if verbose */
-    Rboolean show_progress = verbose > 0;
-    if (show_progress) {
-      ergm_progress_init("SAN sampling", samplesize);
-    }
+    /* Initialize progress bar */
+    ergm_progress_bar progress = ergm_progress_init("SAN sampling", samplesize);
     
     /* Now sample networks */
     for (unsigned int i=1; i < samplesize; i++){
@@ -143,8 +140,8 @@ MCMCStatus ETYPE(SANSample)(ETYPE(ErgmState) *s,
       }
 
       /* Update progress bar periodically */
-      if (show_progress && (i % ERGM_PROGRESS_UPDATE_FREQ == 0 || i == samplesize - 1)) {
-        ergm_progress_update(i);
+      if (i % ERGM_PROGRESS_UPDATE_FREQ == 0 || i == samplesize - 1) {
+        ergm_progress_update(&progress, i);
       }
 
       R_CheckUserInterrupt();
@@ -157,9 +154,7 @@ MCMCStatus ETYPE(SANSample)(ETYPE(ErgmState) *s,
     }
 
     /* Complete progress bar */
-    if (show_progress) {
-      ergm_progress_done();
-    }
+    ergm_progress_done(&progress);
 
     /*********************
     Below is an extremely crude device for letting the user know

@@ -10,7 +10,7 @@
 #' @param verbose A logical or an integer to control the amount of
 #'   progress and diagnostic information to be printed. `FALSE`/`0`
 #'   produces minimal output, with higher values producing more
-#'   detail. When `verbose > 0`, progress bars will be displayed
-#'   during MCMC sampling to show the progress of iterations.
+#'   detail. Progress bars will be displayed during MCMC sampling
+#'   to show the progress of iterations.
 #'   Note that very high values (5+) may significantly slow
 #'   down processing.

@@ -126,11 +126,8 @@ MCMCStatus ETYPE(MCMCSample)(ETYPE(ErgmState) *s,
     staken = 0;
     tottaken = 0;
 
-    /* Initialize progress bar if verbose */
-    Rboolean show_progress = verbose > 0;
-    if (show_progress) {
-      ergm_progress_init("MCMC sampling", samplesize);
-    }
+    /* Initialize progress bar */
+    ergm_progress_bar progress = ergm_progress_init("MCMC sampling", samplesize);
 
     /* Now sample networks */
     for (unsigned int i=1; i < samplesize; i++){
@@ -155,8 +152,8 @@ MCMCStatus ETYPE(MCMCSample)(ETYPE(ErgmState) *s,
       tottaken += staken;
 
       /* Update progress bar periodically */
-      if (show_progress && (i % ERGM_PROGRESS_UPDATE_FREQ == 0 || i == samplesize - 1)) {
-        ergm_progress_update(i);
+      if (i % ERGM_PROGRESS_UPDATE_FREQ == 0 || i == samplesize - 1) {
+        ergm_progress_update(&progress, i);
       }
 
       R_CheckUserInterrupt();
@@ -169,9 +166,7 @@ MCMCStatus ETYPE(MCMCSample)(ETYPE(ErgmState) *s,
     }
 
     /* Complete progress bar */
-    if (show_progress) {
-      ergm_progress_done();
-    }
+    ergm_progress_done(&progress);
 
     /*********************
     Below is an extremely crude device for letting the user know
@@ -409,9 +404,7 @@ MCMCStatus ETYPE(MCMCSamplePhase12)(ETYPE(ErgmState) *s,
   Rprintf("Phase 1: %d steps (interval = %d)\n", nphase1,interval);
   
   /* Initialize progress bar for Phase 1 */
-  if (verbose > 0) {
-    ergm_progress_init("Phase 1 sampling", nphase1);
-  }
+  ergm_progress_bar progress_p1 = ergm_progress_init("Phase 1 sampling", nphase1);
   
   /* Now sample networks */
   for (unsigned int i=0; i <= nphase1; i++){
@@ -429,15 +422,13 @@ MCMCStatus ETYPE(MCMCSamplePhase12)(ETYPE(ErgmState) *s,
     }
     
     /* Update progress bar periodically */
-    if (verbose > 0 && (i % ERGM_PROGRESS_UPDATE_FREQ == 0 || i == nphase1)) {
-      ergm_progress_update(i);
+    if (i % ERGM_PROGRESS_UPDATE_FREQ == 0 || i == nphase1) {
+      ergm_progress_update(&progress_p1, i);
     }
   }
 
   /* Complete progress bar */
-  if (verbose > 0) {
-    ergm_progress_done();
-  }
+  ergm_progress_done(&progress_p1);
 
   if (verbose){
     Rprintf("Returned from Phase 1\n");
@@ -459,9 +450,7 @@ MCMCStatus ETYPE(MCMCSamplePhase12)(ETYPE(ErgmState) *s,
   }
 
   /* Initialize progress bar for Phase 2 subphases */
-  if (verbose > 0) {
-    ergm_progress_init("Phase 2 subphases", nsubphases);
-  }
+  ergm_progress_bar progress_p2 = ergm_progress_init("Phase 2 subphases", nsubphases);
 
   double *theta_sum = R_calloc(n_param, double),
     *esteq = R_calloc(n_param, double),
@@ -544,9 +533,7 @@ MCMCStatus ETYPE(MCMCSamplePhase12)(ETYPE(ErgmState) *s,
     /* Set current vector of stats equal to previous vector */
     
     /* Update progress bar for each completed subphase */
-    if (verbose > 0) {
-      ergm_progress_update(subphase);
-    }
+    ergm_progress_update(&progress_p2, subphase);
     
     R_CheckUserInterrupt();
 #ifdef Win32
@@ -556,9 +543,7 @@ MCMCStatus ETYPE(MCMCSamplePhase12)(ETYPE(ErgmState) *s,
   }
 
   /* Complete progress bar */
-  if (verbose > 0) {
-    ergm_progress_done();
-  }
+  ergm_progress_done(&progress_p2);
 
   // R_calloc()-ed variables freed on return to R.
 
