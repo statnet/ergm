@@ -76,6 +76,67 @@
 
 
 
+\section{Changes in version 4.12.0}{
+
+  \subsection{NEW FEATURES}{
+    \itemize{
+      \item{
+        \ergmConstraint{ergm}{blockdiag}{()} constraint now supports handles noncontiguous attributes in a user-specified manner via a \code{noncontig=} argument. At this time, only treating separate runs as separate blocks \code{"split"} is supported.
+      }
+    }
+  }
+
+
+  \subsection{BUG FIXES}{
+    \itemize{
+      \item{
+        Some fixes to inadvertent partial matching and more uses of \code{\link{seq_len}(n)} instead of \code{1:n}. (Thanks, Chung-hong Chan \code{GitHub:@chainsawriot}!)
+      }
+    }
+  }
+
+
+  \subsection{OTHER USER-VISIBLE CHANGES}{
+    \itemize{
+      \item{
+        If an \code{\link{%ergmlhs%}} list is emptied out, it is now removed.
+          }
+          \item{
+            \code{convert_ergmlhs()} has been deprecated.
+          }
+          \item{
+            Verbose printing for variance-based adaptive MCMC no longer creates a wall of text.
+          }
+    }
+  }
+
+  %% \subsection{C-LEVEL FACILITIES}{
+  %%   \itemize{
+  %%   }
+  %% }
+
+  % \subsection{UTILITIES}{
+  %   \itemize{
+  %     \item Likewise, "UTILITIES" is probably unnecessary.
+  %   }
+  % }
+
+  % \subsection{INSTALLATION}{
+  %   \itemize{
+  %     \item ... as is "INSTALLATION".
+  %   }
+  % }
+
+  % \subsection{PACKAGE INSTALLATION}{
+  %   \itemize{
+  %     \item ditto.
+  %   }
+  % }
+
+}
+
+
+
 \section{Changes in version 4.11.0}{
 
   \subsection{NEW FEATURES}{
