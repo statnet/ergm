@@ -213,7 +213,7 @@ ETYPE(C_CHANGESTAT_FN)(SVARIANT(c_nodecov)) {
 
   /* *** don't forget tail -> head */
       for(unsigned int j=0, o=0; j<N_CHANGE_STATS; j++, o+=oshift){
-	double sum = INPUT_ATTRIB[tail+o-1] + INPUT_ATTRIB[head+o-1];
+	double sum = INPUT_ATTRIB[tail+o-1] + (!LOOP ? INPUT_ATTRIB[head+o-1] : 0);
 	CHANGE_STAT[j] += ECHANGE(sum);
     }
 }
@@ -223,9 +223,9 @@ ETYPE(C_CHANGESTAT_FN)(SVARIANT(c_nodecov)) {
 *****************/
 ETYPE(C_CHANGESTAT_FN)(SVARIANT(c_nodefactor)) {
   int tailpos = IINPUT_ATTRIB[tail-1];
-  int headpos = IINPUT_ATTRIB[head-1];
+  int headpos = !LOOP ? IINPUT_ATTRIB[head-1] : 0;
   if (tailpos!=-1) CHANGE_STAT[tailpos] += ECHANGE1;
-  if (headpos!=-1) CHANGE_STAT[headpos] += ECHANGE1;
+  if (!LOOP && headpos!=-1) CHANGE_STAT[headpos] += ECHANGE1;
 }
 
 /*****************
@@ -396,13 +396,15 @@ ETYPE(C_CHANGESTAT_FN)(SVARIANT(c_sociality)) {
 	  deg = (Vertex)INPUT_PARAM[j];
 	}
 	if(j < nstats){CHANGE_STAT[j] += ECHANGE1;}
-	j=0;
-	deg = (Vertex)INPUT_PARAM[j];
-	while(deg != head && j < nstats){
-	  j++;
-	  deg = (Vertex)INPUT_PARAM[j];
-	}
-	if(j < nstats){CHANGE_STAT[j] += ECHANGE1;}
+        if (!LOOP) {
+          j=0;
+          deg = (Vertex)INPUT_PARAM[j];
+          while(deg != head && j < nstats){
+            j++;
+            deg = (Vertex)INPUT_PARAM[j];
+          }
+          if(j < nstats){CHANGE_STAT[j] += ECHANGE1;}
+        }
       }
 
 }else{
@@ -414,13 +416,15 @@ ETYPE(C_CHANGESTAT_FN)(SVARIANT(c_sociality)) {
 	deg = (Vertex)INPUT_PARAM[j];
       }
       if(j < nstats){CHANGE_STAT[j] += ECHANGE1;}
-      j=0;
-      deg = (Vertex)INPUT_PARAM[j];
-      while(deg != head && j < nstats){
-	j++;
-	deg = (Vertex)INPUT_PARAM[j];
+      if (!LOOP) {
+        j=0;
+        deg = (Vertex)INPUT_PARAM[j];
+        while(deg != head && j < nstats){
+          j++;
+          deg = (Vertex)INPUT_PARAM[j];
+        }
+        if(j < nstats){CHANGE_STAT[j] += ECHANGE1;}
       }
-      if(j < nstats){CHANGE_STAT[j] += ECHANGE1;}
 
 }
 
@@ -430,7 +434,7 @@ ETYPE(C_CHANGESTAT_FN)(SVARIANT(c_sociality)) {
  changestat: c_loop
 *****************/
 ETYPE(C_CHANGESTAT_FN)(SVARIANT(c_loop)) {
-  if(tail == head) CHANGE_STAT[0] = ECHANGE1;
+  if(LOOP) CHANGE_STAT[0] = ECHANGE1;
 }
 
 
@@ -438,7 +442,7 @@ ETYPE(C_CHANGESTAT_FN)(SVARIANT(c_loop)) {
  changestat: c_loopcov
 *****************/
 ETYPE(C_CHANGESTAT_FN)(SVARIANT(c_loopcov)) {
-  if(tail != head) return;
+  if(!LOOP) return;
 
   unsigned int oshift = N_INPUT_PARAMS / N_CHANGE_STATS;
 
@@ -451,7 +455,7 @@ ETYPE(C_CHANGESTAT_FN)(SVARIANT(c_loopcov)) {
  changestat: c_loopfactor
 *****************/
 ETYPE(C_CHANGESTAT_FN)(SVARIANT(c_loopfactor)) {
-  if(tail != head) return;
+  if(!LOOP) return;
 
   int pos = IINPUT_ATTRIB[tail - 1];
   if (pos != -1) CHANGE_STAT[pos] += ECHANGE1;
