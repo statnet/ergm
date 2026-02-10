@@ -572,6 +572,8 @@ simulate.ergm_state_full <- function(object, nsim=1, seed=NULL,
 
       if (verbose) message(sprintf("Finished simulation %d of %d.", i * control$MCMC.batch, nsim))
     }
+
+    stats <- as.mcmc.list(lapply(stats, mcmc, start=control$MCMC.burnin+1, thin=control$MCMC.interval))
   }
 
   if(esteq) stats <- lapply.mcmc.list(stats, ergm.estfun, coef, m)
