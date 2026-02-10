@@ -73,10 +73,14 @@
 #' 
 #' @param statsonly Logical: If TRUE, return only the network statistics, not
 #' the network(s) themselves. Deprecated in favor of `output=`.
-#' @param esteq Logical: If TRUE, compute the sample estimating equations of an
-#' ERGM: if the model is non-curved, all non-offset statistics are returned
-#' either way, but if the model is curved, the score estimating function values
-#' (3.1) by \insertCite{HuHa06i;textual}{ergm} are returned instead.
+#'
+#' @param esteq Logical: If TRUE, compute the sample estimating
+#'   equations of an ERGM: if the model is non-curved, all non-offset
+#'   statistics are returned either way, but if the model is curved,
+#'   the score estimating function values (3.1) by
+#'   \insertCite{HuHa06i;textual}{ergm} are returned instead, relative
+#'   to the initial network, which for the `ergm` method defaults to
+#'   the LHS network.
 #' 
 #' @param output Normally character, one of `"network"` (default),
 #'   `"stats"`, `"edgelist"`, or `"ergm_state"`: determines the output
@@ -444,9 +448,10 @@ simulate.ergm_model <- function(object, nsim=1, seed=NULL,
   if(length(proposal$auxiliaries) && !length(m$slots.extra.aux$proposal))
     stop("The proposal appears to be requesting auxiliaries, but the initialized model does not export any proposal auxiliaries.")
   
-  # Create vector of current statistics
-  curstats<-summary(m, nw, term.options=control$term.options)
-  names(curstats) <- param_names(m, canonical=TRUE)
+  # Create vector of current statistics (0 if esteq == TRUE).
+  curstats <- if(esteq) numeric(nparam(m, canonical = TRUE))
+              else summary(m, nw, term.options=control$term.options)
+  names(curstats) <- param_names(m, canonical = TRUE)
 
   state <- ergm_state(nw, model=m, proposal=proposal, stats=curstats)
 
@@ -569,9 +574,8 @@ simulate.ergm_state_full <- function(object, nsim=1, seed=NULL,
     }
   }
 
-  if(esteq) stats <- lapply(ergm.estfun, stats, coef, m)
+  if(esteq) stats <- lapply.mcmc.list(stats, ergm.estfun, coef, m)
 
-  stats <- as.mcmc.list(lapply(stats, mcmc, start=control$MCMC.burnin+1, thin=control$MCMC.interval))
   if(simplify)
     stats <- as.matrix(stats)[seq_len(nsim),,drop=FALSE]
 
@@ -617,7 +621,7 @@ simulate.ergm <- function(object, nsim=1, seed=NULL,
                           constraints=list(object$constraints, object$obs.constraints),
                           observational=FALSE,
                           monitor=NULL,
-                          basis=if(observational) object$network else NVL(object$newnetwork, object$network),
+                          basis=if(observational || esteq) object$network else NVL(object$newnetwork, object$network),
                           statsonly=FALSE,
                           esteq=FALSE,
                           output=c("network","stats","edgelist","ergm_state"),

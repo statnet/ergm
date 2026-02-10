@@ -109,7 +109,8 @@ simulate_formula(object, ..., basis = eval_lhs.formula(object))
   constraints = list(object$constraints, object$obs.constraints),
   observational = FALSE,
   monitor = NULL,
-  basis = if (observational) object$network else NVL(object$newnetwork, object$network),
+  basis = if (observational || esteq) object$network else NVL(object$newnetwork,
+    object$network),
   statsonly = FALSE,
   esteq = FALSE,
   output = c("network", "stats", "edgelist", "ergm_state"),
@@ -200,10 +201,13 @@ returned. An \code{\link{ergm_model}} objectcan be passed as well.}
 \item{statsonly}{Logical: If TRUE, return only the network statistics, not
 the network(s) themselves. Deprecated in favor of \verb{output=}.}
 
-\item{esteq}{Logical: If TRUE, compute the sample estimating equations of an
-ERGM: if the model is non-curved, all non-offset statistics are returned
-either way, but if the model is curved, the score estimating function values
-(3.1) by \insertCite{HuHa06i;textual}{ergm} are returned instead.}
+\item{esteq}{Logical: If TRUE, compute the sample estimating
+equations of an ERGM: if the model is non-curved, all non-offset
+statistics are returned either way, but if the model is curved,
+the score estimating function values (3.1) by
+\insertCite{HuHa06i;textual}{ergm} are returned instead, relative
+to the initial network, which for the \code{ergm} method defaults to
+the LHS network.}
 
 \item{output}{Normally character, one of \code{"network"} (default),
 \code{"stats"}, \code{"edgelist"}, or \code{"ergm_state"}: determines the output
