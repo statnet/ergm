@@ -38,7 +38,7 @@ These wrap `Network` (unweighted) and `WtNetwork` (weighted) to provide edge que
 
 - Construction: `ErgmCppNetwork nw(nwp);` and `ErgmCppWtNetwork nw(nwp);`
 - Edge query: `nw(tail, head)` returns presence (`Rboolean`) or `double` weight (0 for no edge).
-- Node ranges: `nw.nodes()`, bipartite halves: `nw.b1()`, `nw.b2()`.
+- Node ranges: `nw.nodes()`, bipartite halves: `nw.b1()`, `nw.b2()`; node ranges support `.size()` for O(1) range size.
 - Neighbor ranges: `nw.out_neighbors(i)`, `nw.in_neighbors(i)`, `nw.neighbors(i)`.
 - Degree access: `nw.out_degree(i)`, `nw.in_degree(i)`, `nw.degree(i)`.
 - Edge range over all edges: `for (auto e : nw.edges())` yields `(tail, head)`.

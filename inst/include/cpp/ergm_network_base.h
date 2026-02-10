@@ -188,6 +188,7 @@ public:
     NodeRange(Vertex start, Vertex end) : start_(start), end_(end) {}
     NodeIterator begin() const { return NodeIterator(start_); }
     NodeIterator end() const { return NodeIterator(end_); }
+    Vertex size() const { return end_ - start_; }
   private:
     Vertex start_;
     Vertex end_;
