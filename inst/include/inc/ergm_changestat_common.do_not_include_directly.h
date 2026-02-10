@@ -33,10 +33,11 @@ double my_choose(double n, int r);
 #define N_DYADS (DYADCOUNT(nwp))
 #define OUT_DEG (nwp->outdegree) /* Vector of length N_NODES giving current outdegrees */
 #define IN_DEG (nwp->indegree) /* Vector of length N_NODES giving current indegrees */
-#define DEG(a) (OUT_DEG[(a)] + IN_DEG[(a)]) /* Macro for obtaining the total (undirected) degree of a node. */
+#define DEG(a) (LOOPS ? OUT_DEG[(a)] + IN_DEG[(a)] - IS_OUTEDGE(a, a): OUT_DEG[(a)] + IN_DEG[(a)]) /* Macro for obtaining the total (undirected) degree of a node. */
 #define DIRECTED (nwp->directed_flag) /* 0 if network is undirected, 1 if directed */
 #define N_EDGES (EDGECOUNT(nwp)) /* Total number of edges in the network currently */
 #define LOOPS (nwp->loops_flag) /* 0 if the network cannot have self-loops, 1 if it can */
+#define LOOP (tail == head) /* 1 if the edge is a self-loop, 0 if not */
 
 /* 0 if network is not bipartite, otherwise number of nodes of the first type (the first node of the second type has Vertex index BIPARTITE+1 */
 #define BIPARTITE (nwp->bipartite)
