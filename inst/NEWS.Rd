@@ -83,6 +83,9 @@
       \item{
         \ergmConstraint{ergm}{blockdiag}{()} constraint now supports handles noncontiguous attributes in a user-specified manner via a \code{noncontig=} argument. At this time, only treating separate runs as separate blocks \code{"split"} is supported.
       }
+      \item{
+        MCMC, CD, SAN, and MPLE sampling now produce \CRANpkg{cli} progress bars.
+      }
     }
   }
 
@@ -99,14 +102,14 @@
   \subsection{OTHER USER-VISIBLE CHANGES}{
     \itemize{
       \item{
-        If an \code{\link{%ergmlhs%}} list is emptied out, it is now removed.
-          }
-          \item{
-            \code{convert_ergmlhs()} has been deprecated.
-          }
-          \item{
-            Verbose printing for variance-based adaptive MCMC no longer creates a wall of text.
-          }
+        If an \code{\link{\%ergmlhs\%}} list is emptied out, it is now removed.
+      }
+      \item{
+        \code{convert_ergmlhs()} has been deprecated.
+      }
+      \item{
+        Verbose printing for variance-based adaptive MCMC no longer creates a wall of text.
+      }
     }
   }
 
