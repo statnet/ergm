@@ -11,6 +11,7 @@
 
 #include <optional>
 #include <tuple>
+#include <type_traits>
 
 #include "ergm_edgetree_types.h"
 
@@ -37,7 +38,7 @@ template <
 class ErgmCppNetworkBase {
 public:
   explicit ErgmCppNetworkBase(NetType* nwp)
-    : dir(nwp->directed_flag != 0), n(nwp->nnodes), bip(nwp->bipartite), nwp_(nwp) {}
+    : dir(nwp->directed_flag != 0), n(nwp->nnodes), bip(nwp->bipartite), loops(nwp->loops_flag != 0), nwp_(nwp) {}
 
   class EdgeIterator {
   public:
@@ -82,24 +83,92 @@ public:
     Vertex node_;
   };
 
-  using CombinedEdgeRange = CombinedRange<EdgeRange>;
+  class FilteredEdgeIterator {
+  public:
+    using iterator_category = std::forward_iterator_tag;
+    using value_type = typename EdgeIterator::value_type;
+    using difference_type = typename EdgeIterator::difference_type;
+    using pointer = typename EdgeIterator::pointer;
+    using reference = typename EdgeIterator::reference;
+
+    FilteredEdgeIterator() : it_(), end_(), skip_(std::nullopt) {}
+    FilteredEdgeIterator(EdgeIterator it, EdgeIterator end, std::optional<Vertex> skip)
+      : it_(it), end_(end), skip_(skip) {
+      advance();
+    }
+    value_type operator*() const { return *it_; }
+    FilteredEdgeIterator& operator++() {
+      ++it_;
+      advance();
+      return *this;
+    }
+    bool operator!=(const FilteredEdgeIterator& other) const {
+      return it_ != other.it_;
+    }
+  private:
+    EdgeIterator it_, end_;
+    std::optional<Vertex> skip_;
+
+    static Vertex edge_vertex(const value_type& value) {
+      if constexpr (std::is_same_v<value_type, Vertex>) {
+        return value;
+      } else {
+        return value.first;
+      }
+    }
+
+    void advance() {
+      if (!skip_.has_value()) {
+        return;
+      }
+      while (it_ != end_ && edge_vertex(*it_) == *skip_) {
+        ++it_;
+      }
+    }
+  };
+
+  class FilteredEdgeRange {
+  public:
+    using iterator = FilteredEdgeIterator;
+    FilteredEdgeRange(EdgeRange range, std::optional<Vertex> skip = std::nullopt)
+      : range_(range), skip_(skip) {}
+    FilteredEdgeIterator begin() const { return FilteredEdgeIterator(range_.begin(), range_.end(), skip_); }
+    FilteredEdgeIterator end() const { return FilteredEdgeIterator(range_.end(), range_.end(), skip_); }
+  private:
+    EdgeRange range_;
+    std::optional<Vertex> skip_;
+  };
+
+  using CombinedEdgeRange = CombinedRange<FilteredEdgeRange>;
 
   CombinedEdgeRange out_neighbors(Vertex node) {
     if(dir) {
-      return CombinedEdgeRange(EdgeRange(nwp_->outedges, node));
+      return CombinedEdgeRange(FilteredEdgeRange(EdgeRange(nwp_->outedges, node)));
     } else {
-      return CombinedEdgeRange(EdgeRange(nwp_->inedges, node), std::make_optional(EdgeRange(nwp_->outedges, node)));
+      auto skip = has_loop(node) ? std::make_optional(node) : std::nullopt;
+      return CombinedEdgeRange(
+        FilteredEdgeRange(EdgeRange(nwp_->inedges, node)),
+        std::make_optional(FilteredEdgeRange(EdgeRange(nwp_->outedges, node), skip))
+      );
     }
   }
   CombinedEdgeRange in_neighbors(Vertex node) {
     if(dir) {
-      return CombinedEdgeRange(EdgeRange(nwp_->inedges, node));
+      return CombinedEdgeRange(FilteredEdgeRange(EdgeRange(nwp_->inedges, node)));
     } else {
-      return CombinedEdgeRange(EdgeRange(nwp_->inedges, node), std::make_optional(EdgeRange(nwp_->outedges, node)));
+      auto skip = has_loop(node) ? std::make_optional(node) : std::nullopt;
+      return CombinedEdgeRange(
+        FilteredEdgeRange(EdgeRange(nwp_->inedges, node)),
+        std::make_optional(FilteredEdgeRange(EdgeRange(nwp_->outedges, node), skip))
+      );
     }
   }
   CombinedEdgeRange neighbors(Vertex node) {
-    return CombinedEdgeRange(EdgeRange(nwp_->inedges, node), std::make_optional(EdgeRange(nwp_->outedges, node)));
+    auto skip = has_loop(node) ? std::make_optional(node) : std::nullopt;
+    return CombinedEdgeRange(
+      FilteredEdgeRange(EdgeRange(nwp_->inedges, node)),
+      std::make_optional(FilteredEdgeRange(EdgeRange(nwp_->outedges, node), skip))
+    );
   }
 
   class NetworkEdgeIterator {
@@ -207,26 +276,33 @@ public:
     if (dir || bip) {
       return nwp_->outdegree[i];
     } else {
-      return nwp_->outdegree[i] + nwp_->indegree[i];
+      return nwp_->outdegree[i] + nwp_->indegree[i] - loop_adjust(i);
     }
   }
   Vertex in_degree(Vertex i) const {
     if (dir || bip) {
       return nwp_->indegree[i];
     } else {
-      return nwp_->indegree[i] + nwp_->outdegree[i];
+      return nwp_->indegree[i] + nwp_->outdegree[i] - loop_adjust(i);
     }
   }
-  // Total degree convenience method (always out + in)
+  // Total degree convenience method (out + in, adjusted for loops)
   Vertex degree(Vertex i) const {
-    return nwp_->outdegree[i] + nwp_->indegree[i];
+    return nwp_->outdegree[i] + nwp_->indegree[i] - loop_adjust(i);
   }
   const bool dir;
   const Vertex n;
   const Vertex bip;
+  const bool loops;
 
 private:
   NetType* nwp_;
+  Vertex loop_adjust(Vertex i) const {
+    return has_loop(i) ? 1 : 0;
+  }
+  bool has_loop(Vertex i) const {
+    return loops && GetEdgeFunc::call(i, i, nwp_) != static_cast<ValueType>(0);
+  }
 };
 
 } // namespace v1
