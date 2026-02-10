@@ -7,7 +7,10 @@
 #
 #  Copyright 2003-2025 Statnet Commons
 ################################################################################
+## Imports to silence a CRAN warnings
 #' @importFrom Rdpack reprompt
+#' @importFrom cli cli_alert
+
 #' @importFrom rlang "%|%"
 #' @import purrr
 .onAttach <- function(libname, pkgname){

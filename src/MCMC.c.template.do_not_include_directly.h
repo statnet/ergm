@@ -7,6 +7,7 @@
  *
  *  Copyright 2003-2025 Statnet Commons
  */
+#include <cli/progress.h>
 #include "ergm_etamap.h"
 #include "ergm_util.h"
 /*****************
@@ -106,11 +107,10 @@ MCMCStatus ETYPE(MCMCSample)(ETYPE(ErgmState) *s,
    Burn in step.
    *********************/
 /*  Catch more edges than we can return */
-  if(ETYPE(MetropolisHastings)(s, eta, networkstatistics, burnin, &staken,verbose)!=MCMC_OK)
+  if (ETYPE(MetropolisHastings)(s, eta, networkstatistics, burnin, &staken, -(verbose + 1))!=MCMC_OK)
     return MCMC_MH_FAILED;
-  if(nmax!=0 && EDGECOUNT(nwp) >= nmax-1){
-    return MCMC_TOO_MANY_EDGES;
-  }
+
+  if(nmax!=0 && EDGECOUNT(nwp) >= nmax-1) return MCMC_TOO_MANY_EDGES;
 
   if(s->save){
     s->stats = networkstatistics;
@@ -122,6 +122,9 @@ MCMCStatus ETYPE(MCMCSample)(ETYPE(ErgmState) *s,
      } */
 
   if (samplesize>1){
+    SEXP bar = PROTECT(cli_progress_bar(samplesize, NULL));
+    cli_progress_set_name(bar, "Sampling");
+
     staken = 0;
     tottaken = 0;
 
@@ -154,7 +157,10 @@ MCMCStatus ETYPE(MCMCSample)(ETYPE(ErgmState) *s,
     	R_ProcessEvents();
       }
 #endif
+      if (CLI_SHOULD_TICK) cli_progress_set(bar, i);
     }
+    cli_progress_done(bar);
+    UNPROTECT(1);
     /*********************
     Below is an extremely crude device for letting the user know
     when the chain doesn't accept many of the proposed steps.
@@ -196,6 +202,13 @@ MCMCStatus ETYPE(MetropolisHastings) (ETYPE(ErgmState) *s,
 				 int nsteps, int *staken,
 				 int verbose) {
 
+  SEXP bar = NULL;
+  if (verbose < 0) {
+    bar = PROTECT(cli_progress_bar(nsteps, NULL));
+    cli_progress_set_name(bar, "Burning in");
+    verbose = -verbose - 1;
+  }
+
   ETYPE(Network) *nwp = s->nwp;
   ETYPE(Model) *m = s->m;
   ETYPE(MHProposal) *MHp = s->MHp;
@@ -235,6 +248,7 @@ MCMCStatus ETYPE(MetropolisHastings) (ETYPE(ErgmState) *s,
           }
         }
 
+        if (bar && CLI_SHOULD_TICK) cli_progress_set(bar, step);
 	continue;
       }
     }
@@ -288,6 +302,13 @@ MCMCStatus ETYPE(MetropolisHastings) (ETYPE(ErgmState) *s,
         Rprintf("Skipping.\n");
       }
     }
+
+    if (bar && CLI_SHOULD_TICK) cli_progress_set(bar, step);
+  }
+
+  if (bar) {
+    cli_progress_done(bar);
+    UNPROTECT(1);
   }
 
   /* Calculate and update summary-only statistics */

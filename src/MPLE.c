@@ -8,6 +8,7 @@
  *  Copyright 2003-2025 Statnet Commons
  */
 #include "MPLE.h"
+#include <cli/progress.h>
 #include "ergm_changestat.h"
 #include "ergm_rlebdm.h"
 
@@ -146,6 +147,9 @@ StoreDVecMapENE *MpleInit_hash_wl_RLE(ErgmState *s, RLEBDM1D *wl, Edge maxNumDya
     GetRandRLEBDM1D_RS(&t,&h, wl); // Find a random starting point.
     Dyad d = TH2Dyad(nwp->nnodes, t,h);
     RLERun r=0;
+
+    SEXP bar = PROTECT(cli_progress_bar(MIN(maxNumDyads,dc), NULL));
+    cli_progress_set_name(bar, "Change stats");
     
     for(Dyad i = 0; i < MIN(maxNumDyads,dc); i++, d=NextRLEBDM1D(d, step, wl, &r)){
       R_CheckUserInterruptEvery(1024u, i);
@@ -160,7 +164,10 @@ StoreDVecMapENE *MpleInit_hash_wl_RLE(ErgmState *s, RLEBDM1D *wl, Edge maxNumDya
       }
 
       insCovMatRow(covfreq, m->workspace, response);
+      if (CLI_SHOULD_TICK) cli_progress_set(bar, i);
     }
+    cli_progress_done(bar);
+    UNPROTECT(1);
   } // End scope for loop variables.
 
   return covfreq;

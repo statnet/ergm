@@ -8,6 +8,8 @@
  *  Copyright 2003-2025 Statnet Commons
  */
 
+#include <cli/progress.h>
+
 /*****************
  Note on undirected networks:  For j<k, edge {j,k} should be stored
  as (j,k) rather than (k,j).  In other words, only directed networks
@@ -95,10 +97,13 @@ MCMCStatus ETYPE(SANSample)(ETYPE(ErgmState) *s,
 
   if(ETYPE(SANMetropolisHastings)(s, invcov, tau, networkstatistics, prop_networkstatistics, burnin, &staken,
                                     nstats, statindices, noffsets, offsetindices, offsets, deltainvsig,
-                             verbose)!=MCMC_OK)
+                                  -(verbose + 1))!=MCMC_OK)
     return MCMC_MH_FAILED;
 
   if (samplesize>1){
+    SEXP bar = PROTECT(cli_progress_bar(samplesize, NULL));
+    cli_progress_set_name(bar, "Sampling");
+
     staken = 0;
     tottaken = 0;
     ptottaken = 0;
@@ -111,6 +116,9 @@ MCMCStatus ETYPE(SANSample)(ETYPE(ErgmState) *s,
         if((networkstatistics[j+nstats] = networkstatistics[j])!=0) finished = FALSE;
       }
       if(finished){
+        cli_progress_done(bar);
+        UNPROTECT(1);
+
 	if(verbose) Rprintf("Exact match found.\n");
 	break;
       }
@@ -142,7 +150,10 @@ MCMCStatus ETYPE(SANSample)(ETYPE(ErgmState) *s,
     	R_ProcessEvents();
       }
 #endif
+      if (CLI_SHOULD_TICK) cli_progress_set(bar, i);
     }
+    cli_progress_done(bar);
+    UNPROTECT(1);
     /*********************
     Below is an extremely crude device for letting the user know
     when the chain doesn't accept many of the proposed steps.
@@ -182,6 +193,14 @@ MCMCStatus ETYPE(SANMetropolisHastings)(ETYPE(ErgmState) *s,
                                    double *offsets,
                                           double *deltainvsig,
                                    int verbose){
+
+  SEXP bar = NULL;
+  if (verbose < 0) {
+    bar = PROTECT(cli_progress_bar(nsteps, NULL));
+    cli_progress_set_name(bar, "Burning in");
+    verbose = -verbose - 1;
+  }
+
   ETYPE(Network) *nwp = s->nwp;
   ETYPE(Model) *m = s->m;
   ETYPE(MHProposal) *MHp = s->MHp;
@@ -280,6 +299,13 @@ MCMCStatus ETYPE(SANMetropolisHastings)(ETYPE(ErgmState) *s,
 
       PROP_CHANGESTATS_UNDO;
     }
+
+    if (bar && CLI_SHOULD_TICK) cli_progress_set(bar, step);
+  }
+
+  if (bar) {
+    cli_progress_done(bar);
+    UNPROTECT(1);
   }
 
   *staken = taken;
