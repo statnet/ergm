@@ -44,6 +44,7 @@ These wrap `Network` (unweighted) and `WtNetwork` (weighted) to provide edge que
 - Edge range over all edges: `for (auto e : nw.edges())` yields `(tail, head)`.
 - Directed accessors starting with `in_` and `out_` automatically fall back to the undirected network if `nw` is undirected.
 - Valued neighbor iteration yields pairs `(neighbor, weight)`; `edges()` yields `(tail, head, weight)`.
+- Network properties: `nw.dir` (directed?), `nw.n` (node count), `nw.bip` (number of mode 1 nodes in a bipartite network, or 0 if not bipartite), `nw.loops` (allows self-loops?).
 
 Example:
 
@@ -68,6 +69,15 @@ for(auto [i, j, w] : nw.edges()) {
   // weighted edge i->j of weight w
 }
 ```
+
+### Self-Loop Handling
+
+When `nw.loops` is true, the network can contain self-loops (edges from a node to itself). The neighbor iteration functions handle self-loops correctly:
+
+- In directed networks, self-loops appear naturally in `out_neighbors()` and `in_neighbors()` and are not de-duplicated.
+- In undirected networks, self-loops are automatically de-duplicated: they appear only once in neighbor ranges.
+- Degree calculations account for self-loops: `degree(i)` subtracts 1 if a self-loop exists to avoid counting it twice from in- and out-degrees.
+- A valued network contains a self-loop if `nw(i, i)` is non-zero.
 
 
 ## Model Terms: `ErgmCppModelTerm` and `ErgmCppWtModelTerm`
