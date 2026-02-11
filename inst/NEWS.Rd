@@ -95,6 +95,9 @@
       \item{
         Some fixes to inadvertent partial matching and more uses of \code{\link{seq_len}(n)} instead of \code{1:n}. (Thanks, Chung-hong Chan \code{GitHub:@chainsawriot}!)
       }
+      \item{
+        \code{esteq} argument to the \code{\link{simulate.ergm}()} family of functions has been fixed.
+      }
     }
   }
 
@@ -113,10 +116,13 @@
     }
   }
 
-  %% \subsection{C-LEVEL FACILITIES}{
-  %%   \itemize{
-  %%   }
-  %% }
+  \subsection{C-LEVEL FACILITIES}{
+    \itemize{
+      \item{
+        The C++ shim edge ranges now have a \code{size()} method.
+      }
+    }
+  }
 
   % \subsection{UTILITIES}{
   %   \itemize{
@@ -234,7 +240,7 @@
         New function, \code{NetworkInitializeLike(nwp)} (and its valued analogue) to construct an empty \code{Network} copying attributes (size, etc.) from the specified network.
       }
       \item{
-        New helper function, \code{findListElement(list, str)}, to performs a linear search of a named list to find an element with a given name.
+        New helper function, \code{findListElement(list, str)}, to perform a linear search of a named list to find an element with a given name.
       }
       \item{
         Deprecated helper macros \code{MH_GET_AUX_STORAGE_NUM()} and \code{GET_AUX_STORAGE_NUM()} have been removed.
