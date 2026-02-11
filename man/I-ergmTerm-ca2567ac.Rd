@@ -19,7 +19,21 @@ This is a convenience operator that can be used to
 paste terms constructed elsewhere into a formula.
 }
 \note{
-\code{formula} can also be a \link[statnet.common:term_list]{term_list}.
+\code{formula} can also be a \code{\link[statnet.common:term_list]{term_list}} or \code{\link{character}}. In
+the latter case, if there are multiple strings, they will be
+concatenated with \code{+}, and if they do not start with "~", one
+will be prepended. Its environment will be inherited from the
+top-level formula.
+}
+\examples{
+data(florentine)
+
+(terms <- paste0("degree(", 0:5, ")"))
+(s <- summary(flomarriage ~ I(terms)))
+
+\dontshow{
+stopifnot(identical(s, summary(flomarriage ~ degree(0:5))))
+}
 }
 \seealso{
 \code{\link[base:AsIs]{base::I()}} (a.k.a. \code{AsIs})
