@@ -117,10 +117,10 @@ numeric or logical vector
 
 `NULL`
 
-: Retain all possible levels; usually equivalent to passing
-      `TRUE`. Note that this is *not* the same as passing a
-      numeric or logical vector of length 0, which will be interpreted as
-      excluding all levels.
+: (Not recommended.) Retain all possible levels; usually equivalent to
+      passing `TRUE`. Note that this is *not* the same as passing a
+      numeric or logical vector of length 0, which will be interpreted
+      as excluding all levels.
 
 character vector
 

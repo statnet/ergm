@@ -110,10 +110,10 @@ in frequencies, they will be broken in lexicographic order, and a
 warning will be issued. To specify numeric or logical levels
 literally, wrap in \code{\link[=I]{I()}}.}
 
-\item{\code{\link{NULL}}}{Retain all possible levels; usually equivalent to
-passing \code{TRUE}. Note that this is \emph{not} the same as passing a
-numeric or logical vector of length 0, which will be interpreted as
-excluding all levels.}
+\item{\code{\link{NULL}}}{(Not recommended.) Retain all possible levels,
+equivalent to passing \code{TRUE}. Note that this is \emph{not} the same as
+passing a numeric or logical vector of length 0, which will be
+interpreted as excluding all levels.}
 
 \item{a character vector}{Use as is.}
 

@@ -146,10 +146,10 @@ get.node.attr <- function(nw, attrname, functionname=NULL, numeric=FALSE) {
 #' warning will be issued. To specify numeric or logical levels
 #' literally, wrap in [I()].}
 #'
-#'\item{[`NULL`]}{Retain all possible levels; usually equivalent to
-#' passing `TRUE`. Note that this is *not* the same as passing a
-#' numeric or logical vector of length 0, which will be interpreted as
-#' excluding all levels.}
+#'\item{[`NULL`]}{(Not recommended.) Retain all possible levels,
+#' equivalent to passing `TRUE`. Note that this is *not* the same as
+#' passing a numeric or logical vector of length 0, which will be
+#' interpreted as excluding all levels.}
 #'
 #' \item{a character vector}{Use as is.}
 #'
