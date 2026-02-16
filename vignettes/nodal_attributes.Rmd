@@ -121,7 +121,9 @@ numeric or logical vector
 \code{NULL}
 
 : Retain all possible levels; usually equivalent to passing
-      \code{TRUE}.
+      \code{TRUE}. Note that this is *not* the same as passing a
+      numeric or logical vector of length 0, which will be interpreted as
+      excluding all levels.
 
 character vector
 
@@ -144,6 +146,21 @@ formula
 
 Note that \code{levels} or \code{nodes} often has a default that is
 sensible for the term in question.
+
+### Aside: `base` and `keep` arguments:
+
+Earlier versions of many of the terms had arguments `base` and `keep`
+for selecting categorical attribute levels. They have been superseded
+since \pkg{ergm} 3.9.4 and will be removed soon.
+
+In general, `keep = X` can be replaced by `levels = X`, as both
+typically have the same semantics.
+
+The effect of `base` is opposite that of `levels`: `levels` specify
+which levels to include, whereas `base` specifies which levels to
+exclude. Thus, if `X` is not 0 or `NULL`, `base = X` can be replaced
+with `levels = -X`. If `X` is 0 or `NULL`, `base = X` means to include
+all levels, so it should be replaced with `levels = TRUE`.
 
 Returning to the `faux.mesa.high` example, and treating `Grade` as a categorical variable, we can use a number of combinations:
 ```{r, node-attr-cats}

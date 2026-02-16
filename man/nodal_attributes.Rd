@@ -111,7 +111,9 @@ warning will be issued. To specify numeric or logical levels
 literally, wrap in \code{\link[=I]{I()}}.}
 
 \item{\code{\link{NULL}}}{Retain all possible levels; usually equivalent to
-passing \code{TRUE}.}
+passing \code{TRUE}. Note that this is \emph{not} the same as passing a
+numeric or logical vector of length 0, which will be interpreted as
+excluding all levels.}
 
 \item{a character vector}{Use as is.}
 
@@ -135,8 +137,25 @@ cells to be used.}
 
 }
 
-Note that \code{levels}, \code{nodes}, and others often have a default that is sensible for the
-term in question.
+Note that \code{levels}, \code{nodes}, and others often have a default that
+is sensible for the term in question.
+}
+
+\section{\code{base} and \code{keep} arguments}{
+
+
+Earlier versions of many of the terms had arguments \code{base} and
+\code{keep} for selecting categorical attribute levels. They have been
+superseded since \pkg{ergm} 3.9.4 and will be removed soon.
+
+In general, \code{keep = X} can be replaced by \code{levels = X}, as both
+typically have the same semantics.
+
+The effect of \code{base} is opposite that of \code{levels}: \code{levels} specify
+which levels to include, whereas \code{base} specifies which levels to
+exclude. Thus, if \code{X} is not 0 or \code{NULL}, \code{base = X} can be
+replaced with \code{levels = -X}. If \code{X} is 0 or \code{NULL}, \code{base = X}
+means to include all levels, so it should be replaced with \code{levels = TRUE}.
 }
 
 \examples{

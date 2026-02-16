@@ -31,7 +31,7 @@
 
 #' Retrieve and check assumptions about vertex attributes (nodal covariates) in
 #' a network
-#' 
+#'
 #' The \code{get.node.attr} function returns the vector of nodal covariates for
 #' the given network and specified attribute if the attribute exists -
 #' execution will halt if the attribute is not correctly given as a single
@@ -39,8 +39,8 @@
 #' \code{get.node.attr} will also check that return vector is numeric, halting
 #' execution if not. The purpose is to validate assumptions before passing
 #' attribute data into an ergm term.
-#' 
-#' 
+#'
+#'
 #' @param nw a [`network`] object
 #' @param attrname the name of a nodal attribute, as a character string
 #' @param functionname the name of the calling function a character string;
@@ -52,7 +52,7 @@
 #' @seealso [get.vertex.attribute()] for a version without
 #' the checking functionality
 #' @examples
-#' 
+#'
 #' data(faux.mesa.high)
 #' get.node.attr(faux.mesa.high,'Grade')
 #' @keywords internal
@@ -81,15 +81,15 @@ get.node.attr <- function(nw, attrname, functionname=NULL, numeric=FALSE) {
 #'
 #' Term nodal attribute arguments, typically called `attr`, `attrs`, `by`, or
 #' `on` are interpreted as follows: \describe{
-#' 
+#'
 #' \item{a character string}{Extract the vertex attribute with
 #' this name.}
-#' 
+#'
 #' \item{a character vector of length > 1}{Extract the vertex
 #' attributes and paste them together, separated by dots if the term
 #' expects categorical attributes and (typically) combine into a
 #' covariate matrix if it expects quantitative attributes.}
-#' 
+#'
 #' \item{a function}{The function is called on the LHS network and
 #' additional arguments to [ergm_get_vattr()], expected to return a
 #' vector or matrix of appropriate dimension. (Shorter vectors and
@@ -107,7 +107,7 @@ get.node.attr <- function(nw, attrname, functionname=NULL, numeric=FALSE) {
 #'
 #' \item{an `AsIs` object created by `I()`}{Use as is, checking only
 #' for correct length and type.}
-#' 
+#'
 #' }
 #'
 #' Any of these arguments may also be wrapped in or piped through
@@ -132,7 +132,7 @@ get.node.attr <- function(nw, attrname, functionname=NULL, numeric=FALSE) {
 #'
 #' \item{an expression wrapped in [I()]}{Use the given list of levels
 #' as is.}
-#' 
+#'
 #' \item{a numeric or logical vector}{Used for indexing of a list of
 #' all possible levels (typically, unique values of the attribute) in
 #' default older (typically lexicographic), i.e.,
@@ -147,10 +147,12 @@ get.node.attr <- function(nw, attrname, functionname=NULL, numeric=FALSE) {
 #' literally, wrap in [I()].}
 #'
 #'\item{[`NULL`]}{Retain all possible levels; usually equivalent to
-#' passing `TRUE`.}
+#' passing `TRUE`. Note that this is *not* the same as passing a
+#' numeric or logical vector of length 0, which will be interpreted as
+#' excluding all levels.}
 #'
 #' \item{a character vector}{Use as is.}
-#' 
+#'
 #' \item{a function}{The function is called on the list of unique
 #' values of the attribute, the values of the attribute themselves,
 #' and the network itself, depending on its arity. Its return value is
@@ -168,18 +170,34 @@ get.node.attr <- function(nw, attrname, functionname=NULL, numeric=FALSE) {
 #' dimension as the mixing matrix to select the corresponding cells or
 #' a two-column numeric matrix indicating giving the coordinates of
 #' cells to be used.}
-#' 
+#'
 #' }
-#' 
-#' Note that `levels`, `nodes`, and others often have a default that is sensible for the
-#' term in question.
-#' 
+#'
+#' Note that `levels`, `nodes`, and others often have a default that
+#' is sensible for the term in question.
+#'
+#' @section `base` and `keep` arguments:
+#'
+#' Earlier versions of many of the terms had arguments `base` and
+#' `keep` for selecting categorical attribute levels. They have been
+#' superseded since \pkg{ergm} 3.9.4 and will be removed soon.
+#'
+#' In general, `keep = X` can be replaced by `levels = X`, as both
+#' typically have the same semantics.
+#'
+#' The effect of `base` is opposite that of `levels`: `levels` specify
+#' which levels to include, whereas `base` specifies which levels to
+#' exclude. Thus, if `X` is not 0 or `NULL`, `base = X` can be
+#' replaced with `levels = -X`. If `X` is 0 or `NULL`, `base = X`
+#' means to include all levels, so it should be replaced with `levels
+#' = TRUE`.
+#'
 #' @aliases attr attrname on by attrs node.attr nodal.attr vertex.attr node.attribute nodal.attribute vertex.attribute
 #' @examples
 #' library(magrittr) # for %>%
 #'
 #' data(faux.mesa.high)
-#' 
+#'
 #' # Activity by grade with a baseline grade excluded:
 #' summary(faux.mesa.high~nodefactor(~Grade))
 #' # Name overrides:
