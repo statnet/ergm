@@ -36,20 +36,20 @@ function
 
 formula
 
-: Borrowing the interface from \pkg{tidyverse}, the expression on the right hand side of the formula is evaluated in an
+: Borrowing the interface from {tidyverse}, the expression on the right hand side of the formula is evaluated in an
       environment of the vertex attributes of the network, expected to
       return a vector or matrix of appropriate dimension. (Shorter
       vectors and matrix columns will be recycled as needed.) Within
       this expression, the network itself accessible as either
-      \code{.} or \code{.nw}. For example, in the example below,
-      \code{nodecov(~abs(Grade-mean(Grade))/network.size(.))} would
+      `.` or `.nw`. For example, in the example below,
+      `nodecov(~abs(Grade-mean(Grade))/network.size(.))` would
       return the absolute difference of each actor's "Grade" attribute
       from its network-wide mean, divided by the network size.
 
-\code{AsIs} object created by \code{I()}
+`AsIs` object created by `I()`
 
 : Use as is, checking only for correct length and type, with optional
-      attribute \code{"name"} indicating the predictor's name.
+      attribute `"name"` indicating the predictor's name.
 
 Any of these arguments may also be wrapped in `COLLAPSE_SMALLEST(attr, n, into)`, a convenience function that will
 transform the attribute by collapsing the smallest `n` categories into one, naming it according to the `into` argument. Note that `into` must be of the same type (numeric, character, etc.) as the vertex attribute in
@@ -91,24 +91,21 @@ summary(faux.mesa.high~nodefactor(I(randomcov)))
 ## Level selection ##
 
 For categorical attributes, to select which levels are of interest
-and their ordering, use the argument \code{levels}.  Selection of nodes (from
+and their ordering, use the argument `levels`.  Selection of nodes (from
 the appropriate vector of nodal indices) is likewise handled as the
-selection of levels, using the argument \code{nodes}.  These arguments are interpreted
+selection of levels, using the argument `nodes`.  These arguments are interpreted
 as follows:
 
-\code{AsIs} object created by \code{I()}
+`AsIs` object created by `I()`
 
 : Use the given list of levels as is.
 
 numeric or logical vector
 
 : Used for indexing of a list of all possible levels (typically,
-\mmnote{this is useful when the attr is not already a factor, right?  should say so}
       unique values of the attribute) in default order (typically
       lexicographic). In particular, `levels=TRUE` will retain all
       levels.
-      \mmnote{what does this do when there is an edges term in the model, which will alias a factor level?}
-      \pknote{It'll produce a nonidentifiable model, which the new code will hopefully warn the user about.}
       Negative values exclude. Another special value is
       `LARGEST`, which will refer to the most frequent category, so,
       say, to set such a category as the baseline, pass
@@ -118,10 +115,10 @@ numeric or logical vector
       arbitrarily. To specify numeric or logical levels literally,
       wrap in `I()`.
 
-\code{NULL}
+`NULL`
 
 : Retain all possible levels; usually equivalent to passing
-      \code{TRUE}. Note that this is *not* the same as passing a
+      `TRUE`. Note that this is *not* the same as passing a
       numeric or logical vector of length 0, which will be interpreted as
       excluding all levels.
 
@@ -140,18 +137,18 @@ formula
 
 : The expression on the right hand side of the formula is evaluated in an
       environment in which the network itself is accessible as
-      \code{.nw}, the list of unique values of the attribute as
-      \code{.} or as \code{.levels}, and the attribute vector itself
-      as \code{.attr}. Its return value is interpreted as above.
+      `.nw`, the list of unique values of the attribute as
+      `.` or as `.levels`, and the attribute vector itself
+      as `.attr`. Its return value is interpreted as above.
 
-Note that \code{levels} or \code{nodes} often has a default that is
+Note that `levels` or `nodes` often has a default that is
 sensible for the term in question.
 
 ### Aside: `base` and `keep` arguments:
 
 Earlier versions of many of the terms had arguments `base` and `keep`
 for selecting categorical attribute levels. They have been superseded
-since \pkg{ergm} 3.9.4 and will be removed soon.
+since {ergm} 3.9.4 and will be removed soon.
 
 In general, `keep = X` can be replaced by `levels = X`, as both
 typically have the same semantics.
