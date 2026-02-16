@@ -89,10 +89,14 @@ overridden by setting a an \code{\link[=attr]{attr()}}-style attribute \code{"na
 
 
 For categorical attributes, to select which levels are of interest
-and their ordering, use the argument \code{levels}.  Selection of nodes (from
-the appropriate vector of nodal indices) is likewise handled as the
-selection of levels, using the argument \code{nodes}.  These arguments are interpreted
-as follows: \describe{
+and their ordering, use the argument \code{levels}.  Selection of nodes
+(from the appropriate vector of nodal indices) is likewise handled
+as the selection of levels, using the argument \code{nodes}.  For mixing
+matrix effects such as \ergmTerm{ergm}{nodemix}{()} and
+\ergmTerm{ergm}{mm}{()}, first, the nodal attribute selection is
+performed using \code{levels}, then the cells of the resulting mixing
+matrix can be selected using \code{levels2}.  These arguments are
+interpreted as follows: \describe{
 
 \item{an expression wrapped in \code{\link[=I]{I()}}}{Use the given list of levels
 as is.}
@@ -151,11 +155,12 @@ superseded since \pkg{ergm} 3.9.4 and will be removed soon.
 In general, \code{keep = X} can be replaced by \code{levels = X}, as both
 typically have the same semantics.
 
-The effect of \code{base} is opposite that of \code{levels}: \code{levels} specify
-which levels to include, whereas \code{base} specifies which levels to
-exclude. Thus, if \code{X} is not 0 or \code{NULL}, \code{base = X} can be
-replaced with \code{levels = -X}. If \code{X} is 0 or \code{NULL}, \code{base = X}
-means to include all levels, so it should be replaced with \code{levels = TRUE}.
+The effect of \code{base} is opposite that of \code{levels}, \code{nodes}, and
+\code{levels2}: \code{levels} specify which levels to include, whereas \code{base}
+specifies which levels to exclude. Thus, if \code{X} is not 0 or \code{NULL},
+\code{base = X} can be replaced with \code{levels = -X}. If \code{X} is 0 or
+\code{NULL}, \code{base = X} means to include all levels, so it should be
+replaced with \code{levels = TRUE}.
 }
 
 \examples{

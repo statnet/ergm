@@ -90,11 +90,14 @@ summary(faux.mesa.high~nodefactor(I(randomcov)))
 
 ## Level selection ##
 
-For categorical attributes, to select which levels are of interest
-and their ordering, use the argument `levels`.  Selection of nodes (from
+For categorical attributes, to select which levels are of interest and
+their ordering, use the argument `levels`.  Selection of nodes (from
 the appropriate vector of nodal indices) is likewise handled as the
-selection of levels, using the argument `nodes`.  These arguments are interpreted
-as follows:
+selection of levels, using the argument `nodes`.  For mixing matrix
+effects such as `nodemix()` and `mm()`, first, the nodal attribute
+selection is performed using `levels`, then the cells of the resulting
+mixing matrix can be selected using `levels2`.  These arguments are
+interpreted as follows:
 
 `AsIs` object created by `I()`
 
@@ -153,11 +156,12 @@ since {ergm} 3.9.4 and will be removed soon.
 In general, `keep = X` can be replaced by `levels = X`, as both
 typically have the same semantics.
 
-The effect of `base` is opposite that of `levels`: `levels` specify
-which levels to include, whereas `base` specifies which levels to
-exclude. Thus, if `X` is not 0 or `NULL`, `base = X` can be replaced
-with `levels = -X`. If `X` is 0 or `NULL`, `base = X` means to include
-all levels, so it should be replaced with `levels = TRUE`.
+The effect of `base` is opposite that of `levels`, `nodes`, and
+`levels2`: `levels` specify which levels to include, whereas `base`
+specifies which levels to exclude. Thus, if `X` is not 0 or `NULL`,
+`base = X` can be replaced with `levels = -X`. If `X` is 0 or `NULL`,
+`base = X` means to include all levels, so it should be replaced with
+`levels = TRUE`.
 
 Returning to the `faux.mesa.high` example, and treating `Grade` as a categorical variable, we can use a number of combinations:
 ```{r, node-attr-cats}

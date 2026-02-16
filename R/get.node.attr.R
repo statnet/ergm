@@ -125,10 +125,14 @@ get.node.attr <- function(nw, attrname, functionname=NULL, numeric=FALSE) {
 #' @section Specifying categorical attribute levels and their ordering:
 #'
 #' For categorical attributes, to select which levels are of interest
-#' and their ordering, use the argument `levels`.  Selection of nodes (from
-#' the appropriate vector of nodal indices) is likewise handled as the
-#' selection of levels, using the argument `nodes`.  These arguments are interpreted
-#' as follows: \describe{
+#' and their ordering, use the argument `levels`.  Selection of nodes
+#' (from the appropriate vector of nodal indices) is likewise handled
+#' as the selection of levels, using the argument `nodes`.  For mixing
+#' matrix effects such as \ergmTerm{ergm}{nodemix}{()} and
+#' \ergmTerm{ergm}{mm}{()}, first, the nodal attribute selection is
+#' performed using `levels`, then the cells of the resulting mixing
+#' matrix can be selected using `levels2`.  These arguments are
+#' interpreted as follows: \describe{
 #'
 #' \item{an expression wrapped in [I()]}{Use the given list of levels
 #' as is.}
@@ -185,12 +189,12 @@ get.node.attr <- function(nw, attrname, functionname=NULL, numeric=FALSE) {
 #' In general, `keep = X` can be replaced by `levels = X`, as both
 #' typically have the same semantics.
 #'
-#' The effect of `base` is opposite that of `levels`: `levels` specify
-#' which levels to include, whereas `base` specifies which levels to
-#' exclude. Thus, if `X` is not 0 or `NULL`, `base = X` can be
-#' replaced with `levels = -X`. If `X` is 0 or `NULL`, `base = X`
-#' means to include all levels, so it should be replaced with `levels
-#' = TRUE`.
+#' The effect of `base` is opposite that of `levels`, `nodes`, and
+#' `levels2`: `levels` specify which levels to include, whereas `base`
+#' specifies which levels to exclude. Thus, if `X` is not 0 or `NULL`,
+#' `base = X` can be replaced with `levels = -X`. If `X` is 0 or
+#' `NULL`, `base = X` means to include all levels, so it should be
+#' replaced with `levels = TRUE`.
 #'
 #' @aliases attr attrname on by attrs node.attr nodal.attr vertex.attr node.attribute nodal.attribute vertex.attribute
 #' @examples
