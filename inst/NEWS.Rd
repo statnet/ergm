@@ -86,6 +86,9 @@
       \item{
         MCMC, CD, SAN, and MPLE sampling now produce \CRANpkg{cli} progress bars.
       }
+      \item{
+        \ergmTerm{ergm}{I}{()} (\code{AsIs}) operator can now handle character strings containing lists of terms.
+      }
     }
   }
 
