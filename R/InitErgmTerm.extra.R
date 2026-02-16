@@ -5,7 +5,7 @@
 #  source, and has the attribution requirements (GPL Section 7) at
 #  https://statnet.org/attribution .
 #
-#  Copyright 2003-2025 Statnet Commons
+#  Copyright 2003-2026 Statnet Commons
 ################################################################################
 # These are InitErgm functions that were never included in the public release.
 #NOTE: a number of undocumented terms have been removed from this file

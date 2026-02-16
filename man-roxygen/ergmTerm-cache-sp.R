@@ -5,7 +5,7 @@
 #  source, and has the attribution requirements (GPL Section 7) at
 #  https://statnet.org/attribution .
 #
-#  Copyright 2003-2025 Statnet Commons
+#  Copyright 2003-2026 Statnet Commons
 ################################################################################
 #' @note This term takes an additional term option (see
 #'   [`options?ergm`][ergm-options]), `cache.sp`, controlling whether

@@ -5,7 +5,7 @@
 #  source, and has the attribution requirements (GPL Section 7) at
 #  https://statnet.org/attribution .
 #
-#  Copyright 2003-2025 Statnet Commons
+#  Copyright 2003-2026 Statnet Commons
 ################################################################################
 expect_within_mc_err <- function(object, expected, idx = TRUE, alpha = 0.001) {
   act <- quasi_label(rlang::enquo(object), arg = "object")

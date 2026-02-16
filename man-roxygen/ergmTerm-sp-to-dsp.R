@@ -5,7 +5,7 @@
 #  source, and has the attribution requirements (GPL Section 7) at
 #  https://statnet.org/attribution .
 #
-#  Copyright 2003-2025 Statnet Commons
+#  Copyright 2003-2026 Statnet Commons
 ################################################################################
 #' @note For directed networks, only outgoing two-path ("OTP") shared partners
 #'   are counted.  In other words, for a <%= kind %> in a directed graph, the number of

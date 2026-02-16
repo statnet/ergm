@@ -5,7 +5,7 @@
 #  source, and has the attribution requirements (GPL Section 7) at
 #  https://statnet.org/attribution .
 #
-#  Copyright 2003-2025 Statnet Commons
+#  Copyright 2003-2026 Statnet Commons
 ################################################################################
 
 test_that("bipartite terms abort for missing data when they should and not when they shouldn't", {

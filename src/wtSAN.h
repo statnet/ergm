@@ -5,7 +5,7 @@
  *  source, and has the attribution requirements (GPL Section 7) at
  *  https://statnet.org/attribution .
  *
- *  Copyright 2003-2025 Statnet Commons
+ *  Copyright 2003-2026 Statnet Commons
  */
 #ifndef WTSAN_H
 #define WTSAN_H

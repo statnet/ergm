@@ -5,7 +5,7 @@
 %  source, and has the attribution requirements (GPL Section 7) at
 %  https://statnet.org/attribution .
 %
-%  Copyright 2003-2025 Statnet Commons
+%  Copyright 2003-2026 Statnet Commons
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \newcommand{\ergmTerm}{\code{\link[#1:#2-ergmTerm]{#2#3}}}
 \newcommand{\ergmConstraint}{\code{\link[#1:#2-ergmConstraint]{#2#3}}}

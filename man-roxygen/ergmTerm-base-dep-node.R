@@ -5,7 +5,7 @@
 #  source, and has the attribution requirements (GPL Section 7) at
 #  https://statnet.org/attribution .
 #
-#  Copyright 2003-2025 Statnet Commons
+#  Copyright 2003-2026 Statnet Commons
 ################################################################################
 #' @note The argument `base` is retained for backwards compatibility and may be
 #'   removed in a future version. When both `base` and `nodes` are passed,

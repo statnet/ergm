@@ -5,7 +5,7 @@
 #  source, and has the attribution requirements (GPL Section 7) at
 #  https://statnet.org/attribution .
 #
-#  Copyright 2003-2025 Statnet Commons
+#  Copyright 2003-2026 Statnet Commons
 ################################################################################
 #' @section Shared partner types: While there is only one shared partner configuration in the undirected
 #'   case, nine distinct configurations are possible for directed graphs, selected

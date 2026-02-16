@@ -5,7 +5,7 @@
 #  source, and has the attribution requirements (GPL Section 7) at
 #  https://statnet.org/attribution .
 #
-#  Copyright 2003-2025 Statnet Commons
+#  Copyright 2003-2026 Statnet Commons
 ################################################################################
 test_that("control.ergm3() defaults differ", {
   expect_equal(lapply(diff(control.ergm(), control.ergm3())[c("MCMLE.termination", "MCMLE.effectiveSize")], `[[`, "y"),

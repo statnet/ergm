@@ -5,6 +5,6 @@
 #  source, and has the attribution requirements (GPL Section 7) at
 #  https://statnet.org/attribution .
 #
-#  Copyright 2003-2025 Statnet Commons
+#  Copyright 2003-2026 Statnet Commons
 ################################################################################
 #' @param canonical Whether the canonical (eta) parameters or the curved (theta) parameters are used.

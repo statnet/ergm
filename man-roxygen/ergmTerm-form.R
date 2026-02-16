@@ -5,7 +5,7 @@
 #  source, and has the attribution requirements (GPL Section 7) at
 #  https://statnet.org/attribution .
 #
-#  Copyright 2003-2025 Statnet Commons
+#  Copyright 2003-2026 Statnet Commons
 ################################################################################
 #' @param form how to aggregate tie values in a valued ERGM: `"sum"`
 #'   (the default) for a statistic of the form \eqn{\sum_{i,j} x_{i,j}

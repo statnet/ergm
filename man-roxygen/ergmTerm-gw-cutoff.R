@@ -5,7 +5,7 @@
 #  source, and has the attribution requirements (GPL Section 7) at
 #  https://statnet.org/attribution .
 #
-#  Copyright 2003-2025 Statnet Commons
+#  Copyright 2003-2026 Statnet Commons
 ################################################################################
 #' @param cutoff This optional argument sets the number of underlying <%= underlying %> terms
 #'   to use in computing the statistics when `fixed=FALSE`, in order to reduce

@@ -5,7 +5,7 @@
  *  source, and has the attribution requirements (GPL Section 7) at
  *  https://statnet.org/attribution .
  *
- *  Copyright 2003-2025 Statnet Commons
+ *  Copyright 2003-2026 Statnet Commons
  */
 #ifndef STUBFILE
 #pragma message ("warning: The header file \"changestat.h\" has been deprecated in favor of \"ergm_changestat.h\" and may be removed in the future.")
