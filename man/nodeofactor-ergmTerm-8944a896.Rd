@@ -37,7 +37,7 @@ node of origin of a directed tie.
 \note{
 The argument \code{base} is retained for backwards compatibility and may be
 removed in a future version. When both \code{base} and \code{levels} are passed,
-\code{levels} overrides \code{base}.
+\code{levels} overrides \code{base}. See \code{\link{nodal_attributes}}.
 
 To include all attribute values is usually not a good idea, because
 the sum of all such statistics equals the number of edges and hence a linear

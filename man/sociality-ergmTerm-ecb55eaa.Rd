@@ -36,11 +36,11 @@ ties of that node. For directed networks, see \code{sender} and
 \note{
 The argument \code{base} is retained for backwards compatibility and may be
 removed in a future version. When both \code{base} and \code{levels} are passed,
-\code{levels} overrides \code{base}.
+\code{levels} overrides \code{base}. See \code{\link{nodal_attributes}}.
 
 The argument \code{base} is retained for backwards compatibility and may be
 removed in a future version. When both \code{base} and \code{nodes} are passed,
-\code{nodes} overrides \code{base}.
+\code{nodes} overrides \code{base}. See \code{\link{nodal_attributes}}.
 
 This term can only be used with undirected networks.
 }

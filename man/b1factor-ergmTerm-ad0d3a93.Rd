@@ -43,7 +43,7 @@ attribute level. To include all levels, pass either \code{levels=TRUE}
 
 The argument \code{base} is retained for backwards compatibility and may be
 removed in a future version. When both \code{base} and \code{levels} are passed,
-\code{levels} overrides \code{base}.
+\code{levels} overrides \code{base}. See \code{\link{nodal_attributes}}.
 
 This term can only be used with undirected bipartite networks.
 }

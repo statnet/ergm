@@ -37,7 +37,7 @@ with this value.
 \note{
 The argument \code{base} is retained for backwards compatibility and may be
 removed in a future version. When both \code{base} and \code{levels} are passed,
-\code{levels} overrides \code{base}.
+\code{levels} overrides \code{base}. See \code{\link{nodal_attributes}}.
 }
 \seealso{
 \code{\link{ergmTerm}} for index of model terms currently visible to the package.

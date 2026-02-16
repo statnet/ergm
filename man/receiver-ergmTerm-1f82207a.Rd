@@ -38,7 +38,7 @@ term can only be used with directed networks. For undirected networks, see
 \note{
 The argument \code{base} is retained for backwards compatibility and may be
 removed in a future version. When both \code{base} and \code{nodes} are passed,
-\code{nodes} overrides \code{base}.
+\code{nodes} overrides \code{base}. See \code{\link{nodal_attributes}}.
 }
 \seealso{
 \code{\link{ergmTerm}} for index of model terms currently visible to the package.
