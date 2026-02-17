@@ -95,9 +95,9 @@ MCMCStatus ETYPE(SANSample)(ETYPE(ErgmState) *s,
   unsigned int interval = nsteps / samplesize; // Integer division: rounds down.
   unsigned int burnin = nsteps - (samplesize-1)*interval;
 
-  if(ETYPE(SANMetropolisHastings)(s, invcov, tau, networkstatistics, prop_networkstatistics, burnin, &staken,
-                                    nstats, statindices, noffsets, offsetindices, offsets, deltainvsig,
-                                  -(verbose + 1))!=MCMC_OK)
+  if (ETYPE(SANMetropolisHastings)(s, invcov, tau, networkstatistics, prop_networkstatistics, burnin, &staken,
+                                   nstats, statindices, noffsets, offsetindices, offsets, deltainvsig,
+                                   VERBOSE_ENCODE_CLI_BAR(verbose)) != MCMC_OK)
     return MCMC_MH_FAILED;
 
   if (samplesize>1){
@@ -130,10 +130,6 @@ MCMCStatus ETYPE(SANSample)(ETYPE(ErgmState) *s,
 	return MCMC_MH_FAILED;
       }
       tottaken += staken;
-      if (verbose){
-        if( ((3*i) % samplesize)==0 && samplesize > 500){
-        Rprintf("Sampled %d from SAN Metropolis-Hastings\n", i);}
-      }
       
       if( ((3*i) % samplesize)==0 && tottaken == ptottaken){
         ptottaken = tottaken; 
