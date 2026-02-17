@@ -306,7 +306,7 @@ san.ergm_model <- function(object, reference=~Bernoulli, constraints=~., target.
     message(paste("Starting ",control$SAN.maxit," SAN iteration", ifelse(control$SAN.maxit>1,"s",""),
         " of ", control$SAN.nsteps,
         " steps", ifelse(control$SAN.maxit>1, " each", ""), ".", sep=""))
-  }
+  } else message("Starting simulated annealing (SAN)")
   netsumm<-summary(model,nw)[!offset.indicators]
   target.stats <- match_names(target.stats, names(netsumm))
   stats <- netsumm-target.stats
@@ -324,9 +324,7 @@ san.ergm_model <- function(object, reference=~Bernoulli, constraints=~., target.
   state <- ergm_state(nw, model=model, proposal=proposal, stats=stats)
   sm <- NULL
   for(i in 1:control$SAN.maxit){
-    if (verbose) {
-      message(paste("#", i, " of ", control$SAN.maxit, ": ", sep=""),appendLF=FALSE)
-    }
+    message(if (verbose) "\n", "Iteration ", i, " of at most ", control$SAN.maxit)
     
     tau <- control$SAN.tau * (if(control$SAN.maxit>1) (1/i-1/control$SAN.maxit)/(1-1/control$SAN.maxit) else 0)
     nsteps <- nstepss[i]
@@ -381,6 +379,9 @@ san.ergm_model <- function(object, reference=~Bernoulli, constraints=~., target.
       }
     }
   }
+
+  message("Finished simulated annealing")
+
   if(control$SAN.maxit > 1 && !only.last){
     structure(out.list, formula = formula,
               stats = out.mat, class="network.list")
