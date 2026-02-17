@@ -89,6 +89,9 @@
       \item{
         \ergmTerm{ergm}{I}{()} (\code{AsIs}) operator can now handle character strings containing lists of terms.
       }
+      \item{
+        \code{\link{nodal_attributes}} help and the Nodal Attribute Specification in ERGM Terms vignette now contain instructions for how to converting from \code{base=} and \code{keep=} arguments deprecated since \pkg{ergm} 3.9.4.
+      }
     }
   }
 
@@ -100,6 +103,9 @@
       }
       \item{
         \code{esteq} argument to the \code{\link{simulate.ergm}()} family of functions has been fixed.
+      }
+      \item{
+        Some typographical problems in the Nodal Attribute Specification in ERGM Terms vignette have been fixed.
       }
     }
   }
