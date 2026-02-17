@@ -7,7 +7,7 @@
  *
  *  Copyright 2003-2026 Statnet Commons
  */
-#include <cli/progress.h>
+#include <ergm_cli.h>
 #include "ergm_util.h"
 /*****************
  Note on undirected networks:  For j<k, edge {j,k} should be stored
@@ -91,16 +91,17 @@ MCMCStatus ETYPE(CDSample)(ETYPE(ErgmState) *s,
 /* } */
 /* Rprintf("\n"); */
 
-  SEXP bar = PROTECT(cli_progress_bar(samplesize, NULL));
-  cli_progress_set_name(bar, "Sampling");
+  CLI_BAR(bar, samplesize, "Sampling");
 
   /* Now sample networks */
   unsigned int sattempted=0;
   for (unsigned int i=0; i < samplesize; i++){
     
-    if(ETYPE(CDStep)(s, eta, networkstatistics, CDparams, &staken, CD_UNDOS_PASS, extraworkspace,
-		verbose)!=MCMC_OK)
+    if (ETYPE(CDStep)(s, eta, networkstatistics, CDparams, &staken, CD_UNDOS_PASS, extraworkspace,
+                      verbose)!=MCMC_OK) {
+      CLI_BAR_FINISH(bar);
       return MCMC_MH_FAILED;
+    }
 
     R_CheckUserInterruptEvery(16L, i);
 #ifdef Win32
@@ -112,10 +113,9 @@ MCMCStatus ETYPE(CDSample)(ETYPE(ErgmState) *s,
 
     networkstatistics += m->n_stats;
     sattempted++;
-    if (CLI_SHOULD_TICK) cli_progress_set(bar, i);
+    CLI_BAR_SET(bar, i);
   }
-  cli_progress_done(bar);
-  UNPROTECT(1);
+  CLI_BAR_FINISH(bar);
 
   if (verbose){
     Rprintf("Sampler accepted %7.3f%% of %lld proposed steps.\n",

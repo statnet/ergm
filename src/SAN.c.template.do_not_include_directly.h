@@ -8,7 +8,7 @@
  *  Copyright 2003-2026 Statnet Commons
  */
 
-#include <cli/progress.h>
+#include <ergm_cli.h>
 
 /*****************
  Note on undirected networks:  For j<k, edge {j,k} should be stored
@@ -101,8 +101,7 @@ MCMCStatus ETYPE(SANSample)(ETYPE(ErgmState) *s,
     return MCMC_MH_FAILED;
 
   if (samplesize>1){
-    SEXP bar = PROTECT(cli_progress_bar(samplesize, NULL));
-    cli_progress_set_name(bar, "Sampling");
+    CLI_BAR(bar, samplesize, "Sampling");
 
     staken = 0;
     tottaken = 0;
@@ -116,9 +115,6 @@ MCMCStatus ETYPE(SANSample)(ETYPE(ErgmState) *s,
         if((networkstatistics[j+nstats] = networkstatistics[j])!=0) finished = FALSE;
       }
       if(finished){
-        cli_progress_done(bar);
-        UNPROTECT(1);
-
 	if(verbose) Rprintf("Exact match found.\n");
 	break;
       }
@@ -127,10 +123,12 @@ MCMCStatus ETYPE(SANSample)(ETYPE(ErgmState) *s,
       prop_networkstatistics += nstats;
       /* This then adds the change statistics to these values */
       
-      if(ETYPE(SANMetropolisHastings)(s, invcov, tau, networkstatistics, prop_networkstatistics,
-                                 interval, &staken, nstats, statindices, noffsets, offsetindices, offsets,
-                                        deltainvsig, verbose)!=MCMC_OK)
+      if (ETYPE(SANMetropolisHastings)(s, invcov, tau, networkstatistics, prop_networkstatistics,
+                                       interval, &staken, nstats, statindices, noffsets, offsetindices, offsets,
+                                       deltainvsig, verbose)!=MCMC_OK) {
+        CLI_BAR_FINISH(bar);
 	return MCMC_MH_FAILED;
+      }
       tottaken += staken;
       if (verbose){
         if( ((3*i) % samplesize)==0 && samplesize > 500){
@@ -150,10 +148,11 @@ MCMCStatus ETYPE(SANSample)(ETYPE(ErgmState) *s,
     	R_ProcessEvents();
       }
 #endif
-      if (CLI_SHOULD_TICK) cli_progress_set(bar, i);
+
+      CLI_BAR_SET(bar, i);
     }
-    cli_progress_done(bar);
-    UNPROTECT(1);
+    CLI_BAR_FINISH(bar);
+
     /*********************
     Below is an extremely crude device for letting the user know
     when the chain doesn't accept many of the proposed steps.
@@ -194,12 +193,7 @@ MCMCStatus ETYPE(SANMetropolisHastings)(ETYPE(ErgmState) *s,
                                           double *deltainvsig,
                                    int verbose){
 
-  SEXP bar = NULL;
-  if (verbose < 0) {
-    bar = PROTECT(cli_progress_bar(nsteps, NULL));
-    cli_progress_set_name(bar, "Burning in");
-    verbose = -verbose - 1;
-  }
+  CLI_BAR_IF_VERBOSE(bar, nsteps, "Burning in");
 
   ETYPE(Network) *nwp = s->nwp;
   ETYPE(Model) *m = s->m;
@@ -216,9 +210,11 @@ MCMCStatus ETYPE(SANMetropolisHastings)(ETYPE(ErgmState) *s,
     if(MHp->toggletail[0]==MH_FAILED){
       switch(MHp->togglehead[0]){
       case MH_UNRECOVERABLE:
+        CLI_BAR_FINISH(bar);
 	error("Something very bad happened during proposal. Memory has not been deallocated, so restart R soon.");
 	
       case MH_IMPOSSIBLE:
+        CLI_BAR_FINISH(bar);
 	Rprintf("MH MHProposal function encountered a configuration from which no toggle(s) can be proposed.\n");
 	return MCMC_MH_FAILED;
 	
@@ -226,6 +222,7 @@ MCMCStatus ETYPE(SANMetropolisHastings)(ETYPE(ErgmState) *s,
 	warning("MH MHProposal function failed to find a valid proposal.");
 	unsuccessful++;
 	if(unsuccessful>taken*MH_QUIT_UNSUCCESSFUL){
+          CLI_BAR_FINISH(bar);
 	  Rprintf("Too many MH MHProposal function failures.\n");
 	  return MCMC_MH_FAILED;
 	}
@@ -300,13 +297,10 @@ MCMCStatus ETYPE(SANMetropolisHastings)(ETYPE(ErgmState) *s,
       PROP_CHANGESTATS_UNDO;
     }
 
-    if (bar && CLI_SHOULD_TICK) cli_progress_set(bar, step);
+    CLI_BAR_SET(bar, step);
   }
 
-  if (bar) {
-    cli_progress_done(bar);
-    UNPROTECT(1);
-  }
+  CLI_BAR_FINISH(bar);
 
   *staken = taken;
   return MCMC_OK;
