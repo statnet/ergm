@@ -28,22 +28,13 @@
 #'
 #' @concept undirected
 #' @concept categorical nodal attribute
-InitErgmTerm.concurrentties<-function(nw, arglist, ..., version=packageVersion("ergm")) {
-  if(version <= as.package_version("3.9.4")){
-    a <- check.ErgmTerm(nw, arglist, directed=FALSE,bipartite=NULL,
-                        varnames = c("by", "levels"),
-                        vartypes = c("character", "character,numeric,logical"),
-                        defaultvalues = list(NULL, NULL),
-                        required = c(FALSE, FALSE))
-    levels <- if(!is.null(a$levels)) I(a$levels) else NULL
-  }else{
-    a <- check.ErgmTerm(nw, arglist, directed=FALSE,bipartite=NULL,
-                        varnames = c("by", "levels"),
-                        vartypes = c(ERGM_VATTR_SPEC, ERGM_LEVELS_SPEC),
-                        defaultvalues = list(NULL, NULL),
-                        required = c(FALSE, FALSE))
-    levels <- a$levels
-  }
+InitErgmTerm.concurrentties<-function(nw, arglist, ...) {
+  a <- check.ErgmTerm(nw, arglist, directed=FALSE,bipartite=NULL,
+                      varnames = c("by", "levels"),
+                      vartypes = c(ERGM_VATTR_SPEC, ERGM_LEVELS_SPEC),
+                      defaultvalues = list(NULL, NULL),
+                      required = c(FALSE, FALSE))
+  levels <- a$levels
   byarg <- a$by
   if(!is.null(byarg)) {
     nodecov <- ergm_get_vattr(byarg, nw)
