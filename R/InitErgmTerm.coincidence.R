@@ -31,22 +31,13 @@
 #'
 #' @concept bipartite
 #' @concept undirected
-InitErgmTerm.coincidence<-function(nw, arglist, ..., version=packageVersion("ergm")) {
-  if(version <= as.package_version("3.9.4")){
-    a <- check.ErgmTerm(nw, arglist, directed=FALSE, bipartite=TRUE,
-                        varnames = c("d","active"),
-                        vartypes = c("matrix","numeric"),
-                        defaultvalues = list(NULL,0),
-                        required = c(FALSE,FALSE))
-	levels <- if(!is.null(a$d)) I(transpose(data.frame(node1 = a$d[,1], node2 = a$d[,2]))) else NULL
-  }else{
-    a <- check.ErgmTerm(nw, arglist, directed=FALSE, bipartite=TRUE,
-                        varnames = c("levels","active"),
-                        vartypes = c(ERGM_LEVELS_SPEC,"numeric"),
-                        defaultvalues = list(NULL,0),
-                        required = c(FALSE,FALSE))
-	levels <- a$levels
-  }
+InitErgmTerm.coincidence<-function(nw, arglist, ...) {
+  a <- check.ErgmTerm(nw, arglist, directed=FALSE, bipartite=TRUE,
+                      varnames = c("levels","active"),
+                      vartypes = c(ERGM_LEVELS_SPEC,"numeric"),
+                      defaultvalues = list(NULL,0),
+                      required = c(FALSE,FALSE))
+  levels <- a$levels
   nb1 <- b1.size(nw)
   nb2 <- b2.size(nw)
 
