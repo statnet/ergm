@@ -71,7 +71,7 @@ test_that("absdiffcat, no required type, independent", {
   s.a <- summary(fmh ~ absdiffcat("Grade"))
   e.a <- ergm(fmh ~ absdiffcat("Grade"))
   s.ab <- summary(fmh ~ absdiffcat(function(x) x %v% "Grade", levels=-(4:5)))
-  e.ab <- ergm(fmh ~ absdiffcat(~Grade, base=(4:5)))
+  e.ab <- ergm(fmh ~ absdiffcat(~Grade, levels=-(4:5)))
   expect_summary(s.a, e.a, c(15,15,7,2,1), -c(6.005,5.788,6.063,6.891,6.611))
   expect_summary(s.ab, e.ab, c(15,15,7), -c(6.005,5.788,6.063))
 })
@@ -261,7 +261,7 @@ test_that("nodecov, either", {
 test_that("nodefactor, either", {
   s.a <- summary(fmh~nodefactor("Grade"))
   e.a <- ergm(samplike~nodefactor(~group), estimate="MPLE")
-  s.ab <- summary(fmh~nodefactor(function(x) x %v% "Sex", base=(4:5)))
+  s.ab <- summary(fmh~nodefactor(function(x) x %v% "Sex", levels=-(4:5)))
   e.ab <- ergm(samplike~nodefactor("Trinity", levels=TRUE), estimate="MPLE")
   expect_summary(s.a, e.a, c(75, 65, 36, 49, 28), -c(.9480, .3273))
   expect_summary(s.ab, e.ab, c(235, 171), -c(.4451, .4451, .4706))
@@ -287,8 +287,8 @@ test_that("nodemix, any", {
   e.a <- ergm(samplike ~ nodemix(function(x) x %v% "group"), estimate="MPLE")
   s.ab <- summary(bipnw ~ nodemix("Letter", levels2=TRUE))
   e.ab <- ergm(bipnw ~ nodemix(function(x) x %v% "Letter", levels2=-(2:6)))
-  s.ab2 <- summary(fmh ~ nodemix("Race", base=1))
-  e.ab2 <- ergm(samplike ~ nodemix(~Trinity, base=(3:9)))
+  s.ab2 <- summary(fmh ~ nodemix("Race", levels2=-1))
+  e.ab2 <- ergm(samplike ~ nodemix(~Trinity, levels2=-(3:9)))
 
   expect_summary(s.a, e.a,
     c(0, 33, 0, 2, 23, 1, 4, 7, 9, 1, 2, 6, 1, 17, 1, 1, 4, 5, 5, 6),
@@ -314,7 +314,7 @@ test_that("threetrail, either", {
   s.0 <- summary(samplike~threetrail)
   e.0 <- ergm(fmh~threetrail, estimate="MPLE")
   s.k <- summary(samplike~threetrail(levels=2))
-  e.k <- ergm(samplike~threetrail(keep=1:2), estimate="MPLE")
+  e.k <- ergm(samplike~threetrail(levels=1:2), estimate="MPLE")
 
   expect_summary(s.0, e.0, c(2103, 2326, 1749, 1897), -.2842)
   expect_summary(s.k, e.k, 2326, -c(.01881, -.00776))

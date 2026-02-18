@@ -31,24 +31,14 @@
 #' @concept undirected
 #' @concept triad-related
 #' @concept categorical nodal attribute
-InitErgmTerm.transitiveties<-function (nw, arglist, ..., version=packageVersion("ergm")) {
-  if(version <= as.package_version("3.9.4")){
-    a <- check.ErgmTerm(nw, arglist,
-                        varnames = c("attrname", "diff", "levels"),
-                        vartypes = c("character", "logical", "character,numeric,logical"),
-                        defaultvalues = list(NULL, FALSE, TRUE),
-                        required = c(FALSE, FALSE, FALSE))
-	attrarg <- a$attrname
-	levels <- if(!is.null(a$levels)) I(a$levels) else NULL
-  }else{
-    a <- check.ErgmTerm(nw, arglist,
-                        varnames = c("attr", "diff", "levels"),
-                        vartypes = c(ERGM_VATTR_SPEC, "logical", ERGM_LEVELS_SPEC),
-                        defaultvalues = list(NULL, FALSE, NULL),
-                        required = c(FALSE, FALSE, FALSE))  
-	attrarg <- a$attr
-	levels <- a$levels
-  }
+InitErgmTerm.transitiveties<-function (nw, arglist, ...) {
+  a <- check.ErgmTerm(nw, arglist,
+                      varnames = c("attr", "diff", "levels"),
+                      vartypes = c(ERGM_VATTR_SPEC, "logical", ERGM_LEVELS_SPEC),
+                      defaultvalues = list(NULL, FALSE, NULL),
+                      required = c(FALSE, FALSE, FALSE))  
+  attrarg <- a$attr
+  levels <- a$levels
   if (a$diff) ergm_Init_stop("diff=TRUE is not currently implemented in transitiveties")
 
   diff <- a$diff
@@ -95,24 +85,14 @@ InitErgmTerm.transitiveties<-function (nw, arglist, ..., version=packageVersion(
 #'
 #' @concept directed
 #' @concept undirected
-InitErgmTerm.cyclicalties<-function (nw, arglist, ..., version=packageVersion("ergm")) {
-  if(version <= as.package_version("3.9.4")){
-    a <- check.ErgmTerm(nw, arglist,
-                        varnames = c("attrname", "diff", "levels"),
-                        vartypes = c("character", "logical", "character,numeric,logical"),
-                        defaultvalues = list(NULL, FALSE, TRUE),
-                        required = c(FALSE, FALSE, FALSE))
-	attrarg <- a$attrname
-	levels <- if(!is.null(a$levels)) I(a$levels) else NULL						
-  }else{
-    a <- check.ErgmTerm(nw, arglist,
-                        varnames = c("attr", "diff", "levels"),
-                        vartypes = c(ERGM_VATTR_SPEC, "logical", ERGM_LEVELS_SPEC),
-                        defaultvalues = list(NULL, FALSE, TRUE),
-                        required = c(FALSE, FALSE, FALSE))
-	attrarg <- a$attr
-	levels <- a$levels  
-  }
+InitErgmTerm.cyclicalties<-function (nw, arglist, ...) {
+  a <- check.ErgmTerm(nw, arglist,
+                      varnames = c("attr", "diff", "levels"),
+                      vartypes = c(ERGM_VATTR_SPEC, "logical", ERGM_LEVELS_SPEC),
+                      defaultvalues = list(NULL, FALSE, TRUE),
+                      required = c(FALSE, FALSE, FALSE))
+  attrarg <- a$attr
+  levels <- a$levels
   if (a$diff) ergm_Init_stop("diff=TRUE is not currently implemented in cyclicalties")
 
   diff <- a$diff
