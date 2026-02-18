@@ -81,7 +81,7 @@
   \subsection{NEW FEATURES}{
     \itemize{
       \item{
-        \ergmConstraint{ergm}{blockdiag}{()} constraint now supports handles noncontiguous attributes in a user-specified manner via a \code{noncontig=} argument. At this time, only treating separate runs as separate blocks \code{"split"} is supported.
+        \ergmConstraint{ergm}{blockdiag}{()} constraint now handles noncontiguous attributes in a user-specified manner via a \code{noncontig=} argument. At this time, only treating separate runs as separate blocks (\code{"split"}) is supported.
       }
       \item{
         MCMC, CD, SAN, and MPLE sampling now produce \CRANpkg{cli} progress bars.
@@ -132,24 +132,6 @@
       }
     }
   }
-
-  % \subsection{UTILITIES}{
-  %   \itemize{
-  %     \item Likewise, "UTILITIES" is probably unnecessary.
-  %   }
-  % }
-
-  % \subsection{INSTALLATION}{
-  %   \itemize{
-  %     \item ... as is "INSTALLATION".
-  %   }
-  % }
-
-  % \subsection{PACKAGE INSTALLATION}{
-  %   \itemize{
-  %     \item ditto.
-  %   }
-  % }
 
 }
 
