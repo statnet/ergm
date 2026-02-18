@@ -31,10 +31,10 @@ test_that("term b12 node match", {
   expect_equal(summary(mynw~b2nodematch(function(x) x %v% "names", beta=0)), 7, ignore_attr=TRUE)
 
   expect_equal(summary(mynw~b1nodematch(~names, diff=TRUE, levels=1, beta=1)), 12, ignore_attr=TRUE)
-  expect_equal(summary(mynw~b1nodematch(function(x) x %v% "names", diff=TRUE, keep=1, beta=0)), 9, ignore_attr=TRUE)
+  expect_equal(summary(mynw~b1nodematch(function(x) x %v% "names", diff=TRUE, levels=1, beta=0)), 9, ignore_attr=TRUE)
 
   expect_equal(summary(mynw~b2nodematch("names", diff=TRUE, levels=2, beta=1)), 5, ignore_attr=TRUE)
-  expect_equal(summary(mynw~b2nodematch(function(x) x %v% "names", diff=TRUE, keep=2, beta=0)), 5, ignore_attr=TRUE)
+  expect_equal(summary(mynw~b2nodematch(function(x) x %v% "names", diff=TRUE, levels=2, beta=0)), 5, ignore_attr=TRUE)
 
   expect_equal(summary(mynw~b1nodematch("names", diff=TRUE, alpha=0)), c(10,0), ignore_attr=TRUE)
 
