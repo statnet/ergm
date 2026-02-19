@@ -75,6 +75,58 @@
 %% }
 
 
+\section{Changes in version 4.12.1}{
+
+%%   \subsection{NEW FEATURES}{
+%%     \itemize{
+%%       \item{
+%%       }
+%%     }
+%%   }
+
+
+  \subsection{BUG FIXES}{
+    \itemize{
+      \item{
+        Fixed memory leaks in \ergmTerm{ergm}{nodematch}{()} and \ergmTerm{ergm}{nodematch}{()}.
+      }
+    }
+  }
+
+
+%%   \subsection{OTHER USER-VISIBLE CHANGES}{
+%%     \itemize{
+%%       \item{
+%%       }
+%%     }
+%%   }
+
+  %% \subsection{C-LEVEL FACILITIES}{
+  %%   \itemize{
+  %%   }
+  %% }
+
+  % \subsection{UTILITIES}{
+  %   \itemize{
+  %     \item Likewise, "UTILITIES" is probably unnecessary.
+  %   }
+  % }
+
+  % \subsection{INSTALLATION}{
+  %   \itemize{
+  %     \item ... as is "INSTALLATION".
+  %   }
+  % }
+
+  % \subsection{PACKAGE INSTALLATION}{
+  %   \itemize{
+  %     \item ditto.
+  %   }
+  % }
+
+}
+
+
 
 \section{Changes in version 4.12.0}{
 
@@ -238,24 +290,6 @@
       }
     }
   }
-
-  %% \subsection{UTILITIES}{
-  %%   \itemize{
-  %%     \item Likewise, "UTILITIES" is probably unnecessary.
-  %%   }
-  %% }
-
-  %% \subsection{INSTALLATION}{
-  %%   \itemize{
-  %%     \item ... as is "INSTALLATION".
-  %%   }
-  %% }
-
-  %% \subsection{PACKAGE INSTALLATION}{
-  %%   \itemize{
-  %%     \item ditto.
-  %%   }
-  %% }
 
 }
 
