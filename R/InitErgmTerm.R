@@ -3440,8 +3440,9 @@ InitErgmTerm.mm<-function (nw, arglist, ..., version=packageVersion("ergm")) {
     levels2 <- levels2[levels2keep]
   }
 
-  # Run the table cell list through the cell filter.
-  levels2sel <- ergm_attr_levels(a$levels2, list(row=attrval$row$val, col=attrval$col$val), nw, levels=levels2)
+  # Run the table cell list through the cell filter, and standardize the structure and names.
+  levels2sel <- ergm_attr_levels(a$levels2, list(row=attrval$row$val, col=attrval$col$val), nw, levels=levels2) |>
+    map(as.list) |> map(setNames, c("row", "col"))
   if(length(levels2sel) == 0) return(NULL)
   levels2codes <- levels2codes[match(levels2sel,levels2, NA)]
   levels2missing <- map_lgl(levels2codes, is.null)
@@ -4058,7 +4059,8 @@ InitErgmTerm.nodemix<-function (nw, arglist, ..., version=packageVersion("ergm")
       levels2.sel <- levels2.list[-a$base]
       has.groups <- FALSE
     } else if (!is.character(a$levels2)) {
-      levels2.sel <- ergm_attr_levels(a$levels2, list(row = b1nodecov, col = b2nodecov), nw, levels2.list)
+      levels2.sel <- ergm_attr_levels(a$levels2, list(row = b1nodecov, col = b2nodecov), nw, levels2.list) |>
+        map(as.list) |> map(setNames, c("row", "col"))
       has.groups <- FALSE
     } else {
       levels2.sel <- ergm_attr_levels(!is.na(a$levels2) & (a$levels2 == ''), list(row = b1nodecov, col = b2nodecov), nw, levels2.list)
@@ -4128,7 +4130,8 @@ InitErgmTerm.nodemix<-function (nw, arglist, ..., version=packageVersion("ergm")
       levels2.sel <- levels2.list[-a$base]
       has.groups <- FALSE
     } else if (!is.character(a$levels2)) {
-      levels2.sel <- ergm_attr_levels(a$levels2, list(row = nodecov, col = nodecov), nw, levels2.list)
+      levels2.sel <- ergm_attr_levels(a$levels2, list(row = nodecov, col = nodecov), nw, levels2.list) |>
+        map(as.list) |> map(setNames, c("row", "col"))
       has.groups <- FALSE
     } else {
       levels2.sel <- ergm_attr_levels(!is.na(a$levels2) & (a$levels2 == ''), list(row = nodecov, col = nodecov), nw, levels2.list)
@@ -5275,5 +5278,3 @@ InitErgmTerm.twopath<-function(nw, arglist, ...) {
    list(name="kstar", coef.names="twopath", inputs=c(k), minval=0)
   }
 }
-
-

@@ -121,6 +121,8 @@ interpreted as excluding all levels.}
 
 \item{a character vector}{Use as is.}
 
+\item{a \code{\link{list}}}{Use as is.}
+
 \item{a function}{The function is called on the list of unique
 values of the attribute, the values of the attribute themselves,
 and the network itself, depending on its arity. Its return value is
@@ -220,11 +222,8 @@ summary(faux.mesa.high~mm("Sex", levels2=M)+mm("Sex", levels2=t(M)))
 idx <- cbind(1,2)
 summary(faux.mesa.high~mm("Sex", levels2=idx))
 # Or, select by specific attribute value combinations, though note
-# the names 'row' and 'col' and the order for undirected networks:
-summary(faux.mesa.high~mm("Sex",
-                          levels2 = I(list(list(row="M",col="M"),
-                                           list(row="M",col="F"),
-                                           list(row="F",col="M")))))
+# the order for undirected networks:
+summary(faux.mesa.high~mm("Sex", levels2 = list(c("M","M"), c("M","F"), c("F","M"))))
 # Note the warning: in an undirected network with identical row and
 # column attributes, the mixing matrix is symmetric and only the
 # upper triangle (where row < column) is valid, so the [M,F] cell

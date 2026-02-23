@@ -157,6 +157,8 @@ get.node.attr <- function(nw, attrname, functionname=NULL, numeric=FALSE) {
 #'
 #' \item{a character vector}{Use as is.}
 #'
+#' \item{a [`list`]}{Use as is.}
+#'
 #' \item{a function}{The function is called on the list of unique
 #' values of the attribute, the values of the attribute themselves,
 #' and the network itself, depending on its arity. Its return value is
@@ -254,11 +256,8 @@ get.node.attr <- function(nw, attrname, functionname=NULL, numeric=FALSE) {
 #' idx <- cbind(1,2)
 #' summary(faux.mesa.high~mm("Sex", levels2=idx))
 #' # Or, select by specific attribute value combinations, though note
-#' # the names 'row' and 'col' and the order for undirected networks:
-#' summary(faux.mesa.high~mm("Sex",
-#'                           levels2 = I(list(list(row="M",col="M"),
-#'                                            list(row="M",col="F"),
-#'                                            list(row="F",col="M")))))
+#' # the order for undirected networks:
+#' summary(faux.mesa.high~mm("Sex", levels2 = list(c("M","M"), c("M","F"), c("F","M"))))
 #' # Note the warning: in an undirected network with identical row and
 #' # column attributes, the mixing matrix is symmetric and only the
 #' # upper triangle (where row < column) is valid, so the [M,F] cell
@@ -606,6 +605,10 @@ ergm_attr_levels.character <- ergm_attr_levels.AsIs
 
 #' @rdname nodal_attributes-API
 #' @export
+ergm_attr_levels.list <- ergm_attr_levels.AsIs
+
+#' @rdname nodal_attributes-API
+#' @export
 ergm_attr_levels.NULL <- function(object, attr, nw, levels=sort(unique(attr)), ...){
   levels
 }
@@ -684,7 +687,7 @@ ERGM_VATTR_SPEC_NULL <- "function,formula,character,AsIs,NULL"
 
 #' @rdname nodal_attributes-API
 #' @export
-ERGM_LEVELS_SPEC <- "function,formula,character,numeric,logical,AsIs,NULL,matrix"
+ERGM_LEVELS_SPEC <- "function,formula,character,numeric,logical,AsIs,NULL,matrix,list"
 
 rank_cut <- function(x, n, tie_action = c("warning", "error")) {
   i <- which_top_n(x, n)

@@ -129,6 +129,11 @@ character vector
 
 : Use as is.
 
+`list`
+
+: Use as is.
+
+
 function
 
 : The function is called on the list of unique values of the
@@ -212,10 +217,7 @@ idx <- cbind(1,2)
 summary(faux.mesa.high~mm("Sex", levels2=idx))
 # Or, select by specific attribute value combinations, though note the
 # names 'row' and 'col' and the order for undirected networks:
-summary(faux.mesa.high~mm("Sex",
-                          levels2 = I(list(list(row="M",col="M"),
-                                           list(row="M",col="F"),
-                                           list(row="F",col="M")))))
+summary(faux.mesa.high~mm("Sex", levels2 = list(c("M","M"), c("M","F"), c("F","M"))))
 ```
 
 The attributes of the `mm()` term can be a two-sided formula with different attributes:

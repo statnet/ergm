@@ -14,6 +14,7 @@
 \alias{ergm_attr_levels.logical}
 \alias{ergm_attr_levels.AsIs}
 \alias{ergm_attr_levels.character}
+\alias{ergm_attr_levels.list}
 \alias{ergm_attr_levels.NULL}
 \alias{ergm_attr_levels.matrix}
 \alias{ergm_attr_levels.function}
@@ -89,6 +90,8 @@ ergm_attr_levels(object, attr, nw, levels = sort(unique(attr)), ...)
 \method{ergm_attr_levels}{AsIs}(object, attr, nw, levels = sort(unique(attr)), ...)
 
 \method{ergm_attr_levels}{character}(object, attr, nw, levels = sort(unique(attr)), ...)
+
+\method{ergm_attr_levels}{list}(object, attr, nw, levels = sort(unique(attr)), ...)
 
 \method{ergm_attr_levels}{`NULL`}(object, attr, nw, levels = sort(unique(attr)), ...)
 
