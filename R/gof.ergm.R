@@ -654,7 +654,7 @@ InitErgmTerm..gof.espart <- function(nw, arglist, ..., cache.sp = TRUE) {
   arglist <- list(0:(network.size(nw) - 2))
   f <- InitErgmTerm.esp
   term <- f(nw, arglist, ..., cache.sp = cache.sp)
-  term$coef.names <- gsub("^esp", ".gof.espart#", term$coef.names)
+  term$coef.names <- gsub("^esp(\\.[A-Z]{3})?", ".gof.espart#", term$coef.names)
   term
 }
 
@@ -662,7 +662,7 @@ InitErgmTerm..gof.dspart <- function(nw, arglist, ..., cache.sp = TRUE) {
   arglist <- list(0:(network.size(nw) - 2))
   f <- InitErgmTerm.dsp
   term <- f(nw, arglist, ..., cache.sp = cache.sp)
-  term$coef.names <- gsub("^dsp", ".gof.dspart#", term$coef.names)
+  term$coef.names <- gsub("^dsp(\\.[A-Z]{3})?", ".gof.dspart#", term$coef.names)
   term
 }
 
