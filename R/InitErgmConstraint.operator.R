@@ -45,9 +45,7 @@ InitErgmConstraint.Dyads<-function(nw, arglist, ..., verify_dind = TRUE){
       fd <- lapply(list(fix=fix,vary=vary),
                    function(f){
                      if(!is.null(f)){
-                       f[[3]] <- f[[2]]
-                       f[[2]] <- nw
-                       m <- ergmMPLE(f, expand.bipartite=TRUE, output="array")$predictor
+                       m <- ergmMPLE(f, basis = nw, expand.bipartite=TRUE, output="array")$predictor
                        m <- (m != 0) %|% FALSE
                        if(!is.directed(nw)){
                          m <- m | aperm(m, c(2L,1L,3L))
