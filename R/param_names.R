@@ -63,7 +63,7 @@ param_names.ergm_model <- function(object, canonical=FALSE, offset=NA, ...){
 #' @export
 `param_names<-.ergm_model` <- function(object, canonical = FALSE, ..., value){
   if(is.list(value)){
-    if(length(value) != 2) stop("a character vector of a list of two character vectors is expected")
+    if(length(value) != 2) stop("a character vector or a list of two character vectors is expected")
     param_names(object, FALSE) <- value[[1]]
     param_names(object, TRUE) <- value[[2]]
     return(object)
