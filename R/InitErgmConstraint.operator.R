@@ -73,19 +73,33 @@ InitErgmConstraint.Dyads<-function(nw, arglist, ..., verify_dind = TRUE){
 #' # I(formula)
 #' @param formula a constraints formula
 #'
-#' @note `formula` can also be a [term_list].
+#' @note `formula` can also be a [`term_list`] or [`character`]. In
+#'   the latter case, if there are multiple strings, they will be
+#'   concatenated with `+`, and if they do not start with "~", one
+#'   will be prepended. Its environment will be inherited from the
+#'   top-level formula.
 #'
 #' @seealso [base::I()] (a.k.a. `AsIs`)
 #'
 #' @template ergmConstraint-general
 #'
 #' @concept operator
-InitErgmConstraint.I <- function(nw, arglist, ...) {
+InitErgmConstraint.I <- function(nw, arglist, ..., env) {
   a <- check.ErgmTerm(nw, arglist,
                       varnames = c("formula"),
-                      vartypes = c("formula"),
+                      vartypes = c("formula,character,term_list"),
                       defaultvalues = list(NULL),
                       required = c(TRUE))
+
+  f <- a$formula
+
+  if (is.character(f)) {
+    if (length(f) > 1) f <- paste(f, collapse = " + ")
+
+    if (!startsWith(trimws(f, "left"), "~")) f <- paste0("~", f)
+
+    f <- as.formula(f, env)
+  }
 
   ergm_conlist(a$formula, nw, ...)
 }
