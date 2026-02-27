@@ -33,21 +33,19 @@ ergm_Init_warn_once <- once(ergm_Init_warn)
 #' @param nw the network that term X is being checked against
 #' @param arglist the list of arguments for term X
 #' @param directed logical, whether term X requires a directed
-#'   network; default=NULL
-#' @param bipartite whether term X requires a bipartite network (T or
-#'   F); default=NULL
-#' @param nonnegative whether term X requires a network with only
-#'   nonnegative weights; default=FALSE
+#'   network, forbids it, or neither
+#' @param bipartite logical; whether term X requires a bipartite
+#'   network, forbids it, or neither
+#' @param nonnegative deprecated
 #' @param varnames the vector of names of the possible arguments for
-#'   term X; default=NULL
+#'   term X
 #' @param vartypes the vector of types of the possible arguments for
 #'   term X, separated by commas; an empty string (`""`) or `NA`
-#'   disables the check for that argument, and also see Details;
-#'   default=NULL
+#'   disables the check for that argument, and also see Details.
 #' @param defaultvalues the list of default values for the possible
-#'   arguments of term X; default=list()
+#'   arguments of term X
 #' @param required the logical vector of whether each possible
-#'   argument is required; default=NULL
+#'   argument is required
 #' @param dep.inform,dep.warn a list of length equal to the number of
 #'   arguments the term can take; if the corresponding element of the
 #'   list is not `FALSE`, a [message()] or a [warning()] respectively
@@ -70,9 +68,12 @@ ergm_Init_warn_once <- once(ergm_Init_warn)
 #'
 #' @import network
 #' @export check.ErgmTerm
-check.ErgmTerm <- function(nw, arglist, directed=NULL, bipartite=NULL, nonnegative=FALSE,
-                           varnames=NULL, vartypes=NULL,
-                           defaultvalues=list(), required=NULL, dep.inform=rep(FALSE, length(required)), dep.warn=rep(FALSE, length(required)),
+check.ErgmTerm <- function(nw, arglist, directed = NULL, bipartite = NULL, nonnegative = FALSE,
+                           varnames = NULL, vartypes = NULL,
+                           defaultvalues = rep_along(varnames, list(NULL)),
+                           required = rep_along(varnames, TRUE),
+                           dep.inform = rep_along(varnames, FALSE),
+                           dep.warn = rep_along(varnames, FALSE),
                            argexpr=NULL){
   # Ensure that all inputs are of the correct type.
   ergm_Init_try(arglist <- as.list(arglist))

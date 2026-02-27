@@ -12,10 +12,10 @@ check.ErgmTerm(
   nonnegative = FALSE,
   varnames = NULL,
   vartypes = NULL,
-  defaultvalues = list(),
-  required = NULL,
-  dep.inform = rep(FALSE, length(required)),
-  dep.warn = rep(FALSE, length(required)),
+  defaultvalues = rep_along(varnames, list(NULL)),
+  required = rep_along(varnames, TRUE),
+  dep.inform = rep_along(varnames, FALSE),
+  dep.warn = rep_along(varnames, FALSE),
   argexpr = NULL
 )
 }
@@ -25,27 +25,25 @@ check.ErgmTerm(
 \item{arglist}{the list of arguments for term X}
 
 \item{directed}{logical, whether term X requires a directed
-network; default=NULL}
+network, forbids it, or neither}
 
-\item{bipartite}{whether term X requires a bipartite network (T or
-F); default=NULL}
+\item{bipartite}{logical; whether term X requires a bipartite
+network, forbids it, or neither}
 
-\item{nonnegative}{whether term X requires a network with only
-nonnegative weights; default=FALSE}
+\item{nonnegative}{deprecated}
 
 \item{varnames}{the vector of names of the possible arguments for
-term X; default=NULL}
+term X}
 
 \item{vartypes}{the vector of types of the possible arguments for
 term X, separated by commas; an empty string (\code{""}) or \code{NA}
-disables the check for that argument, and also see Details;
-default=NULL}
+disables the check for that argument, and also see Details.}
 
 \item{defaultvalues}{the list of default values for the possible
-arguments of term X; default=list()}
+arguments of term X}
 
 \item{required}{the logical vector of whether each possible
-argument is required; default=NULL}
+argument is required}
 
 \item{dep.inform, dep.warn}{a list of length equal to the number of
 arguments the term can take; if the corresponding element of the
