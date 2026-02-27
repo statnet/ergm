@@ -18,6 +18,18 @@
 
 }}
 }
+\value{
+For proposals implementing this constraint, the following
+pre-processed values are provided: \describe{
+
+\item{\code{a}}{block IDs recoded into integers}
+
+\item{\code{l}}{for unipartite networks, lengths runs of \code{a}}
+
+\item{\code{l1}, \code{l2}}{for bipartite networks, lengths of runs on mode 1 and 2}
+
+}
+}
 \description{
 Force a block-diagonal structure (and its bipartite analogue) on
 the network. Only dyads \eqn{(i,j)} for which

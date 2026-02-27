@@ -67,6 +67,17 @@
 #'
 #' }
 #'
+#' @return For proposals implementing this constraint, the following
+#'   pre-processed values are provided: \describe{
+#'
+#' \item{`a`}{block IDs recoded into integers}
+#'
+#' \item{`l`}{for unipartite networks, lengths runs of `a`}
+#'
+#' \item{`l1`, `l2`}{for bipartite networks, lengths of runs on mode 1 and 2}
+#'
+#' }
+#'
 #' @template ergmConstraint-general
 #'
 #' @concept dyad-independent
@@ -84,48 +95,56 @@ InitErgmConstraint.blockdiag<-function(nw, arglist, ...){
 
   contigmsg <- paste0("Current implementation of the block-diagonal constraint requires that either the blocks be contiguous or be treated as separate; this may change in the future. See ", sQuote("ergmConstraint?blockdiag"), " for more information.")
 
-  list(attr=a$attr, warn_noncontig = a$warn_noncontig,
+  n <- network.size(nw)
+  storage.mode(n) <- "integer"
+  check_noncontig <- a$noncontig == "merge"
+  a <- ergm_get_vattr(a$attr, nw) |> c() |> as.factor() |> as.integer()
+
+  if (is.bipartite(nw)) {
+    bip <- b1.size(nw)
+    ea <- a[seq_len(bip)]
+    aa <- a[bip + seq_len(n - bip)]
+    if (check_noncontig &&
+        (anyDuplicated(rle(ea)$values) || anyDuplicated(rle(aa)$values)))
+      ergm_Init_stop(contigmsg)
+
+    tmp <- .double.rle(ea, aa)
+    l1 <- tmp$lengths1
+    l2 <- tmp$lengths2
+    l <- NULL
+  } else {
+    tmp <- rle(a)
+    if (check_noncontig && anyDuplicated(tmp$values))
+      ergm_Init_stop(contigmsg)
+
+    l1 <- l2 <- NULL
+    l <- tmp$lengths
+  }
+
+  list(a = a, l = l, l1 = l1, l2 = l2,
        free_dyads = {
-         n <- network.size(nw)
-         storage.mode(n) <- "integer"
-         check_noncontig <- a$noncontig == "merge"
-         a <- c(ergm_get_vattr(a$attr, nw)) # Strip attributes, which confuse rle().
          if (is.bipartite(nw)) {
-           bip <- b1.size(nw)
-           ea <- a[seq_len(bip)]
-           aa <- a[bip+seq_len(n-bip)]
-           if (check_noncontig &&
-               (anyDuplicated(rle(ea)$values) || anyDuplicated(rle(aa)$values)))
-             ergm_Init_stop(contigmsg)
-
-           tmp <- .double.rle(ea, aa)
-           el <- tmp$lengths1
-           al <- tmp$lengths2
-
            o <- rlebdm(c(rep(rle(FALSE), bip*n, scale="run"),
                          do.call(c,rep(
                                      Map(function(blen,bend){rep(rle(c(FALSE,TRUE,FALSE)), c(bend-blen, blen, n-bend), scale="run")},
-                                         el, cumsum(el)),
-                                     al)
+                                         l1, cumsum(l1)),
+                                     l2)
                                  )), n)
            # Future-proofing: in case it's bipartite directed, add
            # both thte blocks and their transposes. (If undirected,
            # it'll get filtered out by the .attributes constraints.)
            ot <- rlebdm(c(do.call(c,rep(
                                       Map(function(blen,bend){rep(rle(c(FALSE,TRUE,FALSE)), c(bip+bend-blen, blen, n-bip-bend), scale="run")},
-                                          al, cumsum(al)),
-                                      el)
+                                          l2, cumsum(l2)),
+                                      l1)
                                   ),
                           rep(rle(FALSE), (n-bip)*n, scale="run")), n)
            compress(o | ot)
-         }else{
-           a <- rle(a)
-           if (check_noncontig && anyDuplicated(a$values))
-             ergm_Init_stop(contigmsg)
+         } else {
            rlebdm(compress(do.call(c,rep(
                                        Map(function(blen,bend){rep(rle(c(FALSE,TRUE,FALSE)), c(bend-blen, blen, n-bend), scale="run")},
-                                           a$lengths, cumsum(a$lengths)),
-                                       a$lengths)
+                                           l, cumsum(l)),
+                                       l)
                                    )), n)
          }
        },
