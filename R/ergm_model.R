@@ -147,23 +147,24 @@ ergm_model.ergm_model <- function(object, nw, ..., env=globalenv(), extra.aux=li
   model
 }
 
-#' Locate and call an ERGM term initialization function.
+#' Locate and call an ERGM term and term-alike initialization functions.
 #'
-#' A helper function that searches attached and loaded packages for a
-#' term with a specifies name, calls it with the specified arguments,
-#' and returns the result.
+#' This is a family of helper functions that searche attached and
+#' loaded packages for an initialization function with the specified
+#' name, calls it with the specified arguments, and returns the
+#' result.
 #'
-#' @param term A term from an [ergm()] formula: typically a [`name`] or a
-#'   [`call`].
+#' @param term A term from an [ergm()] model, constraint, or reference
+#'   formula: typically a [`name`] or a [`call`].
 #' @param env Environment in which it is to be evaluated.
 #' @param nw A [`network`] object.
 #' @param term.options A list of optional settings such as calculation
-#'   tuning options to be passed to the `InitErgmTerm` functions.
+#'   tuning options to be passed to the appropriate `InitErgm*` or
+#'   `InitWtErgm*` functions.
 #' @param ... Additional term options.
 #'
-#' @return The list returned by the the `InitErgmTerm` or
-#'   `InitWtErgmTerm` function, with package name autodetected if
-#'   neede.
+#' @return The list returned by the the `InitErgm*` or `InitWtErgm*`
+#'   function with appropriate metadata set.
 #'
 #' @keywords internal
 #' @export call.ErgmTerm

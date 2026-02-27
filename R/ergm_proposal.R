@@ -294,45 +294,16 @@ ergm_conlist.term_list <- function(object, nw, ..., term.options=list()){
     consign <- consigns[[i]]
     conenv <- conenvs[[i]]
 
-    f <- locate_prefixed_function(constraint, "InitErgmConstraint", "Sample space constraint")
+    con <- call.ErgmConstraint(constraint, conenv, nw, ..., term.options = term.options, consign = consign)
 
-    if(names(formals(eval(f)))[1]=="lhs.nw"){
-      if(is.call(constraint)){
-        conname <- as.character(constraint[[1]])
-        init.call<-list(f, lhs.nw=nw)
-        init.call<-c(init.call,as.list(constraint)[-1])
-      }else{
-        conname <- as.character(constraint)
-        init.call <- list(f, lhs.nw=nw)
-      }
-    }else{
-      conname <- as.character(if(is.name(constraint)) constraint else constraint[[1]])
-      init.call <- termCall(f, constraint, nw, term.options, ..., env=conenv)
-    }
-
-    con <- eval(as.call(init.call), conenv)
     if(is.null(con)) next
     else if (is(con, "ergm_conlist")) {
       conlist <- c(conlist, con)
       next
     }
 
-    NVL(con$priority) <- Inf # Default priority
-    if(con$priority < Inf) con$dependence <- FALSE # Hints do not induce dependence in the sample space.
-    NVL(con$dependence) <- TRUE # Default dependence
-    if(con$dependence && consign < 0) stop("Only dyad-independent constraints can have negative signs.")
-    con$sign <- consign
-    NVL(con$constrain) <- conname
-    conname <- con$constrain[1] # If constraint provides a name, use it.
-    if(!con$dependence && con$priority==Inf){
-      con$constrain <- if(con$sign < 0) ".dyads" # If disjunctive, override specific in favour of general.
-                       else unique(c(con$constrain,".dyads")) # FIXME: should .dyads go first?
-    }
-#' @import memoise
-    if(is.function(con$free_dyads) && !is.memoised(con$free_dyads)) con$free_dyads <- memoise(con$free_dyads)
-
     conlist[[length(conlist)+1]] <- con
-    names(conlist)[length(conlist)] <- conname
+    names(conlist)[length(conlist)] <- con$conname
   }
 
   prune.ergm_conlist(conlist)
@@ -345,6 +316,58 @@ c.ergm_conlist <- function(...) NextMethod() %>% prune.ergm_conlist()
 `[.ergm_conlist` <- function(x, ...){
   structure(NextMethod(), class = "ergm_conlist")
 }
+
+
+#' @rdname call.ErgmTerm
+#' @param consign the sign of the constraint in the formula.
+#'
+#' @export call.ErgmConstraint
+call.ErgmConstraint <- function(term, env, nw, ..., term.options = list(), consign = +1L) {
+  f <- locate_prefixed_function(term, "InitErgmConstraint", "Sample space constraint")
+
+  if(names(formals(eval(f)))[1]=="lhs.nw"){
+    .Deprecated(msg = paste0("Calling convention ", sQuote(paste0(deparse1(f), "(lhs.nw, ...)")), " is deprecated.\nUse ", sQuote(paste0(deparse1(f), "(nw, arglist, ...)")), " instead."))
+    if(is.call(term)){
+      conname <- as.character(term[[1]])
+      init.call<-list(f, lhs.nw=nw)
+      init.call<-c(init.call,as.list(term)[-1])
+    }else{
+      conname <- as.character(term)
+      init.call <- list(f, lhs.nw=nw)
+    }
+  }else{
+    conname <- as.character(if(is.name(term)) term else term[[1]])
+    init.call <- termCall(f, term, nw, term.options, ..., env=env)
+  }
+
+  con <- eval(as.call(init.call), env)
+
+  if (is.null(con) || is(con, "ergm_conlist")) return(con)
+
+  # Store the term call in the list (with the term able to override)
+  NVL(con$call) <- term
+
+  NVL(con$priority) <- Inf # Default priority
+  if(con$priority < Inf) con$dependence <- FALSE # Hints do not induce dependence in the sample space.
+  NVL(con$dependence) <- TRUE # Default dependence
+
+  if(con$dependence && consign < 0) stop("Only dyad-independent constraints can have negative signs.")
+  con$sign <- consign
+
+  NVL(con$constrain) <- conname
+  NVL(con$conname) <- con$constrain[1] # If constraint provides a name, use it.
+
+  if(!con$dependence && con$priority==Inf){
+    con$constrain <- if(con$sign < 0) ".dyads" # If disjunctive, override specific in favour of general.
+                     else unique(c(con$constrain,".dyads")) # FIXME: should .dyads go first?
+  }
+
+  #' @import memoise
+  if(is.function(con$free_dyads) && !is.memoised(con$free_dyads)) con$free_dyads <- memoise(con$free_dyads)
+
+  con
+}
+
 
 select_ergm_proposals <- function(conlist, class, ref, weights){
   # Extract directly selected proposal, if given, check that it's unique, and discard its constraint and other placeholders.
@@ -419,22 +442,30 @@ ergm_reference.ergm_reference <- function(object, ...) object
 
 #' @noRd
 ergm_reference.formula <- function(object, nw, ..., term.options=list()) {
-    env <- environment(object)
+  call.ErgmReference(object[[2]], environment(object), nw, ..., term.options = term.options)
+}
 
-    f <- locate_prefixed_function(object[[2]], "InitErgmReference", "Reference distribution")
 
-    if (names(formals(eval(f)))[1] == "lhs.nw") {
-      if (is.call(object[[2]])) {
-        ref.call <- list(f, lhs.nw = nw)
-        ref.call <- c(ref.call, as.list(object[[2]])[-1])
-      }else{
-        ref.call <- list(f, lhs.nw = nw)
-      }
+#' @rdname call.ErgmTerm
+#' @param consign the sign of the constraint in the formula.
+#'
+#' @export call.ErgmReference
+call.ErgmReference <- function(term, env, nw, ..., term.options=list()){
+  f <- locate_prefixed_function(term, "InitErgmReference", "Reference distribution")
+
+  if (names(formals(eval(f)))[1] == "lhs.nw") {
+    .Deprecated(msg = paste0("Calling convention ", sQuote(paste0(deparse1(f), "(lhs.nw, ...)")), " is deprecated.\nUse ", sQuote(paste0(deparse1(f), "(nw, arglist, ...)")), " instead."))
+    if (is.call(term)) {
+      ref.call <- list(f, lhs.nw = nw)
+      ref.call <- c(ref.call, as.list(term)[-1])
     }else{
-      ref.call <- termCall(f, object[[2]], nw, term.options, ..., env = env)
+      ref.call <- list(f, lhs.nw = nw)
     }
+  }else{
+    ref.call <- termCall(f, term, nw, term.options, ..., env = env)
+  }
 
-    structure(eval(as.call(ref.call), env), class = "ergm_reference")
+  structure(eval(as.call(ref.call), env), class = "ergm_reference")
 }
 
 #' @describeIn ergm_proposal `object` argument is an ERGM constraint formula; constructs the [`ergm_conlist`] object and hands off to `ergm_proposal.ergm_conlist()`.
