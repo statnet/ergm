@@ -384,7 +384,7 @@ test_that("nodematch", {
 
   for(keep in list(1, 1:2, 1:3)){
     tst(sapply(sort(unique(f))[keep], function(x) sum(abs(outer(f==x,f==x,"&"))*dirm,na.rm=TRUE)), dirnw ~ nodematch("f",diff=TRUE, levels=keep))
-    tst(sapply(sort(unique(f))[keep], function(x) sum(abs(outer(f==x,f==x,"&"))*(dirm!=0),na.rm=TRUE)), dirnw ~ nodematch(~f, diff=TRUE, keep=keep, form="nonzero"))
+    tst(sapply(sort(unique(f))[keep], function(x) sum(abs(outer(f==x,f==x,"&"))*(dirm!=0),na.rm=TRUE)), dirnw ~ nodematch(~f, diff=TRUE, levels=keep, form="nonzero"))
   }
 })
 
