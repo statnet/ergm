@@ -243,44 +243,38 @@ ergm_proposal.character <- function(object, arguments, nw, ..., reference=ergm_r
 }
 
 
-
-
-
-########################################################################################
-# The <ergm_proposal.formula> function verifies that the given constraints exist and
-# are supported in conjuction with the given weights and class by a unique proposal;
-# if so the ergm_proposal object is created via <ergm_proposal.character> using the 
-# proposal type found in the look-up table above.
-#
-# --PARAMETERS--
-#   object     :  a one-sided formula of constraint terms ( ~ term(s))
-#   arguments  :  a list of parameters used by the <InitErgmProposal> routines  possibly including
-#                  bd: a list of parameters used to bound degree via <ergm.bounddeg>
-#   nw         :  a network object
-#   constraints:  the constraints as a one sided formula '~ term(s)'
-#   weights    :  specifies the method used to allocate probabilities of being proposed
-#                 to dyads; options are "TNT", "StratTNT", "TNT10", "random", "nonobserved" and
-#                 "default"; default="default"
-#   class      :  the class of the proposal; choices include "c", "f", and "d"
-#                 default="c"
-#
-########################################################################################
-
-#' @noRd
+#' Internal representation of ERGM sample space constraints and hints
+#'
+#' See [`ergmConstraint`] for details on specifying proposals and
+#' constraints.
+#'
+#' @param object a data type
+#'
+#' @keywords internal
+#' @export
 ergm_conlist <- function(object, ...) UseMethod("ergm_conlist")
 
-#' @noRd
+#' @describeIn ergm_conlist identity method.
+#' @export
 ergm_conlist.ergm_conlist <- function(object, ...) object
 
-#' @noRd
+#' @describeIn ergm_conlist handling for `NULL`, to simplify other code.
+#' @export
 ergm_conlist.NULL <- function(object, ...) NULL
 
-#' @noRd
-ergm_conlist.formula <- function(object, nw, ..., term.options=list())
-  object %>% .embed_constraint_lhs() %>% list_rhs.formula() %>%
-    ergm_conlist(nw, ..., term.options=term.options)
+#' @describeIn ergm_conlist initialize from [`formula`], such as in
+#'   [ergm()] `constraints` and `obs.constraints` arguments: preserve
+#'   the LHS, convert to [`term_list`], and use the nxt method.
+#'
+#' @param nw a [`network`] object.
+#' @template term_options
+#'
+#' @export
+ergm_conlist.formula <- function(object, nw, ...)
+  object |> .embed_constraint_lhs() |> list_rhs.formula() |> ergm_conlist(nw, ...)
 
-#' @noRd
+#' @describeIn ergm_conlist initialize from [`term_list`].
+#' @export
 ergm_conlist.term_list <- function(object, nw, ..., term.options=list()){
   object <-
     if(is(object, "AsIs")) structure(object, class = class(object)[class(object) != "AsIs"])
@@ -309,10 +303,12 @@ ergm_conlist.term_list <- function(object, nw, ..., term.options=list()){
   prune.ergm_conlist(conlist)
 }
 
-#' @noRd
+#' @describeIn ergm_conlist a concatenation method.
+#' @export
 c.ergm_conlist <- function(...) NextMethod() %>% prune.ergm_conlist()
 
-#' @noRd
+#' @describeIn ergm_conlist a subsetting method.
+#' @export
 `[.ergm_conlist` <- function(x, ...){
   structure(NextMethod(), class = "ergm_conlist")
 }
