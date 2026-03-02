@@ -42,7 +42,7 @@ rlebdm <- function(x, n){
     if(length(o)!=1) stop("Populating the matrix can only be done with a constant value at this time.")
     o <- rep(o, l, scale="run")
   }
-  attr(o, "n") <- n
+  attr(o, "n") <- as.integer(n)
   class(o) <- c("rlebdm", class(o))
   o
 }
@@ -158,7 +158,7 @@ as.matrix.rlebdm <- function(x, ...){
 #' @rdname rlebdm
 #' @export
 dim.rlebdm <- function(x){
-  rep(attr(x, "n"),2)
+  rep(attr(x, "n"), 2L)
 }
 
 #' @describeIn rlebdm
