@@ -46,6 +46,7 @@ typedef struct ETYPE(Modelstruct) {
 #define IFDEBUG_RESTORE_DSTATS
 #endif
 
+void ETYPE(On, NetworkEdgeChangeUWrap)(Vertex tail, Vertex head, IFEWT(EWTTYPE weight,) void *mtp, ETYPE(Network) *nwp, EWTTYPE edgestate);
 ETYPE(Model)* ETYPE(ModelInitialize)(SEXP mR, SEXP ext_stateR, ETYPE(Network) *nwp, Rboolean noinit_s);
 
 void ETYPE(ModelDestroy)(ETYPE(Network) *nwp, ETYPE(Model) *m);

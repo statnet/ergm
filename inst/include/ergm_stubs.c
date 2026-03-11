@@ -158,6 +158,11 @@ fun(MHp,nwp);
 }
 
 #include "ergm_changestat_auxnet.h"
+void OnNetworkEdgeChangeUWrap(Vertex tail, Vertex head, void *mtp, Network *nwp, Rboolean edgestate){
+static void (*fun)(Vertex,Vertex,void *,Network *,Rboolean) = NULL;
+if(fun==NULL) fun = (void (*)(Vertex,Vertex,void *,Network *,Rboolean)) R_FindSymbol("OnNetworkEdgeChangeUWrap", "ergm", NULL);
+fun(tail,head,mtp,nwp,edgestate);
+}
 Model* ModelInitialize(SEXP mR, SEXP ext_stateR, Network *nwp, Rboolean noinit_s){
 static Model* (*fun)(SEXP,SEXP,Network *,Rboolean) = NULL;
 if(fun==NULL) fun = (Model* (*)(SEXP,SEXP,Network *,Rboolean)) R_FindSymbol("ModelInitialize", "ergm", NULL);
@@ -506,6 +511,11 @@ void WtMHProposalDestroy(WtMHProposal *MH, WtNetwork *nwp){
 static void (*fun)(WtMHProposal *,WtNetwork *) = NULL;
 if(fun==NULL) fun = (void (*)(WtMHProposal *,WtNetwork *)) R_FindSymbol("WtMHProposalDestroy", "ergm", NULL);
 fun(MH,nwp);
+}
+void OnWtNetworkEdgeChangeUWrap(Vertex tail, Vertex head, double weight, void *mtp, WtNetwork *nwp, double edgestate){
+static void (*fun)(Vertex,Vertex,double,void *,WtNetwork *,double) = NULL;
+if(fun==NULL) fun = (void (*)(Vertex,Vertex,double,void *,WtNetwork *,double)) R_FindSymbol("OnWtNetworkEdgeChangeUWrap", "ergm", NULL);
+fun(tail,head,weight,mtp,nwp,edgestate);
 }
 WtModel* WtModelInitialize(SEXP mR, SEXP ext_stateR, WtNetwork *nwp, Rboolean noinit_s){
 static WtModel* (*fun)(SEXP,SEXP,WtNetwork *,Rboolean) = NULL;
