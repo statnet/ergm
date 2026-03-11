@@ -88,7 +88,8 @@ ergm.pen.glm <- function(formula,
   if (missing(weights)) weights <- rep_len(1, n)
   beta <- c(log((sum(y*weights)/sum((1-y)*weights))),
             rep(0, k - 1))
-  if(!missing(start) && !is.null(start) && ncol(x)==length(start) && !is.na(start)){
+  if (!missing(start) && !is.null(start)
+      && ncol(x) == length(start) && !anyNA(start)) {
     beta[1] <- beta[1] - sum((x %*% start)*weights)
   }
   iter <- 0
@@ -143,10 +144,4 @@ ergm.pen.glm <- function(formula,
   class(fit) <- c("pen.glm")
 # vars <- diag(covs)
   fit
-}
-
-#' @noRd
-model.matrix.pen.glm <- function(object, ...)
-{
-	object$model.matrix
 }

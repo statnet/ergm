@@ -164,9 +164,7 @@ ergm.mple<-function(s, s.obs, init=NULL,
 
 # mplefit <- call(control$MPLE.type, pl$zy ~ 1, family=binomial)
 #
-  if(control$MPLE.type=="penalized"){
-    mplefit.null <- ergm.pen.glm(pl$zy ~ -1 + offset(pl$foffset), weights=pl$wend)
-  }else if(control$MPLE.type=="logitreg"){
+  if (control$MPLE.type == "logitreg") {
     mplefit.null <- ergm.logitreg(x=matrix(0,ncol=1,nrow=length(pl$zy)),
                                   y=pl$zy, offset=pl$foffset, wt=pl$wend, verbose=max(verbose-2,0))
   }else{
