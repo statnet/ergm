@@ -71,6 +71,7 @@ specification and estimation components visible to the \CRANpkg{ergm}'s API at a
 
 Authors:
 \itemize{
+  \item Pavel N. Krivitsky \email{pavel@statnet.org} (\href{https://orcid.org/0000-0002-9101-3362}{ORCID})
   \item Mark S. Handcock \email{handcock@stat.ucla.edu}
   \item David R. Hunter \email{dhunter@stat.psu.edu}
   \item Carter T. Butts \email{buttsc@uci.edu}

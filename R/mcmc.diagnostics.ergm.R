@@ -72,10 +72,10 @@ mcmc.diagnostics <- function(object, ...) {
 #' @noRd
 #' @export
 mcmc.diagnostics.default <- function(object, ...) {
-  stop("An ergm object must be given as an argument ")
+  stop(sQuote("mcmc.diagnostics()"), " requires an object with an ", sQuote("mcmc.diagnostics()"), " method; typically ", sQuote("ergm"), ".")
 }
 
-#' @describeIn mcmc.diagnostics
+#' @describeIn mcmc.diagnostics A method for [ergm()] objects.
 #'
 #' @details For [ergm()] specifically, recent changes in the
 #'   estimation algorithm mean that these plots can no longer be used

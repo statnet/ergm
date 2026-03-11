@@ -435,8 +435,6 @@ select_ergm_proposals <- function(conlist, class, ref, weights){
 
 ergm_reference <- function(object, ...) UseMethod("ergm_reference")
 ergm_reference.ergm_reference <- function(object, ...) object
-
-#' @noRd
 ergm_reference.formula <- function(object, nw, ..., term.options=list()) {
   call.ErgmReference(object[[2]], environment(object), nw, ..., term.options = term.options)
 }

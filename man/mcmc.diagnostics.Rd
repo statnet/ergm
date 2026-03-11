@@ -93,7 +93,7 @@ More information can be found by looking at the documentation of
 }
 \section{Methods (by class)}{
 \itemize{
-\item \code{mcmc.diagnostics(ergm)}: 
+\item \code{mcmc.diagnostics(ergm)}: A method for \code{\link[=ergm]{ergm()}} objects.
 
 }}
 \examples{
