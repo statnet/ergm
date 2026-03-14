@@ -32,14 +32,19 @@
 #' 
 #' 
 #' @param Class default to "c"
-#' @param Reference The reference measure used in the model. For the list of
-#' reference measures, see [`ergmReference`]
+#' @param Reference The reference measure used in the model. For the
+#'   list of reference measures, see [`ergmReference`]. Use `"*"` to
+#'   indicate that the proposal can be used with *any* reference
+#'   distribution, for example if it's an proposal "operator".
 #'
 #' @param Constraints The constraints used in the model. For the list
-#'   of constraints, see [`ergmConstraint`]. They are
-#'   specified as a single string of text, with each contrast prefixed
-#'   by either `&` for constraints that the proposal *always* enforces
-#'   or `|` for constraints that the proposal *can* enforce if needed.
+#'   of constraints, see [`ergmConstraint`]. They are specified as a
+#'   single string of text, with each contrast prefixed by either `&`
+#'   for constraints that the proposal *always* enforces or `|` for
+#'   constraints that the proposal *can* enforce if
+#'   needed. Placeholder `*` can be used with proposal "operators" to
+#'   indicate that they will initialise sub-proposals that may be able
+#'   to accommodate these constraints and hints.
 #'
 #' @param Priority On existence of multiple qualifying proposals, specifies the
 #' priority (`-1`,`0`,`1`, etc.) of proposals to be used.
@@ -59,7 +64,7 @@
 #'   of its proposals from the table should the package be unloaded.
 #'
 #' @keywords internal
-#' @export ergm_proposal_table
+#' @export
 ergm_proposal_table <- local({
   proposals <- data.frame(Class = character(0), Reference = character(0),
                      Constraints = character(0), Priority = numeric(0), Weights = character(0),
@@ -373,7 +378,10 @@ select_ergm_proposals <- function(conlist, class, ref, weights){
 
   # Initial narrowing down of the proposal table.
   candidates <- ergm_proposal_table()
-  candidates <- candidates[candidates$Class==class & candidates$Reference==ref$name & if(is.null(weights) || weights=="default") TRUE else candidates$Weights==weights, , drop=FALSE]
+  candidates <- candidates[candidates$Class == class
+                           & (candidates$Reference == "*" | candidates$Reference == ref$name)
+                           & if (is.null(weights) || weights == "default") TRUE
+                             else candidates$Weights == weights, , drop = FALSE]
   if(length(name)) candidates <- candidates[candidates$Proposal==name, , drop=FALSE]
 
   decode_constraints <- function(s){
@@ -382,6 +390,8 @@ select_ergm_proposals <- function(conlist, class, ref, weights){
     if(nchar(s) && !startsWith(s,"&") && !startsWith(s,"|"))
       s <- strsplit(s, "+", fixed=TRUE)[[1L]] %>% paste0(ifelse(.==".dyads", "|", "&"), ., collapse="")
 
+    # See if it contains *, and remove if it does.
+    if (can_any <- grepl("*", s, fixed = TRUE)) s <- gsub("*", "", s, fixed = TRUE)
     # Split on flags, but keep flags.
     s <- strsplit(s, "(?<=.)(?=[&|])", perl=TRUE)[[1L]]
 
@@ -389,7 +399,8 @@ select_ergm_proposals <- function(conlist, class, ref, weights){
     does <- map_lgl(s, startsWith, "&")
     can <- !does
 
-    list(does = names[does],
+    list(can_any = can_any,
+         does = names[does],
          can = names[can])
   }
 
@@ -408,11 +419,13 @@ select_ergm_proposals <- function(conlist, class, ref, weights){
       propcon <- proposal$Constraints
       does <- propcon$does
       can <- propcon$can
+      can_any <- propcon$can_any
       knows <- c(does, can)
 
       if(any(! does%in%allwanted)) return(NULL) # Proposal has an unwanted constraint.
 
-      unmet <- map_lgl(wanted, ~!any(. %in% knows))
+      # If it can handle any, then don't block or penalize it.
+      unmet <- map_lgl(wanted, \(w) !can_any && !any(w %in% knows))
       wanted <- wanted[unmet]
       # Penalised proposal score.
       proposal$Unmet <- if(length(wanted)) wanted %>% map_chr(paste0, collapse="/") %>% sQuote %>% paste.and else ""

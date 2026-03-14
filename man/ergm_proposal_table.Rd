@@ -17,14 +17,19 @@ ergm_proposal_table(
 \arguments{
 \item{Class}{default to "c"}
 
-\item{Reference}{The reference measure used in the model. For the list of
-reference measures, see \code{\link{ergmReference}}}
+\item{Reference}{The reference measure used in the model. For the
+list of reference measures, see \code{\link{ergmReference}}. Use \code{"*"} to
+indicate that the proposal can be used with \emph{any} reference
+distribution, for example if it's an proposal "operator".}
 
 \item{Constraints}{The constraints used in the model. For the list
-of constraints, see \code{\link{ergmConstraint}}. They are
-specified as a single string of text, with each contrast prefixed
-by either \code{&} for constraints that the proposal \emph{always} enforces
-or \code{|} for constraints that the proposal \emph{can} enforce if needed.}
+of constraints, see \code{\link{ergmConstraint}}. They are specified as a
+single string of text, with each contrast prefixed by either \code{&}
+for constraints that the proposal \emph{always} enforces or \code{|} for
+constraints that the proposal \emph{can} enforce if
+needed. Placeholder \code{*} can be used with proposal "operators" to
+indicate that they will initialise sub-proposals that may be able
+to accommodate these constraints and hints.}
 
 \item{Priority}{On existence of multiple qualifying proposals, specifies the
 priority (\code{-1},\code{0},\code{1}, etc.) of proposals to be used.}
