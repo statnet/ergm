@@ -103,7 +103,7 @@ match_aux_terms <- function(x, table){
   IGNORE <- "call"
   x.clean <- lapply(x, function(term) term[! names(term)%in%IGNORE])
   table.clean <- lapply(table, function(term) term[! names(term)%in%IGNORE])
-  match(x.clean, table.clean)
+  match(map_chr(x.clean, hash), map_chr(table.clean, hash))
 }
 
 assert_aux_dependencies <- function(terms){
