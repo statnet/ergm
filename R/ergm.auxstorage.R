@@ -7,6 +7,25 @@
 #
 #  Copyright 2003-2026 Statnet Commons
 ################################################################################
+
+clean_outl <- function(x) x[! names(x) %in% c("call")]
+
+add_outl_hash <- function(x, name = ".hash") {
+  NVL(attr(x, name)) <- rlang::hash(clean_outl(x))
+  x
+}
+
+add_outls_hashes <- function(x, ...) map(x, add_outl_hash, ...)
+
+strip_outl_hash <- function(x, name = ".hash") {
+  attr(x, name) <- NULL
+  x
+}
+
+get_outl_hash <- function(x, name = ".hash") attr(x, name) %||% rlang::hash(clean_outl(x))
+
+get_outls_hashes <- function(x, ...) map_chr(x, get_outl_hash, ...)
+
 ergm.auxstorage <- function(model, nw,..., extra.aux=list(), term.options=list()){
 
   aux_list_list <- function(terms, extra=NULL) {
@@ -27,42 +46,44 @@ ergm.auxstorage <- function(model, nw,..., extra.aux=list(), term.options=list()
     })
   }
 
-  aux.outlists <- aux_list_list(model$terms, extra.aux)
+  aux.outls <- aux_list_list(model$terms, extra.aux)
 
   # Remove duplicated auxiliaries.
-  uniq.aux.outlists <- unique_aux_terms(unlist(aux.outlists, recursive=FALSE))
+  uniq.aux.outls <- unlist(aux.outls, recursive = FALSE) |>
+    add_outls_hashes() |>
+    unique_aux_outls()
   prev <- NULL
-  aux.aux.outlists <- list()
+  aux.aux.outls <- list()
 
   # Until we reach a fixed point (which we should, unless there is a circular dependency).
   #
   # TODO: Check for circular dependencies.
-  while(!identical(uniq.aux.outlists,prev, ignore.environment=TRUE)){
-    prev <- uniq.aux.outlists
-    aux.aux.outlists <- aux_list_list(uniq.aux.outlists)
-    uniq.aux.outlists <- unique_aux_terms(c(uniq.aux.outlists, unlist(aux.aux.outlists, recursive=FALSE)))
+  while (!identical(get_outls_hashes(uniq.aux.outls), get_outls_hashes(prev))) {
+    prev <- uniq.aux.outls
+    aux.aux.outls <- aux_list_list(uniq.aux.outls) |> map(add_outls_hashes)
+    uniq.aux.outls <- unique_aux_outls(c(uniq.aux.outls, unlist(aux.aux.outls, recursive = FALSE)))
   }
 
-  # uniq.aux.outlists is now a list of unique initialized auxiliaries
+  # uniq.aux.outls is now a list of unique initialized auxiliaries
   # and auxiliaries' auxiliaries, such that depended-on auxiliaries
   # are always after the dependent auxiliaries.
   #
-  # aux.aux.outlists is now a nested list in the same form as aux.outlists, but for auxiliaries.
+  # aux.aux.outls is now a nested list in the same form as aux.outls, but for auxiliaries.
 
-  # Append the auxiliary terms to the model.
+  # Append the auxiliary out lists to the model.
   n.stat.terms <- length(model$terms)
-  for(i in seq_along(uniq.aux.outlists)){
-    aux.outlist <- uniq.aux.outlists[[i]]
-    model <- updatemodel.ErgmTerm(model, aux.outlist)
+  for(i in seq_along(uniq.aux.outls)){
+    aux.outl <- uniq.aux.outls[[i]]
+    model <- updatemodel.ErgmTerm(model, strip_outl_hash(aux.outl))
     attr(model$terms[[n.stat.terms+i]],"aux.slots")[1L] <- i-1L # The storage slot belonging to this auxiliary.
   }
 
   # Which term is requiring which auxiliary slot? (+1)
-  aux.slots <- lapply(aux.outlists, match_aux_terms, uniq.aux.outlists)
+  aux.slots <- map(aux.outls, match_aux_terms, uniq.aux.outls)
   slots.extra.aux <- rep(list(integer(0)), length(extra.aux))
   
-  for(i in seq_along(aux.outlists)){
-    if(length(aux.outlists[[i]])){
+  for(i in seq_along(aux.outls)){
+    if(length(aux.outls[[i]])){
       if(i<=n.stat.terms) # If it's a model term.
         attr(model$terms[[i]], "aux.slots") <- aux.slots[[i]] - 1L
       else # If it's some other entity requesting auxiliaries.
@@ -72,9 +93,9 @@ ergm.auxstorage <- function(model, nw,..., extra.aux=list(), term.options=list()
   names(slots.extra.aux) <- names(extra.aux)
 
   # Which auxiliary is requiring which auxiliary slot? (+1)
-  aux.aux.slots <- lapply(aux.aux.outlists, match_aux_terms, uniq.aux.outlists)
+  aux.aux.slots <- map(aux.aux.outls, match_aux_terms, uniq.aux.outls)
   
-  for(i in seq_along(aux.aux.outlists)){
+  for(i in seq_along(aux.aux.outls)){
     # 1st slot is the auxiliary's own slot, so its auxiliaries get put
     # into subsequent slots.
     attr(model$terms[[n.stat.terms + i]], "aux.slots")[-1L] <-
@@ -91,20 +112,9 @@ ergm.auxstorage <- function(model, nw,..., extra.aux=list(), term.options=list()
   model
 }
 
-unique_aux_terms <- function(terms){
-  # Known issue: unique() and match() don't necessarily have the same notion of equality. This can cause problems. Hopefully, assert_aux_dependencies() can catch them early.
-  IGNORE <- "call"
-  terms.clean <- lapply(terms, function(term) term[! names(term)%in%IGNORE])
-  terms[!duplicated(terms.clean, fromLast=TRUE)]
-}
+unique_aux_outls <- function(x) x[!duplicated(get_outls_hashes(x), fromLast = TRUE)]
 
-match_aux_terms <- function(x, table){
-  # Known issue: unique() and match() don't necessarily have the same notion of equality. This can cause problems. Hopefully, assert_aux_dependencies() can catch them early.
-  IGNORE <- "call"
-  x.clean <- lapply(x, function(term) term[! names(term)%in%IGNORE])
-  table.clean <- lapply(table, function(term) term[! names(term)%in%IGNORE])
-  match(map_chr(x.clean, hash), map_chr(table.clean, hash))
-}
+match_aux_terms <- function(x, table) match(get_outls_hashes(x), get_outls_hashes(table))
 
 assert_aux_dependencies <- function(terms){
   aux <- (lapply(terms, `[[`, "coef.names") %>% lengths)==0

@@ -279,7 +279,7 @@ c.ergm_model <- function(...){
       }
 
     # Remove redundant auxiliaries, but only among sinks:
-    sinks <- unique_aux_terms(c(o$terms[oaux][!onaux], m$terms[maux][!mnaux]))
+    sinks <- unique_aux_outls(c(o$terms[oaux][!onaux], m$terms[maux][!mnaux]))
     
     # To which term in the new auxilary list does each of the current auxiliary pointers to sinks correspond? Note that they are numbered from 0.
     omap[!onaux] <- match_aux_terms(o$terms[oaux][!onaux], sinks) + pos - 1L
