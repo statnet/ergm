@@ -20,7 +20,6 @@
 # one can always add a row with identical elements but higher
 # priority.
 
-
 #' Table mapping reference,constraints, etc. to ERGM Metropolis-Hastings proposals
 #'
 #' This is a low-level function not intended to be called directly by
@@ -70,6 +69,29 @@ ergm_proposal_table <- local({
                      Constraints = character(0), Priority = numeric(0), Weights = character(0),
                      Proposal = character(0), Package = character(0), stringsAsFactors=FALSE)
 
+  # Decode the a Constraints string into lists of what it does
+  # constrain and can constrain, and an indicator if it's an
+  # constraint operator.
+  decode_constraints <- function(s){
+    # Convert old-style specification to the new-style
+    # specification. Note that .dyads is always optional.
+    if(nchar(s) && !startsWith(s,"&") && !startsWith(s,"|"))
+      s <- strsplit(s, "+", fixed=TRUE)[[1L]] %>% paste0(ifelse(.==".dyads", "|", "&"), ., collapse="")
+
+    # See if it contains *, and remove if it does.
+    if (can_any <- grepl("*", s, fixed = TRUE)) s <- gsub("*", "", s, fixed = TRUE)
+    # Split on flags, but keep flags.
+    s <- strsplit(s, "(?<=.)(?=[&|])", perl=TRUE)[[1L]]
+
+    names <- substr(s, 2, 2147483647L)
+    does <- map_lgl(s, startsWith, "&")
+    can <- !does
+
+    list(can_any = can_any,
+         does = names[does],
+         can = names[can])
+  }
+
   unload <- function(pkg_name, ...) proposals <<- proposals[proposals$Package != pkg_name, ]
 
   function(Class, Reference, Constraints, Priority, Weights, Proposal, Package = NULL) {
@@ -84,6 +106,8 @@ ergm_proposal_table <- local({
                 length(Priority)==1, length(Weights)==1, length(Proposal)==1,
                 length(Package)==1)
 
+      Constraints <- lapply(Constraints, decode_constraints)
+      
       newrows <- expand.grid(Class = Class, Reference = Reference, Constraints = Constraints,
                              Priority = Priority, Weights = Weights, Proposal = Proposal,
                              Package = Package, stringsAsFactors=FALSE, KEEP.OUT.ATTRS=FALSE)
@@ -370,6 +394,47 @@ call.ErgmConstraint <- function(term, env, nw, ..., term.options = list(), consi
 }
 
 
+add_score <- memoise(function(proposal, priorities, wanted, allwanted) {
+  propcon <- proposal$Constraints
+  does <- propcon$does
+  can <- propcon$can
+  can_any <- propcon$can_any
+  knows <- c(does, can)
+
+  if (any(! does %in% allwanted)) return(NULL) # Unwanted constraint.
+
+  # If it can handle any, then don't block or penalize it.
+  unmet <- map_lgl(wanted, \(w) !can_any && !any(w %in% knows))
+  wanted <- wanted[unmet]
+  # Penalised proposal score.
+  proposal$UnmetScore <- sum(priorities[unmet])
+  proposal$Score <- proposal$Priority - proposal$UnmetScore
+  if (proposal$Score == -Inf) return(NULL)
+
+  proposal$Unmet <- if (length(wanted)) map_chr(wanted, paste0, collapse = "/") |> sQuote() |> paste.and()
+                    else ""
+  proposal
+})
+
+
+# proposals = the proposal table
+# constraints = an ergm_conlist
+score_proposals <- function(proposals, conlist) {
+  conlist <- conlist[names(conlist) != ".attributes"]
+  priorities <- map_dbl(conlist, "priority")
+  wanted <- map(conlist, "constrain")
+  allwanted <- unlist(wanted)
+
+  proposals |>
+    transpose() |>
+    map(add_score, priorities, wanted, allwanted) |>
+    compact() |>
+    transpose() |>
+    map(simplify_simple, toNA = "keep") |>
+    as_tibble()
+}
+
+
 select_ergm_proposals <- function(conlist, class, ref, weights){
   # Extract directly selected proposal, if given, check that it's unique, and discard its constraint and other placeholders.
   name <- conlist %>% .keep_constraint(".select") %>% map_chr("proposal") %>% unique()
@@ -384,58 +449,7 @@ select_ergm_proposals <- function(conlist, class, ref, weights){
                              else candidates$Weights == weights, , drop = FALSE]
   if(length(name)) candidates <- candidates[candidates$Proposal==name, , drop=FALSE]
 
-  decode_constraints <- function(s){
-    # Convert old-style specification to the new-style
-    # specification. Note that .dyads is always optional.
-    if(nchar(s) && !startsWith(s,"&") && !startsWith(s,"|"))
-      s <- strsplit(s, "+", fixed=TRUE)[[1L]] %>% paste0(ifelse(.==".dyads", "|", "&"), ., collapse="")
-
-    # See if it contains *, and remove if it does.
-    if (can_any <- grepl("*", s, fixed = TRUE)) s <- gsub("*", "", s, fixed = TRUE)
-    # Split on flags, but keep flags.
-    s <- strsplit(s, "(?<=.)(?=[&|])", perl=TRUE)[[1L]]
-
-    names <- substr(s, 2, 2147483647L)
-    does <- map_lgl(s, startsWith, "&")
-    can <- !does
-
-    list(can_any = can_any,
-         does = names[does],
-         can = names[can])
-  }
-
   candidates <- as_tibble(candidates)
-  candidates$Constraints <- lapply(candidates$Constraints, decode_constraints)
-
-  # proposals = the proposal table
-  # constraints = an ergm_conlist
-  score_proposals <- function(proposals, conlist){
-    conlist <- conlist[names(conlist)!=".attributes"]
-    priorities <- map_dbl(conlist, "priority")
-    wanted <- map(conlist, "constrain")
-    allwanted <- unlist(wanted)
-
-    add_score <- function(proposal){
-      propcon <- proposal$Constraints
-      does <- propcon$does
-      can <- propcon$can
-      can_any <- propcon$can_any
-      knows <- c(does, can)
-
-      if(any(! does%in%allwanted)) return(NULL) # Proposal has an unwanted constraint.
-
-      # If it can handle any, then don't block or penalize it.
-      unmet <- map_lgl(wanted, \(w) !can_any && !any(w %in% knows))
-      wanted <- wanted[unmet]
-      # Penalised proposal score.
-      proposal$Unmet <- if(length(wanted)) wanted %>% map_chr(paste0, collapse="/") %>% sQuote %>% paste.and else ""
-      proposal$UnmetScore <- sum(priorities[unmet])
-      proposal$Score <- proposal$Priority - proposal$UnmetScore
-      if(proposal$Score==-Inf) return(NULL)
-      proposal
-    }
-    proposals %>% transpose %>% map(add_score) %>% compact %>% transpose %>% map(simplify_simple,toNA="keep") %>% as_tibble
-  }
 
   qualifying <- score_proposals(candidates, conlist)
 
