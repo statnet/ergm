@@ -528,7 +528,12 @@ NULL
 #' \if{text}{\Sexpr[results=rd,stage=render]{ergm:::.formatProposalsText(ergm:::.buildProposalsList(), keepProposal=TRUE)}}
 #' \if{latex}{\Sexpr[results=rd,stage=render]{ergm:::.formatProposalsLatex(ergm:::.buildProposalsList(), keepProposal=TRUE)}}
 #'
-#' Note that [`.dyads`][.dyads-ergmConstraint] is a meta-constraint, indicating that the proposal supports an arbitrary dyad-level constraint combination.
+#' Note that [`.dyads`][.dyads-ergmConstraint] is a meta-constraint,
+#' indicating that the proposal supports an arbitrary dyad-level
+#' constraint combination. `*` indicates that the proposal is a
+#' proposal operator (a proposal that initializes other proposals) and
+#' hence can handle any reference distribution (that its sub-proposals
+#' can handle) and any hint (that its sub-proposals can).
 #'
 #' @seealso [`ergm`][ergm-package] package, [`ergm`], [`ergmConstraint`], [`ergmHint`], [`ergm_proposal`]
 #'

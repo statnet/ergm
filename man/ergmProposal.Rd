@@ -43,7 +43,12 @@ cases to constrain the sample space.
 \if{text}{\Sexpr[results=rd,stage=render]{ergm:::.formatProposalsText(ergm:::.buildProposalsList(), keepProposal=TRUE)}}
 \if{latex}{\Sexpr[results=rd,stage=render]{ergm:::.formatProposalsLatex(ergm:::.buildProposalsList(), keepProposal=TRUE)}}
 
-Note that \code{\link[=.dyads-ergmConstraint]{.dyads}} is a meta-constraint, indicating that the proposal supports an arbitrary dyad-level constraint combination.
+Note that \code{\link[=.dyads-ergmConstraint]{.dyads}} is a meta-constraint,
+indicating that the proposal supports an arbitrary dyad-level
+constraint combination. \code{*} indicates that the proposal is a
+proposal operator (a proposal that initializes other proposals) and
+hence can handle any reference distribution (that its sub-proposals
+can handle) and any hint (that its sub-proposals can).
 }
 
 \references{
