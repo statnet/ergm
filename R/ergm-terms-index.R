@@ -80,27 +80,17 @@ DISPLAY_LATEX_TOC_PCT_WIDTHS <- function(n_concepts) c(2.4, rep(.7, n_concepts))
     ps <- ergm_proposal_table()
     ps <- .filterProposals(ps, proposal=comps[1])
 
-    proposals = list()
-    for (i in seq_len(nrow(ps))) {
-      if (!stringr::str_detect(ps$Constraints[i], '[|&]') || stringr::str_detect(ps$Constraints[i], '\\+')) {
-        constraints <- strsplit(ps$Constraints[i], '\\+')[[1]]
-        constraints <- paste0(ifelse(constraints == '.dyads', '|', '&'), constraints)
-      } else {
-        constraints <- strsplit(ps$Constraints[i], '(?<=.)(?=[|&])', perl=TRUE)[[1]]
-      }
-      constraints <- lapply(constraints, function(c) list(
-        name=substr(c, 2, stringr::str_length(c)),
-        enforce=substr(c, 1, 1) == '&'))
-      proposals[[length(proposals) + 1]] <- list(
-        Proposal=ps$Proposal[i],
-        Reference=ps$Reference[i],
-        Enforces=constraints %>% keep("enforce") %>% map("name") %>% unlist,
-        May_Enforce=constraints %>% discard("enforce") %>% map("name") %>% unlist,
-        Priority=ps$Priority[i],
-        Weight=ps$Weights[i],
-        Class=ifelse(ps$Class[i] == 'c', 'cross-sectional', 'last-toggle')
+    proposals <- with(ps, map(seq_along(Proposal), function(i) {
+      list(
+        Proposal = Proposal[i],
+        Reference = Reference[i],
+        Enforces = Constraints[[i]]$does,
+        May_Enforce = c(Constraints[[i]]$can, if (Constraints[[i]]$can_any) "*"),
+        Priority = Priority[i],
+        Weight = Weights[i],
+        Class = ifelse(Class[i] == "c", "cross-sectional", "last-toggle")
       )
-    }
+    }))
     return(list(
       link=rdname,
       name=comps[1],
