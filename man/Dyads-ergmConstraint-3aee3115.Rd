@@ -8,10 +8,17 @@
 # Dyads(fix=NULL, vary=NULL)
 }
 \arguments{
-\item{fix, vary}{formula with only dyad-independent terms}
+\item{fix, vary}{binary ERGM formulas with only dyad-independent terms}
 }
 \description{
 This is an "operator" constraint that takes one or two \code{\link{ergmTerm}} dyad-independent formulas. For the terms in the \verb{vary=} formula, only those that change at least one of the terms will be allowed to vary, and all others will be fixed. If both formulas are given, the dyads that vary either for one or for the other will be allowed to vary. Note that a formula passed to \code{Dyads} without an argument name will default to \verb{fix=} .
+}
+\note{
+If used in a valued ERGM, this constraint will treat the
+\code{fix} and \code{vary} formulas as binary formulas. For example, terms
+such as \ergmTerm{ergm}{nodematch}{()} will work as expected, but
+\ergmTerm{ergm}{sum}{} or \ergmTerm{ergm}{atleast}{()} will
+produce an error.
 }
 \seealso{
 \code{\link{ergmConstraint}} for index of constraints and hints currently visible to the package.

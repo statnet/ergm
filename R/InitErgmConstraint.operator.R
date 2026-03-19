@@ -14,7 +14,13 @@
 #'
 #' @usage
 #' # Dyads(fix=NULL, vary=NULL)
-#' @param fix,vary formula with only dyad-independent terms
+#' @param fix,vary binary ERGM formulas with only dyad-independent terms
+#'
+#' @note If used in a valued ERGM, this constraint will treat the
+#'   `fix` and `vary` formulas as binary formulas. For example, terms
+#'   such as \ergmTerm{ergm}{nodematch}{()} will work as expected, but
+#'   \ergmTerm{ergm}{sum}{} or \ergmTerm{ergm}{atleast}{()} will
+#'   produce an error.
 #'
 #' @template ergmConstraint-general
 #'
@@ -33,11 +39,15 @@ InitErgmConstraint.Dyads<-function(nw, arglist, ..., verify_dind = TRUE){
   if(is.null(fix) & is.null(vary))
     ergm_Init_stop(sQuote("Dyads()"), " constraint takes at least one argument, either ",sQuote("fix"), " or ", sQuote("vary"), " or both.")
 
+  if (is.valued(nw)) {
+    ergm_Init_message("Note that constraint ", sQuote("Dyads()"), " will treat the ERGM terms as binary even if the model is valued.")
+    nw %ergmlhs% "response" <- NULL
+  }
+
   if (verify_dind)
     for(f in c(fix, vary)){
-      f[[3]] <- f[[2]]
-      f[[2]] <- nw
-      if(!is.dyad.independent(f)) ergm_Init_stop("Terms passed to the ", sQuote("Dyads"), " constraint must be dyad-independent.")
+      if (!is.dyad.independent(f, basis = nw))
+        ergm_Init_stop("Terms passed to the ", sQuote("Dyads"), " constraint must be dyad-independent.")
     }
 
   list(
@@ -106,7 +116,12 @@ InitErgmConstraint.I <- function(nw, arglist, ..., env) {
 
 #' @templateVar name ChangeStats
 #' @title Specified statistics must remain constant
-#' @description This is an constraint operator that takes a [`ergmTerm`] formula, and prevents any changes to the network that modify its value. Unlike \ergmConstraint{ergm}{Dyads}{(fix = ...)}, the terms can be dyad-dependent and are calculated at the same time as the proposal rather than used to select proposable-dyads in the first place.
+#' @description Given an [`ergmTerm`] formula, this constraint
+#'   prevents any changes to the network that change its value. Unlike
+#'   \ergmConstraint{ergm}{Dyads}{(fix = ...)}, the terms can be
+#'   dyad-dependent and are calculated at the same time as the
+#'   proposal rather than used to select proposable dyads in the first
+#'   place.
 #'
 #' @usage
 #' # ChangeStats(fix, check_dind = TRUE)
@@ -115,15 +130,31 @@ InitErgmConstraint.I <- function(nw, arglist, ..., env) {
 #'
 #' @section Dyadic dependence:
 #'
-#' If the constraint is dyad-independent, \ergmConstraint{ergm}{Dyads}{(fix)} will usually be faster (at least for estimation) and will make MPLE far more accurate, so if `ChangeStats` detects a dyad-independent constraint, it will fall back to `Dyads`. This can be overridden by setting `check_dind = FALSE`.
+#' If the statistic is dyad-independent, \ergmConstraint{ergm}{Dyads}{(fix)} will usually be faster (at least for estimation) and will make MPLE far more accurate, so if `ChangeStats` detects a dyad-independent constraint, it will fall back to `Dyads`. This can be overridden by setting `check_dind = FALSE`. This fallback is never used for valued ERGMs.
 #'
 #' @section Sampleability is not guaranteed:
 #'
-#' It is perfectly possible for this constraint to make sampling impossible. For example, `ChangeStats(~edges)` will prevent any proposals that change the number of edges in the network, but \pkg{ergm} has no way of knowing that two toggles (edge and non-edge) are now required, so it will keep trying making proposals and failing.
+#' It is perfectly possible for this constraint to make sampling
+#' impossible. For example, `ChangeStats(~edges)` will prevent any
+#' proposals that change the number of edges in the network, but
+#' \pkg{ergm} has no way of knowing that two toggles (edge and
+#' non-edge) are now required, so it will keep trying making proposals
+#' and failing.
 #'
-#' More insidiously, it is in principle possible for the constraint to split the sample space into two parts such that it is not possible to go between them without passing through a state that breaks the constraint.
+#' More insidiously, it is in principle possible for the constraint to
+#' split the sample space into two parts such that it is not possible
+#' to go between them without passing through a state that breaks the
+#' constraint.
 #'
-#' Thus, it is recommended to use this constraint to, e.g., prevent certain motifs from forming.
+#' As of this writing, this constraint's implementation checks only
+#' the difference between the current and the proposed network, not
+#' any in between. Thus, for example, if the proposal *can* preserve
+#' the number of edges, the (redundant) `ChangeStats(~edges)`
+#' constraint will allow sampling to occur. An option to check after
+#' every change may be added in the future.
+#'
+#' Thus, it is recommended to use this constraint to, e.g., prevent
+#' certain motifs from forming.
 #'
 #'
 #' @template ergmConstraint-general
@@ -138,16 +169,14 @@ InitErgmConstraint.ChangeStats <- function(nw, arglist, ...) {
                       defaultvalues = list(NULL, TRUE),
                       required = c(TRUE, FALSE))
 
-  if(a$check_dind) {
-    f <- a$fix
-    f[[3]] <- f[[2]]
-    f[[2]] <- nw
-    if(is.dyad.independent(f)) {
+  # For valued networks, dyad independence doesn't guarantee Dyads()
+  # will work.
+  if (!is.valued(nw) && a$check_dind) {
+    if (is.dyad.independent(a$fix, basis = nw)) {
       message(sQuote("ChangeStats()"), " constraint formula is dyad-independent; falling back to ", sQuote("Dyads()"), ".")
       return(InitErgmConstraint.Dyads(nw, arglist, ..., verify_dind = FALSE))
     }
   }
-
 
   list(
     fix = a$fix,

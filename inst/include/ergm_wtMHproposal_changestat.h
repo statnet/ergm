@@ -19,14 +19,14 @@
 #include "ergm_edgetype_unset.h"
 
 
-#define _WtCHECK_CHANGESTATS2(m, edgestate) {                   \
+#define _WtCHECK_CHANGESTATS2(m, edgestate)                     \
   if (m && WtChangeStats1_changed(MHp, nwp, m, edgestate)) {    \
     MHp->toggletail[0]=MH_FAILED;                               \
     MHp->togglehead[0]=MH_CONSTRAINT;                           \
     return;                                                     \
   }
 
-#define _WtCHECK_CHANGESTATS1(m) {                      \
+#define _WtCHECK_CHANGESTATS1(m)                        \
   if (m && WtChangeStats_changed(MHp, nwp, m)) {        \
     MHp->toggletail[0]=MH_FAILED;                       \
     MHp->togglehead[0]=MH_CONSTRAINT;                   \
