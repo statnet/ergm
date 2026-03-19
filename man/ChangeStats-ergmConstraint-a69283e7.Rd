@@ -13,22 +13,43 @@
 \item{check_dind}{logical; if \code{fix} turns out to be dyad-independent, fall back to \ergmConstraint{ergm}{Dyads}{(fix)}.}
 }
 \description{
-This is an constraint operator that takes a \code{\link{ergmTerm}} formula, and prevents any changes to the network that modify its value. Unlike \ergmConstraint{ergm}{Dyads}{(fix = ...)}, the terms can be dyad-dependent and are calculated at the same time as the proposal rather than used to select proposable-dyads in the first place.
+Given an \code{\link{ergmTerm}} formula, this constraint
+prevents any changes to the network that change its value. Unlike
+\ergmConstraint{ergm}{Dyads}{(fix = ...)}, the terms can be
+dyad-dependent and are calculated at the same time as the
+proposal rather than used to select proposable dyads in the first
+place.
 }
 \section{Dyadic dependence}{
 
 
-If the constraint is dyad-independent, \ergmConstraint{ergm}{Dyads}{(fix)} will usually be faster (at least for estimation) and will make MPLE far more accurate, so if \code{ChangeStats} detects a dyad-independent constraint, it will fall back to \code{Dyads}. This can be overridden by setting \code{check_dind = FALSE}.
+If the statistic is dyad-independent, \ergmConstraint{ergm}{Dyads}{(fix)} will usually be faster (at least for estimation) and will make MPLE far more accurate, so if \code{ChangeStats} detects a dyad-independent constraint, it will fall back to \code{Dyads}. This can be overridden by setting \code{check_dind = FALSE}. This fallback is never used for valued ERGMs.
 }
 
 \section{Sampleability is not guaranteed}{
 
 
-It is perfectly possible for this constraint to make sampling impossible. For example, \code{ChangeStats(~edges)} will prevent any proposals that change the number of edges in the network, but \pkg{ergm} has no way of knowing that two toggles (edge and non-edge) are now required, so it will keep trying making proposals and failing.
+It is perfectly possible for this constraint to make sampling
+impossible. For example, \code{ChangeStats(~edges)} will prevent any
+proposals that change the number of edges in the network, but
+\pkg{ergm} has no way of knowing that two toggles (edge and
+non-edge) are now required, so it will keep trying making proposals
+and failing.
 
-More insidiously, it is in principle possible for the constraint to split the sample space into two parts such that it is not possible to go between them without passing through a state that breaks the constraint.
+More insidiously, it is in principle possible for the constraint to
+split the sample space into two parts such that it is not possible
+to go between them without passing through a state that breaks the
+constraint.
 
-Thus, it is recommended to use this constraint to, e.g., prevent certain motifs from forming.
+As of this writing, this constraint's implementation checks only
+the difference between the current and the proposed network, not
+any in between. Thus, for example, if the proposal \emph{can} preserve
+the number of edges, the (redundant) \code{ChangeStats(~edges)}
+constraint will allow sampling to occur. An option to check after
+every change may be added in the future.
+
+Thus, it is recommended to use this constraint to, e.g., prevent
+certain motifs from forming.
 }
 
 \seealso{

@@ -3,9 +3,9 @@
 \name{DiscUnif2-ergmProposal}
 \alias{DiscUnif2-ergmProposal}
 \alias{InitWtErgmProposal.DiscUnif2}
-\title{TODO}
+\title{Discrete Uniform proposal that proposes changes to two dyads}
 \description{
-TODO
+Mainly used for testing
 }
 \details{
 \if{html}{\Sexpr[results=rd,stage=render]{ergm:::.formatProposalsHtml(ergm:::.buildProposalsList(proposal="DiscUnif2"))}}

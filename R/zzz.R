@@ -84,18 +84,8 @@ eval(UPDATE_MY_SCTRL_EXPR)
   ergm_proposal_table("c", "Bernoulli", "&dyadnoise",  0, "random", "dyadnoise")
   ergm_proposal_table("c", "Bernoulli", "|.dyads|bd|changestats&sparse&triadic",  0, "TNT", "SPDyad")
 
-  ergm_proposal_table("c", "StdNormal", "",  0, "random", "StdNormal")
-  ergm_proposal_table("c", "StdNormal", "|.dyads",  0, "random", "DistRLE")
-
-  ergm_proposal_table("c", "Unif", "",  0, "random", "Unif")
-  ergm_proposal_table("c", "Unif", "&observed",  0, "random", "UnifNonObserved")
-  ergm_proposal_table("c", "Unif", "|.dyads",  0, "random", "DistRLE")
-
-  ergm_proposal_table("c", "DiscUnif", "",  0, "random", "DiscUnif")
-  ergm_proposal_table("c", "DiscUnif", "&observed",  0, "random", "DiscUnifNonObserved")
-
-  ergm_proposal_table("c", "DiscUnif", "",  -1, "random2", "DiscUnif2")
-  ergm_proposal_table("c", c("Unif","DiscUnif","StdNormal","Poisson","Binomial"), "|.dyads",  -3, "random", "DistRLE")
+  ergm_proposal_table("c", "DiscUnif", "",  -8, "random2", "DiscUnif2")
+  ergm_proposal_table("c", c("Unif","DiscUnif","StdNormal","Poisson","Binomial"), "|.dyads|changestats",  -3, "random", "Dist")
 }
 
 

@@ -8,35 +8,10 @@
 #  Copyright 2003-2026 Statnet Commons
 ################################################################################
 
-#' @templateVar name StdNormal
-#' @aliases InitWtErgmProposal.StdNormal
-#' @title TODO
-#' @description TODO
-#' @template ergmProposal-general
-NULL
-InitWtErgmProposal.StdNormal <- function(arguments, nw) {
-  proposal <- list(name = "StdNormal", inputs=NULL)
-  proposal
-}
-
-#' @templateVar name DiscUnif
-#' @aliases InitWtErgmProposal.DiscUnif
-#' @title TODO
-#' @description TODO
-#' @template ergmProposal-general
-NULL
-InitWtErgmProposal.DiscUnif <- function(arguments, nw) {
-  a <- NVL(arguments$reference$arguments$a, -Inf)
-  b <- NVL(arguments$reference$arguments$b, Inf)
-  if(!is.finite(a) || !is.finite(b)) ergm_Init_stop('Uniform reference measures that are not bounded are not implemented at this time. Specifiy a and b to be finite.')
-  proposal <- list(name = "DiscUnif", inputs=c(a,b))
-  proposal
-}
-
 #' @templateVar name DiscUnif2
 #' @aliases InitWtErgmProposal.DiscUnif2
-#' @title TODO
-#' @description TODO
+#' @title Discrete Uniform proposal that proposes changes to two dyads
+#' @description Mainly used for testing
 #' @template ergmProposal-general
 NULL
 InitWtErgmProposal.DiscUnif2 <- function(arguments, nw) {
@@ -47,62 +22,29 @@ InitWtErgmProposal.DiscUnif2 <- function(arguments, nw) {
   proposal
 }
 
-#' @templateVar name DiscUnifNonObserved
-#' @aliases InitWtErgmProposal.DiscUnifNonObserved
-#' @title TODO
-#' @description TODO
-#' @template ergmProposal-general
-NULL
-InitWtErgmProposal.DiscUnifNonObserved <- function(arguments, nw) {
-  a <- NVL(arguments$reference$arguments$a, -Inf)
-  b <- NVL(arguments$reference$arguments$b, Inf)
-  if(!is.finite(a) || !is.finite(b)) ergm_Init_stop('Uniform reference measures that are not bounded are not implemented at this time. Specifiy a and b to be finite.')
-  proposal <- list(name = "DiscUnifNonObserved", inputs=c(a,b,to_ergm_Cdouble(is.na(nw))))
-  proposal
-}
 
-#' @templateVar name Unif
-#' @aliases InitWtErgmProposal.Unif
-#' @title TODO
-#' @description TODO
+#' @templateVar name Dist
+#' @aliases InitWtErgmProposal.Dist
+#' @title Random toggle for a number of reference distributions
+#' @description Implements the `DyadGen` API and the
+#'   \ergmConstraint{ergm}{ChangeStats}{()} API.
 #' @template ergmProposal-general
 NULL
-InitWtErgmProposal.Unif <- function(arguments, nw) {
-  a <- NVL(arguments$reference$arguments$a, -Inf)
-  b <- NVL(arguments$reference$arguments$b, Inf)
-  if(!is.finite(a) || !is.finite(b)) ergm_Init_stop('Uniform reference measures that are not bounded are not implemented at this time. Specifiy a and b to be finite.')
-  proposal <- list(name = "Unif", inputs=c(a,b))
-  proposal
-}
-
-#' @templateVar name UnifNonObserved
-#' @aliases InitWtErgmProposal.UnifNonObserved
-#' @title TODO
-#' @description TODO
-#' @template ergmProposal-general
-NULL
-InitWtErgmProposal.UnifNonObserved <- function(arguments, nw) {
-  a <- NVL(arguments$reference$arguments$a, -Inf)
-  b <- NVL(arguments$reference$arguments$b, Inf)
-  if(!is.finite(a) || !is.finite(b)) ergm_Init_stop('Uniform reference measures that are not bounded are not implemented at this time. Specifiy a and b to be finite.')
-  proposal <- list(name = "UnifNonObserved", inputs=c(a,b,to_ergm_Cdouble(is.na(nw))))
-  proposal
-}
-
-#' @templateVar name DistRLE
-#' @aliases InitWtErgmProposal.DistRLE
-#' @title TODO
-#' @description TODO
-#' @template ergmProposal-general
-NULL
-InitWtErgmProposal.DistRLE <- function(arguments, nw) {
+InitWtErgmProposal.Dist <- function(arguments, nw) {
+  iinputs <- c(Unif = 0,
+               DiscUnif = 1,
+               StdNormal = 2,
+               Poisson = 3,
+               Binomial = 4,
+               Bernoulli = 4)[arguments$reference$name]
   inputs <- with(arguments$reference$arguments,
                  switch(arguments$reference$name,
-                        Unif = c(0, a, b),
-                        DiscUnif = c(1, a, b),
-                        StdNormal = c(2, 0, 1),
-                        Poisson = c(3, 1),
-                        Binomial = c(4, trials, 0.5),
-                        Bernoulli = c(4, 1, 0.5)))
-  proposal <- list(name = "DistRLE", inputs=c(to_ergm_Cdouble(as.rlebdm(arguments$constraints)),inputs), pkgname="ergm")
+                        Unif = c(a, b),
+                        DiscUnif = c(a, b),
+                        StdNormal = c(NVL(arguments$sd, 0.2)),
+                        Binomial = c(trials),
+                        Bernoulli = c(1)))
+  proposal <- c(list(name = "Dist", dyadgen = ergm_dyadgen_select(arguments, nw),
+                     iinputs = iinputs, inputs = inputs, pkgname = "ergm"),
+                ergm_constrain_changestats(arguments))
 }
