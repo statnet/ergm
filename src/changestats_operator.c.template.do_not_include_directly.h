@@ -61,12 +61,15 @@ ETYPE(F_CHANGESTAT_FN)(ETYPE(f_, passthrough_term)){
 
 /* .submodel(formula) */
 
-ETYPE(I_CHANGESTAT_FN)(ETYPE(i_, _submodel_term)){
+ETYPE(I_CHANGESTAT_FN)(ETYPE(i__, submodel_term)){
   // No need to allocate it: we are only storing a pointer to a model.
   AUX_STORAGE = ETYPE(ModelInitialize)(getListElement(mtp->R, "submodel"), NULL,  nwp, FALSE);
 }
 
-ETYPE(F_CHANGESTAT_FN)(ETYPE(f_, _submodel_term)){
+/* No need for a u_ function, because ModelInitialize() will
+   automatically attach the terms' u_ functions to the network. */
+
+ETYPE(F_CHANGESTAT_FN)(ETYPE(f__, submodel_term)){
   GET_AUX_STORAGE(ETYPE(Model), m);
 
   ETYPE(ModelDestroy)(nwp, m);
