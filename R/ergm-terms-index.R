@@ -864,7 +864,7 @@ search.ergmProposals <- function(search, name, reference, constraints, packages)
   if (!missing(reference)) {
     for (t in which(found)) {
       term <-terms[[t]]
-      if (! reference %in% (term$rules %>% map("Reference"))) {
+      if (! reference %in% term$rules$Reference) {
         found[t]<-FALSE
       }
     }
@@ -875,7 +875,8 @@ search.ergmProposals <- function(search, name, reference, constraints, packages)
     for (constraint in constraints) {
       for (t in which(found)) {
         term <-terms[[t]]
-        if (!constraint %in% (term$rules %>% map('Enforces') %>% unlist) && !constraint %in% (term$rules %>% map("`May Enforce`") %>% unlist)) {
+        if (! constraint %in% (term$rules$Enforces |> unlist())
+            && ! constraint %in% (term$rules$`May Enforce` |> unlist())) {
           found[t]<-FALSE
         }
       }
@@ -907,13 +908,13 @@ search.ergmProposals <- function(search, name, reference, constraints, packages)
           term$name,
           term$title,
           term$description))
-        for (rule in term$rules) {
+        apply(term$rules, 1L, function(rule) {
           cat(sprintf('    Reference: %s Class: %s\n%s%s\n',
             rule$Reference,
             rule$Class,
             if (length(rule$Enforces) > 0) paste("    Enforces:", paste(rule$Enforces, collapse=" "), "\n") else "",
             if (length(rule$`May Enforce`) > 0) paste("    May Enforce:", paste(rule$`May Enforce`, collapse=" "), "\n") else ""))
-        }
+        })
       }
     }
   }else{
@@ -922,8 +923,11 @@ search.ergmProposals <- function(search, name, reference, constraints, packages)
       outText <- sprintf('%s\n    %s\n', term$name, term$title)
       output<-c(output,outText)
     }
-    cat("Found ",length(output)," matching ergm proposals:\n")
-    cat(paste(output,collapse='\n'))
+    if (length(output)) {
+      cat("Found ", length(output), " matching ergm proposals:\n")
+      cat(paste(output, collapse = "\n"))
+    }else cat("No matching ergm proposals found.\n")
+
   }
   invisible(output)
 }
