@@ -3,7 +3,6 @@
 \name{ergm-internal}
 \alias{ergm-internal}
 \alias{ergm.logitreg}
-\alias{ergm_conlist}
 \title{Internal ergm Objects}
 \description{
 Internal \CRANpkg{ergm} functions.

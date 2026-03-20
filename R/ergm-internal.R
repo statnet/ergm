@@ -15,7 +15,7 @@
 #' waiting for proper documentation to be written.
 #' 
 #' @name ergm-internal
-#' @aliases ergm.logitreg ergm_conlist
+#' @aliases ergm.logitreg
 #' @seealso ergm-package
 #' @keywords internal
 NULL
