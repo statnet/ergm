@@ -35,7 +35,7 @@ Arguments
 
 : arguments and settings passed to the call or as control parameters.
 
-    * `constraints=` argument (top-level): A one-sided formula containing a `+`- or `-`-separated list of constraints. `+` terms add additional constraints to the model whereas `-` constraints relax them. `-` constraints are primarily used internally observational process estimation and are not described in detail, except to note that 1) they must be dyad-independent and 2) they necessitate falling back to the RLEBDM sampling API.
+    * `constraints=` argument (top-level): A one-sided formula containing a `+`- or `-`-separated list of constraints. `+` terms add additional constraints to the model whereas `-` constraints relax them. `-` constraints are primarily used internally for observational process estimation and are not described in detail, except to note that 1) they must be dyad-independent and 2) they necessitate falling back to the RLEBDM sampling API. A `term_list` or a list of `formula`s or `term_lists` is also supported.
     * `reference=` argument (top-level): A one-sided formula specifying the ERGM reference distribution, usually as a name with parameters if appropriate.
     * `control$MCMC.prop=` control parameter: A formula whose RHS containing `+`-separated "hints" to the sampler; an optional LHS may contain the proposal name directly.
     * `control$MCMC.prop.weights=` control parameter: A string selecting proposal weighting (probably deprecated)
@@ -54,7 +54,7 @@ Most of this is implemented in the `ergm_proposal.formula()` method:
 1. Each candidate proposal is "scored" as follows:
     1. If a proposal **does** enforce a constraint that is not among the requested by the constraints list, it is discarded.
     1. If a proposal cannot enforce a constraint that is among the requested with `priority==Inf`, it is discarded.
-    1. For each constraint that is among requested with `priority<Inf` *and* that the proposal **does**n't and **can**'t enforce, its (innate, specified in the column of the `ergm_proposal_table()`) `Priority` value is penalised by the `priority` of that constraint.
+    1. For each constraint that is among requested with `priority<Inf` *and* that the proposal **does**n't and **can**'t enforce, its (innate, specified in the column of the `ergm_proposal_table()`) `Priority` value is penalised by the `priority` of that constraint. Proposals whose `Constraints` include `*` are exempt from this penalty.
 1. If there are no candidate proposals left, an error is raised.
 1. If more than one is left,
     1. Calls to `InitErgmProposal.*` functions are attempted. If a call returns `NULL`, next proposal is attempted. (This can be useful if a proposal handles a particular special case that is not accounted for by constraints.)

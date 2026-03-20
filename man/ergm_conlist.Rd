@@ -2,9 +2,11 @@
 % Please edit documentation in R/ergm_proposal.R
 \name{ergm_conlist}
 \alias{ergm_conlist}
+\alias{ergm_conlist.list}
 \alias{ergm_conlist.ergm_conlist}
 \alias{ergm_conlist.NULL}
 \alias{ergm_conlist.formula}
+\alias{ergm_conlist.character}
 \alias{ergm_conlist.term_list}
 \alias{c.ergm_conlist}
 \alias{[.ergm_conlist}
@@ -12,11 +14,15 @@
 \usage{
 ergm_conlist(object, ...)
 
+\method{ergm_conlist}{list}(object, ...)
+
 \method{ergm_conlist}{ergm_conlist}(object, ...)
 
 \method{ergm_conlist}{`NULL`}(object, ...)
 
-\method{ergm_conlist}{formula}(object, nw, ...)
+\method{ergm_conlist}{formula}(object, ...)
+
+\method{ergm_conlist}{character}(object, ...)
 
 \method{ergm_conlist}{term_list}(object, nw, ..., term.options = list())
 
@@ -37,6 +43,8 @@ constraints.
 }
 \section{Methods (by class)}{
 \itemize{
+\item \code{ergm_conlist(list)}: list of other eligible inputs: concatenates.
+
 \item \code{ergm_conlist(ergm_conlist)}: identity method.
 
 \item \code{ergm_conlist(`NULL`)}: handling for \code{NULL}, to simplify other code.
@@ -44,6 +52,8 @@ constraints.
 \item \code{ergm_conlist(formula)}: initialize from \code{\link{formula}}, such as in
 \code{\link[=ergm]{ergm()}} \code{constraints} and \code{obs.constraints} arguments: preserve
 the LHS, convert to \code{\link[statnet.common:term_list]{term_list}}, and use the nxt method.
+
+\item \code{ergm_conlist(character)}: specify the proposal name directly.
 
 \item \code{ergm_conlist(term_list)}: initialize from \code{\link[statnet.common:term_list]{term_list}}.
 

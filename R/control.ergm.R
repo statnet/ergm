@@ -588,7 +588,7 @@ control.ergm<-function(drop=TRUE,
                        obs.MCMC.interval=EVL(round(MCMC.interval*obs.MCMC.interval.mul)),
                        obs.MCMC.burnin.mul=sqrt(obs.MCMC.mul),
                        obs.MCMC.burnin=EVL(round(MCMC.burnin*obs.MCMC.burnin.mul)),
-                       obs.MCMC.prop=MCMC.prop, obs.MCMC.prop.weights=MCMC.prop.weights, obs.MCMC.prop.args=MCMC.prop.args,
+                       obs.MCMC.prop=NULL, obs.MCMC.prop.weights=MCMC.prop.weights, obs.MCMC.prop.args=MCMC.prop.args,
                        obs.MCMC.impute.min_informative = function(nw) network.size(nw)/4,
                        obs.MCMC.impute.default_density = function(nw) 2/network.size(nw),
 

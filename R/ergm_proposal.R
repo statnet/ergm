@@ -62,6 +62,11 @@
 #'   `ergm_proposal_table()`, it also sets a call-back to remove all
 #'   of its proposals from the table should the package be unloaded.
 #'
+#' @return If called without arguments, a table of the above. Note
+#'   that `Constraints` column is preprocessed into a [`list`] column
+#'   with character vector elements `$does` and `$can` and a logical
+#'   element `$can_any` indicating that it's a meta constraint.
+#'
 #' @keywords internal
 #' @export
 ergm_proposal_table <- local({
@@ -156,13 +161,19 @@ prune.ergm_conlist <- function(conlist){
 #
 ########################################################################################
 
-# If the constraints formula is two-sided, add a term .select(LHS) and remove LHS.
-.embed_constraint_lhs <- function(formula){
-  if(length(formula) > 2){
-    lhs <- try(eval_lhs.formula(formula), silent = TRUE)
-    if (is(lhs, "try-error") || !is.character(lhs)) stop("Constraint formula must be either one-sided or have a string expression as its LHS.")
-    nonsimp_update.formula(formula, substitute(~. + .select(..), list(..=lhs)))
-  }else formula
+# If the constraints formula is two-sided, add a term .select(LHS) and
+# remove LHS. Also, if the result is a character string, we construct
+# a one-sided formula with .select(x). term_lists get passed through.
+.embed_constraint_lhs <- function(x) {
+  if (is(x, "formula")) {
+    if (length(x) > 2L) {
+      lhs <- try(eval_lhs.formula(x), silent = TRUE)
+      if (is(lhs, "try-error") || !is.character(lhs)) stop("Constraint formula must be either one-sided or have a string expression as its LHS.")
+      nonsimp_update.formula(x, substitute(~. + .select(..), list(.. = lhs)))
+    } else x
+  } else if (is.character(x)) as.formula(call("~", call(".select", x)), baseenv())
+  else if (is(x, "term_list")) x
+  else stop("Constraint must be either a formula or a string.")
 }
 
 .delete_term <- function(tl, terms) discard(tl, ~any(as.character(.)[1] %in% terms))
@@ -283,6 +294,18 @@ ergm_proposal.character <- function(object, arguments, nw, ..., reference=ergm_r
 #' @export
 ergm_conlist <- function(object, ...) UseMethod("ergm_conlist")
 
+#' @describeIn ergm_conlist list of other eligible inputs: concatenates.
+#' @export
+ergm_conlist.list <- function(object, ...) {
+  object <- compact(object)
+  OK <- map_lgl(object,  \(x) is.character(x) || is(x, "formula") || is(x, "term_list"))
+  if (any(!OK))
+    stop("Invalid list element(s) ", deparse1(object[!OK]), " passed to ",
+         sQuote("ergm_conlist()"), "'s ", sQuote("list"), "method.")
+
+  object |> ergm_flatten_conterm_list() |> ergm_conlist(...)
+}
+
 #' @describeIn ergm_conlist identity method.
 #' @export
 ergm_conlist.ergm_conlist <- function(object, ...) object
@@ -299,8 +322,12 @@ ergm_conlist.NULL <- function(object, ...) NULL
 #' @template term_options
 #'
 #' @export
-ergm_conlist.formula <- function(object, nw, ...)
-  object |> .embed_constraint_lhs() |> list_rhs.formula() |> ergm_conlist(nw, ...)
+ergm_conlist.formula <- function(object, ...)
+  object |> ergm_flatten_conterm_list() |> ergm_conlist(...)
+
+#' @describeIn ergm_conlist specify the proposal name directly.
+#' @export
+ergm_conlist.character <- ergm_conlist.formula
 
 #' @describeIn ergm_conlist initialize from [`term_list`].
 #' @export
@@ -495,13 +522,10 @@ call.ErgmReference <- function(term, env, nw, ..., term.options=list()){
 #' documentation for a similar argument for [ergm()] and see
 #' [`ergmConstraint`] for more information.
 #' @export
-ergm_proposal.formula <- function(object, arguments, nw, hints=trim_env(~sparse), ..., term.options=list()) {
-  NVL(hints) <- trim_env(~sparse)
-
+ergm_proposal.formula <- function(object, arguments, nw, ..., term.options = list()) {
   conlist <- if("constraints" %in% names(arguments))
                prune.ergm_conlist(arguments$constraints)
-             else c(ergm_conlist(object, nw, term.options=term.options, ...),
-                    ergm_conlist(hints, nw, term.options=term.options, ...))
+             else ergm_conlist(object, nw, term.options = term.options, ...)
 
   ## Hand it off to the class ergm_conlist method.
   ergm_proposal(conlist, arguments, nw, ..., term.options = term.options)
@@ -620,4 +644,38 @@ free_dyads <- function(con){
   if(is.null(fd) || is(fd, "rlebdm")) fd
   else if(is.function(fd)) fd()
   else stop("Unsupported free_dyad type; this is probably a programming error.")
+}
+
+
+#' Convert a list of constraint formulas or terms to a flat term list
+#'
+#' This helper function processes the usual constraint specifications
+#' ([`formula`]s, [`term_list`]s, [`character`] strings) or a list
+#' thereof into a flat [`term_list`] of distinct values.
+#'
+#' @param l a [`formula`], a [`term_list`], a [`character`], [`NULL`],
+#'   or a (potentially heterogeneous) list thereof.
+#'
+#' @return a [`term_list`].
+#'
+#' @examples
+#' z <- 5
+#' ergm_flatten_conterm_list(list(
+#'   NULL,
+#'   ~a(x) - b,
+#'   statnet.common::base_env(~c),
+#'   NULL,
+#'   term_list(call("f", z), env = baseenv(), sign = -1)
+#' ))
+#'
+#' @export
+ergm_flatten_conterm_list <- function(l) {
+  enlist(l) |>
+    compact() |>
+    map(.embed_constraint_lhs) |>
+    map_if(\(tlf) is(tlf, "formula"),
+           list_rhs.formula) |>
+    do.call(c, args = _) |>
+    compact() |>
+    unique()
 }

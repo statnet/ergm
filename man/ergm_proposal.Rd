@@ -22,23 +22,9 @@ ergm_proposal(object, ...)
   term.options = list()
 )
 
-\method{ergm_proposal}{formula}(
-  object,
-  arguments,
-  nw,
-  hints = trim_env(~sparse),
-  ...,
-  term.options = list()
-)
+\method{ergm_proposal}{formula}(object, arguments, nw, ..., term.options = list())
 
-\method{ergm_proposal}{term_list}(
-  object,
-  arguments,
-  nw,
-  hints = trim_env(~sparse),
-  ...,
-  term.options = list()
-)
+\method{ergm_proposal}{term_list}(object, arguments, nw, ..., term.options = list())
 
 \method{ergm_proposal}{ergm_conlist}(
   object,

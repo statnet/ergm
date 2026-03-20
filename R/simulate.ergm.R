@@ -319,12 +319,13 @@ simulate_formula <- function(object, ..., basis=eval_lhs.formula(object)) {
     if(!is.list(constraints)) constraints <- list(constraints)
     constraints <- rep(constraints, length.out=2)
     # Inherit constraints from nw if needed.
-    tmp <- .handle.auto.constraints(nw, constraints[[1]], constraints[[2]], NULL)
+    tmp <- .handle.auto.constraints(nw, constraints[[1]], constraints[[2]], NULL, control)
     nw <- tmp$nw; conterms <- if(observational) tmp$conterms.obs else tmp$conterms
 
     if (verbose) message("Initializing unconstrained Metropolis-Hastings proposal: ", appendLF=FALSE)
-    proposal <- ergm_proposal(conterms, arguments=if(observational) control$obs.MCMC.prop.args else control$MCMC.prop.args,
-                              nw=nw, hints=if(observational) control$obs.MCMC.prop else control$MCMC.prop, weights=if(observational) control$obs.MCMC.prop.weights else control$MCMC.prop.weights, class="c",reference=reference, term.options=control$term.options)
+    proposal <- ergm_proposal(conterms, arguments = if(observational) control$obs.MCMC.prop.args else control$MCMC.prop.args,
+                              nw = nw, weights = if (observational) control$obs.MCMC.prop.weights else control$MCMC.prop.weights,
+                              class = "c", reference = reference, term.options = control$term.options)
     if (verbose) message(sQuote(paste0(proposal$pkgname,":MH_",proposal$name)),".")
   }
   
@@ -432,12 +433,13 @@ simulate.ergm_model <- function(object, nsim=1, seed=NULL,
     if(!is.list(constraints)) constraints <- list(constraints)
     constraints <- rep(constraints, length.out=2)
     # Inherit constraints from nw if needed.
-    tmp <- .handle.auto.constraints(nw0, constraints[[1]], constraints[[2]], NULL)
+    tmp <- .handle.auto.constraints(nw0, constraints[[1]], constraints[[2]], NULL, control)
     nw0 <- tmp$nw; conterms <- if(observational) tmp$conterms.obs else tmp$conterms
 
     if (verbose) message("Initializing unconstrained Metropolis-Hastings proposal: ", appendLF=FALSE)
     proposal <- ergm_proposal(conterms, arguments=control$MCMC.prop.args,
-                              nw=nw0, hints=control$MCMC.prop, weights=control$MCMC.prop.weights, class="c",reference=reference, term.options=control$term.options)
+                              nw = nw0, weights = control$MCMC.prop.weights, class = "c",
+                              reference = reference, term.options = control$term.options)
     if (verbose) message(sQuote(paste0(proposal$pkgname,":MH_",proposal$name)),".")
   }
 

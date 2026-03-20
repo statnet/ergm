@@ -8,53 +8,67 @@
 #  Copyright 2003-2026 Statnet Commons
 ################################################################################
 
+dot_sub_constraints <- function(nw, ..., default.dot = c("first", "last", "none")) {
+  default.dot <- match.arg(default.dot)
+
+  # Ensure that each argument is a term_list with LHS embedded.
+  tll <- list(...) |> map(ergm_flatten_conterm_list) |> compact()
+  # If no missing edges, remove the "observed" constraint.
+  if (network.naedgecount(nw) == 0L) tll <- map(tll, .delete_term, "observed")
+
+  if(all(lengths(tll) == 0L)) return(NULL)
+
+  # Go through the constraint lists, substituting the earlier ones into the dots in the later ones.
+  otl <- tll[[1]]
+  for (i in seq_along(tll)[-1]) {
+    ntl <- tll[[i]]
+
+    # Find the substitution positions.
+    pos <- which(ntl |> map_chr(\(x) as.character(x)[1]) == ".")
+
+    # Don't substitute at negative dots.
+    pos_sign <- attr(ntl, "sign")[pos]
+    pos <- pos[pos_sign>0]
+
+    # If no dots, use default behaviour unless there is a negative dot.
+    if (!length(pos) && all(pos_sign > 0))
+      ntl <- switch(default.dot,
+                    first = c(otl, ntl),
+                    last = c(ntl, otl),
+                    none = ntl)
+
+    # Substitute (working backwards, to prevent pos from changing).
+    for(p in rev(pos))
+      ntl <- c(ntl[seq_len(pos-1)], otl, ntl[-seq_len(pos)])
+
+    otl <- ntl
+  }
+
+  # Delete remaining dots (including the negative ones).
+  .delete_term(otl, ".")
+}
+
+
 .handle.auto.constraints <- function(nw,
                                      constraints=trim_env(~.),
                                      obs.constraints=trim_env(~.-observed),
                                      target.stats=NULL,
+                                     control = control.ergm(),
+                                     control.prop = "MCMC",
                                      default.dot=c("first", "last", "none")){
   default.dot <- match.arg(default.dot)
 
-  .preproc_constraints <- function(...){
-    # Embed the LHS as a .select() constraint.
-    tll <- list(...) %>% compact() %>% map(.embed_constraint_lhs) %>% map(list_rhs.formula)
-    # If no missing edges, remove the "observed" constraint.
-    if(network.naedgecount(nw)==0) tll <- map(tll, .delete_term, "observed")
+  tl <- dot_sub_constraints(nw,
+                            nw%ergmlhs%"constraints",
+                            c(enlist(constraints),
+                              enlist(control[[paste0(control.prop, ".prop")]])),
+                            default.dot = default.dot)
 
-    if(length(tll) == 0) return(NULL)
-
-    # Go through the constraint lists, substituting the earlier ones into the dots in the later ones.
-    otl <- tll[[1]]
-    for(i in seq_along(tll)[-1]){
-      ntl <- tll[[i]]
-
-      # Find the substitution positions.
-      pos <- which(ntl %>% map_chr(~as.character(.)[1]) == ".")
-
-      # Don't substitute at negative dots.
-      pos_sign <- attr(ntl, "sign")[pos]
-      pos <- pos[pos_sign>0]
-
-      # If no dots, use default behaviour unless there is a negative dot.
-      if(!length(pos) && all(pos_sign>0))
-        ntl <- switch(default.dot,
-                     first = c(otl, ntl),
-                     last = c(ntl, otl),
-                     none = ntl)
-
-      # Substitute (working backwards, to prevent pos from changing).
-      for(p in rev(pos))
-        ntl <- c(ntl[seq_len(pos-1)], otl, ntl[-seq_len(pos)])
-
-      otl <- ntl
-    }
-
-    # Delete remaining dots (including the negative ones).
-    .delete_term(otl, ".")
-  }
-
-  tl <- .preproc_constraints(nw%ergmlhs%"constraints", constraints)
-  obs.tl <- .preproc_constraints(nw%ergmlhs%"obs.constraints", obs.constraints)
+  obs.tl <- dot_sub_constraints(nw,
+                                nw%ergmlhs%"obs.constraints",
+                                c(enlist(obs.constraints),
+                                  enlist(control[[paste0("obs.", control.prop, ".prop")]])),
+                                default.dot = default.dot)
 
   # Do any of the observational constraints formulas have terms?
   if(length(obs.tl)){

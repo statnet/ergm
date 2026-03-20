@@ -368,13 +368,13 @@ ergm <- function(formula, response=NULL,
 
   if(!is(constraints, "ergm_proposal")){
     # Handle the observation process and other "automatic" constraints.
-    tmp <- .handle.auto.constraints(nw, constraints, obs.constraints, target.stats)
+    tmp <- .handle.auto.constraints(nw, constraints, obs.constraints, target.stats, control)
     nw <- tmp$nw
     conterms.obs <- tmp$conterms.obs
     conterms <- tmp$conterms
   }else if(!is(obs.constraints, "ergm_proposal")){
     # Handle the observation process and other "automatic" constraints.
-    tmp <- .handle.auto.constraints(nw, trim_env(~.), obs.constraints, target.stats)
+    tmp <- .handle.auto.constraints(nw, trim_env(~.), obs.constraints, target.stats, control)
     nw <- tmp$nw
     conterms.obs <- tmp$conterms.obs
     conterms <- tmp$conterms
@@ -388,7 +388,9 @@ ergm <- function(formula, response=NULL,
     warn(paste0("The default Bernoulli reference distribution operates in the binary (",sQuote("response=NULL"),") mode only. Did you specify the ",sQuote("reference")," argument?"))
   }
     
-    proposal <- ergm_proposal(conterms, hints=control$MCMC.prop, weights=control$MCMC.prop.weights, control$MCMC.prop.args, nw, class=proposalclass,reference=reference, term.options=control$term.options)
+    proposal <- ergm_proposal(conterms, weights = control$MCMC.prop.weights,
+                              control$MCMC.prop.args, nw, class = proposalclass,
+                              reference = reference, term.options = control$term.options)
   }else proposal <- constraints
   
   if (verbose) message(sQuote(paste0(proposal$pkgname,":MH_",proposal$name)),".")
@@ -396,7 +398,9 @@ ergm <- function(formula, response=NULL,
   if(!is(obs.constraints, "ergm_proposal")){
     if(!is.null(conterms.obs)){
       if (verbose) message("Initializing constrained Metropolis-Hastings proposal: ", appendLF=FALSE)
-      proposal.obs <- ergm_proposal(conterms.obs, hints=control$obs.MCMC.prop, weights=control$obs.MCMC.prop.weights, control$obs.MCMC.prop.args, nw, class=proposalclass, reference=reference, term.options=control$term.options)
+      proposal.obs <- ergm_proposal(conterms.obs, weights = control$obs.MCMC.prop.weights,
+                                    control$obs.MCMC.prop.args, nw, class = proposalclass,
+                                    reference = reference, term.options = control$term.options)
     }else proposal.obs <- NULL
   }else proposal.obs <- obs.constraints
 

@@ -42,6 +42,12 @@ priority (\code{-1},\code{0},\code{1}, etc.) of proposals to be used.}
 it's normally autodetected based on the package to which the
 calling function belongs.}
 }
+\value{
+If called without arguments, a table of the above. Note
+that \code{Constraints} column is preprocessed into a \code{\link{list}} column
+with character vector elements \verb{$does} and \verb{$can} and a logical
+element \verb{$can_any} indicating that it's a meta constraint.
+}
 \description{
 This is a low-level function not intended to be called directly by
 end users. For information on Metropolis-Hastings proposal methods,
