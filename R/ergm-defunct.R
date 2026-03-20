@@ -85,6 +85,12 @@
 #'
 #' control.ergm.godfather(...)
 #'
+#' enformulate.curved(...)
+#'
+#' enformulate.curved.ergm(...)
+#'
+#' enformulate.curved.formula(...)
+#'
 #' @description Functions that have been removed after a period of deprecation.
 #' @param ... Arguments to defunct functions.
 #' @details
@@ -158,7 +164,9 @@
 #'
 #' `control.ergm.godfather(...)`: no longer used
 #'
-#' @aliases robust.inverse plot.network.ergm ergm.getterms plot.mcmc.list.ergm plot.ergm summary.statistics ergm.checkargs ergm.checkbipartite ergm.checkdirected summary.gof ergm.getMCMCsample ergm.MHP.table MHproposal MHproposal.character MHproposal.ergm MHproposal.formula ergm.init.methods ergm.ConstraintImplications ergm.mcmcslave ergm.update.formula remove.offset.formula network.update ergm.getmodel ergm.getglobalstats as.edgelist.compressed as.network.uncompressed standardize.network newnw.extract san.ergm is.inCH as.rlebdm.ergm degreepopularity-ergmTerm odegreepopularity-ergmTerm idegreepopularity-ergmTerm hammingmix-ergmTerm offset.info.formula InitErgmTerm.degreepopularity InitErgmTerm.idegreepopularity InitErgmTerm.odegreepopularity control.ergm.godfather
+#' `enformulate.curved()`, `enformulate.curved.ergm()`, `enformulate.curved.formula()`: Deprecated in 4.0; use `fix.curved(...)` if you really need to.
+#'
+#' @aliases robust.inverse plot.network.ergm ergm.getterms plot.mcmc.list.ergm plot.ergm summary.statistics ergm.checkargs ergm.checkbipartite ergm.checkdirected summary.gof ergm.getMCMCsample ergm.MHP.table MHproposal MHproposal.character MHproposal.ergm MHproposal.formula ergm.init.methods ergm.ConstraintImplications ergm.mcmcslave ergm.update.formula remove.offset.formula network.update ergm.getmodel ergm.getglobalstats as.edgelist.compressed as.network.uncompressed standardize.network newnw.extract san.ergm is.inCH as.rlebdm.ergm degreepopularity-ergmTerm odegreepopularity-ergmTerm idegreepopularity-ergmTerm hammingmix-ergmTerm offset.info.formula InitErgmTerm.degreepopularity InitErgmTerm.idegreepopularity InitErgmTerm.odegreepopularity control.ergm.godfather enformlate.curved enformulate.curved.ergm enformulate.curved.formula
 #'
 #' @keywords internal
 NULL

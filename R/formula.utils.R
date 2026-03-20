@@ -210,76 +210,7 @@ fix.curved.formula <- function(object, theta, ...){
 }
 
 
-#' Convert a curved ERGM into a form suitable as initial values for the same
-#' ergm. Deprecated in 4.0.0.
-#' 
-#' The generic \code{enformulate.curved} converts an [`ergm`] object
-#' or formula of a model with curved terms to the variant in which the curved
-#' parameters embedded into the formula and are removed from the parameter
-#' vector. This is the form that used to be required by [ergm()] calls.
-#' 
-#' Because of a current kludge in [ergm()], output from one run
-#' cannot be directly passed as initial values (\code{control.ergm(init=)}) for
-#' the next run if any of the terms are curved. One workaround is to embed the
-#' curved parameters into the formula (while keeping \code{fixed=FALSE}) and
-#' remove them from \code{control.ergm(init=)}.
-#' 
-#' This function automates this process for curved ERGM terms included with the
-#' \CRANpkg{ergm} package. It does not work with curved
-#' terms not included in ergm.
-#' 
-#' @param object An [`ergm`] object or an ERGM formula. The curved
-#' terms of the given formula (or the formula used in the fit) must have all of
-#' their arguments passed by name.
-#' @param \dots Unused at this time.
-#' @return A list with the following components: \item{formula}{The formula
-#' with curved parameter estimates incorporated.} \item{theta}{The coefficient
-#' vector with curved parameter estimates removed.}
-#' @seealso [ergm()], [simulate.ergm()]
-#' @keywords model
-#' @name enformulate.curved-deprecated
-## #' @examples
-## #' 
-## #' \donttest{
-## #' \dontshow{
-## #' options(ergm.eval.loglik=FALSE)
-## #' }
-## #' data(sampson)
-## #' gest<-ergm(samplike~edges+gwesp(decay=.5, fixed=FALSE), 
-## #'     control=control.ergm(MCMLE.maxit=1))
-## #' # Error:
-## #' gest2<-try(ergm(gest$formula, control=control.ergm(init=coef(gest), MCMLE.maxit=1)))
-## #' print(gest2)
-## #' 
-## #' # Works:
-## #' tmp<-enformulate.curved(gest)
-## #' tmp
-## #' gest2<-try(ergm(tmp$formula, control=control.ergm(init=tmp$theta, MCMLE.maxit=1)))
-## #' summary(gest2)
-## #' }
-#' 
+# TODO: Delete in ergm 4.14
+#' @rdname ergm-defunct
 #' @export enformulate.curved
-enformulate.curved <- function(object, ...) UseMethod("enformulate.curved")
-
-#' @rdname enformulate.curved-deprecated
-#' @export
-enformulate.curved.ergm <- function(object,...){
-  .Deprecated(msg="enformulate.curved() family of functions has been obviated by native handling of curved ERGM terms.")
-  fix.curved.formula(object$formula, coef(object), ...)
-}
-
-#' @rdname enformulate.curved-deprecated
-#' @param theta Curved model parameter configuration.
-#' @export
-enformulate.curved.formula <- function(object, theta, ...){
-  recipes<-list()
-  is.fixed.1<-function(a) is.null(a$fixed) || a$fixed==FALSE
-  recipes$dgwdsp<-recipes$dgwesp<-recipes$dgwnsp<-recipes$gwdsp<-recipes$gwesp<-recipes$gwnsp<-recipes$gwb1dsp<-recipes$gwb2dsp<-
-    list(filter=is.fixed.1, tocoef=1, toarg=list(decay=2))
-  recipes$altkstar<-
-    list(filter=is.fixed.1, tocoef=1, toarg=list(lambda=2))
-  recipes$gwb1degree<-recipes$gwb2degree<-recipes$gwdegree<-recipes$gwidegree<-recipes$gwodegree<-
-    list(filter=is.fixed.1, tocoef=1, toarg=list(decay=2))
-
-  model.transform.formula(object, theta, recipes, ...)
-}
+enformulate.curved <- function(...) .Defunct(msg = "No longer useful after {ergm} 4.0; use fix.curved() if you really need to.")
