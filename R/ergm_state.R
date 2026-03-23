@@ -232,6 +232,7 @@ update.ergm_state_full <- function(object, el=NULL, nw0=NULL, model=NULL, propos
   if(!is.null(model)){
     if(!is(model, "ergm_model")) stop("New model is not an ergm_model.")
     object$model <- model
+    object$ext.state <- vector("list", length(object$model$terms))
     object$ext.flag <- ERGM_STATE_R_CHANGED
     object$uids$model <- NULL
   }
