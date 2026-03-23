@@ -72,6 +72,52 @@ test_that("Bipartite Undirected Network", {
   run.miss.test(y)
 })
 
+o <- options(ergm.loglik.warn_dyads=FALSE)
+
+test_that("Specifying proposal on LHS", {
+  set.seed(0)
+  y <- mk.missnet(n, d, m, TRUE, FALSE)
+
+  # Default: SPDyad
+  expect_message(expect_message(
+    fit0 <- ergm(y ~ edges, verbose = 2),
+    "Unconstrained.*ergm:MH_SPDyad.*"),
+    "Constrained.*ergm:MH_SPDyad.*")
+
+  expect_warning(expect_message(expect_message(expect_message(expect_message(
+    fit1 <- ergm(y ~ edges, obs.constraints = "TNT"~.-observed, verbose = 2, control = control.ergm(init.method = "MPLE")),
+    "Unconstrained.*ergm:MH_SPDyad.*"),
+    "Constrained.*ergm:MH_TNT.*"),
+    "Unconstrained.*ergm:MH_SPDyad.*"),
+    "Constrained.*ergm:MH_TNT.*"),
+    NA)
+
+  expect_equal(coef(fit1), coef(fit0), tolerance = .05)
+
+  # This also tests that constraints= LHS does not "contaminate" obs.constraints.
+  expect_warning(expect_message(expect_message(expect_message(expect_message(
+    fit2 <- ergm(y ~ edges, constraints = "TNT"~., verbose = 2, control = control.ergm(init.method = "MPLE")),
+    "Unconstrained.*ergm:MH_TNT.*"),
+    "Constrained.*ergm:MH_SPDyad.*"),
+    "Unconstrained.*ergm:MH_TNT.*"),
+    "Constrained.*ergm:MH_SPDyad.*"),
+    NA)
+
+  expect_equal(coef(fit2), coef(fit0), tolerance = .05)
+
+  expect_warning(expect_message(expect_message(expect_message(expect_message(
+    fit3 <-ergm(y ~ edges, constraints = "TNT"~., obs.constraints = "TNT"~.-observed, verbose = 2, control = control.ergm(init.method = "MPLE")),
+    "Unconstrained.*ergm:MH_TNT.*"),
+    "Constrained.*ergm:MH_TNT.*"),
+    "Unconstrained.*ergm:MH_TNT.*"),
+    "Constrained.*ergm:MH_TNT.*"),
+    NA)
+
+  expect_equal(coef(fit3), coef(fit0), tolerance = .05)
+})
+
+options(o)
+
 # Add the curved+missing test here for now
 test_that("curved+missing", {
   set.seed(321)

@@ -364,47 +364,18 @@ ergm <- function(formula, response=NULL,
   nw <- basis
   ergm_preprocess_response(nw,response)
 
-  proposalclass <- "c"
-
-  if(!is(constraints, "ergm_proposal")){
-    # Handle the observation process and other "automatic" constraints.
-    tmp <- .handle.auto.constraints(nw, constraints, obs.constraints, target.stats, control)
-    nw <- tmp$nw
-    conterms.obs <- tmp$conterms.obs
-    conterms <- tmp$conterms
-  }else if(!is(obs.constraints, "ergm_proposal")){
-    # Handle the observation process and other "automatic" constraints.
-    tmp <- .handle.auto.constraints(nw, trim_env(~.), obs.constraints, target.stats, control)
-    nw <- tmp$nw
-    conterms.obs <- tmp$conterms.obs
-    conterms <- tmp$conterms
-  }
-  
-  if(!is(constraints, "ergm_proposal")){
-    if (verbose) message("Initializing unconstrained Metropolis-Hastings proposal: ", appendLF=FALSE)
-    
   ## FIXME: a more general framework is needed?
   if(is.valued(nw) && reference==trim_env(~Bernoulli)){
     warn(paste0("The default Bernoulli reference distribution operates in the binary (",sQuote("response=NULL"),") mode only. Did you specify the ",sQuote("reference")," argument?"))
   }
-    
-    proposal <- ergm_proposal(conterms, weights = control$MCMC.prop.weights,
-                              control$MCMC.prop.args, nw, class = proposalclass,
-                              reference = reference, term.options = control$term.options)
-  }else proposal <- constraints
-  
-  if (verbose) message(sQuote(paste0(proposal$pkgname,":MH_",proposal$name)),".")
 
-  if(!is(obs.constraints, "ergm_proposal")){
-    if(!is.null(conterms.obs)){
-      if (verbose) message("Initializing constrained Metropolis-Hastings proposal: ", appendLF=FALSE)
-      proposal.obs <- ergm_proposal(conterms.obs, weights = control$obs.MCMC.prop.weights,
-                                    control$obs.MCMC.prop.args, nw, class = proposalclass,
-                                    reference = reference, term.options = control$term.options)
-    }else proposal.obs <- NULL
-  }else proposal.obs <- obs.constraints
+  proposalclass <- "c"
 
-  if (verbose && !is.null(proposal.obs)) message(sQuote(paste0(proposal.obs$pkgname,":MH_",proposal.obs$name)),".")
+  tmp <- .init_ergm_proposal(nw, reference, list(constraints, obs.constraints),
+                             NA, control, verbose, target.stats = target.stats)
+  nw <- tmp$nw
+  proposal <- tmp$prop
+  proposal.obs <- tmp$prop.obs
 
   if (verbose) message("Initializing model...")
   model <- ergm_model(formula, nw, extra.aux = NVL3(proposal$auxiliaries,list(proposal=.)), term.options=control$term.options)

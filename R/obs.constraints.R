@@ -95,3 +95,42 @@ has.obs.constraints <- function(...) length(.handle.auto.constraints(...)$conter
           !model$etamap$offsetmap,
           target.stats)
 }
+
+# Standard code pattern for obtaining constraints and initializing
+# proposals. If observational = NA returns a list of both.
+.init_ergm_proposal <- function(nw, reference, constraints, observational, control, verbose, control.prop = "MCMC", target.stats = NULL) {
+
+  obspos <- if (is.na(observational)) 1:2 else observational + 1L
+  constraints <- rep(enlist(constraints), length.out = 2L)
+
+  if (!is(constraints[[1]], "ergm_proposal") || !is(constraints[[2]], "ergm_proposal")) {
+    if (is(constraints[[1]], "ergm_proposal")) {
+      tmp <- .handle.auto.constraints(nw, ~., constraints[[2]], target.stats, control, control.prop)
+      constraints <- list(constraints[[1]], tmp$conterms.obs)
+    } else if (is(constraints[[2]], "ergm_proposal")) {
+      tmp <- .handle.auto.constraints(nw, constraints[[1]], NULL, target.stats, control, control.prop)
+      constraints <- list(tmp$conterms, constraints[[2]])
+    } else {
+      tmp <- .handle.auto.constraints(nw, constraints[[1]], constraints[[2]], target.stats, control, control.prop)
+      constraints <- list(tmp$conterms, tmp$conterms.obs)
+    }
+    nw <- tmp$nw
+  }
+
+  proposal <- map2(obspos, constraints[obspos], function(pos, con) {
+    obs <- pos == 2L
+    if (is.null(con) || is(con, "ergm_proposal")) return(con)
+    if (verbose) message("Initializing ",
+                         if (obs) "constrained" else "unconstrained",
+                         " Metropolis-Hastings proposal.")
+    prop <- ergm_proposal(con, nw = nw, class = "c", reference = reference, term.options = control$term.options,
+                          arguments = control[[paste0(if (obs)  "obs.", control.prop, ".prop.args")]],
+                          weights = control[[paste0(if (obs) "obs.", control.prop, ".prop.weights")]])
+    if (verbose) message(if (obs) "Constrained" else "Unconstrained", " proposal ",
+                         sQuote(paste0(prop$pkgname, ":MH_", prop$name)), " initialized.")
+    prop
+  }) |> compact()
+
+  if (length(proposal) == 1L) list(prop = proposal[[1]], nw = nw)
+  else list(prop = proposal[[1]], prop.obs = proposal[[2]], nw = nw)
+}

@@ -212,15 +212,9 @@ san.formula <- function(object, response=NULL, reference=~Bernoulli, constraints
   # ergm_state methods overload, it should be fine.
   if(!is(nw,"ergm_state")) ergm_preprocess_response(nw, response)
 
-  # Inherit constraints from nw if needed.
-  tmp <- .handle.auto.constraints(nw, constraints, NULL, NULL, control, "SAN")
-  nw <- tmp$nw; conterms <- tmp$conterms
-
-  if (verbose) message("Initializing unconstrained Metropolis-Hastings proposal: ", appendLF=FALSE)
-  proposal <- ergm_proposal(conterms, arguments = control$SAN.prop.args, nw = nw,
-                            weights = control$SAN.prop.weights, class = "c",
-                            reference = reference, term.options = control$term.options)
-  if (verbose) message(sQuote(paste0(proposal$pkgname,":MH_",proposal$name)),".")
+  tmp <- .init_ergm_proposal(nw, reference, constraints, FALSE, control, verbose, "SAN")
+  nw <- tmp$nw
+  proposal <- tmp$prop
   if (verbose) message("Initializing model...")
   model <- ergm_model(formula, nw, extra.aux=list(proposal=proposal$auxiliaries), term.options=control$term.options)
   proposal$aux.slots <- model$slots.extra.aux$proposal
@@ -273,18 +267,8 @@ san.ergm_model <- function(object, reference=~Bernoulli, constraints=~., target.
          " the ", sQuote("target.stats"), " argument")
   }
 
-  if(inherits(constraints, "ergm_proposal")) proposal <- constraints
-  else{
-    # Inherit constraints from nw if needed.
-    tmp <- .handle.auto.constraints(nw, constraints, NULL, NULL, control, "SAN")
-    nw <- tmp$nw; conterms <- tmp$conterms
-    if (verbose) message("Initializing unconstrained Metropolis-Hastings proposal: ", appendLF=FALSE)
-    proposal <- ergm_proposal(conterms, arguments = control$SAN.prop.args,
-                              nw = nw, weights = control$SAN.prop.weights,
-                              class = "c", reference = reference,
-                              term.options = control$term.options)
-    if (verbose) message(sQuote(paste0(proposal$pkgname,":MH_",proposal$name)),".")
-  }
+  proposal <- if(inherits(constraints, "ergm_proposal")) proposal <- constraints
+  else .init_ergm_proposal(nw, reference, constraints, FALSE, control, verbose, "SAN")
 
   if(length(proposal$auxiliaries) && !length(model$slots.extra.aux$proposal))
     stop("The proposal appears to be requesting auxiliaries, but the initialized model does not export any proposal auxiliaries.")
