@@ -71,18 +71,20 @@ dot_sub_constraints <- function(nw, ..., default.dot = c("first", "last", "none"
                                 default.dot = default.dot)
 
   # Do any of the observational constraints formulas have terms?
-  if(length(obs.tl)){
-    # Observation process handling only needs to happen if the
-    # sufficient statistics are not specified. If the sufficient
-    # statistics are specified, the nw's dyad states are irrelevant.
-    if(!is.null(target.stats)){
-      message("Target statistics specified in a network with missing dyads and/or a nontrivial observation process. Since (by sufficiency) target statistics provide all the information needed to fit the model, missingness and observation process will not affect estimation.")
-      if(network.naedgecount(nw)) nw[as.matrix(is.na(nw),matrix.type="edgelist")] <- 0
-      obs.tl <- NULL
-    }
-  }
+  obs.tl <- if (length(obs.tl)) {
+              # Observation process handling only needs to happen if
+              # the sufficient statistics are not specified. If the
+              # sufficient statistics are specified, the nw's dyad
+              # states are irrelevant.
+              if(!is.null(target.stats)){
+                message("Target statistics specified in a network with missing dyads and/or a nontrivial observation process. Since (by sufficiency) target statistics provide all the information needed to fit the model, missingness and observation process will not affect estimation.")
+                if(network.naedgecount(nw)) nw[as.matrix(is.na(nw),matrix.type="edgelist")] <- 0
+                NULL
+              } else # Prepend the sample space constraint, but don't propagate .select().
+                c(obs.tl, .delete_term(tl, ".select"))
+            }
 
-  list(nw = nw, conterms = tl, conterms.obs = if(length(obs.tl)) c(obs.tl, tl))
+  list(nw = nw, conterms = tl, conterms.obs = obs.tl)
 }
 
 has.obs.constraints <- function(...) length(.handle.auto.constraints(...)$conterms.obs) > 0
