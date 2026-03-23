@@ -69,7 +69,8 @@
 `%ergmlhs%<-.network` <- function(lhs, setting, value){
   settings <- NVL(lhs %n% "ergm", structure(list(), class="ergm_lhs"))
   settings[[setting]] <- value
-  lhs %n% "ergm" <- EVL(settings, NULL)
+  if (length(compact(settings))) lhs %n% "ergm" <- settings
+  else delete.network.attribute(lhs, "ergm")
   lhs
 }
 
