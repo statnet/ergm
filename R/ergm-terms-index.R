@@ -266,7 +266,7 @@ ergmTermCache <- local({
     proposals <- proposals |> map("rules") |> do.call(\(...) rbind(..., make.row.names = FALSE), args = _)
   }
 
-  if (nrow(proposals) == 0) return(NULL)
+  if (NROW(proposals) == 0) return(NULL)
   proposals
 }
 
@@ -353,7 +353,7 @@ ergmTermCache <- local({
 PROPOSAL_NOT_IN_TABLE <- "This proposal is not referenced in the lookup table."
 
 .formatProposalsHtml <- function(df, keepProposal=FALSE) {
-  if (nrow(df) == 0) return(paste0("\\out{<p>", PROPOSAL_NOT_IN_TABLE, "</p>}"))
+  if (NROW(df) == 0) return(paste0("\\out{<p>", PROPOSAL_NOT_IN_TABLE, "</p>}"))
 
   link_ergmcon <- function(x) {
     paste(sprintf('<a href="../help/%1$s-ergmConstraint">%1$s</a>', x), collapse = " ")
@@ -372,7 +372,7 @@ PROPOSAL_NOT_IN_TABLE <- "This proposal is not referenced in the lookup table."
 }
 
 .formatProposalsLatex <- function(df, keepProposal=FALSE) {
-  if (nrow(df) == 0) return(paste0("\\out{",PROPOSAL_NOT_IN_TABLE,"}"))
+  if (NROW(df) == 0) return(paste0("\\out{",PROPOSAL_NOT_IN_TABLE,"}"))
 
   link_ergmcon <- function(x) paste(x, collapse = " ")
 
