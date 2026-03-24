@@ -321,30 +321,6 @@ ergm.restartCluster <- function(control=NULL, verbose=FALSE){
 }
 
 
-ergm.sample.tomcmc<-function(sample, params){
-  if (inherits(params$parallel,"cluster")) 
-    nclus <- nrow(summary(params$parallel))
-  else 
-    nclus <- params$parallel
-  
-  samplesize <- nrow(sample)
-  if(nclus > 1){
-    
-    samplesize<-round(samplesize / nclus)
-    
-    sample<-sapply(seq_len(nclus),function(i) {
-      # Let mcmc() figure out the "end" from dimensions.
-      mcmc(sample[(samplesize*(i-1)+1):(samplesize*i), , drop=FALSE], start = params$MCMC.burnin, thin = params$MCMC.interval)
-    }, simplify=FALSE)
-    
-    do.call(mcmc.list,sample)
-    
-  }else{
-    # Let mcmc() figure out the "end" from dimensions.
-    mcmc(sample, start = params$MCMC.burnin, thin = params$MCMC.interval)
-  }
-}
-
 #' [set.MT_terms()] controls multithreading of model terms.
 #'
 #' @param n an integer specifying the number of threads to use; 0 (the

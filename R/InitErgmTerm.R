@@ -81,7 +81,6 @@ ergm_GWDECAY <- list(
   minpar = c(-Inf, 0)
 )
 
-GWDECAY <- ergm_GWDECAY
 
 #' @title Helper function for constructing `gw*` cutoff error messages
 #'
@@ -363,7 +362,7 @@ decay_vs_fixed <- function(a, name, no_curved_attrarg=TRUE){
     if(md==0){return(NULL)}
     c(list(minval=0, maxval=smax, dependence=TRUE, name=paste0(degname, "degdist"), coef.names=sprintf("%s#%d", termname, seq_len(md)),
            cutoff.message = ergm_cutoff_message(md, termname, paste0(ddesc, "degree of some node"), "cutoff", "gw.cutoff"),
-           conflicts.constraints=paste0(deg,"degreedist"), params=setNames(list(NULL,decay), c(termname, paste0(termname,".decay")))), GWDECAY)
+           conflicts.constraints=paste0(deg,"degreedist"), params=setNames(list(NULL,decay), c(termname, paste0(termname,".decay")))), ergm_GWDECAY)
   } else {
     if(!is.null(attrarg)) {
       nodecov <- if(NVL(bip, FALSE)) ergm_get_vattr(attrarg, nw, bip = deg) else ergm_get_vattr(attrarg, nw)
