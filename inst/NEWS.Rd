@@ -75,14 +75,21 @@
 %% }
 
 
-\section{Changes in version 4.12.1}{
+\section{Changes in version 4.13.0}{
 
-%%   \subsection{NEW FEATURES}{
-%%     \itemize{
-%%       \item{
-%%       }
-%%     }
-%%   }
+  \subsection{NEW FEATURES}{
+    \itemize{
+      \item{
+        \ergmTerm{ergm}{nodemix}{()} and \ergmTerm{ergm}{mm}{()} are now more user-friendly in how \code{levels2=} arguments are processed.
+      }
+      \item{
+        \ergmConstraint{ergm}{I}{()} operator constraints can now take character strings and vectors as well.
+      }
+      \item{
+        The built-in valued ERGM proposal now supports arbitrary dyadic constraints, as well as the \ergmConstraint{ergm}{ChangeStats}{()} constraint.
+      }
+    }
+  }
 
 
   \subsection{BUG FIXES}{
@@ -90,21 +97,64 @@
       \item{
         Fixed memory leaks in \ergmTerm{ergm}{nodematch}{()} and \ergmTerm{ergm}{nodematch}{()}.
       }
+      \item{
+        Firth-penalty MPLE now works again.
+      }
+      \item{
+        Valued \ergmTerm{ergm}{.submodel}{()} auxiliary now works again.
+      }
+      \item{
+        Valued \ergmConstraint{ergm}{Dyads}{()} and \ergmConstraint{ergm}{ChangeStats}{()} constraints now work again.
+      }
+      \item{
+        In \code{\link{ergm_state}}'s extended state API, replacing the \code{\link{ergm_model}}, now also adjusts the number of slots in \code{$ext.state}. This fixes a warning for some missing data problems.
+      }
+      \item{
+        Some fixes to documentation and term documentation API.
+      }
     }
   }
 
 
-%%   \subsection{OTHER USER-VISIBLE CHANGES}{
-%%     \itemize{
-%%       \item{
-%%       }
-%%     }
-%%   }
+  \subsection{OTHER USER-VISIBLE CHANGES}{
+    \itemize{
+      \item{
+        New API functions \code{\link{call.ErgmConstraint}()} and \code{\link{call.ErgmReference}()} added to do the same job as \code{call.ErgmTerm()} but for constraints and reference distributions, respectively.
+      }
+      \item{
+        \ergmConstraint{ergm}{blockdiag}{()} constraint now has more consistent return values, which can be used by other constraints.
+      }
+      \item{
+        Constraints API via \code{\link{ergm_conlist}()} has been documented and exported.
+      }
+      \item{
+        \code{\link{rlebdm}}'s \code{n} attribute is now always an \code{\link{integer}}.
+      }
+      \item{
+        \code{\link{ergm_proposal_table}()} can now specify that a proposal supports all references and/or all hints; this is useful for proposal operators, which wrap other proposals in turn.
+      }
+      \item{
+        Substantial optimizations and speed-ups in proposal and auxiliary processing code.
+      }
+      \item{
+        \code{enformulate.curved()} and its methods are now defunct.
+      }
+      \item{
+        \code{\link{\%ergmlhs\%}}'s attribute is now deleted if it stores no attributes.
+      }
+    }
+  }
 
-  %% \subsection{C-LEVEL FACILITIES}{
-  %%   \itemize{
-  %%   }
-  %% }
+  \subsection{C-LEVEL FACILITIES}{
+    \itemize{
+      \item{
+        \code{OnNetworkEdgeChangeUWrap()} C function has been exported.
+      }
+      \item{
+        Vestigial C functions removed.
+      }
+    }
+  }
 
   % \subsection{UTILITIES}{
   %   \itemize{
