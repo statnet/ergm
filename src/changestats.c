@@ -3395,3 +3395,29 @@ C_CHANGESTAT_FN(c_ttriple) {
       CHANGE_STAT[0] += edgemult * change;
     }
 }
+
+
+/*****************
+ changestat: c_b1mindegree
+*****************/
+C_CHANGESTAT_FN(c_b1mindegree) {
+    int echange = edgestate ? -1 : 1;
+    Vertex b1deg = OUT_DEG[tail];
+    for(unsigned int j = 0; j < N_CHANGE_STATS; j++) {
+      Vertex d = INPUT_PARAM[j];
+      CHANGE_STAT[j] += (b1deg + echange >= d) - (b1deg >= d);
+    }
+}
+
+
+/*****************
+ changestat: c_b2mindegree
+*****************/
+C_CHANGESTAT_FN(c_b2mindegree) {
+    int echange = edgestate ? -1 : 1;
+    Vertex b2deg = IN_DEG[head];
+    for(unsigned int j = 0; j < N_CHANGE_STATS; j++) {
+      Vertex d = INPUT_PARAM[j];
+      CHANGE_STAT[j] += (b2deg + echange >= d) - (b2deg >= d);
+    }
+}
