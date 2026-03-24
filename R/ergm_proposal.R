@@ -665,7 +665,7 @@ free_dyads <- function(con){
 #'   ~a(x) - b,
 #'   statnet.common::base_env(~c),
 #'   NULL,
-#'   term_list(call("f", z), env = baseenv(), sign = -1)
+#'   statnet.common::term_list(call("f", z), env = baseenv(), sign = -1)
 #' ))
 #'
 #' @export
