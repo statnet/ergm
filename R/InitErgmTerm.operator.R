@@ -1302,6 +1302,7 @@ InitErgmTerm.NoLoops <- function(nw, arglist, ...) {
                       defaultvalues = list(NULL),
                       required = c(TRUE))
 
+  nw %n% "loops" <- FALSE
   m <- ergm_model(a$formula, nw, ..., offset.decorate = FALSE)
   ergm_no_ext.encode(m)
 
