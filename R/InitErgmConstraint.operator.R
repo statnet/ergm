@@ -205,8 +205,8 @@ ergm_constrain_changestats <- function(arguments,
   list(
     auxiliaries =
       c(aux_before,
-        list_rhs.formula(~.submodel(terms)),
+        if (length(terms)) list_rhs.formula(~.submodel(terms)),
         aux_after),
-    ChangeStat_pos = length(aux_before)
+    ChangeStat_pos = if (length(terms)) length(aux_before)
   )
 }
