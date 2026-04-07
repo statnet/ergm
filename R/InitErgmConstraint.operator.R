@@ -187,6 +187,25 @@ InitErgmConstraint.ChangeStats <- function(nw, arglist, ...) {
 
 EMPTY_TERM_LIST <- term_list(~.)[-1]
 
+#' Helper function for proposals implementing the \ergmConstraint{ergm}{ChangeStats}{()} constraint
+#'
+#' This function inserts a `.submodel(terms)` auxiliary among the
+#' proposal's other auxiliaries and records its position, where
+#' `terms` are the statistics passed to the \ergmConstraint{ergm}{ChangeStats}{()}
+#' constraint.
+#'
+#' @param arguments `arguments` argument of a call to
+#'   `Init*ErgmProposal.*()` function.
+#' @param aux_before,aux_after either [`formula`]s or a [`term_list`]s
+#'   for other auxiliaries of the proposal.
+#'
+#' @return a list containing two elements: `auxiliaries` with the
+#'   concatenated [`term_list`] and `ChangeStat_pos`, giving the
+#'   position of the `.submodel(terms)` auxiliary or `NULL` if none
+#'   was specified.
+#'
+#' @keywords internal
+#' @export
 ergm_constrain_changestats <- function(arguments,
                                        aux_before = EMPTY_TERM_LIST,
                                        aux_after = EMPTY_TERM_LIST) {
@@ -207,6 +226,6 @@ ergm_constrain_changestats <- function(arguments,
       c(aux_before,
         if (length(terms)) list_rhs.formula(~.submodel(terms)),
         aux_after),
-    ChangeStat_pos = if (length(terms)) length(aux_before)
+    ChangeStat_pos = if (length(terms)) as.integer(length(aux_before))
   )
 }
