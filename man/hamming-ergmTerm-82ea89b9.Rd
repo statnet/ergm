@@ -5,17 +5,19 @@
 \alias{InitErgmTerm.hamming}
 \title{Hamming distance}
 \usage{
-# binary: hamming(x, cov, attrname=NULL)
+# binary: hamming(x, cov, attrname=NULL, defaultweight = NULL)
 }
 \arguments{
-\item{x}{defaults to be the observed
-network, i.e., the network on the left side of the \eqn{\sim} in the formula
-that defines the ERGM.}
+\item{x}{defaults to be the observed network, i.e., the network on
+the left side of the \eqn{\sim} in the formula that defines the
+ERGM.}
 
-\item{cov}{either a matrix of edgewise weights or a network}
+\item{cov}{either a matrix of edgewise weights or a network.}
 
-\item{attrname}{option argument that provides the name of the edge attribute
-to use for weight values when a network is specified in \code{cov}}
+\item{attrname, defaultweight}{option argument that provides the
+name of the edge attribute to use for weight values when a
+network is specified in \code{cov}; for non-edges in \code{cov}, use
+\code{defaultweight}.}
 }
 \description{
 This term adds one statistic to the model equal to the weighted or

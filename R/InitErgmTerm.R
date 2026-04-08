@@ -2783,14 +2783,16 @@ InitErgmTerm.gwodegree<-function(nw, arglist, gw.cutoff=30, ..., version=package
 #'   that pair.
 #'
 #' @usage
-#' # binary: hamming(x, cov, attrname=NULL)
+#' # binary: hamming(x, cov, attrname=NULL, defaultweight = NULL)
 #'
-#' @param x defaults to be the observed
-#'   network, i.e., the network on the left side of the \eqn{\sim} in the formula
-#'   that defines the ERGM.
-#' @param cov either a matrix of edgewise weights or a network
-#' @param attrname option argument that provides the name of the edge attribute
-#'   to use for weight values when a network is specified in `cov`
+#' @param x defaults to be the observed network, i.e., the network on
+#'   the left side of the \eqn{\sim} in the formula that defines the
+#'   ERGM.
+#' @param cov either a matrix of edgewise weights or a network.
+#' @param attrname,defaultweight option argument that provides the
+#'   name of the edge attribute to use for weight values when a
+#'   network is specified in `cov`; for non-edges in `cov`, use
+#'   `defaultweight`.
 #'
 #' @template ergmTerm-general
 #'
