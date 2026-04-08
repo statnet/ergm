@@ -81,7 +81,7 @@ dot_sub_constraints <- function(nw, ..., default.dot = c("first", "last", "none"
                 if(network.naedgecount(nw)) nw[as.matrix(is.na(nw),matrix.type="edgelist")] <- 0
                 NULL
               } else # Prepend the sample space constraint, but don't propagate .select().
-                c(.delete_term(tl, ".select"), obs.tl)
+                c(obs.tl, .delete_term(tl, ".select"))
             }
 
   list(nw = nw, conterms = tl, conterms.obs = obs.tl)
