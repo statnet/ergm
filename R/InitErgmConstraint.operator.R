@@ -55,6 +55,7 @@ InitErgmConstraint.Dyads<-function(nw, arglist, ..., verify_dind = TRUE){
       fd <- lapply(list(fix=fix,vary=vary),
                    function(f){
                      if(!is.null(f)){
+                       nw %ergmlhs% "constraints" <- nw %ergmlhs% "obs.constraints" <- NULL
                        m <- ergmMPLE(f, basis = nw, expand.bipartite=TRUE, output="array")$predictor
                        m <- (m != 0) %|% FALSE
                        if(!is.directed(nw)){

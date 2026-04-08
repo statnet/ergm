@@ -124,3 +124,12 @@ test_that("Dyads() operator for bipartite undirected networks", {
   w <- outer(wealth01[1:7],wealth01[8:16],FUN=`==`)
   expect_equal(fix_g,logit(sum((!w)*m)/sum(!w)),ignore_attr=TRUE)
 })
+
+
+test_that("Dyad-independent constraint with missing edges", {
+  data(sampson)
+  samplike[1, 2] <- NA
+  truth <- coef(ergm(samplike ~ nodematch("group3")))
+  samplike %ergmlhs% "constraints" <- ~Dyads(vary = ~nodematch("group3"))
+  expect_equal(coef(ergm(samplike ~ edges)), truth, ignore_attr = TRUE)
+})
