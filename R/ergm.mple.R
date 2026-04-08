@@ -70,6 +70,8 @@ ergm.mple<-function(s, s.obs, init=NULL,
                 ignore.offset=control$MPLE.type=="logitreg",
                 verbose=verbose)
 
+  if (nrow(pl$xmat) == 0) stop("No informative dyads to calculate the MPLE.")
+
   # test whether the MPLE actually exists
   # FIXME: Figure out how to test for MPLE's existence in penalised and curved MPLEs.
   if(control$MPLE.check && ! control$MPLE.type%in%c("penalized","logitreg"))  mple.existence(pl)

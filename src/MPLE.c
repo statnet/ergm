@@ -137,6 +137,7 @@ StoreDVecMapENE *MpleInit_hash_wl_RLE(ErgmState *s, RLEBDM1D *wl, Edge maxNumDya
 
   // Number of free dyads.
   Dyad dc = wl->ndyads;
+  if (dc == 0) return covfreq; // Exit early if nothing to do.
   
   // Find a number relatively prime with the free dyad count:
   Edge step = MAX(N_NODES/3,2);
