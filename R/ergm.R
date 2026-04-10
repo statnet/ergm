@@ -369,8 +369,6 @@ ergm <- function(formula, response=NULL,
     warn(paste0("The default Bernoulli reference distribution operates in the binary (",sQuote("response=NULL"),") mode only. Did you specify the ",sQuote("reference")," argument?"))
   }
 
-  proposalclass <- "c"
-
   tmp <- .init_ergm_proposal(nw, reference, list(constraints, obs.constraints),
                              NA, control, verbose, target.stats = target.stats)
   nw <- tmp$nw
