@@ -41,9 +41,13 @@
 #'   single string of text, with each contrast prefixed by either `&`
 #'   for constraints that the proposal *always* enforces or `|` for
 #'   constraints that the proposal *can* enforce if
-#'   needed. Placeholder `*` can be used with proposal "operators" to
-#'   indicate that they will initialise sub-proposals that may be able
-#'   to accommodate these constraints and hints.
+#'   needed.
+#'
+#'   Meta-constraint `"|.dyads"` indicates that the proposal can
+#'   enforce arbitrary combinations of dyadic constraints. Placeholder
+#'   `*` can be used with proposal "operators" to indicate that they
+#'   will initialise sub-proposals that may be able to accommodate any
+#'   constraints and hints for which they can find a sub-proposal.
 #'
 #' @param Priority On existence of multiple qualifying proposals, specifies the
 #' priority (`-1`,`0`,`1`, etc.) of proposals to be used.
@@ -68,6 +72,7 @@
 #'   element `$can_any` indicating that it's a meta constraint.
 #'
 #' @keywords internal
+#' @aliases .dyads-ergmConstraint
 #' @export
 ergm_proposal_table <- local({
   proposals <- data.frame(Class = character(0), Reference = character(0),

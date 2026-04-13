@@ -77,12 +77,6 @@ InitErgmConstraint..attributes <- function(nw, arglist, ...){
     dependence = FALSE)
 }
 
-#' @templateVar name .dyads
-#' @title A meta-constraint indicating handling of arbitrary dyadic constraints
-#' @description This is a flag in the proposal table indicating that the proposal can enforce arbitrary combinations of dyadic constraints. It cannot be invoked directly by the user.
-#'
-#' @template ergmConstraint-general
-NULL
 
 #' @templateVar name edges
 #' @title Preserve the edge count of the given network
@@ -98,6 +92,7 @@ InitErgmConstraint.edges<-function(nw, arglist, ...){
   a <- check.ErgmTerm(nw, arglist)
   list(dependence = TRUE, implies = "edges")
 }
+
 
 #' @templateVar name degrees
 #' @title Preserve the degree of each vertex of the given network

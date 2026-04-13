@@ -2,6 +2,7 @@
 % Please edit documentation in R/ergm_proposal.R
 \name{ergm_proposal_table}
 \alias{ergm_proposal_table}
+\alias{.dyads-ergmConstraint}
 \title{Table mapping reference,constraints, etc. to ERGM Metropolis-Hastings proposals}
 \usage{
 ergm_proposal_table(
@@ -27,9 +28,13 @@ of constraints, see \code{\link{ergmConstraint}}. They are specified as a
 single string of text, with each contrast prefixed by either \code{&}
 for constraints that the proposal \emph{always} enforces or \code{|} for
 constraints that the proposal \emph{can} enforce if
-needed. Placeholder \code{*} can be used with proposal "operators" to
-indicate that they will initialise sub-proposals that may be able
-to accommodate these constraints and hints.}
+needed.
+
+Meta-constraint \code{"|.dyads"} indicates that the proposal can
+enforce arbitrary combinations of dyadic constraints. Placeholder
+\code{*} can be used with proposal "operators" to indicate that they
+will initialise sub-proposals that may be able to accommodate any
+constraints and hints for which they can find a sub-proposal.}
 
 \item{Priority}{On existence of multiple qualifying proposals, specifies the
 priority (\code{-1},\code{0},\code{1}, etc.) of proposals to be used.}
