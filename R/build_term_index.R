@@ -23,7 +23,7 @@
     }
 
     for (usage in usages) {
-      cat(sprintf('<tr><td><a id="%s">%s</a><br /><em>%s</em>: %s</p></td><td>%s</td></tr>\n',
+      cat(sprintf("<tr><td><a id=\"%s\">%s</a><br><em>%s</em>: %s</p></td><td>%s</td></tr>\n",
         term$link, usage, term$title, term$description, paste(term$concepts, collapse=', ')))
     }
   }
