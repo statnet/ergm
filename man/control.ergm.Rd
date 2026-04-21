@@ -25,7 +25,7 @@ control.ergm(
   MPLE.covariance.method = "invHess",
   MPLE.covariance.sim.burnin = 1024,
   MPLE.covariance.sim.interval = 1024,
-  MPLE.check = TRUE,
+  MPLE.check = c("glpk", "lpsolve", "skip"),
   MPLE.constraints.ignore = FALSE,
   MCMC.prop = trim_env(~sparse + .triadic),
   MCMC.prop.weights = "default",
@@ -181,7 +181,7 @@ control.ergm3(
   MPLE.covariance.method = "invHess",
   MPLE.covariance.sim.burnin = 1024,
   MPLE.covariance.sim.interval = 1024,
-  MPLE.check = TRUE,
+  MPLE.check = c("glpk", "lpsolve", "skip"),
   MPLE.constraints.ignore = FALSE,
   MCMC.prop = trim_env(~sparse + .triadic),
   MCMC.prop.weights = "default",
@@ -447,8 +447,11 @@ other parameters control, respectively, the number of networks to
 simulate, the MCMC burn-in, and the MCMC interval for \code{Godambe}
 and \code{bootstrap} methods.}
 
-\item{MPLE.check}{If \code{TRUE} (the default), perform the MPLE
-existence check described by \insertCite{ScHu23c;textual}{ergm}.}
+\item{MPLE.check}{Controls MPLE existence checking described by
+\insertCite{ScHu23c;textual}{ergm}: \code{TRUE} or \code{"glpk"} for
+\CRANpkg{Rglpk} where available and fall back to
+\CRANpkg{lpSolveAPI}, \code{"lpsolve"} to select it directly, and
+\code{FALSE} or \code{"skip"} disables the check.}
 
 \item{MPLE.constraints.ignore}{If \code{TRUE}, MPLE will ignore all
 dyad-independent constraints except for those due to attributes
