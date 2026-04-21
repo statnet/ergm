@@ -165,8 +165,11 @@
 #'   simulate, the MCMC burn-in, and the MCMC interval for `Godambe`
 #'   and `bootstrap` methods.
 #'
-#' @param MPLE.check If `TRUE` (the default), perform the MPLE
-#'   existence check described by \insertCite{ScHu23c;textual}{ergm}.
+#' @param MPLE.check Controls MPLE existence checking described by
+#'   \insertCite{ScHu23c;textual}{ergm}: `TRUE` (the default) uses
+#'   \CRANpkg{Rglpk} where available and falls back to
+#'   \CRANpkg{lpSolveAPI}; `"glpk"` and `"lpsolve"` force a specific
+#'   solver; and `FALSE` or `"skip"` disables the check.
 #'
 #' @param MPLE.constraints.ignore If `TRUE`, MPLE will ignore all
 #'   dyad-independent constraints except for those due to attributes

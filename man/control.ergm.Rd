@@ -447,8 +447,11 @@ other parameters control, respectively, the number of networks to
 simulate, the MCMC burn-in, and the MCMC interval for \code{Godambe}
 and \code{bootstrap} methods.}
 
-\item{MPLE.check}{If \code{TRUE} (the default), perform the MPLE
-existence check described by \insertCite{ScHu23c;textual}{ergm}.}
+\item{MPLE.check}{Controls MPLE existence checking described by
+\insertCite{ScHu23c;textual}{ergm}: \code{TRUE} (the default) uses
+\CRANpkg{Rglpk} where available and falls back to
+\CRANpkg{lpSolveAPI}; \code{"glpk"} and \code{"lpsolve"} force a specific
+solver; and \code{FALSE} or \code{"skip"} disables the check.}
 
 \item{MPLE.constraints.ignore}{If \code{TRUE}, MPLE will ignore all
 dyad-independent constraints except for those due to attributes
