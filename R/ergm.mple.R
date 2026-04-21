@@ -74,10 +74,8 @@ ergm.mple<-function(s, s.obs, init=NULL,
 
   # test whether the MPLE actually exists
   # FIXME: Figure out how to test for MPLE's existence in penalised and curved MPLEs.
-  if(! control$MPLE.type%in%c("penalized","logitreg")){
-    MPLE.check <- resolve_MPLE_check(control$MPLE.check)
-    if(MPLE.check != "skip") mple.existence(pl, solver=MPLE.check)
-  }
+  if (! control$MPLE.type %in% c("penalized", "logitreg")
+      && control$MPLE.check != "skip") mple.existence(pl, control$MPLE.check)
 
   message("Maximizing the pseudolikelihood.")
   if(control$MPLE.type=="penalized"){
@@ -232,26 +230,25 @@ ergm.mple<-function(s, s.obs, init=NULL,
 #'
 #' @references \insertAllCited{}
 #' @noRd
-mple.existence <- function(pl, solver=c("glpk", "lpsolve")) {
+mple.existence <- function(pl, solver = c("glpk", "lpsolve")) {
 #' @importFrom lpSolveAPI make.lp set.column set.objfn set.constr.type set.rhs set.bounds lp.control
   solver <- match.arg(solver)
-  if(solver == "glpk" && !requireNamespace("Rglpk", quietly=TRUE)){
-    warning_once(sQuote("glpk"), " selected as the MPLE existence-check solver, but package ", sQuote("Rglpk"), " is not available; falling back to ", sQuote("lpSolveAPI"), ".", immediate.=TRUE, call.=FALSE)
+  if (solver == "glpk" && !requireNamespace("Rglpk", quietly = TRUE)) {
+    warning_once(sQuote("glpk"), " selected as the MPLE existence-check solver, but package ", sQuote("Rglpk"), " is not available; falling back to ", sQuote("lpSolveAPI"), ".", immediate. = TRUE, call. = FALSE)
     solver <- "lpsolve"
   }
 
   X <- pl$xmat
   y <- pl$zy
-  y[y==0] <- -1
-  X.bar <- y*X
+  y[y == 0] <- -1
+  X.bar <- y * X
   e_n <- rep(1, nrow(X.bar))
-  obj <- c(e_n%*%X.bar)
+  obj <- c(e_n %*% X.bar)
 
-  if(solver=="lpsolve"){
-    lprec <- make.lp(nrow=nrow(X.bar), ncol=length(obj)) # set constraint and decision variables
-    for(k in seq_along(obj)){
-      status <- set.column(lprec, k, X.bar[,k])
-    }
+  if (solver == "lpsolve") {
+    lprec <- make.lp(nrow = nrow(X.bar), ncol = length(obj)) # set constraint and decision variables
+    for (k in seq_along(obj))
+      status <- set.column(lprec, k, X.bar[, k])
     status <- set.objfn(lprec, obj)
     status <- set.constr.type(lprec, rep(">=", NROW(X.bar)))
     status <- set.rhs(lprec,  rep(0, NROW(X.bar)))
@@ -259,18 +256,12 @@ mple.existence <- function(pl, solver=c("glpk", "lpsolve")) {
     control <- lp.control(lprec, pivoting = "firstindex", sense = "max",
                           simplextype = c("primal", "primal"))
     status <- solve(lprec)
-    if(status == 3) warning("The MPLE does not exist!")
-  }else{
+    found <- status == 3
+  } else {
     fit <- Rglpk::Rglpk_solve_LP(obj, X.bar, rep.int(">=", nrow(X.bar)), rep.int(0, nrow(X.bar)),
-                                 bounds=list(lower=list(ind=seq_along(obj), val=rep.int(-Inf, length(obj)))),
-                                 max=TRUE)
-    if(!is.finite(fit$optimum)) warning("The MPLE does not exist!")
+                                 bounds = list(lower = list(ind = seq_along(obj), val = rep.int(-Inf, length(obj)))),
+                                 max = TRUE)
+    found <- fit$status == 1
   }
-}
-
-resolve_MPLE_check <- function(MPLE.check){
-  if(isTRUE(MPLE.check)) return("glpk")
-  if(isFALSE(MPLE.check) || identical(MPLE.check, "skip")) return("skip")
-  if(is.character(MPLE.check) && length(MPLE.check)==1L) return(match.arg(MPLE.check, c("glpk", "lpsolve", "skip")))
-  stop(sQuote("MPLE.check"), " should be one of ", paste.and(sQuote(c("TRUE", "FALSE", "skip", "glpk", "lpsolve")), "or"), ".", call.=FALSE)
+  if (found) warning("The MPLE does not exist!")
 }

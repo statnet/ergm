@@ -166,10 +166,10 @@
 #'   and `bootstrap` methods.
 #'
 #' @param MPLE.check Controls MPLE existence checking described by
-#'   \insertCite{ScHu23c;textual}{ergm}: `TRUE` (the default) uses
-#'   \CRANpkg{Rglpk} where available and falls back to
-#'   \CRANpkg{lpSolveAPI}; `"glpk"` and `"lpsolve"` force a specific
-#'   solver; and `FALSE` or `"skip"` disables the check.
+#'   \insertCite{ScHu23c;textual}{ergm}: `TRUE` or `"glpk"` for
+#'   \CRANpkg{Rglpk} where available and fall back to
+#'   \CRANpkg{lpSolveAPI}, `"lpsolve"` to select it directly, and
+#'   `FALSE` or `"skip"` disables the check.
 #'
 #' @param MPLE.constraints.ignore If `TRUE`, MPLE will ignore all
 #'   dyad-independent constraints except for those due to attributes
@@ -532,7 +532,7 @@ control.ergm<-function(drop=TRUE,
                        MPLE.covariance.method ="invHess",
                        MPLE.covariance.sim.burnin = 1024,
                        MPLE.covariance.sim.interval = 1024,
-                       MPLE.check = TRUE,
+                       MPLE.check = c("glpk", "lpsolve", "skip"),
                        MPLE.constraints.ignore = FALSE,
 
                        MCMC.prop=trim_env(~sparse + .triadic),
@@ -704,7 +704,14 @@ control.ergm<-function(drop=TRUE,
     old.controls[[trustarg]] <- list(action = warning, message = paste("The trust region mechanism has been obviated by step length", sQuote("*.steplen"), "and other mechanisms and has been removed."))
   old.controls[["MPLE.max.dyad.types"]] <- list(action = warning, message = paste("Argument", sQuote("MPLE.max.dyad.types"), " has been deprecated and will be removed in a future version."))
 
-  match.arg.pars <- c("MPLE.type","MCMLE.metric","MCMLE.method","main.method",'MCMLE.termination',"CD.metric","CD.method","MCMLE.steplength.parallel","CD.steplength.parallel","MPLE.nonident","MPLE.nonvar","MCMLE.nonvar","MCMLE.nonident")
+  if (isFALSE(MPLE.check)) MPLE.check <- "skip"
+  if (isTRUE(MPLE.check)) MPLE.check <- "gplk"
+
+  match.arg.pars <- c("MPLE.nonident", "MPLE.nonvar", "MPLE.type", "MPLE.check",
+                      "main.method", "MCMLE.metric", "MCMLE.nonvar",
+                      "MCMLE.method", "MCMLE.termination", "MCMLE.nonident",
+                      "MCMLE.steplength.parallel",
+                      "CD.metric", "CD.method", "CD.steplength.parallel")
 
   control <- handle.controls("control.ergm", ...)
 
