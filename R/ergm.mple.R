@@ -241,27 +241,27 @@ mple.existence <- function(pl, solver = c("glpk", "lpsolve")) {
   X <- pl$xmat
   y <- pl$zy
   y[y == 0] <- -1
-  X.bar <- y * X
-  e_n <- rep(1, nrow(X.bar))
-  obj <- c(e_n %*% X.bar)
+  X_bar <- y * X
+  e_n <- rep(1, nrow(X_bar))
+  obj <- c(e_n %*% X_bar)
 
   if (solver == "lpsolve") {
-    lprec <- make.lp(nrow = nrow(X.bar), ncol = length(obj)) # set constraint and decision variables
+    # set constraint and decision variables
+    lprec <- make.lp(nrow = nrow(X_bar), ncol = length(obj))
     for (k in seq_along(obj))
-      status <- set.column(lprec, k, X.bar[, k])
-    status <- set.objfn(lprec, obj)
-    status <- set.constr.type(lprec, rep(">=", NROW(X.bar)))
-    status <- set.rhs(lprec,  rep(0, NROW(X.bar)))
-    status <- set.bounds(lprec, lower = rep(-Inf, length(obj)), upper = rep(Inf, length(obj)))
-    control <- lp.control(lprec, pivoting = "firstindex", sense = "max",
-                          simplextype = c("primal", "primal"))
-    status <- solve(lprec)
-    found <- status == 3
+      set.column(lprec, k, X_bar[, k])
+    set.objfn(lprec, obj)
+    set.constr.type(lprec, rep(">=", NROW(X_bar)))
+    set.rhs(lprec,  rep(0, NROW(X_bar)))
+    set.bounds(lprec, lower = rep(-Inf, length(obj)), upper = rep(Inf, length(obj)))
+    lp.control(lprec, pivoting = "firstindex", sense = "max",
+               simplextype = c("primal", "primal"))
+    found <- solve(lprec) == 3 # returns status
   } else {
-    fit <- Rglpk::Rglpk_solve_LP(obj, X.bar, rep.int(">=", nrow(X.bar)), rep.int(0, nrow(X.bar)),
-                                 bounds = list(lower = list(ind = seq_along(obj), val = rep.int(-Inf, length(obj)))),
-                                 max = TRUE)
-    found <- fit$status == 1
+    found <- Rglpk::Rglpk_solve_LP(obj, X_bar, rep.int(">=", nrow(X_bar)), rep.int(0, nrow(X_bar)),
+                                   bounds = list(lower = list(ind = seq_along(obj), val = rep.int(-Inf, length(obj)))),
+                                   max = TRUE)$status == 1
   }
+
   if (found) warning("The MPLE does not exist!")
 }
