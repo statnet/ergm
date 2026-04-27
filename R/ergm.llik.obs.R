@@ -124,8 +124,8 @@ llik.hessian.obs.IS <- function(theta, xsim, xsim.obs, ...,
   obspred <- xsim.obs %*% etaparam + lrowweights(xsim.obs)
 
   # Calculate the estimating function values sans offset
-  esim <- t(ergm.etagradmult(theta, t(xsim), etamap))
-  osim <- t(ergm.etagradmult(theta, t(xsim.obs), etamap))
+  esim <- ergm.etagradmultt(theta, xsim, etamap)
+  osim <- ergm.etagradmultt(theta, xsim.obs, etamap)
   
   # Weighted variance-covariance matrix of estimating functions ~ -Hessian
   H <- lweighted.var(osim, obspred, 0) - lweighted.var(esim, basepred)

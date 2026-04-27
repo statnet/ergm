@@ -10,23 +10,24 @@
 
 #' Operations to map curved [ergm()] parameters onto canonical parameters
 #' 
-#' The \code{ergm.eta} function calculates and returns eta, mapped
-#' from theta using the `etamap` object, usually attached as the
-#' `$etamap` element of an [`ergm_model`] object.
+#' This family of functions concerns mapping model parameter
+#' \eqn{q}-vector \eqn{\theta} using to the canonical parameter
+#' \eqn{p}-vector \eqn{\eta} based on the `etamap` object, usually
+#' attached as the `$etamap` element of an [`ergm_model`] object.
 #' 
 #' These functions are mainly important in the case of curved exponential family
-#' models, i.e., those in which the parameter of interest (theta) is not a
-#' linear function of the natural parameters (eta) in the exponential-family
+#' models, i.e., those in which the parameter of interest (\eqn{\theta}) is not a
+#' linear function of the natural parameters (\eqn{\eta}) in the exponential-family
 #' model. In non-curved models, we may assume without loss of generality that
-#' eta(theta)=theta.
+#' \eqn{\eta(\theta)=\theta}.
 #'
 #' A succinct description of how eta(theta) is incorporated into an ERGM is
 #' given by equation (5) of \insertCite{Hu07c;textual}{ergm}.  See \insertCite{HuHa06i;textual}{ergm} and
 #' \insertCite{Hu07c;textual}{ergm} for further details about how eta and its derivatives are used
 #' in the estimation process.
 #' 
-#' @param theta the curved model parameters
-#' @param etamap the list of values that describes the theta -> eta
+#' @param theta a curved model parameter \eqn{q}-vector
+#' @param etamap the list of values that describes the \eqn{\theta\to\eta}{theta -> eta}
 #'   mapping, usually attached as `$etamap` element of an [`ergm_model`]
 #'   object. At this time, it is a list with the following elements:
 #' \describe{
@@ -45,39 +46,50 @@
 #' }
 #' }
 #' }
-#' @return For \code{ergm.eta}, the canonical eta parameters as mapped
-#'   from theta.
+#' @return For \code{ergm.eta}, the canonical \eqn{\eta} parameters as mapped
+#'   from \eqn{\theta}.
 #'
 #' @seealso [`ergmTerm`]
 #' @references \insertAllCited{}
 #' @keywords internal
+#' @name ergm.eta
+NULL
+
+#' @describeIn ergm.eta Evaluate \eqn{\eta(\theta):
+#'   \mathbb{R}^q\to\mathbb{R}^p}{eta(theta): R^q -> R^p}.
 #' @export ergm.eta
 ergm.eta <- function(theta, etamap){
   .Call("ergm_eta_wrapper", as.numeric(theta), etamap, PACKAGE="ergm")
 }
 
-#' @rdname ergm.eta
-#' @description The \code{ergm.etagrad} function caculates and returns
-#'   the gradient of eta mapped from theta using the etamap object
-#'   created by \code{ergm.etamap}. If the gradient is only intended
-#'   to be a multiplier for some vector, the more efficient
-#'   \code{ergm.etagradmult} is recommended.
-#' @return For \code{ergm.etagrad}, a matrix of the gradient of eta
-#'   with respect to theta.
+#' @describeIn ergm.eta Evaluate \eqn{\eta'(\theta):
+#'   \mathbb{R}^q\to\mathbb{R}^{q\times p}}{deta(theta): R^q ->
+#'   R^{q*p}}. If the gradient is only intended to be a multiplier for
+#'   some vector or matrix, the more efficient \code{ergm.etagradmult}
+#'   is recommended.
 #' @export ergm.etagrad
 ergm.etagrad <- function(theta, etamap){
   .Call("ergm_etagrad_wrapper", as.numeric(theta), etamap, PACKAGE="ergm")
 }
 
-#' @rdname ergm.eta
-#' @description The \code{ergm.etagradmult} function calculates and
-#'   returns the product of the gradient of eta with a vector `v`.
-#' @param v a vector of the same length as the vector of mapped eta
-#'   parameters
-#' @return For \code{ergm.etagradmult}, the vector that is the product
-#'   of the gradient of eta and \code{v}.
+#' @describeIn ergm.eta Evaluate \eqn{\eta'(\theta) V: \mathbb{R}^q \times \mathbb{R}^{p\times r}\to\mathbb{R}^{q\times
+#'   r}}{deta(theta)\%*\%V: R^q * R^{p*r} -> R^{q*r}}.
+#' @param v a \eqn{p}-vector the vector or a \eqn{p\times r}{p*r}
+#'   matrix
 #' @export ergm.etagradmult
 ergm.etagradmult <- function(theta, v, etamap){
   storage.mode(v) <- "double"
   .Call("ergm_etagradmult_wrapper", as.numeric(theta), v,  etamap, PACKAGE="ergm")
+}
+
+#' @describeIn ergm.eta A convenience function to evaluate
+#'   \eqn{\{\eta'(\theta) S^{\top}\}^{\top} = S
+#'   \eta'(\theta)^{\top}}{t(deta(theta)\%*\%t(S)) =
+#'   S\%*\%t(deta(theta))}.
+#' @param s a \eqn{r\times p} matrix
+#' @export ergm.etagradmultt
+ergm.etagradmultt <- function(theta, s, etamap) {
+  storage.mode(s) <- "double"
+  ## TODO: Write a C-side version to avoid transposes.
+  t(.Call("ergm_etagradmult_wrapper", as.numeric(theta), t(s),  etamap, PACKAGE = "ergm"))
 }

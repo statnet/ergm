@@ -47,7 +47,7 @@ ergm.estfun.numeric <- function(stats, theta, model, ...){
 #' @export
 ergm.estfun.matrix <- function(stats, theta, model, ...){
   etamap <- if(is(model, "ergm_model")) model$etamap else model
-  estf <- t(ergm.etagradmult(theta,t(as.matrix(stats)),etamap))[,!etamap$offsettheta,drop=FALSE]
+  estf <- ergm.etagradmultt(theta, as.matrix(stats), etamap)[, !etamap$offsettheta, drop = FALSE]
   colnames(estf) <- (if(is(model, "ergm_model")) param_names(model, FALSE) else names(theta))[!etamap$offsettheta]
   -estf
 }

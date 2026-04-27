@@ -4,6 +4,7 @@
 \alias{ergm.eta}
 \alias{ergm.etagrad}
 \alias{ergm.etagradmult}
+\alias{ergm.etagradmultt}
 \title{Operations to map curved \code{\link[=ergm]{ergm()}} parameters onto canonical parameters}
 \usage{
 ergm.eta(theta, etamap)
@@ -11,11 +12,13 @@ ergm.eta(theta, etamap)
 ergm.etagrad(theta, etamap)
 
 ergm.etagradmult(theta, v, etamap)
+
+ergm.etagradmultt(theta, s, etamap)
 }
 \arguments{
-\item{theta}{the curved model parameters}
+\item{theta}{a curved model parameter \eqn{q}-vector}
 
-\item{etamap}{the list of values that describes the theta -> eta
+\item{etamap}{the list of values that describes the \eqn{\theta\to\eta}{theta -> eta}
 mapping, usually attached as \verb{$etamap} element of an \code{\link{ergm_model}}
 object. At this time, it is a list with the following elements:
 \describe{
@@ -35,45 +38,53 @@ the model containing \describe{
 }
 }}
 
-\item{v}{a vector of the same length as the vector of mapped eta
-parameters}
+\item{v}{a \eqn{p}-vector the vector or a \eqn{p\times r}{p*r}
+matrix}
+
+\item{s}{a \eqn{r\times p} matrix}
 }
 \value{
-For \code{ergm.eta}, the canonical eta parameters as mapped
-from theta.
-
-For \code{ergm.etagrad}, a matrix of the gradient of eta
-with respect to theta.
-
-For \code{ergm.etagradmult}, the vector that is the product
-of the gradient of eta and \code{v}.
+For \code{ergm.eta}, the canonical \eqn{\eta} parameters as mapped
+from \eqn{\theta}.
 }
 \description{
-The \code{ergm.eta} function calculates and returns eta, mapped
-from theta using the \code{etamap} object, usually attached as the
-\verb{$etamap} element of an \code{\link{ergm_model}} object.
-
-The \code{ergm.etagrad} function caculates and returns
-the gradient of eta mapped from theta using the etamap object
-created by \code{ergm.etamap}. If the gradient is only intended
-to be a multiplier for some vector, the more efficient
-\code{ergm.etagradmult} is recommended.
-
-The \code{ergm.etagradmult} function calculates and
-returns the product of the gradient of eta with a vector \code{v}.
+This family of functions concerns mapping model parameter
+\eqn{q}-vector \eqn{\theta} using to the canonical parameter
+\eqn{p}-vector \eqn{\eta} based on the \code{etamap} object, usually
+attached as the \verb{$etamap} element of an \code{\link{ergm_model}} object.
 }
 \details{
 These functions are mainly important in the case of curved exponential family
-models, i.e., those in which the parameter of interest (theta) is not a
-linear function of the natural parameters (eta) in the exponential-family
+models, i.e., those in which the parameter of interest (\eqn{\theta}) is not a
+linear function of the natural parameters (\eqn{\eta}) in the exponential-family
 model. In non-curved models, we may assume without loss of generality that
-eta(theta)=theta.
+\eqn{\eta(\theta)=\theta}.
 
 A succinct description of how eta(theta) is incorporated into an ERGM is
 given by equation (5) of \insertCite{Hu07c;textual}{ergm}.  See \insertCite{HuHa06i;textual}{ergm} and
 \insertCite{Hu07c;textual}{ergm} for further details about how eta and its derivatives are used
 in the estimation process.
 }
+\section{Functions}{
+\itemize{
+\item \code{ergm.eta()}: Evaluate \eqn{\eta(\theta):
+\mathbb{R}^q\to\mathbb{R}^p}{eta(theta): R^q -> R^p}.
+
+\item \code{ergm.etagrad()}: Evaluate \eqn{\eta'(\theta):
+  \mathbb{R}^q\to\mathbb{R}^{q\times p}}{deta(theta): R^q ->
+  R^{q*p}}. If the gradient is only intended to be a multiplier for
+some vector or matrix, the more efficient \code{ergm.etagradmult}
+is recommended.
+
+\item \code{ergm.etagradmult()}: Evaluate \eqn{\eta'(\theta) V: \mathbb{R}^q \times \mathbb{R}^{p\times r}\to\mathbb{R}^{q\times
+r}}{deta(theta)\%*\%V: R^q * R^{p*r} -> R^{q*r}}.
+
+\item \code{ergm.etagradmultt()}: A convenience function to evaluate
+\eqn{\{\eta'(\theta) S^{\top}\}^{\top} = S
+  \eta'(\theta)^{\top}}{t(deta(theta)\%*\%t(S)) =
+  S\%*\%t(deta(theta))}.
+
+}}
 \references{
 \insertAllCited{}
 }
