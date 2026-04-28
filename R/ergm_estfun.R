@@ -65,12 +65,12 @@ ergm.estfun.matrix <- function(stats, theta, model, ...) {
 #' @describeIn ergm.estfun Method for [`mcmc`] objects with \eqn{p} variables.
 #' @export
 ergm.estfun.mcmc <- function(stats, theta, model, ...) {
-  mcmc(ergm.estfun(as.matrix(stats), theta, model),
+  mcmc(ergm.estfun(as.matrix(stats), theta, model, ...),
        start = start(stats), end = end(stats), thin = thin(stats))
 }
 
 #' @describeIn ergm.estfun Method for [`mcmc.list`] objects with \eqn{p} variables.
 #' @export
 ergm.estfun.mcmc.list <- function(stats, theta, model, ...) {
-  lapply.mcmc.list(stats, ergm.estfun, theta, model)
+  lapply.mcmc.list(stats, ergm.estfun, theta, model, ...)
 }
