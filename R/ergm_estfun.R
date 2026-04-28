@@ -34,24 +34,6 @@ ergm.estfun <- function(stats, theta, model, ...){
   UseMethod("ergm.estfun")
 }
 
-.rightsize_theta_stats <- function(model, stats, theta) {
-  etamap <- if (is(model, "ergm_model")) model$etamap else model
-  if (any(ot <- etamap$offsettheta)) {
-    etamap_no <- deoffset.etamap(etamap, theta)
-    if (length(theta) == length(ot)) theta <- theta[!ot]
-    if (any(om <- etamap$offsetmap) && ncol(stats) == length(om))
-      stats <- stats[, !om, drop = FALSE]
-  } else etamap_no <- etamap
-
-  if (is(model, "ergm_model")) names(theta) <- param_names(model, FALSE, FALSE)
-
-  assign("model", etamap_no, parent.frame())
-  assign("stats", stats, parent.frame())
-  assign("theta", theta, parent.frame())
-
-  NULL
-}
-
 #' @describeIn ergm.estfun Method for numeric vectors of length \eqn{p}.
 #' @export
 ergm.estfun.numeric <- function(stats, theta, model, ...) {
@@ -61,10 +43,22 @@ ergm.estfun.numeric <- function(stats, theta, model, ...) {
 
 #' @describeIn ergm.estfun Method for matrices with \eqn{p} columns.
 #' @export
-ergm.estfun.matrix <- function(stats, theta, model, ...){
-  .rightsize_theta_stats(model, stats, theta)
+ergm.estfun.matrix <- function(stats, theta, model, ...) {
+  etamap <- if (is(model, "ergm_model")) model$etamap else model
 
-  structure(-ergm.etagradmultt(theta, stats, model),
+  if (any(ot <- etamap$offsettheta)) {
+    # Drop offset stats.
+    if (any(om <- etamap$offsetmap) && ncol(stats) == length(om))
+      stats <- stats[, !om, drop = FALSE]
+    # Drop offset terms from the map.
+    etamap <- deoffset.etamap(etamap, theta)
+    # Drop offset parameters.
+    if (length(theta) == length(ot)) theta <- theta[!ot]
+  }
+
+  if (is(model, "ergm_model")) names(theta) <- param_names(model, FALSE, FALSE)
+
+  structure(-ergm.etagradmultt(theta, stats, etamap),
             dimnames = list(rownames(stats), names(theta)))
 }
 
