@@ -34,22 +34,45 @@ ergm.estfun <- function(stats, theta, model, ...){
   UseMethod("ergm.estfun")
 }
 
+.rightsize_theta_stats <- function(model, stats, theta) {
+  etamap <- if (is(model, "ergm_model")) model$etamap else model
+  if (any(ot <- etamap$offsettheta)) {
+    etamap_no <- deoffset.etamap(etamap, theta)
+    if (length(theta) == length(ot)) theta <- theta[!ot]
+    if (any(om <- etamap$offsetmap)) {
+      stats <-
+        if (is.null(ns <- ncol(stats))) {
+          if(length(stats) == length(om)) stats[!om] else stats
+        } else {
+          as.matrix(if (ns == length(om)) stats[, !om, drop = FALSE] else stats)
+        }
+    }
+  } else etamap_no <- etamap
+
+  if (is(model, "ergm_model")) names(theta) <- param_names(model, FALSE, FALSE)
+
+  assign("model", etamap_no, parent.frame())
+  assign("stats", stats, parent.frame())
+  assign("theta", theta, parent.frame())
+
+  NULL
+}
+
 #' @describeIn ergm.estfun Method for numeric vectors of length \eqn{p}.
 #' @export
-ergm.estfun.numeric <- function(stats, theta, model, ...){
-  etamap <- if(is(model, "ergm_model")) model$etamap else model
-  estf <- c(ergm.etagradmult(theta,stats,etamap))[!etamap$offsettheta]
-  names(estf) <- (if(is(model, "ergm_model")) param_names(model, FALSE) else names(theta))[!etamap$offsettheta]
-  -estf
+ergm.estfun.numeric <- function(stats, theta, model, ...) {
+  .rightsize_theta_stats(model, stats, theta)
+
+  setNames(-c(ergm.etagradmult(theta, stats, model)), names(theta))
 }
 
 #' @describeIn ergm.estfun Method for matrices with \eqn{p} columns.
 #' @export
 ergm.estfun.matrix <- function(stats, theta, model, ...){
-  etamap <- if(is(model, "ergm_model")) model$etamap else model
-  estf <- ergm.etagradmultt(theta, as.matrix(stats), etamap)[, !etamap$offsettheta, drop = FALSE]
-  colnames(estf) <- (if(is(model, "ergm_model")) param_names(model, FALSE) else names(theta))[!etamap$offsettheta]
-  -estf
+  .rightsize_theta_stats(model, stats, theta)
+
+  structure(-ergm.etagradmultt(theta, stats, model),
+            dimnames = list(rownames(stats), names(theta)))
 }
 
 #' @describeIn ergm.estfun Method for [`mcmc`] objects with \eqn{p} variables.
