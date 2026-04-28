@@ -39,14 +39,8 @@ ergm.estfun <- function(stats, theta, model, ...){
   if (any(ot <- etamap$offsettheta)) {
     etamap_no <- deoffset.etamap(etamap, theta)
     if (length(theta) == length(ot)) theta <- theta[!ot]
-    if (any(om <- etamap$offsetmap)) {
-      stats <-
-        if (is.null(ns <- ncol(stats))) {
-          if(length(stats) == length(om)) stats[!om] else stats
-        } else {
-          as.matrix(if (ns == length(om)) stats[, !om, drop = FALSE] else stats)
-        }
-    }
+    if (any(om <- etamap$offsetmap) && ncol(stats) == length(om))
+      stats <- stats[, !om, drop = FALSE]
   } else etamap_no <- etamap
 
   if (is(model, "ergm_model")) names(theta) <- param_names(model, FALSE, FALSE)
@@ -61,9 +55,8 @@ ergm.estfun <- function(stats, theta, model, ...){
 #' @describeIn ergm.estfun Method for numeric vectors of length \eqn{p}.
 #' @export
 ergm.estfun.numeric <- function(stats, theta, model, ...) {
-  .rightsize_theta_stats(model, stats, theta)
-
-  setNames(-c(ergm.etagradmult(theta, stats, model)), names(theta))
+  stats <- rbind(stats)
+  NextMethod()[1L, ]
 }
 
 #' @describeIn ergm.estfun Method for matrices with \eqn{p} columns.
@@ -77,12 +70,13 @@ ergm.estfun.matrix <- function(stats, theta, model, ...){
 
 #' @describeIn ergm.estfun Method for [`mcmc`] objects with \eqn{p} variables.
 #' @export
-ergm.estfun.mcmc <- function(stats, theta, model, ...){
-  mcmc(ergm.estfun(as.matrix(stats), theta, model), start=start(stats), end=end(stats), thin=thin(stats))
+ergm.estfun.mcmc <- function(stats, theta, model, ...) {
+  mcmc(ergm.estfun(as.matrix(stats), theta, model),
+       start = start(stats), end = end(stats), thin = thin(stats))
 }
 
-#' @describeIn ergm.estfun Method for  [`mcmc.list`] objects with \eqn{p} variables.
+#' @describeIn ergm.estfun Method for [`mcmc.list`] objects with \eqn{p} variables.
 #' @export
-ergm.estfun.mcmc.list <- function(stats, theta, model, ...){
+ergm.estfun.mcmc.list <- function(stats, theta, model, ...) {
   lapply.mcmc.list(stats, ergm.estfun, theta, model)
 }
