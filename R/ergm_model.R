@@ -227,7 +227,7 @@ updatemodel.ErgmTerm <- function(model, outlist, offset=FALSE, offset.decorate=T
     if(!silent && npars == 0 && ((is.numeric(offset) && length(offset)) || (is.logical(offset) && any(offset))))
       message(sQuote("offset()"), " decorator used on term ",sQuote(deparse(outlist$call)), " with no free parameters is meaningless and will be ignored.")
     if(is.numeric(offset)) offset <- unwhich(offset, npars)
-    outlist$offset <- offset <- rep(offset, length.out=npars) | NVL(outlist$offset,FALSE)
+    outlist$offset <- rep(offset, length.out=npars) | NVL(outlist$offset,FALSE)
 
     model$minval <- c(model$minval,
                       rep(NVL(outlist$minval, -Inf),

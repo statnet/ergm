@@ -52,7 +52,7 @@ instead.
 
 \item \code{ergm.estfun(mcmc)}: Method for \code{\link[coda:mcmc]{mcmc}} objects with \eqn{p} variables.
 
-\item \code{ergm.estfun(mcmc.list)}: Method for  \code{\link[coda:mcmc.list]{mcmc.list}} objects with \eqn{p} variables.
+\item \code{ergm.estfun(mcmc.list)}: Method for \code{\link[coda:mcmc.list]{mcmc.list}} objects with \eqn{p} variables.
 
 }}
 \keyword{internal}
