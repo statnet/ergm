@@ -337,11 +337,18 @@ ergm.MCMLE <- function(init, s, s.obs,
     # Need to compute MCMC SE for "confidence" termination criterion
     # if it has the possibility of terminating.
     if(control$MCMLE.termination=='confidence'){
-      estdiff <- NVL3(esteq.obs, colMeans(.), 0) - colMeans(esteq)
-      pprec <- diag(sqrt(control$MCMLE.MCMC.precision), nrow=length(estdiff))
-      Vm <- pprec%*%(cov(esteq) - NVL3(esteq.obs, cov(.), 0))%*%pprec
-      novar <- diag(Vm) <= 0
-      Vm[,novar] <- Vm[novar,] <- 0
+      calc_Vm <- function(esteq, esteq.obs, logw = 0, logw.obs = 0) {
+        logw <- rep_len(logw, nrow(esteq))
+        logw.obs <- NVL3(esteq.obs, rep_len(logw.obs, nrow(.)))
+
+        pprec <- diag(sqrt(control$MCMLE.MCMC.precision), nrow = ncol(esteq))
+        Vm <- pprec %*% (lweighted.var(esteq, logw) - NVL3(esteq.obs, lweighted.var(., logw.obs), 0)) %*% pprec
+        novar <- diag(Vm) <= 0
+        Vm[, novar] <- Vm[novar, ] <- 0
+        Vm
+      }
+      Vm <- calc_Vm(esteq, esteq.obs)
+      estdiff <- NVL3(esteq.obs, colMeans(esteq.obs), 0) - colMeans(esteq)
       d2 <- tryCatch(xTAx_seigen(estdiff, Vm), error = function(e) Inf)
       if(d2<2) last.adequate <- TRUE
     }
@@ -442,12 +449,15 @@ ergm.MCMLE <- function(init, s, s.obs,
       estdiff.prev <- estdiff
       
       if(d2<2){
-        IS.lw <- function(sm, etadiff){
+        IS.lw <- function(sm, etadiff) {
           nochg <- etadiff==0 | apply(sm, 2, function(x) max(x)==min(x)) # Also takes care of offset terms.
           # Calculate log-importance-weights
-          basepred <- sm[,!nochg,drop=FALSE] %*% etadiff[!nochg]
+          drop(sm[,!nochg,drop=FALSE] %*% etadiff[!nochg])
         }
-        lw2w <- function(lw){w<-exp(lw-max(lw)); w/sum(w)}
+        lw2w <- function(lw) {
+          w <- exp(lw - max(lw))
+          w / sum(w)
+        }
         # Handle a corner case in which none of the constrained sample
         # statistics vary. Then, Hotelling's test must be performed in
         # the 1-sample mode.
@@ -464,18 +474,21 @@ ergm.MCMLE <- function(init, s, s.obs,
           etadiff <- ergm.eta(coef(v), model$etamap) - ergm.eta(mcmc.init, model$etamap)
           esteq.lw <- IS.lw(statsmatrix, etadiff)
           esteq.w <- lw2w(esteq.lw)
-          estdiff <- -lweighted.mean(esteq, esteq.lw)
+          esteq.new <- if (is.curved(model)) ergm.estfun(statsmatrix, theta = coef(v), model = model) else esteq
+          estdiff <- -lweighted.mean(esteq.new, esteq.lw)
           estcov <- hotel$covariance.x*sum(esteq.w^2)*length(esteq.w)
           if(obs && !novar.obs){
+            esteq.obs.new <- if (is.curved(model)) ergm.estfun(statsmatrix.obs, theta = coef(v), model = model) else esteq.obs
             esteq.obs.lw <- IS.lw(statsmatrix.obs, etadiff)
             esteq.obs.w <- lw2w(esteq.obs.lw)
-            estdiff <- estdiff + lweighted.mean(esteq.obs, esteq.obs.lw)
+            estdiff <- estdiff + lweighted.mean(esteq.obs.new, esteq.obs.lw)
             estcov <- estcov + hotel$covariance.y*sum(esteq.obs.w^2)*length(esteq.obs.w)
-          }
+          } else esteq.obs.new <- esteq.obs.lw <- NULL
           estdiff <- estdiff[!hotel$novar]
           estcov <- estcov[!hotel$novar, !hotel$novar, drop = FALSE]
+          Vm.new <- calc_Vm(esteq.new, esteq.obs.new, esteq.lw, esteq.obs.lw)
 
-          d2e <- xTAx_seigen(estdiff, Vm[!hotel$novar, !hotel$novar, drop = FALSE])
+          d2e <- xTAx_seigen(estdiff, Vm.new[!hotel$novar, !hotel$novar, drop = FALSE])
           if(d2e<1){ # Update ends within tolerance ellipsoid.
             T2 <- try(.ellipsoid_mahalanobis(estdiff, estcov, Vm[!hotel$novar, !hotel$novar, drop = FALSE]), silent=TRUE) # Distance to the nearest point on the tolerance region boundary.
             if(inherits(T2, "try-error")){ # Within tolerance ellipsoid, but cannot be tested.
