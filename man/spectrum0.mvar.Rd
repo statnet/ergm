@@ -14,13 +14,17 @@ spectrum0.mvar(
 }
 \arguments{
 \item{x}{a matrix with observations in rows and variables in
-columns.}
+columns or a list of such matrices, which are then treated as
+independent realizations of the same AR process; \code{\link[coda:mcmc.list]{mcmc.list}}
+objects are accepted but treated no differently from ordinary
+lists.}
 
 \item{order.max}{maximum (or fixed) order for the AR model.}
 
 \item{aic}{use AIC to select the order (up to \code{order.max}).}
 
-\item{tol}{tolerance used in detecting multicollinearity. See Note below.}
+\item{tol}{tolerance used in detecting multicollinearity. See Note
+below.}
 
 \item{...}{additional arguments to \code{\link[=ar]{ar()}}.}
 }
@@ -32,20 +36,20 @@ autocorrelation, according to the \insertCite{VaFl15m;textual}{ergm}
 estimate for ESS.
 }
 \description{
-Its return value, divided by \code{nrow(cbind(x))}, is the estimated
-variance-covariance matrix of the sampling distribution of the mean
-of \code{x} if \code{x} is a multivatriate time series with AR(\eqn{p}) structure, with
-\eqn{p} determined by AIC.
+Its return value, divided by the total sample size, is the
+estimated variance-covariance matrix of the sampling distribution
+of the mean of \code{x} if \code{x} is a multivatriate time series with
+AR(\eqn{p}) structure, with \eqn{p} determined by AIC.
 }
 \note{
-\code{\link[=ar]{ar()}} fails if \code{crossprod(x)} is singular. This is
-is remedied as follows:
+AR fitting can fail under multicollinearity. This is remedied
+as follows:
 \enumerate{
 \item Standardize the variables.
-\item Use the eigenvectors to map the variables onto their principal components.
-\item Use the eigenvalues to standardize the principal components.
+\item Use eigendecomposition to extract principal components.
+\item Standardize the principal components.
 \item Drop those components whose standard deviation differs from 1 by more than \code{tol}. This should filter out redundant components or those too numerically unstable.
-\item Call \code{\link[=ar]{ar()}} and calculate the variance.
+\item Fit a multivariate AR model (via OLS), and calculate the variance.
 \item Reverse the mapping in steps 1-4 to obtain the variance of the original data.
 }
 }

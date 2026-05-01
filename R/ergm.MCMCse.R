@@ -19,9 +19,7 @@
 #' @param model the [`ergm_model`]
 #'
 #' @return The variance matrix of the parameter estimates due to MCMC
-#'   sampling, with attributes `"imp.factor"` and `"imp.factor.obs"`
-#'   giving the additional variation due to importance sampling; the
-#'   latter are always 1 for lognormal metric.
+#'   sampling.
 #' @noRd
 ergm.MCMCse <- function(model, theta, init, statsmatrices, statsmatrices.obs,
                         H, H.obs, metric = c("IS", "lognormal")) {
@@ -58,52 +56,67 @@ ergm.MCMCse <- function(model, theta, init, statsmatrices, statsmatrices.obs,
   }
   xobs <- xobs[!offsetmap]
 
-  if(metric == "IS") {
-    # Calculate prediction probabilities that had been used in the last MCMLE update.
-    basepred <- xsim %*% etaparam
-    prob <- max(basepred)
-    prob <- exp(basepred - prob)
-    prob <- prob/sum(prob)
+  # Compute the importance sampling weights based on sample xsims and
+  # canonical parameters etaparam: lw = log-weights (vector), ws =
+  # linear weights in list.
+  IS.weights <- function(xsims, etaparam) {
+    if (all(etaparam == 0)) {
+      sizes <- map_int(xsims, nrow)
+      list(lw = numeric(sum(sizes)),
+           ws = map(sizes, function(size) rep(1, size)))
+    } else {
+      lws <- map(xsims, function(xsim) drop(xsim %*% etaparam))
+      lwm <- max(unlist(lws))
+      ws <- map(lws, function(lw) exp(lw - lwm))
+      list(lw = unlist(lws), ws = ws)
+    }
+  }
 
-    # Estimate the Hessian. Do as much as possible on the scale of the estimating functions.
-    E <- apply(sweep(gsim, 1, prob, "*"), 2, sum)
-    htmp <- sweep(sweep(gsim, 2, E, "-"), 1, sqrt(prob), "*")
-    H <- crossprod(htmp, htmp)
-  } else prob <- rep.int(1 / nrow(xsim), nrow(xsim))
+  # Calculate the time-series-adjusted variance of the mean of x (an
+  # mcmc.list) weighted by a list of (potentially unnormalized) weight
+  # vectors w using the Delta method.
+  delta_cov <- function(x, w) {
+    xw <- map2(x, w, `*`) |> map(as.mcmc) |> as.mcmc.list()
+    xww <- map2(xw, w, cbind) |> map(as.mcmc) |> as.mcmc.list()
+    v <- spectrum0.mvar(xww) / sum(lengths(w))
+    mw <- mean(unlist(w))
+    g <- rbind(diag(1 / mw, ncol(x[[1]])), -colMeans.mcmc.list(xw) / mw^2)
+    structure(as.matrix(xTAx(g, v)), infl = attr(v, "infl"), rank = attr(v, "rank"))
+  }
+
+  if (metric == "IS") {
+    # Calculate prediction probabilities that had been used in the last MCMLE update.
+    # Estimate the Hessian.
+    w <- IS.weights(xsims, etaparam)
+    H <- lweighted.var(gsim, w$lw)
+  } else w <- IS.weights(xsims, 0)
 
   # Identify canonical parameters corresponding to non-offset statistics that do not vary
   novar <- diag(H) < sqrt(.Machine$double.eps)
 
   #  Calculate the auto-covariance of the MCMC suff. stats.
   #  and hence the MCMC s.e.
-  cov.zbar <- spectrum0.mvar(gsims) * sum(prob^2)
-  imp.factor <- sum(prob^2)*length(prob)
+  cov.zbar <- delta_cov(gsims, w$ws)
 
   #  Calculate the auto-covariance of the Conditional MCMC suff. stats.
   #  and hence the Conditional MCMC s.e.
   if(!is.null(statsmatrices.obs)){
-    if(metric == "IS") {
-      obspred <- xsim.obs %*% etaparam
-      prob.obs <- exp(obspred - max(obspred))
-      prob.obs <- prob.obs/sum(prob.obs)
-      E.obs <- apply(sweep(gsim.obs, 1, prob.obs, "*"), 2, sum)
-      htmp.obs <- sweep(sweep(gsim.obs, 2, E.obs, "-"), 1, sqrt(prob.obs), "*")
-      H.obs <- crossprod(htmp.obs, htmp.obs)
-    } else prob.obs <- rep.int(1 / nrow(xsim.obs), nrow(xsim.obs))
+    if (metric == "IS") {
+      w.obs <- IS.weights(xsims.obs, etaparam)
+      H.obs <- lweighted.var(gsim.obs, w.obs$lw)
+    } else w.obs <- IS.weights(xsims.obs, 0)
 
     novar.obs <- diag(H.obs)<sqrt(.Machine$double.eps)
     if(any(novar&!novar.obs)) warning("Non-varying statistics in the unconstrained sample vary in the constrained sample. This should not be happening.")
 
     # Handle the corner case in which the constrained statistics do not vary.
     cov.zbar.obs <- if(all(novar.obs)) matrix(0, length(novar.obs), length(novar.obs))
-                    else spectrum0.mvar(gsims.obs) * sum(prob.obs^2)
-    imp.factor.obs <- sum(prob.obs^2)*length(prob.obs)
+                    else delta_cov(gsims.obs, w.obs$ws)
   }else{
     cov.zbar.obs <- cov.zbar
     cov.zbar.obs[,] <- 0
     H.obs <- H
     H.obs[,] <- 0
-    imp.factor.obs <- NULL
   }
 
   H <- H[!novar, !novar, drop=FALSE]
@@ -129,8 +142,5 @@ ergm.MCMCse <- function(model, theta, init, statsmatrices, statsmatrices.obs,
 
   rowcolnames(mc.cov.offset) <- param_names(model)
 
-  attr(mc.cov.offset, "imp.factor") <- imp.factor
-  attr(mc.cov.offset, "imp.factor.obs") <- imp.factor.obs
-  
   mc.cov.offset
 }

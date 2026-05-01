@@ -121,25 +121,8 @@ approx.hotelling.diff.test<-function(x,y=NULL, mu0=0, assume.indep=FALSE, var.eq
         xp <- sweep.mcmc.list(x$v, x$m)
         yp <- sweep.mcmc.list(y$v, y$m)
 
-        if(nchain(xp) == nchain(yp)){
-          # Equal numbers of chains -> concatenate.
-          xyp <- as.mcmc.list(Map(function(x,y) as.mcmc(rbind(x, matrix(NA, ceiling(10*log10(niter(xp) + niter(yp))), nvar(xp)), y)), xp, yp))
-        }else{
-          # Differing numbers of chains -> pad the shorter of the variables (if any) with NAs.
-          padto <- max(niter(x$v), niter(y$v))
-          xp <-
-            if((xpad <- padto - niter(x$v)) > 0) lapply.mcmc.list(xp, function(z) rbind(z, matrix(NA, xpad, nvar(x$v))))
-            else lapply.mcmc.list(xp, function(z) as.matrix(xp)) # To avoid MCMC burnin/interval inconsistency.
-          yp <-
-            if((ypad <- padto - niter(y$v)) > 0) lapply.mcmc.list(yp, function(z) rbind(z, matrix(NA, xpad, nvar(y$v))))
-            else lapply.mcmc.list(yp, function(z) as.matrix(xp))  # To avoid MCMC burnin/interval inconsistency.
-
-          # Now simply treat them as different chains of an MCMC sample.
-          xyp <- as.mcmc.list(c(unclass(xp), unclass(yp)))
-        }
-
-        vcov <- x$vcov <- y$vcov <- ERRVL2(spectrum0.mvar(xyp, ...),
-                                  stop("Unable to compute autocorrelation-adjusted standard errors."))
+        vcov <- x$vcov <- y$vcov <- ERRVL2(spectrum0.mvar(c(xp, yp), ...),
+                                           stop("Unable to compute autocorrelation-adjusted standard errors."))
         infl <- x$infl <- y$infl <- attr(vcov, "infl")
         x$neff <- x$n / infl
         y$neff <- y$n / infl
@@ -275,16 +258,20 @@ geweke.diag.mv <- function(x, frac1 = 0.1, frac2 = 0.5, split.mcmc.list = FALSE,
 
 #' Multivariate version of `coda`'s [spectrum0.ar()].
 #'
-#' Its return value, divided by `nrow(cbind(x))`, is the estimated
-#' variance-covariance matrix of the sampling distribution of the mean
-#' of `x` if `x` is a multivatriate time series with AR(\eqn{p}) structure, with
-#' \eqn{p} determined by AIC.
+#' Its return value, divided by the total sample size, is the
+#' estimated variance-covariance matrix of the sampling distribution
+#' of the mean of `x` if `x` is a multivatriate time series with
+#' AR(\eqn{p}) structure, with \eqn{p} determined by AIC.
 #'
 #' @param x a matrix with observations in rows and variables in
-#'   columns.
+#'   columns or a list of such matrices, which are then treated as
+#'   independent realizations of the same AR process; [`mcmc.list`]
+#'   objects are accepted but treated no differently from ordinary
+#'   lists.
 #' @param order.max maximum (or fixed) order for the AR model.
 #' @param aic use AIC to select the order (up to `order.max`).
-#' @param tol tolerance used in detecting multicollinearity. See Note below.
+#' @param tol tolerance used in detecting multicollinearity. See Note
+#'   below.
 #' @param ... additional arguments to [ar()].
 #'
 #' @return A square matrix with dimension equalling to the number of
@@ -293,82 +280,58 @@ geweke.diag.mv <- function(x, frac1 = 0.1, frac2 = 0.5, split.mcmc.list = FALSE,
 #'   autocorrelation, according to the \insertCite{VaFl15m;textual}{ergm}
 #'   estimate for ESS.
 #' 
-#' @note [ar()] fails if `crossprod(x)` is singular. This is
-#' is remedied as follows:
+#' @note AR fitting can fail under multicollinearity. This is remedied
+#'   as follows:
 #'
 #' 1. Standardize the variables.
-#' 2. Use the eigenvectors to map the variables onto their principal components.
-#' 3. Use the eigenvalues to standardize the principal components.
+#' 2. Use eigendecomposition to extract principal components.
+#' 3. Standardize the principal components.
 #' 4. Drop those components whose standard deviation differs from 1 by more than `tol`. This should filter out redundant components or those too numerically unstable.
-#' 5. Call [ar()] and calculate the variance.
+#' 5. Fit a multivariate AR model (via OLS), and calculate the variance.
 #' 6. Reverse the mapping in steps 1-4 to obtain the variance of the original data.
 #' @export spectrum0.mvar
 spectrum0.mvar <- function(x, order.max=NULL, aic=is.null(order.max), tol=.Machine$double.eps^0.5, ...){
-  breaks <- if(is.mcmc.list(x)) c(0,cumsum(sapply(x, niter))) else NULL
-  x.full <- as.matrix(x)
-  x <- na.omit(x.full)
+  if (is.list(x)) {
+    lens <- map_int(x, nrow)
+    x <- do.call(rbind, x)
+  } else lens <- NULL
+
   p <- ncol(x)
-  
   v <- matrix(0,p,p)
 
   # Save the scale of each variable, then drop nonvarying and standardise.
-  # TODO: What if the variable actually has a tiny magnitude?
   xscl <- apply(x, 2L, stats::sd)
-  novar <- xscl < tol
+  novar <- xscl / max(xscl) < tol
   p.var <- sum(!novar)
-  x <- x[,!novar,drop=FALSE]
-  x.full <- x.full[,!novar,drop=FALSE]
+  x <- x[, !novar, drop = FALSE]
   xscl <- xscl[!novar]
   if(ncol(x) == 0) stop("All variables are constant.")
-  x <- sweep(x, 2L, xscl, "/", check.margin = FALSE)
-  x.full <- sweep(x.full, 2L, xscl, "/", check.margin = FALSE)
-
-  # Index of the first local minimum in a sequence.
-  first_local_min <- function(x){
-    d <- diff(c(Inf,x,Inf))
-    min(which(d>=0))-1
-  }
+  x <- sweep(x, 2L, xscl, `/`, check.margin = FALSE)
   
   # Map the variables onto their principal components, dropping
   # redundant (linearly-dependent) dimensions.
   e <- eigen(cov(x), symmetric=TRUE)
-  xr <- x.full %*% e$vectors %*% diag(1/sqrt(pmax(e$values,0)),p.var) # Columns of xr are guaranteed to be linearly independent with variance 1.
-  xr.sd <- apply(xr, 2, sd, na.rm=TRUE)
-  ind <- !is.na(xr.sd) & abs(xr.sd - 1) < tol
+  x <- x %*% e$vectors %*% diag(1 / sqrt(pmax(e$values, 0)), p.var)
+  x.sd <- apply(x, 2L, sd, na.rm = TRUE)
+  ind <- !is.na(x.sd) & abs(x.sd - 1) < tol
+  x <- x[, ind, drop = FALSE]
+  ind.var <- var(x)
+
+  # This matrix applies the reverse of the above transformation to the
+  # resulting covariance matrix.
   unmapper <- diag(xscl, p.var) %*% e$vectors[, ind, drop=FALSE] %*% diag(sqrt(e$values[ind]), sum(ind))
-  xr <- xr[, ind, drop=FALSE]
 
-  ind.var <- cov(xr, use="complete.obs") # Get the sample variance of the transformed columns.
-
-  # Convert back into an mcmc.list object.
-  xr <-
-    if(!is.null(breaks)) do.call(mcmc.list,lapply(lapply(seq_along(breaks[-1]), function(i) xr[(breaks[i]+1):(breaks[i+1]),,drop=FALSE]), mcmc))
-    else as.mcmc.list(mcmc(xr))
+  # Convert back into a list.
+  x <- if (!is.null(lens)) split_len(x, lens, margin = 1) else list(x)
   
-  ord <- NVL(order.max, ceiling(10*log10(niter(xr))))
-  xr <- do.call(rbind, c(lapply(unclass(xr)[-nchain(xr)], function(z) rbind(cbind(z), matrix(NA, ord, nvar(z)))), unclass(xr)[nchain(xr)]))
-
-  safe_ar <- possibly(ar, NULL)
-
   # Calculate the time-series variance of the mean on the PC scale.
-  # If ar() failed or produced a variance matrix estimate that's
-  # not positive semidefinite, try with a lower order.
-  arfit <- NULL; ord <- ord + 1
-  while((is.null(arfit) || ERRVL2(any(eigen(arfit$var.pred, only.values=TRUE)$values<0), TRUE)) && ord > 0){
-    ord <- ord - 1
-    if(ord<=0) stop("Unable to fit ar() even with order 1; this is likely to be due to insufficient sample size or a trend in the data.")
-    arfit <- safe_ar(xr,aic=is.null(order.max), order.max=ord, na.action=na.pass, ...)
-  }
-  
-  if(aic && arfit$order>(ord <- first_local_min(arfit$aic)-1)){
-    arfit <- ar(xr, aic=ord==0, order.max=max(ord,1), na.action=na.pass) # Workaround since ar() won't take order.max=0.
-  }
+  arfit <- fit_var_ols_multi(x, lags = order.max, aic = aic)
   
   arvar <- arfit$var.pred
   arcoefs <- arfit$ar
   arcoefs <- NVL2(dim(arcoefs), apply(arcoefs,2:3,base::sum), sum(arcoefs))
   
-  adj <- diag(1,nrow=ncol(xr)) - arcoefs
+  adj <- diag(1, nrow = NROW(arvar)) - arcoefs
   v.var <- sandwich_ssolve(adj, arvar)
 
   infl <- exp((determinant(v.var)$modulus-determinant(ind.var)$modulus)/ncol(ind.var))
@@ -379,4 +342,178 @@ spectrum0.mvar <- function(x, order.max=NULL, aic=is.null(order.max), tol=.Machi
   v[!novar,!novar] <- v.var
 
   structure(v, infl = as.vector(infl), rank = sum(ind))
+}
+
+
+#' Use OLS to fit an up to an AR(L) model
+#'
+#' This is a more focused version of ar.ols() that can also handle
+#' multiple independent chains.
+#'
+#' @param Xl a list of matrices with common number of columns.
+#' @param lags maximum lag to calculate (or a list thereof)
+#' @param aic whether to return all lag values (`FALSE`) or only the
+#'   one with the best aic (`TRUE`)
+#' @param intercept whether to include an intercept
+#'
+#' @return For most uses, the return format is consistent with ar().
+#'
+#' @noRd
+fit_var_ols_multi <- function(Xl, lags = NULL, aic = FALSE, intercept = TRUE) {
+  p   <- ncol(Xl[[1]])
+  T_c <- sapply(Xl, nrow)
+  Tmax <- max(T_c)
+
+  ## Default lag choice
+  NVL(lags) <- ceiling(10 * log10(Tmax))
+
+  ## Handle excessive lags
+  if (aic) {
+    lag_eff <- min(max(lags), Tmax - 1)
+    lags_to_fit <- 0:lag_eff
+  } else {
+    lags_to_fit <- lags
+    lag_eff <- max(lags[lags_to_fit <= Tmax - 1], 0, na.rm = TRUE)
+  }
+
+  ## Observation counts
+  n_obs <- sapply(0:max(lag_eff, 0), function(l)
+    sum(pmax(T_c - l, 0))
+    )
+
+  ## ------------------------------------------------------------
+  ## 1. Accumulate sufficient statistics
+  ## ------------------------------------------------------------
+
+  XtX <- matrix(0, p * lag_eff, p * lag_eff)
+  XtY <- matrix(0, p * lag_eff, p)
+  YtY <- matrix(0, p, p)
+
+  oneZ <- if (intercept) matrix(0, 1, p * lag_eff)
+  oneY <- if (intercept) matrix(0, 1, p)
+  one1 <- if (intercept) 0
+
+  for (X in Xl) {
+    Tc <- nrow(X)
+    YtY <- YtY + crossprod(X)
+
+    if (intercept) {
+      oneY <- oneY + colSums(X)
+      one1 <- one1 + Tc
+    }
+
+    for (i in seq_len(lag_eff)) {
+      if (i >= Tc) next
+      rows <- (i + 1):Tc
+
+      Xi <- X[rows - i, , drop = FALSE]
+      Yi <- X[rows, , drop = FALSE]
+
+      XtY[((i - 1) * p + 1):(i * p), ] <-
+        XtY[((i - 1) * p + 1):(i * p), ] + crossprod(Xi, Yi)
+
+      if (intercept)
+        oneZ[, ((i - 1) * p + 1):(i * p)] <-
+          oneZ[, ((i - 1) * p + 1):(i * p)] + colSums(Xi)
+    }
+
+    for (i in seq_len(lag_eff)) {
+      if (i >= Tc) next
+      for (j in seq_len(lag_eff)) {
+        if (j >= Tc) next
+        k <- max(i, j)
+        rows <- (k + 1):Tc
+        XtX[((i - 1) * p + 1):(i * p),
+        ((j - 1) * p + 1):(j * p)] <-
+          XtX[((i - 1) * p + 1):(i * p),
+          ((j - 1) * p + 1):(j * p)] +
+          crossprod(X[rows - i, , drop = FALSE],
+                    X[rows - j, , drop = FALSE])
+      }
+    }
+  }
+
+  ## ------------------------------------------------------------
+  ## 2. Fit requested lags
+  ## ------------------------------------------------------------
+
+  fits <- vector("list", length(lags_to_fit))
+
+  for (k in seq_along(lags_to_fit)) {
+    l <- lags_to_fit[k]
+
+    if (!aic && l > Tmax - 1) {
+      fits[[k]] <- list(aic = NaN)
+      next
+    }
+
+    n <- n_obs[l + 1]
+    df <- n - (p * l + if (intercept) p else 0)
+    if (df <= 0) {
+      fits[[k]] <- list(aic = NaN)
+      next
+    }
+
+    ## VAR(0)
+    if (l == 0) {
+      Sigma <- YtY / df
+      fits[[k]] <- list(
+        ar = array(0, c(0, p, p)),
+        x.intercept = if (intercept) colMeans(do.call(rbind, Xl)),
+        var.pred = Sigma,
+        aic = n * determinant(Sigma)$modulus
+      )
+      next
+    }
+
+    idx <- 1:(p * l)
+
+    fit <- tryCatch({
+
+      XtX_l <- XtX[idx, idx, drop = FALSE]
+      XtY_l <- XtY[idx, , drop = FALSE]
+
+      if (intercept) {
+        XtX_l <- rbind(
+          cbind(XtX_l, t(oneZ[, idx, drop = FALSE])),
+          c(oneZ[, idx, drop = FALSE], one1)
+        )
+        XtY_l <- rbind(XtY_l, oneY)
+      }
+
+      B <- qr.solve(XtX_l, XtY_l)
+
+      RSS <- YtY - t(B) %*% XtY_l
+      Sigma <- RSS / df
+
+      aic <- n * log(det(Sigma)) +
+        2 * (p^2 * l + if (intercept) p else 0)
+
+      A_arr <- array(0, c(l, p, p))
+      for (i in seq_len(l))
+        A_arr[i, , ] <- t(B[((i - 1) * p + 1):(i * p), ])
+
+        list(
+          ar = A_arr,
+          x.intercept = if (intercept) B[p * l + 1, ] else NULL,
+          var.pred = Sigma,
+          aic = aic
+        )
+
+    }, error = function(e) list(aic = NaN))
+
+    fits[[k]] <- fit
+  }
+
+  ## ------------------------------------------------------------
+  ## 3. Return logic
+  ## ------------------------------------------------------------
+
+  if (aic)
+    return(fits[[which.min(sapply(fits, `[[`, "aic"))]])
+
+  if (length(lags_to_fit) == 1)
+    return(fits[[1]])
+
+  fits
 }
