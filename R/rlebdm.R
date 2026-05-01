@@ -351,7 +351,7 @@ as.edgelist.rlebdm <- function(x, prototype=NULL, ..., output=c("matrix", "tibbl
   el
 }
 
-#' @include to_ergm_Cdouble.R
+#' @include serialization.R
 #'
 #' @describeIn to_ergm_Cdouble
 #'
