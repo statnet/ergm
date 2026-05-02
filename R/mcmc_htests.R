@@ -24,6 +24,43 @@
 }
 
 
+#' Degrees of freedom for a Hotelling's \eqn{T^2} test
+#'
+#' One-sample, two-sample homoscedastic, and two-sample
+#' heteroscedastic scenarios are handled, the latter using the
+#' Krishnamoorthy and Yu (2004, eq. 7) degrees of freedom formula.
+#'
+#' In case some of the inputs or results are NaN, conservative
+#' estimates are used.
+#'
+#' @param n (effective) sample size for the sample(s), scalar for
+#'   one-sample, vector of 2 for two-sample.
+#' @param v for unpooled, a list of 2 estimated variance-covariance
+#'   matrices.
+#'
+#' @returns A scalar giving the degrees of freedom.
+#' @noRd
+hotelling_t2_df <- function(n, v) {
+  NANVL <- function(z, ifNAN) ifelse(is.nan(z), ifNAN, z)
+
+  if (length(n) == 1) { # one-sample
+    NANVL(n, 1) - 1
+  } else if (is.null(v)) { # 2-sample pooled
+    NANVL(n[[1L]], 1) + NANVL(n[[2L]], 1) - 2
+  } else { # 2-sample unpooled
+    tr <- function(x) sum(diag(as.matrix(x)))
+    p <- nrow(v[[1L]])
+
+    d1 <- qrssolve(v[[1L]] + v[[2L]], v[[1]])
+    d2 <- diag(1, nrow(d1)) - d1
+
+    (p + p^2) / (
+      NANVL((tr(d1 %*% d1) + tr(d1)^2) / n[[1L]], 0) +
+      NANVL((tr(d2 %*% d2) + tr(d2)^2) / n[[2L]], 0)
+    )
+  }
+}
+
 
 #' Approximate Hotelling T^2-Test for One or Two Population Means
 #' 
@@ -78,8 +115,6 @@ approx.hotelling.diff.test<-function(x,y=NULL, mu0=0, assume.indep=FALSE, var.eq
   if(is.null(mu0)) mu0 <- rep(0,nvar(x))
   mu0 <- rep(mu0, length.out = nvar(x))
 
-  tr <- function(x) sum(diag(as.matrix(x)))
-
   vars <- list(x=list(v=x))
   if(!is.null(y)) vars$y <- list(v=y)
   else var.equal <- FALSE
@@ -117,7 +152,7 @@ approx.hotelling.diff.test<-function(x,y=NULL, mu0=0, assume.indep=FALSE, var.eq
     if(var.equal){
       # If we are pooling variances *and* estimating autocorrelation, then pool the two variables before calling spectrum0.mvar().
       if(!assume.indep){
-        # Center both variables about the same mean.
+        # Center both variables about their means
         xp <- sweep.mcmc.list(x$v, x$m)
         yp <- sweep.mcmc.list(y$v, y$m)
 
@@ -146,8 +181,6 @@ approx.hotelling.diff.test<-function(x,y=NULL, mu0=0, assume.indep=FALSE, var.eq
 
   if(p==0) stop("data are essentially constant")
   
-  ivcov.d <- sginv(vcov.d[!novar,!novar,drop=FALSE])
-  
   method <- paste0("Hotelling's ",
                   NVL2(y, "Two", "One"),
                   "-Sample",if(var.equal) " Pooled"," T^2-Test", if(!assume.indep) " with correction for autocorrelation")
@@ -172,21 +205,9 @@ approx.hotelling.diff.test<-function(x,y=NULL, mu0=0, assume.indep=FALSE, var.eq
     T2 <- xTAx_seigen((d-mu0)[!novar], vcov.d[!novar,!novar,drop=FALSE])
   }
 
-  NANVL <- function(z, ifNAN) ifelse(is.nan(z),ifNAN,z)
-  
   names(T2) <- "T^2"
-  pars <- c(param = p, df = if(is.null(y)){
-    NANVL(x$neff,1)-1
-  }else if(var.equal){
-    NANVL(x$neff,1)+NANVL(y$neff,1)-2
-  }else{
-    # This is the Krishnamoorthy and Yu (2004) degrees of freedom formula, courtesy of Wikipedia.
-    (p+p^2)/(
-      NANVL((tr(x$vcov.m[!novar,!novar] %*% ivcov.d %*% x$vcov.m[!novar,!novar] %*% ivcov.d) +
-             tr(x$vcov.m[!novar,!novar] %*% ivcov.d)^2)/x$neff,0) +
-      NANVL((tr(y$vcov.m[!novar,!novar] %*% ivcov.d %*% y$vcov.m[!novar,!novar] %*% ivcov.d) +
-             tr(y$vcov.m[!novar,!novar] %*% ivcov.d)^2)/y$neff,0))
-  })
+  pars <- c(param = p,
+            df = hotelling_t2_df(c(x$neff, y$neff), if (!var.equal) list(as.matrix(x$vcov.m[!novar, !novar]), as.matrix(y$vcov.m[!novar, !novar]))))
 
   if(pars[1]>=pars[2]) warning("Effective degrees of freedom (",pars[2],") must exceed the number of varying parameters (",pars[1],"). P-value will not be computed.")
   out <- list(statistic=T2, parameter=pars, p.value=if(pars[1]<pars[2]) .ptsq(T2,pars[1],pars[2],lower.tail=FALSE) else NA,
