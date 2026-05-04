@@ -360,31 +360,37 @@ expit <- plogis
           value)
 }
 
+# Helper function for the below.
+eval_i <- function(x, yexpr) {
+  i <- eval.parent(do.call(substitute, list(yexpr, list(. = x))), n = 2)
+  if (is.function(i)) i(x) else i
+}
+
 # Evaluate RHS substituting LHS for ., then use the result to index
 # LHS.
 `%[.]%` <- function(x, y) {
-  x[eval.parent(do.call(substitute, list(substitute(y), list(. = x))))]
+  x[eval_i(x, substitute(y))]
 }
 
 # Note: This tries to guess whether to subset the RHS by comparing
 # lengths. This may not be a good heuristic in all cases, so should
 # not be relied on.
 `%[.]%<-` <- function(x, y, value) {
-  i <- eval.parent(do.call(substitute, list(substitute(y), list(. = x))))
+  i <- eval_i(x, substitute(y))
   if (length(value) > length(seq_along(x)[i])) value <- value[i]
   x[i] <- value
   x
 }
 
 `%[.,]%<-` <- function(x, y, value) {
-  i <- eval.parent(do.call(substitute, list(substitute(y), list(. = x))))
+  i <- eval_i(x, substitute(y))
   if (length(value) > length(seq_len(dim(x)[1L])[i])) value <- value[i]
   x[i, ] <- value
   x
 }
 
 `%[,.]%<-` <- function(x, y, value) {
-  i <- eval.parent(do.call(substitute, list(substitute(y), list(. = x))))
+  i <- eval_i(x, substitute(y))
   if (length(value) > length(seq_len(dim(x)[2L])[i])) value <- value[i]
   x[, i] <- value
   x
@@ -392,14 +398,14 @@ expit <- plogis
 
 
 `%[.|.]%<-` <- function(x, y, value) {
-  i <- eval.parent(do.call(substitute, list(substitute(y), list(. = x))))
+  i <- eval_i(x, substitute(y))
   if (length(value) > length(seq_len(dim(x)[2L])[i])) value <- value[i]
   x[, i] <- x[i, ] <- value
   x
 }
 
 `%[.,.]%<-` <- function(x, y, value) {
-  i <- eval.parent(do.call(substitute, list(substitute(y), list(. = x))))
+  i <- eval_i(x, substitute(y))
   if (!is.null(dim(value)) && dim(value)[2L] > length(seq_len(dim(x)[2L])[i]))
     value <- value[i, i]
   x[i, i] <- value
