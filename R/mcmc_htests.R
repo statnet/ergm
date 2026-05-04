@@ -44,15 +44,16 @@ hotelling_t2_df <- function(n, v) {
   NANVL <- function(z, ifNAN) ifelse(is.nan(z), ifNAN, z)
 
   if (length(n) == 1) { # one-sample
-    NANVL(n, 1) - 1
+    NANVL(n[[1]], 1) - 1
   } else if (is.null(v)) { # 2-sample pooled
     NANVL(n[[1L]], 1) + NANVL(n[[2L]], 1) - 2
   } else { # 2-sample unpooled
     tr <- function(x) sum(diag(as.matrix(x)))
-    p <- nrow(v[[1L]])
 
     d1 <- qrssolve(v[[1L]] + v[[2L]], v[[1]])
     d2 <- diag(1, nrow(d1)) - d1
+
+    p <- attr(d1, "rank")
 
     (p + p^2) / (
       NANVL((tr(d1 %*% d1) + tr(d1)^2) / n[[1L]], 0) +
@@ -63,11 +64,12 @@ hotelling_t2_df <- function(n, v) {
 
 
 #' Approximate Hotelling T^2-Test for One or Two Population Means
-#' 
+#'
 #' A multivariate hypothesis test for a single population mean or a
 #' difference between them. This version attempts to adjust for
-#' multivariate autocorrelation in the samples.
-#' \insertNoCite{Ho47m}{ergm}
+#' multivariate autocorrelation in the samples and handles data that
+#' are not full rank. \insertNoCite{Ho47m}{ergm}
+#' \insertNoCite{KrYu04m}{ergm} \insertNoCite{Lu05n}{ergm}
 #'
 #' @param x a numeric matrix of data values with cases in rows and
 #'   variables in columns.
@@ -100,7 +102,7 @@ hotelling_t2_df <- function(n, v) {
 #' 
 #' It has a print method [print.htest()].
 #'
-#' @seealso [t.test()]
+#' @seealso [t.test()], [spectrum0.mvar()]
 #' @note For [`mcmc.list`] input, the variance for this test is
 #'   estimated with unpooled means. This is not strictly correct.
 #' @references \insertAllCited{}
@@ -115,112 +117,90 @@ approx.hotelling.diff.test<-function(x,y=NULL, mu0=0, assume.indep=FALSE, var.eq
   if(is.null(mu0)) mu0 <- rep(0,nvar(x))
   mu0 <- rep(mu0, length.out = nvar(x))
 
-  vars <- list(x=list(v=x))
-  if(!is.null(y)) vars$y <- list(v=y)
-  else var.equal <- FALSE
+  if(is.null(y)) var.equal <- FALSE
 
-  vars <- lapply(if(is.null(y)) list(x=x) else list(x=x,y=y), function(v, ...){
-    vm <- as.matrix(v)
-    vcov.indep <- cov(vm)
-    if(assume.indep){
-      vcov <- vcov.indep
-      infl <- 1
-    }else if(!var.equal){
-      vcov <- ERRVL2(spectrum0.mvar(v, ...),
-                    stop("Unable to compute autocorrelation-adjusted standard errors."))
-      infl <- attr(vcov, "infl")
-    }else{
-      infl <- vcov <- NULL
-    }
-    m <- colMeans(vm)
-    n <- nrow(vm)
-    
-    neff <- n / infl
-    vcov.m <- vcov/n # Here, vcov already incorporates the inflation due to autocorrelation.
+  data <- compact(list(x = x, y = y))
 
-    list(v=v, vm=vm, m=m, n=n, vcov.indep=vcov.indep, vcov=vcov, infl=infl, neff=neff, vcov.m=vcov.m)
-  }, ...)
+  m <- map(data, colMeans.mcmc.list)
+  n <- map_int(data, function(dat) sum(map_int(dat, nrow)))
+
+  NO_AR_ERR <- "Unable to compute autocorrelation-adjusted standard errors."
+
+  v <- if (var.equal) {
+         if (assume.indep) {
+           map(data, var.mcmc.list) |>
+             map2(n - 1L, `*`) |>
+             reduce(`+`) |>
+             (`/`)(sum(n) - 2) |>
+             list() |>
+             rep.int(2L) |>
+             setNames(c("x", "y"))
+         } else {
+           # If we are pooling variances *and* estimating
+           # autocorrelation.
+           map2(data, m, sweep.mcmc.list) |> # Center each around mean.
+             unlist(recursive = FALSE) |> # Combine.
+             spectrum0.mvar(...) |> # Estimate.
+             ERRVL2(stop(NO_AR_ERR)) |> # Handle error.
+             list() |> # Enclose in list.
+             rep.int(2L) |> # Make 2 copies.
+             setNames(c("x", "y"))
+         }
+       } else {
+         if (assume.indep) {
+           map(data, var.mcmc.list)
+         } else {
+           map(data, spectrum0.mvar, ...) |> ERRVL2(stop(NO_AR_ERR))
+         }
+       }
+
+  infl <- map(v, attr, "infl") |> map_dbl(`%||%`, 1)
+  v <- map(v, as.matrix) # Ensure v is always a matrix.
+
+  neff <- map2_dbl(n, infl, `/`)
+
+  # Here, vcov already incorporates the inflation due to
+  # autocorrelation, so n, not neff.
+  vcov.m <- map2(v, n, `/`)
+
+  d <- m$x - (m$y %||% 0)
+  vcov.d <- vcov.m$x + (vcov.m$y %||% 0)
+
+  names(mu0) <- varnames(x)
+  nv <- diag(vcov.d) == 0
   
-  x <- vars$x
-  y <- vars$y
-  
-  d <- x$m
-  vcov.d <- x$vcov.m
-  
-  if(!is.null(y)){
-    d <- d - y$m
-    if(var.equal){
-      # If we are pooling variances *and* estimating autocorrelation, then pool the two variables before calling spectrum0.mvar().
-      if(!assume.indep){
-        # Center both variables about their means
-        xp <- sweep.mcmc.list(x$v, x$m)
-        yp <- sweep.mcmc.list(y$v, y$m)
+  method <- paste0("Hotelling's ", NVL2(y, "Two", "One"), "-Sample",
+                   if (var.equal) " Pooled"," T^2-Test",
+                   if (!assume.indep) " with correction for autocorrelation")
 
-        vcov <- x$vcov <- y$vcov <- ERRVL2(spectrum0.mvar(c(xp, yp), ...),
-                                           stop("Unable to compute autocorrelation-adjusted standard errors."))
-        infl <- x$infl <- y$infl <- attr(vcov, "infl")
-        x$neff <- x$n / infl
-        y$neff <- y$n / infl
-        x$vcov.m <- vcov / x$n
-        y$vcov.m <- vcov / y$n
-      }
+  T2 <- try(xTAx_seigen((d - mu0), vcov.d), silent = TRUE)
 
-      vcov.pooled <- (x$vcov*(x$n-1) + y$vcov*(y$n-1))/(x$n+y$n-2)
-      vcov.d <- vcov.pooled * (1/x$n + 1/y$n)
-    }else{
-      vcov.d <- vcov.d + y$vcov.m
-    }
-  }
-
-
-  p <- nvar(x$v)
-  names(mu0)<-varnames(x$v)
-
-  novar <- diag(vcov.d)==0
-  p <- p-sum(novar)
-
-  if(p==0) stop("data are essentially constant")
-  
-  method <- paste0("Hotelling's ",
-                  NVL2(y, "Two", "One"),
-                  "-Sample",if(var.equal) " Pooled"," T^2-Test", if(!assume.indep) " with correction for autocorrelation")
-  
   # If a statistic doesn't vary and doesn't match, return a 0 p-value:
-  if(any((d-mu0)[novar]!=0)){
-    warning("Vector(s) ", paste.and(colnames(x)[novar]),
-            NVL2(y,
-                 " do not vary and do not equal mu0",
-                 " do not vary in x or in y and have differences unequal to mu0"),
-            "; P-value has been set to 0.")
-        
-    T2 <- +Inf
-  }else{
-    if(any(novar)){
-      warning("Vector(s) ", paste.and(colnames(x)[novar]),
-              NVL2(y,
-                   " do not vary but equal mu0",
-                   " do not vary in x or in y but have differences equal to mu0"),
-              "; they have been ignored for the purposes of testing.")
-    }
-    T2 <- xTAx_seigen((d-mu0)[!novar], vcov.d[!novar,!novar,drop=FALSE])
+  if (is(T2, "try-error")) {
+    if (grepl("x is not in the span of A", T2, fixed = TRUE)) {
+      warning("Observed differences are not in the span of the variation of the variables; not possible under the null, so p-value = 0.")
+      T2 <- structure(+Inf, rank = attr(xTAx_seigen((d - d), vcov.d), "rank"))
+    } else stop(attr(T2, "condition"))
   }
 
+  p <- attr(T2, "rank")
+  if (p == 0) stop("data are essentially constant")
+  else if (p < nvar(x)) message("Data are not full-rank (", nvar(x),
+                                " variables total, ", p,
+                                " linearly independent).")
+ 
   names(T2) <- "T^2"
-  pars <- c(param = p,
-            df = hotelling_t2_df(c(x$neff, y$neff), if (!var.equal) list(as.matrix(x$vcov.m[!novar, !novar]), as.matrix(y$vcov.m[!novar, !novar]))))
+  pars <- c(param = p, df = hotelling_t2_df(neff, if (!var.equal) vcov.m))
 
-  if(pars[1]>=pars[2]) warning("Effective degrees of freedom (",pars[2],") must exceed the number of varying parameters (",pars[1],"). P-value will not be computed.")
-  out <- list(statistic=T2, parameter=pars, p.value=if(pars[1]<pars[2]) .ptsq(T2,pars[1],pars[2],lower.tail=FALSE) else NA,
-              method = method,
-              null.value=mu0,
-              alternative="two.sided",
-              estimate = d,
-              covariance = vcov.d,
-              covariance.x = x$vcov.m,
-              covariance.y = y$vcov.m,
-              novar = novar)
-  class(out)<-"htest"
-  out
+  if (pars[1] >= pars[2]) warning("Effective degrees of freedom (", pars[2],
+                                  ") must exceed the number of varying parameters (",
+                                  pars[1], "). P-value will not be computed.")
+  structure(
+    list(statistic = T2, parameter = pars, method = method, null.value = mu0,
+         p.value = if (pars[1] < pars[2]) .ptsq(T2, pars[1], pars[2], lower.tail = FALSE) else NA,
+         alternative = "two.sided", estimate = d, covariance = vcov.d,
+         covariance.x = vcov.m$x, covariance.y = vcov.m$y),
+    class = "htest")
 }
 
 #' Multivariate version of `coda`'s [coda::geweke.diag()].
@@ -281,8 +261,9 @@ geweke.diag.mv <- function(x, frac1 = 0.1, frac2 = 0.5, split.mcmc.list = FALSE,
 #'
 #' Its return value, divided by the total sample size, is the
 #' estimated variance-covariance matrix of the sampling distribution
-#' of the mean of `x` if `x` is a multivatriate time series with
-#' AR(\eqn{p}) structure, with \eqn{p} determined by AIC.
+#' of the mean of `x` if `x` is one or more multivatriate time series
+#' with AR(\eqn{p}) structure (\insertCite{Lu05n;nobrackets}{ergm},
+#' Prop. 3.3), with \eqn{p} determined by AIC.
 #'
 #' @param x a matrix with observations in rows and variables in
 #'   columns or a list of such matrices, which are then treated as
@@ -350,10 +331,10 @@ spectrum0.mvar <- function(x, order.max=NULL, aic=is.null(order.max), tol=.Machi
   
   arvar <- arfit$var.pred
   arcoefs <- arfit$ar
-  arcoefs <- NVL2(dim(arcoefs), apply(arcoefs,2:3,base::sum), sum(arcoefs))
+  arcoefs <- NVL2(dim(arcoefs), apply(arcoefs, 1:2, base::sum), sum(arcoefs))
   
   adj <- diag(1, nrow = NROW(arvar)) - arcoefs
-  v.var <- sandwich_ssolve(adj, arvar)
+  v.var <- sandwich_qrssolve(adj, arvar)
 
   infl <- exp((determinant(v.var)$modulus-determinant(ind.var)$modulus)/ncol(ind.var))
   
@@ -479,7 +460,7 @@ fit_var_ols_multi <- function(Xl, lags = NULL, aic = FALSE, intercept = TRUE) {
     if (l == 0) {
       Sigma <- YtY / df
       fits[[k]] <- list(
-        ar = array(0, c(0, p, p)),
+        ar = array(0, c(p, p, 0)),
         x.intercept = if (intercept) colMeans(do.call(rbind, Xl)),
         var.pred = Sigma,
         aic = n * determinant(Sigma)$modulus
@@ -510,9 +491,9 @@ fit_var_ols_multi <- function(Xl, lags = NULL, aic = FALSE, intercept = TRUE) {
       aic <- n * log(det(Sigma)) +
         2 * (p^2 * l + if (intercept) p else 0)
 
-      A_arr <- array(0, c(l, p, p))
+      A_arr <- array(0, c(p, p, l))
       for (i in seq_len(l))
-        A_arr[i, , ] <- t(B[((i - 1) * p + 1):(i * p), ])
+        A_arr[, , i] <- t(B[((i - 1) * p + 1):(i * p), ])
 
         list(
           ar = A_arr,

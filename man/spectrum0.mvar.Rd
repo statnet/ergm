@@ -38,8 +38,9 @@ estimate for ESS.
 \description{
 Its return value, divided by the total sample size, is the
 estimated variance-covariance matrix of the sampling distribution
-of the mean of \code{x} if \code{x} is a multivatriate time series with
-AR(\eqn{p}) structure, with \eqn{p} determined by AIC.
+of the mean of \code{x} if \code{x} is one or more multivatriate time series
+with AR(\eqn{p}) structure (\insertCite{Lu05n;nobrackets}{ergm},
+Prop. 3.3), with \eqn{p} determined by AIC.
 }
 \note{
 AR fitting can fail under multicollinearity. This is remedied

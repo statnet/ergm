@@ -78,8 +78,10 @@ ergm.MCMLE <- function(init, s, s.obs, control, verbose = FALSE, ...) {
     s.obs <- rep(list(s.obs),nthreads(control))
   }
 
-  ## A helper function to increase the MCMC sample size and target effective size by the specified factor.
-  .boost_samplesize <- function(boost, base=FALSE){
+  ## A helper function to increase the MCMC sample size and target
+  ## effective size by the specified factor.
+  .boost_samplesize <- function(boost = control$MCMLE.confidence.boost, base = FALSE) {
+    if (boost == 1) return(NULL) # Do nothing.
     for(ctrl in c("control", if(obs && !adapt.obs.var) "control.obs")){
       control <- get(ctrl, parent.frame())
       sampsize.boost <-
@@ -110,12 +112,11 @@ ergm.MCMLE <- function(init, s, s.obs, control, verbose = FALSE, ...) {
     NULL
   }
 
-  if(control$MCMLE.termination=='confidence'){
-    estdiff.prev <- NULL
+  if (control$MCMLE.termination == "confidence") {
+    d2.prev <- NULL
     d2.not.improved <- rep(FALSE, control$MCMLE.confidence.boost.lag)
   }
 
-  
   # mcmc.init will change at each iteration.  It is the value that is used
   # to generate the MCMC samples.  init will never change.
   mcmc.init <- init
@@ -289,26 +290,17 @@ ergm.MCMLE <- function(init, s, s.obs, control, verbose = FALSE, ...) {
       message_print(if (obs) colMeans(esteq) - colMeans(esteq.obs) else colMeans(esteq))
     }
 
-    # Need to compute MCMC SE for "confidence" termination criterion
-    # if it has the possibility of terminating.
-    if(control$MCMLE.termination=='confidence'){
-      calc_Vm <- function(esteq, esteq.obs, logw = 0, logw.obs = 0) {
-        logw <- rep_len(logw, nrow(esteq))
-        logw.obs <- NVL3(esteq.obs, rep_len(logw.obs, nrow(.)))
-
-        pprec <- diag(sqrt(control$MCMLE.MCMC.precision), nrow = ncol(esteq))
-        Vm <- pprec %*% (lweighted.var(esteq, logw) - NVL3(esteq.obs, lweighted.var(., logw.obs), 0)) %*% pprec
-        novar <- diag(Vm) <= 0
-        Vm[, novar] <- Vm[novar, ] <- 0
-        Vm
-      }
-      Vm <- calc_Vm(esteq, esteq.obs)
-      estdiff <- NVL3(esteq.obs, colMeans(esteq.obs), 0) - colMeans(esteq)
-      d2 <- tryCatch(xTAx_seigen(estdiff, Vm), error = function(e) Inf)
-      if(d2<2) last.adequate <- TRUE
+    # This is used to determine whether to compute MCMC SE needed by
+    # the "confidence" termination criterion: only bother if the
+    # estimating function is close to zero on precision scale.
+    if (control$MCMLE.termination == "confidence") {
+      prec <- target_prec(esteq, esteq.obs, control)
+      d <- NVL3(esteq.obs, colMeans(.), 0) - colMeans(esteq)
+      d2 <- tryCatch(xTAx_seigen(d, prec), error = function(e) Inf)
+      if (d2 < 2) last.adequate <- TRUE
     }
 
-      if(verbose){message("Starting MCMLE Optimization...")}
+    if (verbose) message("Starting MCMLE Optimization...")
 
       if(!is.null(control$MCMLE.steplength.margin)){
         steplen <- .Hummel.steplength(
@@ -390,95 +382,34 @@ ergm.MCMLE <- function(init, s, s.obs, control, verbose = FALSE, ...) {
       }else{
         last.adequate <- FALSE
       }
-    }else if(control$MCMLE.termination=='confidence'){
-      if(!is.null(estdiff.prev)){
-        d2.prev <- tryCatch(xTAx_seigen(estdiff.prev, Vm), error = function(e) Inf)
+    }else if (control$MCMLE.termination == "confidence") {
+      if(!is.null(d2.prev)) {
         if(verbose) message("Distance from origin on tolerance region scale: ", format(d2), " (previously ", format(d2.prev), ").")
-        d2.not.improved <- d2.not.improved[-1] 
+        d2.not.improved <- d2.not.improved[-1]
         if(d2 >= d2.prev){
           d2.not.improved <- c(d2.not.improved,TRUE)
         }else{
           d2.not.improved <- c(d2.not.improved,FALSE)
         }
       }
-      estdiff.prev <- estdiff
-      
-      if(d2<2){
-        IS.lw <- function(sm, etadiff) {
-          nochg <- etadiff==0 | apply(sm, 2, function(x) max(x)==min(x)) # Also takes care of offset terms.
-          # Calculate log-importance-weights
-          drop(sm[,!nochg,drop=FALSE] %*% etadiff[!nochg])
-        }
-        lw2w <- function(lw) {
-          w <- exp(lw - max(lw))
-          w / sum(w)
-        }
-        # Handle a corner case in which none of the constrained sample
-        # statistics vary. Then, Hotelling's test must be performed in
-        # the 1-sample mode.
-        novar.obs <- NVL3(esteq.obs, all(sweep(., 2L, .[1L,], `==`)), FALSE)
-        hotel <- try(suppressWarnings(
-          approx.hotelling.diff.test(esteqs,
-                                     if(!novar.obs) esteqs.obs,
-                                     mu0 = if(novar.obs) esteq.obs[1L,])
-        ), silent=TRUE)
-        if(inherits(hotel, "try-error")){ # Within tolerance ellipsoid, but cannot be tested.
-          message("Unable to test for convergence; increasing sample size.")
-          .boost_samplesize(control$MCMLE.confidence.boost)
-        }else{
-          etadiff <- ergm.eta(coef(v), model$etamap) - ergm.eta(mcmc.init, model$etamap)
-          esteq.lw <- IS.lw(statsmatrix, etadiff)
-          esteq.w <- lw2w(esteq.lw)
-          esteq.new <- if (is.curved(model)) ergm.estfun(statsmatrix, theta = coef(v), model = model) else esteq
-          estdiff <- -lweighted.mean(esteq.new, esteq.lw)
-          estcov <- hotel$covariance.x*sum(esteq.w^2)*length(esteq.w)
-          if(obs && !novar.obs){
-            esteq.obs.new <- if (is.curved(model)) ergm.estfun(statsmatrix.obs, theta = coef(v), model = model) else esteq.obs
-            esteq.obs.lw <- IS.lw(statsmatrix.obs, etadiff)
-            esteq.obs.w <- lw2w(esteq.obs.lw)
-            estdiff <- estdiff + lweighted.mean(esteq.obs.new, esteq.obs.lw)
-            estcov <- estcov + hotel$covariance.y*sum(esteq.obs.w^2)*length(esteq.obs.w)
-          } else esteq.obs.new <- esteq.obs.lw <- NULL
-          estdiff <- estdiff[!hotel$novar]
-          estcov <- estcov[!hotel$novar, !hotel$novar, drop = FALSE]
-          Vm.new <- calc_Vm(esteq.new, esteq.obs.new, esteq.lw, esteq.obs.lw)
+      d2.prev <- d2
 
-          d2e <- xTAx_seigen(estdiff, Vm.new[!hotel$novar, !hotel$novar, drop = FALSE])
-          if(d2e<1){ # Update ends within tolerance ellipsoid.
-            T2 <- try(.ellipsoid_mahalanobis(estdiff, estcov, Vm[!hotel$novar, !hotel$novar, drop = FALSE]), silent=TRUE) # Distance to the nearest point on the tolerance region boundary.
-            if(inherits(T2, "try-error")){ # Within tolerance ellipsoid, but cannot be tested.
-              message("Unable to test for convergence; increasing sample size.")
-              .boost_samplesize(control$MCMLE.confidence.boost)
-            }else{ # Within tolerance ellipsoid, can be tested.
-              T2nullity <- attr(T2,"nullity")
-              T2param <- hotel$parameter["param"] - T2nullity
-              if(T2nullity && verbose) message("Estimated covariance matrix of the statistics has nullity ", format(T2nullity), ". Effective parameter number adjusted to ", format(T2param), ".")
-              nonconv.pval <- .ptsq(T2, T2param, hotel$parameter["df"], lower.tail=FALSE)
-              if(verbose) message("Test statistic: T^2 = ", format(T2),", with ",
-                                  format(T2param), " free parameter(s) and ", format(hotel$parameter["df"]), " degrees of freedom.")
-              message("Convergence test p-value: ", fixed.pval(nonconv.pval, 4), ". ", appendLF=FALSE)
-              if(nonconv.pval < 1-control$MCMLE.confidence){
-                message("Converged with ",control$MCMLE.confidence*100,"% confidence.")
-                break
-              }else{
-                message("Not converged with ",control$MCMLE.confidence*100,"% confidence; increasing sample size.")
-                critval <- .qtsq(control$MCMLE.confidence, T2param, hotel$parameter["df"])
-                if(verbose) message(control$MCMLE.confidence*100,"% confidence critical value = ",format(critval),".")
-                boost <- min((critval/T2),control$MCMLE.confidence.boost) # I.e., we want to increase the denominator far enough to reach the critical value.
-                .boost_samplesize(boost)
-              }
-            }
-          }
-        }
+      if (d2 < 2) {
+        ctest <- confidence_test(coef(v), mcmc.init, model, control, verbose,
+                                 statsmatrices, statsmatrices.obs,
+                                 esteqs, esteqs.obs)
+        if (ctest$boost == 0) break # Converged.
+        .boost_samplesize(ctest$boost)
       }
+
       # If either the estimating function is far from the tolerance
       # region *or* if it's close, but did not end the iteration
       # inside it.
-      if(d2>=2 || d2e>1){ 
+      if (d2 >= 2 || ctest$d2 > 1) {
         message("Estimating equations are not within tolerance region.")
-        if(sum(d2.not.improved) > control$MCMLE.confidence.boost.threshold){
+        if (sum(d2.not.improved) > control$MCMLE.confidence.boost.threshold) {
           message("Estimating equations did not move closer to tolerance region more than ", control$MCMLE.confidence.boost.threshold," time(s) in ", control$MCMLE.confidence.boost.lag, " steps; increasing sample size.")
-          .boost_samplesize(control$MCMLE.confidence.boost)
+          .boost_samplesize()
           d2.not.improved[] <- FALSE
         }
       }
@@ -596,12 +527,12 @@ ergm.MCMLE <- function(init, s, s.obs, control, verbose = FALSE, ...) {
 #' @param W,U a square matrix
 #'
 #' @noRd
-.ellipsoid_mahalanobis <- function(y, W, U, tol=sqrt(.Machine$double.eps)){
+ellipsoid_mahalanobis <- function(y, W, U, tol=sqrt(.Machine$double.eps)){
   y <- c(y)
   if(xTAx_seigen(y,U,tol=tol)>=1) stop("Point is not in the interior of the ellipsoid.")
   I <- diag(length(y))
-  WUi <- t(qrssolve(U, W, tol=tol))
-  x <- function(l) c(solve(I+l*WUi, y)) # Singluar for negative reciprocals of eigenvalues of WiU.
+  WUi <- t(qrssolve(U, W, tol = tol))
+  x <- function(l) c(qrssolve(I + l * WUi, y, snnd = FALSE)) # Singluar for negative reciprocals of eigenvalues of WiU.
   zerofn <- function(l) ERRVL2(xTAx_seigen(x(l), U, tol=tol) - 1, +Inf)
 
   # For some reason, WU sometimes has 0i element in its eigenvalues.
@@ -611,4 +542,102 @@ ergm.MCMLE <- function(init, s, s.obs, control, verbose = FALSE, ...) {
   x <- x(l)
 
   xTAx_seigen(y-x, W, tol=tol)
+}
+
+#' Calculate target precision matrix
+#'
+#' @param ee,ee_o matrices of estimating function values.
+#' @param lw,lw_o corresponding log-weights (recycled)
+#' @param control [control.ergm()] object
+#'
+#' @return A matrix.
+#' @noRd
+target_prec <- function(ee, ee_o, control, lw = 0, lw_o = 0) {
+  lw <- rep_len(lw, nrow(ee))
+  lw_o <- NVL3(ee_o, rep_len(lw_o, nrow(.)))
+
+  pprec <- diag(sqrt(control$MCMLE.MCMC.precision), nrow = ncol(ee))
+  v <- pprec %*% (lweighted.var(ee, lw) - NVL3(ee_o, lweighted.var(., lw_o), 0)) %*% pprec
+
+  # Guard against constrained sample having higher variance than
+  # unconstrained.
+  v %[.|.]% (diag(.) <= 0) <- 0
+  v
+}
+
+
+#' Confidence test
+#'
+#' @param new,old old and new values of theta.
+#' @param m an [`ergm_model`]
+#' @param sm,sm_o sample statistics [`mcmc.list`].
+#' @param ee,ee.o sample estimating functions[`mcmc.list`] from `old`.
+#' @param control [control.ergm()] object
+#'
+#' @return A scalar: `0` if converged, by how much to boost the sample
+#'   size otherwise.
+#' @noRd
+confidence_test <- function(new, old, m, control, verbose, sm, sm_o, ee, ee_o) {
+  deta <- ergm.eta(new, m$etamap) - ergm.eta(old, m$etamap)
+
+  # IS weights, (potentially) new estimating functions, and summary statistics.
+  w <- IS_weights(sm, deta)
+  if (is.curved(m)) ee <- ergm.estfun(sm, theta = new, model = m)
+  s <- vcov_wmean_ar(ee, w$ws)
+
+  # Observational IS weights, (potentially) new estimating functions,
+  # and summary statistics.
+  w_o <- s_o <- NULL
+  if (!is.null(sm_o)) {
+    if (is.curved(m)) ee_o <- ergm.estfun(sm_o, theta = new, model = m)
+    # A corner case in which constrained sample does not vary at all:
+    # fall back to non-observational.
+    if (all(const_variables(ee_o))) {
+      s_o <- list(m = ee_o[[1L]][1L, ])
+    } else {
+      w_o <- IS_weights(sm_o, deta)
+      s_o <- vcov_wmean_ar(ee_o, w_o$ws)
+    }
+  }
+
+  # Distance from origin on precision scale.
+  d <- s_o$m %||% 0 - s$m
+  prec <- target_prec(as.matrix(ee), NVL2(w_o, as.matrix(ee_o)), control, w$lw, w_o$lw)
+  d2 <- xTAx_seigen(d, prec)
+
+  # Update end not within tolerance ellipsoid?
+  if (d2 >= 1) return(list(boost = 1, d2 = d2))
+
+  # Distance to the nearest point on the tolerance region boundary.
+  t2 <- try(ellipsoid_mahalanobis(d, s$v + s_o$v %||% 0, prec), silent = TRUE)
+  if (is(t2, "try-error")) { # Within tolerance ellipsoid, but cannot be tested.
+    message("Unable to test for convergence; increasing sample size.")
+    return(list(boost = control$MCMLE.confidence.boost, d2 = d2))
+  }
+
+  ## Within tolerance ellipsoid, can be tested.
+  peff <- attr(d2, "rank") # Effective dimension.
+  if (verbose && peff < ncol(ee[[1L]]))
+    message("Estimated covariance matrix of the statistics is not full rank.")
+
+  df <- hotelling_t2_df(c(s$neff, s_o$neff), NVL3(s_o$v, list(s$v, .)))
+  pval <- .ptsq(t2, peff, df, lower.tail = FALSE)
+
+  if (verbose) message("Test statistic: T^2 = ", format(t2), ", with ",
+                       format(peff), " free parameter(s) and ", format(df),
+                       " degrees of freedom.")
+  message("Convergence test p-value: ", fixed.pval(pval, 4), ". ", appendLF = FALSE)
+
+  if(pval < 1-control$MCMLE.confidence){
+    message("Converged with ", control$MCMLE.confidence*100, "% confidence.")
+    return(list(boost = 0, d2 = d2))
+  }
+
+  ## Not converged.
+  message("Not converged with ", control$MCMLE.confidence*100, "% confidence; increasing sample size.")
+  crit <- .qtsq(control$MCMLE.confidence, peff, df)
+  if(verbose) message(control$MCMLE.confidence * 100,
+                      "% confidence critical value = ", format(crit), ".")
+  # We want to increase the denominator enough to reach the critical value.
+  list(boost = min((crit / t2), control$MCMLE.confidence.boost), d2 = d2)
 }

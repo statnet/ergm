@@ -54,8 +54,9 @@ It has a print method \code{\link[=print.htest]{print.htest()}}.
 \description{
 A multivariate hypothesis test for a single population mean or a
 difference between them. This version attempts to adjust for
-multivariate autocorrelation in the samples.
-\insertNoCite{Ho47m}{ergm}
+multivariate autocorrelation in the samples and handles data that
+are not full rank. \insertNoCite{Ho47m}{ergm}
+\insertNoCite{KrYu04m}{ergm} \insertNoCite{Lu05n}{ergm}
 }
 \note{
 For \code{\link[coda:mcmc.list]{mcmc.list}} input, the variance for this test is
@@ -65,5 +66,5 @@ estimated with unpooled means. This is not strictly correct.
 \insertAllCited{}
 }
 \seealso{
-\code{\link[=t.test]{t.test()}}
+\code{\link[=t.test]{t.test()}}, \code{\link[=spectrum0.mvar]{spectrum0.mvar()}}
 }
