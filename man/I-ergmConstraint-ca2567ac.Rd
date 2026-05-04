@@ -22,7 +22,7 @@ will be prepended. Its environment will be inherited from the
 top-level formula.
 }
 \seealso{
-\code{\link[base:AsIs]{base::I()}} (a.k.a. \code{AsIs})
+\code{\link[base:I]{base::I()}} (a.k.a. \code{AsIs})
 
 \code{\link{ergmConstraint}} for index of constraints and hints currently visible to the package.
 

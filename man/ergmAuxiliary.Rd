@@ -54,7 +54,7 @@ search.ergmAuxiliaries()
 }
 }
 \seealso{
-\code{\link[=ergm-package]{ergm}} package, \code{\link{ergm}}, \code{\link[network:network]{network}}, \code{\link[network:network.extraction]{\%v\%}}, \code{\link[network:network.extraction]{\%n\%}}
+\code{\link[=ergm-package]{ergm}} package, \code{\link{ergm}}, \code{\link[network:network]{network}}, \code{\link[network:\%v\%]{\%v\%}}, \code{\link[network:\%n\%]{\%n\%}}
 }
 \keyword{internal}
 \keyword{models}

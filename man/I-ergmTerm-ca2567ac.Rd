@@ -36,7 +36,7 @@ stopifnot(identical(s, summary(flomarriage ~ degree(0:5))))
 }
 }
 \seealso{
-\code{\link[base:AsIs]{base::I()}} (a.k.a. \code{AsIs})
+\code{\link[base:I]{base::I()}} (a.k.a. \code{AsIs})
 
 \code{\link{ergmTerm}} for index of model terms currently visible to the package.
 

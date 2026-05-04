@@ -73,7 +73,7 @@ run-length encoded in a column-major order.
 \item \code{compress(rlebdm)}: Compress the \code{rle} data structure in the
 \code{rlebdm} by merging successive runs with identical values.
 
-\item \code{as.edgelist(rlebdm)}: Convert an \code{\link{rlebdm}} object to an \code{\link[network:as.edgelist]{edgelist}}: a two-column
+\item \code{as.edgelist(rlebdm)}: Convert an \code{\link{rlebdm}} object to an \code{\link[network:edgelist]{edgelist}}: a two-column
 integer matrix or \code{\link[tibble:tibble]{tibble}} giving the cells with \code{TRUE} values.
 
 }}
@@ -82,7 +82,7 @@ integer matrix or \code{\link[tibble:tibble]{tibble}} giving the cells with \cod
 \item \code{as.rlebdm(matrix)}: Convert a square matrix of mode coercible to \code{\link{logical}} to an
 \code{\link{rlebdm}}.
 
-\item \code{as.rlebdm(edgelist)}: Convert an object of class \code{\link[network:as.edgelist]{edgelist}} to an \code{\link{rlebdm}} object
+\item \code{as.rlebdm(edgelist)}: Convert an object of class \code{\link[network:edgelist]{edgelist}} to an \code{\link{rlebdm}} object
 whose cells in the edge list are set to \code{TRUE} and whose other
 cells are set to \code{FALSE}.
 

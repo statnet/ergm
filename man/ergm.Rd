@@ -455,7 +455,7 @@ vcov(gest, sources="all") # the default
 \insertAllCited{}
 }
 \seealso{
-\code{\link[network:network]{network}}, \code{\link[network:network.extraction]{\%v\%}}, \code{\link[network:network.extraction]{\%n\%}}, \code{\link{ergmTerm}}, \code{\link{ergmMPLE}},
+\code{\link[network:network]{network}}, \code{\link[network:\%v\%]{\%v\%}}, \code{\link[network:\%n\%]{\%n\%}}, \code{\link{ergmTerm}}, \code{\link{ergmMPLE}},
 \code{\link[=summary.ergm]{summary.ergm()}}
 }
 \keyword{models}

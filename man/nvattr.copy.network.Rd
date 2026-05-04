@@ -32,7 +32,7 @@ ignoring some standard properties by default.
 does not check that networks are of the same size, etc
 }
 \seealso{
-\code{\link[network:attribute.methods]{set.vertex.attribute()}},
-\code{\link[network:attribute.methods]{set.network.attribute()}}
+\code{\link[network:set.vertex.attribute]{set.vertex.attribute()}},
+\code{\link[network:set.network.attribute]{set.network.attribute()}}
 }
 \keyword{internal}

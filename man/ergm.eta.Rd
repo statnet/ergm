@@ -71,8 +71,8 @@ in the estimation process.
 \mathbb{R}^q\to\mathbb{R}^p}{eta(theta): R^q -> R^p}.
 
 \item \code{ergm.etagrad()}: Evaluate \eqn{\eta'(\theta):
-  \mathbb{R}^q\to\mathbb{R}^{q\times p}}{deta(theta): R^q ->
-  R^{q*p}}. If the gradient is only intended to be a multiplier for
+\mathbb{R}^q\to\mathbb{R}^{q\times p}}{deta(theta): R^q ->
+R^{q*p}}. If the gradient is only intended to be a multiplier for
 some vector or matrix, the more efficient \code{ergm.etagradmult}
 is recommended.
 
@@ -81,8 +81,8 @@ r}}{deta(theta)\%*\%V: R^q * R^{p*r} -> R^{q*r}}.
 
 \item \code{ergm.etagradmultt()}: A convenience function to evaluate
 \eqn{\{\eta'(\theta) S^{\top}\}^{\top} = S
-  \eta'(\theta)^{\top}}{t(deta(theta)\%*\%t(S)) =
-  S\%*\%t(deta(theta))}.
+\eta'(\theta)^{\top}}{t(deta(theta)\%*\%t(S)) =
+S\%*\%t(deta(theta))}.
 
 }}
 \references{

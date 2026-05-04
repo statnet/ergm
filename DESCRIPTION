@@ -1,5 +1,5 @@
 Package: ergm
-Version: 4.13.0-8137
+Version: 4.13.0-8138
 Date: 2026-05-04
 Title: Fit, Simulate and Diagnose Exponential-Family Models for Networks
 Authors@R: c(
@@ -63,7 +63,6 @@ License_is_FOSS: yes
 License_restricts_use: no
 URL: https://statnet.org
 VignetteBuilder: knitr
-RoxygenNote: 7.3.3.9000
 Roxygen: list(markdown = TRUE)
 Config/testthat/parallel: true
 Config/testthat/edition: 3
@@ -186,5 +185,5 @@ Collate:
     'wtd.median.R'
     'zzz.R'
 Remotes: github::statnet/statnet.common@master,
-    github::statnet/ergm.count@master,
-    github::r-lib/roxygen2@main
+    github::statnet/ergm.count@master
+Config/roxygen2/version: 8.0.0

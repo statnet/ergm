@@ -63,9 +63,9 @@ analogues \code{ergm_Init_stop()}, \code{ergm_Init_warning()}, and
 \seealso{
 \code{\link[=stop]{stop()}}, \code{\link[rlang:abort]{abort()}}
 
-\code{\link[=warning]{warning()}}, \code{\link[rlang:abort]{warn()}}
+\code{\link[=warning]{warning()}}, \code{\link[rlang:warn]{warn()}}
 
-\code{\link[=message]{message()}}, \code{\link[rlang:abort]{inform()}}
+\code{\link[=message]{message()}}, \code{\link[rlang:inform]{inform()}}
 
 \code{\link[=try]{try()}}, \code{\link[=tryCatch]{tryCatch()}}
 }

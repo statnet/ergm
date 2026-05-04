@@ -493,8 +493,7 @@ NULL
 #' Metropolis-Hastings Proposal Methods for ERGM MCMC
 #'
 #' @name ergmProposal
-#' @aliases ergm-proposals proposals-ergm ergm.proposals
-#'   proposals.ergm InitErgmProposal InitWtErgmProposal
+#' @aliases ergm-proposals proposals-ergm ergm.proposals proposals.ergm InitErgmProposal InitWtErgmProposal
 #' @description This page describes the low-level Metropolis--Hastings
 #'   (MH) proposal algorithms. They are rarely invoked directly by the
 #'   user but are rather selected based on the provided [sample space

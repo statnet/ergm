@@ -30,7 +30,7 @@ Function to check whether an ERGM fit or some aspect of it is valued
 \itemize{
 \item \code{is.valued(ergm_state)}: a method for \code{\link{ergm_state}} objects.
 
-\item \code{is.valued(edgelist)}: a method for \code{\link[network:as.edgelist]{edgelist}} objects.
+\item \code{is.valued(edgelist)}: a method for \code{\link[network:edgelist]{edgelist}} objects.
 
 \item \code{is.valued(ergm)}: a method for \code{\link{ergm}} objects.
 

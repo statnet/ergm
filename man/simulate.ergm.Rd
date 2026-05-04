@@ -294,7 +294,7 @@ The following are the permitted network formats: \describe{
 
 \item{\code{"network"}}{A \code{\link[network:network]{network}} object.}
 
-\item{\code{"edgelist"}}{An \code{\link[network:as.edgelist]{edgelist}} representation of the network,
+\item{\code{"edgelist"}}{An \code{\link[network:edgelist]{edgelist}} representation of the network,
 or a list thereof, depending on \code{nsim}.}
 
 \item{\code{"ergm_state"}}{\code{\link{ergm_state}}, a semi-internal representation of

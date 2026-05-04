@@ -234,6 +234,6 @@ ergm(molecule ~ edges + kstar(2:3) + triangle
 \insertAllCited{}
 }
 \seealso{
-\code{\link[=ergm-package]{ergm}} package, \code{\link{search.ergmTerms}}, \code{\link{ergm}}, \code{\link[network:network]{network}}, \code{\link[network:network.extraction]{\%v\%}}, \code{\link[network:network.extraction]{\%n\%}}
+\code{\link[=ergm-package]{ergm}} package, \code{\link{search.ergmTerms}}, \code{\link{ergm}}, \code{\link[network:network]{network}}, \code{\link[network:\%v\%]{\%v\%}}, \code{\link[network:\%n\%]{\%n\%}}
 }
 \keyword{models}
