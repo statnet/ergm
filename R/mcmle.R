@@ -7,55 +7,26 @@
 #
 #  Copyright 2003-2026 Statnet Commons
 ################################################################################
-############################################################################
-# The <ergm.MCMLE> function provides one of the styles of maximum
-# likelihood estimation that can be used. This one is the default and uses
-# optimization of an MCMC estimate of the log-likelihood.
-#
-#
-# --PARAMETERS--
-#   init         : the initial theta values
-#   nw             : the network 
-#   model          : the model, as returned by <ergm_model>
-#   initialfit     : an ergm object, as the initial fit, possibly returned
-#                    by <ergm.initialfit>
-#   control     : a list of parameters for controlling the MCMC sampling;
-#                    recognized components include
-#       samplesize : the number of MCMC sampled networks
-#       maxit      : the maximum number of iterations to use
-#       parallel   : the number of threads in which to run the sampling
-#       packagenames: names of packages; this is only relevant if "ergm" is given
-#       interval    : the number of proposals to ignore between sampled networks
-#       burnin      : the number of proposals to initially ignore for the burn-in
-#                     period
-#
-#       epsilon    : ??, this is essentially unused, except to print it if
-#                    'verbose'=T and to pass it along to <ergm.estimate>,
-#                    which ignores it;   
-#   proposal     : an proposal object for 'nw', as returned by
-#                    <proposal>
-#   proposal.obs : an proposal object for the observed network of'nw',
-#                    as returned by <proposal>
-#   verbose        : whether the MCMC sampling should be verbose (T or F);
-#                    default=FALSE
-#   estimate       : whether to optimize the init coefficients via
-#                    <ergm.estimate>; default=TRUE
-#   ...            : additional parameters that may be passed from within;
-#                    all are ignored
-#
-# --RETURNED--
-#   v: an ergm object as a list containing several items; for details see
-#      the return list in the <ergm> function header (<ergm.MCMLE>=*);
-#      note that if the model is degenerate, only 'coef' and 'sample' are
-#      returned; if 'estimate'=FALSE, the MCMC and se variables will be
-#      NA or NULL
-#
-#############################################################################
 
-ergm.MCMLE <- function(init, s, s.obs,
-                             control, 
-                             verbose=FALSE,
-                             estimate=TRUE, ...) {
+#' Find the MLE via Monte-Carlo MLE
+#'
+#' The <ergm.MCMLE> function provides one of the styles of maximum
+#' likelihood estimation that can be used.
+#'
+#' @param init Initial model parameter values; may not contain `NA`
+#'   but may contain `NaN`.
+#' @param s [`ergm_state`] object for the model, its sample space, and
+#'   deviation of statistics of the current network from observed.
+#' @param s.obs if not completely observed, [`ergm_state`] object for
+#'   the same but the sample space constrained by observation.
+#' @param control an [control.ergm()] object.
+#' @param verbose verbosity level; higher means more verbose.
+#' @param ... additional arguments, currently unused.
+#'
+#' @return A partial [`ergm`] object.
+#'
+#' @noRd
+ergm.MCMLE <- function(init, s, s.obs, control, verbose = FALSE, ...) {
   message("Starting Monte Carlo maximum likelihood estimation (MCMLE):")
   # Is there observational structure?
   obs <- ! is.null(s.obs)
@@ -317,22 +288,6 @@ ergm.MCMLE <- function(init, s, s.obs,
       message("Estimated gradient of the log-likelihood:")
       message_print(if (obs) colMeans(esteq) - colMeans(esteq.obs) else colMeans(esteq))
     }
-
-    if(!estimate){
-      if(verbose){message("Skipping optimization routines...")}
-      s.returned <- lapply(s.returned, as.network)
-      l <- list(coefficients=mcmc.init, mc.se=rep(NA,length=length(mcmc.init)),
-                sample=statsmatrices, sample.obs=statsmatrices.obs,
-                iterations=1, MCMCtheta=mcmc.init,
-                loglikelihood=NA, #mcmcloglik=NULL, 
-                mle.lik=NULL,
-                gradient=rep(NA,length=length(mcmc.init)), #acf=NULL,
-                samplesize=control$MCMC.samplesize, failure=TRUE,
-                newnetwork = s.returned[[1]],
-                newnetworks = s.returned,
-                lindep = nonident$lindep)
-      return(l)
-    } 
 
     # Need to compute MCMC SE for "confidence" termination criterion
     # if it has the possibility of terminating.
