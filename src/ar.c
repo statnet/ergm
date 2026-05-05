@@ -40,42 +40,45 @@ SEXP ar_ols_stats(SEXP Xl, SEXP lagSEXP) {
       const int n = T - L;
       nobs_L += n;
 
-      for (int t = L; t < T; t++)
-        for (int a = 0; a < p; a++) {
-          oneYr[a] += Xr[t + T*a];
-          for (int b = 0; b < p; b++)
-            YtYr[a + p*b] +=
-              Xr[t + T*a] * Xr[t + T*b];
+      for (int a = 0; a < p; a++) {
+        double *xi = Xr + T*a + L, acc = 0;
+        for (int t = 0; t < n; t++) acc += *xi++;
+        oneYr[a] += acc;
+
+        for (int b = 0; b < p; b++) {
+          double *xi = Xr + T*a + L, *xj = Xr + T*b + L, acc = 0;
+          for (int t = 0; t < n; t++) acc += (*xi++) * (*xj++);
+          YtYr[a + p*b] += acc;
         }
-    }
-
-    /* XtY */
-    for (int i = 1; i <= L; i++) {
-      if (i >= T) continue;
-      for (int t = i; t < T; t++)
-        for (int a = 0; a < p; a++) {
-          double xi = Xr[(t - i) + T*a];
-          for (int b = 0; b < p; b++)
-            XtYr[(i-1)*p + a + K*b] +=
-              xi * Xr[t + T*b];
-        }
-    }
-
-    /* XtX */
-    for (int i = 1; i <= L; i++)
-      for (int j = 1; j <= L; j++) {
-        int k = (i > j) ? i : j;
-        if (k >= T) continue;
-
-        for (int t = k; t < T; t++)
-          for (int a = 0; a < p; a++) {
-            double xi = Xr[(t - i) + T*a];
-            for (int b = 0; b < p; b++)
-              XtXr[(i-1)*p + a +
-                   K*((j-1)*p + b)] +=
-                xi * Xr[(t - j) + T*b];
-          }
       }
+    }
+
+    const int Lmax = L >= T ? T-1 : L;
+    for (int i = 1; i <= Lmax; i++) {
+      const int n = T - i;
+      /* XtY */
+      for (int a = 0; a < p; a++)
+        for (int b = 0; b < p; b++) {
+          double *xi = Xr + T*a, *y = Xr + T*b + i, acc = 0;
+          for (int t = 0; t < n; t++) acc += (*xi++) * (*y++);
+
+          XtYr[(i-1)*p + a + K*b] += acc;
+        }
+
+      /* XtX */
+      for (int j = 1; j <= i; j++)
+        for (int a = 0; a < p; a++)
+          for (int b = 0; b < p; b++) {
+            double *xi = Xr + T*a, *xj = Xr + T*b + (i - j), acc = 0;
+            for (int t = 0; t < n; t++) acc += (*xi++) * (*xj++);
+
+            /* lower triangle */
+            XtXr[(i-1)*p + a + K*((j-1)*p + b)] += acc;
+
+            /* mirrored upper triangle */
+            if (i != j) XtXr[(j-1)*p + b + K*((i-1)*p + a)] += acc;
+          }
+    }
   }
 
   INTEGER(one1_L)[0] = nobs_L;
