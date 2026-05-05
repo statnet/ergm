@@ -24,6 +24,7 @@
 /* .Call calls */
 extern SEXP AllStatistics(SEXP, SEXP);
 extern SEXP allstats_workspace_free(void);
+extern SEXP ar_ols_stats(SEXP, SEXP);
 extern SEXP CD_wrapper(SEXP, SEXP, SEXP, SEXP, SEXP);
 extern SEXP ergm_eta_wrapper(SEXP, SEXP);
 extern SEXP ergm_etagrad_wrapper(SEXP, SEXP);
@@ -52,6 +53,7 @@ extern SEXP WtSummStats_wrapper(SEXP);
 static const R_CallMethodDef CallEntries[] = {
     {"AllStatistics",              (DL_FUNC) &AllStatistics,               2},
     {"allstats_workspace_free",    (DL_FUNC) &allstats_workspace_free,     0},
+    {"ar_ols_stats",               (DL_FUNC) &ar_ols_stats,                2},
     {"CD_wrapper",                 (DL_FUNC) &CD_wrapper,                  5},
     {"ergm_eta_wrapper",           (DL_FUNC) &ergm_eta_wrapper,            2},
     {"ergm_etagrad_wrapper",       (DL_FUNC) &ergm_etagrad_wrapper,        2},

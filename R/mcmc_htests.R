@@ -362,78 +362,35 @@ spectrum0.mvar <- function(x, order.max=NULL, aic=is.null(order.max), tol=.Machi
 #'
 #' @noRd
 fit_var_ols_multi <- function(Xl, lags = NULL, aic = FALSE, intercept = TRUE) {
-  p   <- ncol(Xl[[1]])
+
+  p <- ncol(Xl[[1]])
   T_c <- sapply(Xl, nrow)
   Tmax <- max(T_c)
 
-  ## Default lag choice
   NVL(lags) <- ceiling(10 * log10(Tmax))
 
-  ## Handle excessive lags
   if (aic) {
     lag_eff <- min(max(lags), Tmax - 1)
     lags_to_fit <- 0:lag_eff
   } else {
     lags_to_fit <- lags
-    lag_eff <- max(lags[lags_to_fit <= Tmax - 1], 0, na.rm = TRUE)
+    lag_eff <- max(lags[lags <= Tmax - 1], 0, na.rm = TRUE)
   }
 
-  ## Observation counts
-  n_obs <- sapply(0:max(lag_eff, 0), function(l)
-    sum(pmax(T_c - l, 0))
-    )
+  n_obs <- sapply(0:lag_eff, function(l) sum(pmax(T_c - l, 0)))
 
   ## ------------------------------------------------------------
-  ## 1. Accumulate sufficient statistics
+  ## 1. C: conditional-on-max-lag statistics
   ## ------------------------------------------------------------
 
-  XtX <- matrix(0, p * lag_eff, p * lag_eff)
-  XtY <- matrix(0, p * lag_eff, p)
-  YtY <- matrix(0, p, p)
+  stats <- .Call("ar_ols_stats", Xl, as.integer(lag_eff))
 
-  oneZ <- if (intercept) matrix(0, 1, p * lag_eff)
-  oneY <- if (intercept) matrix(0, 1, p)
-  one1 <- if (intercept) 0
+  XtX <- stats$XtX
+  XtY <- stats$XtY
 
-  for (X in Xl) {
-    Tc <- nrow(X)
-    YtY <- YtY + crossprod(X)
-
-    if (intercept) {
-      oneY <- oneY + colSums(X)
-      one1 <- one1 + Tc
-    }
-
-    for (i in seq_len(lag_eff)) {
-      if (i >= Tc) next
-      rows <- (i + 1):Tc
-
-      Xi <- X[rows - i, , drop = FALSE]
-      Yi <- X[rows, , drop = FALSE]
-
-      XtY[((i - 1) * p + 1):(i * p), ] <-
-        XtY[((i - 1) * p + 1):(i * p), ] + crossprod(Xi, Yi)
-
-      if (intercept)
-        oneZ[, ((i - 1) * p + 1):(i * p)] <-
-          oneZ[, ((i - 1) * p + 1):(i * p)] + colSums(Xi)
-    }
-
-    for (i in seq_len(lag_eff)) {
-      if (i >= Tc) next
-      for (j in seq_len(lag_eff)) {
-        if (j >= Tc) next
-        k <- max(i, j)
-        rows <- (k + 1):Tc
-        XtX[((i - 1) * p + 1):(i * p),
-        ((j - 1) * p + 1):(j * p)] <-
-          XtX[((i - 1) * p + 1):(i * p),
-          ((j - 1) * p + 1):(j * p)] +
-          crossprod(X[rows - i, , drop = FALSE],
-                    X[rows - j, , drop = FALSE])
-      }
-    }
-  }
+  YtY_L <- stats$YtY_L
+  oneY_L <- stats$oneY_L
+  one1_L <- stats$one1_L
 
   ## ------------------------------------------------------------
   ## 2. Fit requested lags
@@ -458,7 +415,7 @@ fit_var_ols_multi <- function(Xl, lags = NULL, aic = FALSE, intercept = TRUE) {
 
     ## VAR(0)
     if (l == 0) {
-      Sigma <- YtY / df
+      Sigma <- cov(do.call(rbind, Xl))
       fits[[k]] <- list(
         ar = array(0, c(p, p, 0)),
         x.intercept = if (intercept) colMeans(do.call(rbind, Xl)),
@@ -466,6 +423,22 @@ fit_var_ols_multi <- function(Xl, lags = NULL, aic = FALSE, intercept = TRUE) {
         aic = n * determinant(Sigma)$modulus
       )
       next
+    }
+
+    ## ---- lag-dependent response moments ----
+
+    if (l < lag_eff) {
+      rows <- do.call(rbind, lapply(Xl, function(X) {
+        if (nrow(X) > lag_eff) X[(l + 1):lag_eff, , drop = FALSE]
+      }))
+
+      YtY <- YtY_L  + crossprod(rows)
+      oneY <- oneY_L + colSums(rows)
+      one1 <- one1_L + nrow(rows)
+    } else {
+      YtY <- YtY_L
+      oneY <- oneY_L
+      one1 <- one1_L
     }
 
     idx <- 1:(p * l)
@@ -477,8 +450,8 @@ fit_var_ols_multi <- function(Xl, lags = NULL, aic = FALSE, intercept = TRUE) {
 
       if (intercept) {
         XtX_l <- rbind(
-          cbind(XtX_l, t(oneZ[, idx, drop = FALSE])),
-          c(oneZ[, idx, drop = FALSE], one1)
+          cbind(XtX_l, t(oneY[, idx, drop = FALSE])),
+          c(oneY[, idx, drop = FALSE], one1)
         )
         XtY_l <- rbind(XtY_l, oneY)
       }
@@ -488,7 +461,7 @@ fit_var_ols_multi <- function(Xl, lags = NULL, aic = FALSE, intercept = TRUE) {
       RSS <- YtY - t(B) %*% XtY_l
       Sigma <- RSS / df
 
-      aic <- n * log(det(Sigma)) +
+      aic_val <- n * determinant(Sigma)$modulus +
         2 * (p^2 * l + if (intercept) p else 0)
 
       A_arr <- array(0, c(p, p, l))
@@ -499,17 +472,13 @@ fit_var_ols_multi <- function(Xl, lags = NULL, aic = FALSE, intercept = TRUE) {
           ar = A_arr,
           x.intercept = if (intercept) B[p * l + 1, ] else NULL,
           var.pred = Sigma,
-          aic = aic
+          aic = aic_val
         )
 
     }, error = function(e) list(aic = NaN))
 
     fits[[k]] <- fit
   }
-
-  ## ------------------------------------------------------------
-  ## 3. Return logic
-  ## ------------------------------------------------------------
 
   if (aic)
     return(fits[[which.min(sapply(fits, `[[`, "aic"))]])
