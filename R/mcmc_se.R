@@ -141,7 +141,7 @@ vcov_wmean_ar <- function(x, w, tol = sqrt(.Machine$double.eps)) {
   g <- rbind(diag(1, ncol(x[[1]])), -m) / mw
   v1 <- as.matrix(xTAx(g, v))
   v0 <- var.mcmc.list(x)
-  e <- eigen(qrssolve(v0, v1, tol = tol), symmetric = FALSE, only.values = TRUE)$values
+  e <- eigen(qrssolve(v0, v1, tol = tol), only.values = TRUE)$values
   infl <- exp(log_mean_exp(log(e[e / max(e) >= tol])))
   structure(list(m = m, v = v1 / n,
                  infl = infl, rank = attr(v, "rank") - 1L,
