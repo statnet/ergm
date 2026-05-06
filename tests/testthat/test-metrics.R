@@ -21,7 +21,7 @@ run.metric.test<-function(y){
   truth<-edges.theta(y)
 
   for(metric in metrics){
-    test_that(paste0("Metric test for: ", metric, ", n = ", n, ", naive density = ", network.edgecount(y)/network.dyadcount(y), ", missing fraction = ", network.naedgecount(y)/network.dyadcount(y), "."), {
+    test_that(paste0("Metric test for: ", format(metric), ", n = ", n, ", naive density = ", format(network.edgecount(y)/network.dyadcount(y)), ", missing fraction = ", format(network.naedgecount(y)/network.dyadcount(y)), "."), {
       mcmcfit<-ergm(y~edges, control=control.ergm(force.main=TRUE, init=truth+theta0err, MCMLE.metric=metric),eval.loglik=FALSE, verbose=FALSE)
       expect_within_mc_err(mcmcfit, truth)
     })
