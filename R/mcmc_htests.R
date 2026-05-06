@@ -50,7 +50,7 @@ hotelling_t2_df <- function(n, v) {
   } else { # 2-sample unpooled
     tr <- function(x) sum(diag(as.matrix(x)))
 
-    d1 <- qrssolve(v[[1L]] + v[[2L]], v[[1]])
+    d1 <- qrssolve(v[[1L]] + v[[2L]], v[[1]], snnd = TRUE)
     d2 <- diag(1, nrow(d1)) - d1
 
     p <- attr(d1, "rank")
@@ -166,8 +166,12 @@ approx.hotelling.diff.test<-function(x,y=NULL, mu0=0, assume.indep=FALSE, var.eq
   d <- m$x - (m$y %||% 0)
   vcov.d <- vcov.m$x + (vcov.m$y %||% 0)
 
+  # Zap *extremely* small variances.
+  nv <- diag(vcov.d) / max(diag(vcov.d)) < .Machine$double.eps^2
+  vcov.d %[.|.]% nv <- 0
+  d[nv] <- 0
+
   names(mu0) <- varnames(x)
-  nv <- diag(vcov.d) == 0
   
   method <- paste0("Hotelling's ", NVL2(y, "Two", "One"), "-Sample",
                    if (var.equal) " Pooled"," T^2-Test",
@@ -317,7 +321,6 @@ spectrum0.mvar <- function(x, order.max=NULL, aic=is.null(order.max), tol=.Machi
   x.sd <- apply(x, 2L, sd, na.rm = TRUE)
   ind <- !is.na(x.sd) & abs(x.sd - 1) < tol
   x <- x[, ind, drop = FALSE]
-  ind.var <- var(x)
 
   # This matrix applies the reverse of the above transformation to the
   # resulting covariance matrix.
@@ -336,7 +339,7 @@ spectrum0.mvar <- function(x, order.max=NULL, aic=is.null(order.max), tol=.Machi
   adj <- diag(1, nrow = NROW(arvar)) - arcoefs
   v.var <- sandwich_qrssolve(adj, arvar)
 
-  infl <- exp((determinant(v.var)$modulus-determinant(ind.var)$modulus)/ncol(ind.var))
+  infl <- exp((determinant(v.var)$modulus) / sum(ind))
   
   # Reverse the mapping for the variance estimate.
   v.var <- xAxT(unmapper, v.var)

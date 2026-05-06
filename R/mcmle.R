@@ -531,7 +531,7 @@ ellipsoid_mahalanobis <- function(y, W, U, tol=sqrt(.Machine$double.eps)){
   y <- c(y)
   if(xTAx_seigen(y,U,tol=tol)>=1) stop("Point is not in the interior of the ellipsoid.")
   I <- diag(length(y))
-  WUi <- t(qrssolve(U, W, tol = tol))
+  WUi <- t(qrssolve(U, W, tol = tol, snnd = TRUE))
   x <- function(l) c(qrssolve(I + l * WUi, y)) # Singluar for negative reciprocals of eigenvalues of WiU.
   zerofn <- function(l) ERRVL2(xTAx_seigen(x(l), U, tol=tol) - 1, +Inf)
 
