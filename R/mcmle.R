@@ -524,7 +524,10 @@ ergm.MCMLE <- function(init, s, s.obs, control, verbose = FALSE, ...) {
 #' that `y` is in the interior of the ellipsoid.
 #'
 #' @param y a vector
-#' @param W,U a square matrix
+#' @param W,U symmetric positive semidefinite square matrices; `W`
+#'   must be in the span of `U`.
+#'
+#' @return `t(x) %*% W %*% x`, where `x` is the nearest point.
 #'
 #' @noRd
 ellipsoid_mahalanobis <- function(y, W, U, tol=sqrt(.Machine$double.eps)){
@@ -605,6 +608,8 @@ confidence_test <- function(new, old, m, control, verbose, sm, sm_o, ee, ee_o) {
   prec <- target_prec(as.matrix(ee), NVL2(w_o, as.matrix(ee_o)), control, w$lw, w_o$lw)
   d2 <- xTAx_seigen(d, prec)
 
+  if (verbose) message("Distance from origin on tolerance region scale post-update: ", format(d2), ".")
+
   # Update end not within tolerance ellipsoid?
   if (d2 >= 1) return(list(boost = 1, d2 = d2))
 
@@ -615,17 +620,20 @@ confidence_test <- function(new, old, m, control, verbose, sm, sm_o, ee, ee_o) {
     return(list(boost = control$MCMLE.confidence.boost, d2 = d2))
   }
 
-  ## Within tolerance ellipsoid, can be tested.
+  # Within tolerance ellipsoid, can be tested.
   peff <- attr(d2, "rank") # Effective dimension.
   if (verbose && peff < ncol(ee[[1L]]))
     message("Estimated covariance matrix of the statistics is not full rank.")
 
   df <- hotelling_t2_df(c(s$neff, s_o$neff), NVL3(s_o$v, list(s$v, .)))
-  pval <- .ptsq(t2, peff, df, lower.tail = FALSE)
+  # NB: The numerator df = 1 is correct. The test is of the form H0:
+  # mu ' S^-1 mu = 1 against H1: mu ' S^-1 mu < 1, so the constraint
+  # is one-dimensional. Using p instead throws away statistical power.
+  pval <- .ptsq(t2, 1, df, lower.tail = FALSE)
 
   if (verbose) message("Test statistic: T^2 = ", format(t2), ", with ",
-                       format(peff), " free parameter(s) and ", format(df),
-                       " degrees of freedom.")
+                       "1", " constraint and ",
+                       format(df), " degrees of freedom.")
   message("Convergence test p-value: ", fixed.pval(pval, 4), ". ", appendLF = FALSE)
 
   if(pval < 1-control$MCMLE.confidence){
@@ -635,7 +643,7 @@ confidence_test <- function(new, old, m, control, verbose, sm, sm_o, ee, ee_o) {
 
   ## Not converged.
   message("Not converged with ", control$MCMLE.confidence*100, "% confidence; increasing sample size.")
-  crit <- .qtsq(control$MCMLE.confidence, peff, df)
+  crit <- .qtsq(control$MCMLE.confidence, 1, df)
   if(verbose) message(control$MCMLE.confidence * 100,
                       "% confidence critical value = ", format(crit), ".")
   # We want to increase the denominator enough to reach the critical value.

@@ -598,7 +598,7 @@ control.ergm<-function(drop=TRUE,
                        MCMLE.min.depfac=2,
                        MCMLE.sampsize.boost.pow=0.5,
 
-                       MCMLE.MCMC.precision=if(startsWith("confidence", MCMLE.termination[1])) 0.1 else 0.005,
+                       MCMLE.MCMC.precision=if(startsWith("confidence", MCMLE.termination[1])) 0.05 else 0.005,
                        MCMLE.MCMC.max.ESS.frac=0.1,
                        MCMLE.metric=c("lognormal", "logtaylor",
                          "Median.Likelihood",
