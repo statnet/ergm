@@ -59,9 +59,7 @@
 #        normally  distributed so that exp(eta * stats) is lognormal
 #####################################################################################
 
-llik.fun.lognormal <- function(theta, xsim, ...,
-                     varweight=0.5,
-                     eta0, etamap){
+llik.fun.lognormal <- function(theta, xsim, eta0, etamap, varweight = 0.5, ...) {
   # Convert theta to eta
   eta <- ergm.eta(theta, etamap)
 
@@ -80,10 +78,7 @@ llik.fun.lognormal <- function(theta, xsim, ...,
 #   llg: the gradient of the log-likelihood using "naive" (importance sampling) method
 #####################################################################################
 
-llik.grad.IS <- function(theta, xsim,  xsim.obs=NULL,
-                     varweight=0.5,
-                     dampening=FALSE,dampening.min.ess=100, dampening.level=0.1,
-                     eta0, etamap){
+llik.grad.IS <- function(theta, xsim, eta0, etamap, ...) {
 
   # Obtain canonical parameters incl. offsets and difference from sampled-from
   eta <- ergm.eta(theta, etamap)
@@ -110,10 +105,7 @@ llik.grad.IS <- function(theta, xsim,  xsim.obs=NULL,
 #              w_i = normalized version of exp((eta-eta0)^t g_i) so that sum_i w_i=1
 #       this is equation (3.5) of Hunter & Handcock (2006)
 #####################################################################################
-llik.hessian.IS <- function(theta, xsim, xsim.obs=NULL,
-                     varweight=0.5,
-                     dampening=FALSE,dampening.min.ess=100, dampening.level=0.1,
-                     eta0, etamap){
+llik.hessian.IS <- function(theta, xsim, eta0, etamap, ...) {
   # Obtain canonical parameters incl. offsets and difference from sampled-from
   eta <- ergm.eta(theta, etamap)
   etaparam <- eta-eta0
@@ -134,33 +126,11 @@ llik.hessian.IS <- function(theta, xsim, xsim.obs=NULL,
 
 #####################################################################################
 # --RETURNED--
-#   llr: the log-likelihood ratio of l(eta) - l(eta0) using ?? (what sort of approach)
-#####################################################################################
-
-llik.fun.EF <- function(theta, xsim, xsim.obs=NULL,
-                     varweight=0.5,
-                     dampening=FALSE,dampening.min.ess=100, dampening.level=0.1,
-                     eta0, etamap){
-  eta <- ergm.eta(theta, etamap)
-  etaparam <- eta-eta0
-  basepred <- xsim %*% etaparam
-  maxbase <- max(basepred)
-  - maxbase - log(sum(rowweights(xsim)*exp(basepred-maxbase)))
-}
-
-
-
-
-#####################################################################################
-# --RETURNED--
 #   llr: the "naive" log-likelihood ratio of l(eta) - l(eta0) using importance sampling (what sort of approach)
 #            "Simple convergence"
 #####################################################################################
 
-llik.fun.IS <- function(theta, xsim, xsim.obs=NULL, 
-                     varweight=0.5,
-                     dampening=FALSE,dampening.min.ess=100, dampening.level=0.1,
-                     eta0, etamap){
+llik.fun.IS <- function(theta, xsim, eta0, etamap, ...) {
   # Obtain canonical parameters incl. offsets and difference from sampled-from
   eta <- ergm.eta(theta, etamap)
   etaparam <- eta-eta0
@@ -175,9 +145,7 @@ llik.fun.IS <- function(theta, xsim, xsim.obs=NULL,
 #   llr: the log-likelihood ratio of l(eta) - l(eta0) using ?? (what sort of approach)
 #####################################################################################
 
-llik.fun.median <- function(theta, xsim, ...,
-                     varweight=0.5,
-                     eta0, etamap){
+llik.fun.median <- function(theta, xsim, eta0, etamap, varweight = 0.5, ...) {
   # Convert theta to eta
   eta <- ergm.eta(theta, etamap)
 
@@ -200,11 +168,9 @@ llik.fun.median <- function(theta, xsim, ...,
   - (mb + varweight*sdb*sdb)
 }
 
-llik.fun.logtaylor <- function(theta, xsim, xsim.obs=NULL, 
-                               varweight=0.5,
-                               dampening=FALSE,dampening.min.ess=100, dampening.level=0.1,
-                               ...,
-                               eta0, etamap){
+llik.fun.logtaylor <- function(theta, xsim, eta0, etamap,
+                               dampening = FALSE, dampening.min.ess = 100, dampening.level = 0.1,
+                               ...) {
 	 	  # Convert theta to eta 
 	 	  eta <- ergm.eta(theta, etamap) 
  	 

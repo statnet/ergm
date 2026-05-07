@@ -152,21 +152,18 @@ ergm.estimate<-function(init, model, statsmatrices, statsmatrices.obs=NULL,
                               lognormal=llik.fun.obs.lognormal,
                               logtaylor=llik.fun.obs.lognormal,
                               Median.Likelihood=llik.fun.obs.robust,
-                              EF.Likelihood=llik.fun.obs.lognormal,
                               llik.fun.obs.IS)
     gradientfn <- switch(metric,
                          Likelihood=llik.grad.obs.IS,
                          lognormal=llik.grad.obs.IS,
                          logtaylor=llik.grad.obs.IS,
                          Median.Likelihood=llik.grad.obs.IS,
-                         EF.Likelihood=llik.grad.obs.IS,
                          llik.grad.obs.IS)
     Hessianfn <- switch(metric,
                         Likelihood=llik.hessian.obs.IS,
                         lognormal=llik.hessian.obs.IS,
                         logtaylor=llik.hessian.obs.IS,
                         Median.Likelihood=llik.hessian.obs.IS,
-                        EF.Likelihood=llik.hessian.obs.IS,
                         llik.hessian.obs.IS)
   } else {
     loglikelihoodfn <- switch(metric,
@@ -174,7 +171,6 @@ ergm.estimate<-function(init, model, statsmatrices, statsmatrices.obs=NULL,
                               lognormal=llik.fun.lognormal,
                               logtaylor=llik.fun.logtaylor,
                               Median.Likelihood=llik.fun.median,
-                              EF.Likelihood=llik.fun.EF,
                               llik.fun.IS)
     gradientfn <- switch(metric,
                          Likelihood=llik.grad.IS,
@@ -188,7 +184,6 @@ ergm.estimate<-function(init, model, statsmatrices, statsmatrices.obs=NULL,
                         lognormal=llik.hessian.IS,
                         logtaylor=llik.hessian.IS,
                         Median.Likelihood=llik.hessian.IS,
-                        EF.Likelihood=llik.hessian.IS,
                         llik.hessian.IS)
   }
 
