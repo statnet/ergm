@@ -227,12 +227,14 @@ ergm_MCMC_sample <- function(state, control, theta=NULL,
           if(verbose>1) message("Predicted additional sample size: ", format(pred.ss), " dampened to ", format(damp.ss), ", so running ", samplesize, " steps forward.")
         }
       }
-        
+
+      if (verbose > 1) message("Running MCMC...")
       outl<-doruns(burnin = interval, # I.e., skip that much before the first draw.
                    samplesize = samplesize,
                    interval = interval)
       if(status <- handle_statuses(outl)) return(list(status=status)) # Stop if something went wrong.
 
+      if (verbose > 1) message("Collating MCMC samples...")
       sms <- Map(rbind, sms, map(outl, "s"))
       if(!is.null(nws)) nws <- Map(c, nws, map(outl, "saved"))
       state <- map(outl, "state")
@@ -254,7 +256,8 @@ ergm_MCMC_sample <- function(state, control, theta=NULL,
 
       if(control.parallel$MCMC.runtime.traceplot) runtime_traceplot(esteq, 1000)
 
-      best.burnin <- .find_OK_burnin(esteq, control)
+      if (verbose > 1) message("Finding a burn-in point...")
+      best.burnin <- find_OK_burnin(esteq, control)
       burnin.pval <- best.burnin$pval
       postburnin.mcmc <- window(esteq, start=start(esteq)+best.burnin$burnin*thin(esteq))
 
@@ -275,6 +278,7 @@ ergm_MCMC_sample <- function(state, control, theta=NULL,
         if(verbose) message("Variance-based adaptive MCMC set target ESS to ", format(control.parallel$MCMC.effectiveSize), ".")
       }
       
+      if (verbose > 1) message("Calculating the effective sample size...")
       eS <- niter(postburnin.mcmc)*nchain(postburnin.mcmc)/attr(spectrum0.mvar(postburnin.mcmc, order.max=control$MCMC.effectiveSize.order.max),"infl")
       
       if(verbose) message("ESS of ", format(eS)," attained with burn-in of ", round(best.burnin$burnin/niter(esteq)*100,2),"%; convergence p-value = ", format(burnin.pval), ".")
@@ -401,7 +405,7 @@ ergm_MCMC_slave <- function(state, eta,control,verbose,..., burnin=NULL, samples
 }
 
 
-.find_OK_burnin <- function(x, control){
+find_OK_burnin <- function(x, control){
   if(niter(x) < control$MCMC.effectiveSize.burnin.nmin) warning("The per-thread sample size for estimating burn-in is very small. This should probably be fixed in the calling function.")
 
   if((pc <- control$MCMC.effectiveSize.burnin.PC)>0 && pc<nvar(x)){
