@@ -297,37 +297,45 @@ geweke.diag.mv <- function(x, frac1 = 0.1, frac2 = 0.5, split.mcmc.list = FALSE,
 #' 6. Reverse the mapping in steps 1-4 to obtain the variance of the original data.
 #' @export spectrum0.mvar
 spectrum0.mvar <- function(x, order.max=NULL, aic=is.null(order.max), tol=.Machine$double.eps^0.5, ...){
-  if (is.list(x)) {
-    lens <- map_int(x, nrow)
-    x <- do.call(rbind, x)
-  } else lens <- NULL
+  x <- unclass(x) |> enlist() |> map(unclass) |> map(as.matrix)
+  ns <- map_int(x, nrow)
 
-  p <- ncol(x)
+  p <- ncol(x[[1]])
   v <- matrix(0,p,p)
 
+  # Center x and compute the sample covariance without ever creating
+  # the full matrix.
+  m <- (map(x, colSums) |> reduce(`+`)) / sum(ns)
+  x <- map(x, sweep_cols.matrix, m, disable_checks = TRUE)
+  xv <- (map(x, crossprod) |> reduce(`+`)) / (sum(ns) - 1)
+
   # Save the scale of each variable, then drop nonvarying and standardise.
-  xscl <- apply(x, 2L, stats::sd)
+  xscl <- sqrt(diag(xv))
   novar <- xscl / max(xscl) < tol
   p.var <- sum(!novar)
-  x <- x[, !novar, drop = FALSE]
+  tfm <- diag(1 / xscl, p)[, !novar, drop = FALSE]
+  if (ncol(tfm) == 0) stop("All variables are constant.")
+
+  xv <- xTAx(tfm, xv)
   xscl <- xscl[!novar]
-  if(ncol(x) == 0) stop("All variables are constant.")
-  x <- sweep(x, 2L, xscl, `/`, check.margin = FALSE)
   
   # Map the variables onto their principal components, dropping
   # redundant (linearly-dependent) dimensions.
-  e <- eigen(cov(x), symmetric=TRUE)
-  x <- x %*% e$vectors %*% diag(1 / sqrt(pmax(e$values, 0)), p.var)
-  x.sd <- apply(x, 2L, sd, na.rm = TRUE)
-  ind <- !is.na(x.sd) & abs(x.sd - 1) < tol
-  x <- x[, ind, drop = FALSE]
+  e <- eigen(xv, symmetric = TRUE)
+  etfm <- e$vectors %*% diag(1 / sqrt(pmax(e$values, 0)), p.var)
+  tfm <- tfm %*% etfm
+  xv <- xTAx(etfm, xv)
+  xscl2 <- sqrt(diag(xv))
+  ind <- !is.na(xscl2) & abs(xscl2 - 1) < tol
+  tfm <- tfm[, ind, drop = FALSE]
 
   # This matrix applies the reverse of the above transformation to the
   # resulting covariance matrix.
-  unmapper <- diag(xscl, p.var) %*% e$vectors[, ind, drop=FALSE] %*% diag(sqrt(e$values[ind]), sum(ind))
+  utfm <- diag(sqrt(e$values[ind]), sum(ind)) %*%
+    t(e$vectors[, ind, drop = FALSE]) %*% diag(xscl, p.var)
 
-  # Convert back into a list.
-  x <- if (!is.null(lens)) split_len(x, lens, margin = 1) else list(x)
+  # Map the original dataset according to the transformation matrix.
+  x <- map(x, `%*%`, tfm)
   
   # Calculate the time-series variance of the mean on the PC scale.
   arfit <- fit_var_ols_multi(x, lags = order.max, aic = aic)
@@ -342,7 +350,7 @@ spectrum0.mvar <- function(x, order.max=NULL, aic=is.null(order.max), tol=.Machi
   infl <- exp((determinant(v.var)$modulus) / sum(ind))
   
   # Reverse the mapping for the variance estimate.
-  v.var <- xAxT(unmapper, v.var)
+  v.var <- xTAx(utfm, v.var)
   
   v[!novar,!novar] <- v.var
 
