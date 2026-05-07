@@ -26,8 +26,6 @@
 #   metric          : the name of a metric to use, as either "Likelihood",
 #                     "lognormal", "Median.Likelihood", or "EF.Likelihood";
 #                     default="lognormal"
-#   method          : the method to be used by the <optim> routine;
-#                     default="Nelder-Mead"
 #   calc.mcmc.se    : whether to calculate the standard errors induced by the
 #                     MCMC algorithm; default=TRUE
 #   hessainflag     : whether the Hessian matrix of the likelihood function
@@ -58,12 +56,9 @@
 ergm.estimate<-function(init, model, statsmatrices, statsmatrices.obs=NULL,
                         epsilon=1e-10, nr.maxit=1000, nr.reltol=sqrt(.Machine$double.eps),
                         metric="lognormal",
-                        method="Nelder-Mead",
                         calc.mcmc.se=TRUE, hessianflag=TRUE,
                         verbose=FALSE, trace=6*verbose,
-                        dampening=FALSE,
-                        dampening.min.ess=100,
-                        dampening.level=0.1,
+                        metric.settings = list(),
                         steplen=1,
                         cov.type="normal",# cov.type="robust", 
                         estimateonly=FALSE, ...) {
@@ -196,7 +191,27 @@ ergm.estimate<-function(init, model, statsmatrices, statsmatrices.obs=NULL,
                         EF.Likelihood=llik.hessian.IS,
                         llik.hessian.IS)
   }
-  
+
+  # Get a maximal list of arguments to metrics, and filter it in
+  # accordance to which ones are actually needed.
+  llk_inputs <- c(list(theta = NULL,
+                       xsim = xsim,
+                       xsim.obs = xsim.obs,
+                       varweight = varweight,
+                       eta0 = eta0,
+                       etamap = etamap.no),
+                  metric.settings)
+
+  llk_inputs <- llk_inputs[
+    list(loglikelihoodfn, gradientfn, Hessianfn, # Selected metrics
+         llik.fun.median) |> # Fallback and utility metrics
+    map(formals) |>
+    map(names) |>
+    unlist() |>
+    unique() |>
+    intersect(names(llk_inputs))
+  ]
+
   # Now find maximizer of approximate loglikelihood ratio l(eta) - l(eta0).
   # First: If we're using the lognormal approximation, the maximizer is
   # closed-form.  We can't use the closed-form maximizer if we are
@@ -246,17 +261,18 @@ ergm.estimate<-function(init, model, statsmatrices, statsmatrices.obs=NULL,
   } else {
     # "guess" will be the starting point for the optim search algorithm.
     guess <- init[!model$etamap$offsettheta]
+    mintheta <- model$etamap$mintheta[!model$etamap$offsettheta]
+    maxtheta <- model$etamap$maxtheta[!model$etamap$offsettheta]
     
-    loglikelihoodfn.trust<-function(theta, ...){
+    loglikelihoodfn.trust<-function(theta) {
       # Check for box constraint violation.
-      if(anyNA(theta) ||
-         any(theta < model$etamap$mintheta[!model$etamap$offsettheta]) ||
-         any(theta > model$etamap$maxtheta[!model$etamap$offsettheta]))
-        return(list(value=-Inf))
-      
-      value<-loglikelihoodfn(theta, ...)
-      grad<-gradientfn(theta, ...)
-      hess<-Hessianfn(theta, ...)
+      if (any(is.na(theta) | theta < mintheta | theta > maxtheta))
+        return(list(value = -Inf))
+
+      llk_inputs[[1L]] <- theta
+      value <- do.call(loglikelihoodfn, llk_inputs)
+      grad <- do.call(gradientfn, llk_inputs)
+      hess <- do.call(Hessianfn, llk_inputs)
       hess[upper.tri(hess)]<-t(hess)[upper.tri(hess)]
 #      message_print(value)
 #      message_print(grad)
@@ -269,30 +285,19 @@ ergm.estimate<-function(init, model, statsmatrices, statsmatrices.obs=NULL,
     Lout <- try(trust(objfun=loglikelihoodfn.trust, parinit=guess,
                       rinit=1, 
                       rmax=100, 
-                      parscale=rep(1,length(guess)), minimize=FALSE,
-                      xsim=xsim,
-                      xsim.obs=xsim.obs,
-                      varweight=varweight,
-                      dampening=dampening,
-                      dampening.min.ess=dampening.min.ess,
-                      dampening.level=dampening.level,
-                      eta0=eta0, etamap=etamap.no),
+                      parscale=rep(1,length(guess)), minimize=FALSE),
                 silent=FALSE)
     if(inherits(Lout,"try-error")) {
       message("MLE could not be found. Trying Nelder-Mead...")
       Lout <- try(optim(par=guess, 
-                        fn=llik.fun.median,
+                        fn = function(theta) {
+                          llk_inputs[[1L]] <- theta
+                          do.call(llik.fun.median, llk_inputs)
+                        },
                         hessian=hessianflag,
                         method="Nelder-Mead",
                         control=list(trace=trace,fnscale=-1,maxit=100*nr.maxit,
-                                     reltol=nr.reltol),
-                        xsim=xsim,
-                        xsim.obs=xsim.obs,
-                        varweight=varweight,
-                        dampening=dampening,
-                        dampening.min.ess=dampening.min.ess,
-                        dampening.level=dampening.level,
-                        eta0=eta0, etamap=etamap.no),
+                                     reltol=nr.reltol)),
               silent=FALSE)
       if(inherits(Lout,"try-error")){
         message(paste("No direct MLE exists!"))
@@ -303,6 +308,8 @@ ergm.estimate<-function(init, model, statsmatrices, statsmatrices.obs=NULL,
       message("Nelder-Mead Log-likelihood ratio is ", Lout$value," ")
     } else Lout$par<-Lout$argument
   }
+
+  llk_inputs[[1L]] <- Lout$par
 
   theta <- init
   theta[!model$etamap$offsettheta] <- Lout$par
@@ -315,13 +322,8 @@ ergm.estimate<-function(init, model, statsmatrices, statsmatrices.obs=NULL,
          loglikelihood = Lout$value,
          failure = FALSE)
   } else {
-    gradienttheta <- llik.grad.IS(theta=Lout$par,
-                        xsim=xsim,
-                        xsim.obs=xsim.obs,
-                        varweight=varweight,
-                        eta0=eta0, etamap=etamap.no)
     gradient <- rep(NA, length=length(init))
-    gradient[!model$etamap$offsettheta] <- gradienttheta
+    gradient[!model$etamap$offsettheta] <- do.call(gradientfn, llk_inputs)
     #
     #  Calculate the auto-covariance of the MCMC suff. stats.
     #  and hence the MCMC s.e.
@@ -329,14 +331,8 @@ ergm.estimate<-function(init, model, statsmatrices, statsmatrices.obs=NULL,
     mc.se <- rep(NA, length=length(theta))
     mc.cov <- matrix(NA, length(theta), length(theta))
     covar <- NA
-    if(!hessianflag || steplen!=1){
-      Lout$hessian <- Hessianfn(theta=Lout$par,
-                        xsim=xsim.orig,
-                        xsim.obs=xsim.orig.obs,
-                        varweight=varweight,
-                        eta0=eta0, etamap=etamap.no
-                        )
-    }
+    if(!hessianflag || steplen != 1)
+      Lout$hessian <- do.call(Hessianfn, llk_inputs)
 
     invHessian <- try(sginv(-Lout$hessian, tol=.Machine$double.eps^(3/4)), TRUE)
     if(inherits(invHessian, "try-error")) invHessian <- Lout$hessian[] <- NA # Hessian non-SNND.

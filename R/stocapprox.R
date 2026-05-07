@@ -86,7 +86,6 @@ ergm.stocapprox <- function(init, s, s.obs,
                      nr.reltol=control$MCMLE.NR.reltol,
                      calc.mcmc.se=control$MCMC.addto.se,
                      hessianflag=control$main.hessian,
-                     method=control$MCMLE.method,
                      metric=control$MCMLE.metric,
                      verbose=verbose)
 

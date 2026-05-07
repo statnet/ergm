@@ -86,7 +86,6 @@ control.ergm(
   MCMLE.MCMC.max.ESS.frac = 0.1,
   MCMLE.metric = c("lognormal", "logtaylor", "Median.Likelihood", "EF.Likelihood",
     "naive"),
-  MCMLE.method = c("BFGS", "Nelder-Mead"),
   MCMLE.dampening = FALSE,
   MCMLE.dampening.min.ess = 20,
   MCMLE.dampening.level = 0.1,
@@ -139,7 +138,6 @@ control.ergm(
   CD.NR.maxit = 100,
   CD.NR.reltol = sqrt(.Machine$double.eps),
   CD.metric = c("naive", "lognormal", "logtaylor", "Median.Likelihood", "EF.Likelihood"),
-  CD.method = c("BFGS", "Nelder-Mead"),
   CD.dampening = FALSE,
   CD.dampening.min.ess = 20,
   CD.dampening.level = 0.1,
@@ -242,7 +240,6 @@ control.ergm3(
   MCMLE.MCMC.max.ESS.frac = 0.1,
   MCMLE.metric = c("lognormal", "logtaylor", "Median.Likelihood", "EF.Likelihood",
     "naive"),
-  MCMLE.method = c("BFGS", "Nelder-Mead"),
   MCMLE.dampening = FALSE,
   MCMLE.dampening.min.ess = 20,
   MCMLE.dampening.level = 0.1,
@@ -295,7 +292,6 @@ control.ergm3(
   CD.NR.maxit = 100,
   CD.NR.reltol = sqrt(.Machine$double.eps),
   CD.metric = c("naive", "lognormal", "logtaylor", "Median.Likelihood", "EF.Likelihood"),
-  CD.method = c("BFGS", "Nelder-Mead"),
   CD.dampening = FALSE,
   CD.dampening.min.ess = 20,
   CD.dampening.level = 0.1,
@@ -683,9 +679,6 @@ may increase the target ESS to reduce the MCMC standard error.}
 \item{MCMLE.metric}{Method to calculate the loglikelihood approximation.
 See \insertCite{HuHu12i;textual}{ergm} for an explanation of "lognormal" and "naive".}
 
-\item{MCMLE.method}{Deprecated. By default, ergm uses \code{trust}, and
-falls back to \code{optim} with Nelder-Mead method when \code{trust} fails.}
-
 \item{MCMLE.dampening}{(logical) Should likelihood dampening be used?}
 
 \item{MCMLE.dampening.min.ess}{The effective sample size below which
@@ -810,7 +803,7 @@ details.}
 \item{SA.burnin, SA.interval, SA.samplesize}{Sets the corresponding
 \verb{MCMC.*} parameters when \code{main.method="Stochastic-Approximation"}.}
 
-\item{CD.samplesize.per_theta, obs.CD.samplesize.per_theta, CD.maxit, CD.conv.min.pval, CD.NR.maxit, CD.NR.reltol, CD.metric, CD.method, CD.dampening, CD.dampening.min.ess, CD.dampening.level, CD.steplength.margin, CD.steplength, CD.steplength.parallel, CD.adaptive.epsilon, CD.steplength.esteq, CD.steplength.miss.sample, CD.steplength.min, CD.steplength.solver}{Miscellaneous tuning parameters of the CD sampler and
+\item{CD.samplesize.per_theta, obs.CD.samplesize.per_theta, CD.maxit, CD.conv.min.pval, CD.NR.maxit, CD.NR.reltol, CD.metric, CD.dampening, CD.dampening.min.ess, CD.dampening.level, CD.steplength.margin, CD.steplength, CD.steplength.parallel, CD.adaptive.epsilon, CD.steplength.esteq, CD.steplength.miss.sample, CD.steplength.min, CD.steplength.solver}{Miscellaneous tuning parameters of the CD sampler and
 optimizer. These have the same meaning as their \verb{MCMLE.*} and
 \verb{MCMC.*} counterparts.
 

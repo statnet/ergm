@@ -331,8 +331,6 @@
 #' may increase the target ESS to reduce the MCMC standard error.
 #' @param MCMLE.metric Method to calculate the loglikelihood approximation.
 #' See \insertCite{HuHu12i;textual}{ergm} for an explanation of "lognormal" and "naive".
-#' @param MCMLE.method Deprecated. By default, ergm uses \code{trust}, and
-#' falls back to \code{optim} with Nelder-Mead method when \code{trust} fails.
 #' @param MCMLE.dampening (logical) Should likelihood dampening be used?
 #' @param MCMLE.dampening.min.ess The effective sample size below which
 #' dampening is used.
@@ -478,7 +476,7 @@
 #' Therefore, these settings are in effect if there are missing dyads in the
 #' observed network, using a higher default number of steps.
 #'
-#' @param CD.samplesize.per_theta,obs.CD.samplesize.per_theta,CD.maxit,CD.conv.min.pval,CD.NR.maxit,CD.NR.reltol,CD.metric,CD.method,CD.dampening,CD.dampening.min.ess,CD.dampening.level,CD.steplength.margin,CD.steplength,CD.steplength.parallel,CD.adaptive.epsilon,CD.steplength.esteq,CD.steplength.miss.sample,CD.steplength.min,CD.steplength.solver
+#' @param CD.samplesize.per_theta,obs.CD.samplesize.per_theta,CD.maxit,CD.conv.min.pval,CD.NR.maxit,CD.NR.reltol,CD.metric,CD.dampening,CD.dampening.min.ess,CD.dampening.level,CD.steplength.margin,CD.steplength,CD.steplength.parallel,CD.adaptive.epsilon,CD.steplength.esteq,CD.steplength.miss.sample,CD.steplength.min,CD.steplength.solver
 #'   Miscellaneous tuning parameters of the CD sampler and
 #'   optimizer. These have the same meaning as their `MCMLE.*` and
 #'   `MCMC.*` counterparts.
@@ -603,7 +601,6 @@ control.ergm<-function(drop=TRUE,
                        MCMLE.metric=c("lognormal", "logtaylor",
                          "Median.Likelihood",
                          "EF.Likelihood", "naive"),
-                       MCMLE.method=c("BFGS","Nelder-Mead"),
                        MCMLE.dampening=FALSE,
                        MCMLE.dampening.min.ess=20,
                        MCMLE.dampening.level=0.1,
@@ -660,7 +657,6 @@ control.ergm<-function(drop=TRUE,
                        CD.metric=c("naive", "lognormal", "logtaylor",
                          "Median.Likelihood",
                          "EF.Likelihood"),
-                       CD.method=c("BFGS","Nelder-Mead"),
                        CD.dampening=FALSE,
                        CD.dampening.min.ess=20,
                        CD.dampening.level=0.1,
@@ -709,9 +705,9 @@ control.ergm<-function(drop=TRUE,
 
   match.arg.pars <- c("MPLE.nonident", "MPLE.nonvar", "MPLE.type", "MPLE.check",
                       "main.method", "MCMLE.metric", "MCMLE.nonvar",
-                      "MCMLE.method", "MCMLE.termination", "MCMLE.nonident",
+                      "MCMLE.termination", "MCMLE.nonident",
                       "MCMLE.steplength.parallel",
-                      "CD.metric", "CD.method", "CD.steplength.parallel")
+                      "CD.metric", "CD.steplength.parallel")
 
   control <- handle.controls("control.ergm", ...)
 
