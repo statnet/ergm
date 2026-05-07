@@ -386,7 +386,8 @@ fit_var_ols_multi <- function(Xl, lags = NULL, aic = FALSE, intercept = TRUE) {
   ## 1. C: conditional-on-max-lag statistics
   ## ------------------------------------------------------------
 
-  stats <- .Call("ar_ols_stats", Xl, as.integer(lag_eff))
+  ar_ols_stats <- function(X, lag_eff) .Call("ar_ols_stats", X, as.integer(lag_eff))
+  stats <- map(Xl, ar_ols_stats, lag_eff) |> reduce(map2, `+`)
 
   XtX <- stats$XtX
   XtY <- stats$XtY
