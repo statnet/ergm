@@ -312,7 +312,6 @@ spectrum0.mvar <- function(x, order.max=NULL, aic=is.null(order.max), tol=.Machi
   # Save the scale of each variable, then drop nonvarying and standardise.
   xscl <- sqrt(diag(xv))
   novar <- xscl / max(xscl) < tol
-  p.var <- sum(!novar)
   tfm <- diag(1 / xscl, p)[, !novar, drop = FALSE]
   if (ncol(tfm) == 0) stop("All variables are constant.")
 
@@ -322,17 +321,14 @@ spectrum0.mvar <- function(x, order.max=NULL, aic=is.null(order.max), tol=.Machi
   # Map the variables onto their principal components, dropping
   # redundant (linearly-dependent) dimensions.
   e <- eigen(xv, symmetric = TRUE)
-  etfm <- e$vectors %*% diag(1 / sqrt(pmax(e$values, 0)), p.var)
+  ind <- (e$values / max(e$values)) > tol^2 # Eigenvalues are on the quadratic scale.
+  etfm <- e$vectors[, ind, drop = FALSE] %*% diag(1 / sqrt(e$values[ind]), sum(ind))
   tfm <- tfm %*% etfm
-  xv <- xTAx(etfm, xv)
-  xscl2 <- sqrt(diag(xv))
-  ind <- !is.na(xscl2) & abs(xscl2 - 1) < tol
-  tfm <- tfm[, ind, drop = FALSE]
 
   # This matrix applies the reverse of the above transformation to the
   # resulting covariance matrix.
   utfm <- diag(sqrt(e$values[ind]), sum(ind)) %*%
-    t(e$vectors[, ind, drop = FALSE]) %*% diag(xscl, p.var)
+    t(e$vectors[, ind, drop = FALSE]) %*% diag(xscl, length(xscl))
 
   # Map the original dataset according to the transformation matrix.
   x <- map(x, `%*%`, tfm)
