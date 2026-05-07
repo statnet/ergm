@@ -87,6 +87,7 @@ ergm.stocapprox <- function(init, s, s.obs,
                      calc.mcmc.se=control$MCMC.addto.se,
                      hessianflag=control$main.hessian,
                      metric=control$MCMLE.metric,
+                     metric.settings = control$MCMLE.metric.settings,
                      verbose=verbose)
 
   v$sample <- z$stats

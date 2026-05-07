@@ -350,12 +350,8 @@ ergm.MCMLE <- function(init, s, s.obs, control, verbose = FALSE, ...) {
                        nr.reltol=control$MCMLE.NR.reltol,
                        calc.mcmc.se=control$MCMLE.termination == "precision" || (control$MCMC.addto.se && last.adequate) || iteration == control$MCMLE.maxit,
                        hessianflag=control$main.hessian,
-                       metric.settings = list(
-                         dampening = control$MCMLE.dampening,
-                         dampening.min.ess = control$MCMLE.dampening.min.ess,
-                         dampening.level = control$MCMLE.dampening.level
-                       ),
                        metric=control$MCMLE.metric,
+                       metric.settings = control$MCMLE.metric.settings,
                        steplen=steplen,
                        verbose=verbose,
                        estimateonly=!calc.MCSE)

@@ -15,15 +15,28 @@ n<-20 # Number of nodes
 
 d<-.1 # Density
 ms <-c(0,.05) # Missingness rates
-metrics <- c("naive", "lognormal", "Median.Likelihood")
+metrics <- c("naive", "lognormal", "median", "logtaylor", "EF.Likelihood")
+EF_warned <- FALSE
 
 run.metric.test<-function(y){
   truth<-edges.theta(y)
 
   for(metric in metrics){
     test_that(paste0("Metric test for: ", format(metric), ", n = ", n, ", naive density = ", format(network.edgecount(y)/network.dyadcount(y)), ", missing fraction = ", format(network.naedgecount(y)/network.dyadcount(y)), "."), {
-      mcmcfit<-ergm(y~edges, control=control.ergm(force.main=TRUE, init=truth+theta0err, MCMLE.metric=metric),eval.loglik=FALSE, verbose=FALSE)
-      expect_within_mc_err(mcmcfit, truth)
+      torun <- quote(mcmcfit <- ergm(y~edges, control=control.ergm(force.main=TRUE, init=truth+theta0err, MCMLE.metric=metric),eval.loglik=FALSE, verbose=FALSE))
+      if (network.naedgecount(y) && metric == "logtaylor")
+        expect_error(eval(torun), "Metric 'logtaylor' is not implemented.*")
+      else {
+        # This is not 100% safe on the off chance that this warning
+        # gets invoked elsewhere in the tests.
+        if (metric == "EF.Likelihood" && !EF_warned) {
+          expect_warning(eval(torun), "Metric 'EF.Likelihood' has been deprecated in favor of 'naive'.*")
+          EF_warned <<- TRUE
+        } else {
+          eval(torun)
+        }
+        expect_within_mc_err(mcmcfit, truth)
+      }
     })
   }
 }

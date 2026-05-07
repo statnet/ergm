@@ -329,13 +329,30 @@
 #'
 #' If effective sample size is used (see \code{MCMC.effectiveSize}), then ergm
 #' may increase the target ESS to reduce the MCMC standard error.
-#' @param MCMLE.metric Method to calculate the loglikelihood approximation.
-#' See \insertCite{HuHu12i;textual}{ergm} for an explanation of "lognormal" and "naive".
-#' @param MCMLE.dampening (logical) Should likelihood dampening be used?
-#' @param MCMLE.dampening.min.ess The effective sample size below which
-#' dampening is used.
-#' @param MCMLE.dampening.level The proportional distance from boundary of the
-#' convex hull move.
+#'
+#' @param MCMLE.metric Method to calculate the loglikelihood
+#'   approximation. See \insertCite{HuHu12i;textual}{ergm} for an
+#'   explanation of "lognormal", "naive" (a.k.a. importance sampling; old
+#'   name: "EF.Likelihood"), and "median" (old name:
+#'   "Median.Likelihood").
+#'
+#' @param MCMLE.metric.settings A list of additional settings for
+#'   MCMLE metrics. If the selected metric does not accept the
+#'   argument, it will be ignored. Some arguments include: \describe{
+#'
+#'   \item{`varweight`}{\[`"lognormal"`, `"median"`\] Multiplier for
+#'     covariance term in loglikelihood where 0.5 is the "theoretical"
+#'     value but this can be increased or decreased.}
+#'
+#'   \item{`dampening`}{\[`"logtaylor"`\] (logical) Should likelihood
+#'   dampening be used?}
+#'
+#'   \item{`dampening.min.ess`}{\[`"logtaylor"`\] The effective
+#'   sample size below which dampening is used.}
+#'
+#'   \item{`dampening.level`}{\[`"logtaylor"`\] The proportional
+#'     distance from boundary of the convex hull move.}}
+#'
 #' @param MCMLE.steplength.margin The extra margin required for a Hummel step
 #' to count as being inside the convex hull of the sample.  Set this to 0 if
 #' the step length gets stuck at the same value over several iteraions. Set it
@@ -476,7 +493,7 @@
 #' Therefore, these settings are in effect if there are missing dyads in the
 #' observed network, using a higher default number of steps.
 #'
-#' @param CD.samplesize.per_theta,obs.CD.samplesize.per_theta,CD.maxit,CD.conv.min.pval,CD.NR.maxit,CD.NR.reltol,CD.metric,CD.dampening,CD.dampening.min.ess,CD.dampening.level,CD.steplength.margin,CD.steplength,CD.steplength.parallel,CD.adaptive.epsilon,CD.steplength.esteq,CD.steplength.miss.sample,CD.steplength.min,CD.steplength.solver
+#' @param CD.samplesize.per_theta,obs.CD.samplesize.per_theta,CD.maxit,CD.conv.min.pval,CD.NR.maxit,CD.NR.reltol,CD.metric,CD.metric.settings,CD.steplength.margin,CD.steplength,CD.steplength.parallel,CD.adaptive.epsilon,CD.steplength.esteq,CD.steplength.miss.sample,CD.steplength.min,CD.steplength.solver
 #'   Miscellaneous tuning parameters of the CD sampler and
 #'   optimizer. These have the same meaning as their `MCMLE.*` and
 #'   `MCMC.*` counterparts.
@@ -598,11 +615,14 @@ control.ergm<-function(drop=TRUE,
 
                        MCMLE.MCMC.precision=if(startsWith("confidence", MCMLE.termination[1])) 0.05 else 0.005,
                        MCMLE.MCMC.max.ESS.frac=0.1,
-                       MCMLE.metric = c("lognormal", "logtaylor",
-                                        "Median.Likelihood", "naive"),
-                       MCMLE.dampening=FALSE,
-                       MCMLE.dampening.min.ess=20,
-                       MCMLE.dampening.level=0.1,
+                       MCMLE.metric = c("lognormal", "logtaylor", "median",
+                                        "Median.Likelihood", "EF.Likelihood", "naive"),
+                       MCMLE.metric.settings = list(
+                         varweight = 0.5,
+                         dampening = FALSE,
+                         dampening.min.ess = 20,
+                         dampening.level = 0.1
+                       ),
                        MCMLE.steplength.margin=0.05,
                        MCMLE.steplength=NVL2(MCMLE.steplength.margin, 1, 0.5),
                        MCMLE.steplength.parallel = c("observational", "never"),
@@ -653,11 +673,9 @@ control.ergm<-function(drop=TRUE,
                        CD.conv.min.pval=0.5,
                        CD.NR.maxit=100,
                        CD.NR.reltol=sqrt(.Machine$double.eps),
-                       CD.metric = c("naive", "lognormal", "logtaylor",
-                                     "Median.Likelihood"),
-                       CD.dampening=FALSE,
-                       CD.dampening.min.ess=20,
-                       CD.dampening.level=0.1,
+                       CD.metric = c("naive", "lognormal", "logtaylor", "median",
+                                     "EF.Likelihood", "Median.Likelihood"),
+                       CD.metric.settings = MCMLE.metric.settings,
                        CD.steplength.margin=0.5,
                        CD.steplength=1,
                        CD.adaptive.epsilon=0.01,
@@ -689,8 +707,13 @@ control.ergm<-function(drop=TRUE,
 
                        mcmc.precision="MCMLE.MCMC.precision",
                        packagenames="MCMC.packagenames",
-                       SAN.burnin.times="SAN.nsteps.times"
-                       )
+                       SAN.burnin.times="SAN.nsteps.times",
+                       MCMLE.dampening = "MCMLE.metric.settings",
+                       MCMLE.dampening.min.ess = "MCMLE.metric.settings",
+                       MCMLE.dampening.level = "MCMLE.metric.settings",
+                       CD.dampening = "CD.metric.settings",
+                       CD.dampening.min.ess = "CD.metric.settings",
+                       CD.dampening.level = "CD.metric.settings")
 
   for(trustarg in c("MCMLE.trustregion", "MCMLE.adaptive.trustregion",
                     "CD.trustregion", "CD.adaptive.trustregion",

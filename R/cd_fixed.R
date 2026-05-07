@@ -203,12 +203,8 @@ ergm.CD.fixed <- function(init, s, s.obs,
                        nr.reltol=control$CD.NR.reltol,
                        calc.mcmc.se=FALSE,
                        hessianflag=control$main.hessian,
-                       metric.settings = list(
-                         dampening = control$CD.dampening,
-                         dampening.min.ess = control$CD.dampening.min.ess,
-                         dampening.level = control$CD.dampening.level
-                       ),
                        metric=control$CD.metric,
+                       metric.settings = control$CD.metric.settings,
                        steplen=steplen,
                        verbose=verbose,
                        estimateonly=!finished)

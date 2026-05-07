@@ -35,10 +35,6 @@
 #   trace           : a non-negative interger specifying how much tracing
 #                     information should be printed by the <optim> routine;
 #                     default=6*'verbose'
-#   dampening       : (logical) should likelihood dampening be used?
-#  dampening.min.ess: effective sample size below which dampening is used
-#   dampening.level : proportional distance from boundary of the convex hull
-#                     move
 #   estimateonly    : whether only the estimates (vs. the estimates and the
 #                     standard errors) should be calculated; default=FALSE
 #
@@ -142,48 +138,44 @@ ergm.estimate<-function(init, model, statsmatrices, statsmatrices.obs=NULL,
     
   # Choose appropriate loglikelihood, gradient, and Hessian functions
   # depending on metric chosen and also whether obsprocess==TRUE
-  # Also, choose varweight multiplier for covariance term in loglikelihood
-  # where 0.5 is the "true" value but this can be increased or decreased
-  varweight <- 0.5
   if (verbose) { message("Using ", metric, " metric (see control.ergm function).") }
+
+  dep_metric <- function(f, old, new = NULL) {
+    NVL3(new,
+         warning_once("Metric ", sQuote(old), " has been deprecated in favor of ",
+                      sQuote(.), " and may be removed in the future.", call. = FALSE),
+         warning_once("Metric ", sQuote(old), " has been deprecated and is not ",
+                      "recommended for use; it may be removed in the future.", call. = FALSE))
+    f
+  }
+
+  nobs_metric <- function(name) {
+    stop("Metric ", sQuote(name), " is not implemented for MLE for incompletely observed networks.")
+  }
+
   if (obsprocess) {
     loglikelihoodfn <- switch(metric,
-                              Likelihood=llik.fun.obs.lognormal,
                               lognormal=llik.fun.obs.lognormal,
-                              logtaylor=llik.fun.obs.lognormal,
-                              Median.Likelihood=llik.fun.obs.robust,
+                              logtaylor = nobs_metric("logtaylor"),
+                              median = llik.fun.obs.robust,
+                              Median.Likelihood = dep_metric(llik.fun.obs.robust, "Median.Likelihood", "median"),
+                              EF.Likelihood = dep_metric(llik.fun.obs.IS, "EF.Likelihood", "naive"),
                               llik.fun.obs.IS)
     gradientfn <- switch(metric,
-                         Likelihood=llik.grad.obs.IS,
-                         lognormal=llik.grad.obs.IS,
-                         logtaylor=llik.grad.obs.IS,
-                         Median.Likelihood=llik.grad.obs.IS,
                          llik.grad.obs.IS)
     Hessianfn <- switch(metric,
-                        Likelihood=llik.hessian.obs.IS,
-                        lognormal=llik.hessian.obs.IS,
-                        logtaylor=llik.hessian.obs.IS,
-                        Median.Likelihood=llik.hessian.obs.IS,
                         llik.hessian.obs.IS)
   } else {
     loglikelihoodfn <- switch(metric,
-                              Likelihood=llik.fun.lognormal,
                               lognormal=llik.fun.lognormal,
                               logtaylor=llik.fun.logtaylor,
-                              Median.Likelihood=llik.fun.median,
+                              median = llik.fun.median,
+                              Median.Likelihood = dep_metric(llik.fun.median, "Median.Likelihood", "median"),
+                              EF.Likelihood = dep_metric(llik.fun.IS, "EF.Likelihood", "naive"),
                               llik.fun.IS)
     gradientfn <- switch(metric,
-                         Likelihood=llik.grad.IS,
-                         lognormal=llik.grad.IS,
-                         logtaylor=llik.grad.IS,
-                         Median.Likelihood=llik.grad.IS,
-                         EF.Likelihood=llik.grad.IS,
                          llik.grad.IS)
     Hessianfn <- switch(metric,
-                        Likelihood=llik.hessian.IS,
-                        lognormal=llik.hessian.IS,
-                        logtaylor=llik.hessian.IS,
-                        Median.Likelihood=llik.hessian.IS,
                         llik.hessian.IS)
   }
 
@@ -192,7 +184,6 @@ ergm.estimate<-function(init, model, statsmatrices, statsmatrices.obs=NULL,
   llk_inputs <- c(list(theta = NULL,
                        xsim = xsim,
                        xsim.obs = xsim.obs,
-                       varweight = varweight,
                        eta0 = eta0,
                        etamap = etamap.no),
                   metric.settings)
