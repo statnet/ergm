@@ -259,7 +259,7 @@ ergm_MCMC_sample <- function(state, control, theta=NULL,
       postburnin.mcmc <- window(esteq, start=start(esteq)+best.burnin$burnin*thin(esteq))
 
       if(is.na(burnin.pval) || burnin.pval <= control$MCMC.effectiveSize.burnin.pval){
-        if(is.const.sample(postburnin.mcmc)){
+        if(all(cols_constant(postburnin.mcmc))) {
           message("Post-burnin sample is constant; returning.")
           control.parallel$MCMC.effectiveSize <- eS <- 1
           break

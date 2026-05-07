@@ -216,7 +216,7 @@ ergm.MCMLE <- function(init, s, s.obs, control, verbose = FALSE, ...) {
     ## Compute the sample estimating equations.
     esteqs <- ergm.estfun(statsmatrices, theta=mcmc.init, model=model)
     esteq <- as.matrix(esteqs)
-    if(is.const.sample(esteq) && !all(esteq==0))
+    if(all(cols_constant(esteq)) && !all(esteq==0))
       stop("Unconstrained MCMC sampling did not mix at all. Optimization cannot continue.")
 
     nonident <- check_nonidentifiability(esteq, NULL, model,
@@ -595,7 +595,7 @@ confidence_test <- function(new, old, m, control, verbose, sm, sm_o, ee, ee_o) {
     if (is.curved(m)) ee_o <- ergm.estfun(sm_o, theta = new, model = m)
     # A corner case in which constrained sample does not vary at all:
     # fall back to non-observational.
-    if (all(const_variables(ee_o))) {
+    if (all(cols_constant(ee_o))) {
       s_o <- list(m = ee_o[[1L]][1L, ])
     } else {
       w_o <- IS_weights(sm_o, deta)

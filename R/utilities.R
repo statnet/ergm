@@ -253,10 +253,8 @@ trim_env_const_formula <- function(x, keep=NULL){
   if(needs_env) x else trim_env(x, keep)
 }
 
-is.const.sample <- function(x){
-  if(is.mcmc.list(x)) x <- as.matrix(x)
-  isTRUE(all.equal(apply(x,2,stats::sd), rep(0,ncol(x)), check.names=FALSE))
-}
+
+
 
 #' Obtain the ABI version of a library package (e.g., \pkg{ergm}) against which a client package was compiled.
 #'

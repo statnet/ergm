@@ -163,20 +163,10 @@ IS_weights <- function(xsims, deta) {
     list(lw = numeric(sum(sizes)),
          ws = map(sizes, function(size) rep(1, size)))
   } else {
-    nz <- (deta != 0) & !const_variables(xsims)
+    nz <- (deta != 0) & !cols_constant(xsims)
     lws <- map(xsims, function(xsim) drop(xsim[, nz, drop = FALSE] %*% deta[nz]))
     lwm <- max(unlist(lws))
     ws <- map(lws, function(lw) exp(lw - lwm))
     list(lw = unlist(lws), ws = ws)
   }
-}
-
-const_variables <- function(x) {
-  map(x, apply, 2L, range) |>
-    reduce(function(r1, r2) {
-      rbind(pmin(r1[1L, ], r2[1L, ]),
-            pmax(r1[2L, ], r2[2L, ]))
-    }) |>
-    diff() |>
-    (`==`)(0)
 }
