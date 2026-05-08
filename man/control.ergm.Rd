@@ -64,8 +64,6 @@ control.ergm(
   MCMLE.confidence.boost = 2,
   MCMLE.confidence.boost.threshold = 1,
   MCMLE.confidence.boost.lag = 4,
-  MCMLE.NR.maxit = 100,
-  MCMLE.NR.reltol = sqrt(.Machine$double.eps),
   obs.MCMC.mul = 1/4,
   obs.MCMC.samplesize.mul = sqrt(obs.MCMC.mul),
   obs.MCMC.samplesize = EVL(round(MCMC.samplesize * obs.MCMC.samplesize.mul)),
@@ -134,14 +132,11 @@ control.ergm(
   CD.multiplicity.obs = 1,
   CD.maxit = 60,
   CD.conv.min.pval = 0.5,
-  CD.NR.maxit = 100,
-  CD.NR.reltol = sqrt(.Machine$double.eps),
   CD.metric = c("naive", "lognormal", "logtaylor", "median", "EF.Likelihood",
     "Median.Likelihood"),
   CD.metric.settings = MCMLE.metric.settings,
   CD.steplength.margin = 0.5,
   CD.steplength = 1,
-  CD.adaptive.epsilon = 0.01,
   CD.steplength.esteq = TRUE,
   CD.steplength.miss.sample = function(x1) ceiling(sqrt(ncol(rbind(x1)))),
   CD.steplength.min = 1e-04,
@@ -216,8 +211,6 @@ control.ergm3(
   MCMLE.confidence.boost = 2,
   MCMLE.confidence.boost.threshold = 1,
   MCMLE.confidence.boost.lag = 4,
-  MCMLE.NR.maxit = 100,
-  MCMLE.NR.reltol = sqrt(.Machine$double.eps),
   obs.MCMC.mul = 1/4,
   obs.MCMC.samplesize.mul = sqrt(obs.MCMC.mul),
   obs.MCMC.samplesize = EVL(round(MCMC.samplesize * obs.MCMC.samplesize.mul)),
@@ -286,14 +279,11 @@ control.ergm3(
   CD.multiplicity.obs = 1,
   CD.maxit = 60,
   CD.conv.min.pval = 0.5,
-  CD.NR.maxit = 100,
-  CD.NR.reltol = sqrt(.Machine$double.eps),
   CD.metric = c("naive", "lognormal", "logtaylor", "median", "EF.Likelihood",
     "Median.Likelihood"),
   CD.metric.settings = MCMLE.metric.settings,
   CD.steplength.margin = 0.5,
   CD.steplength = 1,
-  CD.adaptive.epsilon = 0.01,
   CD.steplength.esteq = TRUE,
   CD.steplength.miss.sample = function(x1) ceiling(sqrt(ncol(rbind(x1)))),
   CD.steplength.min = 1e-04,
@@ -624,11 +614,6 @@ the tolerance region or is unable to prove convergence.}
 
 \item{MCMLE.confidence.boost.threshold, MCMLE.confidence.boost.lag}{Sample size or target effective size will be increaed if the distance from the tolerance region fails to decrease more than MCMLE.confidence.boost.threshold in this many successive iterations.}
 
-\item{MCMLE.NR.maxit, MCMLE.NR.reltol}{The method, maximum number of
-iterations and relative tolerance to use within the \code{optim} rountine in
-the MLE optimization. Note that by default, ergm uses \code{trust}, and
-falls back to \code{optim} only when \code{trust} fails.}
-
 \item{obs.MCMC.prop, obs.MCMC.prop.weights, obs.MCMC.prop.args, obs.MCMLE.effectiveSize, obs.MCMC.samplesize, obs.MCMC.burnin, obs.MCMC.interval, obs.MCMC.mul, obs.MCMC.samplesize.mul, obs.MCMC.burnin.mul, obs.MCMC.interval.mul, obs.MCMC.effectiveSize, obs.MCMLE.burnin, obs.MCMLE.interval, obs.MCMLE.samplesize, obs.MCMLE.samplesize.per_theta, obs.MCMLE.samplesize.min}{Corresponding MCMC parameters and settings used for the constrained sample when
 unobserved data are present in the estimation routine. By default, they are controlled by the \verb{*.mul}
 parameters, as fractions of the corresponding settings for the
@@ -811,7 +796,7 @@ details.}
 \item{SA.burnin, SA.interval, SA.samplesize}{Sets the corresponding
 \verb{MCMC.*} parameters when \code{main.method="Stochastic-Approximation"}.}
 
-\item{CD.samplesize.per_theta, obs.CD.samplesize.per_theta, CD.maxit, CD.conv.min.pval, CD.NR.maxit, CD.NR.reltol, CD.metric, CD.metric.settings, CD.steplength.margin, CD.steplength, CD.steplength.parallel, CD.adaptive.epsilon, CD.steplength.esteq, CD.steplength.miss.sample, CD.steplength.min, CD.steplength.solver}{Miscellaneous tuning parameters of the CD sampler and
+\item{CD.samplesize.per_theta, obs.CD.samplesize.per_theta, CD.maxit, CD.conv.min.pval, CD.metric, CD.metric.settings, CD.steplength.margin, CD.steplength, CD.steplength.parallel, CD.steplength.esteq, CD.steplength.miss.sample, CD.steplength.min, CD.steplength.solver}{Miscellaneous tuning parameters of the CD sampler and
 optimizer. These have the same meaning as their \verb{MCMLE.*} and
 \verb{MCMC.*} counterparts.
 

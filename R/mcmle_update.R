@@ -19,10 +19,6 @@
 #                     "observed stats" are assumed to be zero here)
 #   statsmatrix.obs: the corresponding statsmatrix for the observation process;
 #                     default=NULL
-#   nr.maxit        : the maximum number of iterations to use within the <optim>
-#                     rountine; default=1000
-#   nr.reltol       : the relative tolerance to use within the <optim> rountine;
-#                     default=sqrt(.Machine$double.eps)
 #   metric          : the name of a metric to use, as either "Likelihood",
 #                     "lognormal", "Median.Likelihood", or "EF.Likelihood";
 #                     default="lognormal"
@@ -32,15 +28,8 @@
 #                     should be computed; default=TRUE
 #   verbose         : whether the progress of the estimation should be printed;
 #                     default=FALSE
-#   trace           : a non-negative interger specifying how much tracing
-#                     information should be printed by the <optim> routine;
-#                     default=6*'verbose'
 #   estimateonly    : whether only the estimates (vs. the estimates and the
 #                     standard errors) should be calculated; default=FALSE
-#
-#
-# --IGNORED PARAMETERS--
-#   epsilon         : ??; default=1e-10
 #
 #
 # --RETURNED--
@@ -50,10 +39,9 @@
 ###################################################################################         
 
 ergm.estimate<-function(init, model, statsmatrices, statsmatrices.obs=NULL,
-                        epsilon=1e-10, nr.maxit=1000, nr.reltol=sqrt(.Machine$double.eps),
                         metric="lognormal",
                         calc.mcmc.se=TRUE, hessianflag=TRUE,
-                        verbose=FALSE, trace=6*verbose,
+                        verbose=FALSE,
                         metric.settings = list(),
                         steplen=1,
                         cov.type="normal",# cov.type="robust", 
@@ -204,8 +192,8 @@ ergm.estimate<-function(init, model, statsmatrices, statsmatrices.obs=NULL,
   # dealing with a curved exponential family.
   if (!is.curved(model) &&
       (metric=="lognormal" || metric=="Likelihood") &&
-      all(model$etamap$mintheta==-Inf) &&
-      all(model$etamap$maxtheta==+Inf)) {
+      all(etamap$mintheta == -Inf) &&
+      all(etamap$maxtheta == +Inf)) {
     if (obsprocess) {
       if (verbose) { message("Using log-normal approx with missing (no optim)") }
       # Here, setting posd.tol=0 ensures that the matrix is
@@ -218,39 +206,32 @@ ergm.estimate<-function(init, model, statsmatrices, statsmatrices.obs=NULL,
       if (verbose) { message("Using log-normal approx (no optim)") }
       Lout <- list(hessian = -V)
     }
-    Lout$par <- try(eta0 
-                    + ssolve(-Lout$hessian, xobs),
-                    silent=TRUE)
+    Lout$argument <- try(eta0 + ssolve(-Lout$hessian, xobs), silent = TRUE)
     # If there's an error, first try a robust matrix inverse.  This can often
     # happen if the matrix of simulated statistics does not ever change for one
     # or more statistics.
-    if(inherits(Lout$par,"try-error")){
-      Lout$par <- try(eta0 
-                      + sginv(-Lout$hessian) %*%
-                      xobs,
-                      silent=TRUE)
-    }
+    if (inherits(Lout$argument,"try-error"))
+      Lout$argument <- try(eta0 + sginv(-Lout$hessian) %*% xobs, silent = TRUE)
     # If there's still an error, use the Matrix package to try to find an 
     # alternative Hessian approximant that has no zero eigenvalues.
-    if(inherits(Lout$par,"try-error")){
+    if (inherits(Lout$argument, "try-error")) {
       if (obsprocess) {
         Lout <- list(hessian = -(as.matrix(snearPD(V-V.obs)$mat)))
       }else{
         Lout <- list(hessian = -(as.matrix(snearPD(V)$mat)))
       }
-      Lout$par <- eta0 + ssolve(-Lout$hessian, xobs)
+      Lout$argument <- eta0 + ssolve(-Lout$hessian, xobs)
     }
     Lout$convergence <- 0 # maybe add some error-checking here to get other codes
-    Lout$value <- 0.5*crossprod(xobs,
-                                Lout$par - eta0)
+    Lout$value <- 0.5 * crossprod(xobs, Lout$argument - eta0)
     hessianflag <- TRUE # to make sure we don't recompute the Hessian later on
   } else {
     # "guess" will be the starting point for the optim search algorithm.
-    guess <- init[!model$etamap$offsettheta]
-    mintheta <- model$etamap$mintheta[!model$etamap$offsettheta]
-    maxtheta <- model$etamap$maxtheta[!model$etamap$offsettheta]
+    guess <- init[!etamap$offsettheta]
+    mintheta <- etamap$mintheta[!etamap$offsettheta]
+    maxtheta <- etamap$maxtheta[!etamap$offsettheta]
     
-    loglikelihoodfn.trust<-function(theta) {
+    trustfn <- function(theta) {
       # Check for box constraint violation.
       if (any(is.na(theta) | theta < mintheta | theta > maxtheta))
         return(list(value = -Inf))
@@ -266,39 +247,16 @@ ergm.estimate<-function(init, model, statsmatrices, statsmatrices.obs=NULL,
       list(value=value,gradient=as.vector(grad),hessian=hess)
     }
 
-    if (verbose) { message("Optimizing loglikelihood") }
+    if (verbose) message("Optimizing loglikelihood")
     #' @importFrom trust trust
-    Lout <- try(trust(objfun=loglikelihoodfn.trust, parinit=guess,
-                      rinit=1, 
-                      rmax=100, 
-                      parscale=rep(1,length(guess)), minimize=FALSE),
-                silent=FALSE)
-    if(inherits(Lout,"try-error")) {
-      message("MLE could not be found. Trying Nelder-Mead...")
-      Lout <- try(optim(par=guess, 
-                        fn = function(theta) {
-                          llk_inputs[[1L]] <- theta
-                          do.call(llik.fun.median, llk_inputs)
-                        },
-                        hessian=hessianflag,
-                        method="Nelder-Mead",
-                        control=list(trace=trace,fnscale=-1,maxit=100*nr.maxit,
-                                     reltol=nr.reltol)),
-              silent=FALSE)
-      if(inherits(Lout,"try-error")){
-        message(paste("No direct MLE exists!"))
-      }
-      if(Lout$convergence != 0 ){
-        message("Non-convergence after ", nr.maxit, " iterations.")
-      }
-      message("Nelder-Mead Log-likelihood ratio is ", Lout$value," ")
-    } else Lout$par<-Lout$argument
+    Lout <- trust(objfun = trustfn, parinit = guess, rinit = 1, rmax = 100,
+                  parscale = rep(1, length(guess)), minimize = FALSE)
   }
 
-  llk_inputs[[1L]] <- Lout$par
+  llk_inputs[[1L]] <- Lout$argument
 
   theta <- init
-  theta[!model$etamap$offsettheta] <- Lout$par
+  theta[!etamap$offsettheta] <- Lout$argument
   names(theta) <- names(init)
   if (estimateonly) {
     # Output results as ergm-class object
@@ -309,7 +267,7 @@ ergm.estimate<-function(init, model, statsmatrices, statsmatrices.obs=NULL,
          failure = FALSE)
   } else {
     gradient <- rep(NA, length=length(init))
-    gradient[!model$etamap$offsettheta] <- do.call(gradientfn, llk_inputs)
+    gradient[!etamap$offsettheta] <- do.call(gradientfn, llk_inputs)
     #
     #  Calculate the auto-covariance of the MCMC suff. stats.
     #  and hence the MCMC s.e.
@@ -324,17 +282,18 @@ ergm.estimate<-function(init, model, statsmatrices, statsmatrices.obs=NULL,
     if(inherits(invHessian, "try-error")) invHessian <- Lout$hessian[] <- NA # Hessian non-SNND.
 
     covar <- matrix(NA, ncol=length(theta), nrow=length(theta))
-    covar %[.,.]% !model$etamap$offsettheta <- invHessian
+    covar %[.,.]% !etamap$offsettheta <- invHessian
     rowcolnames(covar) <- names(theta)
     He <- matrix(NA, ncol=length(theta), nrow=length(theta))
-    He %[.,.]% !model$etamap$offsettheta <- Lout$hessian
+    He %[.,.]% !etamap$offsettheta <- Lout$hessian
     rowcolnames(He) <- names(theta)
     Lout$hessian <- He
     
     if(calc.mcmc.se){
       if (verbose) message("Starting MCMC s.e. computation.")
       mcse.metric <-
-        if ((metric == "lognormal" || metric == "Likelihood") && length(model$etamap$curved) == 0) "lognormal"
+        if ((metric == "lognormal" || metric == "Likelihood") &&
+            length(etamap$curved) == 0) "lognormal"
         else "IS"
       mc.cov <- ERRVL2(ergm.MCMCse(model = model, theta = theta, init = init,
                                    statsmatrices = statsmatrices,
