@@ -49,7 +49,7 @@ ergm.estimate<-function(init, model, statsmatrices, statsmatrices.obs=NULL,
   estimateonly <- estimateonly & !calc.mcmc.se
   # If there is an observation process to deal with, statsmatrices.obs
   # will not be NULL.
-  obsprocess <- !is.null(statsmatrices.obs)
+  obs <- !is.null(statsmatrices.obs)
 
   # Construct an offsetless map and convert init (possibly "curved"
   # parameters) to eta0 (canonical parameters)
@@ -65,13 +65,13 @@ ergm.estimate<-function(init, model, statsmatrices, statsmatrices.obs=NULL,
   if(!is.null(statsmatrices.orig.obs)){
     statsmatrices.obs <- lapply.mcmc.list(statsmatrices.orig.obs, .shift_scale_points, statsmean, steplen) # I.e., shrink each point of statsmatrix.obs towards the centroid of statsmatrix.
   }else{
-    statsmatrices <- lapply.mcmc.list(statsmatrices.orig,sweep,2,(1-steplen)*statsmean,"-")
+    statsmatrices <- sweep.mcmc.list(statsmatrices.orig, (1 - steplen) * statsmean, check.margin = FALSE)
   }
   
   statsmatrix <- as.matrix(statsmatrices)
-  if(obsprocess) statsmatrix.obs <- as.matrix(statsmatrices.obs)
+  if(obs) statsmatrix.obs <- as.matrix(statsmatrices.obs)
   statsmatrix.orig <- as.matrix(statsmatrices.orig)
-  if(obsprocess) statsmatrix.orig.obs <- as.matrix(statsmatrices.orig.obs)
+  if(obs) statsmatrix.orig.obs <- as.matrix(statsmatrices.orig.obs)
 
     
   # Copy and compress the stats matrices after dropping the offset terms.
@@ -81,7 +81,7 @@ ergm.estimate<-function(init, model, statsmatrices, statsmatrices.obs=NULL,
   xsim.orig <- compress_rows(as.logwmatrix(statsmatrix.orig[,!etamap$offsetmap, drop=FALSE]))
   lrowweights(xsim.orig) <- -log_sum_exp(lrowweights(xsim.orig)) # I.e., divide all weights by their sum.
 
-  if(obsprocess){
+  if(obs){
     xsim.obs <- compress_rows(as.logwmatrix(statsmatrix.obs[,!etamap$offsetmap, drop=FALSE]))
     lrowweights(xsim.obs) <- -log_sum_exp(lrowweights(xsim.obs)) 
 
@@ -111,7 +111,7 @@ ergm.estimate<-function(init, model, statsmatrices, statsmatrices.obs=NULL,
   
   # Do the same recentering for the statsmatrix.obs matrix, if appropriate.
   # Note that xobs must be adjusted too.
-  if(obsprocess) {
+  if(obs) {
     if(cov.type=="robust"){
       tmp <- covMcd(decompress_rows(xsim.obs, target.nrows=nrow(statsmatrix.obs)))    
       av.obs <- tmp$center
@@ -125,7 +125,7 @@ ergm.estimate<-function(init, model, statsmatrices, statsmatrices.obs=NULL,
   }
     
   # Choose appropriate loglikelihood, gradient, and Hessian functions
-  # depending on metric chosen and also whether obsprocess==TRUE
+  # depending on metric chosen and also whether obs==TRUE
   if (verbose) { message("Using ", metric, " metric (see control.ergm function).") }
 
   nobs_metric <- function(name) {
@@ -142,7 +142,7 @@ ergm.estimate<-function(init, model, statsmatrices, statsmatrices.obs=NULL,
     metric <- new
   }
 
-  if (obsprocess) {
+  if (obs) {
     loglikelihoodfn <- switch(metric,
                               lognormal=llik.fun.obs.lognormal,
                               logtaylor = nobs_metric("logtaylor"),
@@ -195,7 +195,7 @@ ergm.estimate<-function(init, model, statsmatrices, statsmatrices.obs=NULL,
       (metric=="lognormal" || metric=="Likelihood") &&
       all(etamap$mintheta == -Inf) &&
       all(etamap$maxtheta == +Inf)) {
-    if (obsprocess) {
+    if (obs) {
       if (verbose) { message("Using log-normal approx with missing (no optim)") }
       # Here, setting posd.tol=0 ensures that the matrix is
       # nonnegative-definite: it is possible for some simulated
@@ -216,7 +216,7 @@ ergm.estimate<-function(init, model, statsmatrices, statsmatrices.obs=NULL,
     # If there's still an error, use the Matrix package to try to find an 
     # alternative Hessian approximant that has no zero eigenvalues.
     if (inherits(Lout$argument, "try-error")) {
-      if (obsprocess) {
+      if (obs) {
         Lout <- list(hessian = -(as.matrix(snearPD(V-V.obs)$mat)))
       }else{
         Lout <- list(hessian = -(as.matrix(snearPD(V)$mat)))
