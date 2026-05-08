@@ -249,8 +249,11 @@ ergm.estimate<-function(init, model, statsmatrices, statsmatrices.obs=NULL,
 
     if (verbose) message("Optimizing loglikelihood")
     #' @importFrom trust trust
-    Lout <- trust(objfun = trustfn, parinit = guess, rinit = 1, rmax = 100,
-                  parscale = rep(1, length(guess)), minimize = FALSE)
+    # Warnings from trust() become errors.
+    Lout <- rlang::with_options(
+      trust(objfun = trustfn, parinit = guess, rinit = 1, rmax = 100,
+            parscale = rlang::rep_along(guess, 1), minimize = FALSE),
+      warn = 2)
   }
 
   llk_inputs[[1L]] <- Lout$argument
