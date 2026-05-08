@@ -178,8 +178,7 @@ ergm.estimate<-function(init, model, statsmatrices, statsmatrices.obs=NULL,
                   metric.settings)
 
   llk_inputs <- llk_inputs[
-    list(loglikelihoodfn, gradientfn, Hessianfn, # Selected metrics
-         llik.fun.median) |> # Fallback and utility metrics
+    list(loglikelihoodfn, gradientfn, Hessianfn) |> # Selected metrics
     map(formals) |>
     map(names) |>
     unlist() |>
