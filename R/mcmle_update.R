@@ -146,11 +146,13 @@ ergm.estimate<-function(init, model, statsmatrices, statsmatrices.obs=NULL,
     loglikelihoodfn <- switch(metric,
                               lognormal=llik.fun.obs.lognormal,
                               logtaylor = nobs_metric("logtaylor"),
-                              median = llik.fun.obs.robust,
+                              median = llik.fun.obs.median,
                               llik.fun.obs.IS)
     gradientfn <- switch(metric,
+                         lognormal = llik.grad.obs.lognormal,
                          llik.grad.obs.IS)
     Hessianfn <- switch(metric,
+                        lognormal = llik.hessian.obs.lognormal,
                         llik.hessian.obs.IS)
   } else {
     loglikelihoodfn <- switch(metric,
@@ -159,8 +161,10 @@ ergm.estimate<-function(init, model, statsmatrices, statsmatrices.obs=NULL,
                               median = llik.fun.median,
                               llik.fun.IS)
     gradientfn <- switch(metric,
+                         lognormal = llik.grad.lognormal,
                          llik.grad.IS)
     Hessianfn <- switch(metric,
+                        lognormal = llik.hessian.lognormal,
                         llik.hessian.IS)
   }
 

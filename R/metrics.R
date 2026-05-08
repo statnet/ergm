@@ -48,45 +48,58 @@
 #
 ####################################################################################
 
-
-
+basepred <- function(theta, xsim, eta0, etamap, rowweights) {
+  eta <- ergm.eta(theta, etamap)
+  deta <- eta - eta0
+  structure(xsim %*% deta + if (rowweights) lrowweights(xsim) else 0,
+            deta = deta)
+}
 
 
 #####################################################################################
-# --RETURNED--
-#   llr: the log-likelihood ratio of l(eta) - l(eta0) using a lognormal
-#        approximation; i.e., assuming that the network statistics are approximately
-#        normally  distributed so that exp(eta * stats) is lognormal
+# Lognormal approximation:
+# xsim ~ N ->
+# dl ~~ -log(sum(exp(deta * xsim))) ~~ - mean(deta*xsim) - var(deta*xsim)/2
+# l' ~~ - eta' * mean(xsim) - eta' * var(xsim) * deta
+# l'' ~~ - eta' * var(xsim) * eta' = - var(xsim * eta')
+# varweight is if we want to use something other than 1/2 for some reason.
 #####################################################################################
 
 llik.fun.lognormal <- function(theta, xsim, eta0, etamap, varweight = 0.5, ...) {
-  # Convert theta to eta
-  eta <- ergm.eta(theta, etamap)
-
-  # Calculate approximation to l(eta) - l(eta0) using a lognormal approximation
-  etaparam <- eta-eta0
-
-  basepred <- xsim %*% etaparam
+  basepred <- basepred(theta, xsim, eta0, etamap, FALSE)
   mb <- lweighted.mean(basepred,lrowweights(xsim))
   vb <- lweighted.var(basepred,lrowweights(xsim))
   - mb - varweight*vb
 }
 
+llik.grad.lognormal <- function(theta, xsim, eta0, etamap, varweight = 0.5, ...) {
+  eta <- ergm.eta(theta, etamap)
+  deta <- eta - eta0
+
+  # TODO: These can be precomputed.
+  m <- lweighted.mean(xsim, lrowweights(xsim))
+  v <- lweighted.var(xsim, lrowweights(xsim))
+
+  - drop(m + 2 * varweight * v %*% deta) |>
+    ergm.etagradmult(theta, v = _, etamap) |>
+    t() |>
+    replace(is.na, 0)
+}
+
+llik.hessian.lognormal <- function(theta, xsim, eta0, etamap, varweight = 0.5, ...) {
+  ergm.etagradmultt(theta, xsim, etamap) |>
+    lweighted.var(lrowweights(xsim)) |>
+    (`*`)(-2 * varweight)
+}
+
 
 #####################################################################################
-# --RETURNED--
-#   llg: the gradient of the log-likelihood using "naive" (importance sampling) method
+# "Naive" (Importance Sampling) approximation:
 #####################################################################################
 
 llik.grad.IS <- function(theta, xsim, eta0, etamap, ...) {
+  basepred <- basepred(theta, xsim, eta0, etamap, TRUE)
 
-  # Obtain canonical parameters incl. offsets and difference from sampled-from
-  eta <- ergm.eta(theta, etamap)
-  etaparam <- eta-eta0
-
-  # Calculate log-importance-weights
-  basepred <- xsim %*% etaparam + lrowweights(xsim)
-  
   # Calculate the estimating function values sans offset
   - lweighted.mean(xsim, basepred) |>
     ergm.etagradmult(theta, v = _, etamap) |>
@@ -94,72 +107,28 @@ llik.grad.IS <- function(theta, xsim, eta0, etamap, ...) {
     replace(is.na, 0)
 }
 
-
-
-
-#####################################################################################
-# --RETURNED--
-#   He: the naive approximation to the Hessian matrix - namely,
-#          (sum_i w_i g_i)(sum_i w_i g_i)^t - sum_i(w_i g_i g_i^t),  where
-#              g_i = the ith vector of statistics and
-#              w_i = normalized version of exp((eta-eta0)^t g_i) so that sum_i w_i=1
-#       this is equation (3.5) of Hunter & Handcock (2006)
-#####################################################################################
 llik.hessian.IS <- function(theta, xsim, eta0, etamap, ...) {
-  # Obtain canonical parameters incl. offsets and difference from sampled-from
-  eta <- ergm.eta(theta, etamap)
-  etaparam <- eta-eta0
-
-  # Calculate log-importance-weights
-  basepred <- xsim %*% etaparam + lrowweights(xsim)
+  basepred <- basepred(theta, xsim, eta0, etamap, TRUE)
 
   # Calculate the estimating function values sans offset
   esim <- ergm.etagradmultt(theta, xsim, etamap)
 
   # Weighted variance-covariance matrix of estimating functions ~ -Hessian
-  H <- -lweighted.var(esim, basepred)
-
-  dimnames(H) <- list(names(theta), names(theta))
-  H
+  -lweighted.var(esim, basepred)
 }
-
-
-#####################################################################################
-# --RETURNED--
-#   llr: the "naive" log-likelihood ratio of l(eta) - l(eta0) using importance sampling (what sort of approach)
-#            "Simple convergence"
-#####################################################################################
 
 llik.fun.IS <- function(theta, xsim, eta0, etamap, ...) {
-  # Obtain canonical parameters incl. offsets and difference from sampled-from
-  eta <- ergm.eta(theta, etamap)
-  etaparam <- eta-eta0
-
-  # Calculate log-importance-weights and the likelihood ratio
-  basepred <- xsim %*% etaparam + lrowweights(xsim)
-  - log_sum_exp(basepred)
+  basepred(theta, xsim, eta0, etamap, TRUE) |>  log_sum_exp() |> (`-`)()
 }
 
 #####################################################################################
-# --RETURNED--
-#   llr: the log-likelihood ratio of l(eta) - l(eta0) using ?? (what sort of approach)
+# Median: as Lognormal, but using median and MAD instead of mean and variance.
 #####################################################################################
 
 llik.fun.median <- function(theta, xsim, eta0, etamap, varweight = 0.5, ...) {
-  # Convert theta to eta
-  eta <- ergm.eta(theta, etamap)
+  basepred <- basepred(theta, xsim, eta0, etamap, FALSE)
 
-  # Calculate approximation to l(eta) - l(eta0) using a lognormal approximation
-  # i.e., assuming that the network statistics are approximately normally 
-  # distributed so that exp(eta * stats) is lognormal
-  etaparam <- eta-eta0
-# These lines standardize:
-  basepred <- xsim %*% etaparam
-#
-# maxbase <- max(basepred)
-# llr <- - maxbase - log(sum(exp(lprobs)*exp(basepred-maxbase)))
-#
-# alternative based on log-normal approximation
+  # alternative based on log-normal approximation
   mb <- wtd.median(basepred, weight=rowweights(xsim))
   sdb <- 1.4826*wtd.median(abs(basepred-mb), weight=rowweights(xsim))
 # 
@@ -167,6 +136,11 @@ llik.fun.median <- function(theta, xsim, eta0, etamap, varweight = 0.5, ...) {
 #
   - (mb + varweight*sdb*sdb)
 }
+
+#####################################################################################
+# LogTaylor: an experimental method, currently unclear what to do with
+# it.
+#####################################################################################
 
 llik.fun.logtaylor <- function(theta, xsim, eta0, etamap,
                                dampening = FALSE, dampening.min.ess = 100, dampening.level = 0.1,

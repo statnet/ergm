@@ -48,135 +48,98 @@
 #
 ####################################################################################
 
-
-
-
-#####################################################################################
-# --RETURNED--
-#   llr: the log-likelihood ratio of l(eta) - l(eta0) using a lognormal
-#        approximation; i.e., assuming that the network statistics are approximately
-#        normally  distributed so that exp(eta * stats) is lognormal
-#####################################################################################                           
-llik.fun.obs.lognormal <- function(theta, xsim, xsim.obs, eta0, etamap,
-                                   varweight = 0.5, ...) {
+baseobspred <- function(theta, xsim, xsim.obs, eta0, etamap, rowweights) {
   eta <- ergm.eta(theta, etamap)
-  etaparam <- eta-eta0
-# These lines standardize:
-  basepred <- xsim %*% etaparam
-  obspred <- xsim.obs %*% etaparam
-#
-# maxbase <- max(basepred)
-# llr <- - maxbase - log(sum(rowweights(xsim))*exp(basepred-maxbase)))
-#
-# alternative based on log-normal approximation
-  mb <- lweighted.mean(basepred,lrowweights(xsim))
-  vb <- lweighted.var(basepred,lrowweights(xsim))
-  mm <- lweighted.mean(obspred,lrowweights(xsim.obs))
-  vm <- lweighted.var(obspred,lrowweights(xsim.obs), 0)
-# 
-# This is the log-likelihood ratio (and not its negative)
-#
-  (mm + varweight*vm) - (mb + varweight*vb)
+  deta <- eta - eta0
+  structure(list(base = xsim %*% deta + if (rowweights) lrowweights(xsim) else 0,
+                 obs = xsim.obs %*% deta + if (rowweights) lrowweights(xsim.obs) else 0),
+            deta = deta)
 }
 
 
+#####################################################################################
+# Lognormal approximation
+#####################################################################################                           
+llik.fun.obs.lognormal <- function(theta, xsim, xsim.obs, eta0, etamap,
+                                   varweight = 0.5, ...) {
+  pred <- baseobspred(theta, xsim, xsim.obs, eta0, etamap, FALSE)
 
-#####################################################################################
-# --RETURNED--
-#   llg: the gradient of the not-offset eta parameters with ??
-#####################################################################################
-llik.grad.obs.IS <- function(theta, xsim, xsim.obs, eta0, etamap, ...) {
-  # Obtain canonical parameters incl. offsets and difference from sampled-from
+  mb <- lweighted.mean(pred$base, lrowweights(xsim))
+  vb <- lweighted.var(pred$base, lrowweights(xsim))
+  mo <- lweighted.mean(pred$obs, lrowweights(xsim.obs))
+  vo <- lweighted.var(pred$obs, lrowweights(xsim.obs), 0)
+
+  (mo + varweight*vo) - (mb + varweight*vb)
+}
+
+llik.grad.obs.lognormal <- function(theta, xsim, xsim.obs, eta0, etamap, varweight = 0.5, ...) {
   eta <- ergm.eta(theta, etamap)
-  etaparam <- eta-eta0
+  deta <- eta - eta0
   
-  # Calculate log-importance-weights (unconstrained)
-  basepred <- xsim %*% etaparam + lrowweights(xsim)
+  # TODO: These can be precomputed.
+  mb <- lweighted.mean(xsim, lrowweights(xsim))
+  vb <- lweighted.var(xsim, lrowweights(xsim))
+  mo <- lweighted.mean(xsim.obs, lrowweights(xsim.obs))
+  vo <- lweighted.var(xsim.obs, lrowweights(xsim.obs))
 
-  # Calculate log-importance-weights (constrained)
-  obspred <- xsim.obs %*% etaparam + lrowweights(xsim.obs)
-  
-  (lweighted.mean(xsim.obs, obspred) - lweighted.mean(xsim, basepred)) |>
+  drop((mo + 2 * varweight * vo %*% deta) -
+       (mb + 2 * varweight * vb %*% deta)) |>
     ergm.etagradmult(theta, v = _, etamap) |>
     t() |>
     replace(is.na, 0)
 }
 
+llik.hessian.obs.lognormal <- function(theta, xsim, xsim.obs, eta0, etamap, varweight = 0.5, ...) {
+  vb <- ergm.etagradmultt(theta, xsim, etamap) |>
+    lweighted.var(lrowweights(xsim))
+  vo <- ergm.etagradmultt(theta, xsim.obs, etamap) |>
+    lweighted.var(lrowweights(xsim.obs))
 
+    2 * varweight * (vo - vb)
+}
 
 #####################################################################################
-# --RETURNED--
-#   He: the ?? Hessian matrix
+# "Naive" (Importance Sampling) approximation
 #####################################################################################
+llik.grad.obs.IS <- function(theta, xsim, xsim.obs, eta0, etamap, ...) {
+  pred <- baseobspred(theta, xsim, xsim.obs, eta0, etamap, TRUE)
+
+  (lweighted.mean(xsim.obs, pred$obs) - lweighted.mean(xsim, pred$base)) |>
+    ergm.etagradmult(theta, v = _, etamap) |>
+    t() |>
+    replace(is.na, 0)
+}
 
 llik.hessian.obs.IS <- function(theta, xsim, xsim.obs, eta0, etamap, ...) {
-  # Obtain canonical parameters incl. offsets and difference from sampled-from
-  eta <- ergm.eta(theta, etamap)
-  etaparam <- eta-eta0
+  pred <- baseobspred(theta, xsim, xsim.obs, eta0, etamap, TRUE)
 
-  # Calculate log-importance-weights (unconstrained)
-  basepred <- xsim %*% etaparam + lrowweights(xsim)
-
-  # Calculate log-importance-weights (constrained)
-  obspred <- xsim.obs %*% etaparam + lrowweights(xsim.obs)
-
-  # Calculate the estimating function values sans offset
-  esim <- ergm.etagradmultt(theta, xsim, etamap)
-  osim <- ergm.etagradmultt(theta, xsim.obs, etamap)
+  vb <- ergm.etagradmultt(theta, xsim, etamap) |>
+    lweighted.var(pred$base)
+  vo <- ergm.etagradmultt(theta, xsim.obs, etamap) |>
+    lweighted.var(pred$obs, 0)
   
-  # Weighted variance-covariance matrix of estimating functions ~ -Hessian
-  H <- lweighted.var(osim, obspred, 0) - lweighted.var(esim, basepred)
-
-  dimnames(H) <- list(names(theta), names(theta))
-  H
+  vo - vb
 }
-
-
-#####################################################################################
-# --RETURNED--
-#   llr: the "naive" log-likelihood ratio of l(eta) - l(eta0) using importance sampling (what sort of approach)
-#            "Simple convergence"
-#####################################################################################
 
 llik.fun.obs.IS <- function(theta, xsim, xsim.obs, eta0, etamap, ...) {
-  # Obtain canonical parameters incl. offsets and difference from sampled-from
-  eta <- ergm.eta(theta, etamap)
-  etaparam <- eta-eta0
-  
-  # Calculate log-importance-weights and the likelihood ratio
-  basepred <- xsim %*% etaparam + lrowweights(xsim)
-  obspred <- xsim.obs %*% etaparam + lrowweights(xsim.obs)
-  log_sum_exp(obspred) - log_sum_exp(basepred)
+  pred <- baseobspred(theta, xsim, xsim.obs, eta0, etamap, TRUE)
+  log_sum_exp(pred$obs) - log_sum_exp(pred$base)
 }
 
 
 #####################################################################################
-# --RETURNED--
-#   llr: the log-likelihood ratio of l(eta) - l(eta0) using ??
-#                "robust obsing data code"
+# "Median"
 #####################################################################################
 
-llik.fun.obs.robust<- function(theta, xsim, xsim.obs, eta0, etamap,
-                               varweight = 0.5, ...) {
-  eta <- ergm.eta(theta, etamap)
-  etaparam <- eta-eta0
+llik.fun.obs.median <- function(theta, xsim, xsim.obs, eta0, etamap,
+                                varweight = 0.5, ...) {
+  pred <- baseobspred(theta, xsim, xsim.obs, eta0, etamap, FALSE)
 
-  basepred <- xsim %*% etaparam
-  obspred <- xsim.obs %*% etaparam
-#
-# maxbase <- max(basepred)
-# llr <- - maxbase - log(sum(rowweights(xsim))*exp(basepred-maxbase)))
-#
-# alternative based on log-normal approximation
-  mb <- wtd.median(basepred, weight=rowweights(xsim))
-  vb <- 1.4826*wtd.median(abs(basepred-mb), weight=rowweights(xsim))
-# print(c(mean(rowweights(xsim))),mean(rowweights(xsim.obs)),var(rowweights(xsim))),var(rowweights(xsim.obs)))
-  mm <- wtd.median(obspred, weight=rowweights(xsim.obs))
-  vm <- 1.4826*wtd.median(abs(obspred-mm), weight=rowweights(xsim.obs))
-# 
-# This is the log-likelihood ratio (and not its negative)
-#
-  (mm + varweight*vm*vm) - (mb + varweight*vb*vb)
+  # alternative based on log-normal approximation
+  mb <- wtd.median(pred$base, weight=rowweights(xsim))
+  vb <- 1.4826*wtd.median(abs(pred$base-mb), weight=rowweights(xsim))
+  mo <- wtd.median(pred$obs, weight=rowweights(xsim.obs))
+  vo <- 1.4826*wtd.median(abs(pred$obs-mo), weight=rowweights(xsim.obs))
+
+  (mo + varweight*vo*vo) - (mb + varweight*vb*vb)
 }
-
-llik.fun.obs.robust<- llik.fun.obs.IS 
