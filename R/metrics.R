@@ -80,10 +80,11 @@ llik.grad.lognormal <- function(theta, xsim, eta0, etamap, varweight = 0.5, ...)
   m <- lweighted.mean(xsim, lrowweights(xsim))
   v <- lweighted.var(xsim, lrowweights(xsim))
 
-  - drop(m + 2 * varweight * v %*% deta) |>
+  drop(m + 2 * varweight * v %*% deta) |>
     ergm.etagradmult(theta, v = _, etamap) |>
     t() |>
-    replace(is.na, 0)
+    replace(is.na, 0) |>
+    (`-`)()
 }
 
 llik.hessian.lognormal <- function(theta, xsim, eta0, etamap, varweight = 0.5, ...) {
@@ -98,23 +99,17 @@ llik.hessian.lognormal <- function(theta, xsim, eta0, etamap, varweight = 0.5, .
 #####################################################################################
 
 llik.grad.IS <- function(theta, xsim, eta0, etamap, ...) {
-  basepred <- basepred(theta, xsim, eta0, etamap, TRUE)
-
-  # Calculate the estimating function values sans offset
-  - lweighted.mean(xsim, basepred) |>
+  basepred(theta, xsim, eta0, etamap, TRUE) |>
+    lweighted.mean(xsim, logw = _) |>
     ergm.etagradmult(theta, v = _, etamap) |>
     t() |>
-    replace(is.na, 0)
+    replace(is.na, 0) |>
+    (`-`)()
 }
 
 llik.hessian.IS <- function(theta, xsim, eta0, etamap, ...) {
   basepred <- basepred(theta, xsim, eta0, etamap, TRUE)
-
-  # Calculate the estimating function values sans offset
-  esim <- ergm.etagradmultt(theta, xsim, etamap)
-
-  # Weighted variance-covariance matrix of estimating functions ~ -Hessian
-  -lweighted.var(esim, basepred)
+  ergm.etagradmultt(theta, xsim, etamap) |> lweighted.var(basepred) |> (`-`)()
 }
 
 llik.fun.IS <- function(theta, xsim, eta0, etamap, ...) {
