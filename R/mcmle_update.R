@@ -128,17 +128,18 @@ ergm.estimate<-function(init, model, statsmatrices, statsmatrices.obs=NULL,
   # depending on metric chosen and also whether obsprocess==TRUE
   if (verbose) { message("Using ", metric, " metric (see control.ergm function).") }
 
-  dep_metric <- function(f, old, new = NULL) {
-    NVL3(new,
-         warning_once("Metric ", sQuote(old), " has been deprecated in favor of ",
-                      sQuote(.), " and may be removed in the future.", call. = FALSE),
-         warning_once("Metric ", sQuote(old), " has been deprecated and is not ",
-                      "recommended for use; it may be removed in the future.", call. = FALSE))
-    f
-  }
-
   nobs_metric <- function(name) {
     stop("Metric ", sQuote(name), " is not implemented for MLE for incompletely observed networks.")
+  }
+
+  DEP_METRIC_MAP <- list(Loglikelihood = "lognormal",
+                         Median.Likelihood = "median",
+                         EF.Likelihood = "naive")
+
+  if (!is.null(new <- DEP_METRIC_MAP[[metric]])) {
+    warning_once("Metric ", sQuote(metric), " has been deprecated in favor of ",
+                 sQuote(new), " and may be removed in the future.", call. = FALSE)
+    metric <- new
   }
 
   if (obsprocess) {
@@ -146,8 +147,6 @@ ergm.estimate<-function(init, model, statsmatrices, statsmatrices.obs=NULL,
                               lognormal=llik.fun.obs.lognormal,
                               logtaylor = nobs_metric("logtaylor"),
                               median = llik.fun.obs.robust,
-                              Median.Likelihood = dep_metric(llik.fun.obs.robust, "Median.Likelihood", "median"),
-                              EF.Likelihood = dep_metric(llik.fun.obs.IS, "EF.Likelihood", "naive"),
                               llik.fun.obs.IS)
     gradientfn <- switch(metric,
                          llik.grad.obs.IS)
@@ -158,8 +157,6 @@ ergm.estimate<-function(init, model, statsmatrices, statsmatrices.obs=NULL,
                               lognormal=llik.fun.lognormal,
                               logtaylor=llik.fun.logtaylor,
                               median = llik.fun.median,
-                              Median.Likelihood = dep_metric(llik.fun.median, "Median.Likelihood", "median"),
-                              EF.Likelihood = dep_metric(llik.fun.IS, "EF.Likelihood", "naive"),
                               llik.fun.IS)
     gradientfn <- switch(metric,
                          llik.grad.IS)

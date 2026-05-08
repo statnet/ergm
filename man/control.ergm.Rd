@@ -82,8 +82,8 @@ control.ergm(
   MCMLE.MCMC.precision = if (startsWith("confidence", MCMLE.termination[1])) 0.05 else
     0.005,
   MCMLE.MCMC.max.ESS.frac = 0.1,
-  MCMLE.metric = c("lognormal", "logtaylor", "median", "Median.Likelihood",
-    "EF.Likelihood", "naive"),
+  MCMLE.metric = c("lognormal", "logtaylor", "median", "naive", "Median.Likelihood",
+    "EF.Likelihood", "Loglikelihood"),
   MCMLE.metric.settings = list(varweight = 0.5, dampening = FALSE, dampening.min.ess =
     20, dampening.level = 0.1),
   MCMLE.steplength.margin = 0.05,
@@ -133,7 +133,7 @@ control.ergm(
   CD.maxit = 60,
   CD.conv.min.pval = 0.5,
   CD.metric = c("naive", "lognormal", "logtaylor", "median", "EF.Likelihood",
-    "Median.Likelihood"),
+    "Median.Likelihood", "Loglikelihood"),
   CD.metric.settings = MCMLE.metric.settings,
   CD.steplength.margin = 0.5,
   CD.steplength = 1,
@@ -229,8 +229,8 @@ control.ergm3(
   MCMLE.MCMC.precision = if (startsWith("confidence", MCMLE.termination[1])) 0.05 else
     0.005,
   MCMLE.MCMC.max.ESS.frac = 0.1,
-  MCMLE.metric = c("lognormal", "logtaylor", "median", "Median.Likelihood",
-    "EF.Likelihood", "naive"),
+  MCMLE.metric = c("lognormal", "logtaylor", "median", "naive", "Median.Likelihood",
+    "EF.Likelihood", "Loglikelihood"),
   MCMLE.metric.settings = list(varweight = 0.5, dampening = FALSE, dampening.min.ess =
     20, dampening.level = 0.1),
   MCMLE.steplength.margin = 0.05,
@@ -280,7 +280,7 @@ control.ergm3(
   CD.maxit = 60,
   CD.conv.min.pval = 0.5,
   CD.metric = c("naive", "lognormal", "logtaylor", "median", "EF.Likelihood",
-    "Median.Likelihood"),
+    "Median.Likelihood", "Loglikelihood"),
   CD.metric.settings = MCMLE.metric.settings,
   CD.steplength.margin = 0.5,
   CD.steplength = 1,
@@ -659,9 +659,9 @@ may increase the target ESS to reduce the MCMC standard error.}
 
 \item{MCMLE.metric}{Method to calculate the loglikelihood
 approximation. See \insertCite{HuHu12i;textual}{ergm} for an
-explanation of "lognormal", "naive" (a.k.a. importance sampling; old
-name: "EF.Likelihood"), and "median" (old name:
-"Median.Likelihood").}
+explanation of "lognormal" (old name: \code{"Loglikelihood"}), "naive"
+(a.k.a. importance sampling; old name: \code{"EF.Likelihood"}), and
+"median" (old name: \code{"Median.Likelihood"}).}
 
 \item{MCMLE.metric.settings}{A list of additional settings for
 MCMLE metrics. If the selected metric does not accept the

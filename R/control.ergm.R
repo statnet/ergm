@@ -328,9 +328,9 @@
 #'
 #' @param MCMLE.metric Method to calculate the loglikelihood
 #'   approximation. See \insertCite{HuHu12i;textual}{ergm} for an
-#'   explanation of "lognormal", "naive" (a.k.a. importance sampling; old
-#'   name: "EF.Likelihood"), and "median" (old name:
-#'   "Median.Likelihood").
+#'   explanation of "lognormal" (old name: `"Loglikelihood"`), "naive"
+#'   (a.k.a. importance sampling; old name: `"EF.Likelihood"`), and
+#'   "median" (old name: `"Median.Likelihood"`).
 #'
 #' @param MCMLE.metric.settings A list of additional settings for
 #'   MCMLE metrics. If the selected metric does not accept the
@@ -609,8 +609,8 @@ control.ergm<-function(drop=TRUE,
 
                        MCMLE.MCMC.precision=if(startsWith("confidence", MCMLE.termination[1])) 0.05 else 0.005,
                        MCMLE.MCMC.max.ESS.frac=0.1,
-                       MCMLE.metric = c("lognormal", "logtaylor", "median",
-                                        "Median.Likelihood", "EF.Likelihood", "naive"),
+                       MCMLE.metric = c("lognormal", "logtaylor", "median", "naive",
+                                        "Median.Likelihood", "EF.Likelihood", "Loglikelihood"),
                        MCMLE.metric.settings = list(
                          varweight = 0.5,
                          dampening = FALSE,
@@ -666,7 +666,7 @@ control.ergm<-function(drop=TRUE,
                        CD.maxit=60,
                        CD.conv.min.pval=0.5,
                        CD.metric = c("naive", "lognormal", "logtaylor", "median",
-                                     "EF.Likelihood", "Median.Likelihood"),
+                                     "EF.Likelihood", "Median.Likelihood", "Loglikelihood"),
                        CD.metric.settings = MCMLE.metric.settings,
                        CD.steplength.margin=0.5,
                        CD.steplength=1,
