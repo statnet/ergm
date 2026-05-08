@@ -197,9 +197,9 @@ ergm_MCMC_sample <- function(state, control, theta=NULL,
     #################################
     if (verbose) {
       if (is.matrix(control.parallel$MCMC.effectiveSize))
-        message("Starting adaptive MCMC with target ESS ", format(control.parallel$MCMC.effectiveSize), "...")
-      else
         message("Starting variance-based adaptive MCMC...")
+      else
+        message("Starting adaptive MCMC with target ESS ", format(control.parallel$MCMC.effectiveSize), "...")
     }
 
     howmuchmore <- function(target.ess, current.ss, current.ess, current.burnin){
