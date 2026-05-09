@@ -298,8 +298,11 @@ geweke.diag.mv <- function(x, frac1 = 0.1, frac2 = 0.5, split.mcmc.list = FALSE,
 #' @export spectrum0.mvar
 spectrum0.mvar <- function(x, order.max=NULL, aic=is.null(order.max), tol=.Machine$double.eps^0.5, ...){
   x <- unclass(x) |> enlist() |> map(unclass) |> map(as.matrix)
+  m <- (map(x, colSums) |> reduce(`+`)) / sum(map_int(x, nrow))
+  x <- map(x, sweep_cols.matrix, m, disable_checks = TRUE)
+
   # Get the variance and construct the reversible whitening transformation.
-  tf <- var.list(x) |> reversible_whitening(tol = tol)
+  tf <- var.list(x, unclass = FALSE, centered = TRUE) |> reversible_whitening(tol = tol)
 
   # Whiten and calculate time-series variance of the mean.
   arfit <- map(x, `%*%`, tf$w) |>
@@ -324,14 +327,21 @@ spectrum0.mvar <- function(x, order.max=NULL, aic=is.null(order.max), tol=.Machi
 #' constructing the full matrix.
 #'
 #' @param x a list of matrices, such as an [`mcmc.list`]
+#' @param centered (logical) have the data already been centred around
+#'   their column means?
+#' @param unclass (logical) whether to run `x` and each element
+#'   through [unclass()]; this can be useful because `as.matrix(mcmc)`
+#'   is much slower than `unclass(mcmc)`.
 #'
 #' @noRd
-var.list <- function(x) {
-  x <- unclass(x) |> enlist() |> map(unclass) |> map(as.matrix)
-  ns <- map_int(x, nrow)
-  m <- (map(x, colSums) |> reduce(`+`)) / sum(ns)
-  x <- map(x, sweep_cols.matrix, m, disable_checks = TRUE)
-  (map(x, crossprod) |> reduce(`+`)) / (sum(ns) - 1)
+var.list <- function(x, unclass = TRUE, centered = FALSE) {
+  if (unclass) x <- unclass(x) |> enlist() |> map(unclass) |> map(as.matrix)
+  n <- map_int(x, nrow) |> sum()
+  if (!centered) {
+    m <- (map(x, colSums) |> reduce(`+`)) / n
+    x <- map(x, sweep_cols.matrix, m, disable_checks = TRUE)
+  }
+  (map(x, crossprod) |> reduce(`+`)) / (n - 1)
 }
 
 #' A pair of matrices to whiten data and reverse the whitening.
