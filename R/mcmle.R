@@ -533,12 +533,18 @@ ellipsoid_mahalanobis <- function(y, W, U, tol=sqrt(.Machine$double.eps)){
   zerofn <- function(l) ERRVL2(xTAx_seigen(x(l), U, tol=tol) - 1, +Inf)
 
   # For some reason, WU sometimes has 0i element in its eigenvalues.
-  eig <- Re(eigen(WUi, only.values=TRUE)$values)
-  lmin <- -1/max(eig)
-  l <- suppressWarnings(uniroot(zerofn, lower=lmin, upper=0, tol=sqrt(.Machine$double.xmin))$root)
-  x <- x(l)
-
-  xTAx_seigen(y-x, W, tol=tol)
+  e1i <- 1 / Re(eigen(WUi, only.values = TRUE)$values)[1L]
+  # If this doesn't produce +Inf, y must be negligible, so x the
+  # eigenvector of WUi corresponding to the greatest eigenvalue, and
+  # the distance in question is the latter's reciprocal.
+  if ((y_check <- zerofn(-e1i)) != +Inf) {
+    replace(y_check, 1L, e1i) # Transfer rank and nullity.
+  } else {
+    l <- suppressWarnings(uniroot(zerofn, lower = -e1i, upper = 0,
+                                  tol = sqrt(.Machine$double.xmin))$root)
+    x <- x(l)
+    xTAx_seigen(y - x, W, tol = tol)
+  }
 }
 
 #' Calculate target precision matrix
