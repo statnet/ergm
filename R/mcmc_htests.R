@@ -298,59 +298,83 @@ geweke.diag.mv <- function(x, frac1 = 0.1, frac2 = 0.5, split.mcmc.list = FALSE,
 #' @export spectrum0.mvar
 spectrum0.mvar <- function(x, order.max=NULL, aic=is.null(order.max), tol=.Machine$double.eps^0.5, ...){
   x <- unclass(x) |> enlist() |> map(unclass) |> map(as.matrix)
+  # Get the variance and construct the reversible whitening transformation.
+  tf <- var.list(x) |> reversible_whitening(tol = tol)
+
+  # Whiten and calculate time-series variance of the mean.
+  arfit <- map(x, `%*%`, tf$w) |>
+    fit_var_ols_multi(lags = order.max, aic = aic)
+
+  arvar <- arfit$var.pred
+  arcoefs <- arfit$ar
+  arcoefs <- apply(arcoefs, 1:2, base::sum)
+
+  adj <- diag(1, nrow = NROW(arvar)) - arcoefs
+  v <- sandwich_qrssolve(adj, arvar)
+
+  # Loss of ESS due to autocorrelation: since the fit is to whitened
+  # data, the comparison is to an identity matrix.
+  infl <- exp(determinant(v)$modulus / ncol(v))
+
+  # Reverse the mapping for the variance estimate.
+  structure(xTAx(tf$u, v), infl = as.vector(infl), rank = ncol(v))
+}
+
+#' Compute the covariance of a list of matrices `x` without ever
+#' constructing the full matrix.
+#'
+#' @param x a list of matrices, such as an [`mcmc.list`]
+#'
+#' @noRd
+var.list <- function(x) {
+  x <- unclass(x) |> enlist() |> map(unclass) |> map(as.matrix)
   ns <- map_int(x, nrow)
-
-  p <- ncol(x[[1]])
-  v <- matrix(0,p,p)
-
-  # Center x and compute the sample covariance without ever creating
-  # the full matrix.
   m <- (map(x, colSums) |> reduce(`+`)) / sum(ns)
   x <- map(x, sweep_cols.matrix, m, disable_checks = TRUE)
-  xv <- (map(x, crossprod) |> reduce(`+`)) / (sum(ns) - 1)
+  (map(x, crossprod) |> reduce(`+`)) / (sum(ns) - 1)
+}
 
-  # Save the scale of each variable, then drop nonvarying and standardise.
-  xscl <- sqrt(diag(xv))
-  novar <- xscl / max(xscl) < tol
-  tfm <- diag(1 / xscl, p)[, !novar, drop = FALSE]
-  if (ncol(tfm) == 0) stop("All variables are constant.")
+#' A pair of matrices to whiten data and reverse the whitening.
+#'
+#' @param v a variance-covariance matrix.
+#' @param tol_scl threshold for standard deviation of each variable
+#'   (relative to the most-varying one) before it's considered
+#'   non-degenerate.
+#' @param tol_ind threshold for the square root of the eigenvalue
+#'   (after scaling, relative to the highest eigenvalue) before the
+#'   component is considered linearly independent.
+#'
+#' @return A list of two matrices, `w` and `u`, such that for a data
+#'   matrix `X`, `var(X%*%w) ~= diag(1, ncol(X))` and `var(X%*%w%*%u)
+#'   ~= v`.
+#'
+#' @noRd
+reversible_whitening <- function(v, tol_scl = tol, tol_ind = tol, tol = sqrt(.Machine$double.eps)) {
+  # Save the scale of each variable, then drop nonvarying and
+  # standardise.
+  scl <- sqrt(diag(v))
+  var <- scl / max(scl) > tol_scl
+  w <- diag(1 / scl, length(scl))[, var, drop = FALSE]
+  if (ncol(w) == 0) stop("All variables are constant.")
 
-  xv <- xTAx(tfm, xv)
-  xscl <- xscl[!novar]
+  v <- xTAx(w, v)
+  scl <- scl[var]
   
   # Map the variables onto their principal components, dropping
   # redundant (linearly-dependent) dimensions.
-  e <- eigen(xv, symmetric = TRUE)
-  ind <- (e$values / max(e$values)) > tol^2 # Eigenvalues are on the quadratic scale.
-  etfm <- e$vectors[, ind, drop = FALSE] %*% diag(1 / sqrt(e$values[ind]), sum(ind))
-  tfm <- tfm %*% etfm
+  e <- eigen(v, symmetric = TRUE)
+  ind <- (e$values / max(e$values)) > tol_ind^2 # Eigenvalues are on the quadratic scale.
+  w <- w %*% e$vectors[, ind, drop = FALSE] %*%
+    diag(1 / sqrt(e$values[ind]), sum(ind))
 
   # This matrix applies the reverse of the above transformation to the
   # resulting covariance matrix.
-  utfm <- diag(sqrt(e$values[ind]), sum(ind)) %*%
-    t(e$vectors[, ind, drop = FALSE]) %*% diag(xscl, length(xscl))
+  unscl <- matrix(0, sum(var), length(var))
+  unscl[, var] <- diag(scl, length(scl))
+  u <- diag(sqrt(e$values[ind]), sum(ind)) %*%
+    t(e$vectors[, ind, drop = FALSE]) %*% unscl
 
-  # Map the original dataset according to the transformation matrix.
-  x <- map(x, `%*%`, tfm)
-  
-  # Calculate the time-series variance of the mean on the PC scale.
-  arfit <- fit_var_ols_multi(x, lags = order.max, aic = aic)
-  
-  arvar <- arfit$var.pred
-  arcoefs <- arfit$ar
-  arcoefs <- NVL2(dim(arcoefs), apply(arcoefs, 1:2, base::sum), sum(arcoefs))
-  
-  adj <- diag(1, nrow = NROW(arvar)) - arcoefs
-  v.var <- sandwich_qrssolve(adj, arvar)
-
-  infl <- exp((determinant(v.var)$modulus) / sum(ind))
-  
-  # Reverse the mapping for the variance estimate.
-  v.var <- xTAx(utfm, v.var)
-  
-  v[!novar,!novar] <- v.var
-
-  structure(v, infl = as.vector(infl), rank = sum(ind))
+  list(w = w, u = u)
 }
 
 
