@@ -279,7 +279,9 @@ ergm_MCMC_sample <- function(state, control, theta=NULL,
       }
       
       if (verbose > 1) message("Calculating the effective sample size...")
-      eS <- niter(postburnin.mcmc)*nchain(postburnin.mcmc)/attr(spectrum0.mvar(postburnin.mcmc, order.max=control$MCMC.effectiveSize.order.max),"infl")
+      eS <- niter(postburnin.mcmc) * nchain(postburnin.mcmc) /
+        attr(spectrum0.mvar(postburnin.mcmc, order.max = control$MCMC.effectiveSize.order.max,
+                            cl = ergm.getCluster(control)), "infl")
       
       if(verbose) message("ESS of ", format(eS)," attained with burn-in of ", round(best.burnin$burnin/niter(esteq)*100,2),"%; convergence p-value = ", format(burnin.pval), ".")
 
@@ -446,7 +448,8 @@ find_OK_burnin <- function(x, control){
     if(niter(x)*nchain(x) > (nmax <- max(control$MCMC.effectiveSize.burnin.nmax, nvar(x)*2*4)))
     x <- lapply.mcmc.list(x, `[`, round(seq(from=1,to=niter(x),length.out=round(nmax/nchain(x)))), , drop=FALSE)
 
-    p.val <- suppressWarnings(geweke.diag.mv(x, order.max=control$MCMC.effectiveSize.order.max)$p.value)
+    p.val <- suppressWarnings(geweke.diag.mv(x, order.max=control$MCMC.effectiveSize.order.max,
+                                             cl = ergm.getCluster(control))$p.value)
     if(is.na(p.val)) 0 else p.val
   }
 

@@ -72,7 +72,9 @@ ergm.CD.fixed <- function(init, s, s.obs,
 
   if(is.null(control$CD.samplesize)) control$CD.samplesize <- control$CD.samplesize.per_theta*nparam(model,canonical=FALSE, offset=FALSE)
   if(obs && is.null(control$obs.CD.samplesize)) control$obs.CD.samplesize <- control$obs.CD.samplesize.per_theta*nparam(model,canonical=FALSE, offset=FALSE)
-
+  control$metric <- control$CD.metric
+  control$metric.settings <- control$CD.metric.settings
+  
   # Start cluster if required (just in case we haven't already).
   ergm.getCluster(control, max(verbose-1,0))
 
@@ -150,7 +152,9 @@ ergm.CD.fixed <- function(init, s, s.obs,
     esteqs.obs <- if(obs) ergm.estfun(statsmatrices.obs, theta=mcmc.init, model=model) else NULL
     esteq.obs <- if(obs) as.matrix(esteqs.obs) else NULL
 
-    conv.pval <- suppressWarnings(approx.hotelling.diff.test(esteq, esteq.obs, assume.indep=TRUE)$p.value)
+    conv.pval <- suppressWarnings(
+      approx.hotelling.diff.test(esteq, esteq.obs, assume.indep = TRUE,
+                                 cl = ergm.getCluster(control))$p.value)
 
     # We can either pretty-print the p-value here, or we can print the
     # full thing. What the latter gives us is a nice "progress report"
@@ -195,13 +199,10 @@ ergm.CD.fixed <- function(init, s, s.obs,
       }    
       
       # Use estimateonly=TRUE if this is not the last iteration.
-      v<-ergm.estimate(init=mcmc.init, model=model,
+      v<-ergm.estimate(init = mcmc.init, model = model, control = control,
                        statsmatrices=statsmatrices, 
                        statsmatrices.obs=statsmatrices.obs, 
                        calc.mcmc.se=FALSE,
-                       hessianflag=control$main.hessian,
-                       metric=control$CD.metric,
-                       metric.settings = control$CD.metric.settings,
                        steplen=steplen,
                        verbose=verbose,
                        estimateonly=!finished)

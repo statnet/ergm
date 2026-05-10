@@ -45,6 +45,8 @@ ergm.stocapprox <- function(init, s, s.obs,
   model <- s$model
 
   control <- remap_algorithm_MCMC_controls(control, "SA")
+  control$metric <- control$MCMLE.metric
+  control$metric.settings <- control$MCMLE.metric.settings
 
   for(ctl in c("SA.phase1_n", "SA.min_iterations", "SA.max_iterations"))
     if(is.function(control[[ctl]]))
@@ -78,13 +80,9 @@ ergm.stocapprox <- function(init, s, s.obs,
   if(verbose){message("Calling MCMLE Optimization...")}
   if(verbose){message("Using Newton-Raphson Step ...")}
 
-  v <- ergm.estimate(init=theta, model=model,
-                     statsmatrices=z$stats,
-                     statsmatrices.obs=NULL,
+  v <- ergm.estimate(init = theta, model = model, control = control,
+                     statsmatrices = z$stats, statsmatrices.obs = NULL,
                      calc.mcmc.se=control$MCMC.addto.se,
-                     hessianflag=control$main.hessian,
-                     metric=control$MCMLE.metric,
-                     metric.settings = control$MCMLE.metric.settings,
                      verbose=verbose)
 
   v$sample <- z$stats

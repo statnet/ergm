@@ -42,6 +42,8 @@ ergm.MCMLE <- function(init, s, s.obs, control, verbose = FALSE, ...) {
   if(obs && is.null(control$obs.MCMLE.samplesize)) control$obs.MCMLE.samplesize <- max(control$obs.MCMLE.samplesize.min,control$obs.MCMLE.samplesize.per_theta*nparam(model,canonical=FALSE, offset=FALSE))
 
   control <- remap_algorithm_MCMC_controls(control, "MCMLE")
+  control$metric <- control$MCMLE.metric
+  control$metric.settings <- control$MCMLE.metric.settings
    
   control$MCMC.base.effectiveSize <- control$MCMC.effectiveSize
   control$obs.MCMC.base.effectiveSize <- control$obs.MCMC.effectiveSize
@@ -342,13 +344,10 @@ ergm.MCMLE <- function(init, s, s.obs, control, verbose = FALSE, ...) {
       steplen.hist <- c(steplen.hist, steplen)
       
       # Use estimateonly=TRUE if this is not the last iteration.
-      v<-ergm.estimate(init=mcmc.init, model=model,
-                       statsmatrices=statsmatrices, 
-                       statsmatrices.obs=statsmatrices.obs, 
+      v<-ergm.estimate(init = mcmc.init, model = model, control = control,
+                       statsmatrices=statsmatrices,
+                       statsmatrices.obs=statsmatrices.obs,
                        calc.mcmc.se=control$MCMLE.termination == "precision" || (control$MCMC.addto.se && last.adequate) || iteration == control$MCMLE.maxit,
-                       hessianflag=control$main.hessian,
-                       metric=control$MCMLE.metric,
-                       metric.settings = control$MCMLE.metric.settings,
                        steplen=steplen,
                        verbose=verbose,
                        estimateonly=!calc.MCSE)
@@ -361,7 +360,9 @@ ergm.MCMLE <- function(init, s, s.obs, control, verbose = FALSE, ...) {
     # This allows premature termination.
     
     if(control$MCMLE.termination=='Hotelling'){
-      conv.pval <- ERRVL2(suppressWarnings(approx.hotelling.diff.test(esteqs, esteqs.obs)$p.value), NA)
+      conv.pval <- ERRVL2(suppressWarnings(
+        approx.hotelling.diff.test(esteqs, esteqs.obs,
+                                   cl = ergm.getCluster(control))$p.value), NA)
       message("Nonconvergence test p-value:", format(conv.pval), "")
       # I.e., so that the probability of one false nonconvergence in two successive iterations is control$MCMLE.conv.min.pval (sort of).
       if(!is.na(conv.pval) && conv.pval>=1-sqrt(1-control$MCMLE.conv.min.pval)){
@@ -586,7 +587,7 @@ confidence_test <- function(new, old, m, control, verbose, sm, sm_o, ee, ee_o) {
   # IS weights, (potentially) new estimating functions, and summary statistics.
   w <- IS_weights(sm, deta)
   if (is.curved(m)) ee <- ergm.estfun(sm, theta = new, model = m)
-  s <- vcov_wmean_ar(ee, w$ws)
+  s <- vcov_wmean_ar(ee, w$ws, cl = ergm.getCluster(control))
 
   # Observational IS weights, (potentially) new estimating functions,
   # and summary statistics.
@@ -599,7 +600,7 @@ confidence_test <- function(new, old, m, control, verbose, sm, sm_o, ee, ee_o) {
       s_o <- list(m = ee_o[[1L]][1L, ])
     } else {
       w_o <- IS_weights(sm_o, deta)
-      s_o <- vcov_wmean_ar(ee_o, w_o$ws)
+      s_o <- vcov_wmean_ar(ee_o, w_o$ws, cl = ergm.getCluster(control))
     }
   }
 

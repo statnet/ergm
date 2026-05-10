@@ -38,14 +38,16 @@
 #
 ###################################################################################         
 
-ergm.estimate<-function(init, model, statsmatrices, statsmatrices.obs=NULL,
-                        metric="lognormal",
-                        calc.mcmc.se=TRUE, hessianflag=TRUE,
+ergm.estimate<-function(init, model, control,
+                        statsmatrices, statsmatrices.obs=NULL,
+                        calc.mcmc.se=TRUE,
                         verbose=FALSE,
-                        metric.settings = list(),
                         steplen=1,
                         cov.type="normal",# cov.type="robust", 
                         estimateonly=FALSE, ...) {
+  metric <- control$metric
+  metric.settings <- control$metric.settings
+  hessianflag <- control$main.hessian
   estimateonly <- estimateonly & !calc.mcmc.se
   # If there is an observation process to deal with, statsmatrices.obs
   # will not be NULL.
@@ -302,7 +304,7 @@ ergm.estimate<-function(init, model, statsmatrices, statsmatrices.obs=NULL,
                                    statsmatrices = statsmatrices,
                                    statsmatrices.obs = statsmatrices.obs,
                                    H = V, H.obs = V.obs,
-                                   metric = mcse.metric),
+                                   metric = mcse.metric, control = control),
                        matrix(NA, length(theta), length(theta), dimnames=list(names(theta),names(theta))))
     }
 

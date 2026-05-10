@@ -12,6 +12,7 @@
 #'
 #' @param theta the vector of theta coefficients
 #' @param init the vector of initial theta coefficients
+#' @param control parameters
 #' @param statsmatrices an [`mcmc.list`] of  network statistics
 #' @param statsmatrices.obs an [`mcmc.list`] of constrained network statistics
 #' @param H the Hessian matrix (lognormal metric only)
@@ -21,7 +22,7 @@
 #' @return The variance matrix of the parameter estimates due to MCMC
 #'   sampling.
 #' @noRd
-ergm.MCMCse <- function(model, theta, init, statsmatrices, statsmatrices.obs,
+ergm.MCMCse <- function(model, theta, init, control, statsmatrices, statsmatrices.obs,
                         H, H.obs, metric = c("IS", "lognormal")) {
   metric <- match.arg(metric)
 
@@ -68,7 +69,7 @@ ergm.MCMCse <- function(model, theta, init, statsmatrices, statsmatrices.obs,
 
   #  Calculate the auto-covariance of the MCMC suff. stats.
   #  and hence the MCMC s.e.
-  cov.zbar <- vcov_wmean_ar(gsims, w$ws)$v
+  cov.zbar <- vcov_wmean_ar(gsims, w$ws, cl = ergm.getCluster(control))$v
 
   #  Calculate the auto-covariance of the Conditional MCMC suff. stats.
   #  and hence the Conditional MCMC s.e.
@@ -83,7 +84,7 @@ ergm.MCMCse <- function(model, theta, init, statsmatrices, statsmatrices.obs,
 
     # Handle the corner case in which the constrained statistics do not vary.
     cov.zbar.obs <- if(all(novar.obs)) matrix(0, length(novar.obs), length(novar.obs))
-                    else vcov_wmean_ar(gsims.obs, w.obs$ws)$v
+                    else vcov_wmean_ar(gsims.obs, w.obs$ws, cl = ergm.getCluster(control))$v
   }else{
     cov.zbar.obs <- cov.zbar
     cov.zbar.obs[,] <- 0
@@ -124,6 +125,7 @@ ergm.MCMCse <- function(model, theta, init, statsmatrices, statsmatrices.obs,
 #'
 #' @param x a list of matrices (potentially an [`mcmc.list`]).
 #' @param w a list of vectors of row weights (unnormalized).
+#' @param ... additional arguments, passed to [spectrum0.mvar()].
 #'
 #' @return a list with elements `m` for the mean and `v` for the
 #'   variance, `infl` for inflation factor due to autocorrelation,
@@ -131,11 +133,11 @@ ergm.MCMCse <- function(model, theta, init, statsmatrices, statsmatrices.obs,
 #'   `neff` for total effective sample size.
 #'
 #' @noRd
-vcov_wmean_ar <- function(x, w, tol = sqrt(.Machine$double.eps)) {
+vcov_wmean_ar <- function(x, w, tol = sqrt(.Machine$double.eps), ...) {
   n <- sum(lengths(w))
   xw <- map2(x, w, `*`)
   xww <- map2(xw, w, cbind)
-  v <- spectrum0.mvar(xww, tol = tol)
+  v <- spectrum0.mvar(xww, tol = tol, ...)
   mw <- mean(unlist(w))
   m <- colMeans.mcmc.list(xw) / mw
   g <- rbind(diag(1, ncol(x[[1]])), -m) / mw
