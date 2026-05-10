@@ -278,7 +278,8 @@ geweke.diag.mv <- function(x, frac1 = 0.1, frac2 = 0.5, split.mcmc.list = FALSE,
 #' @param aic use AIC to select the order (up to `order.max`).
 #' @param tol tolerance used in detecting multicollinearity. See Note
 #'   below.
-#' @param ... additional arguments to [ar()].
+#' @param ... additional arguments to AR fitting, in particular `cl`
+#'   for cluster to compute statistics in parallel..
 #'
 #' @return A square matrix with dimension equalling to the number of
 #'   columns of `x`, with an additional attribute `"infl"` giving the
@@ -306,7 +307,7 @@ spectrum0.mvar <- function(x, order.max=NULL, aic=is.null(order.max), tol=.Machi
 
   # Whiten and calculate time-series variance of the mean.
   arfit <- map(x, `%*%`, tf$w) |>
-    fit_var_ols_multi(lags = order.max, aic = aic)
+    fit_var_ols_multi(lags = order.max, aic = aic, ...)
 
   arvar <- arfit$var.pred
   arcoefs <- arfit$ar
@@ -402,7 +403,8 @@ reversible_whitening <- function(v, tol_scl = tol, tol_ind = tol, tol = sqrt(.Ma
 #' @return For most uses, the return format is consistent with ar().
 #'
 #' @noRd
-fit_var_ols_multi <- function(Xl, lags = NULL, aic = FALSE, intercept = TRUE) {
+fit_var_ols_multi <- function(Xl, lags = NULL, aic = FALSE, intercept = TRUE,
+                              cl = NULL) {
 
   p <- ncol(Xl[[1]])
   T_c <- sapply(Xl, nrow)
@@ -425,7 +427,14 @@ fit_var_ols_multi <- function(Xl, lags = NULL, aic = FALSE, intercept = TRUE) {
   ## ------------------------------------------------------------
 
   ar_ols_stats <- function(X, lag_eff) .Call("ar_ols_stats", X, as.integer(lag_eff))
-  stats <- map(Xl, ar_ols_stats, lag_eff) |> reduce(map2, `+`)
+  environment(ar_ols_stats) <- baseenv() # Don't drag Xl along.
+
+  stats <- (if (is.null(cl)) {
+              map(Xl, ar_ols_stats, lag_eff)
+            } else {
+              Xl <- Xl[order(T_c, decreasing = TRUE)] # Bigger jobs first.
+              clusterMap(cl, ar_ols_stats, Xl, MoreArgs = list(lag_eff))
+            }) |> reduce(map2, `+`)
 
   XtX <- stats$XtX
   XtY <- stats$XtY

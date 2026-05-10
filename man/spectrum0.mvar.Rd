@@ -26,7 +26,8 @@ lists.}
 \item{tol}{tolerance used in detecting multicollinearity. See Note
 below.}
 
-\item{...}{additional arguments to \code{\link[=ar]{ar()}}.}
+\item{...}{additional arguments to AR fitting, in particular \code{cl}
+for cluster to compute statistics in parallel..}
 }
 \value{
 A square matrix with dimension equalling to the number of
