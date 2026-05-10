@@ -422,9 +422,11 @@ find_OK_burnin <- function(x, control){
     # the difference in the expected value of the variable at the
     # current MCMC draw from the ultimate expected value.
 
-    x <- rep(2^(-seq_len(nit)/decay), length.out = NROW(y))
-    a <- try(lm(y ~ x, x=results, y=results))
-    if(results) structure(a, decay=decay) else sum(sigma(a)^2)
+    x <- cbind(1, rep(2^(-seq_len(nit) / decay), length.out = NROW(y)))
+    a <- try(.lm.fit(x, y))
+    sigma <- sum(a$resid^2 / (nit - a$rank)) |> sqrt()
+    if (results) structure(c(a, list(y = y, decay = decay, sigma = sigma)))
+    else sigma
   }
 
   fit_decay <- function(y, interval){
@@ -449,7 +451,7 @@ find_OK_burnin <- function(x, control){
   }
 
   best_burnin <- function(coef, decay, s) -decay * log2(s/bscl/abs(coef))
-  best_burnin.lm <- function(fit) best_burnin(if(is.matrix(coef(fit))) coef(fit)[2,] else coef(fit)[2], attr(fit,"decay"), sigma(fit))
+  best_burnin.lm <- function(fit) best_burnin(if(is.matrix(coef(fit))) coef(fit)[2,] else coef(fit)[2], fit$decay, fit$sigma)
 
   FAIL <- list(burnin=round(nit*control$MCMC.effectiveSize.burnin.max), pval=0)
 
