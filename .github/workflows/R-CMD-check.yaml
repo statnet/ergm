@@ -1,4 +1,4 @@
-# NOTE: This script is a modification of the r-lib/actions standard cehcking script and the public-private sync script, on which it piggybacks to detect when it's in a private repo and can therefore skip some or even all tests. It also builds and uploads binaries for Windows and MacOS.
+# NOTE: This script is a modification of the r-lib/actions standard cehcking script and the public-private sync script, on which it piggybacks to detect when it's in a private repo and can therefore skip some or even all tests.
 
 # For help debugging build failures open an issue on the RStudio community with the 'github-actions' tag.
 # https://community.rstudio.com/new-topic?category=Package%20development&tags=github-actions
@@ -17,8 +17,6 @@
 #   non-forbidden symbol) separated list of flags. Currently
 #   supported:
 #
-#   binaries: build and upload as an artefact a binary version (particularly for MacOS and Windows).
-#
 #   full: run with ENABLE_statnet_TESTS.
 #
 #   vignettes: build vignettes and manuals; otherwise ignore.
@@ -27,7 +25,11 @@
 #
 #   debug: compile package with -DDEBUG and -UNDEBUG
 #
-#   covr: run in covr mode may be used with 'full' but probably not with others.
+#   covr: run in covr mode may be used with 'full' but probably not with others
+#
+#   remote: run with remote tests (e.g., version number) enabled
+#
+#   strict: fail on WARNING, not just ERROR; useful for release branches
 #
 #
 # Typical public, private, and release configurations are provided in the variables below.
@@ -41,14 +43,14 @@ env:
   PUBLIC: ''
   PRIVATE: ''
   PUBLIC_CONFIG: '{"config":[
-            {"os":"windows-latest", "r":"release", "timeout":360, "flags":"binaries"},
-            {"os":"macOS-latest", "r":"release", "timeout":360, "flags":"binaries, ubsan"},
+            {"os":"windows-latest", "r":"release", "timeout":360, "flags":""},
+            {"os":"macOS-latest", "r":"release", "timeout":360, "flags":"ubsan"},
             {"os":"ubuntu-latest", "r":"release", "timeout":360, "flags":"full, ubsan, debug"},
             {"os":"ubuntu-latest", "r":"devel", "timeout":360, "flags":"vignettes, remote"},
             {"os":"ubuntu-latest", "r":"release", "timeout":360, "flags":"full, covr"}]}'
   RELEASE_CONFIG: '{"config":[
-            {"os":"windows-latest", "r":"release", "timeout":360, "flags":"binaries, vignettes, remote, strict"},
-            {"os":"macOS-latest", "r":"release", "timeout":360, "flags":"binaries, ubsan, vignettes, remote, strict"},
+            {"os":"windows-latest", "r":"release", "timeout":360, "flags":"vignettes, remote, strict"},
+            {"os":"macOS-latest", "r":"release", "timeout":360, "flags":"ubsan, vignettes, remote, strict"},
             {"os":"ubuntu-latest", "r":"release", "timeout":360, "flags":"full, ubsan, debug, strict"},
             {"os":"ubuntu-latest", "r":"devel", "timeout":360, "flags":"vignettes, remote, strict"},
             {"os":"ubuntu-latest", "r":"release", "timeout":360, "flags":"full, covr, strict"}]}'
@@ -193,25 +195,6 @@ jobs:
           tinytex:::install_yihui_pkgs()
           tinytex::tlmgr_install("makeindex")
         shell: Rscript {0}
-
-      - name: Build
-        if: contains(matrix.config.flags, 'binaries')
-        run: |
-          dir.create("binaries", FALSE)
-          pkgbuild::build(binary=TRUE, vignettes=FALSE, dest_path = "binaries")
-        shell: Rscript {0}
-
-      - name: Upload build results
-        if: contains(matrix.config.flags, 'binaries') && !failure()
-        uses: actions/upload-artifact@v4
-        with:
-          name: ${{ runner.os }}-r${{ matrix.config.r }}-binaries
-          path: binaries
-
-      - name: Clean up build results
-        if: contains(matrix.config.flags, 'binaries')
-        run: rm -rf binaries
-        shell: bash
 
       - name: Check
         if: contains(matrix.config.flags, 'covr') == false

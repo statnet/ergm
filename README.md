@@ -4,6 +4,7 @@
 [![cran version](https://www.r-pkg.org/badges/version/ergm)](https://cran.r-project.org/package=ergm)
 [![Coverage status](https://codecov.io/gh/statnet/ergm/branch/master/graph/badge.svg)](https://codecov.io/github/statnet/ergm?branch=master)
 [![R build status](https://github.com/statnet/ergm/workflows/R-CMD-check/badge.svg)](https://github.com/statnet/ergm/actions)
+[![R-universe](https://statnet.r-universe.dev/ergm/badges/version)](https://statnet.r-universe.dev/ergm)
 
 An integrated set of tools to analyze and simulate networks based on exponential-family random graph models (ERGMs). 'ergm' is a part of the Statnet suite of packages for network analysis. See Hunter, Handcock, Butts, Goodreau, and Morris (2008) <doi:10.18637/jss.v024.i03> and Krivitsky, Hunter, Morris, and Klumb (2023) <doi:10.18637/jss.v105.i06>.
 
@@ -15,15 +16,9 @@ To facilitate open development of the package while giving the core developers a
 
 The intention is that all developments in `statnet/ergm-private` will eventually make their way into `statnet/ergm` and onto CRAN.
 
-Developers and Contributing Users to the Statnet Project should read https://statnet.github.io/private/ for information about the relationship between the public and the private repository and the workflows involved.
+Developers and Contributing Users to the Statnet Project should read https://statnet.org/private/ for information about the relationship between the public and the private repository and the workflows involved.
 
 ## Latest Windows and MacOS binaries
 
-A set of binaries is built after every commit to the repository. We strongly encourage testing against them before filing a bug report, as they may contain fixes that have not yet been sent to CRAN. They can be downloaded through the following links:
-
-* [MacOS binary (a `.tgz` file in a `.zip` file)](https://nightly.link/statnet/ergm/workflows/R-CMD-check.yaml/master/macOS-rrelease-binaries.zip)
-* [Windows binary (a `.zip` file in a `.zip` file)](https://nightly.link/statnet/ergm/workflows/R-CMD-check.yaml/master/Windows-rrelease-binaries.zip)
-
-You will need to extract the MacOS `.tgz` or the Windows `.zip` file from the outer `.zip` file before installing. These binaries are usually built under the latest version of R and their operating system and may not work under other versions.
-
-You may also want to install the corresponding latest binaries for packages on which `ergm` depends, in particular [`statnet.common`](https://github.com/statnet/statnet.common), [`ergm.count`](https://github.com/statnet/ergm.count), and [`roxygen2`](https://github.com/krivit/roxygen2).
+[R-Universe](https://r-universe.dev) builds a set of binaries after every commit to the main branch of the repository. We strongly encourage testing against them before filing a bug report, as they may contain fixes that have not yet been sent to CRAN. To obtain the binaries from r-universe, navigate to the package page at https://statnet.r-universe.dev/ergm .
+You may also want to install the corresponding latest binaries for packages on which `ergm` depends, in particular [`statnet.common`](https://github.com/statnet/statnet.common) and [`ergm.count`](https://github.com/statnet/ergm.count).
