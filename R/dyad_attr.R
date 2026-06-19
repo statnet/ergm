@@ -42,7 +42,11 @@ get.dyad.attribute <- function(x, attrname) UseMethod("get.dyad.attribute")
 #' @export
 get.dyad.attribute.network <- function(x, attrname) {
   a <- x %n% attrname
-  if (!anyNA(xi <- x %v% paste0(".vid_orig.", attrname))) {
+  va <- paste0(".vid_orig.", attrname)
+  if (va %in% list.vertex.attributes(x)) {
+    xi <- x %v% va
+    # Indexing will automatically pad any vertices that don't have an
+    # index with rows or columns of NA.
     if (is.bipartite(x)) {
       xi1 <- xi[seq_len(x %n% "bipartite")]
       xi2 <- xi[-seq_len(x %n% "bipartite")]
