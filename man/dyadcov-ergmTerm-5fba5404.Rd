@@ -12,6 +12,11 @@
 one of the following, or the name of a network attribute
 containing one of the following: \describe{
 
+\item{a name of a dyadic attribute}{a \link[=dyad_attr]{dyadic attribute} is a special type of network attribute
+set by \code{\link{\%d\%<-}} or \code{\link[=set.dyad.attribute]{set.dyad.attribute()}} that is robust to
+graph transformations such as subgraph extraction via
+\code{\link[network:get.inducedSubgraph]{get.inducedSubgraph()}}.}
+
 \item{a covariate matrix}{with dimensions \eqn{n \times n}{n*n}
 for unipartite networks and \eqn{b \times (n-b)}{b*(n-b)} for
 bipartite networks; \code{attrname}, if given, is used to construct

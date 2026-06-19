@@ -11,6 +11,12 @@
 #'   one of the following, or the name of a network attribute
 #'   containing one of the following: \describe{
 #'
+#'   \item{a name of a dyadic attribute}{a [dyadic
+#'     attribute][dyad_attr] is a special type of network attribute
+#'     set by [`%d%<-`] or [set.dyad.attribute()] that is robust to
+#'     graph transformations such as subgraph extraction via
+#'     [get.inducedSubgraph()].}
+#'
 #'   \item{a covariate matrix}{with dimensions \eqn{n \times n}{n*n}
 #'     for unipartite networks and \eqn{b \times (n-b)}{b*(n-b)} for
 #'     bipartite networks; `attrname`, if given, is used to construct

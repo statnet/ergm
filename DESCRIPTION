@@ -1,6 +1,6 @@
 Package: ergm
-Version: 4.13.0-8172
-Date: 2026-05-10
+Version: 4.13.0-8205
+Date: 2026-06-18
 Title: Fit, Simulate and Diagnose Exponential-Family Models for Networks
 Authors@R: c(
              person(c("Mark", "S."), "Handcock", role=c("aut"), email="handcock@stat.ucla.edu"),
@@ -115,6 +115,7 @@ Collate:
     'control.simulate.R'
     'data.R'
     'design.R'
+    'dyad_attr.R'
     'ergm-defunct.R'
     'ergm-deprecated.R'
     'ergm-internal.R'

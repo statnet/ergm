@@ -146,11 +146,38 @@ test_that("edgecov, either", {
   s.xa <- summary(samplike~edgecov(samplike, "YearsTrusted"))
   e.xa <- ergm(samplike ~ edgecov(samplike, "YearsTrusted"))
   expect_error(summary(samplike~edgecov('dummy')), "In term .edgecov. in package .ergm.: There is no network attribute named .dummy. or it is not a matrix.")
-  set.network.attribute(samplike,'dummy',cov)
+
+  samplike2 <- samplike
+  samplike2 %d% "dummy" <- cov
+  set.dyad.attribute(samplike,'dummy',cov)
+  expect_identical(samplike, samplike2)
   n2.x <- summary(samplike~edgecov('dummy'))
   expect_summary(s.x, e.x, 134, -.5022)
   expect_summary(s.xa, e.xa, 183, Inf)
   expect_equal(n2.x, 134, ignore_attr=TRUE)
+
+  fit_edgecov <- function(y, x) {
+    glm(c(y) ~ c(x) - 1, family = "binomial", na.action = na.omit) |>
+      coef() |> unname()
+  }
+
+  i <- sample.int(18, 5)
+  sampsub <- get.inducedSubgraph(samplike, i)
+  s.s1 <- summary(sampsub ~ edgecov("dummy"))
+  e.s1 <- ergm(sampsub ~ edgecov("dummy"))
+  expect_summary(s.s1, e.s1,
+                 sum((as.matrix(samplike) * cov)[i,i]),
+                 fit_edgecov(set_diag(as.matrix(samplike)[i,i], NA),
+                             set_diag(cov[i,i], NA)))
+
+  j <- sample(setdiff(seq_len(18), i), 5)
+  sampsub <- get.inducedSubgraph(samplike, i, j) |>
+    ergm_symmetrize("upper")
+  s.s2 <- summary(sampsub ~ edgecov("dummy"))
+  e.s2 <- ergm(sampsub ~ edgecov("dummy"))
+  expect_summary(s.s2, e.s2,
+                 sum((as.matrix(samplike) * cov)[i,j]),
+                 fit_edgecov(as.matrix(samplike)[i,j], cov[i,j]))
 })
 
 test_that("edges, either", {
