@@ -145,7 +145,7 @@ test_that("edgecov, either", {
   e.x <- ergm(samplike ~ edgecov(cov))
   s.xa <- summary(samplike~edgecov(samplike, "YearsTrusted"))
   e.xa <- ergm(samplike ~ edgecov(samplike, "YearsTrusted"))
-  expect_error(summary(samplike~edgecov('dummy')), "In term .edgecov. in package .ergm.: There is no network attribute named .dummy. or it is not a matrix.")
+  expect_error(summary(samplike~edgecov('dummy')), "In term .edgecov. in package .ergm.: There is no dyad or network attribute named .dummy. or it is not a matrix.")
 
   samplike2 <- samplike
   samplike2 %d% "dummy" <- cov

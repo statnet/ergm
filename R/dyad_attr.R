@@ -1,6 +1,15 @@
 #' @name dyad_attr
 #'
-#' @title Get and set dyad attribute matrices robust to transformations
+#' @title Dyad attribute matrices
+#' @description Terms such as \ergmTerm{ergm}{edgecov}{()} and
+#'   \ergmTerm{ergm}{dyadcov}{()} expect covariate matrices whose
+#'   dimension match the adjacency matrix of the model. The
+#'   recommended way to pass them to the model is by setting a network
+#'   attribute. However, some operators, such as
+#'   \ergmTerm{ergm}{S}{()} (subgraph) may change the dimensions of
+#'   the network. Setting and querying the dyad covariate matrix using
+#'   these functions will also set metadata that will automatically
+#'   adjust or subset the matrix as needed.
 #'
 #' @param x an object capable of having vertex and network attributes.
 #' @param attrname name of an attribute; uses the "namespace" of network attributes.
@@ -18,11 +27,11 @@ set.dyad.attribute.network <- function(x, attrname, value, ...) {
   i <- seq_len(network.size(x))
   if (is.bipartite(x)) {
     if ((nrow(value) != b1.size(x) || ncol(value) != b2.size(x)))
-      stop("dyad attribute is not a mode-1-size by mode-2-size rectangular matrix")
+      stop("dyad attribute is not a b1*b2 rectangular matrix")
     i[i > (b <- x%v%"bipartite")] <- i - b
   } else {
     if (any(dim(value) != network.size(x)))
-      stop("dyad attribute is not an n by n matrix")
+      stop("dyad attribute is not an n*n square matrix")
   }
 
   x %v% paste0(".vid_orig.", attrname) <- i

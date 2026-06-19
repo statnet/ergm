@@ -8,7 +8,7 @@
 \alias{get.dyad.attribute}
 \alias{get.dyad.attribute.network}
 \alias{\%d\%}
-\title{Get and set dyad attribute matrices robust to transformations}
+\title{Dyad attribute matrices}
 \usage{
 set.dyad.attribute(x, attrname, value, ...)
 
@@ -32,7 +32,15 @@ x \%d\% attrname
 \item{...}{additional arguments to methods.}
 }
 \description{
-Get and set dyad attribute matrices robust to transformations
+Terms such as \ergmTerm{ergm}{edgecov}{()} and
+\ergmTerm{ergm}{dyadcov}{()} expect covariate matrices whose
+dimension match the adjacency matrix of the model. The
+recommended way to pass them to the model is by setting a network
+attribute. However, some operators, such as
+\ergmTerm{ergm}{S}{()} (subgraph) may change the dimensions of
+the network. Setting and querying the dyad covariate matrix using
+these functions will also set metadata that will automatically
+adjust or subset the matrix as needed.
 }
 \section{Functions}{
 \itemize{
