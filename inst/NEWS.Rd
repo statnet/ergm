@@ -88,6 +88,15 @@
       \item{
         The built-in valued ERGM proposal now supports arbitrary dyadic constraints, as well as the \ergmConstraint{ergm}{ChangeStats}{()} constraint.
       }
+      \item{
+        MPLE existence check can now use either the \CRANpkg{lpSolve} or \CRANpkg{Rglpk} solver.
+      }
+      \item{
+        MCMLE metric settings are now a sublist to \code{\link{control.ergm}()}.
+      }
+      \item{
+        Dyadic covariates for terms such as \ergmTerm{ergm}{edgecov}{()} and \ergmTerm{ergm}{dyadcov}{()} can now be set using the \code{\link{\%d\%}} operator, which will catch dimensionality errors sooner and automatically adjust the matrix to transformations to the network such as subgraph extraction. 
+      }
     }
   }
 
@@ -108,6 +117,9 @@
       }
       \item{
         In \code{\link{ergm_state}}'s extended state API, replacing the \code{\link{ergm_model}}, now also adjusts the number of slots in \code{$ext.state}. This fixes a warning for some missing data problems.
+      }
+      \item{
+        Constraint \ergmConstraint{ergm}{Dyads}{()} now ignores preexisting \code{\link{\%ergmlhs\%}} constraints and observational constraints, preventing infinite recursion under some circumstances, at the cost of some speed.
       }
       \item{
         Some fixes to documentation and term documentation API.
@@ -134,6 +146,9 @@
         \code{\link{ergm_proposal_table}()} can now specify that a proposal supports all references and/or all hints; this is useful for proposal operators, which wrap other proposals in turn.
       }
       \item{
+        \code{\link{ergm_constraint_changestats}()} has been documented and exported, so that other packages can use the \ergmConstraint{ergm}{ChangeStats}{()} constraint.
+      }
+      \item{
         Substantial optimizations and speed-ups in proposal and auxiliary processing code.
       }
       \item{
@@ -141,6 +156,21 @@
       }
       \item{
         \code{\link{\%ergmlhs\%}}'s attribute is now deleted if it stores no attributes.
+      }
+      \item{
+        Improved documentation for proposal selection code.
+      }
+      \item{
+        Nelder--Mead fallback in the MCMLE code has been removed, as it does not appear to ever improve things.
+      }
+      \item{
+        R-side adaptive MCMC code and convergence detection code, including \code{\link{spectrum0.mvar}()} and \code{\link{approx.hotelling.diff.test}()} have been substantially rewritten and should be much faster and more robust now.
+      }
+      \item{
+        In MCMLE estimation, the "confidence" convergence criterion should now be more accurate and have more power to declare convergence.
+      }
+      \item{
+        In MCMLE, the lognormal metric's gradient and Hessian calculations should be more accurate now.
       }
     }
   }
