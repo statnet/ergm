@@ -415,7 +415,7 @@ print.gof <- function(x, ...){
     zerorows <- m[,"obs"]==0 & m[,"min"]==0 & m[,"max"]==0
     print(m[!zerorows,])
   }
-  invisible()
+  invisible(x)
 }
 
 ###################################################################
