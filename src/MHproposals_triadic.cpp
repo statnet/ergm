@@ -134,24 +134,10 @@ extern "C" MH_P_FN(Mp_SPDyad){
   Dyad oldtd = kh_size(spcache), newtd = oldtd;
 
 
-  // The following is setting up to use macros developed for the *sp
-  // terms.
   Rboolean edgeflag = nw(p.tail[0], p.head[0]);
-  int echange = edgeflag ? -1 : +1;
   Vertex tail = p.tail[0], head = p.head[0];
-
-#define sp_nonzero newtd += (L2 + echange != 0) - (L2 != 0);
-
-  switch(type){
-  case L2UTP: dspUTP_change(sp_nonzero, ); break;
-  case L2OTP: dspOTP_change(sp_nonzero, ); break;
-  case L2ITP: dspITP_change(sp_nonzero, ); break;
-  case L2OSP: dspOSP_change(sp_nonzero, ); break;
-  case L2ISP: dspISP_change(sp_nonzero, ); break;
-  default: error("In ergm:Mp_SPDyad(), an unsupported type of triad: %d.", type);
-  }
-
-#undef sp_nonzero
+  if(type == L2RTP) error("In ergm:Mp_SPDyad(), an unsupported type of triad: %d.", type);
+  newtd += ergm::sp::dsp_nonzero_change(type, tail, head, nwp, edgeflag, spcache);
 
   // q(y | y*) / q(y* | y) = 1/TD(y*) / (1/TD(y)) = TD(y) / TD(y*)
   p.logratio += log(oldtd) - log(newtd);
