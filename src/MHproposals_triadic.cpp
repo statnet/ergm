@@ -137,7 +137,7 @@ extern "C" MH_P_FN(Mp_SPDyad){
   Rboolean edgeflag = nw(p.tail[0], p.head[0]);
   Vertex tail = p.tail[0], head = p.head[0];
   if(type == L2RTP) error("In ergm:Mp_SPDyad(), an unsupported type of triad: %d.", type);
-  newtd += ergm::sp::dsp_nonzero_change(type, tail, head, nwp, edgeflag, spcache);
+  newtd += ergm::sp::dsp_nonzero_change(type, tail, head, nw, edgeflag, spcache);
 
   // q(y | y*) / q(y* | y) = 1/TD(y*) / (1/TD(y)) = TD(y) / TD(y*)
   p.logratio += log(oldtd) - log(newtd);
