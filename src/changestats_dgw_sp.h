@@ -611,4 +611,49 @@ typedef enum {L2UTP, L2OTP, L2ITP, L2RTP, L2OSP, L2ISP} L2Type;
     });                                                                 \
   call_subroutine_focus(th, subroutine_focus);
 
+#ifdef __cplusplus
+namespace ergm {
+inline namespace v1 {
+namespace sp {
+
+template<typename UpdatePath, typename UpdateFocus>
+inline void dsp_change(L2Type type, Vertex tail, Vertex head, Network *nwp, StoreStrictDyadMapUInt *spcache, UpdatePath update_path, UpdateFocus update_focus){
+  switch(type){
+  case L2UTP: { dspUTP_change(update_path(L2);, update_focus(L2);); break; }
+  case L2OTP: { dspOTP_change(update_path(L2);, update_focus(L2);); break; }
+  case L2ITP: { dspITP_change(update_path(L2);, update_focus(L2);); break; }
+  case L2RTP: { dspRTP_change(update_path(L2);, update_focus(L2);); break; }
+  case L2OSP: { dspOSP_change(update_path(L2);, update_focus(L2);); break; }
+  case L2ISP: { dspISP_change(update_path(L2);, update_focus(L2);); break; }
+  default: error("In ergm shared partner helper, an unsupported type of triad: %d.", type);
+  }
+}
+
+template<typename UpdatePath, typename UpdateFocus>
+inline void esp_change(L2Type type, Vertex tail, Vertex head, Network *nwp, StoreStrictDyadMapUInt *spcache, UpdatePath update_path, UpdateFocus update_focus){
+  switch(type){
+  case L2UTP: { espUTP_change(update_path(L2);, update_focus(L2);); break; }
+  case L2OTP: { espOTP_change(update_path(L2);, update_focus(L2);); break; }
+  case L2ITP: { espITP_change(update_path(L2);, update_focus(L2);); break; }
+  case L2RTP: { espRTP_change(update_path(L2);, update_focus(L2);); break; }
+  case L2OSP: { espOSP_change(update_path(L2);, update_focus(L2);); break; }
+  case L2ISP: { espISP_change(update_path(L2);, update_focus(L2);); break; }
+  default: error("In ergm shared partner helper, an unsupported type of triad: %d.", type);
+  }
+}
+
+inline int dsp_nonzero_change(L2Type type, Vertex tail, Vertex head, Network *nwp, Rboolean edgestate, StoreStrictDyadMapUInt *spcache){
+  int echange = edgestate ? -1 : 1;
+  int delta = 0;
+  dsp_change(type, tail, head, nwp, spcache,
+             [&](int L2){ delta += (L2 + echange != 0) - (L2 != 0); },
+             [&](int){});
+  return delta;
+}
+
+} // namespace sp
+} // namespace v1
+} // namespace ergm
+#endif
+
 #endif // _CHANGESTATS_DGW_SP_H_
