@@ -16,6 +16,7 @@ check.ErgmTerm(
   required = rep_along(varnames, TRUE),
   dep.inform = rep_along(varnames, FALSE),
   dep.warn = rep_along(varnames, FALSE),
+  dep.abort = rep_along(required, FALSE),
   argexpr = NULL
 )
 }
@@ -45,12 +46,12 @@ arguments of term X}
 \item{required}{the logical vector of whether each possible
 argument is required}
 
-\item{dep.inform, dep.warn}{a list of length equal to the number of
-arguments the term can take; if the corresponding element of the
-list is not \code{FALSE}, a \code{\link[=message]{message()}} or a \code{\link[=warning]{warning()}} respectively
-will be issued if the user tries to pass it; if the element is a
-character string, it will be used as a suggestion for
-replacement.}
+\item{dep.inform, dep.warn, dep.abort}{a list of length equal to the
+number of arguments the term can take; if the corresponding
+element of the list is not \code{FALSE}, a \code{\link[=message]{message()}}, a \code{\link[=warning]{warning()}},
+or \code{\link[=stop]{stop()}} respectively will be issued if the user tries to pass
+it; if the element is a character string, it will be used as a
+suggestion for replacement.}
 
 \item{argexpr}{optional call typically obtained by calling
 \code{substitute(arglist)}.}

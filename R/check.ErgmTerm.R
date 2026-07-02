@@ -8,8 +8,8 @@
 #  Copyright 2003-2026 Statnet Commons
 ################################################################################
 
-ergm_Init_inform_once <- once(ergm_Init_inform)
-ergm_Init_warn_once <- once(ergm_Init_warn)
+ergm_Init_message_once <- once(ergm_Init_message)
+ergm_Init_warning_once <- once(ergm_Init_warning)
 
 #' Ensures an Ergm Term and its Arguments Meet Appropriate Conditions
 #'
@@ -46,12 +46,12 @@ ergm_Init_warn_once <- once(ergm_Init_warn)
 #'   arguments of term X
 #' @param required the logical vector of whether each possible
 #'   argument is required
-#' @param dep.inform,dep.warn a list of length equal to the number of
-#'   arguments the term can take; if the corresponding element of the
-#'   list is not `FALSE`, a [message()] or a [warning()] respectively
-#'   will be issued if the user tries to pass it; if the element is a
-#'   character string, it will be used as a suggestion for
-#'   replacement.
+#' @param dep.inform,dep.warn,dep.abort a list of length equal to the
+#'   number of arguments the term can take; if the corresponding
+#'   element of the list is not `FALSE`, a [message()], a [warning()],
+#'   or [stop()] respectively will be issued if the user tries to pass
+#'   it; if the element is a character string, it will be used as a
+#'   suggestion for replacement.
 #' @param argexpr optional call typically obtained by calling
 #'   `substitute(arglist)`.
 #' @return A list of the values for each possible argument of term X;
@@ -74,6 +74,7 @@ check.ErgmTerm <- function(nw, arglist, directed = NULL, bipartite = NULL, nonne
                            required = rep_along(varnames, TRUE),
                            dep.inform = rep_along(varnames, FALSE),
                            dep.warn = rep_along(varnames, FALSE),
+                           dep.abort = rep_along(required, FALSE),
                            argexpr=NULL){
   # Ensure that all inputs are of the correct type.
   ergm_Init_try(arglist <- as.list(arglist))
@@ -83,8 +84,9 @@ check.ErgmTerm <- function(nw, arglist, directed = NULL, bipartite = NULL, nonne
   required <- as.logical(required)
   dep.inform <- as.list(dep.inform)
   dep.warn <- as.list(dep.warn)
+  dep.abort <- as.list(dep.abort)
 
-  stopifnot(all_identical(c(length(varnames), length(vartypes), length(defaultvalues), length(required), length(dep.inform), length(dep.warn))))
+  stopifnot(all_identical(c(length(varnames), length(vartypes), length(defaultvalues), length(required), length(dep.inform), length(dep.warn), length(dep.abort))))
   message <- NULL
   if (!is.null(directed) && directed != (dnw<-is.directed(nw))) {
     message <- paste("networks with directed==", dnw, sep="")
@@ -151,15 +153,21 @@ check.ErgmTerm <- function(nw, arglist, directed = NULL, bipartite = NULL, nonne
     if(!miss){
       if(!isFALSE(dep.inform[[m]])) {
         if(is.character(dep.inform[[m]]))
-          ergm_Init_inform_once("Argument ", sQuote(varnames[m]), " has been superseded by ", sQuote(dep.inform[[m]]), ", and it is recommended to use the latter.  Note that its interpretation may be different.")
+          ergm_Init_message_once("Argument ", sQuote(varnames[m]), " has been superseded by ", sQuote(dep.inform[[m]]), ", and it is recommended to use the latter.  Note that its interpretation may be different.")
         else
-          ergm_Init_inform_once("Argument ", sQuote(varnames[m]), " has been deprecated and may be removed in a future version.")
+          ergm_Init_message_once("Argument ", sQuote(varnames[m]), " has been deprecated and may be removed in a future version.")
       }
       if(!isFALSE(dep.warn[[m]])) {
         if(is.character(dep.warn[[m]]))
-          ergm_Init_warn_once("Argument ", sQuote(varnames[m]), " has been deprecated and may be removed in a future version.  Use ", sQuote(dep.warn[[m]]), " instead.  Note that its interpretation may be different.")
+          ergm_Init_warning_once("Argument ", sQuote(varnames[m]), " has been deprecated and may be removed in a future version.  Use ", sQuote(dep.warn[[m]]), " instead.  Note that its interpretation may be different.")
         else
-          ergm_Init_warn_once("Argument ", sQuote(varnames[m]), " has been deprecated and may be removed in a future version.")
+          ergm_Init_warning_once("Argument ", sQuote(varnames[m]), " has been deprecated and may be removed in a future version.")
+      }
+      if(!isFALSE(dep.abort[[m]])) {
+        if(is.character(dep.abort[[m]]))
+          ergm_Init_stop("Argument ", sQuote(varnames[m]), " has been removed.  Use ", sQuote(dep.abort[[m]]), " instead.  Note that its interpretation may be different.")
+        else
+          ergm_Init_stop("Argument ", sQuote(varnames[m]), " has been removed.")
       }
     }
   }
