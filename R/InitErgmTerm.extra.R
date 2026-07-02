@@ -33,14 +33,12 @@ InitErgmTerm.concurrentties<-function(nw, arglist, ..., version=packageVersion("
     a <- check.ErgmTerm(nw, arglist, directed=FALSE,bipartite=NULL,
                         varnames = c("by", "levels"),
                         vartypes = c("character", "character,numeric,logical"),
-                        defaultvalues = list(NULL, NULL),
                         required = c(FALSE, FALSE))
     levels <- if(!is.null(a$levels)) I(a$levels) else NULL
   }else{
     a <- check.ErgmTerm(nw, arglist, directed=FALSE,bipartite=NULL,
                         varnames = c("by", "levels"),
                         vartypes = c(ERGM_VATTR_SPEC, ERGM_LEVELS_SPEC),
-                        defaultvalues = list(NULL, NULL),
                         required = c(FALSE, FALSE))
     levels <- a$levels
   }

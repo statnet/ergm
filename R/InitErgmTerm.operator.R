@@ -196,9 +196,7 @@ InitErgmTerm.Passthrough <- function(nw, arglist, ...){
 InitErgmTerm.I <- function(nw, arglist, ..., env) {
   a <- check.ErgmTerm(nw, arglist,
                       varnames = c("formula"),
-                      vartypes = c("formula,character,term_list"),
-                      defaultvalues = list(NULL),
-                      required = c(TRUE))
+                      vartypes = c("formula,character,term_list"))
 
   f <- a$formula
 
@@ -273,9 +271,7 @@ InitErgmTerm.Label <- function(nw, arglist, ...){
 InitErgmTerm..submodel <- function(nw, arglist, ...){
   a <- check.ErgmTerm(nw, arglist,
                       varnames = c("formula"),
-                      vartypes = c("formula,term_list"),
-                      defaultvalues = list(NULL),
-                      required = c(TRUE))
+                      vartypes = c("formula,term_list"))
 
   m <- ergm_model(a$formula, nw, ..., offset.decorate=FALSE)
   ergm_no_ext.encode(m)
@@ -289,9 +285,7 @@ InitErgmTerm..submodel <- function(nw, arglist, ...){
 InitErgmTerm.submodel.test <- function(nw, arglist, ...){
   a <- check.ErgmTerm(nw, arglist,
                       varnames = c("formula"),
-                      vartypes = c("formula"),
-                      defaultvalues = list(NULL),
-                      required = c(TRUE))
+                      vartypes = c("formula"))
 
   m <- ergm_model(a$formula, nw, ..., offset.decorate=FALSE)
   ergm_no_ext.encode(m)
@@ -308,9 +302,7 @@ InitErgmTerm.submodel.test <- function(nw, arglist, ...){
 InitErgmTerm..summary <- function(nw, arglist, ...){
   a <- check.ErgmTerm(nw, arglist,
                       varnames = c("formula"),
-                      vartypes = c("formula"),
-                      defaultvalues = list(NULL),
-                      required = c(TRUE))
+                      vartypes = c("formula"))
 
   m <- ergm_model(a$formula, nw, ..., offset.decorate=FALSE)
 
@@ -325,9 +317,7 @@ InitErgmTerm..summary <- function(nw, arglist, ...){
 InitErgmTerm.summary.test <- function(nw, arglist, ...){
   a <- check.ErgmTerm(nw, arglist,
                       varnames = c("formula"),
-                      vartypes = c("formula"),
-                      defaultvalues = list(NULL),
-                      required = c(TRUE))
+                      vartypes = c("formula"))
 
   m <- ergm_model(a$formula, nw, ..., offset.decorate=FALSE)
 
@@ -343,9 +333,7 @@ InitErgmTerm.summary.test <- function(nw, arglist, ...){
 InitErgmTerm..submodel_and_summary <- function(nw, arglist, ...){
   a <- check.ErgmTerm(nw, arglist,
                       varnames = c("formula"),
-                      vartypes = c("formula,ergm_model"),
-                      defaultvalues = list(NULL),
-                      required = c(TRUE))
+                      vartypes = c("formula,ergm_model"))
 
   m <- if(is(a$formula, "formula")) ergm_model(a$formula, nw, ..., offset.decorate=FALSE) else a$formula
   ergm_no_ext.encode(m)
@@ -383,9 +371,7 @@ InitErgmTerm..submodel_and_summary <- function(nw, arglist, ...){
 InitErgmTerm.F <- function(nw, arglist, ...){
   a <- check.ErgmTerm(nw, arglist,
                       varnames = c("formula", "filter"),
-                      vartypes = c("formula", "formula"),
-                      defaultvalues = list(NULL, NULL),
-                      required = c(TRUE, TRUE))
+                      vartypes = c("formula", "formula"))
 
   filter <- a$filter
   m <- ergm_model(a$formula, nw, ..., offset.decorate=FALSE)
@@ -403,9 +389,7 @@ InitErgmTerm.F <- function(nw, arglist, ...){
 InitErgmTerm..filter.formula.net <- function(nw, arglist, ...){
   a <- check.ErgmTerm(nw, arglist,
                       varnames = c("formula"),
-                      vartypes = c("formula"),
-                      defaultvalues = list(NULL),
-                      required = c(TRUE))
+                      vartypes = c("formula"))
 
   OPS <- c("!", "==", "!=", ">" , "<", ">=" , "<=")
   UNARY <- c("!")
@@ -729,9 +713,7 @@ InitErgmTerm.Symmetrize <- function(nw, arglist, ...){
 InitErgmTerm.Sum <- function(nw, arglist,...){
   a <- check.ErgmTerm(nw, arglist,
                       varnames = c("formulas", "label"),
-                      vartypes = c("list,formula", "character,function,AsIs"),
-                      defaultvalues = list(NULL, NULL),
-                      required = c(TRUE, TRUE))
+                      vartypes = c("list,formula", "character,function,AsIs"))
 
   fs <- a$formulas
   if(is(fs,"formula")) fs <- list(fs)
@@ -852,9 +834,7 @@ InitErgmTerm.Sum <- function(nw, arglist,...){
 InitErgmTerm.S <- function(nw, arglist, ...){
   a <- check.ErgmTerm(nw, arglist,
                       varnames = c("formula", "attrs"),
-                      vartypes = c("formula", ERGM_VATTR_SPEC),
-                      defaultvalues = list(NULL, NULL),
-                      required = c(TRUE, TRUE))
+                      vartypes = c("formula", ERGM_VATTR_SPEC))
 
   ### Obtain tail and head selectors.
   spec <- a$attrs
@@ -1088,9 +1068,7 @@ InitErgmTerm.Log <- function(nw, arglist, ...){
 InitErgmTerm.Exp <- function(nw, arglist, ...){
   a <- check.ErgmTerm(nw, arglist,
                       varnames = c("formula"),
-                      vartypes = c("formula"),
-                      defaultvalues = list(NULL),
-                      required = c(TRUE))
+                      vartypes = c("formula"))
 
   m <- ergm_model(a$formula, nw, ..., offset.decorate=FALSE)
   ergm_no_ext.encode(m)
@@ -1142,9 +1120,7 @@ InitErgmTerm.Exp <- function(nw, arglist, ...){
 InitErgmTerm.Prod <- function(nw, arglist, ..., env=baseenv()){
   a <- check.ErgmTerm(nw, arglist,
                       varnames = c("formulas", "label"),
-                      vartypes = c("list,formula", "character,function,AsIs"),
-                      defaultvalues = list(NULL, NULL),
-                      required = c(TRUE, TRUE))
+                      vartypes = c("list,formula", "character,function,AsIs"))
   formulas <- if(is(a$formulas, "formula")) list(a$formulas) else a$formulas
   formulas <- lapply(formulas, function(f) nonsimp_update.formula(f, .~Log(~.)))
   formulas <- lapply(formulas, function(f) {

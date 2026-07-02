@@ -481,7 +481,6 @@ InitErgmTerm.absdiffcat <- function(nw, arglist, ..., version=packageVersion("er
     a <- check.ErgmTerm(nw, arglist, directed=NULL, bipartite=NULL,
                         varnames = c("attrname","base"),
                         vartypes = c("character","numeric"),
-                        defaultvalues = list(NULL,NULL),
                         required = c(TRUE,FALSE),
                         dep.inform = list(FALSE, "levels"))
     attrarg <- a$attrname
@@ -489,7 +488,6 @@ InitErgmTerm.absdiffcat <- function(nw, arglist, ..., version=packageVersion("er
     a <- check.ErgmTerm(nw, arglist, directed=NULL, bipartite=NULL,
                         varnames = c("attr","base","levels"),
                         vartypes = c(ERGM_VATTR_SPEC,"numeric",ERGM_LEVELS_SPEC),
-                        defaultvalues = list(NULL,NULL,NULL),
                         required = c(TRUE,FALSE,FALSE),
                         dep.inform = list(FALSE, "levels", FALSE))
     attrarg <- a$attr
@@ -696,9 +694,7 @@ InitErgmTerm.asymmetric <- function(nw, arglist, ..., version=packageVersion("er
 InitErgmTerm.attrcov <- function (nw, arglist, ..., version=packageVersion("ergm")) {
   a <- check.ErgmTerm(nw, arglist,
                       varnames = c("attr", "mat"),
-                      vartypes = c(ERGM_VATTR_SPEC, "matrix"),
-                      defaultvalues = list(NULL, NULL),
-                      required = c(TRUE, TRUE))
+                      vartypes = c(ERGM_VATTR_SPEC, "matrix"))
 
 
   if(is.bipartite(nw)) {
@@ -776,7 +772,6 @@ InitErgmTerm.b1concurrent<-function(nw, arglist, ..., version=packageVersion("er
     a <- check.ErgmTerm(nw, arglist, directed=FALSE, bipartite=TRUE,
                         varnames = c("by", "levels"),
                         vartypes = c("character", "character,numeric,logical"),
-                        defaultvalues = list(NULL, NULL),
                         required = c(FALSE, FALSE))
     levels <- if(!is.null(a$levels)) I(a$levels) else NULL
   }else{
@@ -784,7 +779,6 @@ InitErgmTerm.b1concurrent<-function(nw, arglist, ..., version=packageVersion("er
     a <- check.ErgmTerm(nw, arglist, directed=FALSE, bipartite=TRUE,
                         varnames = c("by", "levels"),
                         vartypes = c(ERGM_VATTR_SPEC, ERGM_LEVELS_SPEC),
-                        defaultvalues = list(NULL, NULL),
                         required = c(FALSE, FALSE))
     levels <- a$levels    
   }
@@ -888,9 +882,7 @@ InitErgmTerm.b1cov<-function (nw, arglist, ..., version=packageVersion("ergm")) 
     ### Check the network and arguments to make sure they are appropriate.
     a <- check.ErgmTerm(nw, arglist, directed=FALSE, bipartite=TRUE, 
                         varnames = c("attr"),
-                        vartypes = c(ERGM_VATTR_SPEC),
-                        defaultvalues = list(NULL),
-                        required = c(TRUE))
+                        vartypes = c(ERGM_VATTR_SPEC))
     ### Process the arguments
     nodecov <- ergm_get_vattr(a$attr, nw, accept="numeric", bip = "b1", multiple="matrix")
     coef.names <- nodecov_names(nodecov, "b1cov")
@@ -1441,9 +1433,7 @@ InitErgmTerm.b2cov<-function (nw, arglist, ..., version=packageVersion("ergm")) 
     ### Check the network and arguments to make sure they are appropriate.
     a <- check.ErgmTerm(nw, arglist, directed=FALSE, bipartite=TRUE,
                         varnames = c("attr"),
-                        vartypes = c(ERGM_VATTR_SPEC),
-                        defaultvalues = list(NULL),
-                        required = c(TRUE))
+                        vartypes = c(ERGM_VATTR_SPEC))
     ### Process the arguments
     nodecov <- ergm_get_vattr(a$attr, nw, accept="numeric", bip = "b2", multiple="matrix")
     coef.names <- nodecov_names(nodecov, "b2cov")
@@ -2453,7 +2443,6 @@ InitErgmTerm.dyadcov<-function (nw, arglist, ...) {
   a <- check.ErgmTerm(nw, arglist,
                       varnames = c("x","attrname"),
                       vartypes = c("matrix,network,character","character"),
-                      defaultvalues = list(NULL,NULL),
                       required = c(TRUE,FALSE),
                       argexpr = substitute(arglist))
 
@@ -3664,9 +3653,7 @@ InitErgmTerm.nodecov<-function (nw, arglist, ..., version=packageVersion("ergm")
     ### Check the network and arguments to make sure they are appropriate.
     a <- check.ErgmTerm(nw, arglist, directed=NULL, bipartite=NULL,
                         varnames = c("attr"),
-                        vartypes = c(ERGM_VATTR_SPEC),
-                        defaultvalues = list(NULL),
-                        required = c(TRUE))
+                        vartypes = c(ERGM_VATTR_SPEC))
     ### Process the arguments
     nodecov <- ergm_get_vattr(a$attr, nw, accept="numeric", multiple="matrix")
     coef.names <- nodecov_names(nodecov, "nodecov")
@@ -3794,9 +3781,7 @@ InitErgmTerm.nodeicov<-function (nw, arglist, ..., version=packageVersion("ergm"
     ### Check the network and arguments to make sure they are appropriate.
     a <- check.ErgmTerm(nw, arglist, directed=TRUE,
                         varnames = c("attr"),
-                        vartypes = c(ERGM_VATTR_SPEC),
-                        defaultvalues = list(NULL),
-                        required = c(TRUE))
+                        vartypes = c(ERGM_VATTR_SPEC))
     ### Process the arguments
     nodecov <- ergm_get_vattr(a$attr, nw, accept="numeric", multiple="matrix")
     coef.names <- nodecov_names(nodecov, "nodeicov")
@@ -4228,9 +4213,7 @@ InitErgmTerm.nodeocov<-function (nw, arglist, ..., version=packageVersion("ergm"
     ### Check the network and arguments to make sure they are appropriate.
     a <- check.ErgmTerm(nw, arglist, directed=TRUE, 
                         varnames = c("attr"),
-                        vartypes = c(ERGM_VATTR_SPEC),
-                        defaultvalues = list(NULL),
-                        required = c(TRUE))
+                        vartypes = c(ERGM_VATTR_SPEC))
     ### Process the arguments
     nodecov <- ergm_get_vattr(a$attr, nw, accept="numeric", multiple="matrix")
     coef.names <- nodecov_names(nodecov, "nodeocov")
@@ -4705,16 +4688,12 @@ InitErgmTerm.smalldiff<-function (nw, arglist, ..., version=packageVersion("ergm
   if(version <= as.package_version("3.9.4")){
     a <- check.ErgmTerm(nw, arglist,
                         varnames = c("attrname", "cutoff"),
-                        vartypes = c("character", "numeric"),
-                        defaultvalues = list(NULL, NULL),
-                        required = c(TRUE, TRUE))
+                        vartypes = c("character", "numeric"))
     attrarg <- a$attrname
   }else{
     a <- check.ErgmTerm(nw, arglist,
                         varnames = c("attr", "cutoff"),
-                        vartypes = c(ERGM_VATTR_SPEC, "numeric"),
-                        defaultvalues = list(NULL, NULL),
-                        required = c(TRUE, TRUE))
+                        vartypes = c(ERGM_VATTR_SPEC, "numeric"))
     attrarg <- a$attr
   }
   

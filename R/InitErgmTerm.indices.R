@@ -12,11 +12,7 @@
 # ergmMPLE() to get a covariate matrix with each dyad identified.
 InitErgmTerm.indices<-function(nw, arglist, ...) {
   ### Check the network and arguments to make sure they are appropriate.
-  a <- check.ErgmTerm(nw, arglist, 
-                      varnames = c(),
-                      vartypes = c(),
-                      defaultvalues = list(),
-                      required = c())
+  a <- check.ErgmTerm(nw, arglist)
   ### Process the arguments
   list(name="indices",                                        #required
        coef.names = c("tail","head"), #required

@@ -38,9 +38,7 @@ InitErgmTerm.b1mindegree <- function(nw, arglist, ...) {
   ### Check the network and arguments to make sure they are appropriate.
   a <- check.ErgmTerm (nw, arglist, directed=FALSE, bipartite=TRUE,
                        varnames = c("d"),
-                       vartypes = c("numeric"),
-                       defaultvalues = list(NULL),
-                       required = c(TRUE))
+                       vartypes = c("numeric"))
   ### Process the arguments
   nb1 <- b1.size(nw)
   nb2 <- get.network.attribute(nw, "n") - nb1
@@ -81,9 +79,7 @@ InitErgmTerm.b2mindegree <- function(nw, arglist, ...) {
   ### Check the network and arguments to make sure they are appropriate.
   a <- check.ErgmTerm (nw, arglist, directed=FALSE, bipartite=TRUE,
                        varnames = c("d"),
-                       vartypes = c("numeric"),
-                       defaultvalues = list(NULL),
-                       required = c(TRUE))
+                       vartypes = c("numeric"))
   ### Process the arguments
   nb1 <- b1.size(nw)
   nb2 <- get.network.attribute(nw, "n") - nb1

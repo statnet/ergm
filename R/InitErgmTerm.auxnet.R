@@ -90,9 +90,7 @@ InitErgmTerm..union.net<-function(nw, arglist, ...) {
 InitErgmTerm..blockdiag.net <- function(nw, arglist, ...){
   a <- check.ErgmTerm(nw, arglist,
                       varnames = c("attrname"),
-                      vartypes = c("character"),
-                      defaultvalues = list(NULL),
-                      required = c(TRUE))
+                      vartypes = c("character"))
   nodecov <-
     if(length(a$attrname)==1)
       get.node.attr(nw, a$attrname)
@@ -123,7 +121,6 @@ InitErgmTerm..subgraph.net <- function(nw, arglist, ...){
   a <- check.ErgmTerm(nw, arglist,
                       varnames = c("tailsel", "headsel"),
                       vartypes = c("numeric", "numeric"),
-                      defaultvalues = list(NULL, NULL),
                       required = c(TRUE, FALSE))
 
   tailsel <- a$tailsel

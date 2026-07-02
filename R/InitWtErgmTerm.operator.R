@@ -100,11 +100,7 @@ InitWtErgmTerm.B <- function(nw, arglist, ...){
 }
 
 InitWtErgmTerm..binary.nonzero.net <- function(nw, arglist, ...){
-  a <- check.ErgmTerm(nw, arglist,
-                      varnames = c(),
-                      vartypes = c(),
-                      defaultvalues = list(),
-                      required = c())
+  a <- check.ErgmTerm(nw, arglist)
 
   list(name="_binary_nonzero_net", depenence=FALSE)
 }
@@ -112,9 +108,7 @@ InitWtErgmTerm..binary.nonzero.net <- function(nw, arglist, ...){
 InitWtErgmTerm..binary.formula.net <- function(nw, arglist, ...){
   a <- check.ErgmTerm(nw, arglist,
                       varnames = c("formula"),
-                      vartypes = c("formula"),
-                      defaultvalues = list(NULL),
-                      required = c(TRUE))
+                      vartypes = c("formula"))
 
   m <- ergm_model(a$formula, nw, ..., offset.decorate=FALSE)
 
@@ -286,9 +280,7 @@ net_transform_encode <- function(expr, env){
 InitWtErgmTerm..transformed.net <- function(nw, arglist, ..., env){
   a <- check.ErgmTerm(nw, arglist,
                       varnames = "expr",
-                      vartypes = "character",
-                      defaultvalues = list(NULL),
-                      required = TRUE)
+                      vartypes = "character")
 
   op <- net_transform_encode(a$expr, env)
 

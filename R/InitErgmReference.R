@@ -60,9 +60,7 @@ InitErgmReference.StdNormal <- function(nw, arglist, ...){
 InitErgmReference.Unif <- function(nw, arglist, ...){
   a <- check.ErgmTerm(nw, arglist,
                       varnames = c("a", "b"),
-                      vartypes = c("numeric", "numeric"),
-                      defaultvalues = list(NULL, NULL),
-                      required = c(TRUE, TRUE))
+                      vartypes = c("numeric", "numeric"))
   list(name="Unif", arguments=list(a=a$a, b=a$b), init_methods=c("CD","zeros"))
 }
 
@@ -84,9 +82,7 @@ InitErgmReference.Unif <- function(nw, arglist, ...){
 InitErgmReference.DiscUnif <- function(nw, arglist, a, b, ...){
   a <- check.ErgmTerm(nw, arglist,
                       varnames = c("a", "b"),
-                      vartypes = c("numeric", "numeric"),
-                      defaultvalues = list(NULL, NULL),
-                      required = c(TRUE, TRUE))
+                      vartypes = c("numeric", "numeric"))
   if(a$a!=round(a$a) || a$b != round(a$b)) ergm_Init_stop("arguments ", sQuote("a"), " and ", sQuote("b"), "must be integers")
   list(name="DiscUnif", arguments=list(a=a$a, b=a$b), init_methods=c("CD","zeros"))
 }

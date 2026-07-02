@@ -27,9 +27,7 @@
 InitErgmTerm.NodematchFilter <- function(nw, arglist, ...){
   a <- check.ErgmTerm(nw, arglist,
                       varnames = c("formula", "attrname"),
-                      vartypes = c("formula", "character"),
-                      defaultvalues = list(NULL, NULL),
-                      required = c(TRUE, TRUE))
+                      vartypes = c("formula", "character"))
 
   m <- ergm_model(a$formula, nw, ..., offset.decorate=FALSE)
 

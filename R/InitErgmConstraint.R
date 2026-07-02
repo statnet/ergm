@@ -18,9 +18,7 @@ InitErgmConstraint.. <- function(nw, arglist, ...){
 InitErgmConstraint..select <- function(nw, arglist, ...){
   a <- check.ErgmTerm(nw, arglist,
                       varnames = c("proposal"),
-                      vartypes = c("character"),
-                      defaultvalues = list(NULL),
-                      required = c(TRUE))
+                      vartypes = c("character"))
   list(dependence = TRUE, proposal = a$proposal)
 }
 
@@ -436,7 +434,6 @@ InitErgmConstraint.fixedas<-function(nw, arglist,...){
   a <- check.ErgmTerm(nw, arglist,
                       varnames = c("fixed.dyads", "present", "absent"),
                       vartypes = c("network,matrix", "network,matrix", "network,matrix"),
-                      defaultvalues = list(NULL, NULL, NULL),
                       required = c(FALSE, FALSE, FALSE))
   fixed <- a$fixed.dyads; present <- a$present; absent <- a$absent
 
@@ -482,9 +479,7 @@ InitErgmConstraint.fixedas<-function(nw, arglist,...){
 InitErgmConstraint.fixallbut<-function(nw, arglist,...){
   a <- check.ErgmTerm(nw, arglist,
                       varnames = c("free.dyads"),
-                      vartypes = c("network,matrix,rlebdm"),
-                      defaultvalues = list(NULL),
-                      required = c(TRUE))
+                      vartypes = c("network,matrix,rlebdm"))
   free.dyads <- a$free.dyads
 
   warn_netsize(network.size(nw), free.dyads = free.dyads)
@@ -527,9 +522,7 @@ InitErgmConstraint.fixallbut<-function(nw, arglist,...){
 InitErgmConstraint.dyadnoise<-function(nw, arglist, ...){
   a <- check.ErgmTerm(nw, arglist,
                       varnames = c("p01", "p10"),
-                      vartypes = c("numeric,matrix", "numeric,matrix"),
-                      defaultvalues = list(NULL, NULL),
-                      required = c(TRUE, TRUE))
+                      vartypes = c("numeric,matrix", "numeric,matrix"))
   p01 <- a$p01; p10 <- a$p10
 
   if(((length(p01) != 1 || length(p10) != 1) &&

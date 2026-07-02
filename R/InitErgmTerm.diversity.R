@@ -31,9 +31,7 @@ InitErgmTerm.nodecovrange<-function (nw, arglist, ...) {
 ### Check the network and arguments to make sure they are appropriate.
   a <- check.ErgmTerm(nw, arglist, directed=NULL, bipartite=NULL,
                       varnames = c("attr"),
-                      vartypes = c(ERGM_VATTR_SPEC),
-                      defaultvalues = list(NULL),
-                      required = c(TRUE))
+                      vartypes = c(ERGM_VATTR_SPEC))
 ### Process the arguments
   nodecov <- ergm_get_vattr(a$attr, nw, accept="numeric")
   coef.names <- nodecov_names(nodecov, "nodecovrange")
@@ -59,9 +57,7 @@ InitErgmTerm.nodeocovrange<-function (nw, arglist, ...) {
 ### Check the network and arguments to make sure they are appropriate.
   a <- check.ErgmTerm(nw, arglist, directed=TRUE, bipartite=NULL,
                       varnames = c("attr"),
-                      vartypes = c(ERGM_VATTR_SPEC),
-                      defaultvalues = list(NULL),
-                      required = c(TRUE))
+                      vartypes = c(ERGM_VATTR_SPEC))
 ### Process the arguments
   nodecov <- ergm_get_vattr(a$attr, nw, accept="numeric")
   coef.names <- nodecov_names(nodecov, "nodeocovrange")
@@ -87,9 +83,7 @@ InitErgmTerm.nodeicovrange<-function (nw, arglist, ...) {
 ### Check the network and arguments to make sure they are appropriate.
   a <- check.ErgmTerm(nw, arglist, directed=TRUE, bipartite=NULL,
                       varnames = c("attr"),
-                      vartypes = c(ERGM_VATTR_SPEC),
-                      defaultvalues = list(NULL),
-                      required = c(TRUE))
+                      vartypes = c(ERGM_VATTR_SPEC))
 ### Process the arguments
   nodecov <- ergm_get_vattr(a$attr, nw, accept="numeric")
   coef.names <- nodecov_names(nodecov, "nodeicovrange")
@@ -115,9 +109,7 @@ InitErgmTerm.b1covrange<-function (nw, arglist, ...) {
 ### Check the network and arguments to make sure they are appropriate.
   a <- check.ErgmTerm(nw, arglist, directed=NULL, bipartite=TRUE,
                       varnames = c("attr"),
-                      vartypes = c(ERGM_VATTR_SPEC),
-                      defaultvalues = list(NULL),
-                      required = c(TRUE))
+                      vartypes = c(ERGM_VATTR_SPEC))
 ### Process the arguments
   nodecov <- ergm_get_vattr(a$attr, nw, accept="numeric", bip="b2")
   coef.names <- nodecov_names(nodecov, "b1covrange")
@@ -144,9 +136,7 @@ InitErgmTerm.b2covrange<-function (nw, arglist, ...) {
 ### Check the network and arguments to make sure they are appropriate.
   a <- check.ErgmTerm(nw, arglist, directed=NULL, bipartite=TRUE,
                       varnames = c("attr"),
-                      vartypes = c(ERGM_VATTR_SPEC),
-                      defaultvalues = list(NULL),
-                      required = c(TRUE))
+                      vartypes = c(ERGM_VATTR_SPEC))
 ### Process the arguments
   nodecov <- ergm_get_vattr(a$attr, nw, accept="numeric", bip="b1")
   coef.names <- nodecov_names(nodecov, "b2covrange")
@@ -159,7 +149,6 @@ InitErgmTerm.b2covrange<-function (nw, arglist, ...) {
   a <- check.ErgmTerm(nw, arglist, directed=dir, bipartite=bip,
                       varnames = c("attr", "levels"),
                         vartypes = c(ERGM_VATTR_SPEC, ERGM_LEVELS_SPEC),
-                        defaultvalues = list(NULL, NULL),
                       required = c(TRUE, FALSE))
 
   attr <- a$attr
@@ -210,9 +199,7 @@ InitErgmTerm.nodefactordistinct<-function (nw, arglist, ...) {
   a <- check.ErgmTerm(nw, arglist,
                       varnames = c("attr", "levels"),
                         vartypes = c(ERGM_VATTR_SPEC, ERGM_LEVELS_SPEC),
-                        defaultvalues = list(NULL, NULL),
-                        required = c(TRUE, FALSE),
-                      dep.inform = list(FALSE, FALSE))
+                        required = c(TRUE, FALSE))
   .nodefactordistinct_impl("node", NULL, NULL, nw, arglist)
 }
 
@@ -238,9 +225,7 @@ InitErgmTerm.nodeofactordistinct<-function (nw, arglist, ...) {
   a <- check.ErgmTerm(nw, arglist,
                       varnames = c("attr", "levels"),
                         vartypes = c(ERGM_VATTR_SPEC, ERGM_LEVELS_SPEC),
-                        defaultvalues = list(NULL, NULL),
-                        required = c(TRUE, FALSE),
-                        dep.inform = list(FALSE, FALSE))
+                        required = c(TRUE, FALSE))
   .nodefactordistinct_impl("nodeo", TRUE, NULL, nw, arglist)
 }
 
@@ -266,9 +251,7 @@ InitErgmTerm.nodeifactordistinct<-function (nw, arglist, ...) {
   a <- check.ErgmTerm(nw, arglist,
                       varnames = c("attr", "levels"),
                         vartypes = c(ERGM_VATTR_SPEC, ERGM_LEVELS_SPEC),
-                        defaultvalues = list(NULL, NULL),
-                        required = c(TRUE, FALSE),
-                        dep.inform = list(FALSE, FALSE))
+                        required = c(TRUE, FALSE))
   .nodefactordistinct_impl("nodei", TRUE, NULL, nw, arglist)
 }
 
@@ -294,9 +277,7 @@ InitErgmTerm.b1factordistinct<-function (nw, arglist, ...) {
   a <- check.ErgmTerm(nw, arglist,
                       varnames = c("attr", "levels"),
                         vartypes = c(ERGM_VATTR_SPEC, ERGM_LEVELS_SPEC),
-                        defaultvalues = list(NULL, NULL),
-                        required = c(TRUE, FALSE),
-                        dep.inform = list(FALSE, FALSE))
+                        required = c(TRUE, FALSE))
   .nodefactordistinct_impl("b1", NULL, TRUE, nw, arglist)
 }
 
@@ -322,8 +303,6 @@ InitErgmTerm.b2factordistinct<-function (nw, arglist, ...) {
   a <- check.ErgmTerm(nw, arglist,
                       varnames = c("attr", "levels"),
                         vartypes = c(ERGM_VATTR_SPEC, ERGM_LEVELS_SPEC),
-                        defaultvalues = list(NULL, NULL),
-                        required = c(TRUE, FALSE),
-                        dep.inform = list(FALSE, FALSE))
+                        required = c(TRUE, FALSE))
   .nodefactordistinct_impl("b2", NULL, TRUE, nw, arglist)
 }

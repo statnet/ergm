@@ -58,11 +58,7 @@ InitWtErgmTerm.sociomatrix<-function(nw, arglist, ...) {
 }
 
 InitWtErgmTerm..sum<-function(nw, arglist, ...) {
-  a <- check.ErgmTerm(nw, arglist,
-                      varnames = c(),
-                      vartypes = c(),
-                      defaultvalues = list(),
-                      required = c())
+  a <- check.ErgmTerm(nw, arglist)
 
   list(name="_sum",
        coef.names=c(), dependence=FALSE)

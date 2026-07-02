@@ -60,9 +60,7 @@
 InitErgmTerm..spcache.net<-function(nw, arglist, ...){
   a <- check.ErgmTerm(nw, arglist,
                       varnames = c("type"),
-                      vartypes = c("character"),
-                      defaultvalues = list(NULL),
-                      required = c(TRUE))
+                      vartypes = c("character"))
 
   type <- match.arg(tolower(a$type), c("otp","osp","isp","utp","rtp")) # ITP not included, because it's just OTP with direction reversed.
 

@@ -28,9 +28,7 @@
 InitErgmTerm.Project <- function(nw, arglist, ...){
   a <- check.ErgmTerm(nw, arglist, bipartite = TRUE,
                       varnames = c("formula", "mode"),
-                      vartypes = c("formula", "numeric"),
-                      defaultvalues = list(NULL, NULL),
-                      required = c(TRUE, TRUE))
+                      vartypes = c("formula", "numeric"))
 
   bip <- as.integer(b1.size(nw))
   n <- as.integer(network.size(nw))
@@ -83,9 +81,7 @@ InitErgmTerm.Proj2 <- function(nw, arglist, ...){
 InitErgmTerm..project.net <- function(nw, arglist, ...){
   a <- check.ErgmTerm(nw, arglist, bipartite = TRUE,
                       varnames = c("mode"),
-                      vartypes = c("numeric"),
-                      defaultvalues = list(NULL),
-                      required = c(TRUE))
+                      vartypes = c("numeric"))
 
   mode <- a$mode
   if(! mode %in% 1:2) ergm_Init_stop(sQuote("mode"), " must be 1 or 2.")

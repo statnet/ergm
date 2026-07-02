@@ -32,7 +32,6 @@ InitErgmConstraint.Dyads<-function(nw, arglist, ..., verify_dind = TRUE){
   a <- check.ErgmTerm(nw, arglist,
                       varnames = c("fix", "vary"),
                       vartypes = c("formula", "formula"),
-                      defaultvalues = list(NULL, NULL),
                       required = c(FALSE, FALSE))
   fix <- a$fix; vary <- a$vary
 
@@ -98,9 +97,7 @@ InitErgmConstraint.Dyads<-function(nw, arglist, ..., verify_dind = TRUE){
 InitErgmConstraint.I <- function(nw, arglist, ..., env) {
   a <- check.ErgmTerm(nw, arglist,
                       varnames = c("formula"),
-                      vartypes = c("formula,character,term_list"),
-                      defaultvalues = list(NULL),
-                      required = c(TRUE))
+                      vartypes = c("formula,character,term_list"))
 
   f <- a$formula
 
