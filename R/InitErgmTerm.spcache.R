@@ -42,10 +42,16 @@
 #'    spcache);} to obtain it if this is your first or only auxiliary,
 #'    or \code{GET_AUX_STORAGE(ind, StoreStrictDyadMapUInt, spcache);} if it is not.
 #'
-#' 4. Use one of the following macros to access the shared partner count: \describe{
-#' \item{\code{GETUDMUI(\var{TAIL}, \var{HEAD}, spcache)}}{if undirected;}
+#' 4. Use one of the following macros to access the shared partner count.
+#'    Which one you need depends on whether the cache for that `type` is
+#'    maintained as a *directed* or an *undirected* map: `OTP` (and hence
+#'    `ITP`) is directed, whereas `UTP`, `OSP`, `ISP` and `RTP` are
+#'    undirected, i.e. each pair is stored under a single canonical key.
+#'    Reading an undirected map with `GETDDMUI()` will silently return 0
+#'    whenever \var{TAIL} > \var{HEAD}. \describe{
+#' \item{\code{GETDDMUI(\var{TAIL}, \var{HEAD}, spcache)}}{if `type = "OTP"`;}
 #' \item{\code{GETDDMUI(\var{HEAD}, \var{TAIL}, spcache)}}{if `type = "ITP"` (since ITP is OTP with direction reversed);}
-#' \item{\code{GETDDMUI(\var{TAIL}, \var{HEAD}, spcache)}}{in all other cases.}
+#' \item{\code{GETUDMUI(\var{TAIL}, \var{HEAD}, spcache)}}{if undirected, or if `type` is `"OSP"`, `"ISP"`, or `"RTP"`.}
 #' }
 #'
 #' @template ergmTerm-sp-types
