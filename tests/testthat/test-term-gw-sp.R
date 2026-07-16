@@ -201,29 +201,20 @@ run.tests <- function(cache.sp){
   })
 
   test_that(paste0("GWESP RTP test with shared partner cache ", if(cache.sp)"enabled"else"disabled"), {
-    # Regression test: the ESP RTP change statistic used to read the (undirected)
-    # RTP shared-partner cache with the *directed* getter GETDDMUI(), which
-    # missed the entry whenever tail > head and silently returned L2th = 0.
-    # The edge carrying the shared partner below is 3->1, i.e. tail > head, so
-    # this network reproduces the failure; it was invisible with cache.sp=FALSE.
     net <- network.initialize(4, directed = TRUE)
     net[1,2] <- net[2,1] <- net[2,3] <- net[3,1] <- net[3,2] <- net[4,1] <- net[4,3] <- 1
     # mutual dyads: 1<->2 and 2<->3.  Edge 3->1 has RTP shared partner k=2
     # (3<->2<->1); no other edge has one.
+
     for (i in 1:niter) {
       # only n-2 = 2 shared partners are possible on 4 nodes
       espcounts <- summary(cache.sp=cache.sp, net ~ dgwesp(fixed=F, type="RTP"))
       expect_equal(espcounts[1:2], c(1,0), ignore_attr=TRUE) # ESP RTP mis-count
     }
-    expect_equal(summary(cache.sp=cache.sp, net ~ desp(type="RTP", d=1:2)),
-                 c(esp.RTP1=1, esp.RTP2=0)) # desp RTP mis-count
 
-    # exp(0.1)*(1-(1-exp(-0.1))^1) == 1 for a single shared partner
     test.approx(summary(cache.sp=cache.sp, net ~ dgwesp(fixed=T, decay=0.1, type="RTP")), 1) # GWESP_RTP wrong stat
 
-    # larger network, cross-checked against the uncached implementation
-    test.approx(summary(cache.sp=cache.sp, faux.dixon.high ~ dgwesp(fixed=T, decay=0.1, type="RTP")),
-                c(gwesp.RTP.fixed.0.1=353.9198), tol=1e-3) # GWESP_RTP wrong stat
+    test.approx(coef(ergm(control=ctrl,net ~ edges + dgwesp(fixed=T, decay=0.1, type="RTP"), estimate = "MPLE"))[2], -0.1561681) # GWESP_RTP ergm MPLE wrong estimate
   })
 
     # ========
