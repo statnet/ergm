@@ -37,6 +37,7 @@ Headers: `#include "cpp/ergm_network.h"`, `#include "cpp/ergm_wtnetwork.h"`
 These wrap `Network` (unweighted) and `WtNetwork` (weighted) to provide edge queries, degree access, and simple iteration.
 
 - Construction: `ErgmCppNetwork nw(nwp);` and `ErgmCppWtNetwork nw(nwp);`
+- `ptr`: raw pointer to the underlying `Network` (or `WtNetwork`) C struct.
 - Edge query: `nw(tail, head)` returns presence (`Rboolean`) or `double` weight (0 for no edge).
 - Node ranges: `nw.nodes()`, bipartite halves: `nw.b1()`, `nw.b2()`; node ranges support `.size()` for O(1) range size.
 - Neighbor ranges: `nw.out_neighbors(i)`, `nw.in_neighbors(i)`, `nw.neighbors(i)`.
@@ -75,6 +76,7 @@ for(auto [i, j, w] : nw.edges()) {
 Headers: `#include "cpp/ergm_changestat.h"`, `#include "cpp/ergm_wtchangestat.h"`
 
 - Constructed from `ModelTerm*` (or `WtModelTerm*`).
+- `ptr`: raw pointer to the underlying `ModelTerm` (or `WtModelTerm`) C struct.
 - Arrays (use `.size()` to get lengths):
   - `stat`: writable stats (`double`); length via `mt.stat.size()`.
   - `dinput`, `iinput`: numeric and integer inputs; lengths via `mt.dinput.size()` / `mt.iinput.size()`.
@@ -88,6 +90,7 @@ Headers: `#include "cpp/ergm_changestat.h"`, `#include "cpp/ergm_wtchangestat.h"
 Headers: `#include "cpp/ergm_proposal.h"`, `#include "cpp/ergm_wtproposal.h"`
 
 - Constructed from `MHProposal*`.
+- `ptr`: raw pointer to the underlying `MHProposal` (or `WtMHProposal`) C struct.
 - Direct members:
   - `size` (`Edge&`): number of toggles (`ntoggles`).
   - `tail`, `head` (`Vertex*`), `weight` (`double*`, for valued networks): toggle arrays.

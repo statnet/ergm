@@ -37,7 +37,7 @@ template <
 class ErgmCppNetworkBase {
 public:
   explicit ErgmCppNetworkBase(NetType* nwp)
-    : dir(nwp->directed_flag != 0), n(nwp->nnodes), bip(nwp->bipartite), nwp_(nwp) {}
+    : dir(nwp->directed_flag != 0), n(nwp->nnodes), bip(nwp->bipartite), ptr(nwp) {}
 
   class EdgeIterator {
   public:
@@ -86,20 +86,20 @@ public:
 
   CombinedEdgeRange out_neighbors(Vertex node) {
     if(dir) {
-      return CombinedEdgeRange(EdgeRange(nwp_->outedges, node));
+      return CombinedEdgeRange(EdgeRange(ptr->outedges, node));
     } else {
-      return CombinedEdgeRange(EdgeRange(nwp_->inedges, node), std::make_optional(EdgeRange(nwp_->outedges, node)));
+      return CombinedEdgeRange(EdgeRange(ptr->inedges, node), std::make_optional(EdgeRange(ptr->outedges, node)));
     }
   }
   CombinedEdgeRange in_neighbors(Vertex node) {
     if(dir) {
-      return CombinedEdgeRange(EdgeRange(nwp_->inedges, node));
+      return CombinedEdgeRange(EdgeRange(ptr->inedges, node));
     } else {
-      return CombinedEdgeRange(EdgeRange(nwp_->inedges, node), std::make_optional(EdgeRange(nwp_->outedges, node)));
+      return CombinedEdgeRange(EdgeRange(ptr->inedges, node), std::make_optional(EdgeRange(ptr->outedges, node)));
     }
   }
   CombinedEdgeRange neighbors(Vertex node) {
-    return CombinedEdgeRange(EdgeRange(nwp_->inedges, node), std::make_optional(EdgeRange(nwp_->outedges, node)));
+    return CombinedEdgeRange(EdgeRange(ptr->inedges, node), std::make_optional(EdgeRange(ptr->outedges, node)));
   }
 
   class NetworkEdgeIterator {
@@ -164,7 +164,7 @@ public:
   };
 
   NetworkEdgeRange edges() const {
-    return NetworkEdgeRange(nwp_->outedges, nwp_->nnodes);
+    return NetworkEdgeRange(ptr->outedges, ptr->nnodes);
   }
 
   class NodeIterator {
@@ -199,34 +199,32 @@ public:
   NodeRange b2() const { return NodeRange(bip + 1, n + 1); }
 
   ValueType operator()(Vertex tail, Vertex head) const {
-    return GetEdgeFunc::call(tail, head, nwp_);
+    return GetEdgeFunc::call(tail, head, ptr);
   }
 
   // Degree access methods
   Vertex out_degree(Vertex i) const {
     if (dir || bip) {
-      return nwp_->outdegree[i];
+      return ptr->outdegree[i];
     } else {
-      return nwp_->outdegree[i] + nwp_->indegree[i];
+      return ptr->outdegree[i] + ptr->indegree[i];
     }
   }
   Vertex in_degree(Vertex i) const {
     if (dir || bip) {
-      return nwp_->indegree[i];
+      return ptr->indegree[i];
     } else {
-      return nwp_->indegree[i] + nwp_->outdegree[i];
+      return ptr->indegree[i] + ptr->outdegree[i];
     }
   }
   // Total degree convenience method (always out + in)
   Vertex degree(Vertex i) const {
-    return nwp_->outdegree[i] + nwp_->indegree[i];
+    return ptr->outdegree[i] + ptr->indegree[i];
   }
   const bool dir;
   const Vertex n;
   const Vertex bip;
-
-private:
-  NetType* nwp_;
+  NetType* ptr;
 };
 
 } // namespace v1
