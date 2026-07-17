@@ -71,8 +71,9 @@ inline int count_isp(ErgmCppNetwork& nw, Vertex tail, Vertex head, StoreStrictDy
   return count;
 }
 
-template<L2Type type, typename UpdatePath, typename UpdateFocus>
-inline void dsp_change(Vertex tail, Vertex head, ErgmCppNetwork& nw, StoreStrictDyadMapUInt *spcache, UpdatePath update_path, UpdateFocus){
+
+template<typename UpdatePath, typename UpdateFocus>
+inline void dsp_change(L2Type type, Vertex tail, Vertex head, ErgmCppNetwork& nw, StoreStrictDyadMapUInt *spcache, UpdatePath update_path, UpdateFocus){
   switch(type){
   case L2UTP:
     // h - u - #v - t: focus dyad: t - u
@@ -84,8 +85,8 @@ inline void dsp_change(Vertex tail, Vertex head, ErgmCppNetwork& nw, StoreStrict
     for(auto u: nw.neighbors(tail))
       if(u != head)
         update_path(count_utp(nw, u, head, spcache));
-
     break;
+
   case L2OTP:
   case L2ITP: // Identical without a focus dyad to give direction.
     // h -> u <- #v <- t: focus dyad t - u
@@ -97,8 +98,8 @@ inline void dsp_change(Vertex tail, Vertex head, ErgmCppNetwork& nw, StoreStrict
     for(auto u: nw.in_neighbors(tail))
       if(u != head)
         update_path(count_otp(nw, u, head, spcache));
-
     break;
+
   case L2RTP:
     if(nw(head, tail)){
       // t <-> u <-> #v <-> h: focus dyad h - u
@@ -111,41 +112,29 @@ inline void dsp_change(Vertex tail, Vertex head, ErgmCppNetwork& nw, StoreStrict
         if(u != tail && nw(u, head))
           update_path(count_rtp(nw, u, tail, head, spcache));
     }
-
     break;
+
   case L2OSP:
     // h <- u -> #v <- t: focus dyad t - u
     for(auto u: nw.in_neighbors(head))
       if(u != tail)
         update_path(count_osp(nw, tail, u, spcache));
-
     break;
+
   case L2ISP:
     // t -> u <- #v -> h: focus dyad h - u
     for(auto u: nw.out_neighbors(tail))
       if(u != head)
         update_path(count_isp(nw, head, u, spcache));
-
     break;
+
   default: error("In ergm shared partner helper, an unsupported type of triad: %d.", type);
   }
 }
 
-template<typename ErgmCppNetwork, typename UpdatePath, typename UpdateFocus>
-inline void dsp_change(L2Type type, Vertex tail, Vertex head, ErgmCppNetwork& nw, StoreStrictDyadMapUInt *spcache, UpdatePath update_path, UpdateFocus update_focus){
-  switch(type){
-  case L2UTP: dsp_change<L2UTP>(tail, head, nw, spcache, update_path, update_focus); break;
-  case L2OTP: dsp_change<L2OTP>(tail, head, nw, spcache, update_path, update_focus); break;
-  case L2ITP: dsp_change<L2ITP>(tail, head, nw, spcache, update_path, update_focus); break;
-  case L2RTP: dsp_change<L2RTP>(tail, head, nw, spcache, update_path, update_focus); break;
-  case L2OSP: dsp_change<L2OSP>(tail, head, nw, spcache, update_path, update_focus); break;
-  case L2ISP: dsp_change<L2ISP>(tail, head, nw, spcache, update_path, update_focus); break;
-  default: error("In ergm shared partner helper, an unsupported type of triad: %d.", type);
-  }
-}
 
-template<L2Type type, typename UpdatePath, typename UpdateFocus>
-inline void esp_change(Vertex tail, Vertex head, ErgmCppNetwork& nw, StoreStrictDyadMapUInt *spcache, UpdatePath update_path, UpdateFocus update_focus){
+template<typename UpdatePath, typename UpdateFocus>
+inline void esp_change(L2Type type, Vertex tail, Vertex head, ErgmCppNetwork& nw, StoreStrictDyadMapUInt *spcache, UpdatePath update_path, UpdateFocus update_focus){
   int L2th;
   bool htedge;
 
@@ -162,8 +151,8 @@ inline void esp_change(Vertex tail, Vertex head, ErgmCppNetwork& nw, StoreStrict
         update_path(count_utp(nw, tail, u, spcache));
         update_path(count_utp(nw, u, head, spcache));
       }
-
     break;
+
   case L2OTP:
     L2th = spcache ? GETDDMUI(tail, head, spcache) : 0;
 
@@ -179,8 +168,8 @@ inline void esp_change(Vertex tail, Vertex head, ErgmCppNetwork& nw, StoreStrict
     for(auto u: nw.in_neighbors(head))
       if(u != tail && nw(u, tail))
         update_path(count_otp(nw, u, head, spcache));
-
     break;
+
   case L2ITP:
     L2th = spcache ? GETDDMUI(head, tail, spcache) : 0;
 
@@ -196,8 +185,8 @@ inline void esp_change(Vertex tail, Vertex head, ErgmCppNetwork& nw, StoreStrict
     for(auto u: nw.in_neighbors(tail))
       if(u != head && nw(head, u))
         update_path(count_otp(nw, tail, u, spcache));
-
     break;
+
   case L2RTP:
     L2th = spcache ? GETUDMUI(tail, head, spcache) : 0;
     htedge = nw(head, tail);
@@ -226,8 +215,8 @@ inline void esp_change(Vertex tail, Vertex head, ErgmCppNetwork& nw, StoreStrict
     for(auto u: nw.out_neighbors(head))
       if(u != tail && htedge && nw(tail, u) && nw(u, tail))
         update_path(count_rtp(nw, u, head, head, spcache));
-
     break;
+
   case L2OSP:
     L2th = spcache ? GETUDMUI(tail, head, spcache) : 0;
 
@@ -244,8 +233,8 @@ inline void esp_change(Vertex tail, Vertex head, ErgmCppNetwork& nw, StoreStrict
     for(auto u: nw.in_neighbors(tail))
       if(u != head && nw(u, head))
         update_path(count_osp(nw, tail, u, spcache));
-
     break;
+
   case L2ISP:
     L2th = spcache ? GETUDMUI(tail, head, spcache) : 0;
 
@@ -262,25 +251,12 @@ inline void esp_change(Vertex tail, Vertex head, ErgmCppNetwork& nw, StoreStrict
     for(auto u: nw.out_neighbors(head))
       if(u != tail && nw(tail, u))
         update_path(count_isp(nw, head, u, spcache));
-
     break;
+
   default: error("In ergm shared partner helper, an unsupported type of triad: %d.", type);
   }
 
   update_focus(L2th);
-}
-
-template<typename ErgmCppNetwork, typename UpdatePath, typename UpdateFocus>
-inline void esp_change(L2Type type, Vertex tail, Vertex head, ErgmCppNetwork& nw, StoreStrictDyadMapUInt *spcache, UpdatePath update_path, UpdateFocus update_focus){
-  switch(type){
-  case L2UTP: esp_change<L2UTP>(tail, head, nw, spcache, update_path, update_focus); break;
-  case L2OTP: esp_change<L2OTP>(tail, head, nw, spcache, update_path, update_focus); break;
-  case L2ITP: esp_change<L2ITP>(tail, head, nw, spcache, update_path, update_focus); break;
-  case L2RTP: esp_change<L2RTP>(tail, head, nw, spcache, update_path, update_focus); break;
-  case L2OSP: esp_change<L2OSP>(tail, head, nw, spcache, update_path, update_focus); break;
-  case L2ISP: esp_change<L2ISP>(tail, head, nw, spcache, update_path, update_focus); break;
-  default: error("In ergm shared partner helper, an unsupported type of triad: %d.", type);
-  }
 }
 
 inline int dsp_nonzero_change(L2Type type, Vertex tail, Vertex head, ErgmCppNetwork& nw, Rboolean edgestate, StoreStrictDyadMapUInt *spcache){
