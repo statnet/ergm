@@ -69,31 +69,31 @@ inline void esp_vector_change(L2Type type, Vertex tail, Vertex head, ErgmCppMode
 }
 
 template<int PathMultiplier>
-inline void dsp_dist_change(L2Type type, Vertex tail, Vertex head, ModelTerm *mtp, ErgmCppModelTerm<>& mt, ErgmCppNetwork& nw, Rboolean edgestate, StoreStrictDyadMapUInt *spcache){
+inline void dsp_dist_change(L2Type type, Vertex tail, Vertex head, ErgmCppModelTerm<>& mt, ErgmCppNetwork& nw, Rboolean edgestate, StoreStrictDyadMapUInt *spcache){
   int echange = edgestate ? -1 : 1;
   int nd = static_cast<int>(mt.stat.size());
   ergm::sp::dsp_change(type, tail, head, nw, spcache,
                        [&](int L2){
                          int nL2 = L2 + echange;
-                         if(nL2 > nd) cutoff_error(mtp);
+                         if(nL2 > nd) cutoff_error(mt.ptr);
                          if(L2) mt.stat[L2-1] -= PathMultiplier;
                          if(nL2) mt.stat[nL2-1] += PathMultiplier;
                        },
                        [&](int){});
 }
 
-inline void esp_dist_change(L2Type type, Vertex tail, Vertex head, ModelTerm *mtp, ErgmCppModelTerm<>& mt, ErgmCppNetwork& nw, Rboolean edgestate, StoreStrictDyadMapUInt *spcache){
+inline void esp_dist_change(L2Type type, Vertex tail, Vertex head, ErgmCppModelTerm<>& mt, ErgmCppNetwork& nw, Rboolean edgestate, StoreStrictDyadMapUInt *spcache){
   int echange = edgestate ? -1 : 1;
   int nd = static_cast<int>(mt.stat.size());
   ergm::sp::esp_change(type, tail, head, nw, spcache,
                        [&](int L2){
                          int nL2 = L2 + echange;
-                         if(nL2 > nd) cutoff_error(mtp);
+                         if(nL2 > nd) cutoff_error(mt.ptr);
                          if(L2) mt.stat[L2-1]--;
                          if(nL2) mt.stat[nL2-1]++;
                        },
                        [&](int L2){
-                         if(L2 > nd) cutoff_error(mtp);
+                         if(L2 > nd) cutoff_error(mt.ptr);
                          if(L2) mt.stat[L2-1] += echange;
                        });
 }
@@ -138,8 +138,8 @@ C_CHANGESTAT_CPP(ddspdist, {
     auto *spcache = get_spcache(mt);
     L2Type type = static_cast<L2Type>(mt.iinput[0]);
 
-    if(dsp_path_multiplier(type) == 1) dsp_dist_change<1>(type, tail, head, mtp, mt, nw, edgestate, spcache);
-    else dsp_dist_change<2>(type, tail, head, mtp, mt, nw, edgestate, spcache);
+    if(dsp_path_multiplier(type) == 1) dsp_dist_change<1>(type, tail, head, mt, nw, edgestate, spcache);
+    else dsp_dist_change<2>(type, tail, head, mt, nw, edgestate, spcache);
   })
 
 /*****************
@@ -172,7 +172,7 @@ C_CHANGESTAT_CPP(despdist, {
     auto *spcache = get_spcache(mt);
     L2Type type = static_cast<L2Type>(mt.iinput[0]);
 
-    esp_dist_change(type, tail, head, mtp, mt, nw, edgestate, spcache);
+    esp_dist_change(type, tail, head, mt, nw, edgestate, spcache);
   })
 
 /*****************
@@ -205,10 +205,10 @@ C_CHANGESTAT_CPP(dnspdist, {
     auto *spcache = get_spcache(mt);
     L2Type type = static_cast<L2Type>(mt.iinput[0]);
 
-    esp_dist_change(type, tail, head, mtp, mt, nw, edgestate, spcache);
+    esp_dist_change(type, tail, head, mt, nw, edgestate, spcache);
     negate_change_stats(mt);
-    if(dsp_path_multiplier(type) == 1) dsp_dist_change<1>(type, tail, head, mtp, mt, nw, edgestate, spcache);
-    else dsp_dist_change<2>(type, tail, head, mtp, mt, nw, edgestate, spcache);
+    if(dsp_path_multiplier(type) == 1) dsp_dist_change<1>(type, tail, head, mt, nw, edgestate, spcache);
+    else dsp_dist_change<2>(type, tail, head, mt, nw, edgestate, spcache);
   })
 
 /*****************
