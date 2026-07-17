@@ -30,7 +30,7 @@ public:
       aux_storage(mtp),
       R(mtp->R),
       ext_state(mtp->ext_state),
-      mtp_(mtp)
+      ptr(mtp)
   {}
 
   FixedArray<double> stat;
@@ -45,9 +45,7 @@ public:
 
   RListProxy R;
   RListProxy ext_state;
-
-private:
-  ModelTermType* mtp_;
+  ModelTermType* ptr;
 };
 
 } // namespace v1
