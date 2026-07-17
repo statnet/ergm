@@ -125,6 +125,7 @@ run.tests <- function(cache.sp){
     expect_equal(summary(cache.sp=cache.sp,net ~ desp(type="ITP", d=2)), c(esp.ITP2=185)) # desp ITP count error
     expect_equal(summary(cache.sp=cache.sp,net ~ desp(type="OSP", d=2)), c(esp.OSP2=215)) # desp OSP count error
     expect_equal(summary(cache.sp=cache.sp,net ~ desp(type="ISP", d=2)), c(esp.ISP2=228)) # desp ISP count error
+    expect_equal(summary(cache.sp=cache.sp,net ~ desp(type="RTP", d=1:3)), c(esp.RTP1=309,esp.RTP2=39,esp.RTP3=2)) # desp RTP count error
   })
 
   test_that(paste0("GWESP OTP test with shared partner cache ", if(cache.sp)"enabled"else"disabled"), {
@@ -197,6 +198,23 @@ run.tests <- function(cache.sp){
     test.approx(summary(cache.sp=cache.sp,net~dgwesp(fixed=T, decay=0.1, type="ISP")), 2.095163) # GWESP_ISP wrong stat
 
     test.approx(coef(ergm(control=ctrl,net ~ edges + dgwesp(fixed=T, decay=0.1, type="ISP"), estimate = "MPLE"))[2], 1.137139) # GWESP_ISP ergm MPLE wrong estimate
+  })
+
+  test_that(paste0("GWESP RTP test with shared partner cache ", if(cache.sp)"enabled"else"disabled"), {
+    net <- network.initialize(4, directed = TRUE)
+    net[1,2] <- net[2,1] <- net[2,3] <- net[3,1] <- net[3,2] <- net[4,1] <- net[4,3] <- 1
+    # mutual dyads: 1<->2 and 2<->3.  Edge 3->1 has RTP shared partner k=2
+    # (3<->2<->1); no other edge has one.
+
+    for (i in 1:niter) {
+      # only n-2 = 2 shared partners are possible on 4 nodes
+      espcounts <- summary(cache.sp=cache.sp, net ~ dgwesp(fixed=F, type="RTP"))
+      expect_equal(espcounts[1:2], c(1,0), ignore_attr=TRUE) # ESP RTP mis-count
+    }
+
+    test.approx(summary(cache.sp=cache.sp, net ~ dgwesp(fixed=T, decay=0.1, type="RTP")), 1) # GWESP_RTP wrong stat
+
+    test.approx(coef(ergm(control=ctrl,net ~ edges + dgwesp(fixed=T, decay=0.1, type="RTP"), estimate = "MPLE"))[2], -0.1561681) # GWESP_RTP ergm MPLE wrong estimate
   })
 
     # ========

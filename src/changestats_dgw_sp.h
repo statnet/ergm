@@ -532,7 +532,8 @@ typedef enum {L2UTP, L2OTP, L2ITP, L2RTP, L2OSP, L2ISP} L2Type;
 */
 #define espRTP_change(subroutine_path, subroutine_focus)                \
   int L2th; /*Two-path counts for various edges*/                       \
-  if(spcache) L2th = GETDDMUI(tail,head,spcache); else L2th=0;          \
+  /* NB: RTP is for directed networks, but the focus dyad is undirected. */ \
+  if(spcache) L2th = GETUDMUI(tail,head,spcache); else L2th=0;          \
   int htedge=IS_OUTEDGE(head,tail);  /*Is there an h->t (reciprocating) edge?*/ \
   /* step through inedges of tail (k->t: k!=h,h->t,k<->h)*/             \
   EXEC_THROUGH_INEDGES(tail,e,k, {                                      \

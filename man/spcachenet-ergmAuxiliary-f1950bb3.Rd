@@ -31,10 +31,16 @@ statistic implementation file.
 statistic, use \code{GET_AUX_STORAGE(StoreStrictDyadMapUInt,
    spcache);} to obtain it if this is your first or only auxiliary,
 or \code{GET_AUX_STORAGE(ind, StoreStrictDyadMapUInt, spcache);} if it is not.
-\item Use one of the following macros to access the shared partner count: \describe{
-\item{\code{GETUDMUI(\var{TAIL}, \var{HEAD}, spcache)}}{if undirected;}
+\item Use one of the following macros to access the shared partner count.
+Which one you need depends on whether the cache for that \code{type} is
+maintained as a \emph{directed} or an \emph{undirected} map: \code{OTP} (and hence
+\code{ITP}) is directed, whereas \code{UTP}, \code{OSP}, \code{ISP} and \code{RTP} are
+undirected, i.e. each pair is stored under a single canonical key.
+Reading an undirected map with \code{GETDDMUI()} will silently return 0
+whenever \var{TAIL} > \var{HEAD}. \describe{
+\item{\code{GETDDMUI(\var{TAIL}, \var{HEAD}, spcache)}}{if \code{type = "OTP"};}
 \item{\code{GETDDMUI(\var{HEAD}, \var{TAIL}, spcache)}}{if \code{type = "ITP"} (since ITP is OTP with direction reversed);}
-\item{\code{GETDDMUI(\var{TAIL}, \var{HEAD}, spcache)}}{in all other cases.}
+\item{\code{GETUDMUI(\var{TAIL}, \var{HEAD}, spcache)}}{if undirected, or if \code{type} is \code{"OSP"}, \code{"ISP"}, or \code{"RTP"}.}
 }
 }
 }
