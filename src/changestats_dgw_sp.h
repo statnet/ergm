@@ -532,12 +532,7 @@ typedef enum {L2UTP, L2OTP, L2ITP, L2RTP, L2OSP, L2ISP} L2Type;
 */
 #define espRTP_change(subroutine_path, subroutine_focus)                \
   int L2th; /*Two-path counts for various edges*/                       \
-  /* The RTP shared-partner cache is an UNDIRECTED map (see             \
-     u__rtp_wtnet(), which maintains it with IncUDyadMapUInt()), so it  \
-     must be read with GETUDMUI().  Reading it with the directed        \
-     GETDDMUI() missed the entry whenever tail > head and silently      \
-     yielded L2th = 0.  Every other cache read in this macro already    \
-     uses GETUDMUI(). */                                                \
+  /* NB: RTP is for directed networks, but the focus dyad is undirected. */ \
   if(spcache) L2th = GETUDMUI(tail,head,spcache); else L2th=0;          \
   int htedge=IS_OUTEDGE(head,tail);  /*Is there an h->t (reciprocating) edge?*/ \
   /* step through inedges of tail (k->t: k!=h,h->t,k<->h)*/             \
