@@ -95,7 +95,10 @@
         MCMLE metric settings are now a sublist to \code{\link{control.ergm}()}.
       }
       \item{
-        Dyadic covariates for terms such as \ergmTerm{ergm}{edgecov}{()} and \ergmTerm{ergm}{dyadcov}{()} can now be set using the \code{\link{\%d\%}} operator, which will catch dimensionality errors sooner and automatically adjust the matrix to transformations to the network such as subgraph extraction. 
+        Dyadic covariates for terms such as \ergmTerm{ergm}{edgecov}{()} and \ergmTerm{ergm}{dyadcov}{()} can now be set using the \code{\link{\%d\%}} operator, which will catch dimensionality errors sooner and automatically adjust the matrix to transformations to the network such as subgraph extraction.
+      }
+      \item{
+        New term \ergmTerm{ergm}{edist}{()} adds, for each edge, the Euclidean distance between the incident nodes in a space defined by two or more numeric nodal attributes (e.g., \code{edist(c("lat", "long"))}), optionally raised to one or more powers via the \code{pow} argument. It computes the distance on the fly from the length-\eqn{n} coordinate vectors, so its memory use is linear rather than quadratic in network size, unlike an equivalent \ergmTerm{ergm}{edgecov}{()} distance matrix.
       }
     }
   }

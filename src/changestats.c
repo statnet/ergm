@@ -1553,6 +1553,39 @@ C_CHANGESTAT_FN(c_dyadcov) {
 }
 
 
+/********************  changestats:  E    ***********/
+
+/*****************
+ changestat: c_edist
+*****************/
+C_CHANGESTAT_FN(c_edist) {
+  int j, k, ndim, npow, coff;
+  double d2, diff, expo, val;
+
+  ndim = (int) INPUT_PARAM[0];
+  npow = (int) INPUT_PARAM[1];
+  coff = 2 + npow;  /* offset where the column-major coordinate matrix begins */
+
+  /* Squared Euclidean distance between the two incident nodes. */
+  d2 = 0.0;
+  for (k = 0; k < ndim; k++) {
+    diff = INPUT_PARAM[coff + k * N_NODES + (tail - 1)] -
+           INPUT_PARAM[coff + k * N_NODES + (head - 1)];
+    d2 += diff * diff;
+  }
+
+  /* One statistic per requested power. The per-edge contribution is the
+     Euclidean distance raised to expo, i.e. (sqrt(d2))^expo == d2^(expo/2). */
+  for (j = 0; j < npow; j++) {
+    expo = INPUT_PARAM[2 + j];
+    if (expo == 1.0) val = sqrt(d2);
+    else if (expo == 2.0) val = d2;
+    else val = pow(d2, expo / 2.0);
+    CHANGE_STAT[j] += edgestate ? -val : val;
+  }
+}
+
+
 /********************  changestats:  G    ***********/
 
 /*****************

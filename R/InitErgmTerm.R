@@ -2549,6 +2549,70 @@ InitErgmTerm.edges<-function(nw, arglist, ...) {
 }
 
 
+################################################################################
+
+#' @templateVar name edist
+#' @title Euclidean distance between nodes on numeric coordinates
+#' @description This term adds one network statistic for each element of `pow`,
+#'   equal to the sum over all edges `(i,j)` of the Euclidean distance between
+#'   nodes `i` and `j` in the space defined by two or more numeric nodal
+#'   attributes (e.g., latitude and longitude), raised to the corresponding
+#'   power.
+#'
+#' @usage
+#' # binary: edist(attr,
+#' #               pow=1)
+#'
+#' @template ergmTerm-attr
+#' @param pow the power (or vector of powers) to which the Euclidean distance is
+#'   raised. `pow=1` (the default) makes the log-odds of a tie linear in
+#'   Euclidean distance; `pow=2` gives squared Euclidean distance (a
+#'   Gaussian-type decay in tie probability), and larger powers produce sharper
+#'   declines. Supplying a vector of powers adds one statistic per power, so a
+#'   single term can capture a polynomial in distance (e.g., `pow=c(1,2)`).
+#'
+#' @details For an edge between nodes \eqn{i} and \eqn{j} with numeric
+#'   coordinates \eqn{x_i} and \eqn{x_j} (each a vector over the supplied
+#'   `attr`), the per-edge statistic is the Euclidean distance
+#'   \eqn{d_{ij} = \sqrt{\sum_k (x_{ik} - x_{jk})^2}} raised to the power `pow`.
+#'   At least two numeric attributes are required; use [`absdiff`][absdiff-ergmTerm]
+#'   for a single dimension.
+#'
+#'   Unlike an equivalent [`edgecov`][edgecov-ergmTerm] specification, `edist`
+#'   computes the distance on the fly from the length-\eqn{n} coordinate vectors
+#'   and never materializes the \eqn{n \times n} distance matrix, so its memory
+#'   cost is linear rather than quadratic in network size.
+#'
+#' @template ergmTerm-general
+#'
+#' @concept dyad-independent
+#' @concept directed
+#' @concept undirected
+#' @concept quantitative nodal attribute
+InitErgmTerm.edist <- function(nw, arglist, ...) {
+  a <- check.ErgmTerm(nw, arglist, directed=NULL, bipartite=NULL,
+                      varnames = c("attr", "pow"),
+                      vartypes = c(ERGM_VATTR_SPEC, "numeric"),
+                      defaultvalues = list(NULL, 1),
+                      required = c(TRUE, FALSE))
+  coords <- ergm_get_vattr(a$attr, nw, accept="numeric", multiple="matrix")
+  covname <- attr(coords, "name")
+  coords <- as.matrix(coords)  # a single attribute comes back as a vector
+  ndim <- ncol(coords)
+  if(ndim < 2)
+    ergm_Init_stop("The ", sQuote("edist"), " term requires two or more numeric nodal ",
+                   "attributes (e.g., ", sQuote("lat"), " and ", sQuote("long"),
+                   "); use ", sQuote("absdiff"), " for a single dimension.")
+  pow <- a$pow
+  coef.names <- paste0("edist", ifelse(pow != 1, pow, ""), ".", covname)
+  list(name = "edist",
+       coef.names = coef.names,
+       inputs = c(ndim, length(pow), pow, c(coords)),
+       dependence = FALSE,
+       minval = 0)
+}
+
+
 #=======================InitErgmTerm functions:  G============================#
 
 ################################################################################
