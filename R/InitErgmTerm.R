@@ -25,6 +25,7 @@
 #   C:   <concurrent>       <cycle>           <ctriple>=<ctriad> 
 #   D:   <degree>           <density>         <dsp>
 #        <dyadcov>          <degcrossprod>    <degcor>
+#        <distance>
 #   E:   <edgecov>          <edges>           <esp>
 #   G:   <gwb1degree>       <gwb2degree>      <gwdegree>
 #        <gwdsp>            <gwesp>           <gwidegree>
@@ -2411,6 +2412,244 @@ InitErgmTerm.diff <- function(nw, arglist, ..., version=packageVersion("ergm")) 
        dependence = FALSE # So we don't use MCMC if not necessary
        )
 }
+
+################################################################################
+
+#' @templateVar name distance
+#' @title Inter-point distances
+#' @description This term adds a single statistic to the model whose value is 
+#'   the sum over all edge variables of the edge variable value times either
+#'   the distance between the respective vertices, or its log (if 
+#'   \code{log==TRUE}).  The \code{coord} agument must contain a vector, 
+#'   matrix, or \code{data.frame} of coordinates (vertex x dimension), or
+#'   else the name of a network attribute with such coordinates.
+#'    
+#' @usage
+#' # binary: distance(coord, metric=2, sphere=FALSE, radius=6371.0087714,
+#' #             log=TRUE, mindist=1e-5, distoff=0)
+#'
+#' @param coord node by dimension coordinate matrix, or name of a network 
+#'              attribute containing the coordinate matrix; for spherical 
+#'              coordinates, must contain two columns of angular coordinates
+#'              in lat/lon order
+#' @param metric power to use for the Minkowski metric
+#' @param sphere logical; should great circle distances be used (rather than
+#'               Minkowski distances in free space)?
+#' @param radius for spherical distances, the radius of the sphere to use;
+#'               defaults to the IUGG mean Earth radius, in km
+#' @param log logical; use log rather than raw distances?
+#' @param mindist for log distances, a lower threshold; for dyads such that
+#'                the observed distance plus any offset is less than the
+#'                minimum, the log of the minimum is used instead.  Ignored for
+#'                raw distances
+#' @param distoff for log distances, an offset to be added to observed
+#'                distances before taking the logarithm
+#'
+#' @details Either spherical (\code{sphere=TRUE}) or Minkowski metrics 
+#'   (\code{sphere=FALSE}) may be selected.  For the latter, any number of 
+#'   dimensions may be supplied, but if \code{coord} is given as a vector the
+#'   space in question is assumed to be one-dimensional.  The choice of 
+#'   Minkowski metric is determined by \code{metric}, with the distance being
+#'   given by
+#'   \deqn{
+#'      D(i,j) = (sum_d |x_{id}-x_{jd}|^p)^(1/p)
+#'   }
+#'   where the sum is over the dimensions of the space, \eqn{x} is the
+#'   coordinate matrix, and \eqn{p} is the metric parameter (i.e. 
+#'   \code{metric}).  The default value of \code{metric} is 2, yielding the
+#'   Euclidean distance.  Note that \code{metric==1}, and \code{log==FALSE}
+#'   in the one-dimensional case is identical to the \code{absdiff} term.  
+#'    
+#'   When \code{sphere=TRUE}, \code{coord} must be a two-dimensional matrix of
+#'   angular coordinates in lat/lon form (i.e., the first column must contain
+#'   units of decimal degrees between -90 and 90, and the second must contain
+#'   units of decimal degrees betweein -180 and 180).  Distance is then 
+#'   computed on between the specified angular coordinates on the surface of a
+#'   sphere of radius \code{radius}; by default, this is the IUGG mean Earth 
+#'   radius in km, and hence supplying lat/lon coordinates yields geospherical 
+#'   distances in kilometers.  As \code{metric} has no meaning here, it is 
+#'   ignored.
+#'    
+#'   When \code{log==TRUE}, the logarithm of the distance rather than the 
+#'   distance itself is used to form the statistic.  This produces interaction
+#'   functions that roughly approximate the power law spatial interaction
+#'   functions (SIFs) from Butts and Acton (2011).  To prevent divergence of 
+#'   the log distance for points at identical positions, \code{distoff} can be 
+#'   used to provide an offset to the raw distance (with the computed value 
+#'   becoming \code{log(d+distoff)}.  (This can have an effect that is similar
+#'   to an \dQuote{attenuated power law} SIF, per Butts and Acton.)  As an 
+#'   additional failsafe, the (offset) distances are thresholded from below by
+#'   \code{mindist}.  Setting both \code{mindist} and \code{distoff} to zero is
+#'   allowed, but may produce exciting results if points precisely overlap.  
+#'   Note that both \code{distoff} and \code{mindist} are ignored when 
+#'   \code{log==FALSE}.
+#'
+#'   This term can be used for directed or undirected networks.
+#'
+#' @examples
+#' \dontrun{ #We turn these off by default, b/c they are a bit slow
+#' #Create an example network, in a two-dimensional space
+#' #  Effective SIF is 1/(1 + exp(-3 + 2 log(d))); apx inverse square
+#' n <- 300
+#' d <- 2
+#' x <- matrix(runif(d*n,0,50),ncol=d)
+#' net <- simulate(network.initialize(n,directed=FALSE)~edges
+#'    + distance(x), coef=c(3,-2), 
+#'    control=control.simulate.formula(MCMC.burnin=n^3))
+#' 
+#' #Examine the network
+#' plot(net,coord=x)  #At first, seems not so spatial....
+#' dis <- as.matrix(dist(x))
+#' plot(dis[upper.tri(dis)], jitter(as.matrix(net)[upper.tri(dis)]),
+#'     xlab="Distance", ylab="Edge State")  #But actually quite spatial!
+#' lines(smooth.spline(x=dis[upper.tri(dis)], #Empirical SIF...
+#'     y=as.matrix(net)[upper.tri(dis)]), col=2, lwd=2)
+#' lines((0:100)/100*max(dis), 1/(1+exp(-3+2*log((0:100)/100*max(dis)))),
+#'     lwd=2, lty=3, col=3)                   #Theoretical SIF
+#' 
+#' #Recover the parameters
+#' summary(ergm(net~edges+distance(x)))
+#' 
+#' #What happens if we use raw instead of log distances?
+#' #  Effective SIF is 1/(1 + exp(-3 + d)); apx exponential decay
+#' net <- simulate(network.initialize(n,directed=FALSE)~edges
+#'    + distance(x, log=FALSE), coef=c(3,-1), 
+#'    control=control.simulate.formula(MCMC.burnin=n^3))
+#' plot(net,coord=x)  #Ties are much more local - no long edges
+#' 
+#' plot(dis[upper.tri(dis)], jitter(as.matrix(net)[upper.tri(dis)]),
+#'     xlab="Distance", ylab="Edge State") 
+#' lines(smooth.spline(x=dis[upper.tri(dis)], #Empirical SIF...
+#'     y=as.matrix(net)[upper.tri(dis)]), col=2, lwd=2)
+#' lines((0:100)/100*max(dis), 1/(1+exp(-3+1*((0:100)/100*max(dis)))),
+#'     lwd=2, lty=3, col=3)                   #New SIF (green)
+#' lines((0:100)/100*max(dis), 1/(1+exp(-3+2*log((0:100)/100*max(dis)))),
+#'     lwd=2, lty=3, col=4)                   #Previous SIF (blue)
+#' 
+#' summary(ergm(net~edges+distance(x, log=FALSE))) #Recover parameters
+#' 
+#' #A small lat/lon example; begin with some US cities
+#' co<-rbind(
+#'   AustinTX=c(30.26694,-97.74278),
+#'   BaltimoreMD=c(39.29028,-76.6125),
+#'   BatonRougeLA=c(30.45056,-91.15444),
+#'   CharlotteNC=c(35.22694,-80.84333),
+#'   ChicagoIL=c(41.85,-87.65),
+#'   ColumbusOH=c(39.96111,-82.99889),
+#'   DetroitMI=c(42.33139,-83.04583),
+#'   DurhamNC=c(35.99389,-78.89889),
+#'   HoustonTX=c(29.76306,-95.36306),
+#'   IndianapolisIN=c(39.76833,-86.15806),
+#'   IrvineCA=c(33.66944,-117.8222),
+#'   IthacaNY=c(42.44056,-76.49694),
+#'   JacksonvilleFL=c(30.33194,-81.65583),
+#'   KonaHI=c(19.64083,-155.9856),
+#'   LasVegasNV=c(36.175,-115.1364),
+#'   LosAngelesCA=c(34.05222,-118.2428),
+#'   MemphisTN=c(35.14944,-90.04889),
+#'   MiamiFL=c(25.77389,-80.19389),
+#'   MilwaukeeWI=c(43.03889,-87.90639),
+#'   MobileAL=c(30.69417,-88.04306),
+#'   NewOrleansLA=c(29.95444,-90.075),
+#'   NewYorkNY=c(40.71417,-74.00639),
+#'   PhiladelphiaPA=c(39.95222,-75.16417),
+#'   PhoenixAZ=c(33.44833,-112.0733),
+#'   PittsburghPA=c(40.39556,-79.83889),
+#'   SanAntonioTX=c(29.42389,-98.49333),
+#'   SanDiegoCA=c(32.71528,-117.1564),
+#'   SanFranciscoCA=c(37.775,-122.4183),
+#'   SanJoseCA=c(37.33944,-121.8939),
+#'   SeattleWA=c(47.60639,-122.3308)
+#' )
+#' 
+#' #By default, spherical distances give us great circle distances
+#' #on the geosphere, in kilometers
+#' net <- network.initialize(30, directed = FALSE)
+#' net[1,8] <- 1  #Create a tie from Austin, TX to Durham, NC
+#' summary(net ~ distance(co, sphere = TRUE, log = FALSE)) #About 1863 km
+#' net[1,8] <- 0
+#' net[14,22] <- 1  #Now try Kona, HI to NYC, NY
+#' summary(net ~ distance(co, sphere = TRUE, log = FALSE)) #About 7940 km
+#' 
+#' #Model a network among these fine cities
+#' net <- simulate(net ~ edges + distance(co, sphere = TRUE), 
+#'     coef=c(5,-1), control=control.simulate.formula(MCMC.burnin=1e5))
+#'     
+#' #Plot the cities in lat/lon space
+#' plot(net, coord=co[,2:1], suppress.axes=FALSE, xlab="Longitude",
+#'     ylab="Latitude")
+#' 
+#' #Recover the parameters
+#' summary(ergm(net~edges+distance(co, sphere = TRUE)))
+#'}
+#' 
+#' @references Butts, Carter T. and Acton, Ryan M.  (2011).  \dQuote{Spatial 
+#'   Modeling of Social Networks.}  In Timothy Nyerges, Helen Couclelis, and 
+#'   Robert McMaster (Eds.), \emph{The Sage Handbook of GIS and Society 
+#'   Research}, 222--250.  SAGE Publications.
+#'
+#' @template ergmTerm-general
+#'
+#' @concept dyad-independent
+#' @concept directed
+#' @concept undirected
+#' @concept quantitative nodal attribute
+InitErgmTerm.distance <- function(nw, arglist, ...) {
+  a <- check.ErgmTerm(nw, arglist, 
+      varnames = c("coord", "metric", "sphere", "radius", "log", "mindist", "distoff"),
+      vartypes = c("numeric,matrix,data.frame,character", "numeric", "logical", "numeric", "logical", "numeric", "numeric"),
+      required = c(TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE),
+      defaultvalues = list(NULL,2,FALSE,6371.0087714,TRUE,1e-5,0))
+  #Process arguments
+  if(is.character(a$coord)){
+    a$coord<-get.network.attribute(nw,a$coord)
+    if(is.null(a$coord))
+      stop("Distance term requires either a coordinate matrix, or the name of a network attribute containing one.")
+  }
+  if(length(dim(a$coord))==2){
+    coord<-a$coord
+    if(is.data.frame(coord))
+      coord<-as.matrix(coord)
+  }else if(length(dim(a$coord))==0){
+    coord<-matrix(rep(a$coord,length=network.size(nw)),ncol=1)
+  }else{
+    coord<-as.matrix(coord)
+  }
+  if(NROW(coord)!=network.size(nw))
+    stop("Distance term requires that coordinates be provided for all vertices.")
+  if(any(!apply(coord,1:2,is.numeric)))
+    stop("Distance term requires numeric coordinates.")
+  if(a$sphere){
+    if(NCOL(coord)!=2)
+      stop("Spherical coordinates chosen for distance term, but more or fewer than two dimensions provided; coordinates must be lat,lon or equivalent (in that order, and in angular units).")
+    if(any(coord[,1]< -90)||any(coord[,1]>90))
+      stop("Illegal latitude passed to distance term.")
+    if(any(coord[,2]< -180)||any(coord[,2]>180))
+      stop("Illegal longitude passed to distance term.")
+    if(a$radius<=0)
+      stop("Radius of sphere to be used for distance calculations must be positive.")
+  }
+  if(a$log&&(a$mindist<0))
+    stop("mindist cannot be negative in distance term.")
+  if(a$log&&(a$distoff<0))
+    stop("distoff cannot be negative in distance term.")
+  #Set up the call
+  if(a$log)
+    logstr<-".log"
+  else
+    logstr<-""
+  if(a$sphere)
+    basestr<-"dist"
+  else
+    basestr<-paste0("dist.L",a$metric)
+  list(name = "distance",
+      coef.names = paste0(basestr,logstr),
+      inputs = c(is.directed(nw), network.size(nw), NCOL(coord), a$metric, a$log, a$sphere, a$radius, a$mindist, a$distoff, coord),
+      dependence = FALSE,
+      emptynwstats = 0
+  )
+}
+
 
 ################################################################################
 

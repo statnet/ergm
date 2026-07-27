@@ -1463,6 +1463,91 @@ C_CHANGESTAT_FN(c_degree_w_homophily) {
     }
 }
 
+
+/*****************
+ changestat: d_distance
+*****************/
+/*
+Utility function to calculate distances on a sphere of radius r, between two points
+in spherical coordinates.  Our notation betrays our assumption that these are
+lat/lon points on the geosphere, but technically you could use any sphere you
+wanted, by passing an alternative radius (so long as your coordinates were given
+in angular units).
+*/
+double spheredist(double lat0, double lon0, double lat1, double lon1, double r) {
+  double rlat0,rlat1,rlon0,rlon1,cosrl0,cosrl1,cosdl,sinrl0,sinrl1,sindl;
+  
+  rlat0=lat0/180.0*M_PI;
+  rlat1=lat1/180.0*M_PI;
+  rlon0=lon0/180.0*M_PI;
+  rlon1=lon1/180.0*M_PI;
+  cosrl0=cos(rlat0);
+  cosrl1=cos(rlat1);
+  cosdl=cos(rlon0-rlon1);
+  sinrl0=sin(rlat0);
+  sinrl1=sin(rlat1);
+  sindl=sin(rlon0-rlon1);
+  return r*atan2(sqrt((cosrl0*sindl) * (cosrl0*sindl) + (cosrl1*sinrl0-sinrl1*cosrl0*cosdl) * (cosrl1*sinrl0-sinrl1*cosrl0*cosdl)), sinrl0*sinrl1+cosrl0*cosrl1*cosdl);
+}
+
+/*Actual distance changestat function itself (calls spheredist)*/
+CHANGESTAT_FN(d_distance) {
+  Vertex t, h;
+  int i,j;
+  int isdir,nv,dim,logd,sphd;
+  double dis,dexp,*coord,sphr,logmind,logdoff;
+
+  /*Set things up*/
+  isdir = (int)INPUT_PARAM[0];  /*Is the graph directed?*/
+  nv = (int)INPUT_PARAM[1];     /*Number of vertices*/
+  dim = (int)INPUT_PARAM[2];    /*Dimension of coordinate space*/
+  dexp = INPUT_PARAM[3];        /*Minkowski exponent*/
+  logd = (int)INPUT_PARAM[4];   /*Should we use the log distance?*/
+  sphd = (int)INPUT_PARAM[5];   /*Should we use lat/lon distances on the geosphere?*/
+  sphr = INPUT_PARAM[6];        /*Radius to use for spherical coordinates*/
+  logmind = INPUT_PARAM[7];     /*Distance minimum for the log case*/
+  logdoff = INPUT_PARAM[8];     /*Distance offset for the log case*/
+  coord = INPUT_PARAM+9;        /*Pointer to the coordinate matrix*/
+
+  /*Compute the changescores*/
+  ZERO_ALL_CHANGESTATS(i);
+  FOR_EACH_TOGGLE(i) {
+    t = TAIL(i); h = HEAD(i);
+    if(sphd){  /*Compute distances on the sphere*/
+      dis=spheredist(coord[t-1],coord[t-1+nv],coord[h-1],coord[h-1+nv],sphr);
+    }else{     /*Compute Minkowski distances in free space*/
+      dis=0.0;
+      for(j=0;j<dim;j++){  /*Calculate the t,h distance*/
+        if(dexp==1.0){
+          dis+=fabs(coord[t-1+nv*j]-coord[h-1+nv*j]);
+        }else if(dexp==2.0){
+          dis+=(coord[t-1+nv*j]-coord[h-1+nv*j]) * (coord[t-1+nv*j]-coord[h-1+nv*j]);
+        }else{
+          dis+=pow(fabs(coord[t-1+nv*j]-coord[h-1+nv*j]),dexp);
+        }
+      }
+      if(dexp==2.0){
+        dis=sqrt(dis);
+      }else if(dexp!=1.0){
+        dis=pow(dis,1.0/dexp);
+      }
+    }
+    /*If using log distances, log 'em.  But to prevent divergence, threshold
+      from below by logmind (after adding the offset).*/
+    if(logd)
+      dis=log(MAX(logmind,dis+logdoff));
+    /*Check for an edge, and update accordingly*/
+    if(isdir)
+      CHANGE_STAT[0] += IS_OUTEDGE(t,h) ? -dis : dis;
+    else
+      CHANGE_STAT[0] += IS_UNDIRECTED_EDGE(t,h) ? -dis : dis;
+    /*If there are more toggles, then increment*/
+    TOGGLE_IF_MORE_TO_COME(i);
+  }
+  UNDO_PREVIOUS_TOGGLES(i);
+}
+
+
 /*****************
  changestat: d_dyadcov
 *****************/
