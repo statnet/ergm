@@ -2421,20 +2421,24 @@ InitErgmTerm.diff <- function(nw, arglist, ..., version=packageVersion("ergm")) 
 #'   the sum over all edge variables of the edge variable value times either
 #'   the distance between the respective vertices, or its log (if 
 #'   \code{log==TRUE}).  The \code{coord} agument must contain a vector, 
-#'   matrix, or \code{data.frame} of coordinates (vertex x dimension), or
-#'   else the name of a network attribute with such coordinates.
+#'   matrix, or \code{data.frame} of coordinates (vertex x dimension), the
+#'   name of a network attribute with such coordinates, or a vector of vertex
+#'   attributes to be used as coordinates.
 #'    
 #' @usage
 #' # binary: distance(coord, metric=2, sphere=FALSE, radius=6371.0087714,
-#' #             log=TRUE, mindist=1e-5, distoff=0)
+#' #             log=TRUE, mindist=1e-5, distoff=0, scale=1)
 #'
-#' @param coord node by dimension coordinate matrix, or name of a network 
-#'              attribute containing the coordinate matrix; for spherical 
-#'              coordinates, must contain two columns of angular coordinates
-#'              in lat/lon order
+#' @param coord node by dimension coordinate matrix, name of a network 
+#'              attribute containing the coordinate matrix, or vector of
+#'              vertex attribute names containing coordinates (to be used
+#'              jointly); for \code{sphere==TRUE}, first two coordinates
+#'              must be angular units, in lat/lon order
 #' @param metric power to use for the Minkowski metric
 #' @param sphere logical; should great circle distances be used (rather than
-#'               Minkowski distances in free space)?
+#'               Minkowski distances in free space)?  If \code{TRUE}, the first
+#'               two coordinates are respectively interpreted as latitude and
+#'               longitude coordinates on a sphere of specified radius
 #' @param radius for spherical distances, the radius of the sphere to use;
 #'               defaults to the IUGG mean Earth radius, in km
 #' @param log logical; use log rather than raw distances?
@@ -2444,6 +2448,8 @@ InitErgmTerm.diff <- function(nw, arglist, ..., version=packageVersion("ergm")) 
 #'                raw distances
 #' @param distoff for log distances, an offset to be added to observed
 #'                distances before taking the logarithm
+#' @param scale factor by which raw distances should be rescaled prior to other
+#'              operations (notably, offsetting, logging, and thresholding)
 #'
 #' @details Either spherical (\code{sphere=TRUE}) or Minkowski metrics 
 #'   (\code{sphere=FALSE}) may be selected.  For the latter, any number of 
@@ -2453,6 +2459,8 @@ InitErgmTerm.diff <- function(nw, arglist, ..., version=packageVersion("ergm")) 
 #'   given by
 #'   \deqn{
 #'      D(i,j) = (sum_d |x_{id}-x_{jd}|^p)^(1/p)
+#'   }{
+#'      D(i,j) = \left(\sum_d |x_{id}-x_{jd}|^p\right)^{1/p}
 #'   }
 #'   where the sum is over the dimensions of the space, \eqn{x} is the
 #'   coordinate matrix, and \eqn{p} is the metric parameter (i.e. 
@@ -2460,7 +2468,7 @@ InitErgmTerm.diff <- function(nw, arglist, ..., version=packageVersion("ergm")) 
 #'   Euclidean distance.  Note that \code{metric==1}, and \code{log==FALSE}
 #'   in the one-dimensional case is identical to the \code{absdiff} term.  
 #'    
-#'   When \code{sphere=TRUE}, \code{coord} must be a two-dimensional matrix of
+#'   When \code{sphere=TRUE}, the first two dimensions of \code{coord} must be
 #'   angular coordinates in lat/lon form (i.e., the first column must contain
 #'   units of decimal degrees between -90 and 90, and the second must contain
 #'   units of decimal degrees betweein -180 and 180).  Distance is then 
@@ -2469,7 +2477,30 @@ InitErgmTerm.diff <- function(nw, arglist, ..., version=packageVersion("ergm")) 
 #'   radius in km, and hence supplying lat/lon coordinates yields geospherical 
 #'   distances in kilometers.  As \code{metric} has no meaning here, it is 
 #'   ignored.
+#'
+#'   If \code{sphere=TRUE} and more than two coordinates are provided per
+#'   vertex, then the first two are used to compute great circle distances,
+#'   with the remainder being used to compute the selected Minkowski metric.
+#'   These two distances are then added to form the final distance.  While
+#'   this has exotic uses, the most obvious is to add elevation.  It is
+#'   important to ensure that the coordinates are specified such that the 
+#'   two distances have the same units!  (By default, spherical distances are
+#'   in kilometers, so unless \code{radius} is changed, the user should ensure
+#'   that additional coordinates are also in kilometers.)  Note that elevation
+#'   effects specified in this way do not take into account factors such as the
+#'   need to go down to the street and then up to a target floor within another
+#'   building (as in the case of artificial elevation in cities), nor the need
+#'   to e.g. get up before you get down in hilly terrain.  Life is full of such
+#'   disappointments.
 #'    
+#'   The overall scale of the computed distances can be modified by setting the
+#'   \code{scale} argument.  This is most often useful for numerical or
+#'   interpretational reasons (e.g., to avoid overflow/underflow issues, or to
+#'   change to familiar units).  However, it can also be used in conjunction
+#'   with offsets and log scaling to change the form of the distance effect,
+#'   as described below.  In particular, note that rescaling is performed prior
+#'   to application of offsets or thresholding, where applicable.
+#'
 #'   When \code{log==TRUE}, the logarithm of the distance rather than the 
 #'   distance itself is used to form the statistic.  This produces interaction
 #'   functions that roughly approximate the power law spatial interaction
@@ -2479,10 +2510,12 @@ InitErgmTerm.diff <- function(nw, arglist, ..., version=packageVersion("ergm")) 
 #'   becoming \code{log(d+distoff)}.  (This can have an effect that is similar
 #'   to an \dQuote{attenuated power law} SIF, per Butts and Acton.)  As an 
 #'   additional failsafe, the (offset) distances are thresholded from below by
-#'   \code{mindist}.  Setting both \code{mindist} and \code{distoff} to zero is
+#'   \code{mindist}.  With all elements considered, the net effect is thus
+#'   \code{log(max(mindist, distoff + scale*d))}, where \eqn{d} is the raw 
+#'   distance.  Setting both \code{mindist} and \code{distoff} to zero is 
 #'   allowed, but may produce exciting results if points precisely overlap.  
 #'   Note that both \code{distoff} and \code{mindist} are ignored when 
-#'   \code{log==FALSE}.
+#'   \code{log==FALSE} (but \code{scale} is not).
 #'
 #'   This term can be used for directed or undirected networks.
 #'
@@ -2593,18 +2626,26 @@ InitErgmTerm.diff <- function(nw, arglist, ..., version=packageVersion("ergm")) 
 #' @concept dyad-independent
 #' @concept directed
 #' @concept undirected
+#' @concept bipartite
 #' @concept quantitative nodal attribute
 InitErgmTerm.distance <- function(nw, arglist, ...) {
   a <- check.ErgmTerm(nw, arglist, 
-      varnames = c("coord", "metric", "sphere", "radius", "log", "mindist", "distoff"),
-      vartypes = c("numeric,matrix,data.frame,character", "numeric", "logical", "numeric", "logical", "numeric", "numeric"),
-      required = c(TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE),
-      defaultvalues = list(NULL,2,FALSE,6371.0087714,TRUE,1e-5,0))
+      varnames = c("coord", "metric", "sphere", "radius", "log", "mindist", "distoff", "scale"),
+      vartypes = c("numeric,matrix,data.frame,character", "numeric", "logical", "numeric", "logical", "numeric", "numeric", "numeric"),
+      required = c(TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE),
+      defaultvalues = list(NULL,2,FALSE,6371.0087714,TRUE,1e-5,0,1))
   #Process arguments
-  if(is.character(a$coord)){
-    a$coord<-get.network.attribute(nw,a$coord)
+  if(is.character(a$coord)){  #Some sort of attribute
+    if(length(a$coord)>1){    #Vertex attributes
+      a$coord<-ergm_get_vattr(a$coord,nw,accept="numeric",multiple="matrix")
+    }else{                    #Either vertex or network attribute
+      if(a$coord%in%list.vertex.attributes(nw))
+        a$coord<-ergm_get_vattr(a$coord,nw,accept="numeric")
+      else
+        a$coord<-get.network.attribute(nw,a$coord)
+    }
     if(is.null(a$coord))
-      stop("Distance term requires either a coordinate matrix, or the name of a network attribute containing one.")
+      stop("Distance term requires either a coordinate matrix, the name of a network attribute containing one, or one or more names of vertex attributes containing coordinates.")
   }
   if(length(dim(a$coord))==2){
     coord<-a$coord
@@ -2619,9 +2660,11 @@ InitErgmTerm.distance <- function(nw, arglist, ...) {
     stop("Distance term requires that coordinates be provided for all vertices.")
   if(any(!apply(coord,1:2,is.numeric)))
     stop("Distance term requires numeric coordinates.")
+  if(any(is.na(coord)))
+    stop("Missing coordinate values not allowed in distance term.")
   if(a$sphere){
-    if(NCOL(coord)!=2)
-      stop("Spherical coordinates chosen for distance term, but more or fewer than two dimensions provided; coordinates must be lat,lon or equivalent (in that order, and in angular units).")
+    if(NCOL(coord)<2)
+      stop("Spherical coordinates chosen for distance term, but fewer than two dimensions provided; first two coordinates must be lat,lon or equivalent (in that order, and in angular units).")
     if(any(coord[,1]< -90)||any(coord[,1]>90))
       stop("Illegal latitude passed to distance term.")
     if(any(coord[,2]< -180)||any(coord[,2]>180))
@@ -2639,12 +2682,14 @@ InitErgmTerm.distance <- function(nw, arglist, ...) {
   else
     logstr<-""
   if(a$sphere)
-    basestr<-"dist"
+    basestr<-"dist.S"
   else
-    basestr<-paste0("dist.L",a$metric)
+    basestr<-"dist"
+  if((!a$sphere)||(NCOL(coord)>2))
+    basestr<-paste0(basestr,".L",a$metric)
   list(name = "distance",
       coef.names = paste0(basestr,logstr),
-      inputs = c(is.directed(nw), network.size(nw), NCOL(coord), a$metric, a$log, a$sphere, a$radius, a$mindist, a$distoff, coord),
+      inputs = c(network.size(nw), NCOL(coord), a$metric, a$log, a$sphere, a$radius, a$mindist, a$distoff, a$scale, coord),
       dependence = FALSE,
       emptynwstats = 0
   )
