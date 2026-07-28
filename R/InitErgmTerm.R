@@ -2626,7 +2626,6 @@ InitErgmTerm.diff <- function(nw, arglist, ..., version=packageVersion("ergm")) 
 #' @concept dyad-independent
 #' @concept directed
 #' @concept undirected
-#' @concept bipartite
 #' @concept quantitative nodal attribute
 InitErgmTerm.distance <- function(nw, arglist, ...) {
   a <- check.ErgmTerm(nw, arglist, 
