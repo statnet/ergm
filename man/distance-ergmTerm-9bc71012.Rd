@@ -225,7 +225,6 @@ Research}, 222--250.  SAGE Publications.
 
 \Sexpr[results=rd,stage=render]{ergm:::.formatTermKeywords("ergmTerm", "distance", "subsection")}
 }
-\concept{bipartite}
 \concept{directed}
 \concept{dyad-independent}
 \concept{quantitative nodal attribute}
