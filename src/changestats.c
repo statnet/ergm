@@ -1465,7 +1465,7 @@ C_CHANGESTAT_FN(c_degree_w_homophily) {
 
 
 /*****************
- changestat: d_distance
+ changestat: c_distance
 *****************/
 /*
 Utility function to calculate distances on a sphere of radius r, between two points
@@ -1491,60 +1491,60 @@ double spheredist(double lat0, double lon0, double lat1, double lon1, double r) 
 }
 
 /*Actual distance changestat function itself (calls spheredist)*/
-CHANGESTAT_FN(d_distance) {
-  Vertex t, h;
+C_CHANGESTAT_FN(c_distance) {
+  Vertex t,h;
   int i,j;
   int isdir,nv,dim,logd,sphd;
-  double dis,dexp,*coord,sphr,logmind,logdoff;
+  double dis,dexp,*coord,sphr,logmind,logdoff,scale,mdis;
 
   /*Set things up*/
-  isdir = (int)INPUT_PARAM[0];  /*Is the graph directed?*/
-  nv = (int)INPUT_PARAM[1];     /*Number of vertices*/
-  dim = (int)INPUT_PARAM[2];    /*Dimension of coordinate space*/
-  dexp = INPUT_PARAM[3];        /*Minkowski exponent*/
-  logd = (int)INPUT_PARAM[4];   /*Should we use the log distance?*/
-  sphd = (int)INPUT_PARAM[5];   /*Should we use lat/lon distances on the geosphere?*/
-  sphr = INPUT_PARAM[6];        /*Radius to use for spherical coordinates*/
-  logmind = INPUT_PARAM[7];     /*Distance minimum for the log case*/
-  logdoff = INPUT_PARAM[8];     /*Distance offset for the log case*/
-  coord = INPUT_PARAM+9;        /*Pointer to the coordinate matrix*/
+  nv = (int)INPUT_PARAM[0];     /*Number of vertices*/
+  dim = (int)INPUT_PARAM[1];    /*Dimension of coordinate space*/
+  dexp = INPUT_PARAM[2];        /*Minkowski exponent*/
+  logd = (int)INPUT_PARAM[3];   /*Should we use the log distance?*/
+  sphd = (int)INPUT_PARAM[4];   /*Should we use lat/lon distances on the geosphere?*/
+  sphr = INPUT_PARAM[5];        /*Radius to use for spherical coordinates*/
+  logmind = INPUT_PARAM[6];     /*Distance minimum for the log case*/
+  logdoff = INPUT_PARAM[7];     /*Distance offset for the log case*/
+  scale = INPUT_PARAM[8];       /*Scaling adjustment for raw distance*/
+  coord = INPUT_PARAM+9;       /*Pointer to the coordinate matrix*/
 
-  /*Compute the changescores*/
-  ZERO_ALL_CHANGESTATS(i);
-  FOR_EACH_TOGGLE(i) {
-    t = TAIL(i); h = HEAD(i);
-    if(sphd){  /*Compute distances on the sphere*/
-      dis=spheredist(coord[t-1],coord[t-1+nv],coord[h-1],coord[h-1+nv],sphr);
-    }else{     /*Compute Minkowski distances in free space*/
-      dis=0.0;
-      for(j=0;j<dim;j++){  /*Calculate the t,h distance*/
-        if(dexp==1.0){
-          dis+=fabs(coord[t-1+nv*j]-coord[h-1+nv*j]);
-        }else if(dexp==2.0){
-          dis+=(coord[t-1+nv*j]-coord[h-1+nv*j]) * (coord[t-1+nv*j]-coord[h-1+nv*j]);
-        }else{
-          dis+=pow(fabs(coord[t-1+nv*j]-coord[h-1+nv*j]),dexp);
-        }
-      }
-      if(dexp==2.0){
-        dis=sqrt(dis);
-      }else if(dexp!=1.0){
-        dis=pow(dis,1.0/dexp);
-      }
-    }
-    /*If using log distances, log 'em.  But to prevent divergence, threshold
-      from below by logmind (after adding the offset).*/
-    if(logd)
-      dis=log(MAX(logmind,dis+logdoff));
-    /*Check for an edge, and update accordingly*/
-    if(isdir)
-      CHANGE_STAT[0] += IS_OUTEDGE(t,h) ? -dis : dis;
-    else
-      CHANGE_STAT[0] += IS_UNDIRECTED_EDGE(t,h) ? -dis : dis;
-    /*If there are more toggles, then increment*/
-    TOGGLE_IF_MORE_TO_COME(i);
+  /*Compute the changescore*/
+  t=tail-1;  /*0-indexed values, for C convenience*/
+  h=head-1;
+  if(sphd){  /*Compute great circle distances on the sphere*/
+    dis=spheredist(coord[t],coord[t+nv],coord[h],coord[h+nv],sphr);
+  }else{
+    dis=0.0;
   }
-  UNDO_PREVIOUS_TOGGLES(i);
+  /*Compute Minkowski distances in free space (adding extra dimensions to
+    great circle distance if sphd and we were given dim>2)*/
+  mdis=0.0;
+  for(j=0+2*sphd;j<dim;j++){  /*Calculate the t,h distance*/
+    if(dexp==1.0){
+      mdis+=fabs(coord[t+nv*j]-coord[h+nv*j]);
+    }else if(dexp==2.0){
+      mdis+=(coord[t+nv*j]-coord[h+nv*j]) * (coord[t+nv*j]-coord[h+nv*j]);
+    }else{
+      mdis+=pow(fabs(coord[t+nv*j]-coord[h+nv*j]),dexp);
+    }
+  }
+  if(dexp==2.0){
+    mdis=sqrt(mdis);
+  }else if(dexp!=1.0){
+    mdis=pow(mdis,1.0/dexp);
+  }
+  dis+=mdis;   /*Add the two distance types*/
+  dis*=scale;  /*Apply the scaling coefficient*/
+  /*If using log distances, log 'em.  But to prevent divergence, threshold
+    from below by logmind (after adding the offset).*/
+  if(logd)
+    dis=log(MAX(logmind,dis+logdoff));
+  /*Check for an edge, and update accordingly*/
+  if(DIRECTED)
+    CHANGE_STAT[0] += IS_OUTEDGE(tail,head) ? -dis : dis;
+  else
+    CHANGE_STAT[0] += IS_UNDIRECTED_EDGE(tail,head) ? -dis : dis;
 }
 
 

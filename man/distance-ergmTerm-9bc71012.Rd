@@ -6,18 +6,21 @@
 \title{Inter-point distances}
 \usage{
 # binary: distance(coord, metric=2, sphere=FALSE, radius=6371.0087714,
-#             log=TRUE, mindist=1e-5, distoff=0)
+#             log=TRUE, mindist=1e-5, distoff=0, scale=1)
 }
 \arguments{
-\item{coord}{node by dimension coordinate matrix, or name of a network
-attribute containing the coordinate matrix; for spherical
-coordinates, must contain two columns of angular coordinates
-in lat/lon order}
+\item{coord}{node by dimension coordinate matrix, name of a network
+attribute containing the coordinate matrix, or vector of
+vertex attribute names containing coordinates (to be used
+jointly); for \code{sphere==TRUE}, first two coordinates
+must be angular units, in lat/lon order}
 
 \item{metric}{power to use for the Minkowski metric}
 
 \item{sphere}{logical; should great circle distances be used (rather than
-Minkowski distances in free space)?}
+Minkowski distances in free space)?  If \code{TRUE}, the first
+two coordinates are respectively interpreted as latitude and
+longitude coordinates on a sphere of specified radius}
 
 \item{radius}{for spherical distances, the radius of the sphere to use;
 defaults to the IUGG mean Earth radius, in km}
@@ -31,14 +34,18 @@ raw distances}
 
 \item{distoff}{for log distances, an offset to be added to observed
 distances before taking the logarithm}
+
+\item{scale}{factor by which raw distances should be rescaled prior to other
+operations (notably, offsetting, logging, and thresholding)}
 }
 \description{
 This term adds a single statistic to the model whose value is
 the sum over all edge variables of the edge variable value times either
 the distance between the respective vertices, or its log (if
 \code{log==TRUE}).  The \code{coord} agument must contain a vector,
-matrix, or \code{data.frame} of coordinates (vertex x dimension), or
-else the name of a network attribute with such coordinates.
+matrix, or \code{data.frame} of coordinates (vertex x dimension), the
+name of a network attribute with such coordinates, or a vector of vertex
+attributes to be used as coordinates.
 }
 \details{
 Either spherical (\code{sphere=TRUE}) or Minkowski metrics
@@ -49,6 +56,8 @@ Minkowski metric is determined by \code{metric}, with the distance being
 given by
 \deqn{
      D(i,j) = (sum_d |x_{id}-x_{jd}|^p)^(1/p)
+  }{
+     D(i,j) = \left(\sum_d |x_{id}-x_{jd}|^p\right)^{1/p}
   }
 where the sum is over the dimensions of the space, \eqn{x} is the
 coordinate matrix, and \eqn{p} is the metric parameter (i.e.
@@ -56,7 +65,7 @@ coordinate matrix, and \eqn{p} is the metric parameter (i.e.
 Euclidean distance.  Note that \code{metric==1}, and \code{log==FALSE}
 in the one-dimensional case is identical to the \code{absdiff} term.
 
-When \code{sphere=TRUE}, \code{coord} must be a two-dimensional matrix of
+When \code{sphere=TRUE}, the first two dimensions of \code{coord} must be
 angular coordinates in lat/lon form (i.e., the first column must contain
 units of decimal degrees between -90 and 90, and the second must contain
 units of decimal degrees betweein -180 and 180).  Distance is then
@@ -65,6 +74,29 @@ sphere of radius \code{radius}; by default, this is the IUGG mean Earth
 radius in km, and hence supplying lat/lon coordinates yields geospherical
 distances in kilometers.  As \code{metric} has no meaning here, it is
 ignored.
+
+If \code{sphere=TRUE} and more than two coordinates are provided per
+vertex, then the first two are used to compute great circle distances,
+with the remainder being used to compute the selected Minkowski metric.
+These two distances are then added to form the final distance.  While
+this has exotic uses, the most obvious is to add elevation.  It is
+important to ensure that the coordinates are specified such that the
+two distances have the same units!  (By default, spherical distances are
+in kilometers, so unless \code{radius} is changed, the user should ensure
+that additional coordinates are also in kilometers.)  Note that elevation
+effects specified in this way do not take into account factors such as the
+need to go down to the street and then up to a target floor within another
+building (as in the case of artificial elevation in cities), nor the need
+to e.g. get up before you get down in hilly terrain.  Life is full of such
+disappointments.
+
+The overall scale of the computed distances can be modified by setting the
+\code{scale} argument.  This is most often useful for numerical or
+interpretational reasons (e.g., to avoid overflow/underflow issues, or to
+change to familiar units).  However, it can also be used in conjunction
+with offsets and log scaling to change the form of the distance effect,
+as described below.  In particular, note that rescaling is performed prior
+to application of offsets or thresholding, where applicable.
 
 When \code{log==TRUE}, the logarithm of the distance rather than the
 distance itself is used to form the statistic.  This produces interaction
@@ -75,10 +107,12 @@ used to provide an offset to the raw distance (with the computed value
 becoming \code{log(d+distoff)}.  (This can have an effect that is similar
 to an \dQuote{attenuated power law} SIF, per Butts and Acton.)  As an
 additional failsafe, the (offset) distances are thresholded from below by
-\code{mindist}.  Setting both \code{mindist} and \code{distoff} to zero is
+\code{mindist}.  With all elements considered, the net effect is thus
+\code{log(max(mindist, distoff + scale*d))}, where \eqn{d} is the raw
+distance.  Setting both \code{mindist} and \code{distoff} to zero is
 allowed, but may produce exciting results if points precisely overlap.
 Note that both \code{distoff} and \code{mindist} are ignored when
-\code{log==FALSE}.
+\code{log==FALSE} (but \code{scale} is not).
 
 This term can be used for directed or undirected networks.
 }
@@ -191,6 +225,7 @@ Research}, 222--250.  SAGE Publications.
 
 \Sexpr[results=rd,stage=render]{ergm:::.formatTermKeywords("ergmTerm", "distance", "subsection")}
 }
+\concept{bipartite}
 \concept{directed}
 \concept{dyad-independent}
 \concept{quantitative nodal attribute}
