@@ -289,6 +289,16 @@ get.node.attr <- function(nw, attrname, functionname=NULL, numeric=FALSE) {
 #' summary(faux.mesa.high~nodecov(~cbind(Grade, Grade2=Grade^2))) # column names set manually
 #' summary(faux.mesa.high~nodecov(~cbind(Grade, Grade^2, deparse.level=2))) # using deparse.level=2
 #'
+#' # Lastly, it is possible to set vector vertex attributes. Where
+#' # possible, these will be converted to matrices with a row for each
+#' # vertex:
+#' faux.mesa.high %v% "Grades" <- apply(cbind(faux.mesa.high %v% "Grade",
+#'                                            (faux.mesa.high %v% "Grade")^2),
+#'                                      1, identity, simplify = FALSE)
+#' get.vertex.attribute(faux.mesa.high, "Grades", unlist = FALSE) |> head()
+#' summary(faux.mesa.high~nodecov("Grades"))
+#' summary(faux.mesa.high~nodecov(~sqrt(Grades)))
+#'
 #' # Activity by grade with a random covariate. Note that setting an attribute "name" gives it a name:
 #' randomcov <- structure(I(rbinom(network.size(faux.mesa.high),1,0.5)), name="random")
 #' summary(faux.mesa.high~nodefactor(I(randomcov)))
@@ -517,8 +527,10 @@ ergm_get_vattr.character <- function(object, nw, accept="character", bip=c("n","
     ergm_Init_stop(paste.and(sQuote(missing_attr)), " is/are not valid nodal attribute(s).")
   }
 
-  object %>% map(~nw%v%.) %>% setNames(object) %>% .handle_multiple(multiple=multiple) %>%
-    .rightsize_vattr(nw, bip, accept) %>% structure(name=paste(object, collapse=".")) %>%
+  object |> map(\(a) get.vertex.attribute(nw, a, unlist = FALSE)) |>
+    map(simplify2array) |> map_if(is.array, t) |>
+    setNames(object) |> .handle_multiple(multiple=multiple) |>
+    .rightsize_vattr(nw, bip, accept) |> structure(name=paste(object, collapse=".")) |>
     .check_acceptable(accept=accept, xspec=object)
 }
 
@@ -552,7 +564,7 @@ ergm_get_vattr.formula <- function(object, nw, accept="character", bip=c("n","b1
   multiple <- match.arg(multiple, ERGM_GET_VATTR_MULTIPLE_TYPES)
 
   a <- list.vertex.attributes(nw)
-  vlist <- c(a %>% map(~nw%v%.) %>% setNames(a),
+  vlist <- c(a |> map(\(a) get.vertex.attribute(nw, a, unlist = FALSE)) |> map(simplify2array) |> map_if(is.array, t) |> setNames(a),
              lst(`.`=nw, .nw=nw, ...))
 
   e <- ult(object)

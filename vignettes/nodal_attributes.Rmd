@@ -82,6 +82,18 @@ General functions, such as `stats::poly()`, can also be used:
 ```{r, node-attr-poly}
 summary(faux.mesa.high~nodecov(~poly(Grade,2)))
 ```
+Lastly, it is possible to set vector vertex attributes. Where
+possible, these will be converted to matrices with a row for each
+vertex:
+```{r, node-attr-vector}
+faux.mesa.high %v% "Grades" <- apply(cbind(faux.mesa.high %v% "Grade",
+                                           (faux.mesa.high %v% "Grade")^2),
+                                     1, identity, simplify = FALSE)
+get.vertex.attribute(faux.mesa.high, "Grades", unlist = FALSE) |> head()
+summary(faux.mesa.high~nodecov("Grades"))
+summary(faux.mesa.high~nodecov(~sqrt(Grades)))
+```
+
 We can even pass a random nodal covariate. Notice that setting an attribute "name" gives it a label:
 ```{r, node-attr-rand}
 randomcov <- structure(I(rbinom(network.size(faux.mesa.high),1,0.5)), name="random")

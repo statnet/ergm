@@ -255,6 +255,16 @@ summary(faux.mesa.high~nodecov(~cbind(Grade, Grade^2))) # column names dropped w
 summary(faux.mesa.high~nodecov(~cbind(Grade, Grade2=Grade^2))) # column names set manually
 summary(faux.mesa.high~nodecov(~cbind(Grade, Grade^2, deparse.level=2))) # using deparse.level=2
 
+# Lastly, it is possible to set vector vertex attributes. Where
+# possible, these will be converted to matrices with a row for each
+# vertex:
+faux.mesa.high \%v\% "Grades" <- apply(cbind(faux.mesa.high \%v\% "Grade",
+                                           (faux.mesa.high \%v\% "Grade")^2),
+                                     1, identity, simplify = FALSE)
+get.vertex.attribute(faux.mesa.high, "Grades", unlist = FALSE) |> head()
+summary(faux.mesa.high~nodecov("Grades"))
+summary(faux.mesa.high~nodecov(~sqrt(Grades)))
+
 # Activity by grade with a random covariate. Note that setting an attribute "name" gives it a name:
 randomcov <- structure(I(rbinom(network.size(faux.mesa.high),1,0.5)), name="random")
 summary(faux.mesa.high~nodefactor(I(randomcov)))
