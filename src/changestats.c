@@ -1493,9 +1493,9 @@ double spheredist(double lat0, double lon0, double lat1, double lon1, double r) 
 /*Actual distance changestat function itself (calls spheredist)*/
 C_CHANGESTAT_FN(c_distance) {
   Vertex t,h;
-  int i,j;
-  int isdir,nv,dim,logd,sphd;
-  double dis,dexp,*coord,sphr,logmind,logdoff,scale,mdis;
+  int j;
+  int nv,dim,logd,sphd;
+  double dis,dexp,*coord,sphr,logmind,logdoff,scale,mdis,pw;
 
   /*Set things up*/
   nv = (int)INPUT_PARAM[0];     /*Number of vertices*/
@@ -1507,7 +1507,8 @@ C_CHANGESTAT_FN(c_distance) {
   logmind = INPUT_PARAM[6];     /*Distance minimum for the log case*/
   logdoff = INPUT_PARAM[7];     /*Distance offset for the log case*/
   scale = INPUT_PARAM[8];       /*Scaling adjustment for raw distance*/
-  coord = INPUT_PARAM+9;       /*Pointer to the coordinate matrix*/
+  pw = INPUT_PARAM[9];          /*Power to which distance should be raised*/
+  coord = INPUT_PARAM+10;       /*Pointer to the coordinate matrix*/
 
   /*Compute the changescore*/
   t=tail-1;  /*0-indexed values, for C convenience*/
@@ -1536,6 +1537,12 @@ C_CHANGESTAT_FN(c_distance) {
   }
   dis+=mdis;   /*Add the two distance types*/
   dis*=scale;  /*Apply the scaling coefficient*/
+  if(pw==0.5)  /*Apply the power transformation*/
+    dis=sqrt(dis);
+  else if(pw==2.0)
+    dis*=dis;
+  else if(pw!=1.0)
+    dis=pow(dis,pw);
   /*If using log distances, log 'em.  But to prevent divergence, threshold
     from below by logmind (after adding the offset).*/
   if(logd)
