@@ -6,7 +6,7 @@
 \title{Inter-point distances}
 \usage{
 # binary: distance(coord, metric=2, sphere=FALSE, radius=6371.0087714,
-#             log=TRUE, mindist=1e-5, distoff=0, scale=1)
+#             log=TRUE, mindist=1e-5, distoff=0, scale=1, pow=1)
 }
 \arguments{
 \item{coord}{node by dimension coordinate matrix, name of a network
@@ -37,6 +37,9 @@ distances before taking the logarithm}
 
 \item{scale}{factor by which raw distances should be rescaled prior to other
 operations (notably, offsetting, logging, and thresholding)}
+
+\item{pow}{power to which scaled distances should be raised prior to other
+other operations (notably, offsetting, logging, and thresholding)}
 }
 \description{
 This term adds a single statistic to the model whose value is
@@ -96,7 +99,11 @@ interpretational reasons (e.g., to avoid overflow/underflow issues, or to
 change to familiar units).  However, it can also be used in conjunction
 with offsets and log scaling to change the form of the distance effect,
 as described below.  In particular, note that rescaling is performed prior
-to application of offsets or thresholding, where applicable.
+to application of offsets or thresholding, where applicable.  Similarly,
+the \code{pow} argument can be used to raise the scaled distance to an
+arbitrary power prior to further calculation.  (Note, however, that power
+law spatial dependence is not realized via this mechanism, but by working
+with log distances, as discussed below.)
 
 When \code{log==TRUE}, the logarithm of the distance rather than the
 distance itself is used to form the statistic.  This produces interaction

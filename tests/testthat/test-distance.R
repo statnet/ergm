@@ -48,6 +48,9 @@ test_that("log L1 works", {
 test_that("scaling works", {
   expect_equal(summary(net~distance(co,metric=1,log=FALSE,scale=3)), 3*sum(d1[g>0]), ignore_attr=TRUE)
 })
+test_that("powers work", {
+  expect_equal(summary(net~distance(co,metric=1,log=FALSE,pow=3)), sum(d1[g>0]^3), ignore_attr=TRUE)
+})
 test_that("thresholding works", {
   expect_equal(summary(net~distance(co,metric=1,log=TRUE,scale=1e-10,mindist=5)), log(5)*sum(g>0), ignore_attr=TRUE)
 })

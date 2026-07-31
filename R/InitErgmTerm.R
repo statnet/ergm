@@ -2427,7 +2427,7 @@ InitErgmTerm.diff <- function(nw, arglist, ..., version=packageVersion("ergm")) 
 #'    
 #' @usage
 #' # binary: distance(coord, metric=2, sphere=FALSE, radius=6371.0087714,
-#' #             log=TRUE, mindist=1e-5, distoff=0, scale=1)
+#' #             log=TRUE, mindist=1e-5, distoff=0, scale=1, pow=1)
 #'
 #' @param coord node by dimension coordinate matrix, name of a network 
 #'              attribute containing the coordinate matrix, or vector of
@@ -2450,6 +2450,8 @@ InitErgmTerm.diff <- function(nw, arglist, ..., version=packageVersion("ergm")) 
 #'                distances before taking the logarithm
 #' @param scale factor by which raw distances should be rescaled prior to other
 #'              operations (notably, offsetting, logging, and thresholding)
+#' @param pow power to which scaled distances should be raised prior to other
+#'            other operations (notably, offsetting, logging, and thresholding)
 #'
 #' @details Either spherical (\code{sphere=TRUE}) or Minkowski metrics 
 #'   (\code{sphere=FALSE}) may be selected.  For the latter, any number of 
@@ -2499,7 +2501,11 @@ InitErgmTerm.diff <- function(nw, arglist, ..., version=packageVersion("ergm")) 
 #'   change to familiar units).  However, it can also be used in conjunction
 #'   with offsets and log scaling to change the form of the distance effect,
 #'   as described below.  In particular, note that rescaling is performed prior
-#'   to application of offsets or thresholding, where applicable.
+#'   to application of offsets or thresholding, where applicable.  Similarly,
+#'   the \code{pow} argument can be used to raise the scaled distance to an
+#'   arbitrary power prior to further calculation.  (Note, however, that power
+#'   law spatial dependence is not realized via this mechanism, but by working
+#'   with log distances, as discussed below.)
 #'
 #'   When \code{log==TRUE}, the logarithm of the distance rather than the 
 #'   distance itself is used to form the statistic.  This produces interaction
@@ -2629,10 +2635,10 @@ InitErgmTerm.diff <- function(nw, arglist, ..., version=packageVersion("ergm")) 
 #' @concept quantitative nodal attribute
 InitErgmTerm.distance <- function(nw, arglist, ...) {
   a <- check.ErgmTerm(nw, arglist, 
-      varnames = c("coord", "metric", "sphere", "radius", "log", "mindist", "distoff", "scale"),
-      vartypes = c("numeric,matrix,data.frame,character", "numeric", "logical", "numeric", "logical", "numeric", "numeric", "numeric"),
-      required = c(TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE),
-      defaultvalues = list(NULL,2,FALSE,6371.0087714,TRUE,1e-5,0,1))
+      varnames = c("coord", "metric", "sphere", "radius", "log", "mindist", "distoff", "scale", "pow"),
+      vartypes = c("numeric,matrix,data.frame,character", "numeric", "logical", "numeric", "logical", "numeric", "numeric", "numeric", "numeric"),
+      required = c(TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE),
+      defaultvalues = list(NULL,2,FALSE,6371.0087714,TRUE,1e-5,0,1,1))
   #Process arguments
   if(is.character(a$coord)){  #Some sort of attribute
     if(length(a$coord)>1){    #Vertex attributes
@@ -2686,9 +2692,11 @@ InitErgmTerm.distance <- function(nw, arglist, ...) {
     basestr<-"dist"
   if((!a$sphere)||(NCOL(coord)>2))
     basestr<-paste0(basestr,".L",a$metric)
+  if(a$pow!=1)
+    basestr<-paste0(basestr,".pow",a$pow)
   list(name = "distance",
       coef.names = paste0(basestr,logstr),
-      inputs = c(network.size(nw), NCOL(coord), a$metric, a$log, a$sphere, a$radius, a$mindist, a$distoff, a$scale, coord),
+      inputs = c(network.size(nw), NCOL(coord), a$metric, a$log, a$sphere, a$radius, a$mindist, a$distoff, a$scale, a$pow, coord),
       dependence = FALSE,
       emptynwstats = 0
   )
