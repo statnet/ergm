@@ -439,7 +439,7 @@ ETYPE(C_CHANGESTAT_FN)(SVARIANT(c_sociality)) {
 /*****************
  changestat: c_distance
 *****************/
-C_CHANGESTAT_FN(c_distance) {
+ETYPE(C_CHANGESTAT_FN)(SVARIANT(c_distance)) {
   Vertex t,h;
   int j;
   int nv,dim,logd,sphd;
@@ -495,9 +495,6 @@ C_CHANGESTAT_FN(c_distance) {
     from below by logmind (after adding the offset).*/
   if(logd)
     dis=log(MAX(logmind,dis+logdoff));
-  /*Check for an edge, and update accordingly*/
-  if(DIRECTED)
-    CHANGE_STAT[0] += IS_OUTEDGE(tail,head) ? -dis : dis;
-  else
-    CHANGE_STAT[0] += IS_UNDIRECTED_EDGE(tail,head) ? -dis : dis;
+
+  CHANGE_STAT[0] = ECHANGE(dis);
 }
