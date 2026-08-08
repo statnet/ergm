@@ -16,600 +16,259 @@
 
 typedef enum {L2UTP, L2OTP, L2ITP, L2RTP, L2OSP, L2ISP} L2Type;
 
-#define call_subroutine_path(count, subroutine_path)    \
-  {int L2 = (L2 ## count);                              \
-    {subroutine_path}}
+#include "cpp/ergm_network.h"
 
-#define call_subroutine_focus(count, subroutine_focus)  \
-  {int L2 = (L2 ## count);                              \
-    {subroutine_focus}}
+namespace ergm {
+inline namespace v1 {
+namespace sp {
 
+/* The following functions calculate or obtain the number of two-paths
+   of specified type from tail to head. */
 
-/**************************
- dsp Calculation functions
-**************************/
+inline int count_utp(ErgmCppNetwork& nw, Vertex tail, Vertex head, StoreStrictDyadMapUInt *spcache){
+  if(spcache) return GETUDMUI(tail, head, spcache);
+  int count = 0;
+  // h - v - t
+  for(auto v: nw.neighbors(head)) count += nw(v, tail);
+  return count;
+}
 
-/*
-  Changescore for ESPs based on two-paths in undirected graphs i.e. configurations for edge i<->j such that i<->k<->j (where <-> here denotes an undirected edge).
+inline int count_otp(ErgmCppNetwork& nw, Vertex tail, Vertex head, StoreStrictDyadMapUInt *spcache){
+  if(spcache) return GETDDMUI(tail, head, spcache);
+  int count = 0;
+  // t -> v -> h
+  for(auto v: nw.out_neighbors(tail)) count += nw(v, head);
+  return count;
+}
 
-  UTP:
-  L2th - count t<->k<->h
-  L2tk - for each t<->k neq h: k<->h, count u such that k<->u<->h
-  L2hk - for each h<->k neq t: k<->t, count u such that k<->u<->t
+/* itp == otp with tail and head swapped. */
 
-  This function will only work properly with undirected graphs, and should only be called in that case.
-*/
+inline int count_rtp(ErgmCppNetwork& nw, Vertex tail, Vertex head, Vertex exclude1, StoreStrictDyadMapUInt *spcache){
+  if(spcache) return GETUDMUI(tail, head, spcache);
+  int count = 0;
+  // t <-> v <-> h
+  for(auto v: nw.out_neighbors(tail))
+    if(v != exclude1 && v != head && nw(v, tail))
+      count += nw(v, head) && nw(head, v);
+  return count;
+}
 
-#define dspUTP_change(subroutine_path, subroutine_focus)        \
-  /* step through edges of head */                              \
-  EXEC_THROUGH_EDGES(head,e,u, {                                \
-      if (u!=tail){                                             \
-        int L2tu;                                               \
-        if(spcache) L2tu = GETUDMUI(tail,u,spcache);            \
-        else{                                                   \
-          L2tu=0;                                               \
-          /* step through edges of u */                         \
-          EXEC_THROUGH_EDGES(u,f,v, {                           \
-              if(IS_UNDIRECTED_EDGE(v,tail)!= 0) L2tu++;        \
-            });                                                 \
-        }                                                       \
-        call_subroutine_path(tu, subroutine_path);              \
-      }                                                         \
-    });                                                         \
-  EXEC_THROUGH_EDGES(tail,e,u, {                                \
-      if (u!=head){                                             \
-        int L2uh;                                               \
-        if(spcache) L2uh = GETUDMUI(u,head,spcache);            \
-        else{                                                   \
-          L2uh=0;                                               \
-          /* step through edges of u */                         \
-          EXEC_THROUGH_EDGES(u,f,v, {                           \
-              if(IS_UNDIRECTED_EDGE(v,head)!= 0) L2uh++;        \
-            });                                                 \
-        }                                                       \
-        call_subroutine_path(uh, subroutine_path);              \
-      }                                                         \
-    });
+inline int count_osp(ErgmCppNetwork& nw, Vertex tail, Vertex head, StoreStrictDyadMapUInt *spcache){
+  if(spcache) return GETUDMUI(tail, head, spcache);
+  int count = 0;
+  // h -> v <- t
+  for(auto v: nw.out_neighbors(head))
+    if(v != tail) count += nw(tail, v);
+  return count;
+}
 
-
-/*
-  Changescore for dsps based on outgoing two-paths, i.e. configurations for non-edge i->j such that i->k->j.
-
-  This function should only be used in the directed case
-*/
-
-#define dspOTP_change(subroutine_path, subroutine_focus)                \
-  /* step through outedges of head (i.e., k: t->k)*/                    \
-  EXEC_THROUGH_OUTEDGES(head, e, k, {                                   \
-      if(k!=tail){ /*Only use contingent cases*/                        \
-        int L2tk;                                                       \
-        if(spcache) L2tk = GETDDMUI(tail,k,spcache);                    \
-	else{                                                           \
-	  L2tk=0;                                                       \
-	  /* step through inedges of k, incl. (head,k) itself */        \
-	  EXEC_THROUGH_INEDGES(k, f, u, {                               \
-	      L2tk+=IS_OUTEDGE(tail,u); /*Increment if there is a trans edge*/ \
-	    });                                                         \
-	}                                                               \
-        call_subroutine_path(tk, subroutine_path);                      \
-      }                                                                 \
-    });                                                                 \
-  /* step through inedges of tail (i.e., k: k->t)*/                     \
-  EXEC_THROUGH_INEDGES(tail, e, k, {                                    \
-      if (k!=head){ /*Only use contingent cases*/                       \
-        int L2kh;                                                       \
-	if(spcache) L2kh = GETDDMUI(k,head,spcache);                    \
-	else{                                                           \
-	  L2kh=0;                                                       \
-	  /* step through outedges of k , incl. (k,tail) itself */      \
-	  EXEC_THROUGH_OUTEDGES(k, f, u, {                              \
-	      L2kh+=IS_OUTEDGE(u,head); /*Increment if there is a trans edge*/ \
-	    });                                                         \
-	}                                                               \
-        call_subroutine_path(kh, subroutine_path);                      \
-      }                                                                 \
-    });
+inline int count_isp(ErgmCppNetwork& nw, Vertex tail, Vertex head, StoreStrictDyadMapUInt *spcache){
+  if(spcache) return GETUDMUI(tail, head, spcache);
+  int count = 0;
+  // h <- v -> t
+  for(auto v: nw.in_neighbors(head))
+    if(v != tail) count += nw(v, tail);
+  return count;
+}
 
 
-/*
-  Changescore for DSPs based on incoming two-paths, i.e. configurations for edge i->j such that j->k->i.
-  IE cyclical shared partners
+template<typename UpdatePath, typename UpdateFocus>
+inline void dsp_change(L2Type type, Vertex tail, Vertex head, ErgmCppNetwork& nw, StoreStrictDyadMapUInt *spcache, UpdatePath update_path, UpdateFocus){
+  switch(type){
+  case L2UTP:
+    // h - u - #v - t: focus dyad: t - u
+    for(auto u: nw.neighbors(head))
+      if(u != tail)
+        update_path(count_utp(nw, tail, u, spcache));
 
-  ITP:
-  L2th - count j->k->i
-  L2hk - for each j->k neq i: k->i, count u such that k->u->j
-  L2kt - for each k->i neq j: j->k, count u such that i->u->k
+    // t - u - #v - h: focus dyad: h - u
+    for(auto u: nw.neighbors(tail))
+      if(u != head)
+        update_path(count_utp(nw, u, head, spcache));
+    break;
 
-  We assume that this is only called for directed graphs - otherwise, use the baseline espUTP function.
-*/
-#define dspITP_change(subroutine_path, subroutine_focus)                \
-  /* step through outedges of head (i.e., k: h->k)*/                    \
-  EXEC_THROUGH_OUTEDGES(head, e, k, {                                   \
-      if((k!=tail)){ /*Only use contingent cases*/                      \
-        int L2kt;                                                       \
-        /*We have a h->k->t two-path, so add it to our count.*/         \
-        if(spcache) L2kt = GETDDMUI(tail,k,spcache); /* spcache is an OTP cache. */ \
-        else{                                                           \
-          L2kt=0;                                                       \
-          /*Now, count # u such that k->u->h (so that we know k's ESP value)*/ \
-          EXEC_THROUGH_INEDGES(k, f, u, {                               \
-              L2kt+=IS_OUTEDGE(tail,u); /*Increment if there is a cyclic edge*/ \
-            });                                                         \
-        }                                                               \
-        call_subroutine_path(kt, subroutine_path);                      \
-      }                                                                 \
-    });                                                                 \
-  /* step through inedges of tail (i.e., k: k->t)*/                     \
-  EXEC_THROUGH_INEDGES(tail, e, k, {                                    \
-      if((k!=head)){ /*Only use contingent cases*/                      \
-        int L2hk;                                                       \
-        if(spcache) L2hk = GETDDMUI(k,head,spcache);                    \
-        else{                                                           \
-          L2hk=0;                                                       \
-          /*Now, count # u such that t->u->k (so that we know k's ESP value)*/ \
-          EXEC_THROUGH_OUTEDGES(k, f, u, {                              \
-              L2hk+=IS_OUTEDGE(u,head); /*Increment if there is a cyclic edge*/ \
-            });                                                         \
-        }                                                               \
-        call_subroutine_path(hk, subroutine_path);                      \
-      }                                                                 \
-    });
+  case L2OTP:
+  case L2ITP: // Identical without a focus dyad to give direction.
+    // h -> u <- #v <- t: focus dyad t - u
+    for(auto u: nw.out_neighbors(head))
+      if(u != tail)
+        update_path(count_otp(nw, tail, u, spcache));
 
+    // t <- u -> #v -> h: focus dyad h - u
+    for(auto u: nw.in_neighbors(tail))
+      if(u != head)
+        update_path(count_otp(nw, u, head, spcache));
+    break;
 
-/*
-  Changescore for DSPs based on outgoing shared partners, i.e. configurations for edge i->j such that i->k and j->k (with k!=j).
+  case L2RTP:
+    if(nw(head, tail)){
+      // t <-> u <-> #v <-> h: focus dyad h - u
+      for(auto u: nw.out_neighbors(tail))
+        if(u != head && nw(u, tail))
+          update_path(count_rtp(nw, u, head, tail, spcache));
 
-  OSP:
-  L2th - count t->k, h->k
-  L2tk - for each t->k neq h: k->h, count u such that t->u, k->u
-  L2kt - for each k->t neq h: k->h, count u such that t->u, k->u
+      // h <-> u <-> #v <-> t: focus dyad t - u
+      for(auto u: nw.out_neighbors(head))
+        if(u != tail && nw(u, head))
+          update_path(count_rtp(nw, u, tail, head, spcache));
+    }
+    break;
 
-  We assume that this is only called for directed graphs - otherwise, use the baseline espUTP function.
-*/
-#define dspOSP_change(subroutine_path, subroutine_focus)                \
-  /* step through outedges of tail (i.e., k: t->k, k->h, k!=h)*/        \
-  EXEC_THROUGH_INEDGES(head, e, k, {                                    \
-      if(k!=tail){                                                      \
-        int L2tk;                                                       \
-        /*Do we have a t->k,h->k SP?  If so, add it to our count.*/     \
-        if(spcache) L2tk = GETUDMUI(tail,k,spcache);                    \
-        else{                                                           \
-          L2tk=0;                                                       \
-          /*Now, count # u such that t->u,k->u (to get t->k's ESP value)*/ \
-          EXEC_THROUGH_OUTEDGES(k, f, u, {                              \
-              if (u != tail)                                            \
-                /*Increment if there is an OSP  */                      \
-                L2tk+=(IS_OUTEDGE(tail,u));                             \
-            });                                                         \
-        }                                                               \
-        call_subroutine_path(tk, subroutine_path);                      \
-      }                                                                 \
-    });
+  case L2OSP:
+    // h <- u -> #v <- t: focus dyad t - u
+    for(auto u: nw.in_neighbors(head))
+      if(u != tail)
+        update_path(count_osp(nw, tail, u, spcache));
+    break;
+
+  case L2ISP:
+    // t -> u <- #v -> h: focus dyad h - u
+    for(auto u: nw.out_neighbors(tail))
+      if(u != head)
+        update_path(count_isp(nw, head, u, spcache));
+    break;
+
+  default: error("In ergm shared partner helper, an unsupported type of triad: %d.", type);
+  }
+}
 
 
-/*
-  Changescore for ESPs based on incoming shared partners, i.e. configurations for edge i->j such that i->k and j->k (with k!=j).
+template<typename UpdatePath, typename UpdateFocus>
+inline void esp_change(L2Type type, Vertex tail, Vertex head, ErgmCppNetwork& nw, StoreStrictDyadMapUInt *spcache, UpdatePath update_path, UpdateFocus update_focus){
+  int L2th;
+  bool htedge;
 
-  ISP:
-  L2th - count k->t, k->h
-  L2hk - for each h->k neq t: t->k, count u such that u->h, u->k
-  L2kh - for each k->h neq t: t->k, count u such that u->h, u->k
+  switch(type){
+  case L2UTP:
+    L2th = spcache ? GETDDMUI(tail, head, spcache) : 0;
 
-  We assume that this is only called for directed graphs - otherwise, use the baseline espUTP function.
-*/
-#define dspISP_change(subroutine_path, subroutine_focus)                \
-  /* step through inedges of head (i.e., k: k->h, t->k, k!=t)*/         \
-  EXEC_THROUGH_OUTEDGES(tail, e, k, {                                   \
-      int L2kh;                                                         \
-      if(k!=head){                                                      \
-        if(spcache) L2kh = GETUDMUI(k,head,spcache);                    \
-        else{                                                           \
-          L2kh=0;                                                       \
-          /*Now, count # u such that u->h,u->k (to get h>k's ESP value)*/ \
-          EXEC_THROUGH_INEDGES(k, f, u, {                               \
-              if(u!=head)                                               \
-                L2kh+=IS_OUTEDGE(u,head);  /*Increment if there is an ISP*/ \
-            });                                                         \
-        }                                                               \
-        call_subroutine_path(kh, subroutine_path);                      \
-      }                                                                 \
-    });
+    // h - u - t: focus dyad t - h
+    // h - u - t - #v - u: focus dyad t - u
+    // u - #v - h - u - t: focus dyad h - u
+    for(auto u: nw.neighbors(head))
+      if(nw(u, tail)){
+        if(!spcache) L2th++;
+        update_path(count_utp(nw, tail, u, spcache));
+        update_path(count_utp(nw, u, head, spcache));
+      }
+    break;
 
+  case L2OTP:
+    L2th = spcache ? GETDDMUI(tail, head, spcache) : 0;
 
-/*
-  Changescore for DSPs based on reciprocated two-paths, i.e. configurations for edge i->j such that i<->k and j<->k (with k!=j).
+    // t -> u -> h: focus dyad t -> h
+    // u <- #v <- t -> u <- h: focus dyad t -> u
+    for(auto u: nw.out_neighbors(tail)){
+      if(!spcache && u != head && nw(u, head)) L2th++;
+      if(u != head && nw(head, u))
+        update_path(count_otp(nw, tail, u, spcache));
+    }
 
-  RTP:
-  L2kh - for each k->h neq t: h->t,k<->t, count u such that k<->u<->h
-  L2kt - for each k->t neq h: h->t,k<->h, count u such that k<->u<->t
+    // u -> #v -> h <- u -> h: focus dyad u -> h
+    for(auto u: nw.in_neighbors(head))
+      if(u != tail && nw(u, tail))
+        update_path(count_otp(nw, u, head, spcache));
+    break;
 
-  Thanks to the symmetries involved, this covers all cases.
+  case L2ITP:
+    L2th = spcache ? GETDDMUI(head, tail, spcache) : 0;
 
-  We assume that this is only called for directed graphs - otherwise, use the baseline espUTP function.
-*/
-#define dspRTP_change(subroutine_path, subroutine_focus)                \
-  int htedge=IS_OUTEDGE(head,tail);  /*Is there an h->t (reciprocating) edge?*/ \
-  if(htedge){ /* Otherwise, t->h doesn't make a difference. */          \
-    /* step through reciprocated outedges of tail (t->k: k!=h,k<-t)*/   \
-    EXEC_THROUGH_OUTEDGES(tail,e,k,{                                    \
-        if(k!=head&&IS_OUTEDGE(k,tail)){                                \
-          int L2kh;                                                     \
-          if(spcache) L2kh = GETUDMUI(k,head,spcache);                  \
-          else{                                                         \
-            L2kh=0;                                                     \
-            /*Now, count # u such that k<->u<->h (to get k->h's SP value)*/ \
-            EXEC_THROUGH_OUTEDGES(k,f,u,{                               \
-                if(u!=tail&&u!=head&&(IS_OUTEDGE(u,k)))                 \
-                  L2kh+=(IS_OUTEDGE(u,head)&&IS_OUTEDGE(head,u));  /*k<->u<->h?*/ \
-              });                                                       \
-          }                                                             \
-          call_subroutine_path(kh, subroutine_path);                    \
-        }                                                               \
-      });                                                               \
-    /* step through reciprocated outedges of tail (t->k: k!=h,k<-t)*/   \
-    EXEC_THROUGH_OUTEDGES(head,e,k,{                                    \
-        if(k!=tail&&IS_OUTEDGE(k,head)){                                \
-          int L2kt;                                                     \
-          if(spcache) L2kt = GETUDMUI(k,tail,spcache);                  \
-          else{                                                         \
-            L2kt=0;                                                     \
-            /*Now, count # u such that k<->u<->t (to get k->t's SP value)*/ \
-            EXEC_THROUGH_OUTEDGES(k,f,u,{                               \
-                if(u!=head&&u!=tail&&(IS_OUTEDGE(u,k)))                 \
-                  L2kt+=(IS_OUTEDGE(u,tail)&&IS_OUTEDGE(tail,u));  /*k<->u<->t?*/ \
-              });                                                       \
-          }                                                             \
-          call_subroutine_path(kt, subroutine_path);                    \
-        }                                                               \
-      });                                                               \
+    // h -> u -> t: focus dyad t -> h
+    // u -> #v -> h -> u -> t: focus dyad h -> u
+    for(auto u: nw.out_neighbors(head))
+      if(u != tail && nw(u, tail)){
+        if(!spcache) L2th++;
+        update_path(count_otp(nw, u, head, spcache));
+      }
+
+    // u <- #v <- t <- u <- h: focus dyad u -> t
+    for(auto u: nw.in_neighbors(tail))
+      if(u != head && nw(head, u))
+        update_path(count_otp(nw, tail, u, spcache));
+    break;
+
+  case L2RTP:
+    L2th = spcache ? GETUDMUI(tail, head, spcache) : 0;
+    htedge = nw(head, tail);
+
+    // t <-> u <-> h: focus dyad t -> h
+    // u <-> h -> t <- u <-> #v <-> t: focus dyad t <- u
+    for(auto u: nw.in_neighbors(tail)){
+      if(u != head){
+        if(!spcache) L2th += nw(tail, u) && nw(head, u) && nw(u, head);
+        if(htedge && nw(head, u) && nw(u, head))
+          update_path(count_rtp(nw, u, tail, tail, spcache));
+      }
+    }
+
+    // u <-> h -> t -> u <-> #v <-> t: focus dyad t -> u
+    for(auto u: nw.out_neighbors(tail))
+      if(u != head && htedge && nw(head, u) && nw(u, head))
+        update_path(count_rtp(nw, u, tail, tail, spcache));
+
+    // u <-> t <- h <- u <-> #v <-> h: focus dyad u -> h
+    for(auto u: nw.in_neighbors(head))
+      if(u != tail && htedge && nw(tail, u) && nw(u, tail))
+        update_path(count_rtp(nw, u, head, head, spcache));
+
+    // u <-> t -> h <- u <-> #v <-> h: focus dyad u <- h
+    for(auto u: nw.out_neighbors(head))
+      if(u != tail && htedge && nw(tail, u) && nw(u, tail))
+        update_path(count_rtp(nw, u, head, head, spcache));
+    break;
+
+  case L2OSP:
+    L2th = spcache ? GETUDMUI(tail, head, spcache) : 0;
+
+    // t -> u <- h: focus dyad t -> h
+    // u -> #v <- t -> u -> h: focus dyad t -> u
+    for(auto u: nw.out_neighbors(tail))
+      if(u != head){
+        if(!spcache) L2th += nw(head, u);
+        if(nw(u, head))
+          update_path(count_osp(nw, tail, u, spcache));
+      }
+
+    // u -> #v <- t <- u -> h: focus dyad u -> t
+    for(auto u: nw.in_neighbors(tail))
+      if(u != head && nw(u, head))
+        update_path(count_osp(nw, tail, u, spcache));
+    break;
+
+  case L2ISP:
+    L2th = spcache ? GETUDMUI(tail, head, spcache) : 0;
+
+    // h <- u -> t: focus dyad t -> h
+    // u <- #v -> h <- u <- t: focus dyad  u -> h
+    for(auto u: nw.in_neighbors(head))
+      if(u != tail){
+        if(!spcache) L2th += nw(u, tail);
+        if(nw(tail, u))
+          update_path(count_isp(nw, head, u, spcache));
+      }
+
+    // u <- #v -> h -> u <- t: focus dyad  h -> u
+    for(auto u: nw.out_neighbors(head))
+      if(u != tail && nw(tail, u))
+        update_path(count_isp(nw, head, u, spcache));
+    break;
+
+  default: error("In ergm shared partner helper, an unsupported type of triad: %d.", type);
   }
 
+  update_focus(L2th);
+}
 
+inline int dsp_nonzero_change(L2Type type, Vertex tail, Vertex head, ErgmCppNetwork& nw, Rboolean edgestate, StoreStrictDyadMapUInt *spcache){
+  int echange = edgestate ? -1 : 1;
+  int delta = 0;
+  dsp_change(type, tail, head, nw, spcache,
+             [&](int L2){ delta += (L2 + echange != 0) - (L2 != 0); },
+             [&](int){});
+  return delta;
+}
 
-/**************************
- ESP Calculation functions
-**************************/
-
-/*
-  Changescore for ESPs based on two-paths in undirected graphs i.e. configurations for edge i<->j such that i<->k<->j (where <-> here denotes an undirected edge).
-
-  UTP:
-  L2th - count t<->k<->h
-  L2tk - for each t<->k neq h: k<->h, count u such that k<->u<->h
-  L2hk - for each h<->k neq t: k<->t, count u such that k<->u<->t
-
-  This function will only work properly with undirected graphs, and should only be called in that case.
-*/
-#define espUTP_change(subroutine_path, subroutine_focus)        \
-  int L2th;                                                     \
-  if(spcache) L2th = GETDDMUI(tail,head,spcache); else L2th=0;  \
-  /* step through outedges of head */                           \
-  EXEC_THROUGH_EDGES(head,e,u, {                                \
-      if (IS_UNDIRECTED_EDGE(u,tail) != 0){                     \
-        int L2tu;                                               \
-        int L2uh;                                               \
-	if(spcache){                                            \
-	  L2tu = GETUDMUI(tail,u,spcache);                      \
-	  L2uh = GETUDMUI(u,head,spcache);                      \
-	}else{                                                  \
-	  L2th++;                                               \
-	  L2tu=0;                                               \
-	  L2uh=0;                                               \
-	  /* step through edges of u */                         \
-	  EXEC_THROUGH_EDGES(u,f,v, {                           \
-	      if(IS_UNDIRECTED_EDGE(v,head)!= 0) L2uh++;        \
-	      if(IS_UNDIRECTED_EDGE(v,tail)!= 0) L2tu++;        \
-	    });                                                 \
-	}                                                       \
-        call_subroutine_path(tu, subroutine_path);              \
-        call_subroutine_path(uh, subroutine_path);              \
-      }                                                         \
-    });                                                         \
-  call_subroutine_focus(th, subroutine_focus);
-
-
-/*
-  Changescore for ESPs based on outgoing two-paths, i.e. configurations for edge i->j such that i->k->j.
-
-  OTP:
-  L2th - count i->k->j
-  L2tk - for each i->k neq j: j->k, count u such that i->u->k
-  L2kh - for each k->j neq i: k->i, count u such that k->u->j
-
-  This function should only be used in the directed case, with espUTP being used in the undirected case.
-*/
-#define espOTP_change(subroutine_path, subroutine_focus)                \
-  int L2th;                                                             \
-  if(spcache) L2th = GETDDMUI(tail,head,spcache); else L2th=0;          \
-  /* step through outedges of tail (i.e., k: t->k)*/                    \
-  EXEC_THROUGH_OUTEDGES(tail,e,k, {                                     \
-      if(!spcache&&(k!=head)&&(IS_OUTEDGE(k,head))){                    \
-        /*We have a t->k->h two-path, so add it to our count.*/         \
-        L2th++;                                                         \
-      }                                                                 \
-      int L2tk;                                                         \
-      if((k!=head)&&(IS_OUTEDGE(head,k))){ /*Only use contingent cases*/ \
-        if(spcache) L2tk = GETDDMUI(tail,k,spcache);                    \
-	else{                                                           \
-	  L2tk=0;                                                       \
-	  /*Now, count # u such that t->u->k (to find t->k's ESP value)*/ \
-	  EXEC_THROUGH_INEDGES(k,f,u, {                                 \
-	      if(u!=tail)                                               \
-		L2tk+=IS_OUTEDGE(tail,u); /*Increment if there is a trans edge*/ \
-	    });                                                         \
-	}                                                               \
-        call_subroutine_path(tk, subroutine_path);                      \
-      }                                                                 \
-    });                                                                 \
-  /* step through inedges of head (i.e., k: k->h)*/                     \
-  EXEC_THROUGH_INEDGES(head,e,k, {                                      \
-      int L2kh;                                                         \
-      if((k!=tail)&&(IS_OUTEDGE(k,tail))){ /*Only use contingent cases*/ \
-        if(spcache) L2kh = GETDDMUI(k,head,spcache);                    \
-	else{                                                           \
-	  L2kh=0;                                                       \
-	  /*Now, count # u such that k->u->j (to find k->h's ESP value)*/ \
-	  EXEC_THROUGH_OUTEDGES(k,f,u, {                                \
-	      if(u!=head)                                               \
-		L2kh+=IS_OUTEDGE(u,head); /*Increment if there is a trans edge*/ \
-	    });                                                         \
-	}                                                               \
-        call_subroutine_path(kh, subroutine_path);                      \
-      }                                                                 \
-    });                                                                 \
-  call_subroutine_focus(th, subroutine_focus);
-
-
-/*
-  Changescore for ESPs based on incoming two-paths, i.e. configurations for edge i->j such that j->k->i.
-
-  ITP:
-  L2th - count j->k->i
-  L2hk - for each j->k neq i: k->i, count u such that k->u->j
-  L2kt - for each k->i neq j: j->k, count u such that i->u->k
-
-  We assume that this is only called for directed graphs - otherwise, use the baseline espUTP function.
-*/
-#define espITP_change(subroutine_path, subroutine_focus)                \
-  int L2th;                                                             \
-  if(spcache) L2th = GETDDMUI(head,tail,spcache); else L2th=0;          \
-  /* step through outedges of head (i.e., k: h->k)*/                    \
-  EXEC_THROUGH_OUTEDGES(head,e,k, {                                     \
-      int L2hk;                                                         \
-      if((k!=tail)&&(IS_OUTEDGE(k,tail))){ /*Only use contingent cases*/ \
-        if(spcache) L2hk = GETDDMUI(k,head,spcache);                    \
-	else{                                                           \
-	  /*We have a h->k->t two-path, so add it to our count.*/       \
-	  L2th++;                                                       \
-	  L2hk=0;                                                       \
-	  /*Now, count # u such that k->u->h (so that we know k's ESP value)*/ \
-	  EXEC_THROUGH_OUTEDGES(k,f,u, {                                \
-	      if(u!=head)                                               \
-		L2hk+=IS_OUTEDGE(u,head); /*Increment if there is a cyclic edge*/ \
-	    });                                                         \
-	}                                                               \
-        call_subroutine_path(hk, subroutine_path);                      \
-      }                                                                 \
-    });                                                                 \
-  /* step through inedges of tail (i.e., k: k->t)*/                     \
-  EXEC_THROUGH_INEDGES(tail,e,k, {                                      \
-      int L2kt;                                                         \
-      if((k!=head)&&(IS_OUTEDGE(head,k))){ /*Only use contingent cases*/ \
-        if(spcache) L2kt = GETDDMUI(tail,k,spcache);                    \
-	else{                                                           \
-	  L2kt=0;                                                       \
-	  /*Now, count # u such that t->u->k (so that we know k's ESP value)*/ \
-	  EXEC_THROUGH_INEDGES(k,f,u, {                                 \
-	      if(u!=tail)                                               \
-		L2kt+=IS_OUTEDGE(tail,u); /*Increment if there is a cyclic edge*/ \
-	    });                                                         \
-	}                                                               \
-        call_subroutine_path(kt, subroutine_path);                      \
-      }                                                                 \
-    });                                                                 \
-  call_subroutine_focus(th, subroutine_focus);
-
-
-/*
-  Changescore for ESPs based on outgoing shared partners, i.e. configurations for edge i->j such that i->k and j->k (with k!=j).
-
-  OSP:
-  L2th - count t->k, h->k
-  L2tk - for each t->k neq h: k->h, count u such that t->u, k->u
-  L2kt - for each k->t neq h: k->h, count u such that t->u, k->u
-
-  We assume that this is only called for directed graphs - otherwise, use the baseline espUTP function.
-*/
-#define espOSP_change(subroutine_path, subroutine_focus)                \
-  int L2th;                                                             \
-  if(spcache) L2th = GETUDMUI(tail,head,spcache); else L2th=0;          \
-  /* step through outedges of tail (i.e., k: t->k, k->h, k!=h)*/        \
-  EXEC_THROUGH_OUTEDGES(tail,e,k, {                                     \
-      if(k!=head){                                                      \
-        if(!spcache)                                                    \
-	  /*Do we have a t->k,h->k SP?  If so, add it to our count.*/   \
-	  L2th+=IS_OUTEDGE(head,k);                                     \
-                                                                        \
-	if(IS_OUTEDGE(k,head)){ /*Only consider stats that could change*/ \
-          int L2tk;                                                     \
-          if(spcache) L2tk = GETUDMUI(tail,k,spcache);                  \
-	  else{                                                         \
-	    L2tk=0;                                                     \
-	    /*Now, count # u such that t->u,k->u (to get t->k's ESP value)*/ \
-	    EXEC_THROUGH_OUTEDGES(k,f,u, {                              \
-		if(u!=tail)                                             \
-		  L2tk+=IS_OUTEDGE(tail,u);  /*Increment if there is an OSP*/ \
-	      });                                                       \
-	  }                                                             \
-          call_subroutine_path(tk, subroutine_path);                    \
-        }                                                               \
-      }                                                                 \
-    });                                                                 \
-  /* step through inedges of tail (i.e., k: k->t, k->h, k!=h)*/         \
-  EXEC_THROUGH_INEDGES(tail,e,k, {                                      \
-      if((k!=head)&&(IS_OUTEDGE(k,head))){ /*Only stats that could change*/ \
-        int L2kt;                                                       \
-        if(spcache) L2kt = GETUDMUI(k,tail,spcache);                    \
-	else{                                                           \
-	  L2kt=0;                                                       \
-	  /*Now, count # u such that t->u,k->u (to get k->t's ESP value)*/ \
-	  EXEC_THROUGH_OUTEDGES(k,f,u, {                                \
-	      if(u!=tail)                                               \
-		L2kt+=IS_OUTEDGE(tail,u);  /*Increment if there is an OSP*/ \
-	    });                                                         \
-	}                                                               \
-        call_subroutine_path(kt, subroutine_path);                      \
-      }                                                                 \
-    });                                                                 \
-  call_subroutine_focus(th, subroutine_focus);
-
-
-/*
-  Changescore for ESPs based on incoming shared partners, i.e. configurations for edge i->j such that i->k and j->k (with k!=j).
-
-  ISP:
-  L2th - count k->t, k->h
-  L2hk - for each h->k neq t: t->k, count u such that u->h, u->k
-  L2kh - for each k->h neq t: t->k, count u such that u->h, u->k
-
-  We assume that this is only called for directed graphs - otherwise, use the baseline espUTP function.
-*/
-#define espISP_change(subroutine_path, subroutine_focus)                \
-  int L2th;                                                             \
-  if(spcache) L2th = GETUDMUI(tail,head,spcache); else L2th=0;          \
-  /* step through inedges of head (i.e., k: k->h, t->k, k!=t)*/         \
-  EXEC_THROUGH_INEDGES(head,e,k, {                                      \
-      if(k!=tail){                                                      \
-        if(!spcache)                                                    \
-	  /*Do we have a k->t,k->h SP?  If so, add it to our count.*/   \
-	  L2th+=IS_OUTEDGE(k,tail);                                     \
-                                                                        \
-	if(IS_OUTEDGE(tail,k)){ /*Only consider stats that could change*/ \
-          int L2kh;                                                     \
-          if(spcache) L2kh = GETUDMUI(k,head,spcache);                  \
-	  else{                                                         \
-	    L2kh=0;                                                     \
-	    /*Now, count # u such that u->h,u->k (to get h>k's ESP value)*/ \
-	    EXEC_THROUGH_INEDGES(k,f,u, {                               \
-		if(u!=head)                                             \
-		  L2kh+=IS_OUTEDGE(u,head);  /*Increment if there is an ISP*/ \
-	      });                                                       \
-	  }                                                             \
-          call_subroutine_path(kh, subroutine_path);                    \
-        }                                                               \
-      }                                                                 \
-    });                                                                 \
-  /* step through outedges of head (i.e., k: h->k, t->k, k!=t)*/        \
-  EXEC_THROUGH_OUTEDGES(head,e,k, {                                     \
-      if((k!=tail)&&(IS_OUTEDGE(tail,k))){ /*Only stats that could change*/ \
-        int L2hk;                                                       \
-        if(spcache) L2hk = GETUDMUI(head,k,spcache);                    \
-	else{                                                           \
-	  L2hk=0;                                                       \
-	  /*Now, count # u such that u->h,u->k (to get k->h's ESP value)*/ \
-	  EXEC_THROUGH_INEDGES(k,f,u, {                                 \
-	      if(u!=head)                                               \
-		L2hk+=IS_OUTEDGE(u,head);  /*Increment if there is an ISP*/ \
-	    });                                                         \
-	}                                                               \
-        call_subroutine_path(hk, subroutine_path);                      \
-      }                                                                 \
-    });                                                                 \
-  call_subroutine_focus(th, subroutine_focus);
-
-
-/*
-  Changescore for ESPs based on reciprocated two-paths, i.e. configurations for edge i->j such that i<->k and j<->k (with k!=j).
-
-  RTP:
-  L2th - count t<->k<->h
-  L2kt - for each k->t neq h: h->t,k<->h, count u such that k<->u<->t
-  L2tk - for each t->k neq h: h->t,k<->h, count u such that k<->u<->t
-  L2kh - for each k->h neq t: h->t,k<->t, count u such that k<->u<->h
-  L2hk - for each h->k neq t: h->t,k<->t, count u such that k<->u<->h
-
-  We assume that this is only called for directed graphs - otherwise, use the baseline espUTP function.
-*/
-#define espRTP_change(subroutine_path, subroutine_focus)                \
-  int L2th; /*Two-path counts for various edges*/                       \
-  /* NB: RTP is for directed networks, but the focus dyad is undirected. */ \
-  if(spcache) L2th = GETUDMUI(tail,head,spcache); else L2th=0;          \
-  int htedge=IS_OUTEDGE(head,tail);  /*Is there an h->t (reciprocating) edge?*/ \
-  /* step through inedges of tail (k->t: k!=h,h->t,k<->h)*/             \
-  EXEC_THROUGH_INEDGES(tail,e,k, {                                      \
-      if(k!=head){                                                      \
-        if(!spcache)                                                    \
-          /*Do we have a t<->k<->h TP?  If so, add it to our count.*/   \
-          L2th+=(IS_OUTEDGE(tail,k)&&IS_OUTEDGE(head,k)&&IS_OUTEDGE(k,head)); \
-        if(htedge&&IS_OUTEDGE(head,k)&&IS_OUTEDGE(k,head)){ /*Only consider stats that could change*/ \
-          int L2kt;                                                     \
-          if(spcache) L2kt = GETUDMUI(k,tail,spcache);                  \
-          else{                                                         \
-            L2kt=0;                                                     \
-            /*Now, count # u such that k<->u<->t (to get (k,t)'s ESP value)*/ \
-            EXEC_THROUGH_OUTEDGES(k,f,u, {                              \
-                if((u!=tail)&&(IS_OUTEDGE(u,k)))                        \
-                  L2kt+=(IS_OUTEDGE(u,tail)&&IS_OUTEDGE(tail,u));  /*k<->u<->t?*/ \
-              });                                                       \
-          }                                                             \
-          call_subroutine_path(kt, subroutine_path);                    \
-        }                                                               \
-      }                                                                 \
-    });                                                                 \
-  /* step through outedges of tail (t->k: k!=h,h->t,k<->h)*/            \
-  EXEC_THROUGH_OUTEDGES(tail,e,k, {                                     \
-      if(k!=head){                                                      \
-        if(htedge&&IS_OUTEDGE(head,k)&&IS_OUTEDGE(k,head)){ /*Only consider stats that could change*/ \
-          int L2tk;                                                     \
-          if(spcache) L2tk = GETUDMUI(tail,k,spcache);                  \
-          else{                                                         \
-            L2tk=0;                                                     \
-            /*Now, count # u such that k<->u<->t (to get (tk)'s ESP value)*/ \
-            EXEC_THROUGH_OUTEDGES(k,f,u, {                              \
-                if((u!=tail)&&(IS_OUTEDGE(u,k)))                        \
-                  L2tk+=(IS_OUTEDGE(u,tail)&&IS_OUTEDGE(tail,u));  /*k<->u<->t?*/ \
-              });                                                       \
-          }                                                             \
-          call_subroutine_path(tk, subroutine_path);                    \
-        }                                                               \
-      }                                                                 \
-    });                                                                 \
-  /* step through inedges of head (k->h: k!=t,h->t,k<->t)*/             \
-  EXEC_THROUGH_INEDGES(head,e,k, {                                      \
-      if(k!=tail){                                                      \
-        if(htedge&&IS_OUTEDGE(tail,k)&&IS_OUTEDGE(k,tail)){ /*Only consider stats that could change*/ \
-          int L2kh;                                                     \
-          if(spcache) L2kh = GETUDMUI(k,head,spcache);                  \
-          else{                                                         \
-            L2kh=0;                                                     \
-            /*Now, count # u such that k<->u<->h (to get k->h's ESP value)*/ \
-            EXEC_THROUGH_OUTEDGES(k,f,u, {                              \
-                if((u!=head)&&(IS_OUTEDGE(u,k)))                        \
-                  L2kh+=(IS_OUTEDGE(u,head)&&IS_OUTEDGE(head,u));  /*k<->u<->h?*/ \
-              });                                                       \
-          }                                                             \
-          call_subroutine_path(kh, subroutine_path);                    \
-        }                                                               \
-      }                                                                 \
-    });                                                                 \
-  /* step through outedges of head (h->k: k!=t,h->t,k<->t)*/            \
-  EXEC_THROUGH_OUTEDGES(head,e,k, {                                     \
-      if(k!=tail){                                                      \
-        if(htedge&&IS_OUTEDGE(tail,k)&&IS_OUTEDGE(k,tail)){ /*Only consider stats that could change*/ \
-          int L2hk;                                                     \
-          if(spcache) L2hk = GETUDMUI(head,k,spcache);                  \
-          else{                                                         \
-            L2hk=0;                                                     \
-            /*Now, count # u such that k<->u<->h (to get h->k's ESP value)*/ \
-            EXEC_THROUGH_OUTEDGES(k,f,u, {                              \
-                if((u!=head)&&(IS_OUTEDGE(u,k)))                        \
-                  L2hk+=(IS_OUTEDGE(u,head)&&IS_OUTEDGE(head,u));  /*k<->u<->h?*/ \
-              });                                                       \
-          }                                                             \
-          call_subroutine_path(hk, subroutine_path);                    \
-        }                                                               \
-      }                                                                 \
-    });                                                                 \
-  call_subroutine_focus(th, subroutine_focus);
-
-#endif // _CHANGESTATS_DGW_SP_H_
+} // namespace sp
+} // namespace v1
+} // namespace ergm
+#endif
