@@ -136,7 +136,7 @@ Note that both \code{distoff} and \code{mindist} are ignored when
 This term can be used for directed or undirected networks.
 }
 \examples{
-\dontrun{ #We turn these off by default, b/c they are a bit slow
+\donttest{
 #Create an example network, in a two-dimensional space
 #  Effective SIF is 1/(1 + exp(-3 + 2 log(d))); apx inverse square
 n <- 300
