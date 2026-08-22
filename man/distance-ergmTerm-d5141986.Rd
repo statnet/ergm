@@ -6,18 +6,15 @@
 \alias{InitWtErgmTerm.distance}
 \title{Inter-point distances}
 \usage{
-# binary: distance(coord, metric=2, sphere=FALSE, radius=6371.0087714,
+# binary: distance(attr, metric=2, sphere=FALSE, radius=6371.0087714,
 #             log=TRUE, mindist=1e-5, distoff=0, scale=1, pow=1)
 
-# valued: distance(coord, metric=2, sphere=FALSE, radius=6371.0087714,
+# valued: distance(attr, metric=2, sphere=FALSE, radius=6371.0087714,
 #             log=TRUE, mindist=1e-5, distoff=0, scale=1, pow=1, form="sum")
 }
 \arguments{
-\item{coord}{node by dimension coordinate matrix, name of a network
-attribute containing the coordinate matrix, or vector of
-vertex attribute names containing coordinates (to be used
-jointly); for \code{sphere==TRUE}, first two coordinates
-must be angular units, in lat/lon order}
+\item{attr}{a vertex attribute specification specifying one or more dimensions and/or vector-valued vertex attributes specifying the coordinates; for \code{sphere==TRUE}, first two coordinates
+must be angular units, in latitude/longitude order. (See \link[=nodal_attributes]{Specifying Vertex attributes and Levels} (\code{?nodal_attributes}) for syntax.)}
 
 \item{metric}{power to use for the Minkowski metric}
 
@@ -65,8 +62,7 @@ attributes to be used as coordinates.
 \details{
 Either spherical (\code{sphere=TRUE}) or Minkowski metrics
 (\code{sphere=FALSE}) may be selected.  For the latter, any number of
-dimensions may be supplied, but if \code{coord} is given as a vector the
-space in question is assumed to be one-dimensional.  The choice of
+dimensions may be supplied, including 1.  The choice of
 Minkowski metric is determined by \code{metric}, with the distance being
 given by
 \deqn{
@@ -80,13 +76,13 @@ coordinate matrix, and \eqn{p} is the metric parameter (i.e.
 Euclidean distance.  Note that \code{metric==1}, and \code{log==FALSE}
 in the one-dimensional case is identical to the \code{absdiff} term.
 
-When \code{sphere=TRUE}, the first two dimensions of \code{coord} must be
+When \code{sphere=TRUE}, the first two dimensions of \code{attr} must be
 angular coordinates in lat/lon form (i.e., the first column must contain
 units of decimal degrees between -90 and 90, and the second must contain
 units of decimal degrees betweein -180 and 180).  Distance is then
 computed on between the specified angular coordinates on the surface of a
 sphere of radius \code{radius}; by default, this is the IUGG mean Earth
-radius in km, and hence supplying lat/lon coordinates yields geospherical
+radius in km, and hence supplying latitude/longitude coordinates yields geospherical
 distances in kilometers.  As \code{metric} has no meaning here, it is
 ignored.
 
@@ -142,8 +138,35 @@ This term can be used for directed or undirected networks.
 n <- 300
 d <- 2
 x <- matrix(runif(d*n,0,50),ncol=d)
-net <- simulate(network.initialize(n,directed=FALSE)~edges
-   + distance(x), coef=c(3,-2),
+nw0 <- as.network(n, density = 2/n, directed = FALSE)
+
+## There is a number of ways to pass positions.
+
+# The recommended method is to use a vector-valued vertex
+# attribute. This method it is conceptually clean and robust to
+# subgraph extraction and other graph manipulations.
+
+nw0 \%v\% "x" <- split(x, 1:n) # list of rows of x
+head(x)
+get.vertex.attribute(nw0, "x", unlist = FALSE) |> head() # matches
+summary(nw0 ~ edges + distance("x"))
+
+
+# An n*d matrix passed through I() ("AsIs") function:
+summary(nw0 ~ edges + distance(I(x)))
+
+# As a network attribute:
+nw0 \%n\% "X" <- x
+head(nw0 \%n\% "X")
+# It can be accessed via an obsolete purrr formulation, where . or
+# .nw is a placeholder for the network:
+summary(nw0 ~ edges + distance(~.\%n\%"X"))
+# It can also be accessed by an anonymous function:
+summary(nw0 ~ edges + distance(\(nw) nw\%n\%"X")) 
+
+# In any case...
+
+net <- simulate(nw0~edges + distance("x"), coef=c(3,-2),
    control=control.simulate.formula(MCMC.burnin=n^3))
 
 #Examine the network
@@ -157,12 +180,11 @@ lines((0:100)/100*max(dis), 1/(1+exp(-3+2*log((0:100)/100*max(dis)))),
     lwd=2, lty=3, col=3)                   #Theoretical SIF
 
 #Recover the parameters
-summary(ergm(net~edges+distance(x)))
+summary(ergm(net~edges+distance("x")))
 
 #What happens if we use raw instead of log distances?
 #  Effective SIF is 1/(1 + exp(-3 + d)); apx exponential decay
-net <- simulate(network.initialize(n,directed=FALSE)~edges
-   + distance(x, log=FALSE), coef=c(3,-1),
+net <- simulate(nw0~edges + distance("x", log=FALSE), coef=c(3,-1),
    control=control.simulate.formula(MCMC.burnin=n^3))
 plot(net,coord=x)  #Ties are much more local - no long edges
 
@@ -175,7 +197,7 @@ lines((0:100)/100*max(dis), 1/(1+exp(-3+1*((0:100)/100*max(dis)))),
 lines((0:100)/100*max(dis), 1/(1+exp(-3+2*log((0:100)/100*max(dis)))),
     lwd=2, lty=3, col=4)                   #Previous SIF (blue)
 
-summary(ergm(net~edges+distance(x, log=FALSE))) #Recover parameters
+summary(ergm(net~edges+distance("x", log=FALSE))) #Recover parameters
 
 #A small lat/lon example; begin with some US cities
 co<-rbind(
@@ -214,14 +236,15 @@ co<-rbind(
 #By default, spherical distances give us great circle distances
 #on the geosphere, in kilometers
 net <- network.initialize(30, directed = FALSE)
+net \%v\% "co" <- split(co, 1:30)
 net[1,8] <- 1  #Create a tie from Austin, TX to Durham, NC
-summary(net ~ distance(co, sphere = TRUE, log = FALSE)) #About 1863 km
+summary(net ~ distance("co", sphere = TRUE, log = FALSE)) #About 1863 km
 net[1,8] <- 0
 net[14,22] <- 1  #Now try Kona, HI to NYC, NY
-summary(net ~ distance(co, sphere = TRUE, log = FALSE)) #About 7940 km
+summary(net ~ distance("co", sphere = TRUE, log = FALSE)) #About 7940 km
 
 #Model a network among these fine cities
-net <- simulate(net ~ edges + distance(co, sphere = TRUE),
+net <- simulate(net ~ edges + distance("co", sphere = TRUE),
     coef=c(5,-1), control=control.simulate.formula(MCMC.burnin=1e5))
 
 #Plot the cities in lat/lon space
@@ -229,7 +252,7 @@ plot(net, coord=co[,2:1], suppress.axes=FALSE, xlab="Longitude",
     ylab="Latitude")
 
 #Recover the parameters
-summary(ergm(net~edges+distance(co, sphere = TRUE)))
+summary(ergm(net~edges+distance("co", sphere = TRUE)))
 }
 
 }

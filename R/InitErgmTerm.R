@@ -2426,14 +2426,11 @@ InitErgmTerm.diff <- function(nw, arglist, ..., version=packageVersion("ergm")) 
 #'   attributes to be used as coordinates.
 #'
 #' @usage
-#' # binary: distance(coord, metric=2, sphere=FALSE, radius=6371.0087714,
+#' # binary: distance(attr, metric=2, sphere=FALSE, radius=6371.0087714,
 #' #             log=TRUE, mindist=1e-5, distoff=0, scale=1, pow=1)
 #'
-#' @param coord node by dimension coordinate matrix, name of a network
-#'              attribute containing the coordinate matrix, or vector of
-#'              vertex attribute names containing coordinates (to be used
-#'              jointly); for \code{sphere==TRUE}, first two coordinates
-#'              must be angular units, in lat/lon order
+#' @param attr a vertex attribute specification specifying one or more dimensions and/or vector-valued vertex attributes specifying the coordinates; for \code{sphere==TRUE}, first two coordinates
+#'              must be angular units, in latitude/longitude order. (See [Specifying Vertex attributes and Levels][nodal_attributes] (`?nodal_attributes`) for syntax.)
 #' @param metric power to use for the Minkowski metric
 #' @param sphere logical; should great circle distances be used (rather than
 #'               Minkowski distances in free space)?  If \code{TRUE}, the first
@@ -2455,8 +2452,7 @@ InitErgmTerm.diff <- function(nw, arglist, ..., version=packageVersion("ergm")) 
 #'
 #' @details Either spherical (\code{sphere=TRUE}) or Minkowski metrics
 #'   (\code{sphere=FALSE}) may be selected.  For the latter, any number of
-#'   dimensions may be supplied, but if \code{coord} is given as a vector the
-#'   space in question is assumed to be one-dimensional.  The choice of
+#'   dimensions may be supplied, including 1.  The choice of
 #'   Minkowski metric is determined by \code{metric}, with the distance being
 #'   given by
 #'   \deqn{
@@ -2470,13 +2466,13 @@ InitErgmTerm.diff <- function(nw, arglist, ..., version=packageVersion("ergm")) 
 #'   Euclidean distance.  Note that \code{metric==1}, and \code{log==FALSE}
 #'   in the one-dimensional case is identical to the \code{absdiff} term.
 #'
-#'   When \code{sphere=TRUE}, the first two dimensions of \code{coord} must be
+#'   When \code{sphere=TRUE}, the first two dimensions of \code{attr} must be
 #'   angular coordinates in lat/lon form (i.e., the first column must contain
 #'   units of decimal degrees between -90 and 90, and the second must contain
 #'   units of decimal degrees betweein -180 and 180).  Distance is then
 #'   computed on between the specified angular coordinates on the surface of a
 #'   sphere of radius \code{radius}; by default, this is the IUGG mean Earth
-#'   radius in km, and hence supplying lat/lon coordinates yields geospherical
+#'   radius in km, and hence supplying latitude/longitude coordinates yields geospherical
 #'   distances in kilometers.  As \code{metric} has no meaning here, it is
 #'   ignored.
 #'
@@ -2532,8 +2528,35 @@ InitErgmTerm.diff <- function(nw, arglist, ..., version=packageVersion("ergm")) 
 #' n <- 300
 #' d <- 2
 #' x <- matrix(runif(d*n,0,50),ncol=d)
-#' net <- simulate(network.initialize(n,directed=FALSE)~edges
-#'    + distance(x), coef=c(3,-2),
+#' nw0 <- as.network(n, density = 2/n, directed = FALSE)
+#'
+#' ## There is a number of ways to pass positions.
+#'
+#' # The recommended method is to use a vector-valued vertex
+#' # attribute. This method it is conceptually clean and robust to
+#' # subgraph extraction and other graph manipulations.
+#'
+#' nw0 %v% "x" <- split(x, 1:n) # list of rows of x
+#' head(x)
+#' get.vertex.attribute(nw0, "x", unlist = FALSE) |> head() # matches
+#' summary(nw0 ~ edges + distance("x"))
+#'
+#' 
+#' # An n*d matrix passed through I() ("AsIs") function:
+#' summary(nw0 ~ edges + distance(I(x)))
+#'
+#' # As a network attribute:
+#' nw0 %n% "X" <- x
+#' head(nw0 %n% "X")
+#' # It can be accessed via an obsolete purrr formulation, where . or
+#' # .nw is a placeholder for the network:
+#' summary(nw0 ~ edges + distance(~.%n%"X"))
+#' # It can also be accessed by an anonymous function:
+#' summary(nw0 ~ edges + distance(\(nw) nw%n%"X")) 
+#'
+#' # In any case...
+#' 
+#' net <- simulate(nw0~edges + distance("x"), coef=c(3,-2),
 #'    control=control.simulate.formula(MCMC.burnin=n^3))
 #'
 #' #Examine the network
@@ -2547,12 +2570,11 @@ InitErgmTerm.diff <- function(nw, arglist, ..., version=packageVersion("ergm")) 
 #'     lwd=2, lty=3, col=3)                   #Theoretical SIF
 #'
 #' #Recover the parameters
-#' summary(ergm(net~edges+distance(x)))
+#' summary(ergm(net~edges+distance("x")))
 #'
 #' #What happens if we use raw instead of log distances?
 #' #  Effective SIF is 1/(1 + exp(-3 + d)); apx exponential decay
-#' net <- simulate(network.initialize(n,directed=FALSE)~edges
-#'    + distance(x, log=FALSE), coef=c(3,-1),
+#' net <- simulate(nw0~edges + distance("x", log=FALSE), coef=c(3,-1),
 #'    control=control.simulate.formula(MCMC.burnin=n^3))
 #' plot(net,coord=x)  #Ties are much more local - no long edges
 #'
@@ -2565,7 +2587,7 @@ InitErgmTerm.diff <- function(nw, arglist, ..., version=packageVersion("ergm")) 
 #' lines((0:100)/100*max(dis), 1/(1+exp(-3+2*log((0:100)/100*max(dis)))),
 #'     lwd=2, lty=3, col=4)                   #Previous SIF (blue)
 #'
-#' summary(ergm(net~edges+distance(x, log=FALSE))) #Recover parameters
+#' summary(ergm(net~edges+distance("x", log=FALSE))) #Recover parameters
 #'
 #' #A small lat/lon example; begin with some US cities
 #' co<-rbind(
@@ -2604,14 +2626,15 @@ InitErgmTerm.diff <- function(nw, arglist, ..., version=packageVersion("ergm")) 
 #' #By default, spherical distances give us great circle distances
 #' #on the geosphere, in kilometers
 #' net <- network.initialize(30, directed = FALSE)
+#' net %v% "co" <- split(co, 1:30)
 #' net[1,8] <- 1  #Create a tie from Austin, TX to Durham, NC
-#' summary(net ~ distance(co, sphere = TRUE, log = FALSE)) #About 1863 km
+#' summary(net ~ distance("co", sphere = TRUE, log = FALSE)) #About 1863 km
 #' net[1,8] <- 0
 #' net[14,22] <- 1  #Now try Kona, HI to NYC, NY
-#' summary(net ~ distance(co, sphere = TRUE, log = FALSE)) #About 7940 km
+#' summary(net ~ distance("co", sphere = TRUE, log = FALSE)) #About 7940 km
 #'
 #' #Model a network among these fine cities
-#' net <- simulate(net ~ edges + distance(co, sphere = TRUE),
+#' net <- simulate(net ~ edges + distance("co", sphere = TRUE),
 #'     coef=c(5,-1), control=control.simulate.formula(MCMC.burnin=1e5))
 #'
 #' #Plot the cities in lat/lon space
@@ -2619,7 +2642,7 @@ InitErgmTerm.diff <- function(nw, arglist, ..., version=packageVersion("ergm")) 
 #'     ylab="Latitude")
 #'
 #' #Recover the parameters
-#' summary(ergm(net~edges+distance(co, sphere = TRUE)))
+#' summary(ergm(net~edges+distance("co", sphere = TRUE)))
 #'}
 #'
 #' @references Butts, Carter T. and Acton, Ryan M.  (2011).  \dQuote{Spatial
@@ -2635,37 +2658,16 @@ InitErgmTerm.diff <- function(nw, arglist, ..., version=packageVersion("ergm")) 
 #' @concept quantitative nodal attribute
 InitErgmTerm.distance <- function(nw, arglist, ...) {
   a <- check.ErgmTerm(nw, arglist,
-      varnames = c("coord", "metric", "sphere", "radius", "log", "mindist", "distoff", "scale", "pow"),
-      vartypes = c("numeric,matrix,data.frame,character", "numeric", "logical", "numeric", "logical", "numeric", "numeric", "numeric", "numeric"),
+      varnames = c("attr", "metric", "sphere", "radius", "log", "mindist", "distoff", "scale", "pow"),
+      vartypes = c(ERGM_VATTR_SPEC, "numeric", "logical", "numeric", "logical", "numeric", "numeric", "numeric", "numeric"),
       required = c(TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE),
       defaultvalues = list(NULL,2,FALSE,6371.0087714,TRUE,1e-5,0,1,1))
   #Process arguments
-  if(is.character(a$coord)){  #Some sort of attribute
-    if(length(a$coord)>1){    #Vertex attributes
-      a$coord<-ergm_get_vattr(a$coord,nw,accept="numeric",multiple="matrix")
-    }else{                    #Either vertex or network attribute
-      if(a$coord%in%list.vertex.attributes(nw))
-        a$coord<-ergm_get_vattr(a$coord,nw,accept="numeric")
-      else
-        a$coord<-get.network.attribute(nw,a$coord)
-    }
-    if(is.null(a$coord))
-      stop("Distance term requires either a coordinate matrix, the name of a network attribute containing one, or one or more names of vertex attributes containing coordinates.")
-  }
-  if(length(dim(a$coord))==2){
-    coord<-a$coord
-    if(is.data.frame(coord))
-      coord<-as.matrix(coord)
-  }else if(length(dim(a$coord))==0){
-    coord<-matrix(rep(a$coord,length=network.size(nw)),ncol=1)
-  }else{
-    coord<-as.matrix(coord)
-  }
+  coord <- ergm_get_vattr(a$attr, nw, accept = "numeric", multiple = "matrix")
+
   if(NROW(coord)!=network.size(nw))
     stop("Distance term requires that coordinates be provided for all vertices.")
-  if(any(!apply(coord,1:2,is.numeric)))
-    stop("Distance term requires numeric coordinates.")
-  if(any(is.na(coord)))
+  if(anyNA(coord))
     stop("Missing coordinate values not allowed in distance term.")
   if(a$sphere){
     if(NCOL(coord)<2)

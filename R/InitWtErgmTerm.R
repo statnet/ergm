@@ -304,13 +304,13 @@ InitWtErgmTerm.diff <- function(nw, arglist, ..., version=packageVersion("ergm")
 #' @templateVar name distance
 #' @template ergmTerm-rdname
 #' @usage
-#' # valued: distance(coord, metric=2, sphere=FALSE, radius=6371.0087714,
+#' # valued: distance(attr, metric=2, sphere=FALSE, radius=6371.0087714,
 #' #             log=TRUE, mindist=1e-5, distoff=0, scale=1, pow=1, form="sum")
 #' @template ergmTerm-form
 InitWtErgmTerm.distance <- function(nw, arglist, ...) {
   a <- check.ErgmTerm(nw, arglist,
-      varnames = c("coord", "metric", "sphere", "radius", "log", "mindist", "distoff", "scale", "pow", "form"),
-      vartypes = c("numeric,matrix,data.frame,character", "numeric", "logical", "numeric", "logical", "numeric", "numeric", "numeric", "numeric", "character"),
+      varnames = c("attr", "metric", "sphere", "radius", "log", "mindist", "distoff", "scale", "pow", "form"),
+      vartypes = c(ERGM_VATTR_SPEC, "numeric", "logical", "numeric", "logical", "numeric", "numeric", "numeric", "numeric", "character"),
       required = c(TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE),
       defaultvalues = list(NULL,2,FALSE,6371.0087714,TRUE,1e-5,0,1,1, "sum"))
 

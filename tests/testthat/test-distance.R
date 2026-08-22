@@ -27,46 +27,46 @@ g<-rbind(
  c(0,0,0)
 )
 net<-network(g)
-net%n%"co"<-co         #Stuff coords in a network object
+net%v%"co"<-split(co,1:nrow(co))  #As vector-valued vertex attribute
 net%v%"x"<-co[,1]      #Also list them as individual vertex coords
 net%v%"y"<-co[,2]
 net%v%"z"<-co[,3]
 
 #Verify that values are correct
 test_that("L2 works", {
-  expect_equal(summary(net~distance(co,log=FALSE)), sum(d2[g>0]), ignore_attr=TRUE)
+  expect_equal(summary(net~distance("co",log=FALSE)), sum(d2[g>0]), ignore_attr=TRUE)
 })
 test_that("L1 works", {
-  expect_equal(summary(net~distance(co,metric=1,log=FALSE)), sum(d1[g>0]), ignore_attr=TRUE)
+  expect_equal(summary(net~distance("co",metric=1,log=FALSE)), sum(d1[g>0]), ignore_attr=TRUE)
 })
 test_that("L2 works", {
-  expect_equal(summary(net~distance(co)), sum(log(d2[g>0])), ignore_attr=TRUE)
+  expect_equal(summary(net~distance("co")), sum(log(d2[g>0])), ignore_attr=TRUE)
 })
 test_that("log L1 works", {
-  expect_equal(summary(net~distance(co,metric=1)), sum(log(d1[g>0])), ignore_attr=TRUE)
+  expect_equal(summary(net~distance("co",metric=1)), sum(log(d1[g>0])), ignore_attr=TRUE)
 })
 test_that("scaling works", {
-  expect_equal(summary(net~distance(co,metric=1,log=FALSE,scale=3)), 3*sum(d1[g>0]), ignore_attr=TRUE)
+  expect_equal(summary(net~distance("co",metric=1,log=FALSE,scale=3)), 3*sum(d1[g>0]), ignore_attr=TRUE)
 })
 test_that("powers work", {
-  expect_equal(summary(net~distance(co,metric=1,log=FALSE,pow=3)), sum(d1[g>0]^3), ignore_attr=TRUE)
+  expect_equal(summary(net~distance("co",metric=1,log=FALSE,pow=3)), sum(d1[g>0]^3), ignore_attr=TRUE)
 })
 test_that("thresholding works", {
-  expect_equal(summary(net~distance(co,metric=1,log=TRUE,scale=1e-10,mindist=5)), log(5)*sum(g>0), ignore_attr=TRUE)
+  expect_equal(summary(net~distance("co",metric=1,log=TRUE,scale=1e-10,mindist=5)), log(5)*sum(g>0), ignore_attr=TRUE)
 })
 
 #Verify that alternative specifications work
 test_that("character matches matrix", {
-  expect_equal(summary(net~distance(co)), summary(net~distance("co")), ignore_attr=TRUE)
-})
-test_that("character matches data.frame", {
-  expect_equal(summary(net~distance(as.data.frame(co))), summary(net~distance("co")), ignore_attr=TRUE)
+  expect_equal(summary(net~distance("co")), summary(net~distance("co")), ignore_attr=TRUE)
 })
 test_that("vertex attributes matches matrix", {
-  expect_equal(summary(net~distance(co)), summary(net~distance(c("x","y","z"))), ignore_attr=TRUE)
+  expect_equal(summary(net~distance("co")), summary(net~distance(c("x","y","z"))), ignore_attr=TRUE)
 })
-test_that("single attribute defaults to vertex", {
-  expect_equal(summary(net~distance(co[,1])), summary(net~distance("x")), ignore_attr=TRUE)
+test_that("one-dimensional with AsIs", {
+  expect_equal(summary(net~distance(I(co[,1]))), summary(net~distance("x")), ignore_attr=TRUE)
+})
+test_that("transforming vector-valued attribute", {
+  expect_equal(summary(net~distance(~co[,1])), summary(net~distance("x")), ignore_attr=TRUE)
 })
 
 
@@ -107,19 +107,20 @@ co<-rbind(
 #By default, spherical distances give us great circle distances
 #on the geosphere, in kilometers
 net <- network.initialize(30, directed = FALSE)
+net %v% "co" <- split(co, 1:30)
 net[1,8] <- 1  #Create a tie from Austin, TX to Durham, NC
 test_that("first great circle distance is correct", {
-  expect_equal(round(summary(net ~ distance(co, sphere = TRUE, log = FALSE)),3), 1862.879, ignore_attr=TRUE)
+  expect_equal(round(summary(net ~ distance("co", sphere = TRUE, log = FALSE)),3), 1862.879, ignore_attr=TRUE)
 })
 net[1,8] <- 0
 net[14,22] <- 1  #Now try Kona, HI to NYC, NY
 test_that("second great circle distance is correct", {
-  expect_equal(round(summary(net ~ distance(co, sphere = TRUE, log = FALSE)),3), 7940.019, ignore_attr=TRUE)
+  expect_equal(round(summary(net ~ distance("co", sphere = TRUE, log = FALSE)),3), 7940.019, ignore_attr=TRUE)
 })
 net[1,8] <- 1
 test_that("great circle distance sum is correct", {
-  expect_equal(round(summary(net ~ distance(co, sphere = TRUE, log = FALSE)),3), 9802.898, ignore_attr=TRUE)
+  expect_equal(round(summary(net ~ distance("co", sphere = TRUE, log = FALSE)),3), 9802.898, ignore_attr=TRUE)
 })
 test_that("log great circle distance sum is correct", {
-  expect_equal(round(summary(net ~ distance(co, sphere = TRUE, log = TRUE)),3), 16.51, ignore_attr=TRUE)
+  expect_equal(round(summary(net ~ distance("co", sphere = TRUE, log = TRUE)),3), 16.51, ignore_attr=TRUE)
 })
