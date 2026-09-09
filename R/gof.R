@@ -184,6 +184,7 @@ gof.ergm <- function (object, ...,
                       control = control.gof.ergm(),
                       verbose = FALSE) {
   check_dots_used(error = unused_dots_warning)
+  ergm_check_version(object, "Evaluating goodness-of-fit on")
   check.control.class(c("gof.ergm","gof.formula"), "gof.ergm")
   handle.control.toplevel("gof.ergm", ...)
 

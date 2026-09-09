@@ -127,4 +127,7 @@ print.ergm_lindep <- function(x, ...) {
 #'   are pretty-printed as a series of equations.
 #'
 #' @export
-alias.ergm <- function(object, ...) object$lindep
+alias.ergm <- function(object, ...) {
+  ergm_check_version(object, "Extracting information from")
+  object$lindep
+}

@@ -78,6 +78,7 @@
 #' 
 #' @export
 logLik.ergm<-function(object, add=FALSE, force.reeval=FALSE, eval.loglik=add || force.reeval, control=control.logLik.ergm(), ..., verbose=FALSE){
+  ergm_check_version(object, "Calculating log-likelihood for")
 
   if(!force.reeval && !is.null(object$mle.lik)) return(object$mle.lik)
 

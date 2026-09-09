@@ -593,6 +593,7 @@ ergm_proposal.ergm_conlist <- function(object, arguments, nw, weights="default",
 #' @describeIn ergm_proposal `object` argument is an [`ergm`] fit whose proposals are extracted which is reproduced as best as possible.
 #' @export
 ergm_proposal.ergm<-function(object,...,constraints=NULL, arguments=NULL, nw=NULL, weights=NULL,class="c", reference=NULL){
+  ergm_check_version(object, "Extracting information from")
   if(is.null(constraints)) constraints<-object$constraints
   if(is.null(arguments)) arguments<-object$control$MCMC.prop.args
   if(is.null(weights)) weights<-object$control$MCMC.prop.weights

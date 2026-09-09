@@ -613,6 +613,7 @@ simulate.ergm <- function(object, nsim=1, seed=NULL,
                           control=control.simulate.ergm(),
                           verbose=FALSE, ..., return.args=NULL) {
   check_dots_used(error = unused_dots_warning)
+  ergm_check_version(object, "Simulating from")
   check.control.class(c("simulate.ergm","simulate.formula"), "simulate.ergm")
   handle.control.toplevel("simulate.ergm", ...)
 

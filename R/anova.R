@@ -65,6 +65,8 @@ anova.ergm <- function (object, ..., eval.loglik=FALSE)
   if (length(list(object, ...)) > 1) 
     return(anova.ergmlist(object, ..., eval.loglik=eval.loglik))
   
+  ergm_check_version(object, "Analysis of deviance for")
+
   logl <- try(logLik(object,eval.loglik=eval.loglik), silent=TRUE)
   if(inherits(logl,"try-error"))
     stop(NO_LOGLIK_MESSAGE)
@@ -96,6 +98,8 @@ anova.ergm <- function (object, ..., eval.loglik=FALSE)
 anova.ergmlist <- function(object, ..., eval.loglik = FALSE) {
   objects <- list(object=object, ...)
   if(!all(sapply(objects[-1], is.ergm))) stop("All arguments to ", sQuote("anova.ergm()"), " other than ", sQuote("eval.loglik="), " must be ", sQuote("ergm"), " fits.", call.=FALSE)
+  for(obj in objects) ergm_check_version(obj, "Analysis of deviance for")
+
 
   responses <- sapply(objects, function(x) deparse1(x$formula[[2]]))
   sameresp <- responses == responses[1]

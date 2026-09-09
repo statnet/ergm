@@ -28,6 +28,8 @@
 #' @import stats
 #' @export
 vcov.ergm <- function(object, sources=c("all","model","estimation"), ...){
+  ergm_check_version(object, "Extracting information from")
+
   sources <- match.arg(sources)
 
   src.mod <- sources %in% c("all", "model")
