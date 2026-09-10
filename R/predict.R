@@ -75,7 +75,6 @@ predict.formula <- function(object, eta,
                             nsim = 100,
                             output = c("data.frame", "matrix"), ...,
                             basis = ergm.getnetwork(object), theta = NULL) {
-
   ## TODO: Remove the following after May 2026 and ergm 4.10.
   if (!is.null(theta)) {
     .Deprecate_once(
@@ -140,6 +139,8 @@ predict_ergm_unconditional <- function(object, coef, nsim = 100, ...) {
 #' @rdname predict.formula
 #' @export
 predict.ergm <- function(object, ...) {
+  ergm_check_version(object, "Predicting from")
+
   if(is.valued(object)) stop("Prediction for valued ERGMs is not implemented at this time.")
   predict.formula(
     object = object$formula,

@@ -338,6 +338,22 @@ check_ABI <- once(function(client = "ergm", lib  = "ergm", action = getOption("e
   }else TRUE
 })
 
+ergm_check_version <- local({
+  warned <- c()
+  function(object, operating) {
+    myver <- packageVersion("ergm")
+    objver <- NVL(object$ergm_version, as.package_version("3.9.4")) # 3.9.4 was the last version that didn't store the version information.
+    if(objver < paste(myver$major, myver$minor, sep=".")){
+      objhash <- hash(object)
+      if(!objhash %in% warned){
+        cl <- call("warn", paste0("This object was fit with ", sQuote("ergm"), " version ", objver, " or earlier. ", operating, " it with the current version (", myver, ") may return incorrect results or fail."))
+        eval.parent(cl)
+        warned <- c(warned, objhash)
+      }
+    }
+  }
+})
+
 # Useful shorthands
 logit <- qlogis
 expit <- plogis

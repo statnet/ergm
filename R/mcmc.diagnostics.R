@@ -138,6 +138,7 @@ mcmc.diagnostics.ergm <- function(object,
                                   vars.per.page=3,
                                   which=c("plots", "texts", "summary", "autocorrelation", "crosscorrelation", "burnin"),
                                   compact = FALSE, ...) {
+  ergm_check_version(object, "MCMC diagnostics for")
 
   which <- match.arg(which, several.ok=TRUE)
   if("texts" %in% which) which <- c(which, "summary", "autocorrelation", "crosscorrelation", "burnin")

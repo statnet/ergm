@@ -66,6 +66,8 @@ nparam.ergm_model <- function(object, canonical=FALSE, offset=NA, byterm=FALSE, 
 #'
 #' @export
 nparam.ergm <- function(object, offset=NA, ...){
+  ergm_check_version(object, "Extracting information from")
+
   if(is.na(offset)) length(object$etamap$offsettheta)
   else if(offset) sum(object$etamap$offsettheta)
   else if(!offset) sum(!object$etamap$offsettheta)
