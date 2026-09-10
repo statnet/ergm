@@ -301,6 +301,21 @@ InitWtErgmTerm.diff <- function(nw, arglist, ..., version=packageVersion("ergm")
   binary_dind_wrap("diff", nw, a, ..., version=version)
 }
 
+#' @templateVar name distance
+#' @template ergmTerm-rdname
+#' @usage
+#' # valued: distance(coord, metric=2, sphere=FALSE, radius=6371.0087714,
+#' #             log=TRUE, mindist=1e-5, distoff=0, scale=1, pow=1, form="sum")
+#' @template ergmTerm-form
+InitWtErgmTerm.distance <- function(nw, arglist, ...) {
+  a <- check.ErgmTerm(nw, arglist,
+      varnames = c("coord", "metric", "sphere", "radius", "log", "mindist", "distoff", "scale", "pow", "form"),
+      vartypes = c("numeric,matrix,data.frame,character", "numeric", "logical", "numeric", "logical", "numeric", "numeric", "numeric", "numeric", "character"),
+      required = c(TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE),
+      defaultvalues = list(NULL,2,FALSE,6371.0087714,TRUE,1e-5,0,1,1, "sum"))
+
+  binary_dind_wrap("distance", nw, a, ...)
+}
 #' @templateVar name edgecov
 #' @template ergmTerm-rdname
 #' @usage

@@ -13,6 +13,9 @@
 double my_choose(double n, int r);
 #define CHOOSE(n,r) ((n)<(r) ? (0) : (my_choose((double)(n),(int)(r)))) 
 
+/* geodesic distance on a sphere */
+double spheredist(double lat0, double lon0, double lat1, double lon1, double r);
+
 /* Comparison macro for doubles: */
 #define EQUAL(a,b) (fabs((a)-(b))<0.0000001)
 

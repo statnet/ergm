@@ -1463,6 +1463,7 @@ C_CHANGESTAT_FN(c_degree_w_homophily) {
     }
 }
 
+
 /*****************
  changestat: d_dyadcov
 *****************/
