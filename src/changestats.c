@@ -2803,37 +2803,64 @@ C_CHANGESTAT_FN(c_threetrail) {
 }
 
 /*****************
- changestat: d_transitive
+ changestat: c_transitive
+
+ The number of transitive triads: those of types 030T, 120D, 120U and 300 in
+ the classification of Davis and Leinhardt (1972), which have at least one
+ two-path x->y->z and no two-path without x->z.
 *****************/
+
+/* Whether the triad {a, b, c} with these ties (ab for a->b, etc.) is
+   transitive. */
+static inline unsigned int transitive_triad(unsigned int ab, unsigned int ba,
+                                            unsigned int ac, unsigned int ca,
+                                            unsigned int bc, unsigned int cb){
+  /* The two-paths x->y->z of the triad, and the ties x->z that close them. */
+  unsigned int paths[6][2] = {{ab && bc, ac}, {ac && cb, ab}, {ba && ac, bc},
+                              {bc && ca, ba}, {ca && ab, cb}, {cb && ba, ca}};
+  unsigned int closed = FALSE;
+  for(unsigned int i = 0; i < 6; i++){
+    if(paths[i][0]){
+      if(!paths[i][1]) return FALSE; /* An intransitive two-path. */
+      closed = TRUE;
+    }
+  }
+  return closed;
+}
+
+/* The change in whether the triad {tail, head, node3} is transitive, from
+   adding tail->head, given its other ties: head->tail (ht), tail->node3 (tn),
+   node3->tail (nt), head->node3 (hn) and node3->head (nh). */
+static inline int transitive_triad_change(unsigned int ht, unsigned int tn, unsigned int nt,
+                                          unsigned int hn, unsigned int nh){
+  return (int) transitive_triad(TRUE, ht, tn, nt, hn, nh) -
+    (int) transitive_triad(FALSE, ht, tn, nt, hn, nh);
+}
+
 C_CHANGESTAT_FN(c_transitive) {
   Edge e;
-  Vertex node2;
-  double change;
+  Vertex node3;
+  unsigned int ht = IS_OUTEDGE(head, tail);
+  int change = 0;
 
-  /* *** don't forget tail -> head */
-    change = 0.0; /* change should become the number of transitive triples
-                     a->b, b->c, a->c in which tail->head is found  */
+  /* Toggling tail->head only changes the triads {tail, head, node3}, and a
+     transitive triad has a tie in each of its dyads, so only those with node3
+     tied to both tail and head can change. Each is counted once: those with
+     tail->node3 among the outedges of tail, the others among its inedges. */
+  STEP_THROUGH_OUTEDGES(tail, e, node3) {
+    if(node3 == head) continue;
+    unsigned int hn = IS_OUTEDGE(head, node3), nh = IS_OUTEDGE(node3, head);
+    if(hn || nh)
+      change += transitive_triad_change(ht, TRUE, IS_OUTEDGE(node3, tail), hn, nh);
+  }
+  STEP_THROUGH_INEDGES(tail, e, node3) {
+    if(node3 == head) continue;
+    unsigned int hn = IS_OUTEDGE(head, node3), nh = IS_OUTEDGE(node3, head);
+    if((hn || nh) && !IS_OUTEDGE(tail, node3))
+      change += transitive_triad_change(ht, FALSE, TRUE, hn, nh);
+  }
 
-    STEP_THROUGH_OUTEDGES(head, e, node2) { /* step through outedges of head */
-      if (tail != node2 && IS_OUTEDGE(tail, node2)){
-        change = change + 1.0; /* Here we have tail->head, head->node2, tail->node2 */
-      }
-    }
-    STEP_THROUGH_INEDGES(head, e, node2) { /* step through inedges of head */
-      if (tail != node2) {
-        change = change + IS_OUTEDGE(tail, node2) + IS_OUTEDGE(node2, tail);
-        /* Here we have tail->head and node2->head, with either node2->tail or tail->node2 */
-      }
-    }
-//    STEP_THROUGH_INEDGES(tail, e, node2) { /* step through inedges of tail */
-//      if (node2 != head){
-//        if (!IS_OUTEDGE(node2, head)){
-//          change = change - 1.0;
-//        }
-//      }
-//    }
-    CHANGE_STAT[0] += edgestate ? -change : change;
-//  Rprintf("tail %d head %d edgestate %d change %f C_S[0]=%f\n", tail, head, change,CHANGE_STAT[0]);
+  CHANGE_STAT[0] += edgestate ? -change : change;
 }
 
 C_CHANGESTAT_FN(c_transitiveties) {
