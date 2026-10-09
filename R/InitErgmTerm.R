@@ -5032,7 +5032,7 @@ InitErgmTerm.triadcensus<-function (nw, arglist, ..., version=packageVersion("er
 #' @concept directed
 #' @concept undirected
 #' @concept categorical nodal attribute
-InitErgmTerm.triangle<-InitErgmTerm.triangles<-function (nw, arglist, ..., version=packageVersion("ergm")) {
+InitErgmTerm.triangle<-InitErgmTerm.triangles<-function (nw, arglist, ..., version=packageVersion("ergm"), language = c("cpp", "c")) {
   if(version <= as.package_version("3.9.4")){
     a <- check.ErgmTerm(nw, arglist,
                         varnames = c("attrname", "diff", "levels"),
@@ -5051,6 +5051,8 @@ InitErgmTerm.triangle<-InitErgmTerm.triangles<-function (nw, arglist, ..., versi
     levels <- a$levels      
   }
 
+  name <- switch(match.arg(language), c = "triangle_c", cpp = "triangle")
+
   diff <- a$diff
   if(!is.null(attrarg)) {
     nodecov <- ergm_get_vattr(attrarg, nw)
@@ -5067,7 +5069,7 @@ InitErgmTerm.triangle<-InitErgmTerm.triangles<-function (nw, arglist, ..., versi
     coef.names <- "triangle"
     inputs <- NULL
   }
-  list(name="triangle", coef.names=coef.names, iinputs=inputs, minval=0)
+  list(name=name, coef.names=coef.names, iinputs=inputs, minval=0)
 }
 
 

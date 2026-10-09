@@ -72,8 +72,8 @@ inline int count_isp(ErgmCppNetwork& nw, Vertex tail, Vertex head, StoreStrictDy
 }
 
 
-template<typename UpdatePath, typename UpdateFocus>
-inline void dsp_change(L2Type type, Vertex tail, Vertex head, ErgmCppNetwork& nw, StoreStrictDyadMapUInt *spcache, UpdatePath update_path, UpdateFocus){
+template<typename UpdatePath>
+inline void dsp_change(L2Type type, Vertex tail, Vertex head, ErgmCppNetwork& nw, StoreStrictDyadMapUInt *spcache, UpdatePath update_path){
   switch(type){
   case L2UTP:
     // h - u - #v - t: focus dyad: t - u
@@ -263,8 +263,7 @@ inline int dsp_nonzero_change(L2Type type, Vertex tail, Vertex head, ErgmCppNetw
   int echange = edgestate ? -1 : 1;
   int delta = 0;
   dsp_change(type, tail, head, nw, spcache,
-             [&](int L2){ delta += (L2 + echange != 0) - (L2 != 0); },
-             [&](int){});
+             [&](int L2){ delta += (L2 + echange != 0) - (L2 != 0); });
   return delta;
 }
 
