@@ -112,7 +112,7 @@ public:
       return *this;
     }
     bool operator!=(const NeighborIterator& other) const {
-      return edge_ != other.edge_;
+      return edge_ != other.edge_ || second_phase_ != other.second_phase_;
     }
 
   private:
