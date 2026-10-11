@@ -35,56 +35,13 @@ public:
   explicit ErgmCppNetworkBase(NetType* nwp)
     : dir(nwp->directed_flag != 0), n(nwp->nnodes), bip(nwp->bipartite), ptr(nwp) {}
 
-  class EdgeIterator {
+  class NeighborIterator {
   public:
     using iterator_category = std::forward_iterator_tag;
     using value_type = EdgeValueType;
     using difference_type = std::ptrdiff_t;
     using pointer = value_type*;
     using reference = value_type&;
-
-    EdgeIterator(TreeType* edges, Vertex node)
-      : edges_(edges), e_(node && edges_[node].value ? EdgetreeMinimumFunc::call(edges_, node) : 0) {}
-    EdgeIterator() : edges_(nullptr), e_(0) {}
-    value_type operator*() const {
-      if constexpr (std::is_same_v<value_type, Vertex>) {
-        return edges_[e_].value;
-      } else {
-        return {edges_[e_].value, edges_[e_].weight};
-      }
-    }
-    EdgeIterator& operator++() {
-      e_ = EdgetreeSuccessorFunc::call(edges_, e_);
-      return *this;
-    }
-    bool operator!=(const EdgeIterator& other) const {
-      return (e_ == 0) != (other.e_ == 0);
-    }
-  private:
-    TreeType* edges_;
-    Edge e_;
-  };
-
-  class EdgeRange {
-  public:
-    using iterator = EdgeIterator;
-    EdgeRange(TreeType* edges, Vertex node)
-      : edges_(edges), node_(node) {}
-    EdgeRange() : edges_(nullptr), node_(0) {}
-    EdgeIterator begin() const { return EdgeIterator(edges_, node_); }
-    EdgeIterator end() const { return EdgeIterator(edges_, 0); }
-  private:
-    TreeType* edges_;
-    Vertex node_;
-  };
-
-  class NeighborIterator {
-  public:
-    using iterator_category = std::forward_iterator_tag;
-    using value_type = typename EdgeIterator::value_type;
-    using difference_type = typename EdgeIterator::difference_type;
-    using pointer = typename EdgeIterator::pointer;
-    using reference = typename EdgeIterator::reference;
 
     NeighborIterator(TreeType* first_edges, TreeType* second_edges, Vertex node, bool end = false)
       : edges_(end && second_edges ? second_edges : first_edges),
@@ -97,7 +54,6 @@ public:
         advance_to_nonempty_second();
       }
     }
-
     value_type operator*() const {
       if constexpr (std::is_same_v<value_type, Vertex>) {
         return edges_[edge_].value;
@@ -197,13 +153,13 @@ public:
     TreeType* outedges_;
     Vertex nnodes_;
     Vertex tail_;
-    EdgeRange range_;
-    EdgeIterator it_, end_it_;
+    NeighborRange range_;
+    NeighborIterator it_, end_it_;
     void advance_vertex() {
       while (tail_ <= nnodes_ && !(it_ != end_it_)) {
         ++tail_;
         if (tail_ <= nnodes_) {
-          range_ = EdgeRange(outedges_, tail_);
+          range_ = NeighborRange(outedges_, tail_);
           it_ = range_.begin();
           end_it_ = range_.end();
         }
