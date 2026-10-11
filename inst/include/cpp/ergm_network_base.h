@@ -54,19 +54,19 @@ public:
         advance_to_nonempty_second();
       }
     }
-    value_type operator*() const {
+    __attribute__((always_inline)) value_type operator*() const {
       if constexpr (std::is_same_v<value_type, Vertex>) {
         return edges_[edge_].value;
       } else {
         return {edges_[edge_].value, edges_[edge_].weight};
       }
     }
-    NeighborIterator& operator++() {
+    __attribute__((always_inline)) NeighborIterator& operator++() {
       edge_ = EdgetreeSuccessorFunc::call(edges_, edge_);
       advance_to_nonempty_second();
       return *this;
     }
-    bool operator!=(const NeighborIterator& other) const {
+     __attribute__((always_inline)) bool operator!=(const NeighborIterator& other) const {
       return edge_ != other.edge_ || second_phase_ != other.second_phase_;
     }
 
@@ -77,7 +77,7 @@ public:
     Vertex node_;
     bool second_phase_;
 
-    void advance_to_nonempty_second() {
+     __attribute__((always_inline)) void advance_to_nonempty_second() {
       if (!edge_ && !second_phase_ && second_edges_) {
         second_phase_ = true;
         edges_ = second_edges_;
@@ -89,10 +89,10 @@ public:
   class NeighborRange {
   public:
     using iterator = NeighborIterator;
-    NeighborRange(TreeType* first_edges, Vertex node, TreeType* second_edges = nullptr)
+     __attribute__((always_inline)) NeighborRange(TreeType* first_edges, Vertex node, TreeType* second_edges = nullptr)
       : first_edges_(first_edges), second_edges_(second_edges), node_(node) {}
-    NeighborIterator begin() const { return NeighborIterator(first_edges_, second_edges_, node_); }
-    NeighborIterator end() const { return NeighborIterator(first_edges_, second_edges_, node_, true); }
+     __attribute__((always_inline)) NeighborIterator begin() const { return NeighborIterator(first_edges_, second_edges_, node_); }
+     __attribute__((always_inline)) NeighborIterator end() const { return NeighborIterator(first_edges_, second_edges_, node_, true); }
   private:
     TreeType* first_edges_;
     TreeType* second_edges_;
@@ -125,11 +125,11 @@ public:
     using pointer = value_type*;
     using reference = value_type&;
 
-    NetworkEdgeIterator(TreeType* outedges, Vertex nnodes, Vertex tail = 1)
-      : outedges_(outedges), nnodes_(nnodes), tail_(tail), range_(outedges, tail <= nnodes ? tail : 0), it_(range_.begin()), end_it_(range_.end()) {
+  NetworkEdgeIterator(TreeType* outedges, Vertex nnodes, Vertex tail = 1)
+    : outedges_(outedges), nnodes_(nnodes), tail_(tail), range_(outedges, tail <= nnodes ? tail : 0), it_(range_.begin()), end_it_(range_.end()) {
       advance_vertex();
     }
-    value_type operator*() const {
+    __attribute__((always_inline)) value_type operator*() const {
       if constexpr (std::is_same_v<value_type, std::tuple<Vertex, Vertex>>) {
         return std::make_tuple(tail_, *it_);
       } else {
@@ -137,15 +137,15 @@ public:
         return std::make_tuple(tail_, pair.first, pair.second);
       }
     }
-    NetworkEdgeIterator& operator++() {
+    __attribute__((always_inline)) NetworkEdgeIterator& operator++() {
       ++it_;
       advance_vertex();
       return *this;
     }
-    bool is_end() const {
+    __attribute__((always_inline)) bool is_end() const {
       return tail_ > nnodes_;
     }
-    bool operator!=(const NetworkEdgeIterator& other) const {
+    __attribute__((always_inline)) bool operator!=(const NetworkEdgeIterator& other) const {
       // Consider both iterators at end if both are past-the-end
       return is_end() != other.is_end();
     }
@@ -155,7 +155,7 @@ public:
     Vertex tail_;
     NeighborRange range_;
     NeighborIterator it_, end_it_;
-    void advance_vertex() {
+    __attribute__((always_inline)) void advance_vertex() {
       while (tail_ <= nnodes_ && !(it_ != end_it_)) {
         ++tail_;
         if (tail_ <= nnodes_) {
@@ -169,10 +169,10 @@ public:
 
   class NetworkEdgeRange {
   public:
-    NetworkEdgeRange(TreeType* outedges, Vertex nnodes)
+    __attribute__((always_inline)) NetworkEdgeRange(TreeType* outedges, Vertex nnodes)
       : outedges_(outedges), nnodes_(nnodes) {}
-    NetworkEdgeIterator begin() const { return NetworkEdgeIterator(outedges_, nnodes_, 1); }
-    NetworkEdgeIterator end() const { return NetworkEdgeIterator(outedges_, nnodes_, nnodes_ + 1); }
+    __attribute__((always_inline)) NetworkEdgeIterator begin() const { return NetworkEdgeIterator(outedges_, nnodes_, 1); }
+    __attribute__((always_inline)) NetworkEdgeIterator end() const { return NetworkEdgeIterator(outedges_, nnodes_, nnodes_ + 1); }
   private:
     TreeType* outedges_;
     Vertex nnodes_;
@@ -190,20 +190,20 @@ public:
     using pointer = Vertex*;
     using reference = Vertex&;
     NodeIterator(Vertex v) : v_(v) {}
-    Vertex operator*() const { return v_; }
-    NodeIterator& operator++() { ++v_; return *this; }
-    bool operator!=(const NodeIterator& other) const { return v_ != other.v_; }
+    __attribute__((always_inline)) Vertex operator*() const { return v_; }
+    __attribute__((always_inline)) NodeIterator& operator++() { ++v_; return *this; }
+    __attribute__((always_inline)) bool operator!=(const NodeIterator& other) const { return v_ != other.v_; }
   private:
     Vertex v_;
   };
 
   class NodeRange {
   public:
-    NodeRange(Vertex n) : start_(1), end_(n + 1) {}
-    NodeRange(Vertex start, Vertex end) : start_(start), end_(end) {}
-    NodeIterator begin() const { return NodeIterator(start_); }
-    NodeIterator end() const { return NodeIterator(end_); }
-    Vertex size() const { return end_ - start_; }
+    __attribute__((always_inline)) NodeRange(Vertex n) : start_(1), end_(n + 1) {}
+    __attribute__((always_inline)) NodeRange(Vertex start, Vertex end) : start_(start), end_(end) {}
+    __attribute__((always_inline)) NodeIterator begin() const { return NodeIterator(start_); }
+    __attribute__((always_inline)) NodeIterator end() const { return NodeIterator(end_); }
+    __attribute__((always_inline)) Vertex size() const { return end_ - start_; }
   private:
     Vertex start_;
     Vertex end_;
@@ -213,19 +213,19 @@ public:
   NodeRange b1() const { return NodeRange(1, bip + 1); }
   NodeRange b2() const { return NodeRange(bip + 1, n + 1); }
 
-  ValueType operator()(Vertex tail, Vertex head) const {
+  __attribute__((always_inline)) ValueType operator()(Vertex tail, Vertex head) const {
     return GetEdgeFunc::call(tail, head, ptr);
   }
 
   // Degree access methods
-  Vertex out_degree(Vertex i) const {
+  __attribute__((always_inline)) Vertex out_degree(Vertex i) const {
     if (dir || bip) {
       return ptr->outdegree[i];
     } else {
       return ptr->outdegree[i] + ptr->indegree[i];
     }
   }
-  Vertex in_degree(Vertex i) const {
+  __attribute__((always_inline)) Vertex in_degree(Vertex i) const {
     if (dir || bip) {
       return ptr->indegree[i];
     } else {
@@ -233,7 +233,7 @@ public:
     }
   }
   // Total degree convenience method (always out + in)
-  Vertex degree(Vertex i) const {
+  __attribute__((always_inline)) Vertex degree(Vertex i) const {
     return ptr->outdegree[i] + ptr->indegree[i];
   }
   const bool dir;

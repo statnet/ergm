@@ -24,7 +24,7 @@ extern "C" {
  in the tree rooted at edges[a].  Return i such that
  edges[i] is that ETYPE(TreeNode), or 0 if none.
 *****************/
-static inline Edge ETYPE(EdgetreeSearch) (Vertex a, Vertex b, ETYPE(TreeNode) *edges) {
+static inline __attribute__((always_inline)) Edge ETYPE(EdgetreeSearch) (Vertex a, Vertex b, ETYPE(TreeNode) *edges) {
   ETYPE(TreeNode) *es;
   Edge e = a;
   Vertex v;
@@ -45,7 +45,7 @@ static inline Edge ETYPE(EdgetreeSearch) (Vertex a, Vertex b, ETYPE(TreeNode) *e
  Return the index of the ETYPE(TreeNode) with the
  smallest value in the subtree rooted at x
 *****************/
-static inline Edge ETYPE(EdgetreeMinimum) (ETYPE(TreeNode) *edges, Edge x) {
+static inline __attribute__((always_inline)) Edge ETYPE(EdgetreeMinimum) (ETYPE(TreeNode) *edges, Edge x) {
   Edge y;
 
   while ((y=(edges+x)->left) != 0)
@@ -59,7 +59,7 @@ static inline Edge ETYPE(EdgetreeMinimum) (ETYPE(TreeNode) *edges, Edge x) {
  Return the index of the ETYPE(TreeNode) with the
  greatest value in the subtree rooted at x
 *****************/
-static inline Edge ETYPE(EdgetreeMaximum) (ETYPE(TreeNode) *edges, Edge x) {
+static inline __attribute__((always_inline)) Edge ETYPE(EdgetreeMaximum) (ETYPE(TreeNode) *edges, Edge x) {
   Edge y;
 
   while ((y=(edges+x)->right) != 0)
@@ -79,7 +79,7 @@ static inline Edge ETYPE(EdgetreeMaximum) (ETYPE(TreeNode) *edges, Edge x) {
  if none.  This is used by (for instance)
  the DeleteHalfedgeFromTree function.
 *****************/
-static inline Edge ETYPE(EdgetreeSuccessor) (ETYPE(TreeNode) *edges, Edge x) {
+static inline __attribute__((always_inline)) Edge ETYPE(EdgetreeSuccessor) (ETYPE(TreeNode) *edges, Edge x) {
   ETYPE(TreeNode) *ptr;
   Edge y;
 
@@ -95,7 +95,7 @@ static inline Edge ETYPE(EdgetreeSuccessor) (ETYPE(TreeNode) *edges, Edge x) {
 
  Return the index of the next ETYPE(TreeNode) in a preorder traversal.
 *****************/
-static inline Edge ETYPE(EdgetreePreSuccessor) (ETYPE(TreeNode) *edges, Edge x) {
+static inline __attribute__((always_inline)) Edge ETYPE(EdgetreePreSuccessor) (ETYPE(TreeNode) *edges, Edge x) {
   ETYPE(TreeNode) *ptr;
   Edge y, z;
 
@@ -122,7 +122,7 @@ static inline Edge ETYPE(EdgetreePreSuccessor) (ETYPE(TreeNode) *edges, Edge x) 
  if none.  This is used by (for instance)
  the ETYPE(DeleteHalfedgeFromTree) function.
 *****************/
-static inline Edge ETYPE(EdgetreePredecessor) (ETYPE(TreeNode) *edges, Edge x) {
+static inline __attribute__((always_inline)) Edge ETYPE(EdgetreePredecessor) (ETYPE(TreeNode) *edges, Edge x) {
   ETYPE(TreeNode) *ptr;
   Edge y;
 
@@ -139,7 +139,7 @@ static inline Edge ETYPE(EdgetreePredecessor) (ETYPE(TreeNode) *edges, Edge x) {
 
 Get weighted edge value. Return 0 if edge does not exist.
 *****************/
-static inline EWTTYPE ETYPE(GetEdge) (Vertex tail, Vertex head, ETYPE(Network) *nwp)
+static inline __attribute__((always_inline)) EWTTYPE ETYPE(GetEdge) (Vertex tail, Vertex head, ETYPE(Network) *nwp)
 {
   ENSURE_TH_ORDER;
 
@@ -151,9 +151,9 @@ static inline EWTTYPE ETYPE(GetEdge) (Vertex tail, Vertex head, ETYPE(Network) *
 /*****************
  int ETYPE(NetworkInitializeLike)
 
- Construct an empty network with the same settings (size, etc.) to the given network; simple enough to be static inline.
+ Construct an empty network with the same settings (size, etc.) to the given network; simple enough to be static inline __attribute__((always_inline)).
 *****************/
-static inline ETYPE(Network)* ETYPE(NetworkInitializeLike)(ETYPE(Network) *nwp) {
+static inline __attribute__((always_inline)) ETYPE(Network)* ETYPE(NetworkInitializeLike)(ETYPE(Network) *nwp) {
   return ETYPE(NetworkInitialize_noLT)(NULL, NULL, IFEWT(NULL,) 0, nwp->nnodes, nwp->directed_flag, nwp->bipartite);
 }
 
