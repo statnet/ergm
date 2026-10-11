@@ -14,7 +14,6 @@
 #include <type_traits>
 
 #include "ergm_edgetree_types.h"
-#include "combined_range.h"
 
 namespace ergm {
 inline namespace v1 {
@@ -143,8 +142,6 @@ public:
     TreeType* second_edges_;
     Vertex node_;
   };
-
-  using CombinedEdgeRange = NeighborRange;
 
   NeighborRange out_neighbors(Vertex node) {
     if(dir) {
