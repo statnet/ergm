@@ -9,15 +9,11 @@
  */
 #pragma once
 
-#include <optional>
+#include <iterator>
 #include <tuple>
+#include <type_traits>
 
 #include "ergm_edgetree_types.h"
-
-#include "combined_range.h"
-
-// Template for both weighted and unweighted network wrappers
-#include "combined_range.h"
 
 namespace ergm {
 inline namespace v1 {
@@ -82,24 +78,87 @@ public:
     Vertex node_;
   };
 
-  using CombinedEdgeRange = CombinedRange<EdgeRange>;
+  class NeighborIterator {
+  public:
+    using iterator_category = std::forward_iterator_tag;
+    using value_type = typename EdgeIterator::value_type;
+    using difference_type = typename EdgeIterator::difference_type;
+    using pointer = typename EdgeIterator::pointer;
+    using reference = typename EdgeIterator::reference;
 
-  CombinedEdgeRange out_neighbors(Vertex node) {
+    NeighborIterator(TreeType* first_edges, TreeType* second_edges, Vertex node, bool end = false)
+      : edges_(end && second_edges ? second_edges : first_edges),
+        edge_(0),
+        second_edges_(second_edges),
+        node_(node),
+        second_phase_(end && second_edges) {
+      if (!end) {
+        edge_ = node_ && edges_[node_].value ? EdgetreeMinimumFunc::call(edges_, node_) : 0;
+        advance_to_nonempty_second();
+      }
+    }
+
+    value_type operator*() const {
+      if constexpr (std::is_same_v<value_type, Vertex>) {
+        return edges_[edge_].value;
+      } else {
+        return {edges_[edge_].value, edges_[edge_].weight};
+      }
+    }
+    NeighborIterator& operator++() {
+      edge_ = EdgetreeSuccessorFunc::call(edges_, edge_);
+      advance_to_nonempty_second();
+      return *this;
+    }
+    bool operator!=(const NeighborIterator& other) const {
+      return edge_ != other.edge_ || second_phase_ != other.second_phase_;
+    }
+
+  private:
+    TreeType* edges_;
+    Edge edge_;
+    TreeType* second_edges_;
+    Vertex node_;
+    bool second_phase_;
+
+    void advance_to_nonempty_second() {
+      if (!edge_ && !second_phase_ && second_edges_) {
+        second_phase_ = true;
+        edges_ = second_edges_;
+        edge_ = node_ && edges_[node_].value ? EdgetreeMinimumFunc::call(edges_, node_) : 0;
+      }
+    }
+  };
+
+  class NeighborRange {
+  public:
+    using iterator = NeighborIterator;
+    NeighborRange(TreeType* first_edges, Vertex node, TreeType* second_edges = nullptr)
+      : first_edges_(first_edges), second_edges_(second_edges), node_(node) {}
+    NeighborIterator begin() const { return NeighborIterator(first_edges_, second_edges_, node_); }
+    NeighborIterator end() const { return NeighborIterator(first_edges_, second_edges_, node_, true); }
+  private:
+    TreeType* first_edges_;
+    TreeType* second_edges_;
+    Vertex node_;
+  };
+
+  NeighborRange out_neighbors(Vertex node) {
     if(dir) {
-      return CombinedEdgeRange(EdgeRange(ptr->outedges, node));
+      return NeighborRange(ptr->outedges, node);
     } else {
-      return CombinedEdgeRange(EdgeRange(ptr->inedges, node), std::make_optional(EdgeRange(ptr->outedges, node)));
+      return NeighborRange(ptr->inedges, node, ptr->outedges);
     }
   }
-  CombinedEdgeRange in_neighbors(Vertex node) {
+  NeighborRange in_neighbors(Vertex node) {
     if(dir) {
-      return CombinedEdgeRange(EdgeRange(ptr->inedges, node));
+      return NeighborRange(ptr->inedges, node);
     } else {
-      return CombinedEdgeRange(EdgeRange(ptr->inedges, node), std::make_optional(EdgeRange(ptr->outedges, node)));
+      return NeighborRange(ptr->inedges, node, ptr->outedges);
     }
   }
-  CombinedEdgeRange neighbors(Vertex node) {
-    return CombinedEdgeRange(EdgeRange(ptr->inedges, node), std::make_optional(EdgeRange(ptr->outedges, node)));
+  NeighborRange neighbors(Vertex node) {
+    return NeighborRange(ptr->inedges, node, ptr->outedges);
   }
 
   class NetworkEdgeIterator {
