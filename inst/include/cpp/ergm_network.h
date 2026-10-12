@@ -19,17 +19,17 @@ namespace ergm {
 inline namespace v1 {
 
 struct GetEdgeFunc {
-  static Rboolean call(Vertex tail, Vertex head, Network* nwp) {
+  static ALWAYS_INLINE Rboolean call(Vertex tail, Vertex head, Network* nwp) {
     return GetEdge(tail, head, nwp);
   }
 };
 struct EdgetreeMinimumFunc {
-  static Edge call(TreeNode* edges, Vertex node) {
+  static ALWAYS_INLINE Edge call(TreeNode* edges, Vertex node) {
     return EdgetreeMinimum(edges, node);
   }
 };
 struct EdgetreeSuccessorFunc {
-  static Edge call(TreeNode* edges, Edge e) {
+  static ALWAYS_INLINE Edge call(TreeNode* edges, Edge e) {
     return EdgetreeSuccessor(edges, e);
   }
 };
