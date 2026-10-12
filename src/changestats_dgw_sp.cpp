@@ -19,11 +19,11 @@ using ergm::ErgmCppNetwork;
 
 namespace {
 
-static inline __attribute__((always_inline)) StoreStrictDyadMapUInt* get_spcache(const ErgmCppModelTerm<>& mt){
+static ALWAYS_INLINE StoreStrictDyadMapUInt* get_spcache(const ErgmCppModelTerm<>& mt){
   return mt.aux_storage.size() ? static_cast<StoreStrictDyadMapUInt*>(mt.aux_storage[0]) : nullptr;
 }
 
-static inline __attribute__((always_inline)) constexpr int dsp_path_multiplier(L2Type type){
+static ALWAYS_INLINE constexpr int dsp_path_multiplier(L2Type type){
   switch(type){
   case L2OSP:
   case L2ISP:
@@ -34,11 +34,11 @@ static inline __attribute__((always_inline)) constexpr int dsp_path_multiplier(L
   }
 }
 
-static inline __attribute__((always_inline)) void negate_change_stats(ErgmCppModelTerm<>& mt){
+static ALWAYS_INLINE void negate_change_stats(ErgmCppModelTerm<>& mt){
   for(double& stat : mt.stat) stat *= -1.0;
 }
 
-static inline __attribute__((always_inline)) void dsp_vector_change(L2Type type, Vertex tail, Vertex head, ErgmCppModelTerm<>& mt, ErgmCppNetwork& nw, Rboolean edgestate, StoreStrictDyadMapUInt *spcache){
+static ALWAYS_INLINE void dsp_vector_change(L2Type type, Vertex tail, Vertex head, ErgmCppModelTerm<>& mt, ErgmCppNetwork& nw, Rboolean edgestate, StoreStrictDyadMapUInt *spcache){
   int echange = edgestate ? -1 : 1;
   ergm::sp::dsp_change(type, tail, head, nw, spcache,
                        [&](int L2){
@@ -49,7 +49,7 @@ static inline __attribute__((always_inline)) void dsp_vector_change(L2Type type,
                        });
 }
 
-static inline __attribute__((always_inline)) void esp_vector_change(L2Type type, Vertex tail, Vertex head, ErgmCppModelTerm<>& mt, ErgmCppNetwork& nw, Rboolean edgestate, StoreStrictDyadMapUInt *spcache){
+static ALWAYS_INLINE void esp_vector_change(L2Type type, Vertex tail, Vertex head, ErgmCppModelTerm<>& mt, ErgmCppNetwork& nw, Rboolean edgestate, StoreStrictDyadMapUInt *spcache){
   int echange = edgestate ? -1 : 1;
   ergm::sp::esp_change(type, tail, head, nw, spcache,
                        [&](int L2){
@@ -66,7 +66,7 @@ static inline __attribute__((always_inline)) void esp_vector_change(L2Type type,
                        });
 }
 
-static inline __attribute__((always_inline)) void dsp_dist_change(L2Type type, Vertex tail, Vertex head, ErgmCppModelTerm<>& mt, ErgmCppNetwork& nw, Rboolean edgestate, StoreStrictDyadMapUInt *spcache){
+static ALWAYS_INLINE void dsp_dist_change(L2Type type, Vertex tail, Vertex head, ErgmCppModelTerm<>& mt, ErgmCppNetwork& nw, Rboolean edgestate, StoreStrictDyadMapUInt *spcache){
   int echange = edgestate ? -1 : 1;
   int nd = static_cast<int>(mt.stat.size());
   ergm::sp::dsp_change(type, tail, head, nw, spcache,
@@ -78,7 +78,7 @@ static inline __attribute__((always_inline)) void dsp_dist_change(L2Type type, V
                        });
 }
 
-static inline __attribute__((always_inline)) void esp_dist_change(L2Type type, Vertex tail, Vertex head, ErgmCppModelTerm<>& mt, ErgmCppNetwork& nw, Rboolean edgestate, StoreStrictDyadMapUInt *spcache){
+static ALWAYS_INLINE void esp_dist_change(L2Type type, Vertex tail, Vertex head, ErgmCppModelTerm<>& mt, ErgmCppNetwork& nw, Rboolean edgestate, StoreStrictDyadMapUInt *spcache){
   int echange = edgestate ? -1 : 1;
   int nd = static_cast<int>(mt.stat.size());
   ergm::sp::esp_change(type, tail, head, nw, spcache,
@@ -94,14 +94,14 @@ static inline __attribute__((always_inline)) void esp_dist_change(L2Type type, V
                        });
 }
 
-static inline __attribute__((always_inline)) void dsp_gw_change(L2Type type, Vertex tail, Vertex head, ErgmCppModelTerm<>& mt, ErgmCppNetwork& nw, Rboolean edgestate, StoreStrictDyadMapUInt *spcache, double alpha, double loneexpa){
+static ALWAYS_INLINE void dsp_gw_change(L2Type type, Vertex tail, Vertex head, ErgmCppModelTerm<>& mt, ErgmCppNetwork& nw, Rboolean edgestate, StoreStrictDyadMapUInt *spcache, double alpha, double loneexpa){
   ergm::sp::dsp_change(type, tail, head, nw, spcache,
                        [&](int L2){
                          mt.stat[0] += (alpha ? exp(loneexpa*(L2-edgestate)) : L2-edgestate == 0) * dsp_path_multiplier(type);
                        });
 }
 
-static inline __attribute__((always_inline)) void esp_gw_change(L2Type type, Vertex tail, Vertex head, ErgmCppModelTerm<>& mt, ErgmCppNetwork& nw, Rboolean edgestate, StoreStrictDyadMapUInt *spcache, double alpha, double loneexpa){
+static ALWAYS_INLINE void esp_gw_change(L2Type type, Vertex tail, Vertex head, ErgmCppModelTerm<>& mt, ErgmCppNetwork& nw, Rboolean edgestate, StoreStrictDyadMapUInt *spcache, double alpha, double loneexpa){
   ergm::sp::esp_change(type, tail, head, nw, spcache,
                        [&](int L2){
                          mt.stat[0] += alpha ? exp(loneexpa*(L2-edgestate)) : L2-edgestate == 0;
