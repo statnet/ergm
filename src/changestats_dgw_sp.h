@@ -25,17 +25,31 @@ namespace sp {
 /* The following functions calculate or obtain the number of two-paths
    of specified type from tail to head. */
 
-static inline __attribute__((always_inline)) int count_utp(ErgmCppNetwork& nw, Vertex tail, Vertex head, StoreStrictDyadMapUInt *spcache){
+static ALWAYS_INLINE Vertex count_utp(ErgmCppNetwork& nw, Vertex tail, Vertex head, StoreStrictDyadMapUInt *spcache){
   if(spcache) return GETUDMUI(tail, head, spcache);
-  int count = 0;
+  Vertex count = 0;
   // h - v - t
   for(auto v: nw.neighbors(head)) count += nw(v, tail);
   return count;
 }
 
-static inline __attribute__((always_inline)) int count_otp(ErgmCppNetwork& nw, Vertex tail, Vertex head, StoreStrictDyadMapUInt *spcache){
+static ALWAYS_INLINE std::tuple<Vertex, Vertex> count_utp2(ErgmCppNetwork& nw, Vertex tail, Vertex head1, Vertex head2, StoreStrictDyadMapUInt *spcache){
+  if(spcache) return {
+      GETUDMUI(tail, head1, spcache),
+      GETUDMUI(tail, head2, spcache)
+    };
+  Vertex count1 = 0, count2 = 0;
+  // h - v - t
+  for(auto v: nw.neighbors(tail)) {
+    count1 += nw(v, head1);
+    count2 += nw(v, head2);
+  }
+  return {count1, count2};
+}
+
+static ALWAYS_INLINE Vertex count_otp(ErgmCppNetwork& nw, Vertex tail, Vertex head, StoreStrictDyadMapUInt *spcache){
   if(spcache) return GETDDMUI(tail, head, spcache);
-  int count = 0;
+  Vertex count = 0;
   // t -> v -> h
   for(auto v: nw.out_neighbors(tail)) count += nw(v, head);
   return count;
@@ -43,9 +57,9 @@ static inline __attribute__((always_inline)) int count_otp(ErgmCppNetwork& nw, V
 
 /* itp == otp with tail and head swapped. */
 
-static inline __attribute__((always_inline)) int count_rtp(ErgmCppNetwork& nw, Vertex tail, Vertex head, Vertex exclude1, StoreStrictDyadMapUInt *spcache){
+static ALWAYS_INLINE Vertex count_rtp(ErgmCppNetwork& nw, Vertex tail, Vertex head, Vertex exclude1, StoreStrictDyadMapUInt *spcache){
   if(spcache) return GETUDMUI(tail, head, spcache);
-  int count = 0;
+  Vertex count = 0;
   // t <-> v <-> h
   for(auto v: nw.out_neighbors(tail))
     if(v != exclude1 && v != head && nw(v, tail))
@@ -53,18 +67,18 @@ static inline __attribute__((always_inline)) int count_rtp(ErgmCppNetwork& nw, V
   return count;
 }
 
-static inline __attribute__((always_inline)) int count_osp(ErgmCppNetwork& nw, Vertex tail, Vertex head, StoreStrictDyadMapUInt *spcache){
+static ALWAYS_INLINE Vertex count_osp(ErgmCppNetwork& nw, Vertex tail, Vertex head, StoreStrictDyadMapUInt *spcache){
   if(spcache) return GETUDMUI(tail, head, spcache);
-  int count = 0;
+  Vertex count = 0;
   // h -> v <- t
   for(auto v: nw.out_neighbors(head))
     if(v != tail) count += nw(tail, v);
   return count;
 }
 
-static inline __attribute__((always_inline)) int count_isp(ErgmCppNetwork& nw, Vertex tail, Vertex head, StoreStrictDyadMapUInt *spcache){
+static ALWAYS_INLINE Vertex count_isp(ErgmCppNetwork& nw, Vertex tail, Vertex head, StoreStrictDyadMapUInt *spcache){
   if(spcache) return GETUDMUI(tail, head, spcache);
-  int count = 0;
+  Vertex count = 0;
   // h <- v -> t
   for(auto v: nw.in_neighbors(head))
     if(v != tail) count += nw(v, tail);
@@ -73,7 +87,7 @@ static inline __attribute__((always_inline)) int count_isp(ErgmCppNetwork& nw, V
 
 
 template<typename UpdatePath>
-static inline __attribute__((always_inline)) void dsp_change(L2Type type, Vertex tail, Vertex head, ErgmCppNetwork& nw, StoreStrictDyadMapUInt *spcache, UpdatePath update_path){
+static ALWAYS_INLINE void dsp_change(L2Type type, Vertex tail, Vertex head, ErgmCppNetwork& nw, StoreStrictDyadMapUInt *spcache, UpdatePath update_path){
   switch(type){
   case L2UTP:
     // h - u - #v - t: focus dyad: t - u
@@ -134,7 +148,7 @@ static inline __attribute__((always_inline)) void dsp_change(L2Type type, Vertex
 
 
 template<typename UpdatePath, typename UpdateFocus>
-static inline __attribute__((always_inline)) void esp_change(L2Type type, Vertex tail, Vertex head, ErgmCppNetwork& nw, StoreStrictDyadMapUInt *spcache, UpdatePath update_path, UpdateFocus update_focus){
+static ALWAYS_INLINE void esp_change(L2Type type, Vertex tail, Vertex head, ErgmCppNetwork& nw, StoreStrictDyadMapUInt *spcache, UpdatePath update_path, UpdateFocus update_focus){
   int L2th;
   bool htedge;
 
@@ -148,8 +162,9 @@ static inline __attribute__((always_inline)) void esp_change(L2Type type, Vertex
     for(auto u: nw.neighbors(head))
       if(nw(u, tail)){
         if(!spcache) L2th++;
-        update_path(count_utp(nw, tail, u, spcache));
-        update_path(count_utp(nw, u, head, spcache));
+        auto utp_counts = count_utp2(nw, u, tail, head, spcache);
+        update_path(std::get<0>(utp_counts));
+        update_path(std::get<1>(utp_counts));
       }
     break;
 
@@ -259,7 +274,7 @@ static inline __attribute__((always_inline)) void esp_change(L2Type type, Vertex
   update_focus(L2th);
 }
 
-static inline __attribute__((always_inline)) int dsp_nonzero_change(L2Type type, Vertex tail, Vertex head, ErgmCppNetwork& nw, Rboolean edgestate, StoreStrictDyadMapUInt *spcache){
+static ALWAYS_INLINE int dsp_nonzero_change(L2Type type, Vertex tail, Vertex head, ErgmCppNetwork& nw, Rboolean edgestate, StoreStrictDyadMapUInt *spcache){
   int echange = edgestate ? -1 : 1;
   int delta = 0;
   dsp_change(type, tail, head, nw, spcache,
