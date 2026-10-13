@@ -158,7 +158,7 @@ reached. A good choice of this matrix yields a more efficient search.
 
 A standard simulated annealing loop is used, as described below, with some
 modifications. In particular, we allow the user to specify a vector of
-offsets \eqn{\eta}{η} to bias the annealing, with \eqn{\eta_k = 0}{η_k = 0} 
+offsets \eqn{\eta}{η} to bias the annealing, with \eqn{\eta_k = 0}{η_k = 0}
 denoting no offset. Offsets can be used with SAN to forbid certain
 statistics from ever increasing or decreasing. As with \code{\link[=ergm]{ergm()}}, offset
 terms are specified using the \code{\link[=offset]{offset()}} decorator and their coefficients
@@ -185,7 +185,7 @@ for later use.
 \item Calculate acceptance probability
 
 \deqn{\alpha = \exp[ - (E_W (\mathbf{y^*}) - E_W (\mathbf{y})) / T + \eta^\mathsf{T} (\mathbf{g}(\mathbf{y^*}) - \mathbf{g}(\mathbf{y}))]}{α = exp( - E_W(y*) - E_W(y) / T + η' (g(y*) - g(y)) ).}
- 
+
 (If \eqn{|\eta_k| = \infty}{|η_k| = ∞} and \eqn{g_k (\mathbf{y^*}) - g_k (\mathbf{y}) = 0}{g_k (y) - g_k (y) = 0}, their product is defined to be 0.)
 \item Replace \eqn{\mathbf{y}}{y} with \eqn{\mathbf{y^*}}{y} with probability
 \eqn{\min(1, \alpha)}{min(1, α)}.

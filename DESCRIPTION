@@ -1,5 +1,5 @@
 Package: ergm
-Version: 4.13.0-8260
+Version: 4.13.0-8261
 Date: 2026-10-13
 Title: Fit, Simulate and Diagnose Exponential-Family Models for Networks
 Authors@R: c(
@@ -187,4 +187,4 @@ Collate:
     'zzz.R'
 Remotes: github::statnet/statnet.common@master,
     github::statnet/ergm.count@master
-Config/roxygen2/version: 8.0.0
+Config/roxygen2/version: 8.1.1
