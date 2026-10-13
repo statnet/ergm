@@ -15,6 +15,7 @@
 
 #include "ergm_debug.h"
 #include "ergm_edgetree_types.h"
+#include "inc/ergm_edgetree_common.do_not_include_directly.h"
 
 namespace ergm {
 inline namespace v1 {
@@ -28,6 +29,7 @@ template <
   typename EdgeValueType, // type for EdgeIterator::value_type
   typename NetEdgeValueType, // type for NetworkEdgeIterator::value_type
   typename GetEdgeFunc,
+  typename EdgetreeSearchFunc,
   typename EdgetreeMinimumFunc,
   typename EdgetreeSuccessorFunc
 >
@@ -216,6 +218,11 @@ public:
 
   ALWAYS_INLINE ValueType operator()(Vertex tail, Vertex head) const {
     return GetEdgeFunc::call(tail, head, ptr);
+  }
+
+  ALWAYS_INLINE ValueType operator()(Vertex tail, Vertex head, bool dir) const {
+    if (dir) return EdgetreeSearchFunc::call(tail, head, ptr->outedges) ? TRUE : FALSE;
+    else return EdgetreeSearchFunc::call(MIN(tail, head), MAX(tail, head), ptr->outedges) ? TRUE : FALSE;
   }
 
   // Degree access methods

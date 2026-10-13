@@ -23,6 +23,11 @@ struct WtGetEdgeFunc {
     return WtGetEdge(tail, head, nwp);
   }
 };
+struct WtEdgetreeSearchFunc {
+  static ALWAYS_INLINE Edge call(Vertex tail, Vertex head, WtTreeNode* edges) {
+    return WtEdgetreeSearch(tail, head, edges);
+  }
+};
 struct WtEdgetreeMinimumFunc {
   static ALWAYS_INLINE Edge call(WtTreeNode* edges, Vertex node) {
     return WtEdgetreeMinimum(edges, node);
@@ -41,6 +46,7 @@ using ErgmCppWtNetwork = ErgmCppNetworkBase<
   std::pair<Vertex, double>, // EdgeIterator::value_type
   std::tuple<Vertex, Vertex, double>, // NetworkEdgeIterator::value_type
   WtGetEdgeFunc,
+  WtEdgetreeSearchFunc,
   WtEdgetreeMinimumFunc,
   WtEdgetreeSuccessorFunc
 >;

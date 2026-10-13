@@ -38,7 +38,7 @@ These wrap `Network` (unweighted) and `WtNetwork` (weighted) to provide edge que
 
 - Construction: `ErgmCppNetwork nw(nwp);` and `ErgmCppWtNetwork nw(nwp);`
 - `ptr`: raw pointer to the underlying `Network` (or `WtNetwork`) C struct.
-- Edge query: `nw(tail, head)` returns presence (`Rboolean`) or `double` weight (0 for no edge).
+- Edge query: `nw(tail, head)` returns presence (`Rboolean`) or `double` weight (0 for no edge). If the network's directedness is known passing a third argument, `nw(tail, head, dir)`, can speed the lookup up by a nontrivial amount.
 - Node ranges: `nw.nodes()`, bipartite halves: `nw.b1()`, `nw.b2()`; node ranges support `.size()` for O(1) range size.
 - Neighbor ranges: `nw.out_neighbors(i)`, `nw.in_neighbors(i)`, `nw.neighbors(i)`.
 - Degree access: `nw.out_degree(i)`, `nw.in_degree(i)`, `nw.degree(i)`.

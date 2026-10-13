@@ -23,6 +23,11 @@ struct GetEdgeFunc {
     return GetEdge(tail, head, nwp);
   }
 };
+struct EdgetreeSearchFunc {
+  static ALWAYS_INLINE Edge call(Vertex tail, Vertex head, TreeNode* edges) {
+    return EdgetreeSearch(tail, head, edges);
+  }
+};
 struct EdgetreeMinimumFunc {
   static ALWAYS_INLINE Edge call(TreeNode* edges, Vertex node) {
     return EdgetreeMinimum(edges, node);
@@ -41,6 +46,7 @@ using ErgmCppNetwork = ErgmCppNetworkBase<
   Vertex, // EdgeIterator::value_type
   std::tuple<Vertex, Vertex>, // NetworkEdgeIterator::value_type
   GetEdgeFunc,
+  EdgetreeSearchFunc,
   EdgetreeMinimumFunc,
   EdgetreeSuccessorFunc
 >;
