@@ -100,3 +100,72 @@ summary.network.list <- function (object, stats.print=TRUE,
   }
   object
 }
+
+
+
+
+
+#' @rdname network.list
+#'
+#' @param check_attr Logical: should the attributes of the combined network
+#'   lists be checked for consistency. If `TRUE` inconsistencies result in
+#'   errors.
+#'
+#' @importFrom purrr map
+#' @export
+#'
+#' @examples
+#' # Simulate some more
+#' g.sim2 <- simulate(~edges+kstar(2), nsim=3, coef=c(-1.8, 0.03),
+#'   basis=g.use, control=control.simulate(
+#'   MCMC.burnin=100000,
+#'   MCMC.interval=1000))
+#'
+#' # Merge the simulations
+#' g.simall <- c(g.sim, g.sim2)
+#' length(g.simall) # 6
+#'
+
+c.network.list <- function(..., check_attr = TRUE) {
+  dots <- list(...)
+
+  # Merge network lists without attributes
+  rval <- do.call("c", map(dots, unclass))
+
+  # Check attributes
+  if (check_attr) {
+    # Names of attributes to check with `all.equal()`
+    attr_names <- c("coefficients", "control", "response",
+                    "formula", "constraints", "reference")
+    for (an in attr_names) {
+      al <- map(dots, ~ attr(.x, an))
+      ok <- all_identical(al, all.equal)
+      if (!ok) stop("network lists do not have equal values on attribute ", an)
+    }
+
+    # Check if "stats" have identical columns
+    l_stats <- map(dots, ~ attr(.x, "stats"))
+    ok <- all_identical(
+      map(l_stats, function(x) colnames(x)),
+      .p = identical
+    )
+    if (!ok) stop("network lists do not have identical columns of ",
+                  sQuote("stats"), " attribute")
+  }
+  # Return the list of networks with attributes merged or taken from the
+  # first object
+  structure(
+    rval,
+    class = "network.list",
+    coefficients = attr(dots[[1]], "coefficients"),
+    control = attr(dots[[1]], "control"),
+    response = attr(dots[[1]], "response"),
+    stats = structure(
+      do.call("rbind", map(dots, ~attr(.x, "stats"))),
+      monitored = do.call("c", map(dots, ~ attr(attr(.x, "stats"), "monitored")))
+    ),
+    formula = attr(dots[[1]], "formula"),
+    constraints = attr(dots[[1]], "constraints"),
+    reference = attr(dots[[1]], "reference")
+  )
+}
