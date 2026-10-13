@@ -80,6 +80,9 @@
   \subsection{NEW FEATURES}{
     \itemize{
       \item{
+        New term \ergmTerm{ergm}{distance}{()} for Minkowski and great circle distances between vertices now available.
+      }
+      \item{
         \ergmTerm{ergm}{nodemix}{()} and \ergmTerm{ergm}{mm}{()} are now more user-friendly in how \code{levels2=} arguments are processed.
       }
       \item{
