@@ -341,6 +341,7 @@ check_ABI <- once(function(client = "ergm", lib  = "ergm", action = getOption("e
 ergm_check_version <- local({
   warned <- c()
   function(object, operating) {
+    if (Sys.getenv("_R_CHECK_PACKAGE_NAME_") == "") return()
     myver <- packageVersion("ergm")
     objver <- NVL(object$ergm_version, as.package_version("3.9.4")) # 3.9.4 was the last version that didn't store the version information.
     if(objver < paste(myver$major, myver$minor, sep=".")){
