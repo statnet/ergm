@@ -3665,7 +3665,7 @@ InitErgmTerm.nodecov<-function (nw, arglist, ..., version=packageVersion("ergm")
 #' @template ergmTerm-rdname
 #' @aliases nodemain-ergmTerm
 #' @usage
-#' # binary: nodemain
+#' # binary: nodemain(attr)
 InitErgmTerm.nodemain<-InitErgmTerm.nodecov
 
 ################################################################################

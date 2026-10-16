@@ -11,7 +11,7 @@
 \usage{
 # binary: nodecov(attr)
 
-# binary: nodemain
+# binary: nodemain(attr)
 
 # valued: nodecov(attr, form="sum")
 
