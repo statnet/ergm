@@ -7,7 +7,7 @@
  *
  *  Copyright 2003-2026 Statnet Commons
  */
-#include "changestats_dgw_sp.h"
+#include "changestats_dgw_sp_c.h"
 #include "ergm_storage.h"
 #include "changestats.h"
 
@@ -140,7 +140,7 @@ all_calcs2(dspRTP)
 
   Only one type may be specified per esp term.  UTP should always be used for undirected graphs; OTP is the traditional directed default.
 */
-C_CHANGESTAT_FN(c_ddsp) { 
+C_CHANGESTAT_FN(c_ddsp_c) { 
   /*Set things up*/
   StoreStrictDyadMapUInt *spcache = N_AUX ? AUX_STORAGE : NULL;
   L2Type type = (L2Type) IINPUT_PARAM[0];     /*Get the L2 type code to be used*/
@@ -159,7 +159,7 @@ C_CHANGESTAT_FN(c_ddsp) {
 }
 
 
-C_CHANGESTAT_FN(c_ddspdist) {
+C_CHANGESTAT_FN(c_ddspdist_c) {
   /*Set things up*/
   StoreStrictDyadMapUInt *spcache = N_AUX ? AUX_STORAGE : NULL;
   L2Type type = (L2Type) IINPUT_PARAM[0];     /*Get the L2 type code to be used*/
@@ -192,7 +192,7 @@ C_CHANGESTAT_FN(c_ddspdist) {
 
   Only one type may be specified per esp term.  The default, OTP, retains the original behavior of esp/gwesp.  In the case of undirected graphs, OTP should be used (the others assume a directed network memory structure, and are not safe in the undirected case).
 */
-C_CHANGESTAT_FN(c_dgwdsp) {
+C_CHANGESTAT_FN(c_dgwdsp_c) {
   /*Set things up*/
   StoreStrictDyadMapUInt *spcache = N_AUX ? AUX_STORAGE : NULL;
   double alpha = INPUT_PARAM[0];       /*Get alpha*/
@@ -241,7 +241,7 @@ all_calcs(espUTP)
 
   Only one type may be specified per esp term.  UTP should always be used for undirected graphs; OTP is the traditional directed default.
 */
-     C_CHANGESTAT_FN(c_desp) {
+     C_CHANGESTAT_FN(c_desp_c) {
   /*Set things up*/
   StoreStrictDyadMapUInt *spcache = N_AUX ? AUX_STORAGE : NULL;
   L2Type type = (L2Type) IINPUT_PARAM[0];     /*Get the L2 type code to be used*/
@@ -260,7 +260,7 @@ all_calcs(espUTP)
 }
 
 
-C_CHANGESTAT_FN(c_despdist) {
+C_CHANGESTAT_FN(c_despdist_c) {
   /*Set things up*/
   StoreStrictDyadMapUInt *spcache = N_AUX ? AUX_STORAGE : NULL;
   L2Type type = (L2Type) IINPUT_PARAM[0];     /*Get the L2 type code to be used*/
@@ -293,7 +293,7 @@ C_CHANGESTAT_FN(c_despdist) {
 
   Only one type may be specified per esp term.  The default, OTP, retains the original behavior of esp/gwesp.  In the case of undirected graphs, OTP should be used (the others assume a directed network memory structure, and are not safe in the undirected case).
 */
-C_CHANGESTAT_FN(c_dgwesp) { 
+C_CHANGESTAT_FN(c_dgwesp_c) { 
   /*Set things up*/
   StoreStrictDyadMapUInt *spcache = N_AUX ? AUX_STORAGE : NULL;
   double alpha = INPUT_PARAM[0];       /*Get alpha*/
@@ -335,7 +335,7 @@ C_CHANGESTAT_FN(c_dgwesp) {
   Only one type may be specified per esp term.  UTP should always be used for undirected graphs; OTP is the traditional directed default.
 */
 #define NEGATE_CHANGE_STATS for(unsigned int i = 0; i < N_CHANGE_STATS; i++) CHANGE_STAT[i] *= -1;
-C_CHANGESTAT_FN(c_dnsp) {
+C_CHANGESTAT_FN(c_dnsp_c) {
   /*Set things up*/
   StoreStrictDyadMapUInt *spcache = N_AUX ? AUX_STORAGE : NULL;
   L2Type type = (L2Type) IINPUT_PARAM[0];     /*Get the L2 type code to be used*/
@@ -378,7 +378,7 @@ C_CHANGESTAT_FN(c_dnsp) {
 }
 
 
-C_CHANGESTAT_FN(c_dnspdist) {
+C_CHANGESTAT_FN(c_dnspdist_c) {
   /*Set things up*/
   StoreStrictDyadMapUInt *spcache = N_AUX ? AUX_STORAGE : NULL;
   L2Type type = (L2Type) IINPUT_PARAM[0];     /*Get the L2 type code to be used*/
@@ -435,7 +435,7 @@ C_CHANGESTAT_FN(c_dnspdist) {
 
   Only one type may be specified per esp term.  The default, OTP, retains the original behavior of esp/gwesp.  In the case of undirected graphs, OTP should be used (the others assume a directed network memory structure, and are not safe in the undirected case).
 */
-C_CHANGESTAT_FN(c_dgwnsp) {
+C_CHANGESTAT_FN(c_dgwnsp_c) {
   /*Set things up*/
   StoreStrictDyadMapUInt *spcache = N_AUX ? AUX_STORAGE : NULL;
   double alpha = INPUT_PARAM[0];       /*Get alpha*/
@@ -472,16 +472,16 @@ C_CHANGESTAT_FN(c_dgwnsp) {
 /*****************
  changestat: c_ddspbwrap
 *****************/
-C_CHANGESTAT_FN(c_ddspbwrap) {
-  c_ddsp(tail, head, mtp, nwp, edgestate);
+C_CHANGESTAT_FN(c_ddspbwrap_c) {
+  c_ddsp_c(tail, head, mtp, nwp, edgestate);
 
   // correct for double counting of directed vs. undirected dyads
   for(int ind = 0; ind < N_CHANGE_STATS; ind++) CHANGE_STAT[ind] /= 2.0;
 }
 
 
-C_CHANGESTAT_FN(c_ddspdistbwrap) {
-  c_ddspdist(tail, head, mtp, nwp, edgestate);
+C_CHANGESTAT_FN(c_ddspdistbwrap_c) {
+  c_ddspdist_c(tail, head, mtp, nwp, edgestate);
 
   // correct for double counting of directed vs. undirected dyads
   for(int ind = 0; ind < N_CHANGE_STATS; ind++) CHANGE_STAT[ind] /= 2.0;
@@ -491,8 +491,8 @@ C_CHANGESTAT_FN(c_ddspdistbwrap) {
 /*****************
  changestat: c_dgwdspbwrap
 *****************/
-C_CHANGESTAT_FN(c_dgwdspbwrap) {
-  c_dgwdsp(tail, head, mtp, nwp, edgestate);
+C_CHANGESTAT_FN(c_dgwdspbwrap_c) {
+  c_dgwdsp_c(tail, head, mtp, nwp, edgestate);
   
   // correct for double counting of directed vs. undirected dyads
   CHANGE_STAT[0] /= 2.0;
