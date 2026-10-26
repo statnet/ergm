@@ -11,6 +11,6 @@
 #define ALWAYS_INLINE inline
 #endif // Compiler version
 #else
-#define ALWAYS_INLINE
+#define ALWAYS_INLINE inline
 #endif // NDEBUG
 #endif // _ERGM_DEBUG_H_
