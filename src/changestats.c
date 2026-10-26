@@ -3421,30 +3421,3 @@ C_CHANGESTAT_FN(c_b2mindegree) {
       CHANGE_STAT[j] += (b2deg + echange >= d) - (b2deg >= d);
     }
 }
-
-/*****************
- changestat: d_triangle
-*****************/
-C_CHANGESTAT_FN(c_triangle_c) {
-  /* *** don't forget tail -> head */
-  int change = 0;
-    if(N_IINPUT_PARAMS>0){ /* match on attributes */
-      Rboolean diff = IINPUT_PARAM[0];
-      unsigned int tailattr = IINPUT_PARAM[tail];
-      if(tailattr && tailattr == IINPUT_PARAM[head]){
-        EXEC_THROUGH_EDGES(head, e, node3, { /* step through all neighbors of head */
-            if(tailattr == IINPUT_PARAM[node3]){
-              if (DIRECTED) change += IS_OUTEDGE(node3, tail) + IS_INEDGE(node3, tail);
-              else change += IS_UNDIRECTED_EDGE(node3,tail);
-            }
-          });
-        CHANGE_STAT[diff ? tailattr-1 : 0] += edgestate ? -change : change;
-      }
-    }else{ /* no attribute matching */
-      EXEC_THROUGH_EDGES(head, e, node3, { /* step through all neighbors of head */
-          if (DIRECTED) change += IS_OUTEDGE(node3, tail) + IS_INEDGE(node3, tail);
-          else change += IS_UNDIRECTED_EDGE(node3,tail);
-        });
-      CHANGE_STAT[0] += edgestate ? -change : change;
-    }
-}
