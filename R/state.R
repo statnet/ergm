@@ -256,7 +256,7 @@ update.ergm_state_full <- function(object, el=NULL, nw0=NULL, model=NULL, propos
     object$ext.flag <- ERGM_STATE_C_CHANGED
   }
 
-  .check_stats(out)
+  .check_stats(object)
   object <- .copy_state_uids(object)
   .reconcile_ergm_state(object)
 }
