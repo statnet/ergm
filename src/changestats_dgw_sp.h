@@ -87,9 +87,11 @@ static ALWAYS_INLINE Vertex count_isp(ErgmCppNetwork& nw, Vertex tail, Vertex he
 
 
 template<typename UpdatePath>
-static ALWAYS_INLINE void dsp_change(L2Type type, Vertex tail, Vertex head, ErgmCppNetwork& nw, StoreStrictDyadMapUInt *spcache, UpdatePath update_path){
-  switch(type){
-  case L2UTP:
+static ALWAYS_INLINE void dsp_change(L2Type type, Vertex tail, Vertex head, Network *nwp, StoreStrictDyadMapUInt *spcache, UpdatePath update_path){
+
+  if (type == L2UTP) {
+    auto nw = ErgmCppNetwork(nwp, false);
+
     // h - u - #v - t: focus dyad: t - u
     for(auto u: nw.neighbors(head))
       if(u != tail)
@@ -99,61 +101,65 @@ static ALWAYS_INLINE void dsp_change(L2Type type, Vertex tail, Vertex head, Ergm
     for(auto u: nw.neighbors(tail))
       if(u != head)
         update_path(count_utp(nw, u, head, spcache));
-    break;
 
-  case L2OTP:
-  case L2ITP: // Identical without a focus dyad to give direction.
-    // h -> u <- #v <- t: focus dyad t - u
-    for(auto u: nw.out_neighbors(head))
-      if(u != tail)
-        update_path(count_otp(nw, tail, u, spcache));
-
-    // t <- u -> #v -> h: focus dyad h - u
-    for(auto u: nw.in_neighbors(tail))
-      if(u != head)
-        update_path(count_otp(nw, u, head, spcache));
-    break;
-
-  case L2RTP:
-    if(nw(head, tail)){
-      // t <-> u <-> #v <-> h: focus dyad h - u
-      for(auto u: nw.out_neighbors(tail))
-        if(u != head && nw(u, tail))
-          update_path(count_rtp(nw, u, head, tail, spcache));
-
-      // h <-> u <-> #v <-> t: focus dyad t - u
+  } else {
+    auto nw = ErgmCppNetwork(nwp, true);
+    switch(type){
+    case L2OTP:
+    case L2ITP: // Identical without a focus dyad to give direction.
+      // h -> u <- #v <- t: focus dyad t - u
       for(auto u: nw.out_neighbors(head))
-        if(u != tail && nw(u, head))
-          update_path(count_rtp(nw, u, tail, head, spcache));
+        if(u != tail)
+          update_path(count_otp(nw, tail, u, spcache));
+
+      // t <- u -> #v -> h: focus dyad h - u
+      for(auto u: nw.in_neighbors(tail))
+        if(u != head)
+          update_path(count_otp(nw, u, head, spcache));
+      break;
+
+    case L2RTP:
+      if(nw(head, tail)){
+        // t <-> u <-> #v <-> h: focus dyad h - u
+        for(auto u: nw.out_neighbors(tail))
+          if(u != head && nw(u, tail))
+            update_path(count_rtp(nw, u, head, tail, spcache));
+
+        // h <-> u <-> #v <-> t: focus dyad t - u
+        for(auto u: nw.out_neighbors(head))
+          if(u != tail && nw(u, head))
+            update_path(count_rtp(nw, u, tail, head, spcache));
+      }
+      break;
+
+    case L2OSP:
+      // h <- u -> #v <- t: focus dyad t - u
+      for(auto u: nw.in_neighbors(head))
+        if(u != tail)
+          update_path(count_osp(nw, tail, u, spcache));
+      break;
+
+    case L2ISP:
+      // t -> u <- #v -> h: focus dyad h - u
+      for(auto u: nw.out_neighbors(tail))
+        if(u != head)
+          update_path(count_isp(nw, head, u, spcache));
+      break;
+
+    default: error("In ergm shared partner helper, an unsupported type of triad: %d.", type);
     }
-    break;
-
-  case L2OSP:
-    // h <- u -> #v <- t: focus dyad t - u
-    for(auto u: nw.in_neighbors(head))
-      if(u != tail)
-        update_path(count_osp(nw, tail, u, spcache));
-    break;
-
-  case L2ISP:
-    // t -> u <- #v -> h: focus dyad h - u
-    for(auto u: nw.out_neighbors(tail))
-      if(u != head)
-        update_path(count_isp(nw, head, u, spcache));
-    break;
-
-  default: error("In ergm shared partner helper, an unsupported type of triad: %d.", type);
   }
 }
 
 
 template<typename UpdatePath, typename UpdateFocus>
-static ALWAYS_INLINE void esp_change(L2Type type, Vertex tail, Vertex head, ErgmCppNetwork& nw, StoreStrictDyadMapUInt *spcache, UpdatePath update_path, UpdateFocus update_focus){
-  int L2th;
-  bool htedge;
+static ALWAYS_INLINE void esp_change(L2Type type, Vertex tail, Vertex head, Network *nwp, StoreStrictDyadMapUInt *spcache, UpdatePath update_path, UpdateFocus update_focus){
 
-  switch(type){
-  case L2UTP:
+  unsigned int L2th;
+
+  if (type == L2UTP) {
+    auto nw = ErgmCppNetwork(nwp, false);
+
     L2th = spcache ? GETDDMUI(tail, head, spcache) : 0;
 
     // h - u - t: focus dyad t - h
@@ -166,118 +172,123 @@ static ALWAYS_INLINE void esp_change(L2Type type, Vertex tail, Vertex head, Ergm
         update_path(std::get<0>(utp_counts));
         update_path(std::get<1>(utp_counts));
       }
-    break;
 
-  case L2OTP:
-    L2th = spcache ? GETDDMUI(tail, head, spcache) : 0;
+  } else {
+    auto nw = ErgmCppNetwork(nwp, true);
+    bool htedge;
+
+    switch(type){
+    case L2OTP:
+      L2th = spcache ? GETDDMUI(tail, head, spcache) : 0;
 
     // t -> u -> h: focus dyad t -> h
-    // u <- #v <- t -> u <- h: focus dyad t -> u
-    for(auto u: nw.out_neighbors(tail)){
-      if(!spcache && u != head && nw(u, head)) L2th++;
-      if(u != head && nw(head, u))
-        update_path(count_otp(nw, tail, u, spcache));
-    }
-
-    // u -> #v -> h <- u -> h: focus dyad u -> h
-    for(auto u: nw.in_neighbors(head))
-      if(u != tail && nw(u, tail))
-        update_path(count_otp(nw, u, head, spcache));
-    break;
-
-  case L2ITP:
-    L2th = spcache ? GETDDMUI(head, tail, spcache) : 0;
-
-    // h -> u -> t: focus dyad t -> h
-    // u -> #v -> h -> u -> t: focus dyad h -> u
-    for(auto u: nw.out_neighbors(head))
-      if(u != tail && nw(u, tail)){
-        if(!spcache) L2th++;
-        update_path(count_otp(nw, u, head, spcache));
+      // u <- #v <- t -> u <- h: focus dyad t -> u
+      for(auto u: nw.out_neighbors(tail)){
+        if(!spcache && u != head && nw(u, head)) L2th++;
+        if(u != head && nw(head, u))
+          update_path(count_otp(nw, tail, u, spcache));
       }
 
-    // u <- #v <- t <- u <- h: focus dyad u -> t
-    for(auto u: nw.in_neighbors(tail))
-      if(u != head && nw(head, u))
-        update_path(count_otp(nw, tail, u, spcache));
-    break;
+      // u -> #v -> h <- u -> h: focus dyad u -> h
+      for(auto u: nw.in_neighbors(head))
+        if(u != tail && nw(u, tail))
+          update_path(count_otp(nw, u, head, spcache));
+      break;
 
-  case L2RTP:
-    L2th = spcache ? GETUDMUI(tail, head, spcache) : 0;
-    htedge = nw(head, tail);
+    case L2ITP:
+      L2th = spcache ? GETDDMUI(head, tail, spcache) : 0;
 
-    // t <-> u <-> h: focus dyad t -> h
-    // u <-> h -> t <- u <-> #v <-> t: focus dyad t <- u
-    for(auto u: nw.in_neighbors(tail)){
-      if(u != head){
-        if(!spcache) L2th += nw(tail, u) && nw(head, u) && nw(u, head);
-        if(htedge && nw(head, u) && nw(u, head))
+      // h -> u -> t: focus dyad t -> h
+      // u -> #v -> h -> u -> t: focus dyad h -> u
+      for(auto u: nw.out_neighbors(head))
+        if(u != tail && nw(u, tail)){
+          if(!spcache) L2th++;
+          update_path(count_otp(nw, u, head, spcache));
+        }
+
+      // u <- #v <- t <- u <- h: focus dyad u -> t
+      for(auto u: nw.in_neighbors(tail))
+        if(u != head && nw(head, u))
+          update_path(count_otp(nw, tail, u, spcache));
+      break;
+
+    case L2RTP:
+      L2th = spcache ? GETUDMUI(tail, head, spcache) : 0;
+      htedge = nw(head, tail);
+
+      // t <-> u <-> h: focus dyad t -> h
+      // u <-> h -> t <- u <-> #v <-> t: focus dyad t <- u
+      for(auto u: nw.in_neighbors(tail)){
+        if(u != head){
+          if(!spcache) L2th += nw(tail, u) && nw(head, u) && nw(u, head);
+          if(htedge && nw(head, u) && nw(u, head))
+            update_path(count_rtp(nw, u, tail, tail, spcache));
+        }
+      }
+
+      // u <-> h -> t -> u <-> #v <-> t: focus dyad t -> u
+      for(auto u: nw.out_neighbors(tail))
+        if(u != head && htedge && nw(head, u) && nw(u, head))
           update_path(count_rtp(nw, u, tail, tail, spcache));
-      }
-    }
 
-    // u <-> h -> t -> u <-> #v <-> t: focus dyad t -> u
-    for(auto u: nw.out_neighbors(tail))
-      if(u != head && htedge && nw(head, u) && nw(u, head))
-        update_path(count_rtp(nw, u, tail, tail, spcache));
+      // u <-> t <- h <- u <-> #v <-> h: focus dyad u -> h
+      for(auto u: nw.in_neighbors(head))
+        if(u != tail && htedge && nw(tail, u) && nw(u, tail))
+          update_path(count_rtp(nw, u, head, head, spcache));
 
-    // u <-> t <- h <- u <-> #v <-> h: focus dyad u -> h
-    for(auto u: nw.in_neighbors(head))
-      if(u != tail && htedge && nw(tail, u) && nw(u, tail))
-        update_path(count_rtp(nw, u, head, head, spcache));
+      // u <-> t -> h <- u <-> #v <-> h: focus dyad u <- h
+      for(auto u: nw.out_neighbors(head))
+        if(u != tail && htedge && nw(tail, u) && nw(u, tail))
+          update_path(count_rtp(nw, u, head, head, spcache));
+      break;
 
-    // u <-> t -> h <- u <-> #v <-> h: focus dyad u <- h
-    for(auto u: nw.out_neighbors(head))
-      if(u != tail && htedge && nw(tail, u) && nw(u, tail))
-        update_path(count_rtp(nw, u, head, head, spcache));
-    break;
+    case L2OSP:
+      L2th = spcache ? GETUDMUI(tail, head, spcache) : 0;
 
-  case L2OSP:
-    L2th = spcache ? GETUDMUI(tail, head, spcache) : 0;
+      // t -> u <- h: focus dyad t -> h
+      // u -> #v <- t -> u -> h: focus dyad t -> u
+      for(auto u: nw.out_neighbors(tail))
+        if(u != head){
+          if(!spcache) L2th += nw(head, u);
+          if(nw(u, head))
+            update_path(count_osp(nw, tail, u, spcache));
+        }
 
-    // t -> u <- h: focus dyad t -> h
-    // u -> #v <- t -> u -> h: focus dyad t -> u
-    for(auto u: nw.out_neighbors(tail))
-      if(u != head){
-        if(!spcache) L2th += nw(head, u);
-        if(nw(u, head))
+      // u -> #v <- t <- u -> h: focus dyad u -> t
+      for(auto u: nw.in_neighbors(tail))
+        if(u != head && nw(u, head))
           update_path(count_osp(nw, tail, u, spcache));
-      }
+      break;
 
-    // u -> #v <- t <- u -> h: focus dyad u -> t
-    for(auto u: nw.in_neighbors(tail))
-      if(u != head && nw(u, head))
-        update_path(count_osp(nw, tail, u, spcache));
-    break;
+    case L2ISP:
+      L2th = spcache ? GETUDMUI(tail, head, spcache) : 0;
 
-  case L2ISP:
-    L2th = spcache ? GETUDMUI(tail, head, spcache) : 0;
+      // h <- u -> t: focus dyad t -> h
+      // u <- #v -> h <- u <- t: focus dyad  u -> h
+      for(auto u: nw.in_neighbors(head))
+        if(u != tail){
+          if(!spcache) L2th += nw(u, tail);
+          if(nw(tail, u))
+            update_path(count_isp(nw, head, u, spcache));
+        }
 
-    // h <- u -> t: focus dyad t -> h
-    // u <- #v -> h <- u <- t: focus dyad  u -> h
-    for(auto u: nw.in_neighbors(head))
-      if(u != tail){
-        if(!spcache) L2th += nw(u, tail);
-        if(nw(tail, u))
+      // u <- #v -> h -> u <- t: focus dyad  h -> u
+      for(auto u: nw.out_neighbors(head))
+        if(u != tail && nw(tail, u))
           update_path(count_isp(nw, head, u, spcache));
-      }
+      break;
 
-    // u <- #v -> h -> u <- t: focus dyad  h -> u
-    for(auto u: nw.out_neighbors(head))
-      if(u != tail && nw(tail, u))
-        update_path(count_isp(nw, head, u, spcache));
-    break;
-
-  default: error("In ergm shared partner helper, an unsupported type of triad: %d.", type);
+    default: error("In ergm shared partner helper, an unsupported type of triad: %d.", type);
+    }
   }
 
   update_focus(L2th);
 }
 
-static ALWAYS_INLINE int dsp_nonzero_change(L2Type type, Vertex tail, Vertex head, ErgmCppNetwork& nw, Rboolean edgestate, StoreStrictDyadMapUInt *spcache){
+static ALWAYS_INLINE int dsp_nonzero_change(L2Type type, Vertex tail, Vertex head, Network *nwp, Rboolean edgestate, StoreStrictDyadMapUInt *spcache){
   int echange = edgestate ? -1 : 1;
   int delta = 0;
-  dsp_change(type, tail, head, nw, spcache,
+  dsp_change(type, tail, head, nwp, spcache,
              [&](int L2){ delta += (L2 + echange != 0) - (L2 != 0); });
   return delta;
 }
