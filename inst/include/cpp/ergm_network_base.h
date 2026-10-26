@@ -218,8 +218,14 @@ public:
   NodeRange b2() const { return NodeRange(bip + 1, n + 1); }
 
   ALWAYS_INLINE ValueType operator()(Vertex tail, Vertex head) const {
-    if (dir) return EdgetreeSearchFunc::call(tail, head, ptr->outedges) ? TRUE : FALSE;
-    else return EdgetreeSearchFunc::call(MIN(tail, head), MAX(tail, head), ptr->outedges) ? TRUE : FALSE;
+    if constexpr (std::is_same_v<ValueType, Rboolean>) {
+      if (dir) return EdgetreeSearchFunc::call(tail, head, ptr->outedges) ? TRUE : FALSE;
+      else return EdgetreeSearchFunc::call(MIN(tail, head), MAX(tail, head), ptr->outedges) ? TRUE : FALSE;
+    } else {
+      // NB: All elements of the 0th node of the edgetree are initialized to 0.
+      if (dir) return ptr->outedges[EdgetreeSearchFunc::call(tail, head, ptr->outedges)].weight;
+      else return ptr->outedges[EdgetreeSearchFunc::call(MIN(tail, head), MAX(tail, head), ptr->outedges)].weight;
+    }
   }
 
   // Degree access methods
