@@ -66,7 +66,9 @@
 ergm_state <- function(x, ...) UseMethod("ergm_state")
 
 .check_stats <- function(s) {
-  stopifnot(length(s$stats) == 0 || length(s$stats) == nparam(s$model, canonical = TRUE, offset = NA))
+  stopifnot(length(s$stats) == 0 ||
+            length(s$stats) == nparam(s$model, canonical = TRUE, offset = NA) || # Needed for other cases
+            length(s$stats) == nparam(s$model, canonical = TRUE, offset = FALSE)) # Needed for SAN
 }
 
 #' @describeIn ergm_state a method for constructing an ergm_state from an [`edgelist`] object and an empty [`network`].
