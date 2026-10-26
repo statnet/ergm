@@ -37,8 +37,9 @@ Headers: `#include "cpp/ergm_network.h"`, `#include "cpp/ergm_wtnetwork.h"`
 These wrap `Network` (unweighted) and `WtNetwork` (weighted) to provide edge queries, degree access, and simple iteration.
 
 - Construction: `ErgmCppNetwork nw(nwp);` and `ErgmCppWtNetwork nw(nwp);`
+    - These constructors take an optional directedness argument, `ErgmCppNetwork nw(nwp, dir);` and `ErgmCppWtNetwork nw(nwp, dir);`. These should be used when the directedness of the network is known *at compile time* and can significantly speed up some operations. It is recommended to pass `true` or `false` directly; passing `DIRECTED` or `nwp->directed_flag` is unlikely to produce substantial improvement.
 - `ptr`: raw pointer to the underlying `Network` (or `WtNetwork`) C struct.
-- Edge query: `nw(tail, head)` returns presence (`Rboolean`) or `double` weight (0 for no edge). If the network's directedness is known passing a third argument, `nw(tail, head, dir)`, can speed the lookup up by a nontrivial amount.
+- Edge query: `nw(tail, head)` returns presence (`Rboolean`) or `double` weight (0 for no edge).
 - Node ranges: `nw.nodes()`, bipartite halves: `nw.b1()`, `nw.b2()`; node ranges support `.size()` for O(1) range size.
 - Neighbor ranges: `nw.out_neighbors(i)`, `nw.in_neighbors(i)`, `nw.neighbors(i)`.
 - Degree access: `nw.out_degree(i)`, `nw.in_degree(i)`, `nw.degree(i)`.
@@ -117,6 +118,8 @@ The following macros define the C entry point and construct network and model te
 `StorageType` can be omitted (i.e., passing only 2 arguments) if no private storage is used.
 
 Weighted counterparts in `ergm_wtchangestat.h` are prefixed with `Wt` (e.g., `WtC_CHANGESTAT_CPP`).
+
+Counterparts with directedness known at compile time have `_D_` or `_U_` inserted after `CHANGESTAT`  (e.g., `C_CHANGESTAT_D_CPP` and `C_CHANGESTAT_U_CPP`).
 
 ## Examples
 

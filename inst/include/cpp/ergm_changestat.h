@@ -177,3 +177,319 @@ template<typename StorageType = void>
 
 #define Z_CHANGESTAT_CPP(...)                                           \
   _GET_OVERRIDE3(__VA_ARGS__, _Z_CHANGESTAT_CPP_3, _Z_CHANGESTAT_CPP_2, , )(__VA_ARGS__)
+
+
+/* The following are variants for when the statistic is not
+   ambidirected, which can significantly speed up neigbor iteration by
+   removing some code paths at compile time. ErgmCppNetwork() does
+   check that nwp's directedness matches, so at worst, these will crash if the wrong directedness is given. */
+
+// Directed
+
+#define _C_CHANGESTAT_D_CPP_2(name, impl)                                 \
+  extern "C" void c_ ## name (Vertex tail, Vertex head, ModelTerm *mtp, Network *nwp, Rboolean edgestate) { \
+    ergm::ErgmCppNetwork nw(nwp, true);                                       \
+    ergm::ErgmCppModelTerm<> mt(mtp);                                   \
+    impl;                                                               \
+  }
+
+#define _C_CHANGESTAT_D_CPP_3(name, StorageType, impl)                    \
+  extern "C" void c_ ## name (Vertex tail, Vertex head, ModelTerm *mtp, Network *nwp, Rboolean edgestate) { \
+    ergm::ErgmCppNetwork nw(nwp, true);                                       \
+    ergm::ErgmCppModelTerm<StorageType> mt(mtp);                        \
+    impl;                                                               \
+  }
+
+#define C_CHANGESTAT_D_CPP(...)                                           \
+  _GET_OVERRIDE3(__VA_ARGS__, _C_CHANGESTAT_D_CPP_3, _C_CHANGESTAT_D_CPP_2, , )(__VA_ARGS__)
+
+#define _S_CHANGESTAT_D_CPP_2(name, impl)                                 \
+  extern "C" void s_ ## name (ModelTerm *mtp, Network *nwp) {           \
+    ergm::ErgmCppNetwork nw(nwp, true);                                       \
+    ergm::ErgmCppModelTerm<> mt(mtp);                                   \
+    impl;                                                               \
+  }
+
+#define _S_CHANGESTAT_D_CPP_3(name, StorageType, impl)                    \
+  extern "C" void s_ ## name (ModelTerm *mtp, Network *nwp) {           \
+    ergm::ErgmCppNetwork nw(nwp, true);                                       \
+    ergm::ErgmCppModelTerm<StorageType> mt(mtp);                        \
+    impl;                                                               \
+  }
+
+#define S_CHANGESTAT_D_CPP(...)                                           \
+  _GET_OVERRIDE3(__VA_ARGS__, _S_CHANGESTAT_D_CPP_3, _S_CHANGESTAT_D_CPP_2, , )(__VA_ARGS__)
+
+#define _D_CHANGESTAT_D_CPP_2(name, impl)                                 \
+  extern "C" void d_ ## name (Edge ntoggles, Vertex *tails, Vertex *heads, ModelTerm *mtp, Network *nwp) { \
+    ergm::ErgmCppNetwork nw(nwp, true);                                       \
+    ergm::ErgmCppModelTerm<> mt(mtp);                                   \
+    impl;                                                               \
+  }
+
+#define _D_CHANGESTAT_D_CPP_3(name, StorageType, impl)                    \
+  extern "C" void d_ ## name (Edge ntoggles, Vertex *tails, Vertex *heads, ModelTerm *mtp, Network *nwp) { \
+    ergm::ErgmCppNetwork nw(nwp, true);                                       \
+    ergm::ErgmCppModelTerm<StorageType> mt(mtp);                        \
+    impl;                                                               \
+  }
+
+#define D_CHANGESTAT_D_CPP(...)                                           \
+  _GET_OVERRIDE3(__VA_ARGS__, _D_CHANGESTAT_D_CPP_3, _D_CHANGESTAT_D_CPP_2, , )(__VA_ARGS__)
+
+#define _I_CHANGESTAT_D_CPP_2(name, impl)                                 \
+  extern "C" void i_ ## name (ModelTerm *mtp, Network *nwp) {           \
+    ergm::ErgmCppNetwork nw(nwp, true);                                       \
+    ergm::ErgmCppModelTerm<> mt(mtp);                                   \
+    impl;                                                               \
+  }
+
+#define _I_CHANGESTAT_D_CPP_3(name, StorageType, impl)                    \
+  extern "C" void i_ ## name (ModelTerm *mtp, Network *nwp) {           \
+    ergm::ErgmCppNetwork nw(nwp, true);                                       \
+    ergm::ErgmCppModelTerm<StorageType> mt(mtp);                        \
+    impl;                                                               \
+  }
+
+#define I_CHANGESTAT_D_CPP(...)                                           \
+  _GET_OVERRIDE3(__VA_ARGS__, _I_CHANGESTAT_D_CPP_3, _I_CHANGESTAT_D_CPP_2, , )(__VA_ARGS__)
+
+#define _U_CHANGESTAT_D_CPP_2(name, impl)                                 \
+  extern "C" void u_ ## name (Vertex tail, Vertex head, ModelTerm *mtp, Network *nwp, Rboolean edgestate) { \
+    ergm::ErgmCppNetwork nw(nwp, true);                                       \
+    ergm::ErgmCppModelTerm<> mt(mtp);                                   \
+    impl;                                                               \
+  }
+
+#define _U_CHANGESTAT_D_CPP_3(name, StorageType, impl)                    \
+  extern "C" void u_ ## name (Vertex tail, Vertex head, ModelTerm *mtp, Network *nwp, Rboolean edgestate) { \
+    ergm::ErgmCppNetwork nw(nwp, true);                                       \
+    ergm::ErgmCppModelTerm<StorageType> mt(mtp);                        \
+    impl;                                                               \
+  }
+
+#define U_CHANGESTAT_D_CPP(...)                                           \
+  _GET_OVERRIDE3(__VA_ARGS__, _U_CHANGESTAT_D_CPP_3, _U_CHANGESTAT_D_CPP_2, , )(__VA_ARGS__)
+
+#define _F_CHANGESTAT_D_CPP_2(name, impl)                                 \
+  extern "C" void f_ ## name (ModelTerm *mtp, Network *nwp) {           \
+    ergm::ErgmCppNetwork nw(nwp, true);                                       \
+    ergm::ErgmCppModelTerm<> mt(mtp);                                   \
+    impl;                                                               \
+  }
+
+#define _F_CHANGESTAT_D_CPP_3(name, StorageType, impl)                    \
+  extern "C" void f_ ## name (ModelTerm *mtp, Network *nwp) {           \
+    ergm::ErgmCppNetwork nw(nwp, true);                                       \
+    ergm::ErgmCppModelTerm<StorageType> mt(mtp);                        \
+    impl;                                                               \
+  }
+
+#define F_CHANGESTAT_D_CPP(...)                                           \
+  _GET_OVERRIDE3(__VA_ARGS__, _F_CHANGESTAT_D_CPP_3, _F_CHANGESTAT_D_CPP_2, , )(__VA_ARGS__)
+
+#define _W_CHANGESTAT_D_CPP_2(name, impl)                                 \
+  extern "C" SEXP w_ ## name (ModelTerm *mtp, Network *nwp) {           \
+    ergm::ErgmCppNetwork nw(nwp, true);                                       \
+    ergm::ErgmCppModelTerm<> mt(mtp);                                   \
+    impl;                                                               \
+  }
+
+#define _W_CHANGESTAT_D_CPP_3(name, StorageType, impl)                    \
+  extern "C" SEXP w_ ## name (ModelTerm *mtp, Network *nwp) {           \
+    ergm::ErgmCppNetwork nw(nwp, true);                                       \
+    ergm::ErgmCppModelTerm<StorageType> mt(mtp);                        \
+    impl;                                                               \
+  }
+
+#define W_CHANGESTAT_D_CPP(...)                                           \
+  _GET_OVERRIDE3(__VA_ARGS__, _W_CHANGESTAT_D_CPP_3, _W_CHANGESTAT_D_CPP_2, , )(__VA_ARGS__)
+
+#define _X_CHANGESTAT_D_CPP_2(name, impl)                                 \
+  extern "C" void x_ ## name (unsigned int type, void *data, ModelTerm *mtp, Network *nwp) { \
+    ergm::ErgmCppNetwork nw(nwp, true);                                       \
+    ergm::ErgmCppModelTerm<> mt(mtp);                                   \
+    impl;                                                               \
+  }
+
+#define _X_CHANGESTAT_D_CPP_3(name, StorageType, impl)                    \
+  extern "C" void x_ ## name (unsigned int type, void *data, ModelTerm *mtp, Network *nwp) { \
+    ergm::ErgmCppNetwork nw(nwp, true);                                       \
+    ergm::ErgmCppModelTerm<StorageType> mt(mtp);                        \
+    impl;                                                               \
+  }
+
+#define X_CHANGESTAT_D_CPP(...)                                           \
+  _GET_OVERRIDE3(__VA_ARGS__, _X_CHANGESTAT_D_CPP_3, _X_CHANGESTAT_D_CPP_2, , )(__VA_ARGS__)
+
+#define _Z_CHANGESTAT_D_CPP_2(name, impl)                                 \
+  extern "C" void z_ ## name (ModelTerm *mtp, Network *nwp, Rboolean skip_s) { \
+    ergm::ErgmCppNetwork nw(nwp, true);                                       \
+    ergm::ErgmCppModelTerm<> mt(mtp);                                   \
+    impl;                                                               \
+  }
+
+#define _Z_CHANGESTAT_D_CPP_3(name, StorageType, impl)                    \
+  extern "C" void z_ ## name (ModelTerm *mtp, Network *nwp, Rboolean skip_s) { \
+    ergm::ErgmCppNetwork nw(nwp, true);                                       \
+    ergm::ErgmCppModelTerm<StorageType> mt(mtp);                        \
+    impl;                                                               \
+  }
+
+#define Z_CHANGESTAT_D_CPP(...)                                           \
+  _GET_OVERRIDE3(__VA_ARGS__, _Z_CHANGESTAT_D_CPP_3, _Z_CHANGESTAT_D_CPP_2, , )(__VA_ARGS__)
+
+// Undirected
+
+#define _C_CHANGESTAT_U_CPP_2(name, impl)                                 \
+  extern "C" void c_ ## name (Vertex tail, Vertex head, ModelTerm *mtp, Network *nwp, Rboolean edgestate) { \
+    ergm::ErgmCppNetwork nw(nwp, false);                                       \
+    ergm::ErgmCppModelTerm<> mt(mtp);                                   \
+    impl;                                                               \
+  }
+
+#define _C_CHANGESTAT_U_CPP_3(name, StorageType, impl)                    \
+  extern "C" void c_ ## name (Vertex tail, Vertex head, ModelTerm *mtp, Network *nwp, Rboolean edgestate) { \
+    ergm::ErgmCppNetwork nw(nwp, false);                                       \
+    ergm::ErgmCppModelTerm<StorageType> mt(mtp);                        \
+    impl;                                                               \
+  }
+
+#define C_CHANGESTAT_U_CPP(...)                                           \
+  _GET_OVERRIDE3(__VA_ARGS__, _C_CHANGESTAT_U_CPP_3, _C_CHANGESTAT_U_CPP_2, , )(__VA_ARGS__)
+
+#define _S_CHANGESTAT_U_CPP_2(name, impl)                                 \
+  extern "C" void s_ ## name (ModelTerm *mtp, Network *nwp) {           \
+    ergm::ErgmCppNetwork nw(nwp, false);                                       \
+    ergm::ErgmCppModelTerm<> mt(mtp);                                   \
+    impl;                                                               \
+  }
+
+#define _S_CHANGESTAT_U_CPP_3(name, StorageType, impl)                    \
+  extern "C" void s_ ## name (ModelTerm *mtp, Network *nwp) {           \
+    ergm::ErgmCppNetwork nw(nwp, false);                                       \
+    ergm::ErgmCppModelTerm<StorageType> mt(mtp);                        \
+    impl;                                                               \
+  }
+
+#define S_CHANGESTAT_U_CPP(...)                                           \
+  _GET_OVERRIDE3(__VA_ARGS__, _S_CHANGESTAT_U_CPP_3, _S_CHANGESTAT_U_CPP_2, , )(__VA_ARGS__)
+
+#define _D_CHANGESTAT_U_CPP_2(name, impl)                                 \
+  extern "C" void d_ ## name (Edge ntoggles, Vertex *tails, Vertex *heads, ModelTerm *mtp, Network *nwp) { \
+    ergm::ErgmCppNetwork nw(nwp, false);                                       \
+    ergm::ErgmCppModelTerm<> mt(mtp);                                   \
+    impl;                                                               \
+  }
+
+#define _D_CHANGESTAT_U_CPP_3(name, StorageType, impl)                    \
+  extern "C" void d_ ## name (Edge ntoggles, Vertex *tails, Vertex *heads, ModelTerm *mtp, Network *nwp) { \
+    ergm::ErgmCppNetwork nw(nwp, false);                                       \
+    ergm::ErgmCppModelTerm<StorageType> mt(mtp);                        \
+    impl;                                                               \
+  }
+
+#define D_CHANGESTAT_U_CPP(...)                                           \
+  _GET_OVERRIDE3(__VA_ARGS__, _D_CHANGESTAT_U_CPP_3, _D_CHANGESTAT_U_CPP_2, , )(__VA_ARGS__)
+
+#define _I_CHANGESTAT_U_CPP_2(name, impl)                                 \
+  extern "C" void i_ ## name (ModelTerm *mtp, Network *nwp) {           \
+    ergm::ErgmCppNetwork nw(nwp, false);                                       \
+    ergm::ErgmCppModelTerm<> mt(mtp);                                   \
+    impl;                                                               \
+  }
+
+#define _I_CHANGESTAT_U_CPP_3(name, StorageType, impl)                    \
+  extern "C" void i_ ## name (ModelTerm *mtp, Network *nwp) {           \
+    ergm::ErgmCppNetwork nw(nwp, false);                                       \
+    ergm::ErgmCppModelTerm<StorageType> mt(mtp);                        \
+    impl;                                                               \
+  }
+
+#define I_CHANGESTAT_U_CPP(...)                                           \
+  _GET_OVERRIDE3(__VA_ARGS__, _I_CHANGESTAT_U_CPP_3, _I_CHANGESTAT_U_CPP_2, , )(__VA_ARGS__)
+
+#define _U_CHANGESTAT_U_CPP_2(name, impl)                                 \
+  extern "C" void u_ ## name (Vertex tail, Vertex head, ModelTerm *mtp, Network *nwp, Rboolean edgestate) { \
+    ergm::ErgmCppNetwork nw(nwp, false);                                       \
+    ergm::ErgmCppModelTerm<> mt(mtp);                                   \
+    impl;                                                               \
+  }
+
+#define _U_CHANGESTAT_U_CPP_3(name, StorageType, impl)                    \
+  extern "C" void u_ ## name (Vertex tail, Vertex head, ModelTerm *mtp, Network *nwp, Rboolean edgestate) { \
+    ergm::ErgmCppNetwork nw(nwp, false);                                       \
+    ergm::ErgmCppModelTerm<StorageType> mt(mtp);                        \
+    impl;                                                               \
+  }
+
+#define U_CHANGESTAT_U_CPP(...)                                           \
+  _GET_OVERRIDE3(__VA_ARGS__, _U_CHANGESTAT_U_CPP_3, _U_CHANGESTAT_U_CPP_2, , )(__VA_ARGS__)
+
+#define _F_CHANGESTAT_U_CPP_2(name, impl)                                 \
+  extern "C" void f_ ## name (ModelTerm *mtp, Network *nwp) {           \
+    ergm::ErgmCppNetwork nw(nwp, false);                                       \
+    ergm::ErgmCppModelTerm<> mt(mtp);                                   \
+    impl;                                                               \
+  }
+
+#define _F_CHANGESTAT_U_CPP_3(name, StorageType, impl)                    \
+  extern "C" void f_ ## name (ModelTerm *mtp, Network *nwp) {           \
+    ergm::ErgmCppNetwork nw(nwp, false);                                       \
+    ergm::ErgmCppModelTerm<StorageType> mt(mtp);                        \
+    impl;                                                               \
+  }
+
+#define F_CHANGESTAT_U_CPP(...)                                           \
+  _GET_OVERRIDE3(__VA_ARGS__, _F_CHANGESTAT_U_CPP_3, _F_CHANGESTAT_U_CPP_2, , )(__VA_ARGS__)
+
+#define _W_CHANGESTAT_U_CPP_2(name, impl)                                 \
+  extern "C" SEXP w_ ## name (ModelTerm *mtp, Network *nwp) {           \
+    ergm::ErgmCppNetwork nw(nwp, false);                                       \
+    ergm::ErgmCppModelTerm<> mt(mtp);                                   \
+    impl;                                                               \
+  }
+
+#define _W_CHANGESTAT_U_CPP_3(name, StorageType, impl)                    \
+  extern "C" SEXP w_ ## name (ModelTerm *mtp, Network *nwp) {           \
+    ergm::ErgmCppNetwork nw(nwp, false);                                       \
+    ergm::ErgmCppModelTerm<StorageType> mt(mtp);                        \
+    impl;                                                               \
+  }
+
+#define W_CHANGESTAT_U_CPP(...)                                           \
+  _GET_OVERRIDE3(__VA_ARGS__, _W_CHANGESTAT_U_CPP_3, _W_CHANGESTAT_U_CPP_2, , )(__VA_ARGS__)
+
+#define _X_CHANGESTAT_U_CPP_2(name, impl)                                 \
+  extern "C" void x_ ## name (unsigned int type, void *data, ModelTerm *mtp, Network *nwp) { \
+    ergm::ErgmCppNetwork nw(nwp, false);                                       \
+    ergm::ErgmCppModelTerm<> mt(mtp);                                   \
+    impl;                                                               \
+  }
+
+#define _X_CHANGESTAT_U_CPP_3(name, StorageType, impl)                    \
+  extern "C" void x_ ## name (unsigned int type, void *data, ModelTerm *mtp, Network *nwp) { \
+    ergm::ErgmCppNetwork nw(nwp, false);                                       \
+    ergm::ErgmCppModelTerm<StorageType> mt(mtp);                        \
+    impl;                                                               \
+  }
+
+#define X_CHANGESTAT_U_CPP(...)                                           \
+  _GET_OVERRIDE3(__VA_ARGS__, _X_CHANGESTAT_U_CPP_3, _X_CHANGESTAT_U_CPP_2, , )(__VA_ARGS__)
+
+#define _Z_CHANGESTAT_U_CPP_2(name, impl)                                 \
+  extern "C" void z_ ## name (ModelTerm *mtp, Network *nwp, Rboolean skip_s) { \
+    ergm::ErgmCppNetwork nw(nwp, false);                                       \
+    ergm::ErgmCppModelTerm<> mt(mtp);                                   \
+    impl;                                                               \
+  }
+
+#define _Z_CHANGESTAT_U_CPP_3(name, StorageType, impl)                    \
+  extern "C" void z_ ## name (ModelTerm *mtp, Network *nwp, Rboolean skip_s) { \
+    ergm::ErgmCppNetwork nw(nwp, false);                                       \
+    ergm::ErgmCppModelTerm<StorageType> mt(mtp);                        \
+    impl;                                                               \
+  }
+
+#define Z_CHANGESTAT_U_CPP(...)                                           \
+  _GET_OVERRIDE3(__VA_ARGS__, _Z_CHANGESTAT_U_CPP_3, _Z_CHANGESTAT_U_CPP_2, , )(__VA_ARGS__)

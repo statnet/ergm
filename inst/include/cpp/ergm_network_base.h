@@ -37,6 +37,10 @@ class ErgmCppNetworkBase {
 public:
   explicit ErgmCppNetworkBase(NetType* nwp)
     : dir(nwp->directed_flag != 0), n(nwp->nnodes), bip(nwp->bipartite), ptr(nwp) {}
+  explicit ErgmCppNetworkBase(NetType* nwp, bool dir)
+    : dir(dir), n(nwp->nnodes), bip(nwp->bipartite), ptr(nwp) {
+    if ((nwp->directed_flag != 0) != dir) error("In C++ wrapper for Network, prespecified directedness does not match actual directedness.");
+  }
 
   class NeighborIterator {
   public:
@@ -103,21 +107,18 @@ public:
   };
 
   ALWAYS_INLINE NeighborRange out_neighbors(Vertex node) {
-    if(dir) {
-      return NeighborRange(ptr->outedges, node);
-    } else {
-      return NeighborRange(ptr->inedges, node, ptr->outedges);
-    }
+    if(bip) return NeighborRange(node <= bip ? ptr->outedges : ptr->inedges, node);
+    else if(dir) return NeighborRange(ptr->outedges, node);
+    else return NeighborRange(ptr->inedges, node, ptr->outedges);
   }
   ALWAYS_INLINE NeighborRange in_neighbors(Vertex node) {
-    if(dir) {
-      return NeighborRange(ptr->inedges, node);
-    } else {
-      return NeighborRange(ptr->inedges, node, ptr->outedges);
-    }
+    if(bip) return NeighborRange(node <= bip ? ptr->outedges : ptr->inedges, node);
+    else if(dir) return NeighborRange(ptr->inedges, node);
+    else return NeighborRange(ptr->inedges, node, ptr->outedges);
   }
   ALWAYS_INLINE NeighborRange neighbors(Vertex node) {
-    return NeighborRange(ptr->inedges, node, ptr->outedges);
+    if(bip) return NeighborRange(node <= bip ? ptr->outedges : ptr->inedges, node);
+    else return NeighborRange(ptr->inedges, node, ptr->outedges);
   }
 
   class NetworkEdgeIterator {
@@ -217,10 +218,6 @@ public:
   NodeRange b2() const { return NodeRange(bip + 1, n + 1); }
 
   ALWAYS_INLINE ValueType operator()(Vertex tail, Vertex head) const {
-    return GetEdgeFunc::call(tail, head, ptr);
-  }
-
-  ALWAYS_INLINE ValueType operator()(Vertex tail, Vertex head, bool dir) const {
     if (dir) return EdgetreeSearchFunc::call(tail, head, ptr->outedges) ? TRUE : FALSE;
     else return EdgetreeSearchFunc::call(MIN(tail, head), MAX(tail, head), ptr->outedges) ? TRUE : FALSE;
   }
