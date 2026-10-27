@@ -19,10 +19,10 @@ aaa %n% 'verybeta' <- 'so beta'
 aaa[2,1]<-1  # add a single edge
 
 # a random matrix
-amat<-structure(c(1, 0, 0, 1, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 1, 0, 0,  0, 1, 1, 0, 1, 0, 1, 1, 1, 1, 0, 0, 0, 1, 0, 0, 1, 0, 1, 1, 1,  0, 1, 1, 0, 0, 0, 1, 1, 1, 1, 0, 1, 1, 0, 1, 1, 0, 0, 0, 0, 0,  1, 0, 0, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 1, 0, 0,  0, 1, 1, 0, 1, 0, 0, 1, 0, 0, 0, 0, 1, 1, 1, 0, 1, 0, 0, 0), .Dim = c(10L,  10L))
+amat<-structure(c(1, 0, 0, 1, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 1, 0, 0,  0, 1, 1, 0, 1, 0, 1, 1, 1, 1, 0, 0, 0, 1, 0, 0, 1, 0, 1, 1, 1,  0, 1, 1, 0, 0, 0, 1, 1, 1, 1, 0, 1, 1, 0, 1, 1, 0, 0, 0, 0, 0,  1, 0, 0, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 1, 0, 0,  0, 1, 1, 0, 1, 0, 0, 1, 0, 0, 0, 0, 1, 1, 1, 0, 1, 0, 0, 0), dim = c(10L,  10L))
 
 # and edgelist version of the same matrix
-ael <- structure(c(1L, 1L, 1L, 1L, 1L, 1L, 2L, 2L, 2L, 3L, 3L, 3L, 4L,  4L, 4L, 4L, 4L, 5L, 5L, 5L, 5L, 5L, 5L, 5L, 6L, 6L, 6L, 6L, 6L,  7L, 7L, 7L, 7L, 7L, 7L, 8L, 8L, 8L, 8L, 8L, 9L, 9L, 10L, 10L,  10L, 10L, 10L, 10L, 1L, 2L, 4L, 5L, 6L, 8L, 3L, 8L, 9L, 6L, 9L,  10L, 1L, 3L, 4L, 6L, 10L, 2L, 3L, 5L, 7L, 8L, 9L, 10L, 3L, 4L,  5L, 7L, 8L, 3L, 4L, 5L, 7L, 8L, 10L, 1L, 4L, 5L, 8L, 9L, 1L,  2L, 1L, 2L, 4L, 5L, 6L, 7L), .Dim = c(48L, 2L))
+ael <- structure(c(1L, 1L, 1L, 1L, 1L, 1L, 2L, 2L, 2L, 3L, 3L, 3L, 4L,  4L, 4L, 4L, 4L, 5L, 5L, 5L, 5L, 5L, 5L, 5L, 6L, 6L, 6L, 6L, 6L,  7L, 7L, 7L, 7L, 7L, 7L, 8L, 8L, 8L, 8L, 8L, 9L, 9L, 10L, 10L,  10L, 10L, 10L, 10L, 1L, 2L, 4L, 5L, 6L, 8L, 3L, 8L, 9L, 6L, 9L,  10L, 1L, 3L, 4L, 6L, 10L, 2L, 3L, 5L, 7L, 8L, 9L, 10L, 3L, 4L,  5L, 7L, 8L, 3L, 4L, 5L, 7L, 8L, 10L, 1L, 4L, 5L, 8L, 9L, 1L,  2L, 1L, 2L, 4L, 5L, 6L, 7L), dim = c(48L, 2L))
 
 
 test_that("update.network() from adjacency matrix", {
