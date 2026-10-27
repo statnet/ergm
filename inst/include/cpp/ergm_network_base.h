@@ -39,7 +39,7 @@ public:
     : dir(nwp->directed_flag != 0), n(nwp->nnodes), bip(nwp->bipartite), ptr(nwp) {}
   explicit ErgmCppNetworkBase(NetType* nwp, bool dir)
     : dir(dir), n(nwp->nnodes), bip(nwp->bipartite), ptr(nwp) {
-    if ((nwp->directed_flag != 0) != dir) error("In C++ wrapper for Network, prespecified directedness does not match actual directedness.");
+    if (bip == 0 && (nwp->directed_flag != 0) != dir) error("In C++ wrapper constructor %s(), specified directedness does not match actual directedness.", __func__);
   }
 
   class NeighborIterator {
@@ -107,13 +107,13 @@ public:
   };
 
   ALWAYS_INLINE NeighborRange out_neighbors(Vertex node) {
-    if(bip) return NeighborRange(node <= bip ? ptr->outedges : ptr->inedges, node);
-    else if(dir) return NeighborRange(ptr->outedges, node);
+    if(dir) return NeighborRange(ptr->outedges, node);
+    else if(bip) return NeighborRange(node <= bip ? ptr->outedges : ptr->inedges, node);
     else return NeighborRange(ptr->inedges, node, ptr->outedges);
   }
   ALWAYS_INLINE NeighborRange in_neighbors(Vertex node) {
-    if(bip) return NeighborRange(node <= bip ? ptr->outedges : ptr->inedges, node);
-    else if(dir) return NeighborRange(ptr->inedges, node);
+    if(dir) return NeighborRange(ptr->inedges, node);
+    else if(bip) return NeighborRange(node <= bip ? ptr->outedges : ptr->inedges, node);
     else return NeighborRange(ptr->inedges, node, ptr->outedges);
   }
   ALWAYS_INLINE NeighborRange neighbors(Vertex node) {

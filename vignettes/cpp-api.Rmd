@@ -38,6 +38,8 @@ These wrap `Network` (unweighted) and `WtNetwork` (weighted) to provide edge que
 
 - Construction: `ErgmCppNetwork nw(nwp);` and `ErgmCppWtNetwork nw(nwp);`
     - These constructors take an optional directedness argument, `ErgmCppNetwork nw(nwp, dir);` and `ErgmCppWtNetwork nw(nwp, dir);`. These should be used when the directedness of the network is known *at compile time* and can significantly speed up some operations. It is recommended to pass `true` or `false` directly; passing `DIRECTED` or `nwp->directed_flag` is unlikely to produce substantial improvement.
+    - The consistency of the `dir` argument with `nwp->directed_flag` is checked at initialization time, so, at worst, it will produce a runtime error.
+    - An exception to this consistency check is bipartite networks, because it can often be more efficient to treat them as directed (`tail -> head`) for some algorithms. (For example `b*dsp()` terms are implemented as `*dsp(type="OSP"|"ISP")` depending on the mode.) However, if a bipartite network wrapper `nw` is initialized with `dir = TRUE`, `nw(i,j)` will expect that `i<j`, with `i>j` always returning `FALSE`.
 - `ptr`: raw pointer to the underlying `Network` (or `WtNetwork`) C struct.
 - Edge query: `nw(tail, head)` returns presence (`Rboolean`) or `double` weight (0 for no edge).
 - Node ranges: `nw.nodes()`, bipartite halves: `nw.b1()`, `nw.b2()`; node ranges support `.size()` for O(1) range size.
