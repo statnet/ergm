@@ -97,6 +97,9 @@
       \item{
         Dyadic covariates for terms such as \ergmTerm{ergm}{edgecov}{()} and \ergmTerm{ergm}{dyadcov}{()} can now be set using the \code{\link{\%d\%}} operator, which will catch dimensionality errors sooner and automatically adjust the matrix to transformations to the network such as subgraph extraction. 
       }
+      \item{
+        Terms such as \ergmTerm{ergm}{nodecov}{()} that accept multiple nodal attributes that are bound into a matrix now accept vector-valued vertex attributes.
+      }
     }
   }
 
@@ -107,7 +110,7 @@
         \ergmTerm{ergm}{transitive}{()} now counts the transitive triads (of types 030T, 120D, 120U and 300), as documented. It previously counted transitive triples, the same statistic as \ergmTerm{ergm}{ttriple}{()}, so models that use it will give different results; \ergmTerm{ergm}{ttriple}{()} reproduces the previous ones. (issue #662)
       }
       \item{
-        Fixed memory leaks in \ergmTerm{ergm}{nodematch}{()} and \ergmTerm{ergm}{nodematch}{()}.
+        Fixed memory leaks in \ergmTerm{ergm}{attrcov}{()} and \ergmTerm{ergm}{nodemix}{()}.
       }
       \item{
         Firth-penalty MPLE now works again.
@@ -123,6 +126,9 @@
       }
       \item{
         Constraint \ergmConstraint{ergm}{Dyads}{()} now ignores preexisting \code{\link{\%ergmlhs\%}} constraints and observational constraints, preventing infinite recursion under some circumstances, at the cost of some speed.
+      }
+      \item{
+        Fixes to calculation of \ergmTerm{ergm}{gwesp}{(type = "RTP")} and \ergmTerm{ergm}{esp}{(type = "RTP")}. (Thanks to Ben Rosche \code{<benrosche@nyu.edu>}!)
       }
       \item{
         Some fixes to documentation and term documentation API.
@@ -175,6 +181,18 @@
       \item{
         In MCMLE, the lognormal metric's gradient and Hessian calculations should be more accurate now.
       }
+      \item{
+        \code{\link{check.ErgmTerm}()} now has an argument \code{dep.abort=} that explicitly stops when a particular argument is passed.
+      }
+      \item{
+        Optimizations to the C++ shim to reduce overhead.
+      }
+      \item{
+        Documentation of \code{\link{ergm.godfather}()} now includes explicit details about specifying multiple change sequences.
+      }
+      \item{
+        After producing deprecation messages for over 9 years, term arguments \code{base} and \code{keep} superseded by \code{levels} now produce deprecation warnings.
+      }
     }
   }
 
@@ -182,6 +200,12 @@
     \itemize{
       \item{
         \code{OnNetworkEdgeChangeUWrap()} C function has been exported.
+      }
+      \item{
+        C++ shims now expose a pointer to the underlying C data structure as member \code{ptr}.
+      }
+      \item{
+        In the C++ shim, accessor \code{nw(i,j)} now accepts a third argument, \code{dir}, which can speed the calculation up significantly when directedness of the network is known.
       }
       \item{
         Vestigial C functions removed.

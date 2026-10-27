@@ -12,6 +12,7 @@
 
 #include <R.h>
 #include "ergm_edgetree_types.h"
+#include "ergm_debug.h"
 
 #include "ergm_khash.h"
 
@@ -54,7 +55,7 @@ static inline unsigned int kh_scramble_int(unsigned int a){
 
 /* Accessors, modifiers, and incrementors. */
 #define AccessorTemplate(fname, type, valtype, th_impl)                 \
-  static inline valtype GET ## fname (Vertex tail, Vertex head, Store ## type *hashmap){ \
+  static ALWAYS_INLINE valtype GET ## fname (Vertex tail, Vertex head, Store ## type *hashmap){ \
     return kh_getval(type, hashmap, th_impl, 0);                        \
   }                                                                     \
   static inline void SET ## fname (Vertex tail, Vertex head, valtype v, Store ## type *hashmap){ \
@@ -64,7 +65,7 @@ static inline unsigned int kh_scramble_int(unsigned int a){
       kh_set(type, hashmap, th_impl, v);                                \
     }                                                                   \
   }                                                                     \
-  static inline valtype HAS ## fname (Vertex tail, Vertex head, Store ## type *hashmap){ \
+  static ALWAYS_INLINE valtype HAS ## fname (Vertex tail, Vertex head, Store ## type *hashmap){ \
     return kh_get(type, hashmap, th_impl) != kh_none;                   \
   }                                                                     \
   static inline void DEL ## fname (Vertex tail, Vertex head, Store ## type *hashmap){ \

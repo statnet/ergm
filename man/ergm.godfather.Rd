@@ -54,12 +54,8 @@ ergm.godfather(
 \item{object}{An \code{\link[=ergm]{ergm()}}-style formula, with a \code{\link[network:network]{network}} on its
 LHS, an \code{\link[=ergm_model]{ergm_model()}} or the object appropriate to the method.}
 
-\item{changes}{Either a matrix with three columns: tail, head, and
-new value, describing the changes to be made; or a list of such
-matrices to apply these changes in a sequence. For binary network
-models, the third column may be omitted. In that case, the
-changes are treated as toggles. Note that if a list is passed, it
-must either be all of changes or all of toggles.}
+\item{changes}{A matrix and/or a list of changes to be applied to
+the network. See Details.}
 
 \item{...}{additional arguments to \code{\link[=ergm_model]{ergm_model()}}.}
 
@@ -113,6 +109,21 @@ described in the previous paragraph attached to it as an
 Gives the network a series of proposals it can't refuse. Returns the
 statistics of the network, and, optionally, the final network.
 }
+\details{
+In \code{changes}, each set of changes is specified as a matrix
+with three columns (tail, head, and new value). For binary
+network models, the third column can be omitted, in which case
+the changes are treated as toggles.
+
+Multiple sets of changes can be applied in sequence, with
+statistics stored and returned after each set. They can be
+specified either by passing a list of matrices, by inserting
+sentinel all-0 rows into the matrix of changes, or any
+combination of these.
+
+Note that if a list is passed, it must either be all of changes
+or all of toggles.
+}
 \note{
 \code{\link[=ergm.godfather.ergm_model]{ergm.godfather.ergm_model()}} is a lower-level interface, providing
 an \code{\link[=ergm.godfather]{ergm.godfather()}} method for the \code{\link{ergm_model}} class. The \code{basis}
@@ -123,12 +134,25 @@ an \code{\link[=ergm.godfather]{ergm.godfather()}} method for the \code{\link{er
 }
 \examples{
 data(florentine)
-ergm.godfather(flomarriage~edges+absdiff("wealth")+triangles,
-               changes=list(cbind(1:2,2:3),
-                            cbind(3,5),
-                            cbind(3,5),
-                            cbind(1:2,2:3)),
-               stats.start=TRUE)
+s1 <- ergm.godfather(flomarriage~edges+absdiff("wealth")+triangles,
+                     changes=list(cbind(1:2,2:3),
+                                  cbind(3,5),
+                                  cbind(3,5),
+                                  cbind(1:2,2:3)),
+                     stats.start=TRUE)
+s1
+# Same, using sentinels:
+s2 <- ergm.godfather(flomarriage~edges+absdiff("wealth")+triangles,
+                     changes = rbind(cbind(1:2,2:3),
+                                     0,
+                                     cbind(3,5),
+                                     0,
+                                     cbind(3,5),
+                                     0,
+                                     cbind(1:2,2:3)),
+                     stats.start=TRUE)
+
+stopifnot(identical(s1,s2))
 }
 \seealso{
 \code{tergm.godfather()} in \CRANpkg{tergm}, \code{\link[=simulate.ergm]{simulate.ergm()}},

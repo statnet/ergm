@@ -78,7 +78,7 @@ InitErgmTerm.b1nodematch	<-	function (nw, arglist, ..., version=packageVersion("
                 vartypes 		= c("character", "logical", "numeric", "numeric", "numeric", "character"), 	 
                 defaultvalues = list(NULL, FALSE, NULL, 1, 1, NULL), 										 
                 required 		= c(TRUE, FALSE, FALSE, FALSE, FALSE, FALSE),
-				dep.inform = list(FALSE, FALSE, "levels", FALSE, FALSE, FALSE))
+				dep.warn = list(FALSE, FALSE, "levels", FALSE, FALSE, FALSE))
 	attrarg <- a$attrname
   }else{
     a <- check.ErgmTerm(nw, arglist, directed = FALSE, bipartite = TRUE,
@@ -86,7 +86,7 @@ InitErgmTerm.b1nodematch	<-	function (nw, arglist, ..., version=packageVersion("
                 vartypes 		= c(ERGM_VATTR_SPEC, "logical", "numeric", "numeric", "numeric", ERGM_VATTR_SPEC, ERGM_LEVELS_SPEC), 	 
                 defaultvalues = list(NULL, FALSE, NULL, 1, 1, NULL, NULL), 										 
                 required 		= c(TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE),
-				dep.inform = list(FALSE, FALSE, "levels", FALSE, FALSE, FALSE, FALSE)) 								
+				dep.warn = list(FALSE, FALSE, "levels", FALSE, FALSE, FALSE, FALSE))
     attrarg <- a$attr
   }
   ### Process the arguments
@@ -213,7 +213,7 @@ InitErgmTerm.b2nodematch	<-	function (nw, arglist, ..., version=packageVersion("
                   vartypes = c("character", "logical", "numeric", "numeric", "numeric", "character"),
                   defaultvalues 	= list(NULL, FALSE, NULL, 1, 1, NULL),
                   required		= c(TRUE, FALSE, FALSE, FALSE, FALSE, FALSE),
-				  dep.inform = list(FALSE, FALSE, "levels", FALSE, FALSE, FALSE))
+				  dep.warn = list(FALSE, FALSE, "levels", FALSE, FALSE, FALSE))
 	attrarg <- a$attrname  
   }else{
     ### Check the network and arguments to make sure they are appropriate.
@@ -222,7 +222,7 @@ InitErgmTerm.b2nodematch	<-	function (nw, arglist, ..., version=packageVersion("
                   vartypes = c(ERGM_VATTR_SPEC, "logical", "numeric", "numeric", "numeric", ERGM_VATTR_SPEC, ERGM_LEVELS_SPEC),
                   defaultvalues 	= list(NULL, FALSE, NULL, 1, 1, NULL, NULL),
                   required		= c(TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE),
-				  dep.inform = list(FALSE, FALSE, "levels", FALSE, FALSE, FALSE, FALSE))
+				  dep.warn = list(FALSE, FALSE, "levels", FALSE, FALSE, FALSE, FALSE))
     attrarg <- a$attr
   }
    ### Process the arguments

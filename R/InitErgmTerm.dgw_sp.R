@@ -72,7 +72,7 @@ SPTYPE_CODE <- c(UTP = 0L, OTP = 1L, ITP = 2L, RTP = 3L, OSP = 4L, ISP = 5L)
   type <- .d_sp_resolve_type(nw, a, utermname, bip)
   conam <- if(type=="UTP" || nchar(bip)) utermname else paste0(utermname,".",type)
 
-  list(name=if(nchar(bip)) "ddspbwrap" else paste0("d",utermname), coef.names=paste(conam,d,sep=""), iinputs=c(SPTYPE_CODE[type],d),
+  list(name = if(nchar(bip)) "ddspbwrap" else paste0("d",utermname), coef.names=paste(conam,d,sep=""), iinputs=c(SPTYPE_CODE[type],d),
        minval=0, emptynwstats=emptynwstats(nw=nw, a=a, d=d, type=type),
        auxiliaries=if(cache.sp) .spcache.aux(type) else NULL)
 }
@@ -108,13 +108,13 @@ SPTYPE_CODE <- c(UTP = 0L, OTP = 1L, ITP = 2L, RTP = 3L, OSP = 4L, ISP = 5L)
 
     params <- setNames(list(NULL,decay), c(statname,paste(statname,"decay",sep=".")))
 
-    c(list(name=if(nchar(bip)) "ddspdistbwrap" else paste0("d",sp,"spdist"),
+    c(list(name = if(nchar(bip)) "ddspdistbwrap" else paste0("d",sp,"spdist"),
            coef.names=if(type=="UTP" || nchar(bip)) paste0(bip,sp,"sp#",d) else paste0(bip,sp,"sp.",type,"#",d),
            cutoff.message = ergm_cutoff_message(maxsp, termname, sprintf("number of %ss on some %s", SPTYPE_DESC[type], c(e="edge", d="dyad", n="nonedge")[sp]), "cutoff", "gw.cutoff"),
            iinputs=SPTYPE_CODE[type], params=params, auxiliaries=if(cache.sp) .spcache.aux(type) else NULL), ergm_GWDECAY)
   }else{
     coef.names <- paste(statname,"fixed",decay,sep=".")
-    list(name=if(nchar(bip)) "dgwdspbwrap" else termname, coef.names=coef.names, inputs=decay, iinputs=SPTYPE_CODE[type], auxiliaries=if(cache.sp) .spcache.aux(type) else NULL)
+    list(name = if(nchar(bip)) "dgwdspbwrap" else termname, coef.names=coef.names, inputs=decay, iinputs=SPTYPE_CODE[type], auxiliaries=if(cache.sp) .spcache.aux(type) else NULL)
   }
 }
 

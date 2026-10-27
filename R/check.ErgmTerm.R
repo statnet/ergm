@@ -159,9 +159,9 @@ check.ErgmTerm <- function(nw, arglist, directed = NULL, bipartite = NULL, nonne
       }
       if(!isFALSE(dep.warn[[m]])) {
         if(is.character(dep.warn[[m]]))
-          ergm_Init_warning_once("Argument ", sQuote(varnames[m]), " has been deprecated and may be removed in a future version.  Use ", sQuote(dep.warn[[m]]), " instead.  Note that its interpretation may be different.")
+          ergm_Init_warning("Argument ", sQuote(varnames[m]), " has been deprecated and may be removed in a future version.  Use ", sQuote(dep.warn[[m]]), " instead.  Note that its interpretation may be different.")
         else
-          ergm_Init_warning_once("Argument ", sQuote(varnames[m]), " has been deprecated and may be removed in a future version.")
+          ergm_Init_warning("Argument ", sQuote(varnames[m]), " has been deprecated and may be removed in a future version.")
       }
       if(!isFALSE(dep.abort[[m]])) {
         if(is.character(dep.abort[[m]]))

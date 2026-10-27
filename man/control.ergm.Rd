@@ -406,7 +406,7 @@ implementation of MPLE.}
 
 \item{MPLE.nonident, MPLE.nonident.tol, MPLE.nonvar, MCMLE.nonident, MCMLE.nonident.tol, MCMLE.nonvar}{A rudimentary nonidentifiability/multicollinearity diagnostic. If
 \code{MPLE.nonident.tol > 0}, test the MPLE covariate matrix or the CD
-statistics matrix has linearly dependent columns via \link[=qr]{QR decomposition} with tolerance \code{MPLE.nonident.tol}. This is
+statistics matrix has linearly dependent columns via \link[base:qr]{QR decomposition} with tolerance \code{MPLE.nonident.tol}. This is
 often (not always) indicative of a non-identifiable
 (multicollinear) model. If nonidentifiable, depending on
 \code{MPLE.nonident} issue a warning, an error, or a message

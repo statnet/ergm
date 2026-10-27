@@ -140,7 +140,7 @@
 #'   A rudimentary nonidentifiability/multicollinearity diagnostic. If
 #'   `MPLE.nonident.tol > 0`, test the MPLE covariate matrix or the CD
 #'   statistics matrix has linearly dependent columns via [QR
-#'   decomposition][qr] with tolerance `MPLE.nonident.tol`. This is
+#'   decomposition][base::qr] with tolerance `MPLE.nonident.tol`. This is
 #'   often (not always) indicative of a non-identifiable
 #'   (multicollinear) model. If nonidentifiable, depending on
 #'   `MPLE.nonident` issue a warning, an error, or a message

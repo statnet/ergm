@@ -19,17 +19,22 @@ namespace ergm {
 inline namespace v1 {
 
 struct WtGetEdgeFunc {
-  static double call(Vertex tail, Vertex head, WtNetwork* nwp) {
+  static ALWAYS_INLINE double call(Vertex tail, Vertex head, WtNetwork* nwp) {
     return WtGetEdge(tail, head, nwp);
   }
 };
+struct WtEdgetreeSearchFunc {
+  static ALWAYS_INLINE Edge call(Vertex tail, Vertex head, WtTreeNode* edges) {
+    return WtEdgetreeSearch(tail, head, edges);
+  }
+};
 struct WtEdgetreeMinimumFunc {
-  static Edge call(WtTreeNode* edges, Vertex node) {
+  static ALWAYS_INLINE Edge call(WtTreeNode* edges, Vertex node) {
     return WtEdgetreeMinimum(edges, node);
   }
 };
 struct WtEdgetreeSuccessorFunc {
-  static Edge call(WtTreeNode* edges, Edge e) {
+  static ALWAYS_INLINE Edge call(WtTreeNode* edges, Edge e) {
     return WtEdgetreeSuccessor(edges, e);
   }
 };
@@ -41,6 +46,7 @@ using ErgmCppWtNetwork = ErgmCppNetworkBase<
   std::pair<Vertex, double>, // EdgeIterator::value_type
   std::tuple<Vertex, Vertex, double>, // NetworkEdgeIterator::value_type
   WtGetEdgeFunc,
+  WtEdgetreeSearchFunc,
   WtEdgetreeMinimumFunc,
   WtEdgetreeSuccessorFunc
 >;

@@ -15,12 +15,8 @@
 #' 
 #' @param object An [ergm()]-style formula, with a [`network`] on its
 #'   LHS, an [ergm_model()] or the object appropriate to the method.
-#' @param changes Either a matrix with three columns: tail, head, and
-#'   new value, describing the changes to be made; or a list of such
-#'   matrices to apply these changes in a sequence. For binary network
-#'   models, the third column may be omitted. In that case, the
-#'   changes are treated as toggles. Note that if a list is passed, it
-#'   must either be all of changes or all of toggles.
+#' @param changes A matrix and/or a list of changes to be applied to
+#'   the network. See Details.
 #' @template response
 #' @param end.network Whether to return a network that
 #'   results. Defaults to \code{FALSE}.
@@ -39,6 +35,20 @@
 #'
 #' @template basis
 #'
+#' @details In `changes`, each set of changes is specified as a matrix
+#'   with three columns (tail, head, and new value). For binary
+#'   network models, the third column can be omitted, in which case
+#'   the changes are treated as toggles.
+#'
+#'   Multiple sets of changes can be applied in sequence, with
+#'   statistics stored and returned after each set. They can be
+#'   specified either by passing a list of matrices, by inserting
+#'   sentinel all-0 rows into the matrix of changes, or any
+#'   combination of these.
+#'
+#'   Note that if a list is passed, it must either be all of changes
+#'   or all of toggles.
+#' 
 #' @return If \code{end.network==FALSE} (the default), an
 #'   [`mcmc`] object with the requested network statistics
 #'   associed with the network series produced by applying the
@@ -56,12 +66,25 @@
 #'   [simulate.formula()]
 #' @examples
 #' data(florentine)
-#' ergm.godfather(flomarriage~edges+absdiff("wealth")+triangles,
-#'                changes=list(cbind(1:2,2:3),
-#'                             cbind(3,5),
-#'                             cbind(3,5),
-#'                             cbind(1:2,2:3)),
-#'                stats.start=TRUE)
+#' s1 <- ergm.godfather(flomarriage~edges+absdiff("wealth")+triangles,
+#'                      changes=list(cbind(1:2,2:3),
+#'                                   cbind(3,5),
+#'                                   cbind(3,5),
+#'                                   cbind(1:2,2:3)),
+#'                      stats.start=TRUE)
+#' s1
+#' # Same, using sentinels:
+#' s2 <- ergm.godfather(flomarriage~edges+absdiff("wealth")+triangles,
+#'                      changes = rbind(cbind(1:2,2:3),
+#'                                      0,
+#'                                      cbind(3,5),
+#'                                      0,
+#'                                      cbind(3,5),
+#'                                      0,
+#'                                      cbind(1:2,2:3)),
+#'                      stats.start=TRUE)
+#'
+#' stopifnot(identical(s1,s2))
 #' @export ergm.godfather
 ergm.godfather <- function(object, changes=NULL,
                            ...,

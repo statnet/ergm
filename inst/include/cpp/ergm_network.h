@@ -19,17 +19,22 @@ namespace ergm {
 inline namespace v1 {
 
 struct GetEdgeFunc {
-  static Rboolean call(Vertex tail, Vertex head, Network* nwp) {
+  static ALWAYS_INLINE Rboolean call(Vertex tail, Vertex head, Network* nwp) {
     return GetEdge(tail, head, nwp);
   }
 };
+struct EdgetreeSearchFunc {
+  static ALWAYS_INLINE Edge call(Vertex tail, Vertex head, TreeNode* edges) {
+    return EdgetreeSearch(tail, head, edges);
+  }
+};
 struct EdgetreeMinimumFunc {
-  static Edge call(TreeNode* edges, Vertex node) {
+  static ALWAYS_INLINE Edge call(TreeNode* edges, Vertex node) {
     return EdgetreeMinimum(edges, node);
   }
 };
 struct EdgetreeSuccessorFunc {
-  static Edge call(TreeNode* edges, Edge e) {
+  static ALWAYS_INLINE Edge call(TreeNode* edges, Edge e) {
     return EdgetreeSuccessor(edges, e);
   }
 };
@@ -41,6 +46,7 @@ using ErgmCppNetwork = ErgmCppNetworkBase<
   Vertex, // EdgeIterator::value_type
   std::tuple<Vertex, Vertex>, // NetworkEdgeIterator::value_type
   GetEdgeFunc,
+  EdgetreeSearchFunc,
   EdgetreeMinimumFunc,
   EdgetreeSuccessorFunc
 >;

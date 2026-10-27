@@ -65,6 +65,12 @@
 #' @export
 ergm_state <- function(x, ...) UseMethod("ergm_state")
 
+.check_stats <- function(s) {
+  stopifnot(length(s$stats) == 0 ||
+            length(s$stats) == nparam(s$model, canonical = TRUE, offset = NA) || # Needed for other cases
+            length(s$stats) == nparam(s$model, canonical = TRUE, offset = FALSE)) # Needed for SAN
+}
+
 #' @describeIn ergm_state a method for constructing an ergm_state from an [`edgelist`] object and an empty [`network`].
 #' @export
 ergm_state.edgelist <- function(x, nw0, model=NULL, proposal=NULL, stats=NULL, ext.state=NULL,...){
@@ -96,6 +102,7 @@ ergm_state.edgelist <- function(x, nw0, model=NULL, proposal=NULL, stats=NULL, e
     out <- .reconcile_ergm_state(out)
   }
 
+  .check_stats(out)
   out <- .copy_state_uids(out)
   structure(out, class=c("ergm_state_full", "ergm_state_send", "ergm_state_receive", "ergm_state"))
 }
@@ -251,6 +258,7 @@ update.ergm_state_full <- function(object, el=NULL, nw0=NULL, model=NULL, propos
     object$ext.flag <- ERGM_STATE_C_CHANGED
   }
 
+  .check_stats(object)
   object <- .copy_state_uids(object)
   .reconcile_ergm_state(object)
 }

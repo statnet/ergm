@@ -62,7 +62,7 @@ the LHS, convert to \code{\link[statnet.common:term_list]{term_list}}, and use t
 \itemize{
 \item \code{c(ergm_conlist)}: a concatenation method.
 
-\item \code{[}: a subsetting method.
+\item \code{ergm_conlist[]}: a subsetting method.
 
 }}
 \keyword{internal}

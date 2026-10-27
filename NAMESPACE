@@ -321,57 +321,77 @@ importFrom(MASS,fractions)
 importFrom(Rdpack,reprompt)
 importFrom(cli,cli_alert)
 importFrom(coda,mcmc)
-importFrom(graphics,abline)
-importFrom(graphics,boxplot)
-importFrom(graphics,lines)
-importFrom(graphics,mtext)
-importFrom(graphics,par)
-importFrom(graphics,plot)
-importFrom(graphics,points)
-importFrom(graphics,text)
-importFrom(lpSolveAPI,get.objective)
-importFrom(lpSolveAPI,lp.control)
-importFrom(lpSolveAPI,make.lp)
-importFrom(lpSolveAPI,set.bounds)
-importFrom(lpSolveAPI,set.column)
-importFrom(lpSolveAPI,set.constr.type)
-importFrom(lpSolveAPI,set.objfn)
-importFrom(lpSolveAPI,set.rhs)
-importFrom(magrittr,"%<>%")
-importFrom(magrittr,"%>%")
-importFrom(methods,as)
-importFrom(methods,is)
-importFrom(network,as.edgelist)
-importFrom(network,as.network)
-importFrom(parallel,clusterCall)
-importFrom(parallel,clusterMap)
-importFrom(parallel,clusterSetRNGStream)
-importFrom(parallel,makeCluster)
-importFrom(parallel,stopCluster)
-importFrom(rlang,"%|%")
-importFrom(rlang,abort)
-importFrom(rlang,check_dots_used)
-importFrom(rlang,hash)
-importFrom(rlang,inform)
-importFrom(rlang,rep_named)
-importFrom(rlang,warn)
+importFrom(graphics,
+  abline,
+  boxplot,
+  lines,
+  mtext,
+  par,
+  plot,
+  points,
+  text
+)
+importFrom(lpSolveAPI,
+  get.objective,
+  lp.control,
+  make.lp,
+  set.bounds,
+  set.column,
+  set.constr.type,
+  set.objfn,
+  set.rhs
+)
+importFrom(magrittr,
+  "%<>%",
+  "%>%"
+)
+importFrom(methods,
+  as,
+  is
+)
+importFrom(network,
+  as.edgelist,
+  as.network
+)
+importFrom(parallel,
+  clusterCall,
+  clusterMap,
+  clusterSetRNGStream,
+  makeCluster,
+  stopCluster
+)
+importFrom(rlang,
+  "%|%",
+  abort,
+  check_dots_used,
+  hash,
+  inform,
+  rep_named,
+  warn
+)
 importFrom(robustbase,covMcd)
-importFrom(statnet.common,check.control.class)
-importFrom(statnet.common,eval_lhs.formula)
-importFrom(statnet.common,list_rhs.formula)
-importFrom(statnet.common,nonsimp_update.formula)
-importFrom(statnet.common,statnetStartupMessage)
+importFrom(statnet.common,
+  check.control.class,
+  eval_lhs.formula,
+  list_rhs.formula,
+  nonsimp_update.formula,
+  statnetStartupMessage
+)
 importFrom(stats,simulate)
 importFrom(stringr,str_match)
-importFrom(tibble,as_tibble)
-importFrom(tibble,lst)
-importFrom(tibble,tibble)
+importFrom(tibble,
+  as_tibble,
+  lst,
+  tibble
+)
 importFrom(trust,trust)
-importFrom(utils,hasName)
-importFrom(utils,head)
-importFrom(utils,methods)
-importFrom(utils,modifyList)
-importFrom(utils,packageVersion)
-importFrom(utils,relist)
-importFrom(utils,tail)
+importFrom(utils,
+  hasName,
+  head,
+  methods,
+  modifyList,
+  packageVersion,
+  relist,
+  tail
+)
 useDynLib(ergm)
