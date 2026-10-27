@@ -278,7 +278,34 @@ test_that("simmelianties, directed", {
 test_that("transitive, directed", {
   s.0 <- summary(samplike~transitive)
   e.0 <- ergm(samplike~transitive, estimate="MPLE")
-  expect_summary(s.0, e.0, 154, -.07745)
+  expect_summary(s.0, e.0, 34, -.3227)
+})
+
+test_that("transitive counts transitive triads, directed", {
+  # The transitive triads (types 030T, 120D, 120U and 300): those with at
+  # least one two-path x->y->z, and x->z for every one.
+  transitive_triads <- function(m) {
+    sum(apply(combn(nrow(m), 3), 2, function(v) {
+      p <- expand.grid(x = v, y = v, z = v)
+      p <- p[p$x != p$y & p$y != p$z & p$x != p$z, ]
+      paths <- m[cbind(p$x, p$y)] & m[cbind(p$y, p$z)]
+      any(paths) && all(m[cbind(p$x, p$z)][paths] == 1)
+    }))
+  }
+
+  set.seed(1)
+  for (density in c(0.1, 0.3, 0.6, 0.9)) {
+    m <- matrix(rbinom(15^2, 1, density), 15, 15)
+    diag(m) <- 0
+    expect_equal(summary(network(m, directed = TRUE) ~ transitive),
+                 c(transitive = transitive_triads(m)))
+  }
+
+  # Statistics tracked by the sampler, through toggles that add and remove ties
+  sims <- simulate(network.initialize(15) ~ edges + mutual + transitive,
+                   coef = c(-1, 1, 0.1), nsim = 5, seed = 1)
+  expect_equal(unname(attr(sims, "stats")[, "transitive"]),
+               sapply(sims, function(nw) transitive_triads(as.matrix(nw))))
 })
 
 test_that("transitiveties, directed", {
