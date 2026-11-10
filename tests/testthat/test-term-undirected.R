@@ -110,6 +110,7 @@ test_that("degcor handles an empty initial network", {
   mple <- ergmMPLE(empty ~ edges + degcor, output="matrix")
 
   expect_true(all(is.finite(mple$predictor)))
+  expect_equal(as.numeric(summary(empty ~ degcor)), 0)
 })
 
 test_that("degcor change statistics account for variance changes", {

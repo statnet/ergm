@@ -1169,10 +1169,14 @@ S_CHANGESTAT_FN(s_degcor) {
     cross += 2.0*taildeg*headdeg;
    }
   }
+  if(N_EDGES == 0) {
+    CHANGE_STAT[0] = 0.0;
+    return;
+  }
   mu = mu / (2.0*N_EDGES);
   sigma2 = mu2/(2.0*N_EDGES) -  mu*mu;
 // Rprintf("mu %f mu2 %f cross %f sigma2 %f\n",mu,mu2,cross,sigma2);
-  CHANGE_STAT[0] = (cross / (2.0*N_EDGES) -  mu*mu) / sigma2;
+  CHANGE_STAT[0] = sigma2 > 0 ? (cross / (2.0*N_EDGES) -  mu*mu) / sigma2 : 0.0;
 }
 
 /*****************

@@ -4,7 +4,6 @@
 struct DegcorStorage {
   double degree2;
   double degree3;
-  double nedges;
   double cross;
 };
 
@@ -17,10 +16,10 @@ double degcor_statistic(double degree2, double degree3, double cross, double ned
 
 double degcor_cross_change(ergm::ErgmCppNetwork& nw, Vertex tail, Vertex head, Rboolean edgestate) {
   double change = 0;
-  double taildeg = nw.degree(tail);
-  double headdeg = nw.degree(head);
+  Vertex taildeg = nw.degree(tail);
+  Vertex headdeg = nw.degree(head);
   if(edgestate) {
-    change -= taildeg * headdeg;
+    change -= static_cast<double>(taildeg) * headdeg;
     for(auto node: nw.neighbors(head))
       if(node != tail) change -= nw.degree(node);
     for(auto node: nw.neighbors(tail))
@@ -35,11 +34,11 @@ double degcor_cross_change(ergm::ErgmCppNetwork& nw, Vertex tail, Vertex head, R
 
 I_CHANGESTAT_CPP(degcor, DegcorStorage, {
     mt.storage = R_Calloc(1, DegcorStorage);
-    mt.storage->nedges = nw.ptr->nedges;
     for(auto node: nw.nodes()) {
-      double degree = nw.degree(node);
-      mt.storage->degree2 += degree * degree;
-      mt.storage->degree3 += degree * degree * degree;
+      Vertex degree = nw.degree(node);
+      double degree_double = degree;
+      mt.storage->degree2 += degree_double * degree_double;
+      mt.storage->degree3 += degree_double * degree_double * degree_double;
     }
     for(auto [edge_tail, edge_head]: nw.edges())
       mt.storage->cross += 2.0 * nw.degree(edge_tail) * nw.degree(edge_head);
@@ -47,25 +46,29 @@ I_CHANGESTAT_CPP(degcor, DegcorStorage, {
 
 C_CHANGESTAT_CPP(degcor, DegcorStorage, {
     double echange = edgestate ? -1.0 : 1.0;
-    double taildeg = nw.degree(tail);
-    double headdeg = nw.degree(head);
-    double degree2 = mt.storage->degree2 + 2.0 * echange * (taildeg + headdeg) + 2.0;
-    double degree3 = mt.storage->degree3 + 3.0 * echange * (taildeg * taildeg + headdeg * headdeg)
-      + 3.0 * (taildeg + headdeg) + 2.0 * echange;
-    double nedges = mt.storage->nedges + echange;
+    Vertex taildeg = nw.degree(tail);
+    Vertex headdeg = nw.degree(head);
+    double taildeg_double = taildeg;
+    double headdeg_double = headdeg;
+    double degree_sum = taildeg_double + headdeg_double;
+    double degree2 = mt.storage->degree2 + 2.0 * echange * degree_sum + 2.0;
+    double degree3 = mt.storage->degree3 + 3.0 * echange * (taildeg_double * taildeg_double + headdeg_double * headdeg_double)
+      + 3.0 * degree_sum + 2.0 * echange;
     double cross = mt.storage->cross + degcor_cross_change(nw, tail, head, edgestate);
-    mt.stat[0] += degcor_statistic(degree2, degree3, cross, nedges)
-      - degcor_statistic(mt.storage->degree2, mt.storage->degree3, mt.storage->cross, mt.storage->nedges);
+    mt.stat[0] += degcor_statistic(degree2, degree3, cross, nw.edge_count() + echange)
+      - degcor_statistic(mt.storage->degree2, mt.storage->degree3, mt.storage->cross, nw.edge_count());
   })
 
 U_CHANGESTAT_CPP(degcor, DegcorStorage, {
     double change = edgestate ? -1.0 : 1.0;
-    double taildeg = nw.degree(tail);
-    double headdeg = nw.degree(head);
-    mt.storage->degree2 += 2.0 * change * (taildeg + headdeg) + 2.0;
-    mt.storage->degree3 += 3.0 * change * (taildeg * taildeg + headdeg * headdeg)
-      + 3.0 * (taildeg + headdeg) + 2.0 * change;
-    mt.storage->nedges += change;
+    Vertex taildeg = nw.degree(tail);
+    Vertex headdeg = nw.degree(head);
+    double taildeg_double = taildeg;
+    double headdeg_double = headdeg;
+    double degree_sum = taildeg_double + headdeg_double;
+    mt.storage->degree2 += 2.0 * change * degree_sum + 2.0;
+    mt.storage->degree3 += 3.0 * change * (taildeg_double * taildeg_double + headdeg_double * headdeg_double)
+      + 3.0 * degree_sum + 2.0 * change;
     mt.storage->cross += degcor_cross_change(nw, tail, head, edgestate);
   })
 
