@@ -58,9 +58,9 @@ unnw <- network(el, directed=FALSE)
 unnw %v% "Pet" <- c("dog", "cat")
 
 test_that("absdiff, no required type, independent", {
-  s.a <- summary(fmh ~ absdiff("Grade"))
+  s.a <- gf_summary(fmh ~ absdiff("Grade"))
   e.a <- ergm(fmh ~ absdiff(function(x) x %v% "Grade"))
-  s.ap <- summary(fmh ~ absdiff(~Grade, pow=2))
+  s.ap <- gf_summary(fmh ~ absdiff(~Grade, pow=2))
   e.ap <- ergm(fmh ~ absdiff("Grade", pow=2))
 
   expect_summary(s.a, e.a, 79, -4.354)
@@ -68,26 +68,26 @@ test_that("absdiff, no required type, independent", {
 })
 
 test_that("absdiffcat, no required type, independent", {
-  s.a <- summary(fmh ~ absdiffcat("Grade"))
+  s.a <- gf_summary(fmh ~ absdiffcat("Grade"))
   e.a <- ergm(fmh ~ absdiffcat("Grade"))
-  s.ab <- summary(fmh ~ absdiffcat(function(x) x %v% "Grade", levels=-(4:5)))
+  s.ab <- gf_summary(fmh ~ absdiffcat(function(x) x %v% "Grade", levels=-(4:5)))
   expect_warning(e.ab <- ergm(fmh ~ absdiffcat(~Grade, base=(4:5))))
   expect_summary(s.a, e.a, c(15,15,7,2,1), -c(6.005,5.788,6.063,6.891,6.611))
   expect_summary(s.ab, e.ab, c(15,15,7), -c(6.005,5.788,6.063))
 })
 
 test_that("balance, dir or undir", {
-  s.0 <- summary(fmh~balance)
+  s.0 <- gf_summary(fmh~balance)
   e.0 <- ergm(fmh~balance, estimate="MPLE")
   expect_summary(s.0, e.0, 40139, -.02376)
 })
 
 test_that("cycle, either", {
-  s.0 <- summary(samplike ~ cycle(2:6))
+  s.0 <- gf_summary(samplike ~ cycle(2:6))
   e.0 <- ergm(samplike ~ cycle(2:6), estimate="MPLE")
-  s.1 <- summary(samplike ~ cycle(3:7,semi=TRUE))
+  s.1 <- gf_summary(samplike ~ cycle(3:7,semi=TRUE))
   e.1 <- ergm(samplike ~ cycle(3:7,semi=TRUE), estimate="MPLE")
-  s.k <- summary(fmh~cycle(3:6))
+  s.k <- gf_summary(fmh~cycle(3:6))
   e.k <- ergm(fmh~cycle(c(4,6)), estimate="MPLE")
   expect_summary(s.0, e.0, c(28, 39, 111, 260, 651), c(2.118, -0.539, 0.410, -0.022, -0.049))
   expect_summary(s.1, e.1, c(57, 216, 787, 2908, 10508), c(-0.0091, 0.1439, 0.0704, -0.0311, 0.0011))
@@ -95,7 +95,7 @@ test_that("cycle, either", {
 })
 
 test_that("density, either", {
-  s.0 <- summary(fmh~density)
+  s.0 <- gf_summary(fmh~density)
   e.0 <- ergm(samplike~density, estimate="MPLE")
   expect_summary(s.0, e.0, .009708274, -277.5904)
 })
@@ -104,17 +104,17 @@ test_that("diff, no required type but primarily directed, independent", {
   # Auxiliary variables, useful for calculating the true values of statistics.
   sthd <- outer(samplike%v%"YearsServed",samplike%v%"YearsServed","-") # YS[t]-YS[h]
   sm <- as.matrix(samplike)
-  s.a <- summary(samplike ~ diff("YearsServed"))
+  s.a <- gf_summary(samplike ~ diff("YearsServed"))
   e.a <- ergm(samplike ~ diff(~YearsServed))
-  s.ad <- summary(samplike ~ diff("YearsServed", dir="h-t"))
+  s.ad <- gf_summary(samplike ~ diff("YearsServed", dir="h-t"))
   e.ad <- ergm(samplike ~ diff(function(x) x %v% "YearsServed", dir="h-t"))
-  s.ads2 <- summary(samplike ~ diff(~YearsServed, sign.action="abs"))
+  s.ads2 <- gf_summary(samplike ~ diff(~YearsServed, sign.action="abs"))
   e.ads2 <- ergm(samplike ~ diff("YearsServed", sign.action="abs"))
-  s.ads3 <- summary(samplike ~ diff(~YearsServed, sign.action="pos"))
+  s.ads3 <- gf_summary(samplike ~ diff(~YearsServed, sign.action="pos"))
   e.ads3 <- ergm(samplike ~ diff("YearsServed", sign.action="pos"))
-  s.ads4 <- summary(samplike ~ diff(function(x) x %v% "YearsServed", sign.action="neg"))
+  s.ads4 <- gf_summary(samplike ~ diff(function(x) x %v% "YearsServed", sign.action="neg"))
   e.ads4 <- ergm(samplike ~ diff("YearsServed", sign.action="neg"))
-  s.ap <- summary(samplike ~ diff(function(x) x %v% "YearsServed", pow=3))
+  s.ap <- gf_summary(samplike ~ diff(function(x) x %v% "YearsServed", pow=3))
   e.ap <- ergm(samplike ~ diff("YearsServed", pow=3))
 
   expect_summary(s.a, e.a, sum(sthd*sm), 0.0631)
@@ -129,9 +129,9 @@ test_that("dyadcov, either", {
   set.seed(120)
   cov <- matrix(rbinom(324, 1, .5),18,18)
   cov <- cov+t(cov)
-  s.x <- summary(samplike~dyadcov(cov))
+  s.x <- gf_summary(samplike~dyadcov(cov))
   e.x <- ergm(samplike ~ dyadcov(cov))
-  s.xa <- summary(fmh~dyadcov(fmh, "GradeMet"))
+  s.xa <- gf_summary(fmh~dyadcov(fmh, "GradeMet"))
   (e.xa <- ergm(fmh ~ dyadcov(fmh, "GradeMet"))) |>
     expect_warning("The MPLE does not exist!")
   expect_summary(s.x, e.x, c(31,21,14), -+c(.8546, 1.0732, 1.3467))
@@ -141,9 +141,9 @@ test_that("dyadcov, either", {
 test_that("edgecov, either", {
   set.seed(64)
   cov <- matrix(rbinom(324, 3, .5),18,18)
-  s.x <- summary(samplike~edgecov(cov))
+  s.x <- gf_summary(samplike~edgecov(cov))
   e.x <- ergm(samplike ~ edgecov(cov))
-  s.xa <- summary(samplike~edgecov(samplike, "YearsTrusted"))
+  s.xa <- gf_summary(samplike~edgecov(samplike, "YearsTrusted"))
   e.xa <- ergm(samplike ~ edgecov(samplike, "YearsTrusted"))
   expect_error(summary(samplike~edgecov('dummy')), "In term .edgecov. in package .ergm.: There is no dyad or network attribute named .dummy. or it is not a matrix.")
 
@@ -151,7 +151,7 @@ test_that("edgecov, either", {
   samplike2 %d% "dummy" <- cov
   set.dyad.attribute(samplike,'dummy',cov)
   expect_identical(samplike, samplike2)
-  n2.x <- summary(samplike~edgecov('dummy'))
+  n2.x <- gf_summary(samplike~edgecov('dummy'))
   expect_summary(s.x, e.x, 134, -.5022)
   expect_summary(s.xa, e.xa, 183, Inf)
   expect_equal(n2.x, 134, ignore_attr=TRUE)
@@ -163,7 +163,7 @@ test_that("edgecov, either", {
 
   i <- sample.int(18, 5)
   sampsub <- get.inducedSubgraph(samplike, i)
-  s.s1 <- summary(sampsub ~ edgecov("dummy"))
+  s.s1 <- gf_summary(sampsub ~ edgecov("dummy"))
   e.s1 <- ergm(sampsub ~ edgecov("dummy"))
   expect_summary(s.s1, e.s1,
                  sum((as.matrix(samplike) * cov)[i,i]),
@@ -173,7 +173,7 @@ test_that("edgecov, either", {
   j <- sample(setdiff(seq_len(18), i), 5)
   sampsub <- get.inducedSubgraph(samplike, i, j) |>
     ergm_symmetrize("upper")
-  s.s2 <- summary(sampsub ~ edgecov("dummy"))
+  s.s2 <- gf_summary(sampsub ~ edgecov("dummy"))
   e.s2 <- ergm(sampsub ~ edgecov("dummy"))
   expect_summary(s.s2, e.s2,
                  sum((as.matrix(samplike) * cov)[i,j]),
@@ -181,7 +181,7 @@ test_that("edgecov, either", {
 })
 
 test_that("edges, either", {
-  s.0 <- summary(fmh~edges)
+  s.0 <- gf_summary(fmh~edges)
   e.0 <- ergm(samplike~edges, estimate="MPLE")
   expect_summary(s.0, e.0, 203, -.9072)
 })
@@ -211,38 +211,38 @@ test_that("edgecov, dimension check, bipartite", {
 #  # 0 or largely negative, as the hamming distance is
 #  # compared between identical networks
 #  s.0 <- 0# COMMENTED OUT FOR NOW BECAUSE IT'S BROKEN:  summary(samplike~hamming)
-#  s.x <- summary(samplike~hamming(mat.d))
+#  s.x <- gf_summary(samplike~hamming(mat.d))
 #  # and everything commented below is broke.
 #
 #  # should this really be NA
 #  #e.x <- ergm(fmh~hamming(mat.u), estimate="MPLE")
 #  ## OK
-#  s.xc <- summary(samplike~hamming(mat.d, cov=cov.d))
+#  s.xc <- gf_summary(samplike~hamming(mat.d, cov=cov.d))
 #  # NA
 #  #e.xc <- ergm(fmh~hamming(mat.u, cov=cov.u), estimate="MPLE")
 #  # OK
-#  s.xd <- summary(samplike~hamming(mat.d, defaultweight=.3))
+#  s.xd <- gf_summary(samplike~hamming(mat.d, defaultweight=.3))
 #  # NA value
 #  #e.xd <- ergm(samplike~hamming(mat.d, defaultweight=.3), estimate="MPLE")
 #  # OK
-#  s.xca <- summary(samplike~hamming(mat.d, cov=samplike, attrname="YearsTrusted"))
+#  s.xca <- gf_summary(samplike~hamming(mat.d, cov=samplike, attrname="YearsTrusted"))
 #  # NA
 #  #e.xca <- ergm(fmh~hamming(mat.u, cov=fmh, attrname="Grade"), estimate="MPLE")
 #  # OK
-#  s.xcd<- summary(samplike~hamming(mat.d, cov=cov.d, defaultweight=.5))
+#  s.xcd<- gf_summary(samplike~hamming(mat.d, cov=cov.d, defaultweight=.5))
 #  # NA
 #  #e.xcd<- ergm(samplike~hamming(mat.d, cov=cov.d, defaultweight=.5), estimate="MPLE")
 #  # 0 & NA
-#  #s.xcad<- summary(samplike~hamming(mat.d, samplike, "YearsTrusted", .5))
+#  #s.xcad<- gf_summary(samplike~hamming(mat.d, samplike, "YearsTrusted", .5))
 #  #e.xcad<- ergm(samplike~hamming(mat.d, samplike, "YearsTrusted", .5), estimate="MPLE")
 #
 #  #expect_equal(c(s.0, s.x, s.xc, s.xd, s.xca, s.xcd), c(0, 88, 84, 26.4, 183, 100), ignore_attr=TRUE)
 #})
 
 test_that("isolatededges, undirected", {
-  s.0 <- summary(fmh~isolatededges)
+  s.0 <- gf_summary(fmh~isolatededges)
   e.0 <- ergm(fmh~isolatededges, estimate="MPLE")
-  s.1 <- summary(bipnw2~isolatededges)
+  s.1 <- gf_summary(bipnw2~isolatededges)
   e.1 <- ergm(bipnw2~isolatededges, estimate="MPLE")
 
   expect_summary(s.0, e.0, 4, .01034)
@@ -250,7 +250,7 @@ test_that("isolatededges, undirected", {
 })
 
 test_that("isolates, either", {
-  s.0 <- summary(samplike~isolates)
+  s.0 <- gf_summary(samplike~isolates)
   e.0 <- ergm(fmh~isolates, estimate="MPLE")
 
   expect_summary(s.0, e.0, 0, 5.10979)
@@ -259,26 +259,26 @@ test_that("isolates, either", {
 #test_that("localtriangle, either", {
 #  set.seed(85)
 #  x <- matrix(rbinom(324, 2, .5),18,18)
-#  s.x <- summary(samplike~localtriangle(x))
+#  s.x <- gf_summary(samplike~localtriangle(x))
 #  e.x <- ergm(samplike~localtriangle(x), estimate="MPLE")
-#  s.xa <- summary(fmh~localtriangle(fmh, "GradeMet"))
+#  s.xa <- gf_summary(fmh~localtriangle(fmh, "GradeMet"))
 #  expect_summary(s.x, e.x, 56, -.1553)
 #  expect_equal(s.xa, 61)
 #})
 
 test_that("meandeg, either", {
-  s.0 <- summary(samplike~meandeg)
+  s.0 <- gf_summary(samplike~meandeg)
   e.0 <- ergm(fmh~meandeg, estimate="MPLE")
   expect_summary(s.0, e.0, 4.8889, -474.0647)
 })
 
 test_that("nodecov, either", {
-  s.a <- summary(samplike~nodecov("YearsServed"))
+  s.a <- gf_summary(samplike~nodecov("YearsServed"))
   e.a <- ergm(fmh~nodecov("Grade"), estimate="MPLE")
-  s.at <- summary(samplike~nodecov(~YearsServed^2))
+  s.at <- gf_summary(samplike~nodecov(~YearsServed^2))
   e.at <- ergm(fmh~nodecov(~(.%v%"Grade")^2), estimate="MPLE")
-  s.att <- summary(samplike~nodecov(function(x)(x%v%"YearsServed")^2))
-  s.attt <- summary(samplike~nodecov(~poly(YearsServed,2,raw=TRUE)))
+  s.att <- gf_summary(samplike~nodecov(function(x)(x%v%"YearsServed")^2))
+  s.attt <- gf_summary(samplike~nodecov(~poly(YearsServed,2,raw=TRUE)))
   expect_summary(s.a, e.a, 906, -.271)
   expect_summary(s.at, e.at, 5036, -.03199)
   expect_equal(s.att, 5036, ignore_attr=TRUE)
@@ -286,22 +286,22 @@ test_that("nodecov, either", {
 })
 
 test_that("nodefactor, either", {
-  s.a <- summary(fmh~nodefactor("Grade"))
+  s.a <- gf_summary(fmh~nodefactor("Grade"))
   e.a <- ergm(samplike~nodefactor(~group), estimate="MPLE")
-  expect_warning(s.ab <- summary(fmh~nodefactor(function(x) x %v% "Sex", base=(4:5))))
+  expect_warning(s.ab <- gf_summary(fmh~nodefactor(function(x) x %v% "Sex", base=(4:5))))
   e.ab <- ergm(samplike~nodefactor("Trinity", levels=TRUE), estimate="MPLE")
   expect_summary(s.a, e.a, c(75, 65, 36, 49, 28), -c(.9480, .3273))
   expect_summary(s.ab, e.ab, c(235, 171), -c(.4451, .4451, .4706))
 })
 
 test_that("nodematch, either", {
-  s.a <- summary(fmh~nodematch("Race"))
+  s.a <- gf_summary(fmh~nodematch("Race"))
   e.a <- ergm(samplike~nodematch("Trinity"), estimate="MPLE")
-  s.ad <- summary(samplike~nodematch(function(x) x %v% "group", diff=TRUE))
+  s.ad <- gf_summary(samplike~nodematch(function(x) x %v% "group", diff=TRUE))
   e.ad <- ergm(fmh~nodematch("Sex", diff=TRUE), estimate="MPLE")
-  s.ak <- summary(fmh~nodematch(~Grade, levels=3:4))
+  s.ak <- gf_summary(fmh~nodematch(~Grade, levels=3:4))
   e.ak <- ergm(samplike~nodematch(function(x) x %v% "group", levels=2), estimate="MPLE")
-  expect_warning(s.adk <- summary(samplike~nodematch(~Trinity, TRUE, keep = 1:2)))
+  expect_warning(s.adk <- gf_summary(samplike~nodematch(~Trinity, TRUE, keep = 1:2)))
   expect_warning(e.adk <- ergm(fmh~nodematch("Race", TRUE, keep = 2), estimate="MPLE"))
   expect_summary(s.a, e.a, 103, -1.45725)
   expect_summary(s.ad, e.ad, c(23,10,30), -c(4.06317, 4.7032))
@@ -310,11 +310,11 @@ test_that("nodematch, either", {
 })
 
 test_that("nodemix, any", {
-  s.a <- summary(fmh ~ nodemix("Grade"))
+  s.a <- gf_summary(fmh ~ nodemix("Grade"))
   e.a <- ergm(samplike ~ nodemix(function(x) x %v% "group"), estimate="MPLE")
-  s.ab <- summary(bipnw ~ nodemix("Letter", levels2=TRUE))
+  s.ab <- gf_summary(bipnw ~ nodemix("Letter", levels2=TRUE))
   e.ab <- ergm(bipnw ~ nodemix(function(x) x %v% "Letter", levels2=-(2:6)))
-  expect_warning(s.ab2 <- summary(fmh ~ nodemix("Race", base=1)))
+  expect_warning(s.ab2 <- gf_summary(fmh ~ nodemix("Race", base=1)))
   expect_warning(e.ab2 <- ergm(samplike ~ nodemix(~Trinity, base=(3:9))))
 
   expect_summary(s.a, e.a,
@@ -325,9 +325,9 @@ test_that("nodemix, any", {
 })
 
 test_that("smalldiff", {
-  s.ac.d <- summary(samplike~smalldiff("YearsServed", 3))
-  s.ac.u <- summary(fmh~smalldiff("Grade", 2))
-  s.ac.b <- summary(bipnw~smalldiff("Cost", 1))
+  s.ac.d <- gf_summary(samplike~smalldiff("YearsServed", 3))
+  s.ac.u <- gf_summary(fmh~smalldiff("Grade", 2))
+  s.ac.b <- gf_summary(bipnw~smalldiff("Cost", 1))
   e.ac.d <- ergm(samplike~smalldiff(~YearsServed, 3), estimate="MPLE")
   e.ac.u <- ergm(fmh~smalldiff(~Grade, 2), estimate="MPLE")
   e.ac.b <- ergm(bipnw~smalldiff(function(x) x %v% "Cost", 1), estimate="MPLE")
@@ -338,9 +338,9 @@ test_that("smalldiff", {
 })
 
 test_that("threetrail, either", {
-  s.0 <- summary(samplike~threetrail)
+  s.0 <- gf_summary(samplike~threetrail)
   e.0 <- ergm(fmh~threetrail, estimate="MPLE")
-  s.k <- summary(samplike~threetrail(levels=2))
+  s.k <- gf_summary(samplike~threetrail(levels=2))
   expect_warning(e.k <- ergm(samplike~threetrail(keep=1:2), estimate="MPLE"))
 
   expect_summary(s.0, e.0, c(2103, 2326, 1749, 1897), -.2842)
@@ -348,13 +348,13 @@ test_that("threetrail, either", {
 })
 
 test_that("triangles, either", {
-  s.0 <- summary(fmh~triangles)
+  s.0 <- gf_summary(fmh~triangles)
   e.0 <- ergm(samplike~triangles, estimate="MPLE")
-  s.a <- summary(fmh~triangles(function(x) x %v% "Race"))
+  s.a <- gf_summary(fmh~triangles(function(x) x %v% "Race"))
   e.a <- ergm(samplike~triangle("group"), estimate="MPLE")
-  s.ad <- summary(samplike~triangles(~Trinity, diff=TRUE))
+  s.ad <- gf_summary(samplike~triangles(~Trinity, diff=TRUE))
   e.ad <- ergm(fmh~triangle("Sex", diff=TRUE), estimate="MPLE")
-  s.al <- summary(fmh~triangle("Race", diff=FALSE, levels = -2))
+  s.al <- gf_summary(fmh~triangle("Race", diff=FALSE, levels = -2))
   e.al <- ergm(samplike~triangle("group", diff=FALSE, levels = -2), estimate = "MPLE")
 
   expect_summary(s.0, e.0, 62, -.06997)
@@ -364,9 +364,9 @@ test_that("triangles, either", {
 })
 
 test_that("triadcensus, either", {
-  s.0 <- summary(samplike~triadcensus)
+  s.0 <- gf_summary(samplike~triadcensus)
   e.0 <- ergm(fmh~triadcensus, estimate="MPLE")
-  s.d <- summary(samplike~triadcensus(3))
+  s.d <- gf_summary(samplike~triadcensus(3))
   e.d <- ergm(fmh~triadcensus(2:3), estimate="MPLE")
 
   expect_summary(s.0, e.0, c(205, 190, 12, 24, 24, 68, 34, 5, 0, 35, 15, 6, 5, 18, 8),
@@ -375,7 +375,7 @@ test_that("triadcensus, either", {
 })
 
 test_that("twopath, either", {
-  s.0 <- summary(samplike~twopath)
+  s.0 <- gf_summary(samplike~twopath)
   e.0 <- ergm(fmh~twopath, estimate="MPLE")
   expect_summary(s.0, e.0, 378, -1.297362)
 })

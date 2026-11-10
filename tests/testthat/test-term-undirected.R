@@ -26,10 +26,10 @@ unnw <- network(el, directed=FALSE)
 unnw %v% "Pet" <- c("dog", "cat")
 
 test_that("altkstar, undirected, ", {
-  s.0 <- summary(fmh~altkstar)
+  s.0 <- gf_summary(fmh~altkstar)
   e.0 <- ergm(fmh~altkstar(1, fixed=TRUE), estimate="MPLE")
   e.l <- ergm(fmh~altkstar(.5, fixed=TRUE), estimate="MPLE")
-  s.f <- summary(fmh~altkstar(1, fixed=TRUE))
+  s.f <- gf_summary(fmh~altkstar(1, fixed=TRUE))
   e.lf <- ergm(fmh~altkstar(.9, fixed=TRUE), estimate="MPLE")
 
   expect_summary(s.0[1:10], e.0, c(51,30,28,18,10,2,4,1,2,1), -3.234)
@@ -39,9 +39,9 @@ test_that("altkstar, undirected, ", {
 })
 
 test_that("concurrent, undirected", {
-  s.0 <- summary(fmh~concurrent)
+  s.0 <- gf_summary(fmh~concurrent)
   e.0 <- ergm(fmh~concurrent, estimate="MPLE")
-  s.b <- summary(fmh~concurrent(by=function(x) x %v% "Grade"))
+  s.b <- gf_summary(fmh~concurrent(by=function(x) x %v% "Grade"))
   e.b <- ergm(fmh~concurrent(by="Sex"), estimate="MPLE")
 
   expect_summary(s.0, e.0, 97, -4.871)
@@ -49,9 +49,9 @@ test_that("concurrent, undirected", {
 })
 
 test_that("concurrentties, undirected", {
-  s.0 <- summary(fmh~concurrentties)
+  s.0 <- gf_summary(fmh~concurrentties)
   e.0 <- ergm(fmh~concurrentties, estimate="MPLE")
-  s.b <- summary(fmh~concurrentties(by="Grade"))
+  s.b <- gf_summary(fmh~concurrentties(by="Grade"))
   e.b <- ergm(fmh~concurrentties(by=~Sex), estimate="MPLE")
 
   expect_summary(s.0, e.0, 258, -3.234)
@@ -59,9 +59,9 @@ test_that("concurrentties, undirected", {
 })
 
 test_that("cyclicalties, directed", {
-  s.0 <- summary(fmh~cyclicalties)
+  s.0 <- gf_summary(fmh~cyclicalties)
   e.0 <- ergm(fmh~cyclicalties, estimate="MPLE")
-  s.a <- summary(fmh~cyclicalties("Race"))
+  s.a <- gf_summary(fmh~cyclicalties("Race"))
   e.a <- ergm(fmh~cyclicalties("Race"), estimate="MPLE")
 
   expect_summary(s.0, e.0, 120, -0.4868)
@@ -69,11 +69,11 @@ test_that("cyclicalties, directed", {
 })
 
 test_that("degree, undirected", {
-  s.d <- summary(fmh~degree(2:3))
+  s.d <- gf_summary(fmh~degree(2:3))
   e.d <- ergm(fmh~degree(0), estimate="MPLE")
-  s.db <- summary(fmh~degree(1:3, function(x) x %v% "Grade"))
+  s.db <- gf_summary(fmh~degree(1:3, function(x) x %v% "Grade"))
   e.db <- ergm(fmh~degree(4, "Sex"), estimate="MPLE")
-  s.dbh <- summary(fmh~degree(4:5, by="Sex", homophily=TRUE))
+  s.dbh <- gf_summary(fmh~degree(4:5, by="Sex", homophily=TRUE))
   e.dbh <- ergm(fmh~degree(2, by=~Grade, homophily=TRUE), estimate="MPLE")
 
   expect_summary(s.d, e.d, c(30,28), 5.11)
@@ -82,9 +82,9 @@ test_that("degree, undirected", {
 })
 
 test_that("degrange, undirected", {
-  s.0 <- summary(fmh~degrange(1:3))
+  s.0 <- gf_summary(fmh~degrange(1:3))
   e.0 <- ergm(fmh~degrange(1:3), estimate="MPLE")
-  s.h <- summary(fmh~degrange(1:3, by="Sex", homophily=TRUE))
+  s.h <- gf_summary(fmh~degrange(1:3, by="Sex", homophily=TRUE))
   e.h <- ergm(fmh~degrange(1:3, by=~Sex, homophily=TRUE), estimate="MPLE")
 
   expect_summary(s.0, e.0, c(148, 97, 67), -c(4.349, 4.067, 3.178  ))
@@ -92,33 +92,33 @@ test_that("degrange, undirected", {
 })
 
 test_that("degcrossprod, undirected", {
-  s.0 <- summary(unnw~degcrossprod)
+  s.0 <- gf_summary(unnw~degcrossprod)
   e.0 <- ergm(unnw~degcrossprod, estimate="MPLE")
 
   expect_summary(s.0, e.0, c(56.30102), c(0.099))
 })
 
 test_that("degcor, undirected", {
-  s.0 <- summary(unnw~degcor)
+  s.0 <- gf_summary(unnw~degcor)
   e.0 <- ergm(unnw~degcor, estimate="MPLE")
 
   expect_summary(s.0, e.0, -c(0.09789041 ), c(0.2282))
 })
 
 test_that("degree1.5, undirected", {
-  s.0 <- summary(fmh~degree1.5)
+  s.0 <- gf_summary(fmh~degree1.5)
   e.0 <- ergm(fmh~degree1.5, estimate="MPLE")
 
   expect_summary(s.0, e.0, 795.7458, -1.1398)
 })
 
 test_that("gwdegree, undirected", {
-  s.d <- summary(fmh~gwdegree())
+  s.d <- gf_summary(fmh~gwdegree())
   expect_error(summary(fmh~gwdegree(cutoff=9)), ".*Term .gwdegree. has encountered a network for which degree of some node exceeded the cut-off setting of 9. This can usually be remedied by increasing the value of the term argument .cutoff. or the corresponding term option .gw.cutoff...*")
   e.d <- ergm(fmh~gwdegree(.4, fixed=TRUE), estimate="MPLE")
-  s.df <- summary(fmh~gwdegree(.3, fixed=TRUE))
+  s.df <- gf_summary(fmh~gwdegree(.3, fixed=TRUE))
   e.df <- ergm(fmh~gwdegree(.2, fixed=TRUE), estimate="MPLE")
-  s.dfa <- summary(fmh~gwdegree(.1, fixed=TRUE, attr=function(x) x %v% "Grade"))
+  s.dfa <- gf_summary(fmh~gwdegree(.1, fixed=TRUE, attr=function(x) x %v% "Grade"))
   e.dfa <- ergm(fmh~gwdegree(.1, fixed=TRUE, attr=~Grade), estimate="MPLE")
 
   expect_summary(head(s.d), e.d, setNames(c(51,30,28,18,10,2), paste0("gwdegree#",1:6)), c(gwdeg.fixed.0.4=-13.59067))
@@ -132,9 +132,9 @@ test_that("gwdegree, undirected", {
 })
 
 test_that("kstar, undirected", {
-  s.k <- summary(fmh~kstar(1:3))
+  s.k <- gf_summary(fmh~kstar(1:3))
   e.k <- ergm(fmh~kstar(c(2,4)), estimate="MPLE")
-  s.ka <- summary(fmh~kstar(2, "Grade"))
+  s.ka <- gf_summary(fmh~kstar(2, "Grade"))
   e.ka <- ergm(fmh~kstar(2, "Sex"), estimate="MPLE")
 
   expect_summary(s.k, e.k, c(406, 659, 1010), c(-1.45086, .06255))
@@ -142,24 +142,24 @@ test_that("kstar, undirected", {
 })
 
 test_that("opentriad, undirected", {
-  s.0 <- summary(fmh~opentriad)
+  s.0 <- gf_summary(fmh~opentriad)
   e.0 <- ergm(fmh~opentriad, estimate="MPLE")
 
   expect_summary(s.0, e.0, 473, -1.652)
 })
 
 test_that("sociality, undirected", {
-  s.0 <- summary(fmh~sociality)
-  s.b <- summary(fmh~sociality(nodes=-(2:203)))
+  s.0 <- gf_summary(fmh~sociality)
+  s.b <- gf_summary(fmh~sociality(nodes=-(2:203)))
 
   expect_equal(head(s.0), c(4,0,0,1,0,0), ignore_attr=TRUE)
   expect_equal(s.b, c(13,3,1), ignore_attr=TRUE)
 })
 
 test_that("transitiveties, directed", {
-  s.0 <- summary(fmh~transitiveties)
+  s.0 <- gf_summary(fmh~transitiveties)
   e.0 <- ergm(fmh~transitiveties, estimate="MPLE")
-  s.a <- summary(fmh~transitiveties("Race"))
+  s.a <- gf_summary(fmh~transitiveties("Race"))
   e.a <- ergm(fmh~transitiveties("Race"), estimate="MPLE")
 
   expect_summary(s.0, e.0, 120, -0.4868)
@@ -167,9 +167,9 @@ test_that("transitiveties, directed", {
 })
 
 test_that("tripercent, undirected", {
-  s.0 <- summary(unnw~tripercent)
+  s.0 <- gf_summary(unnw~tripercent)
   e.0 <- ergm(unnw~tripercent, estimate="MPLE")
-  s.a <- summary(unnw~tripercent("Pet"))
+  s.a <- gf_summary(unnw~tripercent("Pet"))
   e.a <- ergm(unnw~tripercent(~Pet), estimate="MPLE")
 
   expect_summary(s.0, e.0, 29.19463, 0.4492)

@@ -17,15 +17,15 @@ set.vertex.attribute(samplike, "YearsServed", rbinom(18, 10, .5))
 samplike %v% "Trinity" <- c("F", "S", "H")
 
 test_that("asymmetric, directed", {
-  s.0 <- summary(samplike~asymmetric)
+  s.0 <- gf_summary(samplike~asymmetric)
   e.0 <- ergm(samplike~asymmetric, estimate="MPLE")
-  s.a <- summary(samplike~asymmetric("group"))
+  s.a <- gf_summary(samplike~asymmetric("group"))
   e.a <- ergm(samplike~asymmetric("group"), estimate="MPLE")
-  s.ad <- summary(samplike~asymmetric(function(x) x %v% "group", diff=TRUE))
+  s.ad <- gf_summary(samplike~asymmetric(function(x) x %v% "group", diff=TRUE))
   e.ad <- ergm(samplike~asymmetric(~group, diff=TRUE), estimate="MPLE")
-  s.ak <- summary(samplike~asymmetric("group", levels=3))
+  s.ak <- gf_summary(samplike~asymmetric("group", levels=3))
   e.ak <- ergm(samplike~asymmetric(function(x) x %v% "group", levels=3), estimate="MPLE")
-  expect_warning(s.adk <- summary(samplike~asymmetric(~group, diff=TRUE, keep=1:2)))
+  expect_warning(s.adk <- gf_summary(samplike~asymmetric(~group, diff=TRUE, keep=1:2)))
   expect_warning(e.adk <- ergm(samplike~asymmetric("group", diff=TRUE, keep=c(1,3)), estimate="MPLE"))
   expect_summary(s.0, e.0, 32, -1.33)
   expect_summary(s.a, e.a, 17, -0.6008)
@@ -35,11 +35,11 @@ test_that("asymmetric, directed", {
 })
 
 test_that("ctripe=ctriad, directed", {
-  s.0 <- summary(samplike~ctriple)
+  s.0 <- gf_summary(samplike~ctriple)
   e.0 <- ergm(samplike~ctriad, estimate="MPLE")
-  s.a <- summary(samplike~ctriple(function(x) x %v% "group"))
+  s.a <- gf_summary(samplike~ctriple(function(x) x %v% "group"))
   e.a <- ergm(samplike~ctriple("group"), estimate="MPLE")
-  s.ad <- summary(samplike~ctriad(~group, diff=TRUE))
+  s.ad <- gf_summary(samplike~ctriad(~group, diff=TRUE))
   e.ad <- ergm(samplike~ctriple(function(x) x %v% "group", diff=TRUE), estimate="MPLE")
   expect_summary(s.0, e.0, 39, -.3522)
   expect_summary(s.a, e.a, 34, .1217)
@@ -47,30 +47,30 @@ test_that("ctripe=ctriad, directed", {
 })
 
 test_that("cyclicalties, directed", {
-  s.0 <- summary(samplike~cyclicalties)
+  s.0 <- gf_summary(samplike~cyclicalties)
   e.0 <- ergm(samplike~cyclicalties, estimate="MPLE")
-  s.b <- summary(samplike~cyclicalties(attr=function(x) x %v% "group"))
+  s.b <- gf_summary(samplike~cyclicalties(attr=function(x) x %v% "group"))
   e.b <- ergm(samplike~cyclicalties(attr="group"), estimate="MPLE")
   expect_summary(s.0, e.0, 62, -.4154)
   expect_summary(s.b, e.b, 55, .2289)
 })
 
 test_that("idegrange, directed", {
-  s.0 <- summary(samplike~idegrange(5:8))
+  s.0 <- gf_summary(samplike~idegrange(5:8))
   e.0 <- ergm(samplike~idegrange(5:8), estimate="MPLE")
-  s.h <- summary(samplike~idegrange(5:8, by="group", homophily=TRUE))
+  s.h <- gf_summary(samplike~idegrange(5:8, by="group", homophily=TRUE))
   e.h <- ergm(samplike~idegrange(5:8, by=~group, homophily=TRUE), estimate="MPLE")
   expect_summary(s.0, e.0, c(9, 6, 4, 3), -c(-0.1431, 1.0986, 1.1451, 0.2231 ))
   expect_summary(s.h, e.h, c(5, 3, 0, 0), -c(-0.5108, -2.1972 , Inf, Inf ))
 })
 
 test_that("gwidegree, directed", {
-  expect_silent(s.d <- summary(samplike~gwidegree(cutoff=11)))
+  expect_silent(s.d <- gf_summary(samplike~gwidegree(cutoff=11)))
   expect_error(summary(samplike~gwidegree(cutoff=7)), ".*Term .gwidegree. has encountered a network for which in-degree of some node exceeded the cut-off setting of 7. This can usually be remedied by increasing the value of the term argument .cutoff. or the corresponding term option .gw.cutoff...*")
   e.d <- ergm(samplike~gwidegree(.4, fixed=TRUE), estimate="MPLE")
-  s.df <- summary(samplike~gwidegree(.3, fixed=TRUE))
+  s.df <- gf_summary(samplike~gwidegree(.3, fixed=TRUE))
   e.df <- ergm(samplike~gwidegree(.2, fixed=TRUE), estimate="MPLE")
-  s.dfa <- summary(samplike~gwidegree(.1, TRUE, "group"))
+  s.dfa <- gf_summary(samplike~gwidegree(.1, TRUE, "group"))
   e.dfa <- ergm(samplike~gwidegree(.5, TRUE, function(x) x %v% "group"), estimate="MPLE")
   expect_summary(head(s.d), e.d, setNames(c(0,3,5,1,3,2), paste0("gwidegree#",1:6)), c(gwideg.fixed.0.4=-5.783202))
   expect_summary(s.df, e.df, 23.89614, -2.247936)
@@ -78,12 +78,12 @@ test_that("gwidegree, directed", {
 })
 
 test_that("gwodegree, directed", {
-  s.d <- summary(samplike~gwodegree())
+  s.d <- gf_summary(samplike~gwodegree())
   expect_error(summary(samplike~gwodegree(cutoff=5)), ".*Term .gwodegree. has encountered a network for which out-degree of some node exceeded the cut-off setting of 5. This can usually be remedied by increasing the value of the term argument .cutoff. or the corresponding term option .gw.cutoff...*")
   e.d <- ergm(samplike~gwodegree(.4, fixed=TRUE), estimate="MPLE")
-  s.df <- summary(samplike~gwodegree(.3, fixed=TRUE))
+  s.df <- gf_summary(samplike~gwodegree(.3, fixed=TRUE))
   e.df <- ergm(samplike~gwodegree(.2, fixed=TRUE), estimate="MPLE")
-  s.dfa <- summary(samplike~gwodegree(.1, TRUE, ~group))
+  s.dfa <- gf_summary(samplike~gwodegree(.1, TRUE, ~group))
   e.dfa <- ergm(samplike~gwodegree(.5, TRUE, "group"), estimate="MPLE")
   expect_summary(head(s.d), e.d, setNames(c(0,0,1,5,7,5), paste0("gwodegree#",1:6)), c(gwodeg.fixed.0.4=-1.990492))
   expect_summary(s.df, e.df, 24.23040, 43.61801)
@@ -95,12 +95,12 @@ test_that("gwodegree, directed", {
 })
 
 test_that("idegree, directed", {
-  s.d <- summary(samplike~idegree(2:3))
+  s.d <- gf_summary(samplike~idegree(2:3))
   e.d <- ergm(samplike~idegree(2), estimate="MPLE")
-  s.db <- summary(samplike~idegree(1:3, "group"))
+  s.db <- gf_summary(samplike~idegree(1:3, "group"))
   (e.db <- ergm(samplike~idegree(3, function(x) x %v% "group"), estimate="MPLE")) |>
     expect_warning("The MPLE does not exist!")
-  s.dbh <- summary(samplike~idegree(4:5, "group", TRUE))
+  s.dbh <- gf_summary(samplike~idegree(4:5, "group", TRUE))
   e.dbh <- ergm(samplike~idegree(2, ~group, TRUE), estimate="MPLE")
   expect_summary(s.d, e.d, c(3,5), 1.223775)
   expect_summary(s.db, e.db, c(0,2,1,0,1,2,0,0,2), c(-0.6931472, 0.8183103, 17.4324836))
@@ -108,44 +108,44 @@ test_that("idegree, directed", {
 })
 
 test_that("intransitive, directed", {
-  s.0 <- summary(samplike~intransitive)
+  s.0 <- gf_summary(samplike~intransitive)
   e.0 <- ergm(samplike~intransitive, estimate="MPLE")
   expect_summary(s.0, e.0, 224, -.21)
 })
 
 test_that("idegree1.5, directed", {
-  s.0 <- summary(samplike~idegree1.5)
+  s.0 <- gf_summary(samplike~idegree1.5)
   e.0 <- ergm(samplike~idegree1.5, estimate="MPLE")
   expect_summary(s.0, e.0, 214.6543, -.2387)
 })
 
 test_that("istar, directed", {
-  s.k <- summary(samplike~istar(1:3))
+  s.k <- gf_summary(samplike~istar(1:3))
   e.k <- ergm(samplike~istar(c(2,4)), estimate="MPLE")
-  s.ka <- summary(samplike~istar(2, function(x) x %v% "group"))
+  s.ka <- gf_summary(samplike~istar(2, function(x) x %v% "group"))
   e.ka <- ergm(samplike~istar(2, "group"), estimate="MPLE")
   expect_summary(s.k, e.k, c(88,233,455), c(-.28615, .02477))
   expect_summary(s.ka, e.ka, 100, .2401)
 })
 
 test_that("m2star, directed", {
-  s.0 <- summary(samplike~m2star)
+  s.0 <- gf_summary(samplike~m2star)
   e.0 <- ergm(samplike~m2star, estimate="MPLE")
   expect_summary(s.0, e.0, 378, -.1028)
 })
 
 test_that("mutual, directed", {
-  s.0 <- summary(samplike~mutual)
+  s.0 <- gf_summary(samplike~mutual)
   e.0 <- ergm(samplike~mutual, estimate="MPLE")
-  s.s <- summary(samplike~mutual(same=function(x) x %v% "group"))
+  s.s <- gf_summary(samplike~mutual(same=function(x) x %v% "group"))
   e.s <- ergm(samplike~mutual(same="group"), estimate="MPLE")
-  s.b <- summary(samplike~mutual(by=~Trinity))
+  s.b <- gf_summary(samplike~mutual(by=~Trinity))
   e.b <- ergm(samplike~mutual(by="Trinity"), estimate="MPLE")
-  s.sd <- summary(samplike~mutual(same="group", diff=TRUE))
+  s.sd <- gf_summary(samplike~mutual(same="group", diff=TRUE))
   e.sd <- ergm(samplike~mutual(same=function(x) x %v% "group", diff=TRUE), estimate="MPLE")
-  s.sk <- summary(samplike~mutual(same="group", levels=2))
+  s.sk <- gf_summary(samplike~mutual(same="group", levels=2))
   e.sk <- ergm(samplike~mutual(same=~group, levels=1), estimate="MPLE")
-  expect_warning(s.bk <- summary(samplike~mutual(by="Trinity", keep=2)))
+  expect_warning(s.bk <- gf_summary(samplike~mutual(by="Trinity", keep=2)))
   expect_warning(e.bk <- ergm(samplike~mutual(by="Trinity", keep=2:3), estimate="MPLE"))
   expect_summary(s.0, e.0, 28, .5596)
   expect_summary(s.s, e.s, 23, .9954)
@@ -156,57 +156,57 @@ test_that("mutual, directed", {
 })
 
 test_that("nearsimmelian, directed", {
-  s.0 <- summary(samplike~nearsimmelian)
+  s.0 <- gf_summary(samplike~nearsimmelian)
   e.0 <- ergm(samplike~nearsimmelian, estimate="MPLE")
   expect_summary(s.0, e.0, 18, -.4366483)
 })
 
 test_that("nodeicov, directed", {
-  s.a <- summary(samplike~nodeicov("YearsServed"))
+  s.a <- gf_summary(samplike~nodeicov("YearsServed"))
   e.a <- ergm(samplike~nodeicov(function(x) x %v% "YearsServed"), estimate="MPLE")
-  s.at <- summary(samplike~nodeicov(~YearsServed^2))
+  s.at <- gf_summary(samplike~nodeicov(~YearsServed^2))
   e.at <- ergm(samplike~nodeicov(~(.%v%"YearsServed")^2), estimate="MPLE")
-  s.att <- summary(samplike~nodeicov(~poly(YearsServed,2,raw=TRUE)))
+  s.att <- gf_summary(samplike~nodeicov(~poly(YearsServed,2,raw=TRUE)))
   expect_summary(s.a, e.a, 439, -.1739)
   expect_summary(s.at, e.at, 2345, -.02805)
   expect_equal(s.att, c(439,2345), ignore_attr=TRUE)
 })
 
 test_that("nodeifactor, directed", {
-  s.a <- summary(samplike~nodeifactor("group"))
+  s.a <- gf_summary(samplike~nodeifactor("group"))
   e.a <- ergm(samplike~nodeifactor(~group), estimate="MPLE")
-  s.ab <- summary(samplike~nodeifactor(function(x) x %v% "Trinity", levels=TRUE))
+  s.ab <- gf_summary(samplike~nodeifactor(function(x) x %v% "Trinity", levels=TRUE))
   expect_warning(e.ab <- ergm(samplike~nodeifactor("Trinity", base=(2:3)), estimate="MPLE"))
   expect_summary(s.a, e.a, c(13, 46), -c(1.4424, .4618))
   expect_summary(s.ab, e.ab, c(28, 29, 31), -.9719)
 })
 
 test_that("nodeocov, directed", {
-  s.a <- summary(samplike~nodeocov("YearsServed"))
+  s.a <- gf_summary(samplike~nodeocov("YearsServed"))
   e.a <- ergm(samplike~nodeocov(function(x) x %v% "YearsServed"), estimate="MPLE")
-  s.at <- summary(samplike~nodeocov(~YearsServed^2))
+  s.at <- gf_summary(samplike~nodeocov(~YearsServed^2))
   e.at <- ergm(samplike~nodeocov(~(.%v%"YearsServed")^2), estimate="MPLE")
-  s.att <- summary(samplike~nodeocov(~poly(YearsServed,2,raw=TRUE)))
+  s.att <- gf_summary(samplike~nodeocov(~poly(YearsServed,2,raw=TRUE)))
   expect_summary(s.a, e.a, 467, -.1581)
   expect_summary(s.at, e.at, 2691, -.02243)
   expect_equal(s.att, c(467, 2691), ignore_attr=TRUE)
 })
 
 test_that("nodeofactor, directed", {
-  s.a <- summary(samplike~nodeofactor("group"))
+  s.a <- gf_summary(samplike~nodeofactor("group"))
   e.a <- ergm(samplike~nodeofactor(~group), estimate="MPLE")
-  s.ab <- summary(samplike~nodeofactor("Trinity", levels=TRUE))
+  s.ab <- gf_summary(samplike~nodeofactor("Trinity", levels=TRUE))
   expect_warning(e.ab <- ergm(samplike~nodeofactor(function(x) x %v% "Trinity", base=(2:3)), estimate="MPLE"))
   expect_summary(s.a, e.a, c(18,36), -c(1.0217, .8353))
   expect_summary(s.ab, e.ab, c(31,30,27), -.8287)
 })
 
 test_that("odegree, directed", {
-  s.d <- summary(samplike~odegree(2:3))
+  s.d <- gf_summary(samplike~odegree(2:3))
   e.d <- ergm(samplike~odegree(3), estimate="MPLE")
-  s.db <- summary(samplike~odegree(1:3, function(x) x %v% "group"))
+  s.db <- gf_summary(samplike~odegree(1:3, function(x) x %v% "group"))
   e.db <- ergm(samplike~odegree(4, "group"), estimate="MPLE")
-  s.dbh <- summary(samplike~odegree(4:5, ~group, TRUE))
+  s.dbh <- gf_summary(samplike~odegree(4:5, ~group, TRUE))
   e.dbh <- ergm(samplike~odegree(2, "group", TRUE), estimate="MPLE")
   expect_summary(s.d, e.d, c(0,1), -.1625189)
   expect_summary(s.db, e.db, c(0,0,0,0,0,1,0,0,0), -c(-1.6292, 0.1112, 0.1625))
@@ -214,33 +214,33 @@ test_that("odegree, directed", {
 })
 
 test_that("ostar, directed", {
-  s.k <- summary(samplike~ostar(1:3))
+  s.k <- gf_summary(samplike~ostar(1:3))
   e.k <- ergm(samplike~ostar(c(2,4)), estimate="MPLE")
-  s.ka <- summary(samplike~ostar(2, "group"))
+  s.ka <- gf_summary(samplike~ostar(2, "group"))
   e.ka <- ergm(samplike~ostar(2, function(x) x %v% "group"), estimate="MPLE")
   expect_summary(s.k, e.k, c(88,178, 191), c(.1224, -.1986))
   expect_summary(s.ka, e.ka, 88, .1466)
 })
 
 test_that("odegree1.5, directed", {
-  s.0 <- summary(samplike~odegree1.5)
+  s.0 <- gf_summary(samplike~odegree1.5)
   e.0 <- ergm(samplike~odegree1.5, estimate="MPLE")
   expect_summary(s.0, e.0, 196.9432, -0.2909)
 })
 
 test_that("odegrange, directed", {
-  s.0 <- summary(samplike~odegrange(5:8))
+  s.0 <- gf_summary(samplike~odegrange(5:8))
   e.0 <- ergm(samplike~odegrange(5:8), estimate="MPLE")
-  s.h <- summary(samplike~odegrange(5:8, by=function(x) x %v% "group", homophily=TRUE))
+  s.h <- gf_summary(samplike~odegrange(5:8, by=function(x) x %v% "group", homophily=TRUE))
   e.h <- ergm(samplike~odegrange(5:8, by="group", homophily=TRUE), estimate="MPLE")
   expect_summary(s.0, e.0, c(12, 5, 0, 0), -c(0.619, 1.030, Inf, Inf))
   expect_summary(s.h, e.h, c(3, 0, 0, 0), -c(-0.2231, Inf , Inf, Inf ))
 })
 
 test_that("receiver, directed", {
-  s.0 <- summary(samplike~receiver)
+  s.0 <- gf_summary(samplike~receiver)
   e.0 <- ergm(samplike~receiver, estimate="MPLE")
-  s.b <- summary(samplike~receiver(nodes=-(2:16)))
+  s.b <- gf_summary(samplike~receiver(nodes=-(2:16)))
   e.b <- ergm(samplike~receiver(nodes=-(3:18)), estimate="MPLE")
   expect_summary(s.0, e.0,
     c(8, 4, 2, 5, 3, 5, 7, 11, 10, 6, 3, 6, 3, 5, 3, 2, 3),
@@ -251,9 +251,9 @@ test_that("receiver, directed", {
 })
 
 test_that("sender, directed", {
-  s.0 <- summary(samplike~sender)
+  s.0 <- gf_summary(samplike~sender)
   e.0 <- ergm(samplike~sender, estimate="MPLE")
-  s.b <- summary(samplike~sender(nodes=-(2:16)))
+  s.b <- gf_summary(samplike~sender(nodes=-(2:16)))
   e.b <- ergm(samplike~sender(nodes=-(3:18)), estimate="MPLE")
   expect_summary(s.0, e.0,
     c(5, 4, 4, 4, 5, 6, 4, 6, 5, 5, 6, 5, 5, 3, 5, 4, 6),
@@ -264,35 +264,35 @@ test_that("sender, directed", {
 })
 
 test_that("simmelian, directed", {
-  s.0 <- summary(samplike~simmelian)
+  s.0 <- gf_summary(samplike~simmelian)
   e.0 <- ergm(samplike~simmelian, estimate="MPLE")
   expect_summary(s.0, e.0, 8, .6069)
 })
 
 test_that("simmelianties, directed", {
-  s.0 <- summary(samplike~simmelianties)
+  s.0 <- gf_summary(samplike~simmelianties)
   e.0 <- ergm(samplike~simmelianties, estimate="MPLE")
   expect_summary(s.0, e.0, 32, .1984)
 })
 
 test_that("transitive, directed", {
-  s.0 <- summary(samplike~transitive)
+  s.0 <- gf_summary(samplike~transitive)
   e.0 <- ergm(samplike~transitive, estimate="MPLE")
   expect_summary(s.0, e.0, 154, -.07745)
 })
 
 test_that("transitiveties, directed", {
-  s.0 <- summary(samplike~transitiveties)
+  s.0 <- gf_summary(samplike~transitiveties)
   e.0 <- ergm(samplike~transitiveties, estimate="MPLE")
   expect_summary(s.0, e.0, 69, -.4116)
 })
 
 test_that("ttriple=ttriad, directed", {
-  s.0 <- summary(samplike~ttriple)
+  s.0 <- gf_summary(samplike~ttriple)
   e.0 <- ergm(samplike~ttriad, estimate="MPLE")
-  s.a <- summary(samplike~ttriple("group"))
+  s.a <- gf_summary(samplike~ttriple("group"))
   e.a <- ergm(samplike~ttriple(~group), estimate="MPLE")
-  s.ad <- summary(samplike~ttriad("group", diff=TRUE))
+  s.ad <- gf_summary(samplike~ttriad("group", diff=TRUE))
   e.ad <- ergm(samplike~ttriple(function(x) x %v% "group", diff=TRUE), estimate="MPLE")
   expect_summary(s.0, e.0, 154, -.07745)
   expect_summary(s.a, e.a, 121, .09518)

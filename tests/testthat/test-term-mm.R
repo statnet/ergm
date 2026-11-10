@@ -59,7 +59,7 @@ unnw <- network(el, directed=FALSE)
 unnw %v% "Pet" <- c("dog", "cat")
 
 test_that("Undirected mm() summary", {
-  s.a <- summary(fmh ~ mm("Grade"))
+  s.a <- gf_summary(fmh ~ mm("Grade"))
   expect_equal(s.a, c(`mm[Grade=7,Grade=8]` = 0, `mm[Grade=8,Grade=8]` = 33,
                       `mm[Grade=7,Grade=9]` = 0, `mm[Grade=8,Grade=9]` = 2,
                       `mm[Grade=9,Grade=9]` = 23, `mm[Grade=7,Grade=10]` = 1,
@@ -74,12 +74,12 @@ test_that("Undirected mm() summary", {
 
 
 test_that("Undirected mm() summary with expression, levels, and levels2 selectors", {
-  s.a <- summary(fmh ~ mm(~Grade >= 10, levels=-1, levels2=NULL))
+  s.a <- gf_summary(fmh ~ mm(~Grade >= 10, levels=-1, levels2=NULL))
   expect_equal(s.a, c(`mm[Grade>=10=TRUE,Grade>=10=TRUE]` = 43))
 })
 
 test_that("Undirected mm() summary with expression, levels selector, no terms", {
-  s.a <- summary(fmh ~ mm(~Grade >= 10, levels=-1))
+  s.a <- gf_summary(fmh ~ mm(~Grade >= 10, levels=-1))
   expect_equal(s.a, numeric(0))
 })
 
@@ -95,7 +95,7 @@ test_that("Directed mm() ERGM", {
 })
 
 test_that("Bipartite mm() summary", {
-  s.ab <- summary(bipnw ~ mm("Letter"))
+  s.ab <- gf_summary(bipnw ~ mm("Letter"))
   expect_equal(s.ab, c(`mm[Letter=b,Letter=a]` = 8, `mm[Letter=c,Letter=a]` = 8,
                        `mm[Letter=a,Letter=b]` = 7, `mm[Letter=b,Letter=b]` = 7,
                        `mm[Letter=c,Letter=b]` = 5, `mm[Letter=a,Letter=c]` = 4,
@@ -122,31 +122,31 @@ fmh.mm.Race <-
 
 
 test_that("Undirected mm() summary with level2 filter", {
-  s.ab2 <- summary(fmh ~ mm("Race", levels2=-1))
+  s.ab2 <- gf_summary(fmh ~ mm("Race", levels2=-1))
   expect_equal(s.ab2, fmh.mm.Race[-1], ignore_attr=TRUE)
 })
 
 test_that("Undirected mm() summary with level2 filter by logical matrix", {
   M <- matrix(TRUE, 5, 5)
   M[1,1] <- M[3,2] <- M[2,3] <- FALSE
-  s.ab2 <- summary(fmh ~ mm("Race", levels2=M))
+  s.ab2 <- gf_summary(fmh ~ mm("Race", levels2=M))
   expect_equal(s.ab2, fmh.mm.Race[M[upper.tri(M, TRUE)]], ignore_attr=TRUE)
 })
 
 test_that("Undirected mm() summary with level2 filter by numeric matrix", {
   M <- cbind(2,3)
-  s.ab2 <- summary(fmh ~ mm("Race", levels2=M))
+  s.ab2 <- gf_summary(fmh ~ mm("Race", levels2=M))
   expect_equal(s.ab2, fmh.mm.Race[5], ignore_attr=TRUE)
 })
 
 test_that("Undirected mm() summary with level2 AsIs", {
-  s <- summary(fmh~mm("Sex",
+  s <- gf_summary(fmh~mm("Sex",
                       levels2 = I(list(list(row="M",col="M"),
                                        list(row="F",col="M")))))
   expect_equal(s, c(`mm[Sex=M,Sex=M]` = 50, `mm[Sex=F,Sex=M]` = 71))
 
   expect_warning(
-    s <- summary(fmh~mm("Sex",
+    s <- gf_summary(fmh~mm("Sex",
                         levels2 = I(list(list(row="M",col="M"),
                                          list(row="M",col="F"), # Invalid level
                                          list(row="F",col="M"))))),
@@ -177,12 +177,12 @@ samp.mm.Trinity <-
 test_that("Directed mm() summary with level2 matrix filter", {
   M <- matrix(FALSE, 3, 3)
   M[1,2] <- M[1,3] <- TRUE
-  s.ab2 <- summary(samplike ~ mm("Trinity", levels2=M))
+  s.ab2 <- gf_summary(samplike ~ mm("Trinity", levels2=M))
   expect_equal(s.ab2, samp.mm.Trinity[c(M)], ignore_attr=TRUE)
 })
 
 test_that("Undirected mm() marginal summary", {
-  s.a <- summary(fmh ~ mm(.~Grade))
+  s.a <- gf_summary(fmh ~ mm(.~Grade))
   expect_equal(s.a, c(`mm[.,Grade=8]` = 75, `mm[.,Grade=9]` = 65,
                       `mm[.,Grade=10]` = 36, `mm[.,Grade=11]` = 49,
                       `mm[.,Grade=12]` = 28))
@@ -193,7 +193,7 @@ test_that("Undirected mm() asymmetric two-sided summary", {
     rbind(.,.[,2:1,drop=FALSE]) %>%
     (function(x) data.frame(Race=factor(fmh%v%"Race")[x[,1]], Grade=factor(fmh%v%"Grade")[x[,2]])) %>%
     table()
-  s.a <- summary(fmh ~ mm(Race~Grade, levels2=TRUE))
+  s.a <- gf_summary(fmh ~ mm(Race~Grade, levels2=TRUE))
   expect_equal(s.a, c(s.a.tab), ignore_attr=TRUE)
 })
 
@@ -205,17 +205,17 @@ test_that("Undirected mm() asymmetric two-sided summary and pipe operator on one
     rbind(.,.[,2:1,drop=FALSE]) %>%
     (function(x) data.frame(Grade=Grade[x[,2]], Race=Race[x[,1]])) %>%
     table()
-  s.a <- summary(fmh ~ mm(Grade~(~Race) %>% COLLAPSE_SMALLEST(3,"BWO"), levels2=TRUE))
+  s.a <- gf_summary(fmh ~ mm(Grade~(~Race) %>% COLLAPSE_SMALLEST(3,"BWO"), levels2=TRUE))
   expect_equal(s.a, c(s.a.tab), ignore_attr=TRUE)
 })
 
 test_that("Undirected mm() marginal summary with fixed levels set", {
-  s.a <- summary(fmh ~ mm(.~Grade, levels=I(c(7,6,9,8)), levels2=TRUE))
+  s.a <- gf_summary(fmh ~ mm(.~Grade, levels=I(c(7,6,9,8)), levels2=TRUE))
   expect_equal(s.a, c(153, 0, 65, 75), ignore_attr=TRUE)
 })
 
 test_that("Undirected mm() summary with fixed levels set", {
-  s.a <- summary(fmh ~ mm("Grade", levels=I(c(7,6,9,8)), levels2=TRUE))
+  s.a <- gf_summary(fmh ~ mm("Grade", levels=I(c(7,6,9,8)), levels2=TRUE))
   expect_equal(s.a, c(`mm[Grade=7,Grade=7]` = 75, `mm[Grade=7,Grade=6]` = 0,
                       `mm[Grade=6,Grade=6]` = 0, `mm[Grade=7,Grade=9]` = 0,
                       `mm[Grade=6,Grade=9]` = 0, `mm[Grade=9,Grade=9]` = 23,
@@ -272,7 +272,7 @@ test_that("Undirected mm() summary with just one unique attribute level and leve
   nw2[1, 2] <- TRUE
   nw2 %v% "x" <- c("b", "b")
 
-  s.a <- summary(nw2 ~ mm("x", levels = letters[1:3], levels2 = TRUE))
+  s.a <- gf_summary(nw2 ~ mm("x", levels = letters[1:3], levels2 = TRUE))
   expect_equal(s.a, c(`mm[x=a,x=a]` = 0, `mm[x=a,x=b]` = 0, `mm[x=b,x=b]` = 1,
                       `mm[x=a,x=c]` = 0, `mm[x=b,x=c]` = 0, `mm[x=c,x=c]` = 0))
 })

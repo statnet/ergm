@@ -47,7 +47,7 @@ run.tests <- function(cache.sp){
     #plot(net, edge.lwd=2, arrowhead.cex=2, label=1:network.size(net))
 
     for (i in 1:niter) {
-      (espcounts <- summary(cache.sp=cache.sp,net ~ dgwdsp(fixed=F, type="OTP")) )
+      (espcounts <- gf_summary(cache.sp=cache.sp,net ~ dgwdsp(fixed=F, type="OTP")) )
       expect_equal(espcounts[1:4], c(4,1,0,0), ignore_attr=TRUE) # DSP OTP mis-count
     }
     # espcounts
@@ -65,7 +65,7 @@ run.tests <- function(cache.sp){
     #plot(net, edge.lwd=2, arrowhead.cex=2, label=1:network.size(net))
 
     for (i in 1:niter) {
-      (espcounts <- summary(cache.sp=cache.sp,net ~ dgwdsp(fixed=F, type="ITP")) )
+      (espcounts <- gf_summary(cache.sp=cache.sp,net ~ dgwdsp(fixed=F, type="ITP")) )
       expect_equal(espcounts[1:4], c(4,1,0,0), ignore_attr=TRUE) # DSP ITP mis-count
     }
     espcounts
@@ -83,7 +83,7 @@ run.tests <- function(cache.sp){
     #plot(net, edge.lwd=2, arrowhead.cex=2, label=1:network.size(net))
 
     for (i in 1:niter) {
-      (espcounts <- summary(cache.sp=cache.sp,net ~ dgwdsp(fixed=F, type="OSP")) )
+      (espcounts <- gf_summary(cache.sp=cache.sp,net ~ dgwdsp(fixed=F, type="OSP")) )
       expect_equal(espcounts[1:4], c(4,2,0,0), ignore_attr=TRUE) # DSP_OSP mis-count
     }
     espcounts
@@ -101,7 +101,7 @@ run.tests <- function(cache.sp){
     #plot(net, edge.lwd=2, arrowhead.cex=2, label=1:network.size(net))
 
     for (i in 1:niter) {
-      (espcounts <- summary(cache.sp=cache.sp,net ~ dgwdsp(fixed=F, type="ISP")) )
+      (espcounts <- gf_summary(cache.sp=cache.sp,net ~ dgwdsp(fixed=F, type="ISP")) )
       expect_equal(espcounts[1:4], c(4,2,0,0), ignore_attr=TRUE) # DSP ISP mis-count
     }
     espcounts
@@ -136,7 +136,7 @@ run.tests <- function(cache.sp){
     #plot(net, edge.lwd=2, arrowhead.cex=2, label=1:network.size(net))
 
     for (i in 1:niter) {
-      (espcounts <- summary(cache.sp=cache.sp,net ~ dgwesp(fixed=F, type="OTP")) )
+      (espcounts <- gf_summary(cache.sp=cache.sp,net ~ dgwesp(fixed=F, type="OTP")) )
       expect_equal(espcounts[1:4], c(1,1,0,0), ignore_attr=TRUE) # ESP OTP mis-count
     }
     espcounts
@@ -154,7 +154,7 @@ run.tests <- function(cache.sp){
     #plot(net, edge.lwd=2, arrowhead.cex=2, label=1:network.size(net))
 
     for (i in 1:niter) {
-      (espcounts <- summary(cache.sp=cache.sp,net ~ dgwesp(fixed=F, type="ITP")) )
+      (espcounts <- gf_summary(cache.sp=cache.sp,net ~ dgwesp(fixed=F, type="ITP")) )
       expect_equal(espcounts[1:4], c(7,1,0,0), ignore_attr=TRUE) # ESP ITP mis-count
     }
     espcounts
@@ -172,7 +172,7 @@ run.tests <- function(cache.sp){
     #plot(net, edge.lwd=2, arrowhead.cex=2, label=1:network.size(net))
 
     for (i in 1:niter) {
-      (espcounts <- summary(cache.sp=cache.sp,net ~ dgwesp(fixed=F, type="OSP")) )
+      (espcounts <- gf_summary(cache.sp=cache.sp,net ~ dgwesp(fixed=F, type="OSP")) )
       expect_equal(espcounts[1:4], c(1,1,0,0), ignore_attr=TRUE) # ESP_OSP mis-count
     }
     espcounts
@@ -190,7 +190,7 @@ run.tests <- function(cache.sp){
     #plot(net, edge.lwd=2, arrowhead.cex=2, label=1:network.size(net))
 
     for (i in 1:niter) {
-      (espcounts <- summary(cache.sp=cache.sp,net ~ dgwesp(fixed=F, type="ISP")) )
+      (espcounts <- gf_summary(cache.sp=cache.sp,net ~ dgwesp(fixed=F, type="ISP")) )
       expect_equal(espcounts[1:4], c(1,1,0,0), ignore_attr=TRUE) # ESP ISP mis-count
     }
     espcounts
@@ -208,7 +208,7 @@ run.tests <- function(cache.sp){
 
     for (i in 1:niter) {
       # only n-2 = 2 shared partners are possible on 4 nodes
-      espcounts <- summary(cache.sp=cache.sp, net ~ dgwesp(fixed=F, type="RTP"))
+      espcounts <- gf_summary(cache.sp=cache.sp, net ~ dgwesp(fixed=F, type="RTP"))
       expect_equal(espcounts[1:2], c(1,0), ignore_attr=TRUE) # ESP RTP mis-count
     }
 
@@ -244,7 +244,7 @@ run.tests <- function(cache.sp){
     #plot(net, edge.lwd=2, arrowhead.cex=2, label=1:network.size(net))
 
     for (i in 1:niter) {
-      (espcounts <- summary(cache.sp=cache.sp,net ~ dgwnsp(fixed=F, type="OTP")) )
+      (espcounts <- gf_summary(cache.sp=cache.sp,net ~ dgwnsp(fixed=F, type="OTP")) )
       expect_equal(espcounts[1:4], c(3,1,0,0), ignore_attr=TRUE) # NSP OTP mis-count
     }
     espcounts
@@ -262,7 +262,7 @@ run.tests <- function(cache.sp){
     #plot(net, edge.lwd=2, arrowhead.cex=2, label=1:network.size(net))
 
     for (i in 1:niter) {
-      (espcounts <- summary(cache.sp=cache.sp,net ~ dgwnsp(fixed=F, type="ITP")) )
+      (espcounts <- gf_summary(cache.sp=cache.sp,net ~ dgwnsp(fixed=F, type="ITP")) )
       expect_equal(espcounts[1:4], c(1,1,0,0), ignore_attr=TRUE) # NSP ITP mis-count
     }
     espcounts
@@ -280,7 +280,7 @@ run.tests <- function(cache.sp){
     #plot(net, edge.lwd=2, arrowhead.cex=2, label=1:network.size(net))
 
     for (i in 1:niter) {
-      (espcounts <- summary(cache.sp=cache.sp,net ~ dgwnsp(fixed=F, type="OSP")) )
+      (espcounts <- gf_summary(cache.sp=cache.sp,net ~ dgwnsp(fixed=F, type="OSP")) )
       expect_equal(espcounts[1:4], c(3,2,0,0), ignore_attr=TRUE) # NSP_OSP mis-count
     }
     espcounts
@@ -298,7 +298,7 @@ run.tests <- function(cache.sp){
     #plot(net, edge.lwd=2, arrowhead.cex=2, label=1:network.size(net))
 
     for (i in 1:niter) {
-      (espcounts <- summary(cache.sp=cache.sp,net ~ dgwnsp(fixed=F, type="ISP")) )
+      (espcounts <- gf_summary(cache.sp=cache.sp,net ~ dgwnsp(fixed=F, type="ISP")) )
       expect_equal(espcounts[1:4], c(3,2,0,0), ignore_attr=TRUE) # NSP ISP mis-count
     }
     espcounts

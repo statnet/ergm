@@ -23,11 +23,11 @@ test_that("edgecov works with undirected unipartite networks", {
                              dim = c(1L, 1L), dimnames = list(NULL, "edgecov.m"),
                              mcpar = c(1,  1, 1), class = "mcmc"))
   # Also test term naming.
-  s <- summary(nw ~ edgecov(m^2))
+  s <- gf_summary(nw ~ edgecov(m^2))
   expect_named(s, "edgecov.m^2")
 
   nw %n% "m" <- m
-  s <- summary(nw ~ edgecov("m"))
+  s <- gf_summary(nw ~ edgecov("m"))
   expect_named(s, "edgecov.m")
 })
 
