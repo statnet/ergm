@@ -173,17 +173,20 @@ public:
 
   class NetworkEdgeRange {
   public:
-    ALWAYS_INLINE NetworkEdgeRange(TreeType* outedges, Vertex nnodes)
-      : outedges_(outedges), nnodes_(nnodes) {}
+    ALWAYS_INLINE NetworkEdgeRange(TreeType* outedges, Vertex nnodes, Edge nedges)
+      : outedges_(outedges), nnodes_(nnodes), nedges_(nedges) {}
     ALWAYS_INLINE NetworkEdgeIterator begin() const { return NetworkEdgeIterator(outedges_, nnodes_, 1); }
     ALWAYS_INLINE NetworkEdgeIterator end() const { return NetworkEdgeIterator(outedges_, nnodes_, nnodes_ + 1); }
+    ALWAYS_INLINE Vertex size() const { return nedges_; }
+
   private:
     TreeType* outedges_;
     Vertex nnodes_;
+    Edge nedges_;
   };
 
   NetworkEdgeRange edges() const {
-    return NetworkEdgeRange(ptr->outedges, ptr->nnodes);
+    return NetworkEdgeRange(ptr->outedges, ptr->nnodes, ptr->nedges);
   }
 
   class NodeIterator {
@@ -247,6 +250,12 @@ public:
   ALWAYS_INLINE Vertex degree(Vertex i) const {
     return ptr->outdegree[i] + ptr->indegree[i];
   }
+
+  // Edge count
+  ALWAYS_INLINE Vertex edge_count() const {
+    return ptr->nedges;
+  }
+
   const bool dir;
   const Vertex n;
   const Vertex bip;

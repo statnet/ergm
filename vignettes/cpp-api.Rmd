@@ -41,6 +41,8 @@ These wrap `Network` (unweighted) and `WtNetwork` (weighted) to provide edge que
     - The consistency of the `dir` argument with `nwp->directed_flag` is checked at initialization time, so, at worst, it will produce a runtime error.
     - An exception to this consistency check is bipartite networks, because it can often be more efficient to treat them as directed (`tail -> head`) for some algorithms. (For example `b*dsp()` terms are implemented as `*dsp(type="OSP"|"ISP")` depending on the mode.) However, if a bipartite network wrapper `nw` is initialized with `dir = TRUE`, `nw(i,j)` will expect that `i<j`, with `i>j` always returning `FALSE`.
 - `ptr`: raw pointer to the underlying `Network` (or `WtNetwork`) C struct.
+- `n`, `bip`, `dir` for size, b1 partition size (0 if not bipartite), and directedness, respectively.
+- Edge count: `nw.edge_count()` or `nw.edges().size()` (both O(1)).
 - Edge query: `nw(tail, head)` returns presence (`Rboolean`) or `double` weight (0 for no edge).
 - Node ranges: `nw.nodes()`, bipartite halves: `nw.b1()`, `nw.b2()`; node ranges support `.size()` for O(1) range size.
 - Neighbor ranges: `nw.out_neighbors(i)`, `nw.in_neighbors(i)`, `nw.neighbors(i)`.
