@@ -145,7 +145,7 @@ test_that("opentriad, undirected", {
   s.0 <- summary(fmh~opentriad)
   e.0 <- ergm(fmh~opentriad, estimate="MPLE")
 
-  expect_summary(s.0, e.0, 473, 0)
+  expect_summary(s.0, e.0, 473, -1.652)
 })
 
 test_that("sociality, undirected", {

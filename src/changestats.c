@@ -2483,7 +2483,9 @@ C_CHANGESTAT_FN(c_opentriad) {
 
   /* *** don't forget tail -> head */
     Vertex node3;
-    Edge change = 0, e;
+    Edge e;
+    int change = 0;
+
     /* edgestate is 1 if edge exists and will disappear
        edgestate is 0 if edge DNE and will appear */
 
