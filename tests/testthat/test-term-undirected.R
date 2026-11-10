@@ -101,8 +101,11 @@ test_that("degcrossprod, undirected", {
 test_that("degcor, undirected", {
   s.0 <- gf_summary(unnw~degcor)
   e.0 <- ergm(unnw~degcor, estimate="MPLE")
+  s.1 <- gf_summary(fmh~degcor)
+  e.1 <- ergm(fmh~degcor, estimate="MPLE")
 
-  expect_summary(s.0, e.0, -c(0.09789041 ), c(0.2282))
+  expect_summary(s.0, e.0, -c(0.09789041), c(2.337))
+  expect_summary(s.1, e.1, c(0.1224021), c(-26.4))
 })
 
 test_that("degree1.5, undirected", {
