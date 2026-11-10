@@ -1150,48 +1150,6 @@ C_CHANGESTAT_FN(c_ctriple) {
 /*****************
  changestat: d_degcor
 *****************/
-C_CHANGESTAT_FN(c_degcor) {
-  int  echange;
-  Vertex taildeg, headdeg, node3;
-  Edge e;
-  double sigma2;
-
-  sigma2 = INPUT_PARAM[0];
-// Rprintf("sigma2 %f\n",sigma2);
-    taildeg = DEG(tail);
-    headdeg = DEG(head);
-    echange = edgestate ? -1 : 1;
-    if(echange==1){
-     CHANGE_STAT[0] += (taildeg + 1.0)*(headdeg + 1.0);
-     STEP_THROUGH_OUTEDGES(head, e, node3) { /* step through outedges of head */
-       CHANGE_STAT[0] += DEG(node3);
-     }
-     STEP_THROUGH_INEDGES(head, e, node3) { /* step through inedges of head */
-       CHANGE_STAT[0] += DEG(node3);
-     }
-     STEP_THROUGH_OUTEDGES(tail, e, node3) { /* step through outedges of tail */
-       CHANGE_STAT[0] += DEG(node3);
-     }
-     STEP_THROUGH_INEDGES(tail, e, node3) { /* step through inedges of tail */
-       CHANGE_STAT[0] += DEG(node3);
-     }
-    }else{
-     CHANGE_STAT[0] -= (taildeg)*(headdeg);
-     STEP_THROUGH_OUTEDGES(head, e, node3) { /* step through outedges of head */
-      if(node3!=tail) CHANGE_STAT[0] -= DEG(node3);
-     }
-     STEP_THROUGH_INEDGES(head, e, node3) { /* step through inedges of head */
-      if(node3!=tail) CHANGE_STAT[0] -= DEG(node3);
-     }
-     STEP_THROUGH_OUTEDGES(tail, e, node3) { /* step through outedges of tail */
-      if(node3!=head) CHANGE_STAT[0] -= DEG(node3);
-     }
-     STEP_THROUGH_INEDGES(tail, e, node3) { /* step through inedges of tail */
-      if(node3!=head) CHANGE_STAT[0] -= DEG(node3);
-     }
-    }
-  CHANGE_STAT[0] *= (2.0/sigma2);
-}
 S_CHANGESTAT_FN(s_degcor) {
   Vertex taildeg, headdeg;
   Edge e;

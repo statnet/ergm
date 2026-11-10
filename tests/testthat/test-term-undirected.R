@@ -105,6 +105,23 @@ test_that("degcor, undirected", {
   expect_summary(s.0, e.0, -c(0.09789041 ), c(0.2282))
 })
 
+test_that("degcor handles an empty initial network", {
+  empty <- network.initialize(5, directed=FALSE)
+  mple <- ergmMPLE(empty ~ edges + degcor, output="matrix")
+
+  expect_true(all(is.finite(mple$predictor)))
+})
+
+test_that("degcor updates its variance during sampling", {
+  nw <- network.initialize(6, directed=FALSE)
+  network::add.edges(nw, c(1, 1, 1, 2), c(2, 3, 4, 3))
+  set.seed(1)
+  sim <- simulate(nw ~ edges + degcor, coef=c(0, 0), nsim=5, output="network",
+                  control=control.simulate.formula(MCMC.burnin=20, MCMC.interval=2))
+
+  expect_true(all(vapply(sim, function(y) is.finite(as.numeric(summary(y ~ degcor))), logical(1))))
+})
+
 test_that("degree1.5, undirected", {
   s.0 <- gf_summary(fmh~degree1.5)
   e.0 <- ergm(fmh~degree1.5, estimate="MPLE")

@@ -1,6 +1,53 @@
 #include <cpp/ergm_network.h>
 #include <cpp/ergm_changestat.h>
 
+struct DegcorStorage {
+  double degree2;
+  double degree3;
+  double nedges;
+};
+
+I_CHANGESTAT_CPP(degcor, DegcorStorage, {
+    mt.storage = R_Calloc(1, DegcorStorage);
+    mt.storage->nedges = nw.ptr->nedges;
+    for(auto node: nw.nodes()) {
+      double degree = nw.degree(node);
+      mt.storage->degree2 += degree * degree;
+      mt.storage->degree3 += degree * degree * degree;
+    }
+  })
+
+C_CHANGESTAT_CPP(degcor, DegcorStorage, {
+    double sigma2 = mt.storage->nedges ? mt.storage->degree3 - mt.storage->degree2 * mt.storage->degree2 / (2.0 * mt.storage->nedges) : 0.0;
+    if(sigma2 > 0) {
+      double change = 0;
+      double taildeg = nw.degree(tail);
+      double headdeg = nw.degree(head);
+      if(edgestate) {
+        change -= taildeg * headdeg;
+        for(auto node: nw.neighbors(head))
+          if(node != tail) change -= nw.degree(node);
+        for(auto node: nw.neighbors(tail))
+          if(node != head) change -= nw.degree(node);
+      }else{
+        change += (taildeg + 1.0) * (headdeg + 1.0);
+        for(auto node: nw.neighbors(head)) change += nw.degree(node);
+        for(auto node: nw.neighbors(tail)) change += nw.degree(node);
+      }
+      mt.stat[0] += 2.0 * change / sigma2;
+    }
+  })
+
+U_CHANGESTAT_CPP(degcor, DegcorStorage, {
+    double change = edgestate ? -1.0 : 1.0;
+    double taildeg = nw.degree(tail);
+    double headdeg = nw.degree(head);
+    mt.storage->degree2 += 2.0 * change * (taildeg + headdeg) + 2.0;
+    mt.storage->degree3 += 3.0 * change * (taildeg * taildeg + headdeg * headdeg)
+      + 3.0 * (taildeg + headdeg) + 2.0 * change;
+    mt.storage->nedges += change;
+  })
+
 C_CHANGESTAT_CPP(triangle, {
     int change = 0;
     if(mt.iinput.size()){
