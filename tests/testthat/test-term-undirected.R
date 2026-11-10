@@ -102,7 +102,7 @@ test_that("degcor, undirected", {
   s.0 <- gf_summary(unnw~degcor)
   e.0 <- ergm(unnw~degcor, estimate="MPLE")
 
-  expect_summary(s.0, e.0, -c(0.09789041 ), c(0.2282))
+  expect_summary(s.0, e.0, -c(0.09789041 ), c(2.337))
 })
 
 test_that("degcor handles an empty initial network", {
@@ -110,6 +110,23 @@ test_that("degcor handles an empty initial network", {
   mple <- ergmMPLE(empty ~ edges + degcor, output="matrix")
 
   expect_true(all(is.finite(mple$predictor)))
+})
+
+test_that("degcor change statistics account for variance changes", {
+  nw <- network.initialize(6, directed=FALSE)
+  network::add.edges(nw, c(1, 1, 1, 2), c(2, 3, 4, 3))
+  mple <- ergmMPLE(nw ~ edges + degcor, output="array")
+  statistic <- as.numeric(summary(nw ~ degcor))
+
+  added <- network::network.copy(nw)
+  network::add.edges(added, 1, 5)
+  expect_equal(mple$predictor[1, 5, "degcor"],
+               as.numeric(summary(added ~ degcor)) - statistic)
+
+  removed <- network::network.copy(nw)
+  network::delete.edges(removed, network::get.edgeIDs(removed, v=1, alter=2))
+  expect_equal(mple$predictor[1, 2, "degcor"],
+               statistic - as.numeric(summary(removed ~ degcor)))
 })
 
 test_that("degcor updates its variance during sampling", {
