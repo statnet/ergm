@@ -32,7 +32,7 @@ double degcor_cross_change(ergm::ErgmCppNetwork& nw, Vertex tail, Vertex head, R
   return 2.0 * change;
 }
 
-I_CHANGESTAT_CPP(degcor, DegcorStorage, {
+I_CHANGESTAT_U_CPP(degcor, DegcorStorage, {
     mt.storage = R_Calloc(1, DegcorStorage);
     for(auto node: nw.nodes()) {
       Vertex degree = nw.degree(node);
@@ -44,7 +44,7 @@ I_CHANGESTAT_CPP(degcor, DegcorStorage, {
       mt.storage->cross += 2.0 * nw.degree(edge_tail) * nw.degree(edge_head);
   })
 
-C_CHANGESTAT_CPP(degcor, DegcorStorage, {
+C_CHANGESTAT_U_CPP(degcor, DegcorStorage, {
     double echange = edgestate ? -1.0 : 1.0;
     Vertex taildeg = nw.degree(tail);
     Vertex headdeg = nw.degree(head);
@@ -59,7 +59,7 @@ C_CHANGESTAT_CPP(degcor, DegcorStorage, {
       - degcor_statistic(mt.storage->degree2, mt.storage->degree3, mt.storage->cross, nw.edge_count());
   })
 
-U_CHANGESTAT_CPP(degcor, DegcorStorage, {
+U_CHANGESTAT_U_CPP(degcor, DegcorStorage, {
     double change = edgestate ? -1.0 : 1.0;
     Vertex taildeg = nw.degree(tail);
     Vertex headdeg = nw.degree(head);
