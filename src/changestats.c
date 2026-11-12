@@ -1150,35 +1150,6 @@ C_CHANGESTAT_FN(c_ctriple) {
 /*****************
  changestat: d_degcor
 *****************/
-S_CHANGESTAT_FN(s_degcor) {
-  Vertex taildeg, headdeg;
-  Edge e;
-  double mu, mu2, sigma2, cross;
-
-  mu = 0.0;
-  mu2 = 0.0;
-  cross = 0.0;
-  for(Vertex tail=1; tail <= N_NODES; tail++) {
-    Vertex head;
-    STEP_THROUGH_OUTEDGES(tail, e, head) { /* step through outedges of tail */
-    taildeg = DEG(tail);
-    headdeg = DEG(head);
-  // Rprintf("tail %d head %d taildeg %d headdeg %d\n",tail,head,taildeg,headdeg);
-    mu  += taildeg + headdeg;
-    mu2 += taildeg*taildeg + headdeg*headdeg;
-    cross += 2.0*taildeg*headdeg;
-   }
-  }
-  if(N_EDGES == 0) {
-    CHANGE_STAT[0] = 0.0;
-    return;
-  }
-  mu = mu / (2.0*N_EDGES);
-  sigma2 = mu2/(2.0*N_EDGES) -  mu*mu;
-// Rprintf("mu %f mu2 %f cross %f sigma2 %f\n",mu,mu2,cross,sigma2);
-  CHANGE_STAT[0] = sigma2 > 0 ? (cross / (2.0*N_EDGES) -  mu*mu) / sigma2 : 0.0;
-}
-
 /*****************
  changestat: d_degcrossprod
 *****************/

@@ -59,6 +59,20 @@ C_CHANGESTAT_U_CPP(degcor, DegcorStorage, {
       - degcor_statistic(mt.storage->degree2, mt.storage->degree3, mt.storage->cross, nw.edge_count());
   })
 
+S_CHANGESTAT_U_CPP(degcor, {
+    double degree2 = 0;
+    double degree3 = 0;
+    double cross = 0;
+    for(auto node: nw.nodes()) {
+      double degree = nw.degree(node);
+      degree2 += degree * degree;
+      degree3 += degree * degree * degree;
+    }
+    for(auto [edge_tail, edge_head]: nw.edges())
+      cross += 2.0 * nw.degree(edge_tail) * nw.degree(edge_head);
+    mt.stat[0] = degcor_statistic(degree2, degree3, cross, nw.edge_count());
+  })
+
 U_CHANGESTAT_U_CPP(degcor, DegcorStorage, {
     double change = edgestate ? -1.0 : 1.0;
     Vertex taildeg = nw.degree(tail);
