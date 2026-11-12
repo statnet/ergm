@@ -70,7 +70,7 @@
 #' @concept dyad-independent
 #' @concept categorical nodal attribute
 #' @concept frequently-used
-InitErgmTerm.b1nodematch	<-	function (nw, arglist, ..., version=packageVersion("ergm")) {
+InitErgmTerm.b1nodematch	<-	function (nw, arglist, ..., version = namespaceVersion("ergm")) {
   if(version <= as.package_version("3.9.4")){
     ### Check the network and arguments to make sure they are appropriate.
     a <- check.ErgmTerm(nw, arglist, directed = FALSE, bipartite = TRUE,
@@ -205,7 +205,7 @@ InitErgmTerm.b1nodematch	<-	function (nw, arglist, ..., version=packageVersion("
 #' @concept dyad-independent
 #' @concept categorical nodal attribute
 #' @concept frequently-used
-InitErgmTerm.b2nodematch	<-	function (nw, arglist, ..., version=packageVersion("ergm")) {
+InitErgmTerm.b2nodematch	<-	function (nw, arglist, ..., version = namespaceVersion("ergm")) {
   if(version <= as.package_version("3.9.4")){
     ### Check the network and arguments to make sure they are appropriate.
     a <- check.ErgmTerm(nw, arglist, directed=FALSE, bipartite=TRUE,

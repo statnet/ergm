@@ -417,7 +417,7 @@ decay_vs_fixed <- function(a, name, no_curved_attrarg=TRUE){
 #' @concept directed
 #' @concept undirected
 #' @concept quantitative nodal attribute
-InitErgmTerm.absdiff <- function(nw, arglist, ..., version=packageVersion("ergm")) {
+InitErgmTerm.absdiff <- function(nw, arglist, ..., version = namespaceVersion("ergm")) {
   if(version <= as.package_version("3.9.4")){
     ### Check the network and arguments to make sure they are appropriate.
     a <- check.ErgmTerm(nw, arglist, directed=NULL, bipartite=NULL,
@@ -475,7 +475,7 @@ InitErgmTerm.absdiff <- function(nw, arglist, ..., version=packageVersion("ergm"
 #' @concept directed
 #' @concept undirected
 #' @concept categorical nodal attribute
-InitErgmTerm.absdiffcat <- function(nw, arglist, ..., version=packageVersion("ergm")) {
+InitErgmTerm.absdiffcat <- function(nw, arglist, ..., version = namespaceVersion("ergm")) {
   if(version <= as.package_version("3.9.4")){
     ### Check the network and arguments to make sure they are appropriate.
     a <- check.ErgmTerm(nw, arglist, directed=NULL, bipartite=NULL,
@@ -615,7 +615,7 @@ InitErgmTerm.altkstar <- function(nw, arglist, ...) {
 #' @concept dyad-independent
 #' @concept triad-related
 
-InitErgmTerm.asymmetric <- function(nw, arglist, ..., version=packageVersion("ergm")) {
+InitErgmTerm.asymmetric <- function(nw, arglist, ..., version = namespaceVersion("ergm")) {
   if(version <= as.package_version("3.9.4")){
     ### Check the network and arguments to make sure they are appropriate
     a <- check.ErgmTerm(nw, arglist, directed=TRUE, bipartite=NULL,
@@ -691,7 +691,7 @@ InitErgmTerm.asymmetric <- function(nw, arglist, ..., version=packageVersion("er
 #' @concept dyad-independent
 #' @concept directed
 #' @concept undirected
-InitErgmTerm.attrcov <- function (nw, arglist, ..., version=packageVersion("ergm")) {
+InitErgmTerm.attrcov <- function (nw, arglist, ..., version = namespaceVersion("ergm")) {
   a <- check.ErgmTerm(nw, arglist,
                       varnames = c("attr", "mat"),
                       vartypes = c(ERGM_VATTR_SPEC, "matrix"))
@@ -766,7 +766,7 @@ InitErgmTerm.attrcov <- function (nw, arglist, ..., version=packageVersion("ergm
 #' @concept undirected
 #' @concept categorical nodal attribute
 
-InitErgmTerm.b1concurrent<-function(nw, arglist, ..., version=packageVersion("ergm")) {
+InitErgmTerm.b1concurrent<-function(nw, arglist, ..., version = namespaceVersion("ergm")) {
   if(version <= as.package_version("3.9.4")){
     ### Check the network and arguments to make sure they are appropriate.
     a <- check.ErgmTerm(nw, arglist, directed=FALSE, bipartite=TRUE,
@@ -837,7 +837,7 @@ InitErgmTerm.b1concurrent<-function(nw, arglist, ..., version=packageVersion("er
 #'
 #' @concept bipartite
 #' @concept undirected
-InitErgmTerm.b1degrange<-function(nw, arglist, ..., version=packageVersion("ergm")) {
+InitErgmTerm.b1degrange<-function(nw, arglist, ..., version = namespaceVersion("ergm")) {
   .degrange_impl("b1", NULL, TRUE, nw, arglist, ..., version=version, degname="o")
 }
 
@@ -864,7 +864,7 @@ InitErgmTerm.b1degrange<-function(nw, arglist, ..., version=packageVersion("ergm
 #' @concept dyad-independent
 #' @concept quantitative nodal attribute
 #' @concept frequently-used
-InitErgmTerm.b1cov<-function (nw, arglist, ..., version=packageVersion("ergm")) {
+InitErgmTerm.b1cov<-function (nw, arglist, ..., version = namespaceVersion("ergm")) {
   if(version <= as.package_version("3.9.4")){
     ### Check the network and arguments to make sure they are appropriate.
     a <- check.ErgmTerm(nw, arglist, directed=FALSE, bipartite=TRUE, 
@@ -917,7 +917,7 @@ InitErgmTerm.b1cov<-function (nw, arglist, ..., version=packageVersion("ergm")) 
 #' @concept undirected
 #' @concept categorical nodal attribute
 #' @concept frequently-used
-InitErgmTerm.b1degree <- function(nw, arglist, ..., version=packageVersion("ergm")) {
+InitErgmTerm.b1degree <- function(nw, arglist, ..., version = namespaceVersion("ergm")) {
   .degree_impl("b1", NULL, TRUE, nw, arglist, ..., version=version, degname="o")
 }
 
@@ -980,7 +980,7 @@ InitErgmTerm.b1dsp <- function(nw, arglist, cache.sp=TRUE, ...){
 #' @concept dyad-independent
 #' @concept frequently-used
 #' @concept categorical nodal attribute
-InitErgmTerm.b1factor<-function (nw, arglist, ..., version=packageVersion("ergm")) {
+InitErgmTerm.b1factor<-function (nw, arglist, ..., version = namespaceVersion("ergm")) {
   if(version <= as.package_version("3.9.4")){
     ### Check the network and arguments to make sure they are appropriate.
     a <- check.ErgmTerm(nw, arglist, directed=FALSE, bipartite=TRUE,
@@ -1093,7 +1093,7 @@ InitErgmTerm.b1sociality<-function(nw, arglist, ...) {
 #' @concept bipartite
 #' @concept undirected
 #' @concept categorical nodal attribute
-InitErgmTerm.b1star <- function(nw, arglist, ..., version=packageVersion("ergm")) {
+InitErgmTerm.b1star <- function(nw, arglist, ..., version = namespaceVersion("ergm")) {
   if(version <= as.package_version("3.9.4")){
     ### Check the network and arguments to make sure they are appropriate.
     a <- check.ErgmTerm (nw, arglist, directed=FALSE, bipartite=TRUE,
@@ -1172,7 +1172,7 @@ InitErgmTerm.b1star <- function(nw, arglist, ..., version=packageVersion("ergm")
 #' @concept bipartite
 #' @concept undirected
 #' @concept categorical nodal attribute
-InitErgmTerm.b1starmix <- function(nw, arglist, ..., version=packageVersion("ergm")) {
+InitErgmTerm.b1starmix <- function(nw, arglist, ..., version = namespaceVersion("ergm")) {
   if(version <= as.package_version("3.9.4")){
     ### Check the network and arguments to make sure they are appropriate.
     a <- check.ErgmTerm (nw, arglist, directed=FALSE, bipartite=TRUE,
@@ -1256,7 +1256,7 @@ InitErgmTerm.b1starmix <- function(nw, arglist, ..., version=packageVersion("erg
 #' @concept bipartite
 #' @concept undirected
 #' @concept categorical nodal attribute
-InitErgmTerm.b1twostar <- function(nw, arglist, ..., version=packageVersion("ergm")) {
+InitErgmTerm.b1twostar <- function(nw, arglist, ..., version = namespaceVersion("ergm")) {
   if(version <= as.package_version("3.9.4")){
     ### Check the network and arguments to make sure they are appropriate.
     a <- check.ErgmTerm (nw, arglist, directed=FALSE, bipartite=TRUE,
@@ -1346,7 +1346,7 @@ InitErgmTerm.b1twostar <- function(nw, arglist, ..., version=packageVersion("erg
 #' @concept bipartite
 #' @concept undirected
 #' @concept frequently-used
-InitErgmTerm.b2concurrent<-function(nw, arglist, ..., version=packageVersion("ergm")) {
+InitErgmTerm.b2concurrent<-function(nw, arglist, ..., version = namespaceVersion("ergm")) {
   if(version <= as.package_version("3.9.4")){
     ### Check the network and arguments to make sure they are appropriate.
     a <- check.ErgmTerm(nw, arglist, directed=FALSE, bipartite=TRUE,
@@ -1415,7 +1415,7 @@ InitErgmTerm.b2concurrent<-function(nw, arglist, ..., version=packageVersion("er
 #' @concept dyad-independent
 #' @concept quantitative nodal attribute
 #' @concept frequently-used
-InitErgmTerm.b2cov<-function (nw, arglist, ..., version=packageVersion("ergm")) {
+InitErgmTerm.b2cov<-function (nw, arglist, ..., version = namespaceVersion("ergm")) {
   if(version <= as.package_version("3.9.4")){
     ### Check the network and arguments to make sure they are appropriate.
     a <- check.ErgmTerm(nw, arglist, directed=FALSE, bipartite=TRUE,
@@ -1469,7 +1469,7 @@ InitErgmTerm.b2cov<-function (nw, arglist, ..., version=packageVersion("ergm")) 
 #'
 #' @concept bipartite
 #' @concept undirected
-InitErgmTerm.b2degrange<-function(nw, arglist, ..., version=packageVersion("ergm")) {
+InitErgmTerm.b2degrange<-function(nw, arglist, ..., version = namespaceVersion("ergm")) {
   .degrange_impl("b2", NULL, TRUE, nw, arglist, ..., version=version, degname="i")
 }
 
@@ -1502,7 +1502,7 @@ InitErgmTerm.b2degrange<-function(nw, arglist, ..., version=packageVersion("ergm
 #' @concept undirected
 #' @concept categorical nodal attribute
 #' @concept frequently-used
-InitErgmTerm.b2degree <- function(nw, arglist, ..., version=packageVersion("ergm")) {
+InitErgmTerm.b2degree <- function(nw, arglist, ..., version = namespaceVersion("ergm")) {
   .degree_impl("b2", NULL, TRUE, nw, arglist, ..., version=version, degname="i")
 }
 
@@ -1562,7 +1562,7 @@ InitErgmTerm.b2dsp <- function(nw, arglist, cache.sp=TRUE, ...){
 #' @concept dyad-independent
 #' @concept categorical nodal attribute
 #' @concept frequently-used
-InitErgmTerm.b2factor<-function (nw, arglist, ..., version=packageVersion("ergm")) {
+InitErgmTerm.b2factor<-function (nw, arglist, ..., version = namespaceVersion("ergm")) {
   if(version <= as.package_version("3.9.4")){
     ### Check the network and arguments to make sure they are appropriate.
     a <- check.ErgmTerm(nw, arglist, directed=FALSE, bipartite=TRUE,
@@ -1678,7 +1678,7 @@ InitErgmTerm.b2sociality<-function(nw, arglist, ...) {
 #' @concept bipartite
 #' @concept undirected
 #' @concept categorical nodal attribute
-InitErgmTerm.b2star <- function(nw, arglist, ..., version=packageVersion("ergm")) {
+InitErgmTerm.b2star <- function(nw, arglist, ..., version = namespaceVersion("ergm")) {
   if(version <= as.package_version("3.9.4")){
     ### Check the network and arguments to make sure they are appropriate.
     a <- check.ErgmTerm (nw, arglist, directed=FALSE, bipartite=TRUE,
@@ -1746,7 +1746,7 @@ InitErgmTerm.b2star <- function(nw, arglist, ..., version=packageVersion("ergm")
 #' @concept bipartite
 #' @concept undirected
 #' @concept categorical nodal attribute
-InitErgmTerm.b2starmix <- function(nw, arglist, ..., version=packageVersion("ergm")) {
+InitErgmTerm.b2starmix <- function(nw, arglist, ..., version = namespaceVersion("ergm")) {
   if(version <= as.package_version("3.9.4")){
     ### Check the network and arguments to make sure they are appropriate.
     a <- check.ErgmTerm (nw, arglist, directed=FALSE, bipartite=TRUE,
@@ -1826,7 +1826,7 @@ InitErgmTerm.b2starmix <- function(nw, arglist, ..., version=packageVersion("erg
 #' @concept bipartite
 #' @concept undirected
 #' @concept categorical nodal attribute
-InitErgmTerm.b2twostar <- function(nw, arglist, ..., version=packageVersion("ergm")) {
+InitErgmTerm.b2twostar <- function(nw, arglist, ..., version = namespaceVersion("ergm")) {
   if(version <= as.package_version("3.9.4")){
     ### Check the network and arguments to make sure they are appropriate.
     a <- check.ErgmTerm (nw, arglist, directed=FALSE, bipartite=TRUE,
@@ -1941,7 +1941,7 @@ InitErgmTerm.balance<-function (nw, arglist, ...) {
 #'
 #' @concept undirected
 #' @concept categorical nodal attribute
-InitErgmTerm.concurrent<-function(nw, arglist, ..., version=packageVersion("ergm")) {
+InitErgmTerm.concurrent<-function(nw, arglist, ..., version = namespaceVersion("ergm")) {
   if(version <= as.package_version("3.9.4")){
     a <- check.ErgmTerm(nw, arglist, directed=FALSE,
                         varnames = c("by", "levels"),
@@ -2014,7 +2014,7 @@ InitErgmTerm.concurrent<-function(nw, arglist, ..., version=packageVersion("ergm
 #' @concept directed
 #' @concept triad-related
 #' @concept categorical nodal attribute
-InitErgmTerm.ctriple<-function (nw, arglist, ..., version=packageVersion("ergm")) {
+InitErgmTerm.ctriple<-function (nw, arglist, ..., version = namespaceVersion("ergm")) {
   if(version <= as.package_version("3.9.4")){
     a <- check.ErgmTerm(nw, arglist, directed=TRUE,
                         varnames = c("attrname","diff", "levels"),
@@ -2224,7 +2224,7 @@ InitErgmTerm.degcrossprod<-function (nw, arglist, ...) {
 #'
 #' @concept undirected
 #' @concept categorical nodal attribute
-InitErgmTerm.degrange<-function(nw, arglist, ..., version=packageVersion("ergm")) {
+InitErgmTerm.degrange<-function(nw, arglist, ..., version = namespaceVersion("ergm")) {
   .degrange_impl("", FALSE, NULL, nw, arglist, ..., version=version)
 }
 
@@ -2253,7 +2253,7 @@ InitErgmTerm.degrange<-function(nw, arglist, ..., version=packageVersion("ergm")
 #' @concept undirected
 #' @concept categorical nodal attribute
 #' @concept frequently-used
-InitErgmTerm.degree<-function(nw, arglist, ..., version=packageVersion("ergm")) {
+InitErgmTerm.degree<-function(nw, arglist, ..., version = namespaceVersion("ergm")) {
   .degree_impl("", FALSE, NULL, nw, arglist, ..., version=version)
 }
 
@@ -2368,7 +2368,7 @@ InitErgmTerm.density<-function(nw, arglist, ...) {
 #' @concept undirected
 #' @concept bipartite
 #' @concept quantitative nodal attribute
-InitErgmTerm.diff <- function(nw, arglist, ..., version=packageVersion("ergm")) {
+InitErgmTerm.diff <- function(nw, arglist, ..., version = namespaceVersion("ergm")) {
   if(version <= as.package_version("3.9.4")){
     ### Check the network and arguments to make sure they are appropriate.
     a <- check.ErgmTerm(nw, arglist, directed=NULL, bipartite=NULL,
@@ -2579,7 +2579,7 @@ InitErgmTerm.edges<-function(nw, arglist, ...) {
 #' @concept bipartite
 #' @concept undirected
 #' @concept curved
-InitErgmTerm.gwb1degree<-function(nw, arglist, gw.cutoff=30, ..., version=packageVersion("ergm")) {
+InitErgmTerm.gwb1degree<-function(nw, arglist, gw.cutoff=30, ..., version = namespaceVersion("ergm")) {
   bip <- b1.size(nw)
   .gwdegree_impl("b1", FALSE, TRUE, network.size(nw)-bip, bip, "mode-1 ", nw, arglist, ..., gw.cutoff=gw.cutoff, version=version, degname="o")
 }
@@ -2639,7 +2639,7 @@ InitErgmTerm.gwb1dsp<-function(nw, arglist, cache.sp=TRUE, gw.cutoff=30, ...) {
 #' @concept bipartite
 #' @concept undirected
 #' @concept curved
-InitErgmTerm.gwb2degree<-function(nw, arglist, gw.cutoff=30, ..., version=packageVersion("ergm")) {
+InitErgmTerm.gwb2degree<-function(nw, arglist, gw.cutoff=30, ..., version = namespaceVersion("ergm")) {
   .gwdegree_impl("b2", FALSE, TRUE, bip<-b1.size(nw), network.size(nw)-bip, "mode-2 ", nw, arglist, ..., gw.cutoff=gw.cutoff, version=version, degname="i")
 }
 
@@ -2692,7 +2692,7 @@ InitErgmTerm.gwb2dsp<-function(nw, arglist, cache.sp=TRUE, gw.cutoff=30, ...) {
 #' @concept undirected
 #' @concept curved
 #' @concept frequently-used
-InitErgmTerm.gwdegree<-function(nw, arglist, gw.cutoff=30, ..., version=packageVersion("ergm")) {
+InitErgmTerm.gwdegree<-function(nw, arglist, gw.cutoff=30, ..., version = namespaceVersion("ergm")) {
   .gwdegree_impl("", FALSE, FALSE, network.size(nw)-1, network.size(nw), "", nw, arglist, ..., gw.cutoff=gw.cutoff, version=version)
 }
 
@@ -2720,7 +2720,7 @@ InitErgmTerm.gwdegree<-function(nw, arglist, gw.cutoff=30, ..., version=packageV
 #'
 #' @concept directed
 #' @concept curved
-InitErgmTerm.gwidegree<-function(nw, arglist, gw.cutoff=30, ..., version=packageVersion("ergm")) {
+InitErgmTerm.gwidegree<-function(nw, arglist, gw.cutoff=30, ..., version = namespaceVersion("ergm")) {
   .gwdegree_impl("i", TRUE, FALSE, network.size(nw)-1, network.size(nw), "in-", nw, arglist, ..., gw.cutoff=gw.cutoff, version=version)
 }
 
@@ -2748,7 +2748,7 @@ InitErgmTerm.gwidegree<-function(nw, arglist, gw.cutoff=30, ..., version=package
 #'
 #' @concept directed
 #' @concept curved
-InitErgmTerm.gwodegree<-function(nw, arglist, gw.cutoff=30, ..., version=packageVersion("ergm")) {
+InitErgmTerm.gwodegree<-function(nw, arglist, gw.cutoff=30, ..., version = namespaceVersion("ergm")) {
   .gwdegree_impl("o", TRUE, FALSE, network.size(nw)-1, network.size(nw), "out-", nw, arglist, ..., gw.cutoff=gw.cutoff, version=version)
 }
 
@@ -2904,7 +2904,7 @@ InitErgmTerm.hamming<-function (nw, arglist, ...) {
 #'
 #' @concept directed
 #' @concept categorical nodal attribute
-InitErgmTerm.idegrange<-function(nw, arglist, ..., version=packageVersion("ergm")) {
+InitErgmTerm.idegrange<-function(nw, arglist, ..., version = namespaceVersion("ergm")) {
   .degrange_impl("i", TRUE, NULL, nw, arglist, ..., version=version)
 }
 
@@ -2930,7 +2930,7 @@ InitErgmTerm.idegrange<-function(nw, arglist, ..., version=packageVersion("ergm"
 #' @concept directed
 #' @concept categorical nodal attribute
 #' @concept frequently-used
-InitErgmTerm.idegree<-function(nw, arglist, ..., version=packageVersion("ergm")) {
+InitErgmTerm.idegree<-function(nw, arglist, ..., version = namespaceVersion("ergm")) {
   .degree_impl("i", TRUE, NULL, nw, arglist, ..., version=version)
 }
 
@@ -3085,7 +3085,7 @@ InitErgmTerm.isolates <- function(nw, arglist, ...) {
 #'
 #' @concept directed
 #' @concept categorical nodal attribute
-InitErgmTerm.istar<-function(nw, arglist, ..., version=packageVersion("ergm")) {
+InitErgmTerm.istar<-function(nw, arglist, ..., version = namespaceVersion("ergm")) {
   if(version <= as.package_version("3.9.4")){
     a <- check.ErgmTerm(nw, arglist, directed=TRUE,
                         varnames = c("k", "attrname", "levels"),
@@ -3155,7 +3155,7 @@ InitErgmTerm.istar<-function(nw, arglist, ..., version=packageVersion("ergm")) {
 #'
 #' @concept undirected
 #' @concept categorical nodal attribute
-InitErgmTerm.kstar<-function(nw, arglist, ..., version=packageVersion("ergm")) {
+InitErgmTerm.kstar<-function(nw, arglist, ..., version = namespaceVersion("ergm")) {
   if(version <= as.package_version("3.9.4")){
     a <- check.ErgmTerm(nw, arglist, directed=FALSE,
                         varnames = c("k", "attrname", "levels"),
@@ -3345,7 +3345,7 @@ InitErgmTerm.meandeg<-function(nw, arglist, ...) {
 #' @concept directed
 #' @concept undirected
 #' @concept categorical nodal attribute
-InitErgmTerm.mm<-function (nw, arglist, ..., version=packageVersion("ergm")) {
+InitErgmTerm.mm<-function (nw, arglist, ..., version = namespaceVersion("ergm")) {
   if(version <= as.package_version("3.11.0")){
     a <- check.ErgmTerm(nw, arglist,
                         varnames = c("attrs", "levels", "levels2"),
@@ -3506,7 +3506,7 @@ InitErgmTerm.mm<-function (nw, arglist, ..., version=packageVersion("ergm")) {
 #'
 #' @concept directed
 #' @concept frequently-used
-InitErgmTerm.mutual<-function (nw, arglist, ..., version=packageVersion("ergm")) {
+InitErgmTerm.mutual<-function (nw, arglist, ..., version = namespaceVersion("ergm")) {
   if(version <= as.package_version("3.9.4")){
     ### Check the network and arguments to make sure they are appropriate.
     a <- check.ErgmTerm(nw, arglist, directed=TRUE, bipartite=NULL,
@@ -3637,7 +3637,7 @@ InitErgmTerm.nearsimmelian<-function (nw, arglist, ...) {
 #' @concept directed
 #' @concept undirected
 #' @concept quantitative nodal attribute
-InitErgmTerm.nodecov<-function (nw, arglist, ..., version=packageVersion("ergm")) {
+InitErgmTerm.nodecov<-function (nw, arglist, ..., version = namespaceVersion("ergm")) {
   if(version <= as.package_version("3.9.4")){
     a <- check.ErgmTerm(nw, arglist,
                         varnames = c("attrname","transform","transformname"),
@@ -3698,7 +3698,7 @@ InitErgmTerm.nodemain<-InitErgmTerm.nodecov
 #' @concept undirected
 #' @concept categorical nodal attribute
 #' @concept frequently-used
-InitErgmTerm.nodefactor<-function (nw, arglist, ..., version=packageVersion("ergm")) {
+InitErgmTerm.nodefactor<-function (nw, arglist, ..., version = namespaceVersion("ergm")) {
   if(version <= as.package_version("3.9.4")){
     a <- check.ErgmTerm(nw, arglist,
                         varnames = c("attrname", "base", "levels"),
@@ -3763,7 +3763,7 @@ InitErgmTerm.nodefactor<-function (nw, arglist, ..., version=packageVersion("erg
 #' @concept directed
 #' @concept quantitative nodal attribute
 #' @concept frequently-used
-InitErgmTerm.nodeicov<-function (nw, arglist, ..., version=packageVersion("ergm")) {
+InitErgmTerm.nodeicov<-function (nw, arglist, ..., version = namespaceVersion("ergm")) {
   if(version <= as.package_version("3.9.4")){
     ### Check the network and arguments to make sure they are appropriate.
     a <- check.ErgmTerm(nw, arglist, directed=TRUE,
@@ -3822,7 +3822,7 @@ InitErgmTerm.nodeicov<-function (nw, arglist, ..., version=packageVersion("ergm"
 #' @concept directed
 #' @concept categorical nodal attribute
 #' @concept frequently-used
-InitErgmTerm.nodeifactor<-function (nw, arglist, ..., version=packageVersion("ergm")) {
+InitErgmTerm.nodeifactor<-function (nw, arglist, ..., version = namespaceVersion("ergm")) {
   if(version <= as.package_version("3.9.4")){
     a <- check.ErgmTerm(nw, arglist, directed=TRUE, 
                         varnames = c("attrname", "base", "levels"),
@@ -3902,7 +3902,7 @@ InitErgmTerm.nodeifactor<-function (nw, arglist, ..., version=packageVersion("er
 #' @concept directed
 #' @concept undirected
 #' @concept categorical nodal attribute
-InitErgmTerm.nodematch<-InitErgmTerm.match<-function (nw, arglist, ..., version=packageVersion("ergm")) {
+InitErgmTerm.nodematch<-InitErgmTerm.match<-function (nw, arglist, ..., version = namespaceVersion("ergm")) {
   if(version <= as.package_version("3.9.4")){
     ### Check the network and arguments to make sure they are appropriate.
     a <- check.ErgmTerm(nw, arglist, 
@@ -3985,7 +3985,7 @@ InitErgmTerm.nodematch<-InitErgmTerm.match<-function (nw, arglist, ..., version=
 #' @concept directed
 #' @concept undirected
 #' @concept categorical nodal attribute
-InitErgmTerm.nodemix<-function (nw, arglist, ..., version=packageVersion("ergm")) {
+InitErgmTerm.nodemix<-function (nw, arglist, ..., version = namespaceVersion("ergm")) {
   if(version <= as.package_version("3.9.4")){
     a <- check.ErgmTerm(nw, arglist,
                         varnames = c("attrname", "base", "b1levels", "b2levels"),
@@ -4195,7 +4195,7 @@ InitErgmTerm.nodemix<-function (nw, arglist, ..., version=packageVersion("ergm")
 #' @concept directed
 #' @concept dyad-independent
 #' @concept quantitative nodal attribute
-InitErgmTerm.nodeocov<-function (nw, arglist, ..., version=packageVersion("ergm")) {
+InitErgmTerm.nodeocov<-function (nw, arglist, ..., version = namespaceVersion("ergm")) {
   if(version <= as.package_version("3.9.4")){
     ### Check the network and arguments to make sure they are appropriate.
     a <- check.ErgmTerm(nw, arglist, directed=TRUE, 
@@ -4253,7 +4253,7 @@ InitErgmTerm.nodeocov<-function (nw, arglist, ..., version=packageVersion("ergm"
 #' @concept dyad-independent
 #' @concept directed
 #' @concept categorical nodal attribute
-InitErgmTerm.nodeofactor<-function (nw, arglist, ..., version=packageVersion("ergm")) {
+InitErgmTerm.nodeofactor<-function (nw, arglist, ..., version = namespaceVersion("ergm")) {
   if(version <= as.package_version("3.9.4")){
     a <- check.ErgmTerm(nw, arglist, directed=TRUE, 
                         varnames = c("attrname", "base", "levels"),
@@ -4331,7 +4331,7 @@ InitErgmTerm.nodeofactor<-function (nw, arglist, ..., version=packageVersion("er
 #'
 #' @concept directed
 #' @concept categorical nodal attribute
-InitErgmTerm.odegrange<-function(nw, arglist, ..., version=packageVersion("ergm")) {
+InitErgmTerm.odegrange<-function(nw, arglist, ..., version = namespaceVersion("ergm")) {
   .degrange_impl("o", TRUE, NULL, nw, arglist, ..., version=version)
 }
 
@@ -4357,7 +4357,7 @@ InitErgmTerm.odegrange<-function(nw, arglist, ..., version=packageVersion("ergm"
 #' @concept directed
 #' @concept categorical nodal attribute
 #' @concept frequently-used
-InitErgmTerm.odegree<-function(nw, arglist, ..., version=packageVersion("ergm")) {
+InitErgmTerm.odegree<-function(nw, arglist, ..., version = namespaceVersion("ergm")) {
   .degree_impl("o", TRUE, NULL, nw, arglist, ..., version=version)
 }
 
@@ -4441,7 +4441,7 @@ InitErgmTerm.opentriad<-function (nw, arglist, ...) {
 #'
 #' @concept directed
 #' @concept categorical nodal attribute
-InitErgmTerm.ostar<-function(nw, arglist, ..., version=packageVersion("ergm")) {
+InitErgmTerm.ostar<-function(nw, arglist, ..., version = namespaceVersion("ergm")) {
   if(version <= as.package_version("3.9.4")){
     a <- check.ErgmTerm(nw, arglist, directed=TRUE,
                         varnames = c("k", "attrname", "levels"),
@@ -4519,7 +4519,7 @@ InitErgmTerm.ostar<-function(nw, arglist, ..., version=packageVersion("ergm")) {
 #'
 #' @concept directed
 #' @concept dyad-independent
-InitErgmTerm.receiver<-function(nw, arglist, ..., version=packageVersion("ergm")) {
+InitErgmTerm.receiver<-function(nw, arglist, ..., version = namespaceVersion("ergm")) {
   if(version <= as.package_version("3.9.4")){
     a <- check.ErgmTerm(nw, arglist, directed=TRUE,
                         varnames = c("base"),
@@ -4576,7 +4576,7 @@ InitErgmTerm.receiver<-function(nw, arglist, ..., version=packageVersion("ergm")
 #'
 #' @concept directed
 #' @concept dyad-independent
-InitErgmTerm.sender<-function(nw, arglist, ..., version=packageVersion("ergm")) {
+InitErgmTerm.sender<-function(nw, arglist, ..., version = namespaceVersion("ergm")) {
   if(version <= as.package_version("3.9.4")){
     a <- check.ErgmTerm(nw, arglist, directed=TRUE,
                         varnames = c("base"),
@@ -4684,7 +4684,7 @@ InitErgmTerm.simmelianties<-function (nw, arglist, ...) {
 #' @concept directed
 #' @concept undirected
 #' @concept quantitative nodal attribute
-InitErgmTerm.smalldiff<-function (nw, arglist, ..., version=packageVersion("ergm")) {
+InitErgmTerm.smalldiff<-function (nw, arglist, ..., version = namespaceVersion("ergm")) {
   if(version <= as.package_version("3.9.4")){
     a <- check.ErgmTerm(nw, arglist,
                         varnames = c("attrname", "cutoff"),
@@ -4743,7 +4743,7 @@ InitErgmTerm.smalldiff<-function (nw, arglist, ..., version=packageVersion("ergm
 #' @concept undirected
 #' @concept dyad-independent
 #' @concept categorical nodal attribute
-InitErgmTerm.sociality<-function(nw, arglist, ..., version=packageVersion("ergm")) {
+InitErgmTerm.sociality<-function(nw, arglist, ..., version = namespaceVersion("ergm")) {
   if(version <= as.package_version("3.9.4")){
     a <- check.ErgmTerm(nw, arglist, directed=FALSE,
                         varnames = c("attrname", "base", "levels"),
@@ -4835,7 +4835,7 @@ InitErgmTerm.sociality<-function(nw, arglist, ..., version=packageVersion("ergm"
 #' @concept directed
 #' @concept undirected
 #' @concept triad-related
-InitErgmTerm.threetrail <- function(nw, arglist, ..., version=packageVersion("ergm")) {
+InitErgmTerm.threetrail <- function(nw, arglist, ..., version = namespaceVersion("ergm")) {
   if(version <= as.package_version("3.9.4")){
     ### Check the network and arguments to make sure they are appropriate.
     a <- check.ErgmTerm (nw, arglist, 
@@ -4871,7 +4871,7 @@ InitErgmTerm.threetrail <- function(nw, arglist, ..., version=packageVersion("er
 #' @aliases threepath-ergmTerm
 #' @usage
 #' # binary: threepath(keep=NULL, levels=NULL)
-InitErgmTerm.threepath <- function(nw, arglist, ..., version=packageVersion("ergm")) {
+InitErgmTerm.threepath <- function(nw, arglist, ..., version = namespaceVersion("ergm")) {
   ergm_Init_warning("This term is inaccurately named and actually refers to a '3-trail' in that it counts repeated vertices: i-j-k-i is a 3-trail but not a 3-path. See ", sQuote("ergmTerm?treepath"), " help for more information. This name has been deprecated and will be removed in a future version: if a 3-trail is what you want, use the term ", sQuote("threetrail"), ".")
 
   f <- InitErgmTerm.threetrail
@@ -4935,7 +4935,7 @@ InitErgmTerm.transitive<-function (nw, arglist, ...) {
 #' @concept triad-related
 #' @concept directed
 #' @concept undirected
-InitErgmTerm.triadcensus<-function (nw, arglist, ..., version=packageVersion("ergm")) {
+InitErgmTerm.triadcensus<-function (nw, arglist, ..., version = namespaceVersion("ergm")) {
   if(version <= as.package_version("3.9.4")){
     a <- check.ErgmTerm(nw, arglist,
                         varnames = c("d"),
@@ -5032,7 +5032,7 @@ InitErgmTerm.triadcensus<-function (nw, arglist, ..., version=packageVersion("er
 #' @concept directed
 #' @concept undirected
 #' @concept categorical nodal attribute
-InitErgmTerm.triangle<-InitErgmTerm.triangles<-function (nw, arglist, ..., version=packageVersion("ergm")) {
+InitErgmTerm.triangle<-InitErgmTerm.triangles<-function (nw, arglist, ..., version = namespaceVersion("ergm")) {
   if(version <= as.package_version("3.9.4")){
     a <- check.ErgmTerm(nw, arglist,
                         varnames = c("attrname", "diff", "levels"),
@@ -5104,7 +5104,7 @@ InitErgmTerm.triangle<-InitErgmTerm.triangles<-function (nw, arglist, ..., versi
 #' @concept undirected
 #' @concept triad-related
 #' @concept categorical nodal attribute
-InitErgmTerm.tripercent<-function (nw, arglist, ..., version=packageVersion("ergm")) {
+InitErgmTerm.tripercent<-function (nw, arglist, ..., version = namespaceVersion("ergm")) {
   if(version <= as.package_version("3.9.4")){
     a <- check.ErgmTerm(nw, arglist, directed=FALSE,
                         varnames = c("attrname", "diff", "levels"),
@@ -5175,7 +5175,7 @@ InitErgmTerm.tripercent<-function (nw, arglist, ..., version=packageVersion("erg
 #' @concept directed
 #' @concept triad-related
 #' @concept categorical nodal attribute
-InitErgmTerm.ttriple<-function (nw, arglist, ..., version=packageVersion("ergm")) {
+InitErgmTerm.ttriple<-function (nw, arglist, ..., version = namespaceVersion("ergm")) {
   if(version <= as.package_version("3.9.4")){
     a <- check.ErgmTerm(nw, arglist, directed=TRUE,
                         varnames = c("attrname", "diff", "levels"),

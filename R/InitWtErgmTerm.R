@@ -33,7 +33,7 @@ binary_dind_wrap <- function(name, nw, a, ..., cn=name){
 #' #                 pow=1,
 #' #                 form="sum")
 #' @template ergmTerm-form
-InitWtErgmTerm.absdiff <- function(nw, arglist, ..., version=packageVersion("ergm")) {
+InitWtErgmTerm.absdiff <- function(nw, arglist, ..., version = namespaceVersion("ergm")) {
   if(version <= as.package_version("3.9.4")){
     ### Check the network and arguments to make sure they are appropriate.
     a <- check.ErgmTerm(nw, arglist, directed=NULL, bipartite=NULL,
@@ -61,7 +61,7 @@ InitWtErgmTerm.absdiff <- function(nw, arglist, ..., version=packageVersion("erg
 #' #                 levels=NULL,
 #' #                 form="sum")
 #' @template ergmTerm-form
-InitWtErgmTerm.absdiffcat <- function(nw, arglist, ..., version=packageVersion("ergm")) {
+InitWtErgmTerm.absdiffcat <- function(nw, arglist, ..., version = namespaceVersion("ergm")) {
   if(version <= as.package_version("3.9.4")){
     ### Check the network and arguments to make sure they are appropriate.
     a <- check.ErgmTerm(nw, arglist, directed=NULL, bipartite=NULL,
@@ -161,7 +161,7 @@ InitWtErgmTerm.attrcov <- function (nw, arglist, ...) {
 #' @usage
 #' # valued: b1cov(attr, form="sum")
 #' @template ergmTerm-form
-InitWtErgmTerm.b1cov<-function (nw, arglist, ..., version=packageVersion("ergm")) {
+InitWtErgmTerm.b1cov<-function (nw, arglist, ..., version = namespaceVersion("ergm")) {
   if(version <= as.package_version("3.9.4")){
     a <- check.ErgmTerm(nw, arglist, directed=FALSE, bipartite=TRUE, 
                         varnames = c("attrname","transform","transformname","form"),
@@ -183,7 +183,7 @@ InitWtErgmTerm.b1cov<-function (nw, arglist, ..., version=packageVersion("ergm")
 #' @usage
 #' # valued: b1factor(attr, base=1, levels=-1, form="sum")
 #' @template ergmTerm-form
-InitWtErgmTerm.b1factor<-function (nw, arglist, ..., version=packageVersion("ergm")) {
+InitWtErgmTerm.b1factor<-function (nw, arglist, ..., version = namespaceVersion("ergm")) {
   if(version <= as.package_version("3.9.4")){
     a <- check.ErgmTerm(nw, arglist, directed=FALSE, bipartite=TRUE,
                         varnames = c("attrname", "base", "levels","form"),
@@ -221,7 +221,7 @@ InitWtErgmTerm.b1sociality<-function(nw, arglist, ...) {
 #' @usage
 #' # valued: b2cov(attr, form="sum")
 #' @template ergmTerm-form
-InitWtErgmTerm.b2cov<-function (nw, arglist, ..., version=packageVersion("ergm")) {
+InitWtErgmTerm.b2cov<-function (nw, arglist, ..., version = namespaceVersion("ergm")) {
   if(version <= as.package_version("3.9.4")){
     a <- check.ErgmTerm(nw, arglist, directed=FALSE, bipartite=TRUE,
                         varnames = c("attrname","transform","transformname","form"),
@@ -244,7 +244,7 @@ InitWtErgmTerm.b2cov<-function (nw, arglist, ..., version=packageVersion("ergm")
 #' @usage
 #' # valued: b2factor(attr, base=1, levels=-1, form="sum")
 #' @template ergmTerm-form
-InitWtErgmTerm.b2factor<-function (nw, arglist, ..., version=packageVersion("ergm")) {
+InitWtErgmTerm.b2factor<-function (nw, arglist, ..., version = namespaceVersion("ergm")) {
   if(version <= as.package_version("3.9.4")){
     a <- check.ErgmTerm(nw, arglist, directed=FALSE, bipartite=TRUE,
                         varnames = c("attrname", "base", "levels","form"),
@@ -282,7 +282,7 @@ InitWtErgmTerm.b2sociality<-function(nw, arglist, ...) {
 #' @usage
 #' # valued: diff(attr, pow=1, dir="t-h", sign.action="identity", form ="sum")
 #' @template ergmTerm-form
-InitWtErgmTerm.diff <- function(nw, arglist, ..., version=packageVersion("ergm")) {
+InitWtErgmTerm.diff <- function(nw, arglist, ..., version = namespaceVersion("ergm")) {
   if(version <= as.package_version("3.9.4")){
     ### Check the network and arguments to make sure they are appropriate.
     a <- check.ErgmTerm(nw, arglist, directed=NULL, bipartite=NULL,
@@ -558,7 +558,7 @@ InitWtErgmTerm.nodesqrtcovar<-function (nw, arglist, ...) {
 #' @usage
 #' # valued: nodefactor(attr, base=1, levels=-1, form="sum")
 #' @template ergmTerm-form
-InitWtErgmTerm.nodefactor<-function (nw, arglist, ..., version=packageVersion("ergm")) {
+InitWtErgmTerm.nodefactor<-function (nw, arglist, ..., version = namespaceVersion("ergm")) {
   ### Check the network and arguments to make sure they are appropriate.
   if(version <= as.package_version("3.9.4")){
     a <- check.ErgmTerm(nw, arglist,
@@ -582,7 +582,7 @@ InitWtErgmTerm.nodefactor<-function (nw, arglist, ..., version=packageVersion("e
 #' @usage
 #' # valued: sociality(attr=NULL, base=1, levels=NULL, nodes=-1, form="sum")
 #' @template ergmTerm-form
-InitWtErgmTerm.sociality<-function (nw, arglist, ..., version=packageVersion("ergm")) {
+InitWtErgmTerm.sociality<-function (nw, arglist, ..., version = namespaceVersion("ergm")) {
   ### Check the network and arguments to make sure they are appropriate.
   if(version <= as.package_version("3.9.4")){
     a <- check.ErgmTerm(nw, arglist, directed=FALSE,
@@ -649,7 +649,7 @@ InitWtErgmTerm.nodeocovar<-function (nw, arglist, ...) {
 #' @usage
 #' # valued: nodeofactor(attr, base=1, levels=-1, form="sum")
 #' @template ergmTerm-form
-InitWtErgmTerm.nodeofactor<-function (nw, arglist, ..., version=packageVersion("ergm")) {
+InitWtErgmTerm.nodeofactor<-function (nw, arglist, ..., version = namespaceVersion("ergm")) {
   ### Check the network and arguments to make sure they are appropriate.
   if(version <= as.package_version("3.9.4")){
     a <- check.ErgmTerm(nw, arglist, directed=TRUE, 
@@ -673,7 +673,7 @@ InitWtErgmTerm.nodeofactor<-function (nw, arglist, ..., version=packageVersion("
 #' @usage
 #' # valued: sender(base=1, nodes=-1, form="sum")
 #' @template ergmTerm-form
-InitWtErgmTerm.sender<-function (nw, arglist, ..., version=packageVersion("ergm")) {
+InitWtErgmTerm.sender<-function (nw, arglist, ..., version = namespaceVersion("ergm")) {
   ### Check the network and arguments to make sure they are appropriate.
   if(version <= as.package_version("3.9.4")){
     a <- check.ErgmTerm(nw, arglist, directed=TRUE,
@@ -741,7 +741,7 @@ InitWtErgmTerm.nodeicovar<-function (nw, arglist, ...) {
 #' @usage
 #' # valued: nodeifactor(attr, base=1, levels=-1, form="sum")
 #' @template ergmTerm-form
-InitWtErgmTerm.nodeifactor<-function (nw, arglist, ..., version=packageVersion("ergm")) {
+InitWtErgmTerm.nodeifactor<-function (nw, arglist, ..., version = namespaceVersion("ergm")) {
   ### Check the network and arguments to make sure they are appropriate.
   if(version <= as.package_version("3.9.4")){
     a <- check.ErgmTerm(nw, arglist, directed=TRUE, 
@@ -765,7 +765,7 @@ InitWtErgmTerm.nodeifactor<-function (nw, arglist, ..., version=packageVersion("
 #' @usage
 #' # valued: receiver(base=1, nodes=-1, form="sum")
 #' @template ergmTerm-form
-InitWtErgmTerm.receiver<-function (nw, arglist, ..., version=packageVersion("ergm")) {
+InitWtErgmTerm.receiver<-function (nw, arglist, ..., version = namespaceVersion("ergm")) {
   ### Check the network and arguments to make sure they are appropriate.
   if(version <= as.package_version("3.9.4")){
     a <- check.ErgmTerm(nw, arglist, directed=TRUE,
@@ -789,7 +789,7 @@ InitWtErgmTerm.receiver<-function (nw, arglist, ..., version=packageVersion("erg
 #' @usage
 #' # valued: nodematch(attr, diff=FALSE, keep=NULL, levels=NULL, form="sum")
 #' @template ergmTerm-form
-InitWtErgmTerm.nodematch<-function (nw, arglist, ..., version=packageVersion("ergm")) {
+InitWtErgmTerm.nodematch<-function (nw, arglist, ..., version = namespaceVersion("ergm")) {
   ### Check the network and arguments to make sure they are appropriate.
   if(version <= as.package_version("3.9.4")){
     ### Check the network and arguments to make sure they are appropriate.
@@ -822,7 +822,7 @@ InitWtErgmTerm.match<-InitWtErgmTerm.nodematch
 #' # valued: nodemix(attr, base=NULL, b1levels=NULL, b2levels=NULL, levels=NULL,
 #' #                 levels2=-1, form="sum")
 #' @template ergmTerm-form
-InitWtErgmTerm.nodemix<-function (nw, arglist, ..., version=packageVersion("ergm")) {
+InitWtErgmTerm.nodemix<-function (nw, arglist, ..., version = namespaceVersion("ergm")) {
   if(version <= as.package_version("3.9.4")){
     ### Check the network and arguments to make sure they are appropriate.
     a <- check.ErgmTerm(nw, arglist,
@@ -846,7 +846,7 @@ InitWtErgmTerm.nodemix<-function (nw, arglist, ..., version=packageVersion("ergm
 #' @usage
 #' # valued: nodecov(attr, form="sum")
 #' @template ergmTerm-form
-InitWtErgmTerm.nodecov<-function (nw, arglist, ..., version=packageVersion("ergm")) {
+InitWtErgmTerm.nodecov<-function (nw, arglist, ..., version = namespaceVersion("ergm")) {
   if(version <= as.package_version("3.9.4")){
     a <- check.ErgmTerm(nw, arglist,
                         varnames = c("attrname","transform","transformname","form"),
@@ -874,7 +874,7 @@ InitWtErgmTerm.nodemain<-InitWtErgmTerm.nodecov
 #' @usage
 #' # valued: nodeicov(attr, form="sum")
 #' @template ergmTerm-form
-InitWtErgmTerm.nodeicov<-function (nw, arglist, ..., version=packageVersion("ergm")) {
+InitWtErgmTerm.nodeicov<-function (nw, arglist, ..., version = namespaceVersion("ergm")) {
   if(version <= as.package_version("3.9.4")){
     a <- check.ErgmTerm(nw, arglist, directed=TRUE,
                         varnames = c("attrname","transform","transformname","form"),
@@ -897,7 +897,7 @@ InitWtErgmTerm.nodeicov<-function (nw, arglist, ..., version=packageVersion("erg
 #' @usage
 #' # valued: nodeocov(attr, form="sum")
 #' @template ergmTerm-form
-InitWtErgmTerm.nodeocov<-function (nw, arglist, ..., version=packageVersion("ergm")) {
+InitWtErgmTerm.nodeocov<-function (nw, arglist, ..., version = namespaceVersion("ergm")) {
   if(version <= as.package_version("3.9.4")){
     a <- check.ErgmTerm(nw, arglist, directed=TRUE, 
                         varnames = c("attrname","transform","transformname","form"),

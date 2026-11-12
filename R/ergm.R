@@ -532,7 +532,7 @@ ergm <- function(formula, response=NULL,
   ## Add miscellaneous information to the fit.
   fit$call <- ergm_call
   fit$network <- nw
-  fit$ergm_version <- packageVersion("ergm")
+  fit$ergm_version <- namespaceVersion("ergm")
   fit$info <- info
   fit$MPLE_is_MLE <- info$MPLE_is_MLE
   fit$drop <- if(control$drop) extremecheck$extremeval.theta

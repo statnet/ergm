@@ -31,7 +31,7 @@
 #' @concept undirected
 #' @concept triad-related
 #' @concept categorical nodal attribute
-InitErgmTerm.transitiveties<-function (nw, arglist, ..., version=packageVersion("ergm")) {
+InitErgmTerm.transitiveties<-function (nw, arglist, ..., version = namespaceVersion("ergm")) {
   if(version <= as.package_version("3.9.4")){
     a <- check.ErgmTerm(nw, arglist,
                         varnames = c("attrname", "diff", "levels"),
@@ -95,7 +95,7 @@ InitErgmTerm.transitiveties<-function (nw, arglist, ..., version=packageVersion(
 #'
 #' @concept directed
 #' @concept undirected
-InitErgmTerm.cyclicalties<-function (nw, arglist, ..., version=packageVersion("ergm")) {
+InitErgmTerm.cyclicalties<-function (nw, arglist, ..., version = namespaceVersion("ergm")) {
   if(version <= as.package_version("3.9.4")){
     a <- check.ErgmTerm(nw, arglist,
                         varnames = c("attrname", "diff", "levels"),

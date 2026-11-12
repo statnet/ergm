@@ -390,7 +390,6 @@ importFrom(utils,
   head,
   methods,
   modifyList,
-  packageVersion,
   relist,
   tail
 )

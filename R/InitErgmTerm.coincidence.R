@@ -31,7 +31,7 @@
 #'
 #' @concept bipartite
 #' @concept undirected
-InitErgmTerm.coincidence<-function(nw, arglist, ..., version=packageVersion("ergm")) {
+InitErgmTerm.coincidence<-function(nw, arglist, ..., version = namespaceVersion("ergm")) {
   if(version <= as.package_version("3.9.4")){
     a <- check.ErgmTerm(nw, arglist, directed=FALSE, bipartite=TRUE,
                         varnames = c("d","active"),

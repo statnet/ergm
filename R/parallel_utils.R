@@ -269,9 +269,8 @@ ergm.getCluster <- function(control=NULL, verbose=FALSE, stop_on_exit=parent.fra
     }
 
     if(control$parallel.version.check){
-      slave.versions <- clusterCall(cl,packageVersion,pkg)
-      #' @importFrom utils packageVersion
-      master.version <- packageVersion(pkg)
+      slave.versions <- clusterCall(cl, statnet.common::namespaceVersion, pkg)
+      master.version <- namespaceVersion(pkg)
 
       wrong <- !sapply(slave.versions,identical,master.version)
       if(any(wrong))

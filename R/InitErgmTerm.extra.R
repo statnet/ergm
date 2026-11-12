@@ -28,7 +28,7 @@
 #'
 #' @concept undirected
 #' @concept categorical nodal attribute
-InitErgmTerm.concurrentties<-function(nw, arglist, ..., version=packageVersion("ergm")) {
+InitErgmTerm.concurrentties<-function(nw, arglist, ..., version = namespaceVersion("ergm")) {
   if(version <= as.package_version("3.9.4")){
     a <- check.ErgmTerm(nw, arglist, directed=FALSE,bipartite=NULL,
                         varnames = c("by", "levels"),
