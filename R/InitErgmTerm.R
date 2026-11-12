@@ -2144,14 +2144,21 @@ InitErgmTerm.cycle <- function(nw, arglist, ...) {
 
 #' @templateVar name degcor
 #' @title Degree Correlation
-#' @description This term adds one network statistic equal to the correlation
-#'   of the degrees of all pairs of nodes in the network which are tied.
-#'   Only coded for undirected networks.
+#' @description This term adds one network statistic equal to the
+#'   degree assortativity of the network: the Pearson correlation of
+#'   the degrees of all pairs of nodes in the network which are tied
+#'   \insertCite{Ne02a}{ergm}. At this time, it is only implemented
+#'   for undirected networks.
+#'
+#' @note For networks with 0 variance of degrees (regular graphs),
+#'   this statistic is (arbitrarily) defined to be 0.
 #'
 #' @usage
 #' # binary: degcor
 #'
 #' @template ergmTerm-general
+#'
+#' @references \insertAllCited{}
 #'
 #' @concept undirected
 InitErgmTerm.degcor<-function (nw, arglist, ...) {
