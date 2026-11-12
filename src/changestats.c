@@ -1148,9 +1148,6 @@ C_CHANGESTAT_FN(c_ctriple) {
 
 /********************  changestats:  D    ***********/
 /*****************
- changestat: d_degcor
-*****************/
-/*****************
  changestat: d_degcrossprod
 *****************/
 C_CHANGESTAT_FN(c_degcrossprod) {

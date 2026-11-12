@@ -1,20 +1,23 @@
 #include <cpp/ergm_network.h>
 #include <cpp/ergm_changestat.h>
 
+/*****************
+ changestat: degcor
+*****************/
 struct DegcorStorage {
   double degree2;
   double degree3;
   double cross;
 };
 
-double degcor_statistic(double degree2, double degree3, double cross, double nedges) {
+static ALWAYS_INLINE double degcor_statistic(double degree2, double degree3, double cross, double nedges) {
   if(nedges <= 0) return 0;
   double mean = degree2 / (2.0 * nedges);
   double sigma2 = degree3 / (2.0 * nedges) - mean * mean;
   return sigma2 > 0 ? (cross / (2.0 * nedges) - mean * mean) / sigma2 : 0;
 }
 
-double degcor_cross_change(ergm::ErgmCppNetwork& nw, Vertex tail, Vertex head, Rboolean edgestate) {
+static ALWAYS_INLINE double degcor_cross_change(ergm::ErgmCppNetwork& nw, Vertex tail, Vertex head, Rboolean edgestate) {
   double change = 0;
   Vertex taildeg = nw.degree(tail);
   Vertex headdeg = nw.degree(head);
@@ -86,6 +89,9 @@ U_CHANGESTAT_U_CPP(degcor, DegcorStorage, {
     mt.storage->cross += degcor_cross_change(nw, tail, head, edgestate);
   })
 
+/*****************
+ changestat: triangle
+*****************/
 C_CHANGESTAT_CPP(triangle, {
     int change = 0;
     if(mt.iinput.size()){
