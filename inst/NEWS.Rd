@@ -107,6 +107,9 @@
   \subsection{BUG FIXES}{
     \itemize{
       \item{
+        \ergmTerm{ergm}{transitive}{()} now counts the transitive triads (of types 030T, 120D, 120U and 300), as documented. It previously counted transitive triples, the same statistic as \ergmTerm{ergm}{ttriple}{()}, so models that use it will give different results; \ergmTerm{ergm}{ttriple}{()} reproduces the previous ones. (issue #662)
+      }
+      \item{
         Fixed memory leaks in \ergmTerm{ergm}{attrcov}{()} and \ergmTerm{ergm}{nodemix}{()}.
       }
       \item{
