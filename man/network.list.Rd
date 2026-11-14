@@ -5,6 +5,7 @@
 \alias{network.list.list}
 \alias{print.network.list}
 \alias{summary.network.list}
+\alias{c.network.list}
 \title{A convenience container for a list of \code{\link[network:network]{network}} objects, output
 by \code{\link[=simulate.ergm]{simulate.ergm()}} among others.}
 \usage{
@@ -19,6 +20,8 @@ network.list(object, ...)
   net.summary = FALSE,
   ...
 )
+
+\method{c}{network.list}(..., check_attr = TRUE)
 }
 \arguments{
 \item{object, x}{a \code{list} of networks or a \code{network.list} object.}
@@ -32,6 +35,10 @@ lower-level functions.}
 \item{net.print}{Logical: If TRUE, print network overviews.}
 
 \item{net.summary}{Logical: If TRUE, print network summaries.}
+
+\item{check_attr}{Logical: should the attributes of the combined network
+lists be checked for consistency. If \code{TRUE} inconsistencies result in
+errors.}
 }
 \description{
 A convenience container for a list of \code{\link[network:network]{network}} objects, output
@@ -66,6 +73,16 @@ g.sim <- simulate(~edges+kstar(2), nsim=3, coef=c(-1.8, 0.03),
                  MCMC.interval=1000))
 print(g.sim)
 summary(g.sim)
+
+# Simulate some more
+g.sim2 <- simulate(~edges+kstar(2), nsim=3, coef=c(-1.8, 0.03),
+  basis=g.use, control=control.simulate(
+  MCMC.burnin=100000,
+  MCMC.interval=1000))
+
+# Merge the simulations
+g.simall <- c(g.sim, g.sim2)
+length(g.simall) # 6
 
 }
 \seealso{
